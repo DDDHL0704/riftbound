@@ -133,7 +133,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string LeblancLegendIdentityId = LegendIdentityCatalog.LeblancLegendIdentityId;
     private const string ReksaiLegendIdentityId = LegendIdentityCatalog.ReksaiLegendIdentityId;
     private const string IvernLegendIdentityId = LegendIdentityCatalog.IvernLegendIdentityId;
-    private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
     private const string SettLegendIdentityId = LegendIdentityCatalog.SettLegendIdentityId;
@@ -170,7 +169,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
-                QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))));
+                QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state, collected)))))));
         }
@@ -4205,7 +4204,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION") return ResolveTriggerTargetConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER") return ResolveInsightChoice(state, pendingChoice, submittedObjectIds);
-        if (pendingChoice.ChoiceWindow == TriggerCostWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow is TriggerCostWindow or OptionalTriggerWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TokenReplacementWindow) return ResolveTokenReplacementChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "RECYCLE_FOR_EFFECT_PLAY") return ResolveRecyclingChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT") return ResolveRevealedHandChoice(state, pendingChoice, submittedObjectIds);
@@ -16427,21 +16426,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentResourceActions = optionalCosts
             .Where(IsDeclareBattleHeldScorePaymentResourceActionId)
             .ToArray();
-        var brushReplacementChoices = optionalCosts
-            .Where(IsBrushReplacementChoiceId)
-            .ToArray();
-        var brushReplacementValid = ValidateBrushReplacementChoice(
-            state,
-            command,
-            brushReplacementChoices,
-            out var brushReplacement);
-        var paymentBattlefieldId = brushReplacementValid && brushReplacementChoices.Length > 0
-            ? brushReplacement.OriginalBattlefieldObjectId
-            : command.BattlefieldId?.Trim() ?? string.Empty;
-        if (optionalCosts.Count != 1 + paymentResourceActions.Length + brushReplacementChoices.Length
+        var paymentBattlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
+        if (optionalCosts.Count != 1 + paymentResourceActions.Length
             || optionalCosts.Count(cost => string.Equals(cost, DeclareBattleOptionalCost, StringComparison.Ordinal)) != 1
-            || brushReplacementChoices.Length > 1
-            || !brushReplacementValid
             || !ValidateDeclareBattleBattlefieldHeldScorePaymentResources(
                 state,
                 command,
@@ -16525,116 +16512,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Distinct(StringComparer.Ordinal).ToArray();
         }
         return true;
-    }
-
-    private static bool ValidateBrushReplacementChoice(
-        MatchState state,
-        DeclareBattleCommand command,
-        IReadOnlyList<string> brushReplacementChoices,
-        out BrushReplacementChoice replacement)
-    {
-        replacement = new BrushReplacementChoice(string.Empty, string.Empty, new CardObjectState(), string.Empty, new CardObjectState());
-        if (brushReplacementChoices.Count == 0)
-        {
-            return true;
-        }
-
-        return TryResolveBrushReplacementChoice(
-            state.PlayerZones,
-            state.CardObjects,
-            command.BattlefieldId?.Trim() ?? string.Empty,
-            brushReplacementChoices,
-            out replacement)
-            && BattlefieldTriggerSpecRules.TryGetTrigger(
-                replacement.OriginalBattlefieldState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger,
-                out _);
-    }
-
-    private sealed record BrushReplacementChoice(
-        string ChoiceId,
-        string BrushBattlefieldObjectId,
-        CardObjectState BrushBattlefieldState,
-        string OriginalBattlefieldObjectId,
-        CardObjectState OriginalBattlefieldState);
-
-    private static bool IsBrushReplacementChoiceId(string choiceId)
-    {
-        return !string.IsNullOrWhiteSpace(choiceId)
-            && choiceId.StartsWith(BrushReplacementChoicePrefix, StringComparison.Ordinal);
-    }
-
-    private static bool TryResolveBrushReplacementChoice(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string battlefieldId,
-        IReadOnlyList<string> brushReplacementChoices,
-        out BrushReplacementChoice replacement)
-    {
-        replacement = new BrushReplacementChoice(string.Empty, string.Empty, new CardObjectState(), string.Empty, new CardObjectState());
-        if (brushReplacementChoices.Count != 1
-            || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var brushBattlefieldObjectId, out var brushBattlefieldState)
-            || !P6TokenFactoryCatalog.IsBrushBattlefieldToken(brushBattlefieldState.CardNo))
-        {
-            return false;
-        }
-
-        var choiceId = brushReplacementChoices[0];
-        if (!IsBrushReplacementChoiceId(choiceId))
-        {
-            return false;
-        }
-
-        var submittedOriginalBattlefieldObjectId = choiceId[BrushReplacementChoicePrefix.Length..].Trim();
-        if (string.IsNullOrWhiteSpace(submittedOriginalBattlefieldObjectId)
-            || string.Equals(submittedOriginalBattlefieldObjectId, brushBattlefieldObjectId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var replacementTags = brushBattlefieldState.Tags
-            .Where(tag => tag.StartsWith("REPLACES_BATTLEFIELD:", StringComparison.Ordinal))
-            .Select(tag => tag["REPLACES_BATTLEFIELD:".Length..].Trim())
-            .Where(tag => !string.IsNullOrWhiteSpace(tag))
-            .ToArray();
-        if (replacementTags.Length != 1
-            || !string.Equals(replacementTags[0], submittedOriginalBattlefieldObjectId, StringComparison.Ordinal)
-            || !TryGetBattlefieldCardObject(playerZones, cardObjects, submittedOriginalBattlefieldObjectId, out var originalBattlefieldObjectId, out var originalBattlefieldState)
-            || P6TokenFactoryCatalog.IsBrushBattlefieldToken(originalBattlefieldState.CardNo)
-            || string.IsNullOrWhiteSpace(originalBattlefieldState.CardNo))
-        {
-            return false;
-        }
-
-        replacement = new BrushReplacementChoice(
-            choiceId,
-            brushBattlefieldObjectId,
-            brushBattlefieldState,
-            originalBattlefieldObjectId,
-            originalBattlefieldState);
-        return true;
-    }
-
-    private static GameEvent BuildBrushReplacementAppliedEvent(
-        string playerId,
-        BrushReplacementChoice replacement,
-        string replacementReason)
-    {
-        return new GameEvent(
-            "BATTLEFIELD_REPLACEMENT_APPLIED",
-            $"{playerId} 选择使用草丛替代的战场身份",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["replacementChoice"] = replacement.ChoiceId,
-                ["brushBattlefieldObjectId"] = replacement.BrushBattlefieldObjectId,
-                ["brushBattlefieldCardNo"] = replacement.BrushBattlefieldState.CardNo,
-                ["replacementBattlefieldObjectId"] = replacement.OriginalBattlefieldObjectId,
-                ["replacementBattlefieldCardNo"] = replacement.OriginalBattlefieldState.CardNo,
-                ["replacementReason"] = replacementReason,
-                ["effectiveBattlefieldObjectId"] = replacement.OriginalBattlefieldObjectId,
-                ["surfaceId"] = P6TokenFactoryCatalog.BrushReplacementSurfaceId
-            });
     }
 
     private static bool ValidateDeclareBattleBattlefieldHeldScorePaymentResources(
@@ -19105,140 +18982,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !LegendCardHasIdentity(candidate.CardNo, ReksaiLegendIdentityId)
-                || candidate.IsExhausted)
-            {
-                continue;
-            }
-
-            legendObjectId = objectId;
-            legendState = candidate;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool TryResolveIvernLegendBrushTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string battlefieldId,
-        string battleSourceObjectId,
-        string trigger,
-        out IReadOnlyList<GameEvent> events)
-    {
-        events = [];
-        if (!TryGetActiveIvernLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState)
-            || !playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, legendObjectId, 1);
-        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, out var definition)
-            ? definition.CreateObject(tokenObjectId, playerId, playerId)
-            : new CardObjectState(
-                tokenObjectId,
-                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                cardNo: P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo,
-                ownerId: playerId,
-                controllerId: playerId);
-        var tokenTags = tokenState.Tags
-            .Concat(["草丛", $"REPLACES_BATTLEFIELD:{battlefieldId}"])
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(tag => tag, StringComparer.Ordinal)
-            .ToArray();
-
-        cardObjects[legendObjectId] = legendState with
-        {
-            IsExhausted = true
-        };
-        cardObjects[tokenObjectId] = tokenState with
-        {
-            Tags = tokenTags
-        };
-        playerZones[playerId] = zones with
-        {
-            Battlefields = zones.Battlefields.Contains(tokenObjectId, StringComparer.Ordinal)
-                ? zones.Battlefields
-                : zones.Battlefields.Concat([tokenObjectId]).ToArray()
-        };
-
-        events =
-        [
-            new GameEvent(
-                "LEGEND_TRIGGER_RESOLVED",
-                $"{playerId} 的翠神因战场结果触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["legendObjectId"] = legendObjectId,
-                    ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = trigger,
-                    ["sourceObjectId"] = battleSourceObjectId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["tokenObjectId"] = tokenObjectId,
-                    ["tokenCardNo"] = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo
-                }),
-            new GameEvent(
-                "LEGEND_EXHAUSTED",
-                $"{legendObjectId} 变为休眠状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = trigger
-                }),
-            new GameEvent(
-                "BATTLEFIELD_TOKEN_CREATED",
-                $"{legendObjectId} 将战场替换为草丛",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["tokenObjectId"] = tokenObjectId,
-                    ["tokenCardNo"] = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo,
-                    ["tokenName"] = "草丛",
-                    ["battlefieldId"] = battlefieldId,
-                    ["destinationZone"] = "BATTLEFIELD",
-                    ["tokenTags"] = tokenTags,
-                    ["trigger"] = trigger
-                }),
-            new GameEvent(
-                "BATTLEFIELD_REPLACED",
-                $"{battlefieldId} 被草丛替换",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["battlefieldId"] = battlefieldId,
-                    ["replacementTokenObjectId"] = tokenObjectId,
-                    ["replacementTokenCardNo"] = P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo,
-                    ["replacementTokenName"] = "草丛",
-                    ["trigger"] = trigger
-                })
-        ];
-        return true;
-    }
-
-    private static bool TryGetActiveIvernLegend(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string legendObjectId,
-        out CardObjectState legendState)
-    {
-        legendObjectId = string.Empty;
-        legendState = new CardObjectState();
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || !LegendCardHasIdentity(candidate.CardNo, IvernLegendIdentityId)
                 || candidate.IsExhausted)
             {
                 continue;
@@ -24530,17 +24273,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return command;
         }
 
-        var brushReplacementChoices = optionalCosts
-            .Where(IsBrushReplacementChoiceId)
-            .ToArray();
-        var brushReplacementValid = ValidateBrushReplacementChoice(
-            state,
-            command,
-            brushReplacementChoices,
-            out var brushReplacement);
-        var paymentBattlefieldId = brushReplacementValid && brushReplacementChoices.Length > 0
-            ? brushReplacement.OriginalBattlefieldObjectId
-            : command.BattlefieldId?.Trim() ?? string.Empty;
+        var paymentBattlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, paymentBattlefieldId, out var battlefieldObjectId, out var battlefieldState)
@@ -41965,7 +41698,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["score"] = mutablePlayerScores[playerId],
                 ["reason"] = reason,
                 ["sourceObjectId"] = battlefieldObjectId,
-                ["battlefieldObjectId"] = battlefieldObjectId
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldReturnContext"] = P6TokenFactoryCatalog.IsBrushBattlefieldToken(cardObjects[battlefieldObjectId].CardNo)
+                    ? new HeldTriggerContext(cardObjects[battlefieldObjectId].CardNo!, battlefieldObjectId, "BRUSH_RETURN", 0, cardObjects[battlefieldObjectId].ObjectGeneration) : null
             }));
         if (winnerPlayerId is not null)
         {

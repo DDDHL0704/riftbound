@@ -52,6 +52,7 @@ public sealed partial class CoreRuleEngine
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick);
         if (conqueredRealBattlefield)
             recastTriggers = recastTriggers.Concat(CaptureLegendImageTriggers(playerZones, cardObjects,
+                playerId, battlefieldId, resolutionTick)).Concat(CaptureIvernTriggers(playerZones, cardObjects,
                 playerId, battlefieldId, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
@@ -270,17 +271,6 @@ public sealed partial class CoreRuleEngine
             rngCursor);
         rngCursor = reksaiConquerTrigger.RngCursor;
         events.AddRange(reksaiConquerTrigger.Events);
-        if (TryResolveIvernLegendBrushTrigger(
-                playerZones,
-                cardObjects,
-                playerId,
-                battlefieldId,
-                sourceObjectId,
-                "BATTLEFIELD_CONQUERED_REPLACE_WITH_BRUSH",
-                out var ivernConquerEvents))
-        {
-            events.AddRange(ivernConquerEvents);
-        }
         if (winnerPlayerId is null
             && CountControlledBattlefieldUnits(playerZones, cardObjects, playerId) >= 4
             && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, playerId, out var garenLegendCardNo))

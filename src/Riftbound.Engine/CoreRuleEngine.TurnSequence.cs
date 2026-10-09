@@ -129,7 +129,7 @@ public sealed partial class CoreRuleEngine
                     break;
                 default: throw new InvalidOperationException($"Unknown turn-start continuation: {state.TurnStartStep}");
             }
-            var collected = RecordDrawTriggers(stepStart, new(true, null, state, events.Skip(stepEventIndex).ToArray(), ResolutionResult.BuildSnapshots(state), BuildCorePrompts(state)));
+            var collected = RecordDrawTriggers(stepStart, QueueBattlefieldReturnTriggers(new(true, null, state, events.Skip(stepEventIndex).ToArray(), ResolutionResult.BuildSnapshots(state), BuildCorePrompts(state))));
             events.RemoveRange(stepEventIndex, events.Count - stepEventIndex); events.AddRange(collected.Events);
             var published = PrepareTriggerConfirmation(PublishPendingTriggers(collected with { Events = [] }));
             state = published.State; events.AddRange(published.Events);

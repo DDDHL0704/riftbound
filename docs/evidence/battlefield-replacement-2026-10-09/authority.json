@@ -1,0 +1,33 @@
+{
+  "authority": "Cached Chinese official sources; no whole-site refresh",
+  "sources": [
+    {
+      "file": "var/official/2026-10-08/01.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "locators": [
+        "127.1 ownership of created cards",
+        "204.3.a",
+        "337.1.b",
+        "383.3.e.2",
+        "438.1-438.7 replacement and return"
+      ]
+    },
+    {
+      "file": "var/official/2026-10-08/06.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "locators": [
+        "Restoring Hirana Monastery does not trigger conquest",
+        "Renata unit score does not trigger Brush",
+        "Brush replacing Brush can return the original battlefield"
+      ]
+    },
+    {
+      "file": "data/official/card-catalog.zh-CN.json",
+      "sha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+      "locators": [
+        "UNL-195/219 and variants",
+        "UNL·T03 Brush"
+      ]
+    }
+  ]
+}

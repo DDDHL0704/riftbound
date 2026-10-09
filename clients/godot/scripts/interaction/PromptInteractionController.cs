@@ -369,6 +369,8 @@ internal sealed class PromptInteractionController
                         : discard ? "弃置：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 横置传奇，先等待响应；进场后再选复制对象"
                         : "横置：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 先支付费用，双方响应后结算";
                 }
+                else if (window.GetString() == "TRIGGER_OPTIONAL_CONFIRMATION")
+                    summary = selected.Length == 0 ? "保留草丛 · 放弃换回" : "确认换回原战场 · 双方响应后结算";
                 else if (window.GetString() == "TOKEN_ENTRY_REPLACEMENT")
                     summary = selected.Length == 0 ? "跳过本次替换 · 保留未使用的回合次数"
                         : "应用替换：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 多打出一个复制体";

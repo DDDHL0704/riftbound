@@ -25917,7 +25917,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
-        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TriggerCostWindow } creationCost
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.OptionalTriggerWindow } creationCost
             && !CoreRuleEngine.ValidTriggerCostChoice(state, creationCost)) errors.Add("invalid trigger cost choice");
         foreach (var item in state.StackItems)
             if (CoreRuleEngine.NeedsTriggerCostConfirmation(item)
@@ -26113,7 +26113,7 @@ public static class MatchRecoveryValidator
                 || context.Kind is not ("MINION" or "DRAW" or "RETURN_HERO" or "BOON" or "ACTIVATE_CONQUEST"
                     or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "RETURN_PERMANENT"
                     or "ROBOT" or "GOLD" or "RENATA" or "PAY_POWER_SCORE" or "CHANNEL_ALL" or "BOON_ALL"
-                    or "VEX" or "IVERN" or "LEBLANC_DISCARD" or "EXPERIENCE" or "MOVE_BASE"
+                    or "VEX" or "IVERN" or "BRUSH_RETURN" or "LEBLANC_DISCARD" or "EXPERIENCE" or "MOVE_BASE"
                     or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT")) errors.Add("invalid captured Hold context");
         }
         if (state.StackItems.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)
@@ -29092,6 +29092,7 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        CoreRuleEngine.ValidateBattlefieldReplacements(authoritativeState, errors);
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         foreach (var (objectId, cardObject) in authoritativeState.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))

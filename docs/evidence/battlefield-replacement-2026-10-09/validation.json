@@ -1,0 +1,102 @@
+{
+  "baselineCommit": "6edf2a16e347794ad18cbf564320a6812d8867d7",
+  "addedCases": 24,
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 39.49,
+    "total": 43,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.73
+      }
+    ]
+  },
+  "relatedLegacyFocus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 37.56,
+    "total": 40,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 40,
+        "passed": 40,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.53
+      }
+    ]
+  },
+  "batchCheck": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 79.58,
+    "total": 9093,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9093,
+        "passed": 9093,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 74.76
+      }
+    ]
+  },
+  "nativeBuild": {
+    "passed": true,
+    "warnings": 0,
+    "errors": 0,
+    "evidence": "var/qa/battlefield-replacement-2026-10-09/native-build.log"
+  },
+  "nativeControls": {
+    "commands": 4,
+    "evidence": "var/qa/battlefield-replacement-2026-10-09/native-proof.log"
+  },
+  "sessionRecoveryAndReplay": [
+    {
+      "evidence": "var/qa/battlefield-replacement-2026-10-09/native/ivern-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/battlefield-replacement-2026-10-09/native/ivern-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/battlefield-replacement-2026-10-09/native/return-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/battlefield-replacement-2026-10-09/native/return-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    }
+  ],
+  "baselineCI": {
+    "run": 37945720646,
+    "conclusion": "success"
+  },
+  "limits": [
+    "check is not the full long-game matrix; CI executes full",
+    "headless controls do not prove visual or two-client full-match acceptance",
+    "Windows device acceptance not performed",
+    "API and current user matches not restarted",
+    "other optional Hold confirmations and legend token destinations remain open"
+  ]
+}

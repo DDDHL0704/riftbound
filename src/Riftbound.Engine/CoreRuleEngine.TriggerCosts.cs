@@ -7,13 +7,15 @@ public sealed record TriggerCostReceipt(ObjectBinding Source, ObjectBinding? Dis
 public sealed partial class CoreRuleEngine
 {
     internal const string TriggerCostWindow = "TRIGGER_COST_CONFIRMATION";
+    internal const string OptionalTriggerWindow = "TRIGGER_OPTIONAL_CONFIRMATION";
     private sealed record LeadingCost(bool Exhaust = false, bool Discard = false, int Power = 0);
 
     // CN 204.3.a: leading instruction costs are paid while confirming a trigger,
     // before responses. A paid receipt follows the captured stack item, not its live source.
     private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.HeldContext?.Kind switch {
         "LEBLANC_DISCARD" => new(Exhaust: true, Discard: true),
-        "VEX" or "RENATA" => new(Exhaust: true),
+        "VEX" or "RENATA" or "IVERN" => new(Exhaust: true),
+        "BRUSH_RETURN" => new(),
         "PAY_POWER_SCORE" => new(Power: 4),
         _ => null
     };
@@ -21,11 +23,14 @@ public sealed partial class CoreRuleEngine
 
     private static bool ValidLeadingCostContext(StackItemState item) => item.HeldContext is { } held
         && LeadingTriggerCost(item) is not null && item.CardNo == held.CardNo
-        && HeldDefinition(held.CardNo) is { } definition && definition.Kind == held.Kind && definition.Amount == held.Amount
+        && (HeldDefinition(held.CardNo) is { } definition && definition.Kind == held.Kind && definition.Amount == held.Amount
+            || held.Kind == "BRUSH_RETURN" && P6TokenFactoryCatalog.IsBrushBattlefieldToken(held.CardNo) && held.Amount == 0)
         && item.EffectKind == "HOLD_" + held.Kind && held.SourceGeneration >= 0;
 
     private static string[] TriggerCostChoices(MatchState state, StackItemState item)
     {
+        if (item.HeldContext?.Kind == "BRUSH_RETURN")
+            return ValidLeadingCostContext(item) && item.TriggerCost is null && CanReturnBattlefield(state, item) ? [item.SourceObjectId] : [];
         if (!ValidLeadingCostContext(item) || item.TriggerCost is not null || LeadingTriggerCost(item) is not { Exhaust: true } cost
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)
             || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
@@ -36,9 +41,9 @@ public sealed partial class CoreRuleEngine
     }
 
     private static PendingCardChoiceState TriggerCostChoice(MatchState state, StackItemState item)
-        => new("TRIGGER-COST:" + item.StackItemId, TriggerCostWindow, item.ControllerId, 0, 1,
+        => new("TRIGGER-COST:" + item.StackItemId, item.HeldContext!.Kind == "BRUSH_RETURN" ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, 1,
             TriggerCostChoices(state, item), [item.HeldContext!.BattlefieldObjectId],
-            LeadingTriggerCost(item)!.Discard
+            item.HeldContext!.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
                 ? "选择弃置一张手牌并横置乐芙兰以确认技能；不选则放弃。确认后双方响应，结算时在此战场打出活跃映像，再选择复制对象。"
                 : "选择横置此传奇以确认触发技能；不选则放弃。费用支付后双方可以响应，效果随后结算。",
             item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
@@ -53,9 +58,9 @@ public sealed partial class CoreRuleEngine
     {
         var state = result.State;
         var cost = LeadingTriggerCost(item)!;
-        if (!ValidLeadingCostContext(item) || cost.Exhaust && TriggerCostChoices(state, item).Length == 0)
+        if (!ValidLeadingCostContext(item) || cost.Power == 0 && TriggerCostChoices(state, item).Length == 0)
             return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
-        state = state with { PendingCardChoice = cost.Exhaust ? TriggerCostChoice(state, item) : null,
+        state = state with { PendingCardChoice = cost.Power == 0 ? TriggerCostChoice(state, item) : null,
             PendingPayment = cost.Power > 0 ? TriggerCostPayment(item) : null,
             PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
         return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
@@ -64,7 +69,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTriggerCostChoice(MatchState state, PendingCardChoiceState choice)
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
-        if (item is null || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Exhaust: true }) return false;
+        if (item is null || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0 }) return false;
         var expected = TriggerCostChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId
@@ -107,7 +112,7 @@ public sealed partial class CoreRuleEngine
             StackItems = state.StackItems.Where(i => paid is not null || i.StackItemId != item.StackItemId)
                 .Select(i => i.StackItemId == item.StackItemId ? paid! : i).ToArray() }, item);
         events.Add(new(receipt is null ? "TRIGGER_PAYMENT_DECLINED" : "TRIGGER_CONFIRMED",
-            receipt is null ? "放弃费用并移除触发技能" : "费用已支付，双方可响应触发技能", new Dictionary<string, object?> {
+            receipt is null ? "放弃并移除触发技能" : "已确认触发技能，双方可以响应", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["stackItemId"] = item.StackItemId }));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
@@ -118,6 +123,8 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "触发技能的费用选择已失效。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
         if (selected.Count == 0) return CompleteTriggerCost(state, item, null, []);
+        if (LeadingTriggerCost(item) is { Exhaust: false })
+            return CompleteTriggerCost(state, item, new(new(item.SourceObjectId, item.HeldContext!.SourceGeneration)), []);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var source = cards[item.SourceObjectId];

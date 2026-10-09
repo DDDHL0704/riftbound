@@ -113,7 +113,7 @@ public static class P6TokenFactoryCatalog
             BattlefieldReplacementSurfaceKind,
             IsActivatedCommandSurface: false,
             TargetCount: 0,
-            "P6.11 retired this deferred representative after the battlefield score domain implemented Brush score-time effective battlefield replacement.")
+            "CN 438 replacement retains battlefield identity and state, stores the original card in exile, and confirms optional return only after actual battlefield scoring.")
     ];
 
     public static IReadOnlyList<P6TokenFactoryDefinition> GetAll()

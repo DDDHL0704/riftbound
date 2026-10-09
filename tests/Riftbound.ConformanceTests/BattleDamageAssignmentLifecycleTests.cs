@@ -2900,8 +2900,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     [Fact]
     public async Task NaturalBattleResponsePreservesBrushReplacementContextAfterPassWithoutFalseDefensiveHold()
     {
-        var brushChoice = $"BRUSH_USE_REPLACED_BATTLEFIELD:{OriginalHeldScoreBattlefieldObjectId}";
-        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", brushChoice };
+        var optionalCosts = new[] { "COMBAT_ASSIGNMENT" };
         var state = BuildBrushReplacementNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
@@ -2974,7 +2973,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain(p1Pass.Events, e => e.Kind == "BATTLEFIELD_HELD");
         Assert.DoesNotContain(p1Pass.Events, e => e.Kind == "SCORE_GAINED");
         Assert.Null(p1Pass.State.PendingPayment);
-        Assert.Contains(p1Pass.Events, e => e.Kind == "BATTLE_CLOSED");
+        Assert.Contains(p1Pass.Events, e => e.Kind == "BATTLE_DAMAGE_ASSIGNMENT_OPENED");
+        var completed = await AssignCombatDamageInTwoStepsAsync(engine, p1Pass.State, []);
+        Assert.Contains(completed.Events, e => e.Kind == "BATTLE_CLOSED");
+        Assert.DoesNotContain(completed.Events, e => e.Kind is "BATTLEFIELD_HELD" or "SCORE_GAINED");
     }
 
     [Fact]
@@ -3884,8 +3886,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
     [Fact]
     public async Task NaturalBattleResponseActivationPreservesBrushReplacementContextAfterStackResolutionWithoutFalseDefensiveHold()
     {
-        var brushChoice = $"BRUSH_USE_REPLACED_BATTLEFIELD:{OriginalHeldScoreBattlefieldObjectId}";
-        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", brushChoice };
+        var optionalCosts = new[] { "COMBAT_ASSIGNMENT" };
         var state = BuildBrushReplacementActivationNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
@@ -3990,14 +3991,16 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain(responseP1Pass.Events, e => e.Kind == "BATTLEFIELD_HELD");
         Assert.DoesNotContain(responseP1Pass.Events, e => e.Kind == "SCORE_GAINED");
         Assert.Null(responseP1Pass.State.PendingPayment);
-        Assert.Contains(responseP1Pass.Events, e => e.Kind == "BATTLE_CLOSED");
+        Assert.Contains(responseP1Pass.Events, e => e.Kind == "BATTLE_DAMAGE_ASSIGNMENT_OPENED");
+        var completed = await AssignCombatDamageInTwoStepsAsync(engine, responseP1Pass.State, []);
+        Assert.Contains(completed.Events, e => e.Kind == "BATTLE_CLOSED");
+        Assert.DoesNotContain(completed.Events, e => e.Kind is "BATTLEFIELD_HELD" or "SCORE_GAINED");
     }
 
     [Fact]
     public async Task NaturalBattleResponseActivationBrushReplacementAdvancesNextContestedBattlefieldTaskWithoutFalseDefensiveHold()
     {
-        var brushChoice = $"BRUSH_USE_REPLACED_BATTLEFIELD:{OriginalHeldScoreBattlefieldObjectId}";
-        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", brushChoice };
+        var optionalCosts = new[] { "COMBAT_ASSIGNMENT" };
         var state = BuildBrushReplacementActivationNextContestNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
@@ -4102,7 +4105,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain(responseP1Pass.Events, e => e.Kind == "BATTLEFIELD_HELD");
         Assert.DoesNotContain(responseP1Pass.Events, e => e.Kind == "SCORE_GAINED");
         Assert.Null(responseP1Pass.State.PendingPayment);
-        Assert.Contains(responseP1Pass.Events, e => e.Kind == "BATTLE_CLOSED");
+        Assert.Contains(responseP1Pass.Events, e => e.Kind == "BATTLE_DAMAGE_ASSIGNMENT_OPENED");
+        var completed = await AssignCombatDamageInTwoStepsAsync(engine, responseP1Pass.State, []);
+        Assert.Contains(completed.Events, e => e.Kind == "BATTLE_CLOSED");
+        Assert.DoesNotContain(completed.Events, e => e.Kind is "BATTLEFIELD_HELD" or "SCORE_GAINED");
     }
 
     [Fact]
@@ -5845,8 +5851,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 tags:
                 [
                     P6TokenFactoryCatalog.BattlefieldCardTag,
-                    "草丛",
-                    $"REPLACES_BATTLEFIELD:{OriginalHeldScoreBattlefieldObjectId}"
+                    "草丛"
                 ],
                 ownerId: "P2",
                 controllerId: "P2"),
@@ -5909,8 +5914,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 tags:
                 [
                     P6TokenFactoryCatalog.BattlefieldCardTag,
-                    "草丛",
-                    $"REPLACES_BATTLEFIELD:{OriginalHeldScoreBattlefieldObjectId}"
+                    "草丛"
                 ],
                 ownerId: "P2",
                 controllerId: "P2"),
@@ -6543,65 +6547,6 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(costPaidIndex < scoreGainedIndex);
 
         return (heldIndex, recycleIndex, powerGainedIndex, heldScoreIndex, costPaidIndex, scoreGainedIndex);
-    }
-
-    private static (int ReplacementIndex, int HeldScoreIndex, int CostPaidIndex, int ScoreGainedIndex, int BattleClosedIndex)
-        AssertBrushReplacementHeldScorePaymentAudit(IReadOnlyList<GameEvent> events, string brushChoice)
-    {
-        var replacementIndex = EventIndex(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACEMENT_APPLIED", StringComparison.Ordinal));
-        var replacement = events[replacementIndex];
-        Assert.Equal(brushChoice, replacement.Payload["replacementChoice"]);
-        Assert.Equal(BattlefieldObjectId, replacement.Payload["brushBattlefieldObjectId"]);
-        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, replacement.Payload["replacementBattlefieldObjectId"]);
-        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, replacement.Payload["effectiveBattlefieldObjectId"]);
-        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", replacement.Payload["replacementReason"]);
-
-        var heldScoreIndex = EventIndex(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
-        var heldScore = events[heldScoreIndex];
-        Assert.Equal("P2", heldScore.Payload["playerId"]);
-        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, heldScore.Payload["battlefieldId"]);
-        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, heldScore.Payload["battlefieldObjectId"]);
-        Assert.Equal(4, heldScore.Payload["powerCost"]);
-        Assert.Equal(1, heldScore.Payload["amount"]);
-        Assert.Equal(1, heldScore.Payload["score"]);
-
-        var costPaidIndex = EventIndex(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
-        var costPaid = events[costPaidIndex];
-        Assert.Equal("BATTLEFIELD_HELD", costPaid.Payload["paymentWindow"]);
-        Assert.Equal("P2", costPaid.Payload["playerId"]);
-        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, costPaid.Payload["sourceObjectId"]);
-        Assert.Empty(Assert.IsType<string[]>(costPaid.Payload["paymentResourceActions"]));
-        Assert.Empty(Assert.IsType<string[]>(costPaid.Payload["recycledRuneObjectIds"]));
-        Assert.Empty(Assert.IsType<string[]>(costPaid.Payload["temporaryPaymentResourceIds"]));
-        Assert.Equal(0, costPaid.Payload["temporaryPaymentResourcePower"]);
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaid.Payload["temporaryPaymentResourcePowerByTrait"]));
-        Assert.Equal(4, costPaid.Payload["genericPower"]);
-        Assert.Equal(4, costPaid.Payload["totalPowerCost"]);
-        Assert.Equal(0, costPaid.Payload["remainingPower"]);
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaid.Payload["remainingPowerByTrait"]));
-
-        var scoreGainedIndex = EventIndex(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
-        var scoreGained = events[scoreGainedIndex];
-        Assert.Equal("P2", scoreGained.Payload["playerId"]);
-        Assert.Equal(OriginalHeldScoreBattlefieldObjectId, scoreGained.Payload["sourceObjectId"]);
-        Assert.Equal(1, scoreGained.Payload["score"]);
-
-        var battleClosedIndex = EventIndex(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
-        Assert.True(replacementIndex < heldScoreIndex);
-        Assert.True(heldScoreIndex < costPaidIndex);
-        Assert.True(costPaidIndex < scoreGainedIndex);
-        Assert.True(scoreGainedIndex < battleClosedIndex);
-
-        return (replacementIndex, heldScoreIndex, costPaidIndex, scoreGainedIndex, battleClosedIndex);
     }
 
     private static (int HeldIndex, int HeldScoreIndex, int CostPaidIndex, int ScoreGainedIndex, int BattleClosedIndex)

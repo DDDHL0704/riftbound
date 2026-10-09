@@ -456,6 +456,13 @@ public sealed record PowerModifierLedgerEntry
 
 public sealed record CardObjectState
 {
+    // The live battlefield object retains its identity; this links the replaced
+    // physical card kept in exile under a separate inventory id (CN 438).
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectBinding? ReplacedBattlefieldCard { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ReplacedAtBattlefieldId { get; init; }
+
     // Intrinsic token identity survives copying and changes to tags/card face (CN 185.1).
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? TokenFactoryCardNo { get; init; }
@@ -4191,7 +4198,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { TokenFactoryCardNo = state.TokenFactoryCardNo };
+            state.ObjectGeneration) { TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -5348,7 +5355,7 @@ public sealed record ResolutionResult(
             }).ToArray();
         if (!hiddenSource && item.HeldContext is { } held && (held.Kind switch {
             "LEBLANC_DISCARD" => "映像创建", "VEX" => "据守抽牌", "RENATA" => "据守创建金币",
-            "PAY_POWER_SCORE" => "据守额外得分", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
+            "PAY_POWER_SCORE" => "据守额外得分", "IVERN" => "替换为草丛", "BRUSH_RETURN" => "换回原战场", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
         if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
         if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;
@@ -6950,7 +6957,6 @@ internal static class ActionPromptBuilder
     private const int BaseWinningScore = 8;
     private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
 
-    private const string BrushReplacementChoicePrefix = "BRUSH_USE_REPLACED_BATTLEFIELD:";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitBaseZone = "BASE";
     private const string MoveUnitRoamOptionalCost = "ROAM";
@@ -8931,7 +8937,7 @@ internal static class ActionPromptBuilder
             var cards = AnnotatePromptChoiceObjectIds(PendingCardChoiceDtos(state, cardChoice));
             var steps = new List<ActionPromptSelectionStepDto>();
             for (var index = 0; index < cardChoice.MaxCount; index++)
-                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? cardChoice.EffectKind == "HOLD_LEBLANC_DISCARD" ? "弃置所选手牌并横置传奇；不选则放弃" : "横置所选传奇；不选则放弃" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择一名友方单位" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
+                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? cardChoice.EffectKind == "HOLD_LEBLANC_DISCARD" ? "弃置所选手牌并横置传奇；不选则放弃" : "横置所选传奇；不选则放弃" : cardChoice.ChoiceWindow == CoreRuleEngine.OptionalTriggerWindow ? "选择换回原战场；不选则保留草丛" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择一名友方单位" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
             selectionSteps = steps;
         }
         if (action == CommandTypes.PayCost && state.PendingPayment is { } payment && payment.PlayerId == playerId
@@ -8948,7 +8954,7 @@ internal static class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == "TRIGGER_CONFIRMATION" ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -13978,7 +13984,6 @@ internal static class ActionPromptBuilder
     {
         return DeclareBattleSourceRequirements(state, playerId).Count > 0
             ? DeclareBattleRequiredOptionalCostChoices()
-                .Concat(DeclareBattleBrushReplacementChoices(state))
                 .ToArray()
             : null;
     }
@@ -13986,63 +13991,6 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleRequiredOptionalCostChoices()
     {
         return [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配", "服务端当前代表路径必需")];
-    }
-
-    private static IReadOnlyList<ActionPromptChoiceDto> DeclareBattleBrushReplacementChoices(MatchState state)
-    {
-        var activeBattlefieldObjectId = ResolutionResult.ActiveStartBattleTask(state)?.BattlefieldObjectId ?? string.Empty;
-        return PublicBattlefieldCardObjects(state)
-            .Where(objectId => string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
-                || string.Equals(objectId, activeBattlefieldObjectId, StringComparison.Ordinal))
-            .Select(objectId => TryBuildBrushReplacementChoice(state, objectId, out var choice) ? choice : null)
-            .Where(choice => choice is not null)
-            .Select(choice => choice!)
-            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
-            .Select(group => group.First())
-            .ToArray();
-    }
-
-    private static bool TryBuildBrushReplacementChoice(
-        MatchState state,
-        string brushBattlefieldObjectId,
-        out ActionPromptChoiceDto choice)
-    {
-        choice = new ActionPromptChoiceDto(string.Empty, string.Empty);
-        if (!state.CardObjects.TryGetValue(brushBattlefieldObjectId, out var brushState)
-            || !P6TokenFactoryCatalog.IsBrushBattlefieldToken(brushState.CardNo))
-        {
-            return false;
-        }
-
-        var replacementTags = brushState.Tags
-            .Where(tag => tag.StartsWith("REPLACES_BATTLEFIELD:", StringComparison.Ordinal))
-            .Select(tag => tag["REPLACES_BATTLEFIELD:".Length..].Trim())
-            .Where(tag => !string.IsNullOrWhiteSpace(tag))
-            .ToArray();
-        if (replacementTags.Length != 1)
-        {
-            return false;
-        }
-
-        var originalBattlefieldObjectId = replacementTags[0];
-        if (string.Equals(originalBattlefieldObjectId, brushBattlefieldObjectId, StringComparison.Ordinal)
-            || !state.CardObjects.TryGetValue(originalBattlefieldObjectId, out var originalState)
-            || !IsPromptBattlefieldCardObject(originalState)
-            || P6TokenFactoryCatalog.IsBrushBattlefieldToken(originalState.CardNo)
-            || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                originalState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger,
-                out _)
-            || !PublicBattlefieldCardObjects(state).Contains(originalBattlefieldObjectId, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        choice = new ActionPromptChoiceDto(
-            $"{BrushReplacementChoicePrefix}{originalBattlefieldObjectId}",
-            "使用草丛替代的战场",
-            "score-time Brush battlefield replacement");
-        return true;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? LegendActionOptionalCostChoices(
@@ -14208,8 +14156,7 @@ internal static class ActionPromptBuilder
                     battlefieldTargetChoicesByIndex,
                     battlefieldChoices,
                     DeclareBattleRequiredOptionalCostChoices()
-                        .Concat(DeclareBattleBrushReplacementChoices(state))
-                        .ToArray(),
+                                .ToArray(),
                     paymentResourceChoices,
                     paymentResourcePowerByChoice,
                     DeclareBattleHeldScoreAvailablePower(state, battlefieldChoices),
@@ -14470,15 +14417,7 @@ internal static class ActionPromptBuilder
     {
         var directChoices = battlefieldChoices
             .Where(choice => state.CardObjects.ContainsKey(choice.Id));
-        var brushReplacementChoices = DeclareBattleBrushReplacementChoices(state)
-            .Select(choice => choice.Id[BrushReplacementChoicePrefix.Length..])
-            .Where(objectId => state.CardObjects.ContainsKey(objectId))
-            .Select(objectId => BattlefieldDestinationChoice(
-                state,
-                objectId,
-                "brush replacement held-score battlefield payment"));
         return directChoices
-            .Concat(brushReplacementChoices)
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();

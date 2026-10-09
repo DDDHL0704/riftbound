@@ -37083,36 +37083,12 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendTriggerIvernCreatesBrushBattlefieldTokenOnConquer()
     {
-        var state = IvernBattlefieldResultState("UNL-195/219", "P1-LEGEND-IVERN", controllerHolds: false, legendExhausted: false);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-ivern-battlefield-conquer", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-IVERN-ATTACKER"],
-                ["P2-IVERN-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.True(result.State.CardObjects["P1-LEGEND-IVERN"].IsExhausted);
-        var tokenObjectId = Assert.Single(result.State.PlayerZones["P1"].Battlefields, objectId =>
-            objectId.StartsWith("P1-LEGEND-IVERN-TOKEN-", StringComparison.Ordinal));
-        var tokenState = result.State.CardObjects[tokenObjectId];
-        Assert.Equal("UNL·T03", tokenState.CardNo);
-        Assert.Contains("CARD_TYPE:BATTLEFIELD", tokenState.Tags);
-        Assert.Contains("草丛", tokenState.Tags);
-        Assert.Contains("REPLACES_BATTLEFIELD:BATTLEFIELD:P1-MAIN", tokenState.Tags);
-        Assert.DoesNotContain(CardObjectTags.UnitCard, tokenState.Tags);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_REPLACE_WITH_BRUSH", StringComparison.Ordinal));
-        Assert.Equal("UNL-195/219", triggerEvent.Payload["legendCardNo"]);
-        Assert.Equal(tokenObjectId, triggerEvent.Payload["tokenObjectId"]);
-        var replacementEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACED", StringComparison.Ordinal));
-        Assert.Equal(tokenObjectId, replacementEvent.Payload["replacementTokenObjectId"]);
+        var opened = await OfficialBattlefieldReplacementTests.Conquer(OfficialBattlefieldReplacementTests.Position());
+        Assert.False(opened.State.CardObjects["LEGEND"].IsExhausted);
+        var paid = await OfficialBattlefieldReplacementTests.Choose(opened.State, "LEGEND");
+        Assert.True(paid.State.CardObjects["LEGEND"].IsExhausted);
+        var done = await OfficialGraveyardRecastTests.Top(paid.State);
+        OfficialBattlefieldReplacementTests.AssertBrush(paid.State, done.State);
     }
 
     [Fact]
@@ -44998,7 +44974,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task BrushReplacementChoiceUsesOriginalBattlefieldForHeldScoreDoesNotTriggerOnDefensiveVictory()
+    public async Task BrushReplacementCannotBeSelectedAtBattleDeclaration()
     {
         var state = BrushHeldScoreState();
 
@@ -45012,7 +44988,8 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT", "BRUSH_USE_REPLACED_BATTLEFIELD:P2-BATTLEFIELD-ENERGY-HUB"]),
             CancellationToken.None);
 
-        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.False(result.Accepted);
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
         Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLEFIELD_HELD");
         Assert.DoesNotContain(result.State.TriggerQueue, t => t.HeldContext is not null);
         Assert.DoesNotContain(result.State.StackItems, t => t.HeldContext is not null);
@@ -45116,7 +45093,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public void BrushReplacementPromptExposesServerChoiceForScoreBattlefield()
+    public void BrushReplacementPromptDoesNotOfferObsoleteDeclarationChoice()
     {
         var prompt = ResolutionResult.BuildPrompts(BrushHeldScoreState())["P1"];
         var declareBattleCandidate = Assert.Single(
@@ -45129,7 +45106,7 @@ public sealed class ConformanceFixtureRunnerTests
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
 
-        Assert.Contains(optionalCostChoices, choice =>
+        Assert.DoesNotContain(optionalCostChoices, choice =>
             string.Equals(choice.Id, "BRUSH_USE_REPLACED_BATTLEFIELD:P2-BATTLEFIELD-ENERGY-HUB", StringComparison.Ordinal));
     }
 

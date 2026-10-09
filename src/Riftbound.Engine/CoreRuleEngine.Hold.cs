@@ -81,6 +81,7 @@ public sealed partial class CoreRuleEngine
     {
         var context = item.HeldContext!;
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
+        if (context.Kind is "IVERN" or "BRUSH_RETURN") return ResolveBattlefieldReplacement(state, item);
         if (context.Kind == "LEBLANC_DISCARD") return ResolveDiscardTokenCreation(state, item);
         if (context.Kind == "LOOK_EQUIPMENT" && TryGetDeckChoiceBehavior(item, out var deckBehavior))
         {
@@ -118,11 +119,10 @@ public sealed partial class CoreRuleEngine
             "RETURN_HERO" => zones[player].ChampionZone.Count == 0 ? zones[player].Graveyard.Where(id =>
                 cards.TryGetValue(id, out var card) && IsSelectedChampionObjectId(state, player, id, card)).ToArray() : [],
             "CHANNEL_OPTIONAL" => zones[player].RuneDeck.Count > 0 ? [item.SourceObjectId] : [],
-            "IVERN" => sourceExists && source!.ControllerId == player && !source.IsExhausted ? [item.SourceObjectId] : [],
             _ => []
         };
         var needsChoice = context.Kind is "BOON" or "MOVE_BASE" or "RETURN_PERMANENT" or "RETURN_HERO"
-            or "CHANNEL_OPTIONAL" or "IVERN";
+            or "CHANNEL_OPTIONAL";
         if (needsChoice && choices is null)
         {
             var legal = LegalChoices();
@@ -141,10 +141,6 @@ public sealed partial class CoreRuleEngine
             ["effectKind"] = item.EffectKind, ["battlefieldObjectId"] = field }));
         switch (context.Kind)
         {
-            case "IVERN":
-                if (TryResolveIvernLegendBrushTrigger(zones, cards, player, field, item.SourceObjectId,
-                    "BATTLEFIELD_HELD_REPLACE_WITH_BRUSH", out var brushEvents)) events.AddRange(brushEvents);
-                break;
             case "ACTIVATE_CONQUEST":
                 foreach (var unit in HeldUnitsAt(state, field))
                 {

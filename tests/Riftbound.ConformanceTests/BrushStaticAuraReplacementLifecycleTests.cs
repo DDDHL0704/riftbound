@@ -43,7 +43,7 @@ public sealed class BrushStaticAuraReplacementLifecycleTests
                 BrushBattlefieldObjectId,
                 [AttackerObjectId],
                 [DefenderObjectId],
-                ["COMBAT_ASSIGNMENT", $"BRUSH_USE_REPLACED_BATTLEFIELD:{OriginalBattlefieldObjectId}"]),
+                ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
