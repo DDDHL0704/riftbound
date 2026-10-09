@@ -15,7 +15,7 @@ public sealed partial class CoreRuleEngine
     private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.HeldContext?.Kind switch {
         "LEBLANC_DISCARD" => new(Exhaust: true, Discard: true),
         "VEX" or "RENATA" or "IVERN" => new(Exhaust: true),
-        "BRUSH_RETURN" => new(),
+        "BRUSH_RETURN" or "CHANNEL_OPTIONAL" => new(),
         "PAY_POWER_SCORE" => new(Power: 4),
         _ => null
     };
@@ -29,6 +29,8 @@ public sealed partial class CoreRuleEngine
 
     private static string[] TriggerCostChoices(MatchState state, StackItemState item)
     {
+        if (item.HeldContext?.Kind == "CHANNEL_OPTIONAL")
+            return ValidLeadingCostContext(item) && item.TriggerCost is null ? [item.SourceObjectId] : [];
         if (item.HeldContext?.Kind == "BRUSH_RETURN")
             return ValidLeadingCostContext(item) && item.TriggerCost is null && CanReturnBattlefield(state, item) ? [item.SourceObjectId] : [];
         if (!ValidLeadingCostContext(item) || item.TriggerCost is not null || LeadingTriggerCost(item) is not { Exhaust: true } cost
@@ -41,9 +43,9 @@ public sealed partial class CoreRuleEngine
     }
 
     private static PendingCardChoiceState TriggerCostChoice(MatchState state, StackItemState item)
-        => new("TRIGGER-COST:" + item.StackItemId, item.HeldContext!.Kind == "BRUSH_RETURN" ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, 1,
+        => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0 } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, 1,
             TriggerCostChoices(state, item), [item.HeldContext!.BattlefieldObjectId],
-            item.HeldContext!.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
+            item.HeldContext!.Kind == "CHANNEL_OPTIONAL" ? "确认召出一枚休眠符文；不选则放弃。确认后双方可以响应，结算时才召出符文。" : item.HeldContext.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
                 ? "选择弃置一张手牌并横置乐芙兰以确认技能；不选则放弃。确认后双方响应，结算时在此战场打出活跃映像，再选择复制对象。"
                 : "选择横置此传奇以确认触发技能；不选则放弃。费用支付后双方可以响应，效果随后结算。",
             item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };

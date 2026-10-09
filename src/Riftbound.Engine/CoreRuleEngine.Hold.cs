@@ -109,28 +109,19 @@ public sealed partial class CoreRuleEngine
         var sourceExists = cards.TryGetValue(item.SourceObjectId, out var source)
             && source.ObjectGeneration == context.SourceGeneration
             && (IsObjectOnField(zones, item.SourceObjectId) || zones[player].LegendZone.Contains(item.SourceObjectId));
-        string[] LegalChoices() => context.Kind switch {
-            "BOON" => HeldUnitsAt(state, field),
-            "MOVE_BASE" => state.ObjectLocations.Values.Where(l => l.BattlefieldObjectId is not null)
-                .Select(l => l.BattlefieldObjectId!).Distinct().SelectMany(f => HeldUnitsAt(state, f)).Distinct()
-                .Where(id => MovementRestrictionRules.CanMove(cards.GetValueOrDefault(id), player)).ToArray(),
-            "RETURN_PERMANENT" => zones[player].Graveyard.Where(id => cards.TryGetValue(id, out var card)
-                && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))).ToArray(),
-            "RETURN_HERO" => zones[player].ChampionZone.Count == 0 ? zones[player].Graveyard.Where(id =>
-                cards.TryGetValue(id, out var card) && IsSelectedChampionObjectId(state, player, id, card)).ToArray() : [],
-            "CHANNEL_OPTIONAL" => zones[player].RuneDeck.Count > 0 ? [item.SourceObjectId] : [],
-            _ => []
-        };
-        var needsChoice = context.Kind is "BOON" or "MOVE_BASE" or "RETURN_PERMANENT" or "RETURN_HERO"
-            or "CHANNEL_OPTIONAL";
+        var resolvedTarget = HasHeldTargetConfirmation(item) ? HeldResolvedTarget(state, item) : null;
+        if (HasHeldTargetConfirmation(item) && resolvedTarget is null) return Result();
+        string[] LegalChoices() => zones[player].ChampionZone.Count == 0 ? zones[player].Graveyard.Where(id =>
+            cards.TryGetValue(id, out var card) && IsSelectedChampionObjectId(state, player, id, card)).ToArray() : [];
+        var needsChoice = context.Kind == "RETURN_HERO";
         if (needsChoice && choices is null)
         {
             var legal = LegalChoices();
             if (legal.Length > 0)
                 pending = new($"hold-choice-{state.Tick + 1}-{item.StackItemId}", "HOLD_EFFECT", player,
-                    context.Kind == "BOON" ? 1 : 0, 1, legal,
+                    0, 1, legal,
                     [field],
-                    context.Kind == "BOON" ? "据守效果：选择此战场的一名单位获得增益" : "据守效果：选择执行，或不选并确认以放弃",
+                    "据守效果：选择英雄返回，或不选并确认以放弃",
                     item.SourceObjectId, item.EffectKind) { HeldContext = context };
             return Result();
         }
@@ -182,18 +173,18 @@ public sealed partial class CoreRuleEngine
             case "EXPERIENCE":
                 experience = GainExperience(experience, player, context.Amount, item, events, item.SourceObjectId, context.CardNo); break;
             case "BOON": case "BOON_ALL":
-                foreach (var id in context.Kind == "BOON" ? choices! : HeldUnitsAt(state, field))
+                foreach (var id in context.Kind == "BOON" ? new[] { resolvedTarget! } : HeldUnitsAt(state, field))
                     GrantLegendBoon(cards, id, player, item.SourceObjectId, item.EffectKind, events);
                 break;
             case "RETURN_SELF": if (sourceExists) ReturnToHand(item.SourceObjectId); break;
-            case "RETURN_PERMANENT": ReturnToHand(choices![0]); break;
+            case "RETURN_PERMANENT": ReturnToHand(resolvedTarget!); break;
             case "RETURN_HERO":
                 var hero = choices![0]; zones[player] = zones[player] with { Graveyard = RemoveFromZone(zones[player].Graveyard, hero), ChampionZone = [hero] };
                 events.Add(new("HERO_RETURNED_TO_CHAMPION_ZONE", "英雄从废牌堆返回英雄区域", new Dictionary<string,object?> {
                     ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = hero }));
                 break;
             case "MOVE_BASE":
-                var target = choices![0]; if (!MovementRestrictionRules.CanMove(cards.GetValueOrDefault(target), player)) break;
+                var target = resolvedTarget!;
                 var controller = cards[target].ControllerId!;
                 var origin = state.ObjectLocations[target];
                 var equipment = cards.Values.Where(c => c.AttachedToObjectId == target).Select(c => c.ObjectId).ToArray();

@@ -68,7 +68,9 @@ public sealed class OfficialLeblancCreationTests
             ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { ["WARD"] = new("P2", "BATTLEFIELD", "BF") } };
         var created = await Choose((await Top((await Choose(s, "H2")).State)).State); // Keep Zilean unused.
         Assert.Contains("WARD", created.State.PendingCardChoice!.LegalObjectIds);
-        var confirmed = await Choose(created.State, "WARD");
+        var selected = await Choose(created.State, "WARD"); Restore(selected.State);
+        var payment = selected.State.PendingPayment!;
+        var confirmed = await Act(selected.State, "P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
         Assert.Equal(29, confirmed.State.RunePools["P1"].TotalPower); Restore(confirmed.State);
         var moved = confirmed.State with { ObjectLocations = new Dictionary<string, ObjectLocationState>(confirmed.State.ObjectLocations) {
             ["WARD"] = new("P2", "BATTLEFIELD", "OTHER") } };

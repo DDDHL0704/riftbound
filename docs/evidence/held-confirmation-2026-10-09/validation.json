@@ -1,0 +1,133 @@
+{
+  "baselineCommit": "8f757d6abcb7604ffcec9d750b90115518213744",
+  "addedCases": 35,
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 38.43,
+    "total": 106,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 106,
+        "passed": 106,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.15
+      }
+    ]
+  },
+  "batchCheck": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 81.67,
+    "total": 9128,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9128,
+        "passed": 9128,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 76.94
+      }
+    ]
+  },
+  "nativeBuild": {
+    "passed": true,
+    "warnings": 0,
+    "errors": 0,
+    "evidence": "var/qa/held-confirmation-2026-10-09/native-build.log"
+  },
+  "nativeControls": {
+    "commands": 9,
+    "evidence": "var/qa/held-confirmation-2026-10-09/native-proof.log"
+  },
+  "sessionRecoveryAndReplay": [
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/boon-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/channel-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/channel-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/move-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/move-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/return-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/return-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/ward-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/held-confirmation-2026-10-09/native/ward-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    }
+  ],
+  "baselineCI": {
+    "run": 37948341289,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "limits": [
+    "Full long-game matrix remains in CI",
+    "Headless controls do not prove visual or two-client full-match acceptance",
+    "macOS packaging and Windows device acceptance not performed",
+    "API and current matches not restarted",
+    "Chosen-champion identity and other legend/destination flows remain open"
+  ],
+  "nativeCommandReplay": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 11.3,
+    "total": 9,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 9,
+        "passed": 9,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.43
+      }
+    ]
+  }
+}

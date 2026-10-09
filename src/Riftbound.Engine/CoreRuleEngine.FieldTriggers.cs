@@ -75,12 +75,13 @@ public sealed partial class CoreRuleEngine
         // Confirm pending items in insertion order, regardless of which rule family
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(i =>
-            NeedsTriggerCostConfirmation(i)
+            NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i)
             || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false });
         if (item is null) return result;
+        if (NeedsHeldTargetConfirmation(item)) return PrepareHeldTargetConfirmation(result, item);
         if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item);
         if (item.ReflexiveCopy is { TargetConfirmed: false }) return PrepareReflexiveCopyConfirmation(result);
         if (item.SpellContext is not null) return PrepareSpellTriggerConfirmation(result);
@@ -138,7 +139,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidReflexiveCopyChoice(state, choice);
+            || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected)
     {
@@ -146,18 +147,25 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
         var next = state with { Tick = state.Tick + 1, PendingCardChoice = null };
         if (selected.Count == 0) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
-        var events = new List<GameEvent>();
         var tax = ResolveSpellshieldTargetTaxPower(state, item.ControllerId, selected, out _);
+        var bound = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
         if (tax > 0)
         {
-            // CN 809: the additional cost is generic power, not mana.
-            var plan = new PaymentCostRules.PaymentPlan("TRIGGER-COST:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
-                genericPowerCost: tax, totalPowerCost: tax, sourceObjectId: item.SourceObjectId);
-            var payment = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience);
-            if (!payment.Accepted) return RejectWithCorePrompts(state, "需要支付法盾的任意特性符能，可先回收符文。", ErrorCodes.InsufficientCost);
-            next = next with { RunePools = payment.RunePools, PlayerExperience = payment.PlayerExperience };
-            events.Add(new("COST_PAID", "支付法盾费用", PaymentCostRules.BuildCostPaidPayload(plan, payment.RunePools, payment.PlayerExperience, new Dictionary<string, object?>())));
+            // CN 404.2: even a mandatory trigger may be declined when it has a cost.
+            var payment = new PendingPaymentState("TRIGGER-WARD:" + item.StackItemId, TriggerTargetCostWindow, item.ControllerId,
+                powerCost: tax, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: $"已锁定 {DeckChoiceLabel(state, selected[0])}：支付 {tax} 任意符能的法盾费用，或放弃此触发技能。")
+                { ResolvingStackItemId = item.StackItemId };
+            next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
+            return new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
         }
+        var completed = CompleteTriggerTargetConfirmation(next, bound, []);
+        return completed.Accepted ? completed : RejectWithCorePrompts(state, completed.ErrorMessage!, ErrorCodes.InvalidTarget);
+    }
+
+    private static ResolutionResult CompleteTriggerTargetConfirmation(MatchState next, StackItemState item, List<GameEvent> events)
+    {
+        var state = next;
+        var selected = item.TargetObjectIds;
         if (item.FieldContext?.Kind == "DEFEND")
         {
             var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);

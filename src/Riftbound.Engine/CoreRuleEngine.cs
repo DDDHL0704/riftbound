@@ -570,6 +570,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var legalChoices = pendingPayment.LegalPaymentChoiceIds.ToHashSet(StringComparer.Ordinal);
         if (pendingPayment.PaymentWindow == TriggerCostWindow)
             return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
+        if (pendingPayment.PaymentWindow == TriggerTargetCostWindow)
+            return ResolveTriggerTargetPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.ResolvingStackItemId is not null)
             return ResolveInsightPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal))

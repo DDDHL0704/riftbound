@@ -340,7 +340,7 @@ internal sealed class PromptInteractionController
             using var paymentCandidate = JsonDocument.Parse(ReadString(action.Source, "candidateJson", "{}"));
             if (paymentCandidate.RootElement.TryGetProperty("metadata", out var paymentMetadata)
                 && paymentMetadata.TryGetProperty("paymentWindow", out var paymentWindow)
-                && paymentWindow.GetString() == "TRIGGER_COST_CONFIRMATION")
+                && paymentWindow.GetString() is "TRIGGER_COST_CONFIRMATION" or "TRIGGER_TARGET_COST")
                 summary += selected.Any(entry => entry.Choice.Id == "PAY")
                     ? " · 先支付费用，双方响应后结算" : " · 移除触发技能，不支付费用";
         }
@@ -356,7 +356,7 @@ internal sealed class PromptInteractionController
                         : "牌库顶 → " + string.Join(" → ", selected.Select((entry, index) => $"{index + 1}. {entry.Choice.Label}"));
                 else if (window.GetString() is "TRIGGER_CONFIRMATION" or "SPELL_TRIGGER_CONFIRMATION")
                     summary = selected.Length == 0 ? requiredComplete ? "放弃触发技能" : "请选择技能目标"
-                        : "技能目标：" + string.Join("、", selected.Select(entry => entry.Choice.Label));
+                        : "技能目标：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 双方响应后结算";
                 else if (window.GetString() == "EFFECT_PLAY")
                     summary = action.Option.Label;
                 else if (window.GetString() == "RECYCLE_FOR_EFFECT_PLAY")
@@ -370,7 +370,11 @@ internal sealed class PromptInteractionController
                         : "横置：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 先支付费用，双方响应后结算";
                 }
                 else if (window.GetString() == "TRIGGER_OPTIONAL_CONFIRMATION")
-                    summary = selected.Length == 0 ? "保留草丛 · 放弃换回" : "确认换回原战场 · 双方响应后结算";
+                {
+                    var channel = metadata.TryGetProperty("effectKind", out var effect) && effect.GetString() == "HOLD_CHANNEL_OPTIONAL";
+                    summary = channel ? selected.Length == 0 ? "放弃额外召出符文" : "确认召出休眠符文 · 双方响应后结算"
+                        : selected.Length == 0 ? "保留草丛 · 放弃换回" : "确认换回原战场 · 双方响应后结算";
+                }
                 else if (window.GetString() == "TOKEN_ENTRY_REPLACEMENT")
                     summary = selected.Length == 0 ? "跳过本次替换 · 保留未使用的回合次数"
                         : "应用替换：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 多打出一个复制体";

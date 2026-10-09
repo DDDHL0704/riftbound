@@ -88,15 +88,19 @@ public sealed class OfficialHoldSequenceTests
     public async Task OptionalRuneCallPausesForPlayerAndCanBeDeclined(bool accept)
     {
         var start = await Start(State("OGN·288/298"));
-        var response = await Drain(start.State);
+        var response = start;
         var choice = Assert.IsType<PendingCardChoiceState>(response.State.PendingCardChoice);
-        Assert.Equal("HOLD_EFFECT", choice.ChoiceWindow);
+        Assert.Equal("TRIGGER_OPTIONAL_CONFIRMATION", choice.ChoiceWindow);
         Assert.Equal(0, choice.RequiredCount);
         Assert.Empty(response.State.PlayerZones["P1"].Hand);
         Assert.Equal(3, response.State.PlayerZones["P1"].RuneDeck.Count);
         var result = await Resolve(response.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
             accept ? choice.LegalObjectIds.Take(1).ToArray() : []));
         Assert.True(result.Accepted, result.ErrorMessage);
+        if (accept) {
+            Assert.Equal(3, result.State.PlayerZones["P1"].RuneDeck.Count);
+            result = await TurnSequenceTestDriver.Complete(result);
+        }
         Assert.Equal(accept ? 0 : 1, result.State.PlayerZones["P1"].RuneDeck.Count);
         Assert.Equal(MatchPhases.Main, result.State.Phase);
         Assert.Single(result.State.PlayerZones["P1"].Hand);
@@ -230,13 +234,15 @@ public sealed class OfficialHoldSequenceTests
     public async Task BoonChoiceCannotTargetUnrelatedBattlefield()
     {
         var state = AddUnit(AddUnit(State("OGN·283/298"), "HERE", "SFD·125/221", "F", "P1"), "ELSEWHERE", "SFD·125/221", "OTHER", "P1");
-        var response = await Drain((await Start(state)).State);
+        var response = await Start(state);
         var choice = response.State.PendingCardChoice!;
         Assert.Equal(new[] { "HERE" }, choice.LegalObjectIds);
         var bad = await Resolve(response.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ELSEWHERE"]));
         Assert.False(bad.Accepted); Assert.Equal(MatchStateHasher.Hash(response.State), MatchStateHasher.Hash(bad.State));
         var good = await Resolve(response.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["HERE"]));
         Assert.True(good.Accepted, good.ErrorMessage);
+        Assert.DoesNotContain(good.Events, e => e.Kind == "BOON_GRANTED");
+        good = await TurnSequenceTestDriver.Complete(good);
         Assert.Contains(good.Events, e => e.Kind == "BOON_GRANTED" && Equals(e.Payload["targetObjectId"], "HERE"));
     }
 

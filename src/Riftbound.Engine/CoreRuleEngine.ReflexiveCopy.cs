@@ -34,7 +34,10 @@ public sealed partial class CoreRuleEngine
                 ? copy.CopySource is { } source && item.TargetObjectIds.SequenceEqual([source.ObjectId])
                     && item.TargetGenerations is { Count: 1 } generations && generations.TryGetValue(source.ObjectId, out var generation)
                     && generation == source.Generation && !copy.Recipients.Any(r => r.ObjectId == source.ObjectId)
-                : item.TargetObjectIds.Count == 0 && item.TargetGenerations is null && state.PriorityPlayerId is null);
+                : state.PriorityPlayerId is null && (item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
+                    || state.PendingPayment is { PaymentWindow: TriggerTargetCostWindow } payment && payment.ResolvingStackItemId == item.StackItemId
+                        && item.TargetObjectIds.Count == 1 && item.TargetGenerations is { Count: 1 } bound
+                        && bound.ContainsKey(item.TargetObjectIds[0]) && !copy.Recipients.Any(r => r.ObjectId == item.TargetObjectIds[0])));
 
     private static void AddReflexiveCopyEvent(List<GameEvent> events, string player, string sourceId,
         string cardNo, CardObjectState? copySource, IReadOnlyList<CardObjectState> recipients, string? battlefieldId = null)

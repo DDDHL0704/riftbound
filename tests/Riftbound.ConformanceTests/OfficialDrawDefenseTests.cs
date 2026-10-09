@@ -90,12 +90,18 @@ public sealed class OfficialDrawDefenseTests
     public async Task FanWardRequiresGenericPowerAndRejectsBeforeDestroyingSource()
     {
         var state=Fan();state=state with {CardObjects=new Dictionary<string,CardObjectState>(state.CardObjects){["A"]=state.CardObjects["A"] with {Tags=[CardObjectTags.UnitCard,CardObjectTags.Spellshield]}}};
-        var waiting=await FanBattle(state);var choice=waiting.State.PendingCardChoice!;
-        var rejected=await new CoreRuleEngine().ResolveAsync(waiting.State,new("bad","P2",CommandTypes.ChooseCards),new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,["A"]),default);
-        Assert.False(rejected.Accepted);Assert.Equal(MatchStateHasher.Hash(waiting.State),MatchStateHasher.Hash(rejected.State));
-        var funded=waiting.State with {RunePools=new Dictionary<string,RunePool>(waiting.State.RunePools){["P2"]=new(0,1)}};
-        var confirmed=await Choose(funded,["A"]);Assert.Equal(0,confirmed.State.RunePools["P2"].TotalPower);
-        Assert.Contains("D",confirmed.State.PlayerZones["P2"].Graveyard);
+        var waiting=await FanBattle(state);
+        var selected=await Choose(waiting.State,["A"]); Restore(selected.State);
+        var payment=selected.State.PendingPayment!;
+        Assert.DoesNotContain("D",selected.State.PlayerZones["P2"].Graveyard);
+        var rejected=await new CoreRuleEngine().ResolveAsync(selected.State,new("bad","P2",CommandTypes.PayCost),new PayCostCommand(payment.PaymentId,payment.PaymentWindow,["PAY"]),default);
+        Assert.False(rejected.Accepted);Assert.Equal(MatchStateHasher.Hash(selected.State),MatchStateHasher.Hash(rejected.State));
+        var declined=await Act(selected.State,"P2",new PayCostCommand(payment.PaymentId,payment.PaymentWindow,["DECLINE"]));
+        Assert.DoesNotContain("D",declined.State.PlayerZones["P2"].Graveyard); Restore(declined.State);
+        var funded=selected.State with {RunePools=new Dictionary<string,RunePool>(selected.State.RunePools){["P2"]=new(0,1)}};
+        var confirmed=await Act(funded,"P2",new PayCostCommand(payment.PaymentId,payment.PaymentWindow,["PAY"]));
+        Assert.Equal(0,confirmed.State.RunePools["P2"].TotalPower);
+        Assert.Contains("D",confirmed.State.PlayerZones["P2"].Graveyard); Restore(confirmed.State);
     }
 
     [Fact]

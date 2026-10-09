@@ -25917,6 +25917,12 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        if (state.PendingPayment is { PaymentWindow: CoreRuleEngine.TriggerTargetCostWindow } targetPayment
+            && !CoreRuleEngine.ValidTriggerTargetPayment(state, targetPayment)) errors.Add("invalid trigger target payment");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidHeldTargetStack(state, item)) errors.Add("invalid held target confirmation");
+        if (state.PendingCardChoice is { ChoiceWindow: "HOLD_EFFECT", HeldContext: { Kind: not "RETURN_HERO" } })
+            errors.Add("obsolete held resolution choice");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.OptionalTriggerWindow } creationCost
             && !CoreRuleEngine.ValidTriggerCostChoice(state, creationCost)) errors.Add("invalid trigger cost choice");
         foreach (var item in state.StackItems)
@@ -26034,7 +26040,7 @@ public static class MatchRecoveryValidator
             && !CoreRuleEngine.ValidTriggerChoice(state, confirmation)) errors.Add("invalid trigger confirmation");
 
         if (state.PendingPayment is { } payment
-            && (payment.PaymentWindow != CoreRuleEngine.TriggerCostWindow && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
+            && (payment.PaymentWindow is not (CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.TriggerTargetCostWindow) && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
             && !CoreRuleEngine.ValidInsightPayment(state, payment)) errors.Add("invalid Insight payment continuation");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.InsightContext is { } captured

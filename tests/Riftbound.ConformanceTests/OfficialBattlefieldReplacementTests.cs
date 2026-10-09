@@ -169,12 +169,12 @@ public sealed class OfficialBattlefieldReplacementTests
         var r = await Conquer(Position(battlefield: "OGN·283/298"));
         r = await Choose(r.State, "LEGEND");
         var prior = new StackItemState("OLDER-HOLD", "P1", "BF", "HOLD_BOON", "OGN·283/298") {
+            TargetObjectIds = ["UNIT"], TargetGenerations = new Dictionary<string, long> { ["UNIT"] = r.State.CardObjects["UNIT"].ObjectGeneration },
             HeldContext = new("OGN·283/298", "BF", "BOON", 1, r.State.CardObjects["BF"].ObjectGeneration) };
         r = await Top(r.State with { StackItems = new[] { prior }.Concat(r.State.StackItems).ToArray() });
         Assert.Equal("UNL·T03", r.State.CardObjects["BF"].CardNo);
         r = await Top(r.State);
-        Assert.Equal(["UNIT"], r.State.PendingCardChoice!.LegalObjectIds);
-        r = await Choose(r.State, "UNIT");
+        Assert.Null(r.State.PendingCardChoice);
         Assert.Contains("增益", r.State.CardObjects["UNIT"].Tags);
         Restore(r.State);
     }
