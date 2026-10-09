@@ -9768,7 +9768,7 @@ public static class MatchRecoveryValidator
                 $"spectator replay frame snapshot player {playerId} rune deck count does not match authoritative state rune deck count; {FormatExpectedActualForRecovery(zones.RuneDeck.Count, FormatReadableIntValue(runeDeckCount, zonePayload, "runeDeckCount"))}");
         }
 
-        var publicHand = zones.Hand.Where(id => CoreRuleEngine.IsRevealedEffectPlayCard(authoritativeState, id)).ToArray();
+        var publicHand = zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(authoritativeState, id)).Order(StringComparer.Ordinal).ToArray();
         var hasHandObjects = TryReadObjectStringList(zonePayload, "hand", out var handObjects);
         if (!hasHandObjects || !handObjects.SequenceEqual(publicHand))
             errors.Add($"spectator replay frame snapshot player {playerId} hand objects must be redacted for spectator view; {FormatExpectedActualForRecovery(publicHand, FormatReadableStringListValue(hasHandObjects, handObjects, zonePayload, "hand"))}");
@@ -10633,7 +10633,7 @@ public static class MatchRecoveryValidator
         var zones = authoritativeState.PlayerZones.TryGetValue(playerId, out var playerZones)
             ? playerZones
             : PlayerZones.Empty;
-        return zones.Hand.Where(id => CoreRuleEngine.IsRevealedEffectPlayCard(authoritativeState, id)).Concat(zones.Base)
+        return zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(authoritativeState, id)).Order(StringComparer.Ordinal).Concat(zones.Base)
             .Concat(zones.Battlefields.Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId)))
             .Concat(zones.Graveyard)
             .Concat(zones.Banished)
@@ -25915,6 +25915,13 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        if (state.PendingCardChoice is { } handChoice && (handChoice.HandContext is not null || handChoice.ChoiceWindow == "REVEALED_HAND_EFFECT")
+            && !CoreRuleEngine.ValidRevealedHandChoice(state, handChoice))
+            errors.Add("invalid revealed hand choice continuation");
+        foreach (var item in state.StackItems)
+            if (item.CompletedHandExecutions < 0 || item.CompletedHandExecutions > item.EffectRepeatCount
+                || item.CompletedHandExecutions > 0 && (!CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var definition) || definition.HandChoice is null))
+                errors.Add("invalid revealed hand execution count");
         if (state.PendingEffectPlay is { } handPlay && (handPlay.RevealedHand is not null || handPlay.IgnoreAllCosts
             || CardBehaviorRegistry.TryGetByEffectKind(handPlay.Parent.EffectKind, out var handDefinition)
                 && handDefinition.EffectPlaySourceZone == "OPPONENT_HAND") && !CoreRuleEngine.ValidRevealedHandPlay(state, handPlay))
@@ -35524,7 +35531,7 @@ public static class MatchRecoveryValidator
             return false;
         }
 
-        if (CoreRuleEngine.IsRevealedEffectPlayCard(state, objectId)) return false;
+        if (CoreRuleEngine.IsPubliclyRevealedHandCard(state, objectId)) return false;
 
         foreach (var zones in state.PlayerZones.Values)
         {

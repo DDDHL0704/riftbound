@@ -4206,6 +4206,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION") return ResolveTriggerTargetConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER") return ResolveInsightChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "RECYCLE_FOR_EFFECT_PLAY") return ResolveRecyclingChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT") return ResolveRevealedHandChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "DECK_EFFECT") return ResolveDeckChoice(state, pendingChoice, submittedObjectIds);
 
         if (pendingChoice.ChoiceWindow == "HOLD_EFFECT")
@@ -30924,6 +30925,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state.RngCursor);
         }
 
+        if (!confirmPermanent && state.WinnerPlayerId is null && behavior.HandChoice is not null && stackItem.CompletedHandExecutions < stackItem.EffectRepeatCount)
+            return BeginRevealedHandChoice(state, stackItem, behavior.HandChoice);
         if (!confirmPermanent && IsDeferredDeckChoice(behavior) && !stackItem.DeckChoiceCompleted)
             return BeginDeckChoice(state, stackItem, behavior);
         stackItem = MaskTargetsNoLongerLegal(state, stackItem, behavior);

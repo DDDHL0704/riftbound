@@ -16,7 +16,7 @@ public partial class RecastInteractionProof : Control
             var root=OS.GetCmdlineUserArgs().First(a=>a.StartsWith("--evidence="))[11..];
             var json=new JsonSerializerOptions(JsonSerializerDefaults.Web);
             var executed=0;
-            foreach(var branch in new[]{"pick-second","pay-power","decline","unit-play","unit-decline","hand-pick","hand-play","hand-decline"})
+            foreach(var branch in new[]{"pick-second","pay-power","decline","unit-play","unit-decline","hand-pick","hand-play","hand-decline","hand-recycle","hand-investigator","hand-investigator-decline"})
             {
                 var dir=Path.Combine(root,branch);
                 if(!Directory.Exists(dir)) continue;
@@ -25,7 +25,7 @@ public partial class RecastInteractionProof : Control
                 executed++;
                 using var prompt=JsonDocument.Parse(File.ReadAllText(Path.Combine(dir,"prompt.json")));
                 Dictionary<string,object?>? command=null;Control component;
-                if(branch.EndsWith("decline") || branch=="hand-pick")
+                if(branch.EndsWith("decline") || revealed && branch!="hand-play")
                 {
                     var view=(Godot.Collections.Dictionary)typeof(Main).GetMethod("BuildPromptView",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[prompt.RootElement])!;
                     var controller=new PromptInteractionController();controller.Load(view);
@@ -34,13 +34,18 @@ public partial class RecastInteractionProof : Control
                     bar.ActionSelected+=action=>{Check(controller.SelectAction(action),"Decline action selectable");bar.ShowSelection(controller.Current!,controller.CurrentChoices,controller.CurrentStepLabel,controller.CurrentStepRequired);};
                     var label=controller.Actions.Single(a=>a.Name=="CHOOSE_CARDS").Label;
                     bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b=>b.Text==label).EmitSignal(BaseButton.SignalName.Pressed);
-                    if(branch=="hand-pick")
+                    if(revealed && !branch.EndsWith("decline"))
                     {
                         bar.ChoiceSelected+=(role,id)=>Check(controller.TrySelectChoice(role,id),"Choose through production choice button");
-                        Check(controller.CurrentChoices.Count==1,"Only the revealed unit can be selected");
-                        var choiceButton=bar.GetNode<HBoxContainer>("%StepChoices").GetChildren().OfType<Button>().Single();
-                        choiceButton.EmitSignal(BaseButton.SignalName.Pressed);
-                        Check(controller.Current!.TargetIds.Contains("U"),"Effect controller chooses a revealed unit");
+                        var expected=branch=="hand-recycle"?"SPELL":"U";
+                        if(!controller.Current!.TargetIds.Contains(expected))
+                        {
+                            var choiceIndex=controller.CurrentChoices.ToList().FindIndex(c=>c.Id==expected);
+                            Check(choiceIndex>=0,"Authoritative choice is available");
+                            var choiceButton=bar.GetNode<HBoxContainer>("%StepChoices").GetChildren().OfType<Button>().ElementAt(choiceIndex);
+                            choiceButton.EmitSignal(BaseButton.SignalName.Pressed);
+                        }
+                        Check(controller.Current!.TargetIds.Contains(expected),"Effect controller chooses a revealed unit");
                     }
                     if(revealed)Check(view["message"].AsString().Contains("已公开展示") && !view["message"].AsString().Contains("仅你可见"),"Public reveal has correct visibility label");
                     else Check(controller.Current!.Summary.Contains("放弃再次打出"),"Decline summary is explicit");

@@ -7197,7 +7197,8 @@ public sealed class CardCatalogBaselineTests
                     Assert.True(delegation.DelegatedBehavior.DestroysTarget);
                     break;
                 case BehaviorTemplateIds.Recycle:
-                    Assert.True(delegation.DelegatedBehavior.RecyclesTargets);
+                    Assert.Equal(RevealedHandAction.Recycle, delegation.DelegatedBehavior.HandChoice!.Action);
+                    Assert.Equal(0, delegation.DelegatedBehavior.RequiredTargetCount);
                     break;
                 case BehaviorTemplateIds.Banish:
                     Assert.True(delegation.DelegatedBehavior.BanishesTargetThenPlaysToBase

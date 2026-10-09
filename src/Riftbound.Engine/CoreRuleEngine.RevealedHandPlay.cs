@@ -11,11 +11,6 @@ public sealed partial class CoreRuleEngine
     internal static bool EffectPlayIgnoresAllCosts(MatchState state, string playerId)
         => state.PendingEffectPlay is { IgnoreAllCosts: true } p && p.PlayerId == playerId;
 
-    internal static bool IsRevealedEffectPlayCard(MatchState state, string id)
-        => state.PendingEffectPlay?.RevealedHand is { } hand && hand.Cards.TryGetValue(id, out var generation)
-            && state.PlayerZones.TryGetValue(hand.OwnerId, out var ownerZones) && ownerZones.Hand.Contains(id)
-            && state.CardObjects.TryGetValue(id, out var card) && card.ObjectGeneration == generation;
-
     internal static bool IsForcedEffectPlayDestination(MatchState state, string playerId, string destination)
         => state.PendingEffectPlay is { RevealedHand: { Choosing: false } hand } p && p.PlayerId == playerId
             && destination == "BATTLEFIELD:" + hand.BattlefieldId
@@ -67,7 +62,7 @@ public sealed partial class CoreRuleEngine
         var hand = pending.RevealedHand!;
         if (command is not ChooseCardsCommand choice || choice.ChoiceId != pending.ChoiceId || choice.ChoiceWindow != "REVEALED_HAND_PLAY"
             || choice.ChosenObjectIds is null || choice.ChosenObjectIds.Count > 1
-            || choice.ChosenObjectIds.Any(id => !pending.Sources.ContainsKey(id) || !IsRevealedEffectPlayCard(state, id) || !IsRevealedHandUnit(state, hand.OwnerId, id)))
+            || choice.ChosenObjectIds.Any(id => !pending.Sources.ContainsKey(id) || !IsPubliclyRevealedHandCard(state, id) || !IsRevealedHandUnit(state, hand.OwnerId, id)))
             return RejectWithCorePrompts(state, "请选择本次展示手牌中的合法单位，或不选以放弃。", ErrorCodes.InvalidTarget);
         if (choice.ChosenObjectIds.Count == 0)
             return FinishEffectPlay(state with { Tick = state.Tick + 1 }, intent, pending, []);

@@ -220,7 +220,8 @@ public static class CardBasicActionRules
     private static bool HasRecycleBehavior(CardBehaviorDefinition? behavior)
     {
         return behavior is not null
-            && (behavior.RecyclesTargets
+            && (behavior.HandChoice?.Action == RevealedHandAction.Recycle
+                || behavior.RecyclesTargets
                 || behavior.RecyclesSelectedMainDeckTargets
                 || behavior.RecyclesUnselectedMainDeckLookCards
                 || behavior.RecyclesUnkeptSacredJudgmentCards);
@@ -251,7 +252,8 @@ public static class CardBasicActionRules
         return behavior is not null
             && (behavior.GainExperienceOnPlay > 0
                 || behavior.GainExperienceOnPlayPerFriendlyFieldUnit > 0
-                || behavior.OptionalExperienceCost > 0);
+                || behavior.OptionalExperienceCost > 0
+                || behavior.HandChoice?.ExperienceCost > 0);
     }
 
     private static bool HasControlBehavior(CardBehaviorDefinition? behavior)

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-meticulous-investigator-hand-static",
-  "description": "Meticulous Investigator enters as a unit while reveal-hand discard/draw text is deferred.",
+  "description": "Authoritative reveal during resolution followed by optional experience payment declined.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-135/219 缜密的调查员",
-      "note": "官方卡面：费用 3；单位；战力 3；打出时选择一名对手，查看其手牌，并可支付 2 点经验选择其中一张非英雄牌弃置并让该对手抽 1 张牌。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场；对手选择、手牌展示、可选经验支付、手牌牌选择、弃牌和抽牌路径暂缓。"
+      "note": "官方卡面与破限 FAQ：打出技能必须展示手牌，展示后可支付2经验选择任意一张手牌，让对手弃置并抽1；本fixture验证无经验时展示后继续。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -31,7 +31,10 @@
     }
   ],
   "roomId": "p2-preflight-unl-135-meticulous-investigator-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302766,
     "turnNumber": 766,
@@ -39,33 +42,62 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 3,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-METICULOUS-INVESTIGATOR"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-METICULOUS-INVESTIGATOR"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -81,11 +113,33 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-135-meticulous-investigator-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-135-meticulous-investigator-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-unl-135-meticulous-investigator-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-unl-135-meticulous-investigator-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "revealed-hand-choice",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "HAND-STACK-1-P1-UNIT-METICULOUS-INVESTIGATOR-0",
+        "choiceWindow": "REVEALED_HAND_EFFECT",
+        "chosenObjectIds": []
+      }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -94,25 +148,48 @@
       "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
+      "STACK_ITEM_SUSPENDED",
+      "HAND_REVEALED",
+      "CARD_CHOICE_RESOLVED",
       "STACK_ITEM_RESOLVED"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 766,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-METICULOUS-INVESTIGATOR"],
+          "base": [
+            "P1-UNIT-METICULOUS-INVESTIGATOR"
+          ],
           "graveyard": []
         }
       },
@@ -120,14 +197,61 @@
       "cardObjects": {
         "P1-UNIT-METICULOUS-INVESTIGATOR": {
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": true
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
-    }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
+    },
+    "events": [
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED"
+      },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE"
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_SUSPENDED"
+      },
+      {
+        "kind": "HAND_REVEALED"
+      },
+      {
+        "kind": "CARD_CHOICE_RESOLVED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      }
+    ]
   }
 }

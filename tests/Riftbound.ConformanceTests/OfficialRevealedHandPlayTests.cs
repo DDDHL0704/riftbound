@@ -55,7 +55,7 @@ public sealed class OfficialRevealedHandPlayTests
         var opened = await Top(cast.State);
         Assert.Contains("UNL-200/219", View(opened.State));
         var shown=ResolutionResult.BuildSnapshots(opened.State)["P1"].Table!.Players.Single(p=>p.PlayerId=="P2").Zones;
-        Assert.Equal(new[]{"U","SPELL"},shown.Hand);Assert.Equal(0,shown.HandHidden);
+        Assert.Equal(new[]{"SPELL","U"},shown.Hand);Assert.Equal(0,shown.HandHidden);
         Assert.DoesNotContain("OGN·097/298", View(opened.State)); // Unrelated deck identity stays hidden.
         var declined = await Select(opened.State);
         Assert.DoesNotContain("UNL-200/219", View(declined.State));

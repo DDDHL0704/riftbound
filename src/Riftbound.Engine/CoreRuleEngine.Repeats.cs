@@ -38,7 +38,7 @@ public sealed partial class CoreRuleEngine
 
     internal static bool SupportsSeparateExecution(CardBehaviorDefinition behavior)
         => !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment
-            && behavior.MainDeckLookCount == 0 && string.IsNullOrEmpty(behavior.EffectPlaySourceZone)
+            && behavior.HandChoice is null && behavior.MainDeckLookCount == 0 && string.IsNullOrEmpty(behavior.EffectPlaySourceZone)
             && !behavior.GainsControlOfTargetStackSpell && !behavior.PerformsInsight
             // Pure counters and Nightfall's controller restriction have completed the repeat audit.
             // Other counters still need their follow-up choices, restrictions,

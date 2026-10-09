@@ -627,6 +627,7 @@ public sealed record StackItemState
     public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyDictionary<string, string>? TargetStackSources { get; init; }
+    public int CompletedHandExecutions { get; init; }
     public int CompletedDeckExecutions { get; init; }
     public bool DeckChoiceCompleted { get; init; }
     public bool InsightCompleted { get; init; }
@@ -968,6 +969,7 @@ public sealed record PendingCardChoiceState
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DeckChoiceContext? DeckContext { get; init; }
+    public RevealedHandChoiceContext? HandContext { get; init; }
 
     public string ChoiceId { get; init; }
 
@@ -4194,7 +4196,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4311,7 +4313,7 @@ public sealed record MatchState
             pendingCardChoice.ContextObjectIds,
             pendingCardChoice.Reason,
             pendingCardChoice.SourceObjectId,
-            pendingCardChoice.EffectKind) { HeldContext = pendingCardChoice.HeldContext, DeckContext = pendingCardChoice.DeckContext, ResolvingStackItemId = pendingCardChoice.ResolvingStackItemId };
+            pendingCardChoice.EffectKind) { HeldContext = pendingCardChoice.HeldContext, DeckContext = pendingCardChoice.DeckContext, HandContext = pendingCardChoice.HandContext, ResolvingStackItemId = pendingCardChoice.ResolvingStackItemId };
     }
 
     private static IReadOnlyList<BattlefieldResolutionState> NormalizeBattlefieldResolutions(
@@ -5198,8 +5200,8 @@ public sealed record ResolutionResult(
         var tableZones = new SnapshotTablePlayerZonesDto(
             zones.MainDeck.Count,
             zones.RuneDeck.Count,
-            isViewer ? zones.Hand : zones.Hand.Where(id => CoreRuleEngine.IsRevealedEffectPlayCard(state, id)).ToArray(),
-            isViewer ? 0 : zones.Hand.Count(id => !CoreRuleEngine.IsRevealedEffectPlayCard(state, id)),
+            isViewer ? zones.Hand : zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(state, id)).Order(StringComparer.Ordinal).ToArray(),
+            isViewer ? 0 : zones.Hand.Count(id => !CoreRuleEngine.IsPubliclyRevealedHandCard(state, id)),
             zones.Base,
             baseCards,
             baseRunes,
@@ -6126,8 +6128,8 @@ public sealed record ResolutionResult(
         {
             ["mainDeckCount"] = zones.MainDeck.Count,
             ["runeDeckCount"] = zones.RuneDeck.Count,
-            ["hand"] = ownView ? zones.Hand : zones.Hand.Where(id => CoreRuleEngine.IsRevealedEffectPlayCard(state, id)).ToArray(),
-            ["handHidden"] = ownView ? 0 : zones.Hand.Count(id => !CoreRuleEngine.IsRevealedEffectPlayCard(state, id)),
+            ["hand"] = ownView ? zones.Hand : zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(state, id)).Order(StringComparer.Ordinal).ToArray(),
+            ["handHidden"] = ownView ? 0 : zones.Hand.Count(id => !CoreRuleEngine.IsPubliclyRevealedHandCard(state, id)),
             ["base"] = zones.Base,
             ["baseCards"] = baseCards,
             ["baseRunes"] = baseRunes,
@@ -6414,7 +6416,7 @@ public sealed record ResolutionResult(
             return false;
         }
 
-        if (CoreRuleEngine.IsRevealedEffectPlayCard(state, objectId)) return false;
+        if (CoreRuleEngine.IsPubliclyRevealedHandCard(state, objectId)) return false;
         if (IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
         {
             return true;
@@ -6470,7 +6472,7 @@ public sealed record ResolutionResult(
             ids.AddRange(zones.Hand);
         }
 
-        if (!ownView) ids.AddRange(zones.Hand.Where(id => CoreRuleEngine.IsRevealedEffectPlayCard(state, id)));
+        if (!ownView) ids.AddRange(zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(state, id)).Order(StringComparer.Ordinal));
         ids.AddRange(zones.Base);
         ids.AddRange(zones.Battlefields.Where(objectId =>
             ownView || !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId)));
@@ -15784,6 +15786,11 @@ internal static class ActionPromptBuilder
             metadata["cardChoices"] = PendingCardChoiceDtos(state, choice);
             if (choice.DeckContext is not null)
                 metadata["viewedCards"] = choice.ContextObjectIds.Select(id => new ActionPromptChoiceDto(id, CoreRuleEngine.DeckChoiceLabel(state, id), "仅你可见；查看不等于展示")).ToArray();
+            if (choice.HandContext is not null)
+            {
+                metadata["viewedCardsPublic"] = true;
+                metadata["viewedCards"] = choice.ContextObjectIds.Select(id => new ActionPromptChoiceDto(id, CoreRuleEngine.DeckChoiceLabel(state, id), "已公开展示")).ToArray();
+            }
             metadata["legalObjectIds"] = choice.LegalObjectIds;
         }
 
@@ -15795,7 +15802,9 @@ internal static class ActionPromptBuilder
         PendingCardChoiceState choice)
     {
         return choice.LegalObjectIds
-            .Select(objectId => choice.ChoiceWindow == "TRIGGER_CONFIRMATION"
+            .Select(objectId => choice.HandContext is not null
+                ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.DeckChoiceLabel(state, objectId), choice.Reason)
+                : choice.ChoiceWindow == "TRIGGER_CONFIRMATION"
                 ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.DeckChoiceLabel(state, objectId), choice.Reason)
                 : choice.DeckContext is null ? ObjectChoice(state, objectId, "可选卡牌")
                 : new ActionPromptChoiceDto(objectId, CoreRuleEngine.DeckChoiceLabel(state, objectId), choice.ChoiceWindow == "INSIGHT" ? "选择回收；不选则留在牌库顶" : choice.ChoiceWindow == "INSIGHT_ORDER" ? "按从顶到底顺序选择" : "选择加入手牌"))

@@ -1,5 +1,7 @@
 # 规则证据索引
 
+2026-10-09 展示后选择重审：暗中破坏改为结算时展示并选择非单位回收；缜密的调查员补强制展示、展示后可选支付经验与对手弃抽。两类共用临时公开权限、继续结算和恢复校验；上一批透骨尖钉复用相同投影。见 [本批审计](REVEALED_HAND_CHOICE_AUDIT_2026-10-09.md)。
+
 2026-10-09 透骨尖钉重审：改为真实战场目标、结算时展示手牌、施法者选择、对手正式打出与眩晕；共用忽略一切费用、执行者切换、公开身份投影及恢复校验。删除旧直接入基地路径，原生桌面显示展示卡并在结束后恢复隐藏。具体范围和后续缺口见 [本批审计](REVEALED_HAND_PLAY_AUDIT_2026-10-09.md)。
 
 2026-10-09 废牌区单位继续重审：幽灵主母、忠诚不渝、残酷复活接入共用正式出牌与恢复；法力/符能上限分开校验，修正蔑视同类错误及动物属性减费，删除直接搬牌旧路径。透骨尖钉的手牌展示、指定战场和忽略一切费用仍是明确缺口。范围和验证见 [本批审计](GRAVEYARD_UNIT_AUDIT_2026-10-09.md)。
@@ -2322,7 +2324,7 @@
 | `p2-preflight-play-intimidating-challenger-move-static` | `RULE_AUDITED` | `CATALOG` UNL-105/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《气势逼人的挑战者》从手牌普通打出时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；移动触发、低战力敌方单位过滤、目的战场选择和移动路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-great-tooth-sea-beast-roam-static` | `RULE_AUDITED` | `CATALOG` UNL-126/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《巨牙海兽》从手牌普通打出时支付基础 6 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 6 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；经验支付、位置追踪和游走授予路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-lantern-sea-fiend-bounce-static` | `RULE_AUDITED` | `CATALOG` UNL-132/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《提灯海煞》从手牌普通打出时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；低战力单位扫描、所属者手牌回手和多对象区域更新路径暂缓，带目标打出由直接测试拒绝。 |
-| `p2-preflight-play-meticulous-investigator-hand-static` | `RULE_AUDITED` | `CATALOG` UNL-135/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《缜密的调查员》从手牌普通打出时支付基础 3 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 3 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；对手选择、手牌展示、可选经验支付、手牌牌选择、弃牌和抽牌路径暂缓，带目标打出由直接测试拒绝。 |
+| `p2-preflight-play-meticulous-investigator-hand-static` | `RULE_AUDITED_SCOPED` | CN 204.3.b / 424；破限裁判 FAQ 323–332；UNL-135/219 | 2026-10-09 替换“仅入场”旧预期，fixture 覆盖展示后无经验继续；支付、放弃、弃抽、燃尽与恢复见 [本批审计](REVEALED_HAND_CHOICE_AUDIT_2026-10-09.md)。 |
 | `p2-preflight-play-gatekeeper-maduli-move-static` | `RULE_AUDITED` | `CATALOG` UNL-144/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方单位《守门者马杜里》从手牌普通打出时支付基础 7 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 6 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；`我无法变为活跃状态` 已由 BehaviorSpec `UNIT_CANNOT_BECOME_ACTIVE` 与 `CardStaticAbilitySpecRules` ready-prevention representative 覆盖，紫色支付、敌方战场战力比较和移动路径由 Maduli purple move representative 覆盖；2026-06-27 Plan B follow-up：该代表的 prompt target filtering 与 command target legality 来源识别已迁移到 `P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)`，不再直接比较 `sourceState.CardNo` 与 `GatekeeperMaduliCardNo`；带目标打出由直接测试拒绝，full-official Maduli 仍不关闭。 |
 | `p2-preflight-play-syndra-spell-duel-echo-static` | `RULE_AUDITED` | `CATALOG` UNL-146/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方英雄单位《辛德拉》从手牌普通打出时支付基础 6 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 6 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；法术对决检测、回响额外费用授予和重复法术效果路径暂缓，带目标打出由直接测试拒绝。 |
 | `p2-preflight-play-zilean-token-copy-static` | `RULE_AUDITED` | `CATALOG` UNL-086/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方英雄单位《基兰》从手牌普通打出时支付基础 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 5 战力、无额外标签的 `CARD_TYPE:UNIT` 单位对象；每回合次数限制、战场条件、指示物打出替代和复制体创建路径暂缓，带目标打出由直接测试拒绝。 |

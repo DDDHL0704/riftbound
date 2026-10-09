@@ -1,0 +1,86 @@
+{
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 80.23,
+    "total": 8936,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 8936,
+        "passed": 8936,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 76.57
+      }
+    ]
+  },
+  "finalFocused": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 33.53,
+    "total": 2564,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2564,
+        "passed": 2564,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 20.22
+      }
+    ]
+  },
+  "fullLocalRerun": false,
+  "rationale": "Check at batch boundary; final public-object ordering verified with reveal, snapshot, recovery and replay focus instead of rerunning long games. CI retains full matrix.",
+  "testLogHashes": {
+    "var/qa/hand-choice-2026-10-09/verified-check/check/results.trx": "476454764bc265967920f257d2a7ef89db7488ac1dcfdd23ce59ff9cdcffce94",
+    "var/qa/hand-choice-2026-10-09/final-focus/focus/results.trx": "31b3c48395465146dcf87db9885da7b4a2304adad6ab51e16c99dc7c17a1bfc1"
+  },
+  "behaviorCases": 21,
+  "nativeBranches": {
+    "hand-recycle": {
+      "nativeCommandsUsed": true,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "53dffad298214ae11d592ff5cc6700b11ab9b5415b56e342ebfae122160a12b5",
+        "expectedStateHash": "53dffad298214ae11d592ff5cc6700b11ab9b5415b56e342ebfae122160a12b5",
+        "errors": []
+      }
+    },
+    "hand-investigator": {
+      "nativeCommandsUsed": true,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "cc8e579283968ac6836554a2cb88822852206ca95d4666db9781914c4db84b42",
+        "expectedStateHash": "cc8e579283968ac6836554a2cb88822852206ca95d4666db9781914c4db84b42",
+        "errors": []
+      }
+    },
+    "hand-investigator-decline": {
+      "nativeCommandsUsed": true,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "804ec2accd57ce18f8fdd8711b467e68ad9c0eda15a995869140af2816e5300f",
+        "expectedStateHash": "804ec2accd57ce18f8fdd8711b467e68ad9c0eda15a995869140af2816e5300f",
+        "errors": []
+      }
+    }
+  },
+  "nativeBuild": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "nativeControlProof": "native-controls.txt",
+  "runningServiceRestarted": false,
+  "naturalTwoClientGameAccepted": false,
+  "windowsInteractiveAccepted": false,
+  "previousCommitCi": {
+    "sha": "d4b30f6f47ef3aedf4e59b393b1e84861bd79a25",
+    "run": 37896823376,
+    "conclusion": "success"
+  },
+  "newCommitCi": "Pending push"
+}
