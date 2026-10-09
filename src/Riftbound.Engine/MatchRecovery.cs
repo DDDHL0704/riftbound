@@ -25918,6 +25918,8 @@ public static class MatchRecoveryValidator
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
         foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidLegendUnitToken(item)) errors.Add("invalid legend unit token instruction");
+        foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidTokenEntryPlan(state, item)
                 || item.TokenEntryPlan is { } tokenPlan && tokenPlan.NextToken < tokenPlan.OriginalCount
                     && (state.PendingCardChoice?.ChoiceWindow != CoreRuleEngine.TokenReplacementWindow

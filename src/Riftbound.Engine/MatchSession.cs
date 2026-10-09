@@ -5350,6 +5350,7 @@ public sealed record ResolutionResult(
             }).ToArray();
         if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
+        if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;
         if (item.SourceConfirmed) view["playAbility"] = true;
         if (!string.IsNullOrWhiteSpace(item.Destination))
         {
@@ -11090,20 +11091,9 @@ internal static class ActionPromptBuilder
             ability.ManaCostReductionKind,
             LegendActionManaCostReductionKinds.FriendlyEphemeralFieldObjects,
             StringComparison.Ordinal)
-                ? CountLegendActionFriendlyEphemeralFieldObjects(state, playerId)
+                ? CoreRuleEngine.CountFriendlyEphemeralFieldUnits(state, playerId)
                 : 0;
         return Math.Max(0, ability.ManaCost - reduction);
-    }
-
-    private static int CountLegendActionFriendlyEphemeralFieldObjects(MatchState state, string playerId)
-    {
-        return state.PlayerZones.TryGetValue(playerId, out var zones)
-            ? zones.Base
-                .Concat(zones.Battlefields)
-                .Count(objectId => state.CardObjects.TryGetValue(objectId, out var objectState)
-                    && SourceObjectControlledByPlayerOrLegacyOwned(objectState, playerId)
-                    && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal))
-            : 0;
     }
 
     private static IReadOnlyList<string> LegendActionRequiredCostTokens(int manaCost, LegendActionAbilityDefinition ability)

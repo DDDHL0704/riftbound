@@ -120,7 +120,7 @@ public sealed class RenataTokenActiveEntryStaticAbilityTests
 
     private static async Task<ResolutionResult> ActivateAzirSandSoldierAsync(MatchState state)
     {
-        return await new CoreRuleEngine().ResolveAsync(
+        var activated = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-renata-token-entry-azir", "P1", CommandTypes.LegendAct),
             new LegendActCommand(
@@ -129,6 +129,9 @@ public sealed class RenataTokenActiveEntryStaticAbilityTests
                 [],
                 ["SPEND_MANA:1"]),
             CancellationToken.None);
+        Assert.True(activated.Accepted, activated.ErrorMessage);
+        Assert.DoesNotContain(activated.Events, e => e.Kind == "UNIT_TOKEN_CREATED");
+        return await OfficialGraveyardRecastTests.Top(activated.State);
     }
 
     private static async Task<ResolutionResult> ActivatePykeGoldAsync(MatchState state)

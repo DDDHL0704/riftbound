@@ -34654,11 +34654,17 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Single(result.State.StackItems);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "UNIT_TOKEN_CREATED");
+        var activationEvents = result.Events;
+        result = await OfficialGraveyardRecastTests.Top(result.State);
+        result = result with { Events = activationEvents.Concat(result.Events).ToArray() };
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-VIKTOR"].IsExhausted);
         Assert.Contains("P1-LEGEND-VIKTOR-TOKEN-001", result.State.PlayerZones["P1"].Base);
         var token = result.State.CardObjects["P1-LEGEND-VIKTOR-TOKEN-001"];
         Assert.Equal(1, token.Power);
+        Assert.True(token.IsExhausted);
         Assert.Contains(CardObjectTags.UnitCard, token.Tags);
         Assert.Contains(CardObjectTags.MinionTokenFamily, token.Tags);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
@@ -35245,12 +35251,18 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Single(result.State.StackItems);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "UNIT_TOKEN_CREATED");
+        var activationEvents = result.Events;
+        result = await OfficialGraveyardRecastTests.Top(result.State);
+        result = result with { Events = activationEvents.Concat(result.Events).ToArray() };
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-AZIR"].IsExhausted);
         Assert.Contains("P1-LEGEND-AZIR-TOKEN-001", result.State.PlayerZones["P1"].Base);
         var token = result.State.CardObjects["P1-LEGEND-AZIR-TOKEN-001"];
         Assert.Equal("SFD·T02", token.CardNo);
         Assert.Equal(2, token.Power);
+        Assert.True(token.IsExhausted);
         Assert.Equal("P1", token.OwnerId);
         Assert.Equal("P1", token.ControllerId);
         Assert.Contains(CardObjectTags.UnitCard, token.Tags);
@@ -36066,12 +36078,18 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Single(result.State.StackItems);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "UNIT_TOKEN_CREATED");
+        var activationEvents = result.Events;
+        result = await OfficialGraveyardRecastTests.Top(result.State);
+        result = result with { Events = activationEvents.Concat(result.Events).ToArray() };
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-LILLIA"].IsExhausted);
         Assert.Contains("P1-LEGEND-LILLIA-TOKEN-001", result.State.PlayerZones["P1"].Base);
         var token = result.State.CardObjects["P1-LEGEND-LILLIA-TOKEN-001"];
         Assert.Equal("UNL·T07", token.CardNo);
         Assert.Equal(3, token.Power);
+        Assert.False(token.IsExhausted);
         Assert.Contains(CardObjectTags.UnitCard, token.Tags);
         Assert.Contains(CardObjectTags.Ephemeral, token.Tags);
         Assert.Contains("仙灵", token.Tags);
@@ -36095,6 +36113,11 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Single(result.State.StackItems);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "UNIT_TOKEN_CREATED");
+        var activationEvents = result.Events;
+        result = await OfficialGraveyardRecastTests.Top(result.State);
+        result = result with { Events = activationEvents.Concat(result.Events).ToArray() };
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.Contains("P1-LEGEND-LILLIA-REPRINT-TOKEN-001", result.State.PlayerZones["P1"].Base);
         Assert.Equal("UNL·T07", result.State.CardObjects["P1-LEGEND-LILLIA-REPRINT-TOKEN-001"].CardNo);

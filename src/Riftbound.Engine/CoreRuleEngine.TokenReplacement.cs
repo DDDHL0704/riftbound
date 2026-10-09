@@ -28,6 +28,7 @@ public sealed partial class CoreRuleEngine
         var item = parent.RepeatExecutions is { } executions && parent.CompletedRepeatExecutions < executions.Count
             ? parent with { EffectKind = executions[parent.CompletedRepeatExecutions].EffectKind, EffectRepeatCount = 1, RepeatExecutions = null }
             : parent;
+        if (TryGetLegendUnitToken(item.EffectKind, out _)) return 1;
         if (item.HeldContext is { Kind: "MINION" or "ROBOT" } held) return held.Amount;
         if (UnitDestroyedTriggerSpecRules.TryGetTrigger(item.CardNo,
                 t => UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger(t) && t.Kind == item.EffectKind, out var death))

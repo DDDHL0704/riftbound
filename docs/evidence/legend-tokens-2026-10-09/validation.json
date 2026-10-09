@@ -1,0 +1,124 @@
+{
+  "baseCommit": "7178658be27b1aa2a157c29505a48dc42346e6a6",
+  "newCases": 17,
+  "check": {
+    "command": "python3 scripts/test-rules.py check --output var/qa/legend-tokens-2026-10-09/check",
+    "summary": {
+      "status": "PASSED",
+      "profile": "check",
+      "seconds": 84.44,
+      "total": 9025,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "check",
+          "total": 9025,
+          "passed": 9025,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 74.78
+        }
+      ]
+    }
+  },
+  "focus": {
+    "command": "RIFTBOUND_TOKEN_REPLACEMENT_EVIDENCE=$PWD/var/qa/legend-tokens-2026-10-09/native python3 scripts/test-rules.py focus --match OfficialLegendTokenTests --match TokenReplacementNativeContinuationTests --match RenataTokenActiveEntryStaticAbilityTests --match P79LegendActLillia --output var/qa/legend-tokens-2026-10-09/focus-4",
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 39.17,
+      "total": 26,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 26,
+          "passed": 26,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 6.93
+        }
+      ]
+    }
+  },
+  "native": {
+    "build": "dotnet build clients/godot/Riftbound.GodotClient.csproj --no-restore -v:q",
+    "buildLog": "var/qa/legend-tokens-2026-10-09/native-build.log",
+    "result": "0 warnings, 0 errors",
+    "proof": "Godot --headless --path clients/godot res://scenes/debug/TokenReplacementInteractionProof.tscn -- --evidence=$PWD/var/qa/legend-tokens-2026-10-09/native/legend",
+    "proofLogs": [
+      "var/qa/legend-tokens-2026-10-09/native-proof.log",
+      "var/qa/legend-tokens-2026-10-09/native-proof-legend.log"
+    ],
+    "replayCommand": "RIFTBOUND_TOKEN_REPLACEMENT_EVIDENCE=$PWD/var/qa/legend-tokens-2026-10-09/native dotnet test tests/Riftbound.ConformanceTests --no-build --no-restore --filter 'FullyQualifiedName~TokenReplacementNativeContinuationTests' --results-directory var/qa/legend-tokens-2026-10-09/native-replay --logger 'trx;LogFileName=results.trx' -v:q",
+    "replayCounts": {
+      "total": "4",
+      "executed": "4",
+      "passed": "4",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "commands": {
+      "accept": {
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "2cb7040a3cea4c09269aeb6ec0b037c57d6be887736b0338c2d8a2c39a44d515",
+          "expectedStateHash": "2cb7040a3cea4c09269aeb6ec0b037c57d6be887736b0338c2d8a2c39a44d515",
+          "errors": []
+        }
+      },
+      "decline": {
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "01d6348a5e6a031c734530beeeae932d229508532aa0961db86ecfb98179bcef",
+          "expectedStateHash": "01d6348a5e6a031c734530beeeae932d229508532aa0961db86ecfb98179bcef",
+          "errors": []
+        }
+      },
+      "legend/accept": {
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "83b81ca92621f71149ba7e17820daf5769db9d6ec77a6d76c71501d9682dbda9",
+          "expectedStateHash": "83b81ca92621f71149ba7e17820daf5769db9d6ec77a6d76c71501d9682dbda9",
+          "errors": []
+        }
+      },
+      "legend/decline": {
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "3431849b915fb48226c67027cdfbd64a04e03d38e49bc7606c7a204d08d44e4a",
+          "expectedStateHash": "3431849b915fb48226c67027cdfbd64a04e03d38e49bc7606c7a204d08d44e4a",
+          "errors": []
+        }
+      }
+    }
+  },
+  "previousCi": {
+    "url": "https://github.com/DDDHL0704/riftbound/actions/runs/37935540029",
+    "head": "7178658be27b1aa2a157c29505a48dc42346e6a6",
+    "conclusion": "success",
+    "scope": "full rules, connection recovery, macOS and Windows packaging"
+  },
+  "boundaries": [
+    "No live user match or service restart",
+    "Headless native controls, not human visual or two-client acceptance",
+    "No Windows device acceptance",
+    "LeBlanc and optional token battlefield placement remain unaudited implementations",
+    "Current commit full CI is separate from local check"
+  ]
+}

@@ -8,13 +8,16 @@ namespace Riftbound.ConformanceTests;
 public sealed class TokenReplacementNativeContinuationTests
 {
     [Theory]
-    [InlineData("accept")]
-    [InlineData("decline")]
-    public async Task NativeChoiceCommandsRestoreAndReplay(string branch)
+    [InlineData("accept", false)]
+    [InlineData("accept", true)]
+    [InlineData("decline", false)]
+    [InlineData("decline", true)]
+    public async Task NativeChoiceCommandsRestoreAndReplay(string branch, bool legend)
     {
-        var initial=OfficialTokenReplacementTests.Position(2);
+        var initial=legend ? OfficialLegendTokenTests.Position("SFD·197/221", 2) : OfficialTokenReplacementTests.Position(2);
         var journal=new Journal();var engine=new CoreRuleEngine();var session=new MatchSession(initial,engine,journal);
         var root=Environment.GetEnvironmentVariable("RIFTBOUND_TOKEN_REPLACEMENT_EVIDENCE");
+        if (legend && root is not null) root = Path.Combine(root, "legend");
         var json=new JsonSerializerOptions(JsonSerializerDefaults.Web){WriteIndented=true};
         void Export(string name,object value)
         {
@@ -27,7 +30,9 @@ public sealed class TokenReplacementNativeContinuationTests
                 raw??JsonSerializer.SerializeToElement(command,command.GetType(),json),default);
             Assert.True(result.Accepted,result.ErrorMessage);OfficialGraveyardRecastTests.Restore(result.State);return result;
         }
-        var result=await Submit("P1",new PlayCardCommand("C","UNL-200/219",["TARGET"]));
+        var result=await Submit("P1",legend
+            ? new LegendActCommand("LEGEND", LegendActionAbilityCatalog.AzirLegendAbilityId, [], ["SPEND_MANA:1"])
+            : new PlayCardCommand("C","UNL-200/219",["TARGET"]));
         for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
         Export("prompt.json",session.PromptFor("P1"));Export("snapshot.json",result.Snapshots["P1"]);
         var pending=result.State.PendingCardChoice!;
@@ -45,7 +50,7 @@ public sealed class TokenReplacementNativeContinuationTests
             pending=result.State.PendingCardChoice!;Assert.Equal(["Z1"],pending.LegalObjectIds);
             result=await Submit("P1",new ChooseCardsCommand(pending.ChoiceId,pending.ChoiceWindow,["Z1"]));
         }
-        for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
+        if (!legend) for(var i=0;i<2;i++)result=await Submit(result.State.PriorityPlayerId!,new PassPriorityCommand());
         Assert.Equal(branch=="accept"?3:1,OfficialTokenReplacementTests.Tokens(result.State).Length);
         Assert.Empty(result.State.StackItems);Assert.Null(result.State.PendingCardChoice);
         var commands=journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();

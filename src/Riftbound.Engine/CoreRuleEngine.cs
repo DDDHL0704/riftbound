@@ -9796,6 +9796,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
 
+        if (TryGetLegendUnitToken(ability.EffectKind, out _))
+            return QueueLegendUnitToken(state with { RunePools = runePools, PlayerExperience = playerExperience,
+                CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability, events);
+
         switch (ability.EffectKind)
         {
             case LegendAbilityEffectKinds.DrawOne:
@@ -9971,33 +9975,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
                 break;
             }
-            case LegendAbilityEffectKinds.CreateSandSoldier:
-                CreateLegendSandSoldier(
-                    playerZones,
-                    cardObjects,
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events);
-                break;
-            case LegendAbilityEffectKinds.CreateMinion:
-                CreateLegendMinion(
-                    playerZones,
-                    cardObjects,
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events);
-                break;
-            case LegendAbilityEffectKinds.CreateFaerie:
-                CreateLegendFaerie(
-                    playerZones,
-                    cardObjects,
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    events);
-                break;
         }
 
         var nextState = state with
@@ -10374,13 +10351,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var reduction = ability.ManaCostReductionKind switch
         {
             LegendAbilityManaCostReductionKinds.FriendlyEphemeralFieldObjects =>
-                CountFriendlyEphemeralFieldObjects(state, playerId),
+                CountFriendlyEphemeralFieldUnits(state, playerId),
             _ => 0
         };
         return Math.Max(0, ability.ManaCost - reduction);
     }
 
-    private static int CountFriendlyEphemeralFieldObjects(MatchState state, string playerId)
+    internal static int CountFriendlyEphemeralFieldUnits(MatchState state, string playerId)
     {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones))
         {
@@ -10392,6 +10369,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Count(objectId => state.CardObjects.TryGetValue(objectId, out var objectState)
                 && IsControlledFieldObject(state, playerId, objectId)
                 && SourceObjectControlledByPlayerOrLegacyOwned(objectState, playerId)
+                && IsFaceUpNonStandbyUnit(objectState)
                 && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal));
     }
 
@@ -11098,202 +11076,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload));
     }
 
-    private static void CreateLegendMinion(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string sourceObjectId,
-        string abilityId,
-        List<GameEvent> events)
-    {
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return;
-        }
-
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
-        var tokenState = TryGetUnitTokenDefinition("随从", 1, out var tokenDefinition)
-            ? tokenDefinition.CreateObject(tokenObjectId, playerId, playerId)
-            : new CardObjectState(
-                tokenObjectId,
-                power: 1,
-                tags: [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
-                ownerId: playerId,
-                controllerId: playerId);
-        tokenState = ApplyUnitTokenEntryStaticAbility(
-            playerZones,
-            cardObjects,
-            playerId,
-            tokenObjectId,
-            tokenState,
-            out var entersReadyFromStaticAbility,
-            out var entryStaticAbilitySourceObjectId,
-            out var entryStaticAbilitySourceState,
-            out var entryStaticAbility);
-        cardObjects[tokenObjectId] = tokenState;
-        playerZones[playerId] = zones with
-        {
-            Base = zones.Base.Concat([tokenObjectId]).ToArray()
-        };
-        var payload = new Dictionary<string, object?>
-        {
-            ["playerId"] = playerId,
-            ["sourceObjectId"] = sourceObjectId,
-            ["abilityId"] = abilityId,
-            ["tokenObjectId"] = tokenObjectId,
-            ["tokenName"] = "随从",
-            ["power"] = tokenState.Power,
-            ["destinationZone"] = "BASE",
-            ["tokenTags"] = tokenState.Tags.ToArray()
-        };
-        if (!string.IsNullOrWhiteSpace(tokenState.CardNo))
-        {
-            payload["tokenCardNo"] = tokenState.CardNo;
-        }
-
-        AddEntryStaticAbilityPayload(
-            payload,
-            entersReadyFromStaticAbility ? entryStaticAbility : null,
-            entryStaticAbilitySourceObjectId,
-            entryStaticAbilitySourceState.CardNo);
-        events.Add(CaptureUnitEntry(new GameEvent(
-            "UNIT_TOKEN_CREATED",
-            $"{sourceObjectId} 打出随从",
-            payload), playerZones, cardObjects));
-    }
-
-    private static void CreateLegendFaerie(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string sourceObjectId,
-        string abilityId,
-        List<GameEvent> events)
-    {
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return;
-        }
-
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
-        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.FaerieTokenCardNo, out var definition)
-            ? definition.CreateObject(tokenObjectId, playerId, playerId)
-            : new CardObjectState(
-                tokenObjectId,
-                power: 3,
-                tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral, "仙灵"],
-                cardNo: P6TokenFactoryCatalog.FaerieTokenCardNo,
-                ownerId: playerId,
-                controllerId: playerId);
-        tokenState = ApplyUnitTokenEntryStaticAbility(
-            playerZones,
-            cardObjects,
-            playerId,
-            tokenObjectId,
-            tokenState,
-            out var entersReadyFromStaticAbility,
-            out var entryStaticAbilitySourceObjectId,
-            out var entryStaticAbilitySourceState,
-            out var entryStaticAbility);
-        cardObjects[tokenObjectId] = tokenState;
-        playerZones[playerId] = zones with
-        {
-            Base = zones.Base.Concat([tokenObjectId]).ToArray()
-        };
-        var payload = new Dictionary<string, object?>
-        {
-            ["playerId"] = playerId,
-            ["sourceObjectId"] = sourceObjectId,
-            ["abilityId"] = abilityId,
-            ["tokenObjectId"] = tokenObjectId,
-            ["tokenCardNo"] = tokenState.CardNo,
-            ["tokenName"] = "精灵",
-            ["power"] = tokenState.Power,
-            ["destinationZone"] = "BASE",
-            ["tokenTags"] = tokenState.Tags.ToArray()
-        };
-        AddEntryStaticAbilityPayload(
-            payload,
-            entersReadyFromStaticAbility ? entryStaticAbility : null,
-            entryStaticAbilitySourceObjectId,
-            entryStaticAbilitySourceState.CardNo);
-        events.Add(CaptureUnitEntry(new GameEvent(
-            "UNIT_TOKEN_CREATED",
-            $"{sourceObjectId} 打出精灵",
-            payload), playerZones, cardObjects));
-    }
-
-    private static void CreateLegendSandSoldier(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string sourceObjectId,
-        string abilityId,
-        List<GameEvent> events)
-    {
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return;
-        }
-
-        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
-        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.SandSoldierTokenCardNo, out var definition)
-            ? definition.CreateObject(tokenObjectId, playerId, playerId)
-            : new CardObjectState(
-                tokenObjectId,
-                power: 2,
-                tags: [CardObjectTags.UnitCard, CardObjectTags.SandSoldier],
-                cardNo: P6TokenFactoryCatalog.SandSoldierTokenCardNo,
-                ownerId: playerId,
-                controllerId: playerId);
-        var tokenTags = ApplyAzirSandSoldierTemperedTags(
-            playerZones,
-            cardObjects,
-            playerId,
-            tokenState.Tags);
-        tokenState = tokenState with
-        {
-            Tags = tokenTags
-        };
-        tokenState = ApplyUnitTokenEntryStaticAbility(
-            playerZones,
-            cardObjects,
-            playerId,
-            tokenObjectId,
-            tokenState,
-            out var entersReadyFromStaticAbility,
-            out var entryStaticAbilitySourceObjectId,
-            out var entryStaticAbilitySourceState,
-            out var entryStaticAbility);
-
-        cardObjects[tokenObjectId] = tokenState;
-        playerZones[playerId] = zones with
-        {
-            Base = zones.Base.Concat([tokenObjectId]).ToArray()
-        };
-        var payload = new Dictionary<string, object?>
-        {
-            ["playerId"] = playerId,
-            ["sourceObjectId"] = sourceObjectId,
-            ["abilityId"] = abilityId,
-            ["tokenObjectId"] = tokenObjectId,
-            ["tokenCardNo"] = tokenState.CardNo,
-            ["tokenName"] = "黄沙士兵",
-            ["power"] = tokenState.Power,
-            ["destinationZone"] = "BASE",
-            ["tokenTags"] = tokenState.Tags.ToArray(),
-            ["azirTempered"] = tokenState.Tags.Contains(CardEquipmentKeywordNames.Tempered, StringComparer.Ordinal)
-        };
-        AddEntryStaticAbilityPayload(
-            payload,
-            entersReadyFromStaticAbility ? entryStaticAbility : null,
-            entryStaticAbilitySourceObjectId,
-            entryStaticAbilitySourceState.CardNo);
-        events.Add(CaptureUnitEntry(new GameEvent(
-            "UNIT_TOKEN_CREATED",
-            $"{sourceObjectId} 打出黄沙士兵",
-            payload), playerZones, cardObjects));
-    }
 
     private static ResolutionResult ResolveXerathDamageAbility(
         MatchState state,
@@ -30734,6 +30516,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
         if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
+        if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
