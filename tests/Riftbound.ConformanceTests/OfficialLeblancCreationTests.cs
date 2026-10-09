@@ -23,10 +23,10 @@ public sealed class OfficialLeblancCreationTests
                 ["F"] = new("F", cardNo: "UNL-074/219", power: 3, ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.UnitCard]) },
             PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) { ["P1"] = s.PlayerZones["P1"] with { Base = s.PlayerZones["P1"].Base.Append("F").ToArray() } } };
         var ordered = await Act(s, "P1", new OrderTriggersCommand(OrderedTriggerIds: costFirst ? ["FIELD", "COST"] : ["COST", "FIELD"]));
-        Assert.Equal(costFirst ? "TOKEN_CREATION_COST" : "TRIGGER_CONFIRMATION", ordered.State.PendingCardChoice!.ChoiceWindow);
+        Assert.Equal(costFirst ? "TRIGGER_COST_CONFIRMATION" : "TRIGGER_CONFIRMATION", ordered.State.PendingCardChoice!.ChoiceWindow);
         Assert.Null(ordered.State.PriorityPlayerId); Restore(ordered.State);
         var next = await Choose(ordered.State, costFirst ? "H2" : "UNIT");
-        Assert.Equal(costFirst ? "TRIGGER_CONFIRMATION" : "TOKEN_CREATION_COST", next.State.PendingCardChoice!.ChoiceWindow);
+        Assert.Equal(costFirst ? "TRIGGER_CONFIRMATION" : "TRIGGER_COST_CONFIRMATION", next.State.PendingCardChoice!.ChoiceWindow);
         Assert.Null(next.State.PriorityPlayerId); Restore(next.State);
         next = await Choose(next.State, costFirst ? "UNIT" : "H2");
         Assert.Null(next.State.PendingCardChoice); Assert.Equal("P1", next.State.PriorityPlayerId); Restore(next.State);
@@ -86,7 +86,7 @@ public sealed class OfficialLeblancCreationTests
         Assert.Empty(Tokens(conquered.State)); Assert.Equal(3, conquered.State.PlayerZones["P1"].Hand.Count);
         Assert.False(conquered.State.CardObjects["LEGEND"].IsExhausted); Assert.Single(conquered.State.StackItems); Restore(conquered.State);
         var pending = conquered;
-        Assert.Equal("TOKEN_CREATION_COST", pending.State.PendingCardChoice!.ChoiceWindow);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", pending.State.PendingCardChoice!.ChoiceWindow);
         Assert.DoesNotContain("H2", JsonSerializer.Serialize(pending.Prompts["P2"])); Restore(pending.State);
         var paid = await Choose(pending.State, "H2");
         Assert.Contains("H1", paid.State.PlayerZones["P1"].Hand); Assert.Contains("H2", paid.State.PlayerZones["P1"].Graveyard);
@@ -192,11 +192,11 @@ public sealed class OfficialLeblancCreationTests
             new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["H2"]), default);
         Assert.False(rejected.Accepted); Assert.Equal(MatchStateHasher.Hash(pending.State), MatchStateHasher.Hash(rejected.State));
         var paid = await Choose(pending.State, "H2"); Restore(paid.State);
-        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(paid.State with { StackItems = [paid.State.StackItems.Single() with { DiscardExhaustCost = null }] }), e => e.Contains("unconfirmed token creation"));
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(paid.State with { StackItems = [paid.State.StackItems.Single() with { TriggerCost = null }] }), e => e.Contains("unconfirmed trigger cost"));
         paid = await Top(paid.State);
         var item = paid.State.StackItems.Single();
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(paid.State with { StackItems = [item with {
-            DiscardExhaustCost = item.DiscardExhaustCost! with { Discarded = new("H1", 0) } }] }), e => e.Contains("cost receipt"));
+            TriggerCost = item.TriggerCost! with { Discarded = new("H1", 0) } }] }), e => e.Contains("cost receipt"));
         var created = await Choose(paid.State); var targetChoice = created.State.PendingCardChoice!;
         rejected = await new CoreRuleEngine().ResolveAsync(created.State, new("wrong-target", "P1", CommandTypes.ChooseCards),
             new ChooseCardsCommand(targetChoice.ChoiceId, targetChoice.ChoiceWindow, ["Z1"]), default);

@@ -569,10 +569,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Select(choiceId => choiceId.Trim())
             .ToArray();
         var legalChoices = pendingPayment.LegalPaymentChoiceIds.ToHashSet(StringComparer.Ordinal);
+        if (pendingPayment.PaymentWindow == TriggerCostWindow)
+            return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.ResolvingStackItemId is not null)
             return ResolveInsightPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
-        if (pendingPayment.HeldContext is not null)
-            return ResolveHeldPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal))
         {
             return ResolveTriggerPayCost(
@@ -4205,7 +4205,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION") return ResolveTriggerTargetConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER") return ResolveInsightChoice(state, pendingChoice, submittedObjectIds);
-        if (pendingChoice.ChoiceWindow == TokenCreationCostWindow) return ResolveDiscardTokenCreationChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == TriggerCostWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TokenReplacementWindow) return ResolveTokenReplacementChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "RECYCLE_FOR_EFFECT_PLAY") return ResolveRecyclingChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT") return ResolveRevealedHandChoice(state, pendingChoice, submittedObjectIds);

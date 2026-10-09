@@ -587,7 +587,7 @@ public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string
 
 public sealed record StackItemState
 {
-    public DiscardExhaustCostReceipt? DiscardExhaustCost { get; init; }
+    public TriggerCostReceipt? TriggerCost { get; init; }
     public TokenEntryPlan? TokenEntryPlan { get; init; }
     public int CompletedRepeatExecutions { get; init; }
 
@@ -782,9 +782,6 @@ public sealed record PendingPaymentState
         Reason = Normalize(reason);
         PaymentResourceActionIds = NormalizeList(paymentResourceActionIds);
     }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public HeldTriggerContext? HeldContext { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ResolvingStackItemId { get; init; }
@@ -4216,7 +4213,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { DiscardExhaustCost = item.DiscardExhaustCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4253,7 +4250,7 @@ public sealed record MatchState
             pendingPayment.PowerCostByTrait,
             pendingPayment.LegalPaymentChoiceIds,
             pendingPayment.Reason,
-            pendingPayment.PaymentResourceActionIds) { HeldContext = pendingPayment.HeldContext, ResolvingStackItemId = pendingPayment.ResolvingStackItemId };
+            pendingPayment.PaymentResourceActionIds) { ResolvingStackItemId = pendingPayment.ResolvingStackItemId };
     }
 
     private static IReadOnlyList<TemporaryPaymentResourceState> NormalizeTemporaryPaymentResources(
@@ -5349,7 +5346,9 @@ public sealed record ResolutionResult(
                 ["index"] = index, ["effectKind"] = execution.EffectKind,
                 ["targetObjectIds"] = VisibleObjectIdsForViewer(state, execution.TargetObjectIds, viewerPlayerId)
             }).ToArray();
-        if (!hiddenSource && item.HeldContext is { Kind: "LEBLANC_DISCARD" }) view["abilityLabel"] = "映像创建";
+        if (!hiddenSource && item.HeldContext is { } held && (held.Kind switch {
+            "LEBLANC_DISCARD" => "映像创建", "VEX" => "据守抽牌", "RENATA" => "据守创建金币",
+            "PAY_POWER_SCORE" => "据守额外得分", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
         if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
         if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;
@@ -8932,7 +8931,7 @@ internal static class ActionPromptBuilder
             var cards = AnnotatePromptChoiceObjectIds(PendingCardChoiceDtos(state, cardChoice));
             var steps = new List<ActionPromptSelectionStepDto>();
             for (var index = 0; index < cardChoice.MaxCount; index++)
-                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TokenCreationCostWindow ? "弃置所选手牌并横置传奇；不选则放弃" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择一名友方单位" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
+                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? cardChoice.EffectKind == "HOLD_LEBLANC_DISCARD" ? "弃置所选手牌并横置传奇；不选则放弃" : "横置所选传奇；不选则放弃" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择一名友方单位" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
             selectionSteps = steps;
         }
         if (action == CommandTypes.PayCost && state.PendingPayment is { } payment && payment.PlayerId == playerId
@@ -8949,7 +8948,7 @@ internal static class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenCreationCostWindow ? "确认映像费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == "TRIGGER_CONFIRMATION" ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == "TRIGGER_CONFIRMATION" ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,

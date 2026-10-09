@@ -25917,14 +25917,16 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
-        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TokenCreationCostWindow } creationCost
-            && !CoreRuleEngine.ValidDiscardTokenCreationChoice(state, creationCost)) errors.Add("invalid token creation cost choice");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TriggerCostWindow } creationCost
+            && !CoreRuleEngine.ValidTriggerCostChoice(state, creationCost)) errors.Add("invalid trigger cost choice");
         foreach (var item in state.StackItems)
-            if (item.HeldContext is { Kind: "LEBLANC_DISCARD" } && item.DiscardExhaustCost is null
+            if (CoreRuleEngine.NeedsTriggerCostConfirmation(item)
                 && (state.PriorityPlayerId is not null || state.PendingCardChoice is null && state.PendingPayment is null && state.TriggerQueue.Count == 0))
-                errors.Add("unconfirmed token creation cost");
+                errors.Add("unconfirmed trigger cost");
+        if (state.PendingPayment is { PaymentWindow: CoreRuleEngine.TriggerCostWindow } triggerCost
+            && !CoreRuleEngine.ValidTriggerCostPayment(state, triggerCost)) errors.Add("invalid trigger cost payment");
         foreach (var item in state.StackItems)
-            if (!CoreRuleEngine.ValidDiscardExhaustReceipt(state, item)) errors.Add("invalid discard exhaust cost receipt");
+            if (!CoreRuleEngine.ValidTriggerCostReceipt(state, item)) errors.Add("invalid trigger cost receipt");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidLegendUnitToken(item)) errors.Add("invalid legend unit token instruction");
         foreach (var item in state.StackItems)
@@ -26032,7 +26034,7 @@ public static class MatchRecoveryValidator
             && !CoreRuleEngine.ValidTriggerChoice(state, confirmation)) errors.Add("invalid trigger confirmation");
 
         if (state.PendingPayment is { } payment
-            && (payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
+            && (payment.PaymentWindow != CoreRuleEngine.TriggerCostWindow && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
             && !CoreRuleEngine.ValidInsightPayment(state, payment)) errors.Add("invalid Insight payment continuation");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.InsightContext is { } captured
@@ -26104,7 +26106,7 @@ public static class MatchRecoveryValidator
         }
         foreach (var context in state.StackItems.Select(x => x.HeldContext)
             .Concat(state.TriggerQueue.Select(x => x.HeldContext)).Append(state.PendingCardChoice?.HeldContext)
-            .Append(state.PendingPayment?.HeldContext).Where(x => x is not null))
+            .Where(x => x is not null))
         {
             if (string.IsNullOrWhiteSpace(context!.CardNo) || string.IsNullOrWhiteSpace(context.BattlefieldObjectId)
                 || context.SourceGeneration < 0 || context.Amount < 0
@@ -26117,7 +26119,7 @@ public static class MatchRecoveryValidator
         if (state.StackItems.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)
             || state.TriggerQueue.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)
             || state.PendingCardChoice is { ChoiceWindow: "HOLD_EFFECT", HeldContext: null }
-            || state.PendingPayment is { PaymentWindow: "HOLD_EFFECT", HeldContext: null })
+            || state.PendingPayment is { PaymentWindow: "HOLD_EFFECT" })
             errors.Add("missing captured Hold context");
     }
 

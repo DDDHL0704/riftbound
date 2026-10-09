@@ -157,8 +157,10 @@ public sealed class OfficialHoldSequenceTests
     public async Task LegendExhaustCostRequiresAnExplicitChoice(string no, bool accept)
     {
         var state = AddLegend(State("OGN·294/298"), no);
-        var result = await Drain((await Start(state)).State);
+        var result = await Start(state);
         var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", choice.ChoiceWindow);
+        Assert.Null(result.State.PriorityPlayerId);
         Assert.False(result.State.CardObjects["LEGEND"].IsExhausted);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         var rejected = await Resolve(result.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["LEGEND"]), "P2");
@@ -167,6 +169,12 @@ public sealed class OfficialHoldSequenceTests
         result = await Resolve(result.State, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, accept ? ["LEGEND"] : []));
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(accept, result.State.CardObjects["LEGEND"].IsExhausted);
+        if (accept) {
+            Assert.Empty(result.State.PlayerZones["P1"].Hand);
+            Assert.DoesNotContain(result.Events, e => e.Kind == "EQUIPMENT_TOKEN_CREATED");
+            Assert.NotNull(result.State.PriorityPlayerId);
+            result = await TurnSequenceTestDriver.Complete(result);
+        }
         Assert.Equal(accept && no == "UNL-193/219" ? 2 : 1, result.State.PlayerZones["P1"].Hand.Count);
         Assert.Equal(accept && no == "SFD·201/221" ? 1 : 0, result.Events.Count(e => e.Kind == "EQUIPMENT_TOKEN_CREATED"));
     }
@@ -189,16 +197,18 @@ public sealed class OfficialHoldSequenceTests
     public async Task EnergyHubPaymentPausesStartAndSpendsOnlyWhenChosen(bool pay)
     {
         var start = await Start(State("SFD·214/221"));
-        var response = await Drain(start.State);
+        var response = start;
         var payment = Assert.IsType<PendingPaymentState>(response.State.PendingPayment);
         Assert.Equal("CHANNEL", response.State.TurnStartStep);
         Assert.Equal(1, response.State.PlayerScores["P1"]);
         var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(response.State))!;
         var result = await Resolve(restored, new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [pay ? "PAY" : "DECLINE"]));
         Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal(pay ? 1 : 0, result.Events.Count(e => e.Kind == "COST_PAID"));
+        if (pay) result = await TurnSequenceTestDriver.Complete(result);
         Assert.Equal(pay ? 2 : 1, result.State.PlayerScores["P1"]);
         Assert.Equal(MatchPhases.Main, result.State.Phase);
-        Assert.Equal(pay ? 1 : 0, result.Events.Count(e => e.Kind == "POWER_SPENT"));
         var repeat = await Resolve(result.State, new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]));
         Assert.False(repeat.Accepted);
         Assert.Equal(MatchStateHasher.Hash(result.State), MatchStateHasher.Hash(repeat.State));
@@ -208,7 +218,7 @@ public sealed class OfficialHoldSequenceTests
     public async Task EnergyHubInsufficientOrWrongPlayerPaymentDoesNotAdvanceOrMutate()
     {
         var state = State("SFD·214/221") with { RunePools = new Dictionary<string,RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty } };
-        var response = await Drain((await Start(state)).State);
+        var response = await Start(state);
         var payment = response.State.PendingPayment!;
         foreach (var player in new[] { "P1", "P2" }) {
             var result = await Resolve(response.State, new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]), player);
@@ -333,7 +343,7 @@ public sealed class OfficialHoldSequenceTests
         public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken) { Entries.Add(entry); return ValueTask.CompletedTask; }
     }
 
-    private static MatchState AddLegend(MatchState state, string no)
+    internal static MatchState AddLegend(MatchState state, string no)
     {
         var cards = state.CardObjects.ToDictionary(x => x.Key, x => x.Value);
         cards["LEGEND"] = new("LEGEND", cardNo: no, ownerId: "P1", controllerId: "P1");
@@ -359,7 +369,7 @@ public sealed class OfficialHoldSequenceTests
     private static ValueTask<ResolutionResult> Start(MatchState state) => Resolve(state, new PassPriorityCommand());
     private static ValueTask<ResolutionResult> Resolve(MatchState state, GameCommand command, string player = "P1") =>
         new CoreRuleEngine().ResolveAsync(state, new(Guid.NewGuid().ToString(), player, command.CmdType), command, default);
-    private static MatchState AddUnit(MatchState state, string id, string no, string field, string controller)
+    internal static MatchState AddUnit(MatchState state, string id, string no, string field, string controller)
     {
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         cards[id] = new(id, cardNo: no, power: 3, tags: [CardObjectTags.UnitCard], ownerId: controller, controllerId: controller);
@@ -369,12 +379,12 @@ public sealed class OfficialHoldSequenceTests
         positions[id] = new(controller, "BATTLEFIELD", field);
         return state with { CardObjects = cards, PlayerZones = zones, ObjectLocations = positions };
     }
-    private static MatchState State(string battlefield)
+    internal static MatchState State(string battlefield)
     {
         var cards = new Dictionary<string, CardObjectState> {
             ["F"] = new("F", cardNo: battlefield, tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P1", controllerId: "P1"),
             ["OTHER"] = new("OTHER", cardNo: "OGN·294/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2", controllerId: "P2") };
-        var positions = new Dictionary<string, ObjectLocationState> { ["F"] = new("P1", "BATTLEFIELD"), ["OTHER"] = new("P2", "BATTLEFIELD") };
+        var positions = new Dictionary<string, ObjectLocationState> { ["F"] = new("P1", "BATTLEFIELD", "F"), ["OTHER"] = new("P2", "BATTLEFIELD", "OTHER") };
         var deck = Enumerable.Range(0, 12).Select(i => "D" + i).ToArray();
         foreach (var id in deck) { cards[id] = new(id, cardNo: "SFD·125/221", tags: [CardObjectTags.UnitCard], ownerId: "P1", controllerId: "P1"); positions[id] = new("P1", "MAIN_DECK"); }
         var runes = new[] { "R1", "R2", "R3" };

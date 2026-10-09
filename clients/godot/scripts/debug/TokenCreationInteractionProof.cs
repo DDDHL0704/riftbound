@@ -23,7 +23,7 @@ public partial class TokenCreationInteractionProof : Control
                 var bar=GD.Load<PackedScene>("res://scenes/components/ActionBar.tscn").Instantiate<ActionBar>();AddChild(bar);
                 bar.ActionSelected+=action=>controller.SelectAction(action);bar.ShowPrompt(view["message"].AsString(),controller.Actions);
                 var label=controller.Actions.Single(a=>a.Name=="CHOOSE_CARDS").Label;
-                Check(label == (stage == "cost" ? "确认映像费用" : "确认触发技能"), "Server distinguishes cost and copy stages");
+                Check(label == (stage == "cost" ? "确认触发费用" : "确认触发技能"), "Server distinguishes cost and copy stages");
                 bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b=>b.Text==label).EmitSignal(BaseButton.SignalName.Pressed);
                 Check(!controller.TrySelectObject(stage == "cost" ? "UNIT" : "Z1"), "Only server-listed choices at this stage can be selected");
                 if (selected.Length > 0) Check(controller.Current!.TargetIds.Contains(selected) || controller.TrySelectObject(selected), "Player selection or unique mandatory choice matches the intended card");

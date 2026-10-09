@@ -80,6 +80,7 @@ public sealed partial class CoreRuleEngine
         IReadOnlyList<string>? choices = null)
     {
         var context = item.HeldContext!;
+        if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind == "LEBLANC_DISCARD") return ResolveDiscardTokenCreation(state, item);
         if (context.Kind == "LOOK_EQUIPMENT" && TryGetDeckChoiceBehavior(item, out var deckBehavior))
         {
@@ -117,11 +118,11 @@ public sealed partial class CoreRuleEngine
             "RETURN_HERO" => zones[player].ChampionZone.Count == 0 ? zones[player].Graveyard.Where(id =>
                 cards.TryGetValue(id, out var card) && IsSelectedChampionObjectId(state, player, id, card)).ToArray() : [],
             "CHANNEL_OPTIONAL" => zones[player].RuneDeck.Count > 0 ? [item.SourceObjectId] : [],
-            "VEX" or "RENATA" or "IVERN" => sourceExists && source!.ControllerId == player && !source.IsExhausted ? [item.SourceObjectId] : [],
+            "IVERN" => sourceExists && source!.ControllerId == player && !source.IsExhausted ? [item.SourceObjectId] : [],
             _ => []
         };
         var needsChoice = context.Kind is "BOON" or "MOVE_BASE" or "RETURN_PERMANENT" or "RETURN_HERO"
-            or "CHANNEL_OPTIONAL" or "VEX" or "RENATA" or "IVERN";
+            or "CHANNEL_OPTIONAL" or "IVERN";
         if (needsChoice && choices is null)
         {
             var legal = LegalChoices();
@@ -140,11 +141,6 @@ public sealed partial class CoreRuleEngine
             ["effectKind"] = item.EffectKind, ["battlefieldObjectId"] = field }));
         switch (context.Kind)
         {
-            case "PAY_POWER_SCORE":
-                payment = new($"hold-payment-{state.Tick + 1}-{item.StackItemId}", "HOLD_EFFECT", player,
-                    powerCost: context.Amount, legalPaymentChoiceIds: ["PAY", DeclinePaymentChoiceId],
-                    reason: "可选择支付 4 点任意符能，额外获得 1 分") { HeldContext = context };
-                break;
             case "IVERN":
                 if (TryResolveIvernLegendBrushTrigger(zones, cards, player, field, item.SourceObjectId,
                     "BATTLEFIELD_HELD_REPLACE_WITH_BRUSH", out var brushEvents)) events.AddRange(brushEvents);
@@ -172,13 +168,12 @@ public sealed partial class CoreRuleEngine
                     context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events);
                 break;
             case "GOLD": case "RENATA":
-                if (context.Kind == "RENATA") cards[item.SourceObjectId] = source! with { IsExhausted = true };
                 for (var i = 0; i < context.Amount; i++)
                     CreateLegendEquipmentToken(zones, cards, player, item.SourceObjectId, item.EffectKind, "金币",
                         [CardObjectTags.EquipmentCard, "金币", "反应"], true, events);
                 break;
             case "VEX":
-                cards[item.SourceObjectId] = source! with { IsExhausted = true }; Draw(1); break;
+                Draw(1); break;
             case "CHANNEL_ALL": case "CHANNEL_OPTIONAL":
                 foreach (var recipient in context.Kind == "CHANNEL_ALL" ? state.Seats.Keys.Order().ToArray() : new[] { player })
                 {
@@ -219,10 +214,12 @@ public sealed partial class CoreRuleEngine
                 var resource = BuildJhinMovementResourceTrigger(moved, controller, target, cards[target], "BATTLEFIELD:" + origin.BattlefieldObjectId, "BASE");
                 if (resource is not null) { triggers.Add(resource); events.Add(BuildTriggerQueuedEvent(resource)); }
                 break;
+            case "PAY_POWER_SCORE":
             case "SCORE":
-                var nextScores = scores.ToDictionary(e => e.Key, e => e.Value); nextScores[player] += context.Amount; scores = nextScores;
+                var scoreAmount = context.Kind == "PAY_POWER_SCORE" ? 1 : context.Amount;
+                var nextScores = scores.ToDictionary(e => e.Key, e => e.Value); nextScores[player] += scoreAmount; scores = nextScores;
                 if (nextScores[player] >= EffectiveWinningScore(state)) winner = player;
-                events.Add(new("SCORE_GAINED", "据守技能获得分数", new Dictionary<string, object?> { ["playerId"] = player, ["amount"] = context.Amount, ["score"] = nextScores[player], ["sourceObjectId"] = item.SourceObjectId }));
+                events.Add(new("SCORE_GAINED", "据守技能获得分数", new Dictionary<string, object?> { ["playerId"] = player, ["amount"] = scoreAmount, ["score"] = nextScores[player], ["sourceObjectId"] = item.SourceObjectId }));
                 break;
             case "SEVEN_WIN":
                 if (HeldUnitsAt(state, field, player).Length >= context.Amount) {
@@ -296,36 +293,6 @@ public sealed partial class CoreRuleEngine
         var priority = state.StackItems.LastOrDefault()?.ControllerId;
         return state with { ActivePlayerId = priority ?? state.TurnPlayerId, PriorityPlayerId = priority,
             PassedPriorityPlayerIds = [], TimingState = priority is null ? TimingStates.NeutralOpen : TimingStates.NeutralClosed };
-    }
-
-    private static ResolutionResult ResolveHeldPayment(MatchState state, PlayerIntent intent, PendingPaymentState pending,
-        IReadOnlyList<string> choices, int rawCount)
-    {
-        if (choices.Count != 1 || rawCount != 1 || choices[0] is not ("PAY" or "DECLINE"))
-            return RejectWithCorePrompts(state, "请选择支付或放弃。", ErrorCodes.InvalidTarget);
-        var pools = state.RunePools.ToDictionary(e => e.Key, e => e.Value);
-        var scores = state.PlayerScores.ToDictionary(e => e.Key, e => e.Value);
-        var events = new List<GameEvent>();
-        string? winner = null;
-        if (choices[0] == "PAY")
-        {
-            var pool = pools.GetValueOrDefault(intent.PlayerId, RunePool.Empty);
-            if (pool.TotalPower < pending.PowerCost)
-                return RejectWithCorePrompts(state, "符能不足，可以先使用符文或反应资源技能。", ErrorCodes.InsufficientCost);
-            var paid = PayPowerCost(pool, pending.PowerCost, new Dictionary<string, int>());
-            pools[intent.PlayerId] = new(pool.Mana, paid.AnyPower, paid.PowerByTrait);
-            scores[intent.PlayerId]++;
-            if (scores[intent.PlayerId] >= EffectiveWinningScore(state)) winner = intent.PlayerId;
-            events.Add(new("POWER_SPENT", "支付据守技能费用", new Dictionary<string, object?> {
-                ["playerId"] = intent.PlayerId, ["powerCost"] = pending.PowerCost }));
-            events.Add(new("SCORE_GAINED", "据守技能额外获得 1 分", new Dictionary<string, object?> {
-                ["playerId"] = intent.PlayerId, ["amount"] = 1, ["score"] = scores[intent.PlayerId],
-                ["sourceObjectId"] = pending.HeldContext!.BattlefieldObjectId }));
-        }
-        else events.Add(new("TRIGGER_PAYMENT_DECLINED", "放弃据守技能的可选支付", new Dictionary<string, object?> { ["playerId"] = intent.PlayerId }));
-        var next = RestoreAfterHeldChoice(state with { Tick = state.Tick + 1, PendingPayment = null, RunePools = pools,
-            PlayerScores = scores, WinnerPlayerId = winner, Status = winner is null ? state.Status : MatchStatuses.Finished });
-        return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
 }

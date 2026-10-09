@@ -75,13 +75,13 @@ public sealed partial class CoreRuleEngine
         // Confirm pending items in insertion order, regardless of which rule family
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(i =>
-            i.HeldContext is { Kind: "LEBLANC_DISCARD" } && i.DiscardExhaustCost is null
+            NeedsTriggerCostConfirmation(i)
             || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false });
         if (item is null) return result;
-        if (item.HeldContext is { Kind: "LEBLANC_DISCARD" }) return PrepareTokenCreationConfirmation(result);
+        if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item);
         if (item.ReflexiveCopy is { TargetConfirmed: false }) return PrepareReflexiveCopyConfirmation(result);
         if (item.SpellContext is not null) return PrepareSpellTriggerConfirmation(result);
         PendingCardChoiceState? choice = null; PendingPaymentState? payment = null;

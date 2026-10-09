@@ -1,0 +1,118 @@
+{
+  "baselineCommit": "9b32c6867252c2701ddf1c17837db41e95f2cc0e",
+  "addedCases": 25,
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 37.95,
+    "total": 27,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.75
+      }
+    ]
+  },
+  "batchCheck": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 78.02,
+    "total": 9069,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9069,
+        "passed": 9069,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 73.38
+      }
+    ]
+  },
+  "nativeBuild": {
+    "passed": true,
+    "warnings": 0,
+    "errors": 0,
+    "evidence": "var/qa/trigger-cost-2026-10-09/native-build.log"
+  },
+  "nativeControls": {
+    "newCommands": 6,
+    "leblancCommands": 3,
+    "evidence": [
+      "var/qa/trigger-cost-2026-10-09/native-proof.log",
+      "var/qa/trigger-cost-2026-10-09/native-leblanc-proof.log"
+    ]
+  },
+  "sessionRecoveryAndReplay": [
+    {
+      "evidence": "var/qa/trigger-cost-2026-10-09/native/hub-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/trigger-cost-2026-10-09/native/hub-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/trigger-cost-2026-10-09/native/renata-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/trigger-cost-2026-10-09/native/renata-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/trigger-cost-2026-10-09/native/vex-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/trigger-cost-2026-10-09/native/vex-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/trigger-cost-2026-10-09/native-leblanc/accept/replay.json",
+      "usedNative": [
+        "cost",
+        "copy"
+      ],
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/trigger-cost-2026-10-09/native-leblanc/decline/replay.json",
+      "usedNative": [
+        "cost"
+      ],
+      "isMatch": true,
+      "errors": []
+    }
+  ],
+  "baselineCI": {
+    "run": 37942638836,
+    "conclusion": "success"
+  },
+  "limits": [
+    "check profile is not the complete full-game suite; CI runs full",
+    "headless production controls are not visual or two-client natural match acceptance",
+    "no running API or user match restarted",
+    "Windows device acceptance not performed",
+    "Ivern/Brush replacement and remaining optional Hold confirmations remain open"
+  ]
+}

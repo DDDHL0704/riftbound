@@ -335,7 +335,15 @@ internal sealed class PromptInteractionController
                 : action.Option.Label;
 
         if (action.Option.Name == "PAY_COST" && selected.Length > 0)
+        {
             summary = "已选择：" + string.Join("、", selected.Select(entry => entry.Choice.Label));
+            using var paymentCandidate = JsonDocument.Parse(ReadString(action.Source, "candidateJson", "{}"));
+            if (paymentCandidate.RootElement.TryGetProperty("metadata", out var paymentMetadata)
+                && paymentMetadata.TryGetProperty("paymentWindow", out var paymentWindow)
+                && paymentWindow.GetString() == "TRIGGER_COST_CONFIRMATION")
+                summary += selected.Any(entry => entry.Choice.Id == "PAY")
+                    ? " · 先支付费用，双方响应后结算" : " · 移除触发技能，不支付费用";
+        }
 
         if (action.Option.Name == "CHOOSE_CARDS")
         {
@@ -354,9 +362,13 @@ internal sealed class PromptInteractionController
                 else if (window.GetString() == "RECYCLE_FOR_EFFECT_PLAY")
                     summary = selected.Length == 0 ? "放弃回收与再次打出"
                         : "支付回收费用：" + string.Join("、", selected.Select(entry => entry.Choice.Label));
-                else if (window.GetString() == "TOKEN_CREATION_COST")
-                    summary = selected.Length == 0 ? "放弃创建映像 · 不弃牌、不横置传奇"
-                        : "弃置：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 横置传奇，先等待响应；进场后再选复制对象";
+                else if (window.GetString() == "TRIGGER_COST_CONFIRMATION")
+                {
+                    var discard = metadata.TryGetProperty("effectKind", out var effect) && effect.GetString() == "HOLD_LEBLANC_DISCARD";
+                    summary = selected.Length == 0 ? discard ? "放弃创建映像 · 不弃牌、不横置传奇" : "放弃触发技能 · 不横置传奇"
+                        : discard ? "弃置：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 横置传奇，先等待响应；进场后再选复制对象"
+                        : "横置：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 先支付费用，双方响应后结算";
+                }
                 else if (window.GetString() == "TOKEN_ENTRY_REPLACEMENT")
                     summary = selected.Length == 0 ? "跳过本次替换 · 保留未使用的回合次数"
                         : "应用替换：" + string.Join("、", selected.Select(entry => entry.Choice.Label)) + " · 多打出一个复制体";
