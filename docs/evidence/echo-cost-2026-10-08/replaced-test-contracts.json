@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-08",
+  "reason": "Official CN 204.1.a and 820.1.c.2-3 replace mana-only and overriding Echo assumptions.",
+  "changes": [
+    {
+      "test": "P79BattlefieldHeldNextSpellEchoRepeatsSpellAndConsumesMarker",
+      "before": "One printed power supplied by fixture helper",
+      "after": "Two explicit red power, assert power paid equals two; keep stack and marker checks"
+    },
+    {
+      "test": "P79BattlefieldHeldNextSpellEchoPromptOffersGrantedEchoAndRepeatsThroughHub",
+      "before": "One ECHO entry interpreted as replacing innate Echo",
+      "after": "Both source choices required; submit granted Echo explicitly; keep API response/resolution checks"
+    },
+    {
+      "test": "SupplyPlayPowerThroughLegalRuneActionsAsync",
+      "before": "Only base printed and Haste power funded",
+      "after": "Use current selected complete Echo costs; recycle through real legal actions"
+    },
+    {
+      "test": "Keyword profile and three UI reason assertions",
+      "before": "Old source-path string and reason/count expectations",
+      "after": "Read official cost and new source/reduction semantics; cost recognition is not effect conformance"
+    }
+  ],
+  "notRemoved": [
+    "API replay and hidden-information assertions",
+    "Atomic rejection and payment checks",
+    "Full-game victory replay"
+  ]
+}

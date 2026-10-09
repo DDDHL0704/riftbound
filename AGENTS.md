@@ -1,5 +1,12 @@
 # Riftbound Project Agent Guide
 
+## Development Lifecycle
+
+- This project is in active development toward the final native desktop product. Intermediate development versions are not a compatibility target.
+- Replace obsolete implementations and remove dead branches when the final design supersedes them. Do not add migrations, fallback paths, or duplicated logic solely to load old development matches, snapshots, or protocols.
+- Development matches may be restarted when gameplay semantics change. Keep diagnostics needed to investigate defects; do not rewrite accepted action history to make it pass a new rule engine.
+- Current-version reconnect, persistence validation, hidden-information protection, and server authority remain product requirements. Removing historical compatibility must not weaken these guarantees.
+
 ## Rule Authority
 
 - Treat the official PDF set, `data/official`, Riot official pages, and `playloltcg` card text as the only rule authorities.
@@ -34,8 +41,13 @@
 
 ## Validation
 
+- Historical green tests and registry status are not proof of complete official card behavior. Re-audit expectations against official text; use real battlefield identities, both players, control changes, and unrelated-location counterexamples for spatial effects. Track unresolved behavior explicitly in `docs/BATTLEFIELD_SCOPE_AUDIT_2026-10-08.md`.
+
 - Frontend quick gate: `npm --prefix src/Riftbound.DevUi run build`.
 - Frontend visual/accessibility gate: `npm --prefix src/Riftbound.DevUi run qa:appshots`.
 - Browser smoke: `npm --prefix src/Riftbound.DevUi run smoke:chrome`.
-- Backend rule changes should include focused tests first, then adjacent/full tests when the blast radius touches shared rule domains.
+- Rule development uses `python3 scripts/test-rules.py focus <domain>` first (domains: recast, payment, triggers, combat, recovery); use `focus --match <TestClassOrMethod>` for other focused work. Add the affected cross-domain tests when needed. This is feedback for the current change, not whole-product acceptance.
+- Use `python3 scripts/test-rules.py check` at a coherent batch boundary. It covers the non-full-game suite and named complete-game smoke cases. Do not mechanically repeat the entire suite after every local correction.
+- Run `python3 scripts/test-rules.py full` for broad changes spanning rule domains, integration/release gates, or failures that indicate wider impact. CI retains the complete suite. Full runs are balanced across isolated processes, verify method coverage, and preserve every discovered test; never reduce assertions or silently skip tests to make a gate faster.
+- Native control, network/reconnect, full two-client, packaging and Windows acceptance remain separate gates; backend test profiles do not replace them. Commands, scope and evidence are documented in `docs/RULE_TEST_WORKFLOW.md`.
 - Run `git diff --check` before handoff. Do not call the project ready unless the relevant documented gates have actually passed.

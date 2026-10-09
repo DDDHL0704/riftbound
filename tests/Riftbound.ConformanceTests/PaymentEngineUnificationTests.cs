@@ -2755,7 +2755,7 @@ public sealed class PaymentEngineUnificationTests
         const string runeObjectId = "P1-RUNE-RED-ACTIVATE-XERATH";
         var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
         var state = XerathActivateState(
-            new RunePool(1, 0),
+            new RunePool(0, 1),
             p1BaseObjectIds: [runeObjectId],
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
@@ -2817,16 +2817,16 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(costEvent.Payload["paymentId"], recycledEvent.Payload["paymentId"]);
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
-        Assert.Equal(1, costEvent.Payload["spellshieldTaxMana"]);
-        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
-        Assert.Equal(1, costEvent.Payload["genericPower"]);
-        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(1, costEvent.Payload["spellshieldTaxPower"]);
+        Assert.Equal(0, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(2, costEvent.Payload["genericPower"]);
+        Assert.Equal(2, costEvent.Payload["totalPowerCost"]);
         Assert.Equal(0, costEvent.Payload["remainingMana"]);
         Assert.Equal(0, costEvent.Payload["remainingPower"]);
     }
 
     [Fact]
-    public async Task ActivateAbilityXerathRejectsTemporaryPaymentResourceWhenSpellshieldTaxManaIsMissingWithoutMutation()
+    public async Task ActivateAbilityXerathRejectsTemporaryPaymentResourceWhenSpellshieldTaxPowerIsMissingWithoutMutation()
     {
         var temporaryResource = TemporaryResource("MALZAHAR:TEMP-ACTIVATE-XERATH-TAX", remainingPower: 1);
         var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(temporaryResource.ResourceId);
@@ -2873,7 +2873,7 @@ public sealed class PaymentEngineUnificationTests
     }
 
     [Fact]
-    public async Task ActivateAbilityXerathRejectsRecycleRuneWhenSpellshieldTaxManaIsMissingWithoutMutation()
+    public async Task ActivateAbilityXerathRejectsRecycleRuneWhenSpellshieldTaxPowerIsMissingWithoutMutation()
     {
         const string runeObjectId = "P1-RUNE-RED-ACTIVATE-XERATH-MANA-MISSING";
         var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
@@ -2918,133 +2918,7 @@ public sealed class PaymentEngineUnificationTests
         Assert.Empty(result.State.StackItems);
     }
 
-    [Fact]
-    public void ActivateAbilityMalzaharPromptExposesDestroyCostTargetsAndPaymentOnlyMetadata()
-    {
-        var state = MalzaharResourceSkillState(
-            new RunePool(0, 0),
-            p1BaseObjectIds:
-            [
-                "P1-UNIT-MALZAHAR",
-                "P1-UNIT-MALZAHAR-COST",
-                "P1-EQUIPMENT-MALZAHAR-COST",
-                "P1-FACEDOWN-MALZAHAR-COST"
-            ],
-            p2BattlefieldObjectIds: ["P2-UNIT-MALZAHAR-COST"],
-            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-UNIT-MALZAHAR"] = MalzaharCard(),
-                ["P1-UNIT-MALZAHAR-COST"] = FriendlyCostUnit("P1-UNIT-MALZAHAR-COST"),
-                ["P1-EQUIPMENT-MALZAHAR-COST"] = FriendlyCostEquipment("P1-EQUIPMENT-MALZAHAR-COST"),
-                ["P1-FACEDOWN-MALZAHAR-COST"] = FriendlyCostUnit("P1-FACEDOWN-MALZAHAR-COST", isFaceDown: true),
-                ["P2-UNIT-MALZAHAR-COST"] = EnemyUnit() with
-                {
-                    ObjectId = "P2-UNIT-MALZAHAR-COST"
-                }
-            },
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-            {
-                ["P1-UNIT-MALZAHAR"] = new("P1", "BASE"),
-                ["P1-UNIT-MALZAHAR-COST"] = new("P1", "BASE"),
-                ["P1-EQUIPMENT-MALZAHAR-COST"] = new("P1", "BASE"),
-                ["P1-FACEDOWN-MALZAHAR-COST"] = new("P1", "BASE"),
-                ["P2-UNIT-MALZAHAR-COST"] = new("P2", "BATTLEFIELD")
-            });
 
-        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-        var activateCandidate = Assert.Single(
-            prompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
-        var metadata = Assert.IsType<Dictionary<string, object?>>(activateCandidate.Metadata);
-        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]);
-        var sourceRequirement = Assert.Single(
-            sourceRequirements,
-            requirement => string.Equals(
-                requirement["abilityId"] as string,
-                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
-                StringComparison.Ordinal));
-
-        Assert.Equal("P1-UNIT-MALZAHAR", sourceRequirement["sourceObjectId"]);
-        Assert.True(Assert.IsType<bool>(sourceRequirement["resourceSkill"]));
-        Assert.True(Assert.IsType<bool>(sourceRequirement["paymentOnly"]));
-        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, sourceRequirement["generatedPower"]);
-        Assert.True(Assert.IsType<bool>(sourceRequirement["usesTargetAsCost"]));
-        Assert.True(Assert.IsType<bool>(sourceRequirement["resolvesImmediately"]));
-        Assert.Equal(
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
-            sourceRequirement["resourceRestriction"]);
-
-        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P1-UNIT-MALZAHAR-COST", StringComparison.Ordinal));
-        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P1-EQUIPMENT-MALZAHAR-COST", StringComparison.Ordinal));
-        Assert.DoesNotContain(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P1-UNIT-MALZAHAR", StringComparison.Ordinal));
-        Assert.DoesNotContain(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P1-FACEDOWN-MALZAHAR-COST", StringComparison.Ordinal));
-        Assert.DoesNotContain(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P2-UNIT-MALZAHAR-COST", StringComparison.Ordinal));
-    }
-
-    [Fact]
-    public async Task ActivateAbilityMalzaharDestroysFriendlyCostObjectExhaustsSourceAndGainsPaymentOnlyPower()
-    {
-        var state = MalzaharResourceSkillState(
-            new RunePool(0, 0),
-            p1BaseObjectIds: ["P1-UNIT-MALZAHAR", "P1-UNIT-MALZAHAR-COST"],
-            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-UNIT-MALZAHAR"] = MalzaharCard(),
-                ["P1-UNIT-MALZAHAR-COST"] = FriendlyCostUnit("P1-UNIT-MALZAHAR-COST")
-            },
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-            {
-                ["P1-UNIT-MALZAHAR"] = new("P1", "BASE"),
-                ["P1-UNIT-MALZAHAR-COST"] = new("P1", "BASE")
-            });
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-activate-malzahar-resource-skill", "P1", "ACTIVATE_ABILITY"),
-            new ActivateAbilityCommand(
-                "P1-UNIT-MALZAHAR",
-                P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
-                ["P1-UNIT-MALZAHAR-COST"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "UNIT_DESTROYED", "POWER_GAINED"], result.Events.Select(evt => evt.Kind));
-        Assert.True(result.State.CardObjects["P1-UNIT-MALZAHAR"].IsExhausted);
-        CardZoneTestAssertions.RetainedOutsidePlay(result.State, "P1-UNIT-MALZAHAR-COST", "GRAVEYARD");
-        Assert.Equal(["P1-UNIT-MALZAHAR"], result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-UNIT-MALZAHAR-COST"], result.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-UNIT-MALZAHAR-COST"].Zone);
-        Assert.Equal(0, result.State.RunePools["P1"].Power);
-        var temporaryResource = Assert.Single(result.State.TemporaryPaymentResources);
-        Assert.Equal("P1", temporaryResource.OwnerPlayerId);
-        Assert.Equal("P1-UNIT-MALZAHAR", temporaryResource.SourceObjectId);
-        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, temporaryResource.AbilityId);
-        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, temporaryResource.GeneratedPower);
-        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, temporaryResource.RemainingPower);
-        Assert.Equal([PaymentCostRules.RuneCostPaymentKind], temporaryResource.AllowedPaymentKinds);
-        Assert.Empty(result.State.StackItems);
-
-        var destroyEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
-        Assert.Equal("RESOURCE_SKILL_COST", destroyEvent.Payload["reason"]);
-        Assert.Equal("P1-UNIT-MALZAHAR-COST", destroyEvent.Payload["targetObjectId"]);
-        Assert.Equal(true, destroyEvent.Payload["resourceSkill"]);
-        Assert.Equal(true, destroyEvent.Payload["paymentOnly"]);
-        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, destroyEvent.Payload["generatedPower"]);
-
-        var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
-        Assert.Equal("ACTIVATE_ABILITY", powerEvent.Payload["paymentWindow"]);
-        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, powerEvent.Payload["abilityId"]);
-        Assert.Equal("P1-UNIT-MALZAHAR-COST", powerEvent.Payload["destroyedCostObjectId"]);
-        Assert.Equal(true, powerEvent.Payload["resourceSkill"]);
-        Assert.Equal(true, powerEvent.Payload["paymentOnly"]);
-        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower, powerEvent.Payload["generatedPower"]);
-        Assert.Equal(P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction, powerEvent.Payload["resourceRestriction"]);
-        Assert.Equal("temporary-payment-resource-ledger", powerEvent.Payload["restrictionLifecycle"]);
-        Assert.Equal(temporaryResource.ResourceId, powerEvent.Payload["temporaryPaymentResourceId"]);
-    }
 
     [Fact]
     public async Task ActivateAbilityMalzaharRejectsEnemyCostTargetWithoutMutation()

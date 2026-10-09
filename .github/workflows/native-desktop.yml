@@ -28,7 +28,10 @@ jobs:
           dotnet-version: |
             8.0.x
             10.0.x
-      - run: dotnet test tests/Riftbound.ConformanceTests --logger 'trx;LogFileName=conformance.trx'
+      - name: Test runner coverage safeguards
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Complete rule suite with checked process shards
+        run: python3 scripts/test-rules.py full --output var/qa/ci-rules
       - name: Native client connection recovery
         env:
           ASPNETCORE_ENVIRONMENT: Development
@@ -48,7 +51,7 @@ jobs:
         if: always()
         with:
           name: conformance-results
-          path: tests/Riftbound.ConformanceTests/TestResults/*.trx
+          path: var/qa/ci-rules/
           retention-days: 7
 
   desktop:

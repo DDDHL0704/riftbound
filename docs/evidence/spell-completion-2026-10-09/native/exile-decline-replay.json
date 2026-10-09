@@ -1,0 +1,9 @@
+{
+  "nativeCommandUsed": true,
+  "replay": {
+    "isMatch": true,
+    "replayedStateHash": "deb995b128065f0211cd2f29393da36196313f5500235b55f3d27ae1ad90e1e9",
+    "expectedStateHash": "deb995b128065f0211cd2f29393da36196313f5500235b55f3d27ae1ad90e1e9",
+    "errors": []
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "dateStarted": "2026-10-08",
+  "dateCompleted": "2026-10-09",
+  "status": "THREE_SCOPED_BATCHES_VERIFIED_NOT_ALL_RULES",
+  "officialCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "officialClauses": [
+    "820.2",
+    "820.2.a",
+    "820.3",
+    "820.3.a",
+    "321",
+    "321.1",
+    "124"
+  ],
+  "officialRefresh": "Existing Chinese official corpus; browser refetch failed this turn",
+  "backendFull": {
+    "passed": 8834,
+    "total": 8834,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/multi-verified.trx",
+    "sha256": "c5273ddbd924065fe5eb50ddcca7d72d227b5a5d671ffb0fa8888b5c462d7225",
+    "log": "full-verified.log"
+  },
+  "focused": {
+    "passed": 95,
+    "total": 95,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/multi-focused-final.trx",
+    "sha256": "7833abba3b1c13c97a3f3640b34cf704ffdcb876affbccb70718221f76c6e310",
+    "log": "focused-final.log"
+  },
+  "nativeCommandRoundTrip": {
+    "passed": 20,
+    "total": 20,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/multi-native-roundtrip.trx",
+    "sha256": "fd87a4a6b937fe3ee2e5c1f1aaa401c1dbd1550d01b2a449f216d1f6e8906f08",
+    "log": "native-roundtrip.log"
+  },
+  "native": {
+    "build": "PASS, 0 warnings / 0 errors",
+    "interaction": "PASS, actual server candidate/quote, independent modes/targets, focused table selection, private selection, optional decline",
+    "render": "PASS, macOS Godot fixture at 560x1000, inspected screenshot; placeholder card image when cache unavailable",
+    "screenshot": "native-repeat-choice.png",
+    "scope": "Production controls + intent payloads against actual engine; not full two-client or Windows acceptance"
+  },
+  "replays": {
+    "repeat-replay.json": {
+      "isMatch": true,
+      "replayedStateHash": "b30cbbe5c98b323688c770a08bb1da52b40a4ef09039cb73cf386588f9af9a4e",
+      "expectedStateHash": "b30cbbe5c98b323688c770a08bb1da52b40a4ef09039cb73cf386588f9af9a4e",
+      "errors": []
+    },
+    "deck-replay.json": {
+      "isMatch": true,
+      "replayedStateHash": "a12f8f92a16a6959863332ee5c6dc64cb0415844a943c8af70870aea8792d487",
+      "expectedStateHash": "a12f8f92a16a6959863332ee5c6dc64cb0415844a943c8af70870aea8792d487",
+      "errors": []
+    }
+  },
+  "servicesAndInstalledPackagesUpdated": false,
+  "retiredExpectations": "retired-expectations.json",
+  "testCountsOverlap": true,
+  "remaining": [
+    "Non-resource and skill Echo; special cost/mode restrictions",
+    "Counter/control-stack/effect-play repeat continuations, explicitly uncharged until implemented",
+    "Other deck-look families and Ornn Hold",
+    "Full official basic-rule and QA audit",
+    "Paired live clients, installed packages and Windows runtime acceptance"
+  ],
+  "sourceHashes": {
+    "src/Riftbound.Contracts/Protocol.cs": "0fe3152a825634586f76e41d6b999f62bcd6c58b47a2c80a0bf7f3cc5bb42e78",
+    "src/Riftbound.Contracts/GameCommandJsonMapper.cs": "40aae3e5bc065d99a9a3e1584e5e19f2504364dc8cfb196a35a2478acb8c402b",
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "3c05595ee5f22fc73861d3d3b43f63f322babf83c7b544740772b28fc0e9fecd",
+    "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs": "08dc6c3bc5182c283c9fec8f910bc0d1a048fce1b3a34bbff945de371c724b53",
+    "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs": "5a88625c1e4897cc76e6513bc0898e222a53f439b70ed689aea41a19ffe9a2e0",
+    "src/Riftbound.Engine/EchoCostRules.cs": "63136b8d26b1906cbaebbfdc3d59f7f33cdda315598dffa487193539215f2dc8",
+    "src/Riftbound.Engine/CoreRuleEngine.Hold.cs": "4b825ac959a29665f0460268c9687103f3a3c95ec0af9972db02b70cf97a6c6f",
+    "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs": "b30fa969a221759f1fa5fee2770248e674ad6ff7170bacb6a62acd5f375ad002",
+    "src/Riftbound.Engine/CardBehaviorRegistry.cs": "89a6f83863de7068614482eecb4593c06524857d138d722fb0d728ab682a0a2f",
+    "src/Riftbound.Engine/MatchSession.cs": "28c6cfc5eb5badb1457f745b99d156b38e1d996a24a1ceb84fb9a19490cb9bff",
+    "src/Riftbound.Engine/MatchRecovery.cs": "646f9f5ec6baba0f033351728be684837d406b37f26f516cef402b85b3a12a63",
+    "clients/godot/scripts/Main.cs": "1f5aa22e56a6052fbe8dfd7eb9d6ac606aae4763439c7bd6a141f35363212b35",
+    "clients/godot/scripts/interaction/PromptInteractionController.cs": "995c72285dd5cd327ec568a4db48d5f0226fbf200a6c7b312fce2693bfe3446b",
+    "clients/godot/scripts/ui/PlayCardOverlay.cs": "a963929fd9f38a0930d7427f1480e60c82b6650832142d76e882b8c30aa7a917",
+    "clients/godot/scripts/ui/PlayCardOverlay.Table.cs": "c7dfad3cdba979b0f7d9a9cd77cbf12eeea9c840e56be79172d55108780aa4ea",
+    "clients/godot/scripts/ui/PlayCardOverlay.Repeats.cs": "3f94b28b1836facaccc6c7451e1386fd1cedaaac2a8e826b74a1a0730ae39b0c",
+    "clients/godot/scripts/debug/RepeatChoiceInteractionProof.cs": "7f559c7e52b054fb04718326131613ab2806b88821daeab7a7dcd9e7c93c6b0e",
+    "tests/Riftbound.ConformanceTests/OfficialRepeatAndDeckChoiceTests.cs": "02c59568a953f6b90f19eedecb0879a053619e39f9041993c385862875b5dba1",
+    "tests/Riftbound.ConformanceTests/OfficialEchoGrantTests.cs": "5492239b5ad8fc02241861f640da76e8ba19137d37e24a0c205a54197b6d3b11",
+    "tests/Riftbound.ConformanceTests/OfficialEchoCostTests.cs": "baa194e50b70cc95a72fd1c1a22e23db5ccc36fc26d2927b175d7c8532924fa6"
+  }
+}

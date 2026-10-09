@@ -1,0 +1,419 @@
+{
+  "roomId": "QA-RESOURCE-706847",
+  "transport": "two native macOS Godot clients -> SignalR -> authoritative engine -> PostgreSQL",
+  "clientBuilds": {
+    "player1": "current working tree .NET debug native build",
+    "player2": "existing installed native build, PASS_PRIORITY and snapshot rendering only"
+  },
+  "tick": 5,
+  "commands": [
+    {
+      "CommandType": "DEV_SEED_SCENARIO:official-resource-costs",
+      "StartedTick": 0,
+      "CompletedTick": 1,
+      "Accepted": true,
+      "ErrorMessage": null,
+      "RawCommand": {
+        "cmdType": "DEV_SEED_SCENARIO",
+        "scenarioId": "official-resource-costs"
+      }
+    },
+    {
+      "CommandType": "ACTIVATE_ABILITY",
+      "StartedTick": 1,
+      "CompletedTick": 2,
+      "Accepted": true,
+      "ErrorMessage": null,
+      "RawCommand": {
+        "cmdType": "ACTIVATE_ABILITY",
+        "promptId": "QA-RESOURCE-706847:1:规则验收706847-1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "abilityId": "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
+        "snapshotTick": 1,
+        "sourceObjectId": "QA-GOLD",
+        "targetObjectIds": []
+      }
+    },
+    {
+      "CommandType": "ACTIVATE_ABILITY",
+      "StartedTick": 2,
+      "CompletedTick": 3,
+      "Accepted": true,
+      "ErrorMessage": null,
+      "RawCommand": {
+        "cmdType": "ACTIVATE_ABILITY",
+        "promptId": "QA-RESOURCE-706847:2:规则验收706847-1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "abilityId": "MALZAHAR_EXHAUST_DESTROY_FRIENDLY_GAIN_2_POWER",
+        "snapshotTick": 2,
+        "sourceObjectId": "QA-MALZAHAR",
+        "targetObjectIds": [
+          "QA-SENTINEL"
+        ]
+      }
+    },
+    {
+      "CommandType": "PASS_PRIORITY",
+      "StartedTick": 3,
+      "CompletedTick": 4,
+      "Accepted": true,
+      "ErrorMessage": null,
+      "RawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "QA-RESOURCE-706847:3:规则验收706847-1:PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 3
+      }
+    },
+    {
+      "CommandType": "PASS_PRIORITY",
+      "StartedTick": 4,
+      "CompletedTick": 5,
+      "Accepted": true,
+      "ErrorMessage": null,
+      "RawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "QA-RESOURCE-706847:4:规则验收706847-2:PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 4
+      }
+    }
+  ],
+  "events": [
+    {
+      "Sequence": 1,
+      "Tick": 1,
+      "Order": 0,
+      "Event": {
+        "Kind": "DEV_SCENARIO_SEEDED",
+        "Description": "开发测试场景已载入: official-resource-costs",
+        "Payload": {
+          "playerId": "规则验收706847-1",
+          "scenarioId": "official-resource-costs"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 2,
+      "Tick": 2,
+      "Order": 0,
+      "Event": {
+        "Kind": "ABILITY_ACTIVATED",
+        "Description": "横置并摧毁金币以支付技能费用",
+        "Payload": {
+          "cardNo": "SFD·T03",
+          "playerId": "规则验收706847-1",
+          "abilityId": "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
+          "stackPolicy": "no-ordinary-stack-item",
+          "generatedMana": 0,
+          "reactionSpeed": true,
+          "resourceSkill": true,
+          "timingContext": "NEUTRAL_OPEN",
+          "generatedPower": 1,
+          "sourceObjectId": "QA-GOLD",
+          "targetObjectId": "QA-GOLD"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 3,
+      "Tick": 2,
+      "Order": 1,
+      "Event": {
+        "Kind": "EQUIPMENT_EXHAUSTED",
+        "Description": "支付金币横置费用",
+        "Payload": {
+          "cardNo": "SFD·T03",
+          "playerId": "规则验收706847-1",
+          "abilityId": "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
+          "stackPolicy": "no-ordinary-stack-item",
+          "generatedMana": 0,
+          "reactionSpeed": true,
+          "resourceSkill": true,
+          "timingContext": "NEUTRAL_OPEN",
+          "generatedPower": 1,
+          "sourceObjectId": "QA-GOLD",
+          "targetObjectId": "QA-GOLD"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 4,
+      "Tick": 2,
+      "Order": 2,
+      "Event": {
+        "Kind": "EQUIPMENT_DESTROYED",
+        "Description": "摧毁费用摧毁装备",
+        "Payload": {
+          "reason": "DESTROY_COST",
+          "ownerPlayerId": "规则验收706847-1",
+          "sourceObjectId": "QA-GOLD",
+          "targetObjectId": "QA-GOLD",
+          "destinationZone": "GRAVEYARD",
+          "destroyedByPlayerId": "规则验收706847-1"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 5,
+      "Tick": 2,
+      "Order": 3,
+      "Event": {
+        "Kind": "RESOURCE_SKILL_RESOLVED",
+        "Description": "金币获得任意特性符能",
+        "Payload": {
+          "cardNo": "SFD·T03",
+          "playerId": "规则验收706847-1",
+          "abilityId": "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
+          "stackPolicy": "no-ordinary-stack-item",
+          "generatedMana": 0,
+          "reactionSpeed": true,
+          "resourceSkill": true,
+          "timingContext": "NEUTRAL_OPEN",
+          "generatedPower": 1,
+          "sourceObjectId": "QA-GOLD",
+          "targetObjectId": "QA-GOLD"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 6,
+      "Tick": 2,
+      "Order": 4,
+      "Event": {
+        "Kind": "POWER_GAINED",
+        "Description": "获得 1 点任意特性符能",
+        "Payload": {
+          "cardNo": "SFD·T03",
+          "playerId": "规则验收706847-1",
+          "abilityId": "GOLD_TOKEN_SFD_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER",
+          "stackPolicy": "no-ordinary-stack-item",
+          "generatedMana": 0,
+          "reactionSpeed": true,
+          "resourceSkill": true,
+          "timingContext": "NEUTRAL_OPEN",
+          "generatedPower": 1,
+          "sourceObjectId": "QA-GOLD",
+          "targetObjectId": "QA-GOLD"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 7,
+      "Tick": 2,
+      "Order": 5,
+      "Event": {
+        "Kind": "TOKEN_CEASED_TO_EXIST",
+        "Description": "离场指示物消失",
+        "Payload": {
+          "cardNo": "SFD·T03",
+          "targetObjectId": "QA-GOLD"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 8,
+      "Tick": 3,
+      "Order": 0,
+      "Event": {
+        "Kind": "ABILITY_ACTIVATED",
+        "Description": "激活资源技能",
+        "Payload": {
+          "playerId": "规则验收706847-1",
+          "abilityId": "MALZAHAR_EXHAUST_DESTROY_FRIENDLY_GAIN_2_POWER",
+          "generatedPower": 2,
+          "sourceObjectId": "QA-MALZAHAR",
+          "resourceLifecycle": "rune-pool",
+          "destroyedCostObjectId": "QA-SENTINEL"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 9,
+      "Tick": 3,
+      "Order": 1,
+      "Event": {
+        "Kind": "UNIT_EXHAUSTED",
+        "Description": "支付横置费用",
+        "Payload": {
+          "playerId": "规则验收706847-1",
+          "abilityId": "MALZAHAR_EXHAUST_DESTROY_FRIENDLY_GAIN_2_POWER",
+          "generatedPower": 2,
+          "sourceObjectId": "QA-MALZAHAR",
+          "resourceLifecycle": "rune-pool",
+          "destroyedCostObjectId": "QA-SENTINEL"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 10,
+      "Tick": 3,
+      "Order": 2,
+      "Event": {
+        "Kind": "UNIT_DESTROYED",
+        "Description": "摧毁费用摧毁单位",
+        "Payload": {
+          "reason": "DESTROY_COST",
+          "ownerPlayerId": "规则验收706847-1",
+          "sourceObjectId": "QA-MALZAHAR",
+          "targetObjectId": "QA-SENTINEL",
+          "destinationZone": "GRAVEYARD",
+          "destroyedByPlayerId": "规则验收706847-1"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 11,
+      "Tick": 3,
+      "Order": 3,
+      "Event": {
+        "Kind": "TRIGGER_QUEUED",
+        "Description": "触发能力加入队列",
+        "Payload": {
+          "triggerId": "TRIGGER-cost-3-QA-MALZAHAR-QA-SENTINEL-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+          "effectKind": "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+          "controllerId": "规则验收706847-1",
+          "sourceObjectId": "QA-SENTINEL",
+          "triggeredByEventKind": "UNIT_DESTROYED"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 12,
+      "Tick": 3,
+      "Order": 4,
+      "Event": {
+        "Kind": "POWER_GAINED",
+        "Description": "获得 2 点任意特性符能",
+        "Payload": {
+          "playerId": "规则验收706847-1",
+          "abilityId": "MALZAHAR_EXHAUST_DESTROY_FRIENDLY_GAIN_2_POWER",
+          "generatedPower": 2,
+          "sourceObjectId": "QA-MALZAHAR",
+          "resourceLifecycle": "rune-pool",
+          "destroyedCostObjectId": "QA-SENTINEL"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 13,
+      "Tick": 3,
+      "Order": 5,
+      "Event": {
+        "Kind": "TRIGGERS_MOVED_TO_STACK",
+        "Description": "单一触发能力自动加入结算链",
+        "Payload": {
+          "stackItemIds": [
+            "ordered-TRIGGER-cost-3-QA-MALZAHAR-QA-SENTINEL-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1"
+          ],
+          "orderingPolicy": "SINGLE_TRIGGER_AUTO_STACK",
+          "topStackItemId": "ordered-TRIGGER-cost-3-QA-MALZAHAR-QA-SENTINEL-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+          "orderedTriggerIds": [
+            "TRIGGER-cost-3-QA-MALZAHAR-QA-SENTINEL-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1"
+          ],
+          "nextPriorityPlayerId": "规则验收706847-1"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 14,
+      "Tick": 4,
+      "Order": 0,
+      "Event": {
+        "Kind": "PRIORITY_PASSED",
+        "Description": "规则验收706847-1 让过优先行动权",
+        "Payload": {
+          "playerId": "规则验收706847-1",
+          "priorityPlayerId": "规则验收706847-1"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 15,
+      "Tick": 5,
+      "Order": 0,
+      "Event": {
+        "Kind": "PRIORITY_PASSED",
+        "Description": "规则验收706847-2 让过优先行动权",
+        "Payload": {
+          "playerId": "规则验收706847-2",
+          "priorityPlayerId": "规则验收706847-2"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 16,
+      "Tick": 5,
+      "Order": 1,
+      "Event": {
+        "Kind": "STACK_ITEM_RESOLVED",
+        "Description": "ordered-TRIGGER-cost-3-QA-MALZAHAR-QA-SENTINEL-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1 结算",
+        "Payload": {
+          "cardNo": "OGN·096/298",
+          "effectKind": "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+          "stackItemId": "ordered-TRIGGER-cost-3-QA-MALZAHAR-QA-SENTINEL-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+          "controllerId": "规则验收706847-1",
+          "sourceObjectId": "QA-SENTINEL",
+          "targetObjectIds": []
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 17,
+      "Tick": 5,
+      "Order": 2,
+      "Event": {
+        "Kind": "TRIGGER_RESOLVED",
+        "Description": "触发能力结算",
+        "Payload": {
+          "triggerId": "TRIGGER-cost-3-QA-MALZAHAR-QA-SENTINEL-WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+          "effectKind": "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1",
+          "controllerId": "规则验收706847-1",
+          "sourceObjectId": "QA-SENTINEL"
+        },
+        "ObjectRefs": null
+      }
+    },
+    {
+      "Sequence": 18,
+      "Tick": 5,
+      "Order": 3,
+      "Event": {
+        "Kind": "CARD_DRAWN",
+        "Description": "规则验收706847-1 抽 1 张牌",
+        "Payload": {
+          "count": 1,
+          "playerId": "规则验收706847-1"
+        },
+        "ObjectRefs": null
+      }
+    }
+  ],
+  "assertions": {
+    "goldAbsent": true,
+    "sleepingGoldStillPresent": true,
+    "power": 3,
+    "sentinelInGraveyard": true,
+    "drawnCardInHand": true,
+    "stackEmpty": true,
+    "frameValidationErrors": [],
+    "actionReplayErrors": []
+  },
+  "limitations": [
+    "Dedicated dev scenario, not a full natural game",
+    "Windows native runtime not exercised",
+    "Hold and general delayed-trigger implementation not certified"
+  ]
+}

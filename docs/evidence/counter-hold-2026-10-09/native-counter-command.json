@@ -1,0 +1,1 @@
+{"cmdType":"PLAY_CARD","sourceObjectId":"C","cardNo":"OGN\u00B7064/298","mode":"","destination":"","targetObjectIds":["S1"],"optionalCosts":["ECHO"],"repeatChoices":[{"mode":"","targetObjectIds":["S2"]}],"promptId":"COUNTER-REPEAT:1:P1:PLAY_CARD,PASS_PRIORITY,SURRENDER","snapshotTick":1}

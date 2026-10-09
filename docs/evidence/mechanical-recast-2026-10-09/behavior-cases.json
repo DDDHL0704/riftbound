@@ -1,0 +1,51 @@
+{
+  "trx": "tests/Riftbound.ConformanceTests/TestResults/mechanical-behavior.trx",
+  "sha256": "db587143e10ebd15f7162a4bbae918ca99b02149f13c7b1ba7a4da3721b2062f",
+  "count": 11,
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.InsufficientPowerRejectsWithoutRefundingAlreadyPaidRecycleCost",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.ReplayedUnitUsesChosenPlayTargetAndRespondablePlayAbility",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.StolenUnitRecyclesToOwnerDeckAndNoEligibleMechFinishes",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.ConquestWaitsForResponseAndChosenUnitThenFormalPlay(card: \"SFD·026a/221\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.RobotTokenPaysRecyclingCostAndItsPowerSurvivesDisappearance",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.ConquestWaitsForResponseAndChosenUnitThenFormalPlay(card: \"SFD·026/221\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.RecoveryCannotForgeChoiceOrFreePlayCostPolicy",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.CapturedConquestSurvivesSourceLeavingBeforeResolution",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.RecyclingDiscountIncludesContinuousPowerBeforeLeavingPlay",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.DeclineBeforeRecyclingKeepsAllCardsAndResources",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialMechanicalRecastTests.EnemySelfAndNonMechanicalSourcesAreRejected",
+      "outcome": "Passed"
+    }
+  ]
+}

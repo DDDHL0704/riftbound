@@ -192,7 +192,7 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.DoesNotContain("P2-DEFENDER-VALID", replay.State.PlayerZones["P2"].Battlefields);
         Assert.False(replay.State.CardObjects["P1-ATTACKER-VALID"].IsAttacking);
         Assert.Equal("P1", replay.State.CardObjects["BF-1"].ControllerId);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, replay.Prompts["P1"].EnabledActions());
         AssertBattleClosedDeclareBattlePromptQueueAudit(replay);
     }
 
@@ -279,7 +279,7 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.Equal(PromptTypes.SpellDuelFocus, replay.Prompts["P1"].View?.Type);
         Assert.Equal("BF-2", replay.Prompts["P1"].View?.RelatedBattlefieldId);
         Assert.Contains(CommandTypes.PassFocus, replay.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, replay.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, replay.Prompts["P1"].EnabledActions());
         Assert.Contains("P2-DEFENDER-VALID", replay.State.PlayerZones["P2"].Graveyard);
         Assert.DoesNotContain("P2-DEFENDER-VALID", replay.State.PlayerZones["P2"].Battlefields);
         Assert.Equal("P1", replay.State.CardObjects["BF-1"].ControllerId);
@@ -381,7 +381,7 @@ public sealed class BattlefieldContestBattleTaskGuardTests
     }
 
     [Fact]
-    public async Task ImmediateDeclareBattleDoesNotAdvanceNextContestedBattlefieldWhenCleanupBlocks()
+    public async Task ImmediateDeclareBattleCompletesEquipmentCleanupBeforeNextContestedBattlefield()
     {
         var state = BuildImmediateBattleNextContestState(includeCleanupBlocker: true);
 
@@ -396,14 +396,12 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
-        Assert.Equal("STATE_BASED_CLEANUP", result.State.PendingTaskQueue.Phase);
-        Assert.Contains(
-            result.State.PendingTaskQueue.Tasks,
-            task => string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal)
-                && string.Equals(task.ObjectId, "P2-BATTLEFIELD-EQUIPMENT", StringComparison.Ordinal));
+        Assert.Contains("P2-BATTLEFIELD-EQUIPMENT", result.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain(result.State.PendingCleanupTasks, task => task.Kind == "RECALL_UNATTACHED_EQUIPMENT");
+        Assert.Contains(result.Events, e => e.Kind == "EQUIPMENT_RECALLED_TO_BASE");
+        Assert.Contains(result.Events, e => e.Kind == "SPELL_DUEL_STARTED");
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
 
-        AssertImmediateDeclareBattleCleanupBlockAudit(result);
     }
 
     private static void AssertRejectedWithoutMutation(MatchState state, ResolutionResult result)
@@ -554,8 +552,8 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.DoesNotContain(p1BattlefieldTasks, task => string.Equals(task["battlefieldObjectId"] as string, "BF-1", StringComparison.Ordinal));
 
         Assert.False(result.State.BattleState.IsActive);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].EnabledActions());
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P2"].EnabledActions());
         Assert.NotEqual(PromptTypes.BattleDeclaration, result.Prompts["P1"].View?.Type);
         Assert.NotEqual(PromptTypes.BattleDeclaration, result.Prompts["P2"].View?.Type);
 
@@ -898,9 +896,9 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.Equal("BF-2", result.Prompts["P1"].View?.RelatedBattlefieldId);
         Assert.Equal("spell-duel:BF-2", result.Prompts["P1"].View?.RelatedSpellDuelId);
         Assert.Contains(CommandTypes.PassFocus, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].Actions);
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].EnabledActions());
         Assert.False(result.Prompts["P2"].Actionable);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P2"].Actions);
+        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P2"].EnabledActions());
         Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P2"].Actions);
 
         var p1PromptJson = JsonSerializer.Serialize(result.Prompts["P1"]);
@@ -910,137 +908,6 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.DoesNotContain(CommandTypes.DeclareBattle, p1PromptJson, StringComparison.Ordinal);
     }
 
-    private static void AssertImmediateDeclareBattleCleanupBlockAudit(ResolutionResult result)
-    {
-        var events = result.Events;
-        var destroyedIndex = EventIndex(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-DEFENDER-VALID", StringComparison.Ordinal));
-        var destroyed = events[destroyedIndex];
-        Assert.Equal("P2", destroyed.Payload["ownerPlayerId"]);
-        Assert.Equal("P1", destroyed.Payload["destroyedByPlayerId"]);
-        Assert.Equal("GRAVEYARD", destroyed.Payload["destinationZone"]);
-        Assert.Equal(["P2-BATTLEFIELD-EQUIPMENT"], StringList(destroyed.Payload["detachedEquipmentObjectIds"]));
-
-        var battleClosedIndex = EventIndex(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldId"] as string, "BF-1", StringComparison.Ordinal));
-        var battleClosed = events[battleClosedIndex];
-        Assert.Equal(["P1-ATTACKER-VALID", "P2-DEFENDER-VALID"], StringList(battleClosed.Payload["participantObjectIds"]));
-        Assert.Equal(["P1-ATTACKER-VALID"], StringList(battleClosed.Payload["clearedObjectIds"]));
-        Assert.Equal(["P2-DEFENDER-VALID"], StringList(battleClosed.Payload["removedObjectIds"]));
-
-        var controlIndex = EventIndex(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-1", StringComparison.Ordinal));
-        var controlResolved = events[controlIndex];
-        Assert.Equal("P1", controlResolved.Payload["playerId"]);
-        Assert.Equal("BF-1", controlResolved.Payload["battlefieldId"]);
-        Assert.Equal("P1", controlResolved.Payload["previousControllerId"]);
-        Assert.Equal("P1", controlResolved.Payload["controllerId"]);
-        Assert.Equal(false, controlResolved.Payload["changed"]);
-        Assert.Equal("CONTROL_CONFIRMED", controlResolved.Payload["resolution"]);
-        Assert.Equal("P1", controlResolved.Payload["battleWinnerPlayerId"]);
-        Assert.Equal(["P1"], StringList(controlResolved.Payload["occupantControllerIds"]));
-
-        Assert.True(destroyedIndex < battleClosedIndex);
-        Assert.True(battleClosedIndex < controlIndex);
-        Assert.DoesNotContain(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-2", StringComparison.Ordinal));
-        Assert.DoesNotContain(events, gameEvent =>
-            string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "BF-2", StringComparison.Ordinal));
-
-        Assert.False(result.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
-        Assert.True(result.State.PendingTaskQueue.IsBlocking);
-        Assert.Equal("STATE_BASED_CLEANUP", result.State.PendingTaskQueue.Phase);
-        Assert.Equal("cleanup:unattached-equipment:BF-1:P2-BATTLEFIELD-EQUIPMENT", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Equal(
-            ["RECALL_UNATTACHED_EQUIPMENT", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
-            result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
-        Assert.Equal(
-            [
-                "cleanup:unattached-equipment:BF-1:P2-BATTLEFIELD-EQUIPMENT",
-                "cleanup:battlefield-contested:BF-2",
-                "task:start-spell-duel:BF-2",
-                "task:start-battle:BF-2"
-            ],
-            result.State.PendingTaskQueue.Tasks.Select(task => task.TaskId).ToArray());
-
-        var cleanupTask = Assert.Single(result.State.PendingTaskQueue.Tasks, task =>
-            string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal)
-            && string.Equals(task.ObjectId, "P2-BATTLEFIELD-EQUIPMENT", StringComparison.Ordinal));
-        Assert.Equal("UNATTACHED_EQUIPMENT_CLEANUP", cleanupTask.Reason);
-        Assert.Equal("P2", cleanupTask.PlayerId);
-        Assert.Equal("BF-1", cleanupTask.BattlefieldObjectId);
-        Assert.Null(result.State.CardObjects["P2-BATTLEFIELD-EQUIPMENT"].AttachedToObjectId);
-        Assert.Contains("P2-BATTLEFIELD-EQUIPMENT", result.State.PlayerZones["P2"].Battlefields);
-
-        var nextSpellDuelTask = Assert.Single(result.State.PendingTaskQueue.Tasks, task =>
-            string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
-            && string.Equals(task.BattlefieldObjectId, "BF-2", StringComparison.Ordinal));
-        Assert.Equal("task:start-spell-duel:BF-2", nextSpellDuelTask.TaskId);
-        Assert.Equal("BATTLEFIELD_CONTESTED", nextSpellDuelTask.Reason);
-        Assert.DoesNotContain(result.State.BattlefieldTasks, task =>
-            string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
-            && string.Equals(task.BattlefieldObjectId, "BF-2", StringComparison.Ordinal)
-            && string.Equals(task.Status, "ACTIVE", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.State.BattlefieldTasks, task =>
-            string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
-            && string.Equals(task.BattlefieldObjectId, "BF-2", StringComparison.Ordinal)
-            && string.Equals(task.Status, "ACTIVE", StringComparison.Ordinal));
-
-        var queue = Assert.IsType<Dictionary<string, object?>>(result.Snapshots["P1"].Timing["pendingTaskQueue"]);
-        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(queue["phase"]));
-        Assert.True(Assert.IsType<bool>(queue["hasTasks"]));
-        Assert.True(Assert.IsType<bool>(queue["isBlocking"]));
-        Assert.Equal("cleanup:unattached-equipment:BF-1:P2-BATTLEFIELD-EQUIPMENT", Assert.IsType<string>(queue["activeTaskId"]));
-        var queueTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(queue["tasks"]);
-        Assert.Equal(
-            ["RECALL_UNATTACHED_EQUIPMENT", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
-            queueTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
-        Assert.Equal(
-            [
-                "cleanup:unattached-equipment:BF-1:P2-BATTLEFIELD-EQUIPMENT",
-                "cleanup:battlefield-contested:BF-2",
-                "task:start-spell-duel:BF-2",
-                "task:start-battle:BF-2"
-            ],
-            queueTasks.Select(task => Assert.IsType<string>(task["taskId"])).ToArray());
-        Assert.Equal(
-            ["BF-1", "BF-2", "BF-2", "BF-2"],
-            queueTasks.Select(task => Assert.IsType<string>(task["battlefieldObjectId"])).ToArray());
-        var queueMetadata = Assert.IsType<Dictionary<string, object?>>(queue["metadata"]);
-        Assert.Equal(4, Assert.IsType<int>(queueMetadata["taskCount"]));
-        Assert.Equal(
-            ["RECALL_UNATTACHED_EQUIPMENT"],
-            Assert.IsAssignableFrom<IReadOnlyList<string>>(queueMetadata["stateBasedTaskKinds"]));
-
-        Assert.False(result.Prompts["P1"].Actionable);
-        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P1"].Actions);
-        Assert.Equal(PromptTypes.TaskQueue, result.Prompts["P1"].View?.Type);
-        Assert.Equal("BF-1", result.Prompts["P1"].View?.RelatedBattlefieldId);
-        Assert.NotEqual(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
-        Assert.NotEqual(PromptTypes.BattleDeclaration, result.Prompts["P1"].View?.Type);
-        Assert.Contains("装备清理", result.Prompts["P1"].Reason, StringComparison.Ordinal);
-        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P1"].Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P1"].Actions);
-
-        Assert.False(result.Prompts["P2"].Actionable);
-        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P2"].Actions);
-        Assert.Equal(PromptTypes.TaskQueue, result.Prompts["P2"].View?.Type);
-        Assert.DoesNotContain(CommandTypes.PassFocus, result.Prompts["P2"].Actions);
-        Assert.DoesNotContain(CommandTypes.DeclareBattle, result.Prompts["P2"].Actions);
-
-        var p1PromptJson = JsonSerializer.Serialize(result.Prompts["P1"]);
-        Assert.DoesNotContain("RECALL_UNATTACHED_EQUIPMENT", p1PromptJson, StringComparison.Ordinal);
-        Assert.DoesNotContain("UNATTACHED_EQUIPMENT_CLEANUP", p1PromptJson, StringComparison.Ordinal);
-        Assert.DoesNotContain("cleanup:unattached-equipment", p1PromptJson, StringComparison.Ordinal);
-        Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", p1PromptJson, StringComparison.Ordinal);
-        Assert.DoesNotContain("spell-duel:BF-2", p1PromptJson, StringComparison.Ordinal);
-    }
 
     private static IReadOnlyList<string> StringList(object? value)
     {

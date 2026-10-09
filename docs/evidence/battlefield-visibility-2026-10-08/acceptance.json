@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-08",
+  "scope": "Native battlefield visibility and preservation of the current two-player match",
+  "rootCause": "A vertically scrolling board contained the opponent area and two stacked unit rows while the own base and large hand consumed fixed height below it. Battlefield cards could be below the scroll viewport.",
+  "changes": [
+    "Battlefields stay in the main layout and no longer share an outer vertical scroller with the opponent area.",
+    "Opponent and own units use clearly labelled side-by-side strips inside each battlefield. Crowded strips retain horizontal scrolling.",
+    "Compact public zones and rune controls, reduced hand padding, and hand height adjustment for action confirmation and reconnect banners."
+  ],
+  "verification": {
+    "nativeBuildErrors": 0,
+    "nativeBuildWarnings": 0,
+    "requestedWindowSizes": [
+      "1280x720",
+      "1440x900",
+      "1920x1080"
+    ],
+    "logicalCanvasSizes": [
+      "1600x900",
+      "1440x900",
+      "1600x900"
+    ],
+    "logicalCanvasPolicy": "Matches project canvas_items/expand scaling. Headless display otherwise reported a square 1440x1440 viewport on this host.",
+    "fullTableBoundsPassed": true,
+    "fixture": {
+      "battlefieldUnits": 12,
+      "baseUnitsPerPlayer": 6,
+      "ownHandCards": 10,
+      "stackEntries": 6
+    },
+    "composerVisibleBoundsPassed": true,
+    "actionSelectionBoundsPassed": true,
+    "reconnectBannerBoundsPassed": true,
+    "runeHeroInteractionPassed": true,
+    "actualMacosRenderedFullTablePassed": true,
+    "bothPackagedMacosClientsRestored": true,
+    "macosSignaturesVerified": true,
+    "windowsRuntimeTested": false,
+    "backendRuleChanges": false,
+    "backendFullSuiteRerun": false
+  },
+  "matchPreservation": {
+    "roomId": "RB-KAISA-1008-3019",
+    "tick": 32,
+    "turn": 4,
+    "activePlayer": "试玩玩家一",
+    "scores": {
+      "试玩玩家一": 0,
+      "试玩玩家二": 1
+    },
+    "fullAuthoritativeStateEqual": true,
+    "beforeSha256": "3F13FC95A9B62C3FD891D552170808EE265D60A692755DD77802BBF90329941A",
+    "afterSha256": "3F13FC95A9B62C3FD891D552170808EE265D60A692755DD77802BBF90329941A",
+    "recoveryErrors": [],
+    "method": "Read-only Postgres recovery frames before and after native client replacement/reconnect; no gameplay intents were submitted."
+  },
+  "screenshots": {
+    "before": "before-player1.png",
+    "populatedLayout": "after-populated-preview.png",
+    "restoredPlayer1": "after-player1.png",
+    "restoredPlayer2": "after-player2.png"
+  },
+  "packages": {
+    "Riftbound-windows-x64.zip": {
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-battlefield-visibility/Riftbound-windows-x64.zip",
+      "sha256": "f1740b89f50933841c81fa55a62d437a9cbac7419bdb02da51f13689a1510076",
+      "exported": true
+    },
+    "Riftbound-macos.zip": {
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-battlefield-visibility/Riftbound-macos.zip",
+      "sha256": "dfc8f497520fc71522293de4f52c3fca6ce3c58bd414ba201dcef1f22a32afaf",
+      "exported": true
+    }
+  },
+  "limits": [
+    "The populated layout is a read-only synthetic rendering with official artwork, not a progressed game.",
+    "The preserved real game has empty battlefields at tick 32; its full state is compared independently.",
+    "Dense battlefield strips scroll horizontally, but card height and interaction areas remain visible.",
+    "No Windows runtime, full rules coverage, or complete accessibility claim."
+  ],
+  "evidenceSha256": {
+    "visual-proof.log": "7f980e9b6d435fb6fe5943ec99b960ddede37c9ee57ec4dce738d06ee0345f94",
+    "rune-hero-gate.log": "ab09da4eb16a39d61e2b6cbbb990983c2c64cd2320163938b7ded70c3e337bfe",
+    "before-player2.png": "82a6fc270768b0529708031bccbcd20649c78bf2735c49da906debde60c83514",
+    "before-player1.png": "2ada340e4368badbcb73de0daf7a59a9c011d9d5e64c3abc612a6dbbdf490e7d",
+    "after-player2.png": "5229721580f13d9fcd7cbe46115159c1b42c50b510dcea37a2c2079999de0d69",
+    "after-player1.png": "b75a1ae73c90de33f1671c235861fb532772bd99eebde8282c503d53de883470",
+    "table-gate.log": "b54571ec43e3493a36c2102c7e4a148ee2d32bbddd138b21db8aaa256930b51c",
+    "after-populated-preview.png": "2b99a56336f8d855aa3de97826fd8bffbd50bba570a3160dc4a92d8dfcc0d4de",
+    "build.log": "ab9c2e337af255d417b0d61c29d6d71dc046bd9e48366c34eb0738f3b52ddd76"
+  }
+}

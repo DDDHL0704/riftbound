@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p31-p33 rules 318-324",
       "note": "单位可位于基地或战场；从手牌支付费用打出法术、选择合法目标、加入结算链、双方让过后结算；期限为本回合内的战力修正由回合结束特殊清理移除。"
+    },
+    {
+      "source": "Chinese core PDF 2026-07-23 and Chinese card text",
+      "locator": "CN 321 / 436; UNL-063/219, UNL-131/219, UNL-190/219",
+      "note": "2026-10-09 重审：洞察在前置效果之后私下选择，不在打出时提交牌库目标；夜阑谣限制被指定法术当前控制者本回合打出法术。旧中间协议不兼容。"
     }
   ],
   "roomId": "p2-preflight-eclipse-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302072,
     "turnNumber": 98,
@@ -34,31 +42,60 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 3,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-ECLIPSE"],
+        "mainDeck": [
+          "P1-MAIN-001",
+          "P1-MAIN-002"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-ECLIPSE"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-UNIT-ECLIPSE-001"],
+        "battlefields": [
+          "P2-UNIT-ECLIPSE-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -78,7 +115,9 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-ECLIPSE",
         "cardNo": "UNL-063/219",
-        "targetObjectIds": ["P2-UNIT-ECLIPSE-001"]
+        "targetObjectIds": [
+          "P2-UNIT-ECLIPSE-001"
+        ]
       }
     },
     {
@@ -94,21 +133,36 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "insight-choose-at-resolution",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "INSIGHT:STACK-1-P1-SPELL-ECLIPSE",
+        "choiceWindow": "INSIGHT",
+        "chosenObjectIds": []
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "STACK_ITEM_SUSPENDED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "INSIGHT_REQUESTED",
+      "INSIGHT_COMPLETED",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -123,13 +177,21 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-ECLIPSE",
           "cardNo": "UNL-063/219",
-          "targetObjectIds": ["P2-UNIT-ECLIPSE-001"],
-          "effectKind": "ECLIPSE_POWER_MINUS_4_OPTIONAL_INSIGHT"
+          "targetObjectIds": [
+            "P2-UNIT-ECLIPSE-001"
+          ],
+          "effectKind": "ECLIPSE_POWER_MINUS_4_INSIGHT"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_SUSPENDED"
+      },
       {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
         "payload": {
@@ -139,11 +201,27 @@
           "appliedPowerDelta": -4,
           "resultingPower": 1
         }
+      },
+      {
+        "kind": "INSIGHT_REQUESTED"
+      },
+      {
+        "kind": "INSIGHT_COMPLETED",
+        "payload": {
+          "recycledCount": 0
+        }
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 98,
@@ -156,17 +234,30 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
+          "mainDeck": [
+            "P1-MAIN-001",
+            "P1-MAIN-002"
+          ],
           "hand": [],
-          "graveyard": ["P1-SPELL-ECLIPSE"]
+          "graveyard": [
+            "P1-SPELL-ECLIPSE"
+          ]
         },
         "P2": {
-          "battlefields": ["P2-UNIT-ECLIPSE-001"]
+          "battlefields": [
+            "P2-UNIT-ECLIPSE-001"
+          ]
         }
       },
       "cardObjects": {
@@ -180,8 +271,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

@@ -1,0 +1,17 @@
+{
+  "status": "PASSED",
+  "profile": "check",
+  "seconds": 78.97,
+  "total": 8871,
+  "caseParityVerified": false,
+  "shards": [
+    {
+      "shard": "check",
+      "total": 8871,
+      "passed": 8871,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 74.59
+    }
+  ]
+}

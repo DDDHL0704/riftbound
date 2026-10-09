@@ -1,0 +1,40 @@
+{
+  "status": "OPEN_CODE_REVIEW_FINDINGS_NOT_RUNTIME_ACCEPTANCE",
+  "reviewDate": "2026-10-09",
+  "items": [
+    {
+      "id": "JHIN_PAID_MANA_OPTIONAL_BANISH",
+      "cardNo": "UNL-181/219",
+      "authority": "Official catalog cardEffect explicitly says actual mana consumed and optional exile; CN 206 does not override that explicit wording.",
+      "confirmedCodeFacts": [
+        "RuleTextParsers uses MinimumPaidMana",
+        "ResolveLegendHighCostSpellBanishCompletionTrigger compares behavior.ManaCost",
+        "The current completion path inserts the spell into the controller banished collection and auto-resolves the threshold; a new optional trigger/choice lifecycle is not present in this path"
+      ],
+      "requiredBehaviorProof": [
+        "Printed high-cost spell reduced below four does not qualify",
+        "Printed lower-cost spell with actual mana costs totaling at least four qualifies",
+        "Decline/accept before response, countered spell and echo/continuation timing",
+        "Borrowed spell returns to its owner discard after the four-card completion",
+        "Restore and command/event replay across choices"
+      ],
+      "fixStatus": "NOT_CHANGED_IN_WARD_BATCH"
+    },
+    {
+      "id": "LUX_TRIGGER_LIFECYCLE",
+      "cardNos": [
+        "OGS·006/024",
+        "OGS·021/024"
+      ],
+      "fixed": "Threshold now uses printed/copied mana, including cost reductions.",
+      "remaining": "Existing immediate power/draw trigger lifecycle is not certified by the threshold tests; re-audit confirmation, response, simultaneous ordering and source control/LKI.",
+      "fixStatus": "COST_BASIS_FIXED_LIFECYCLE_OPEN"
+    },
+    {
+      "id": "WARD_GRANT_PROVENANCE",
+      "fixed": "Supported independent source/level/same-field/public-friendly aura values now sum.",
+      "remaining": "Flattened tags do not prove independent repeated temporary/equipment grants; inventory all grant producers before claiming every Ward instance stacks.",
+      "fixStatus": "SUPPORTED_AURA_FAMILIES_FIXED_FULL_GRANT_INVENTORY_OPEN"
+    }
+  ]
+}

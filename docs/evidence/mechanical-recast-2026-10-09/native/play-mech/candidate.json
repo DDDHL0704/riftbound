@@ -1,0 +1,267 @@
+{
+  "action": "PLAY_CARD",
+  "label": "\u6253\u51FA\u5361\u724C",
+  "enabled": true,
+  "reason": "\u300A\u5170\u535A\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u8D39\u7528\u51CF\u5C11 3\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD",
+  "sources": [
+    {
+      "id": "MECH",
+      "label": "SFD\u00B7075/221",
+      "reason": "implemented payable PLAY_CARD source",
+      "objectIds": [
+        "MECH"
+      ]
+    },
+    {
+      "id": "MECH2",
+      "label": "SFD\u00B7075/221",
+      "reason": "implemented payable PLAY_CARD source",
+      "objectIds": [
+        "MECH2"
+      ]
+    }
+  ],
+  "destinations": [
+    {
+      "id": "BASE",
+      "label": "\u57FA\u5730",
+      "objectIds": [
+        "BASE"
+      ]
+    }
+  ],
+  "metadata": {
+    "sourcePolicy": "implemented-card-behavior-only",
+    "targetPolicy": "source-specific-server-filtered-targets",
+    "modePolicy": "source-specific-server-filtered-modes",
+    "optionalCostPolicy": "source-specific-server-filtered-costs",
+    "destinationPolicy": "source-specific-server-filtered-destinations",
+    "sourceRequirements": [
+      {
+        "sourceObjectId": "MECH",
+        "cardNo": "SFD\u00B7075/221",
+        "displayName": "\u8FDB\u6B65\u8363\u5149",
+        "sourceZone": "GRAVEYARD",
+        "mode": null,
+        "modeLabel": "\u9ED8\u8BA4",
+        "manaCost": 4,
+        "minimumManaCost": 1,
+        "minimumPrintedPowerShortfall": 0,
+        "printedPowerCost": 1,
+        "effectPlayReason": "\u300A\u5170\u535A\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u8D39\u7528\u51CF\u5C11 3\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD",
+        "printedPowerTraits": [
+          "blue"
+        ],
+        "printedPowerChoices": [],
+        "availableRainbowPower": 10,
+        "battlefieldEquipmentCostReductionMana": 0,
+        "dragonUnitCostReductionMana": 0,
+        "nextSpellCostReductionMana": 0,
+        "battlefieldSpellCostReductionMana": 0,
+        "battlefieldHeldUnitCostIncreaseMana": 0,
+        "minTargetCount": 0,
+        "maxTargetCount": 0,
+        "targetCountLabel": "0",
+        "targetScope": "BATTLEFIELD_UNIT",
+        "targetScopeLabel": "\u6218\u573A\u5355\u4F4D",
+        "allowsRepeatedTargets": false,
+        "supportsSeparateExecutions": false,
+        "targetChoicesByIndex": {},
+        "legalTargetSelections": [],
+        "destinationChoices": [
+          {
+            "id": "BASE",
+            "label": "\u57FA\u5730"
+          }
+        ],
+        "optionalCostChoices": [],
+        "paymentResourceChoices": [],
+        "paymentResourcePowerByChoice": {},
+        "availableMana": 10,
+        "availableManaWithPaymentResources": 10,
+        "paymentResourceMana": 0,
+        "availablePower": 10,
+        "availablePowerByTrait": {},
+        "availablePowerWithPaymentResources": 10,
+        "availablePowerByTraitWithPaymentResources": {},
+        "hasteReadyPowerCost": 0,
+        "hasteReadyPowerTrait": "",
+        "composable": true,
+        "unsupportedReason": ""
+      },
+      {
+        "sourceObjectId": "MECH2",
+        "cardNo": "SFD\u00B7075/221",
+        "displayName": "\u8FDB\u6B65\u8363\u5149",
+        "sourceZone": "GRAVEYARD",
+        "mode": null,
+        "modeLabel": "\u9ED8\u8BA4",
+        "manaCost": 4,
+        "minimumManaCost": 1,
+        "minimumPrintedPowerShortfall": 0,
+        "printedPowerCost": 1,
+        "effectPlayReason": "\u300A\u5170\u535A\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u8D39\u7528\u51CF\u5C11 3\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD",
+        "printedPowerTraits": [
+          "blue"
+        ],
+        "printedPowerChoices": [],
+        "availableRainbowPower": 10,
+        "battlefieldEquipmentCostReductionMana": 0,
+        "dragonUnitCostReductionMana": 0,
+        "nextSpellCostReductionMana": 0,
+        "battlefieldSpellCostReductionMana": 0,
+        "battlefieldHeldUnitCostIncreaseMana": 0,
+        "minTargetCount": 0,
+        "maxTargetCount": 0,
+        "targetCountLabel": "0",
+        "targetScope": "BATTLEFIELD_UNIT",
+        "targetScopeLabel": "\u6218\u573A\u5355\u4F4D",
+        "allowsRepeatedTargets": false,
+        "supportsSeparateExecutions": false,
+        "targetChoicesByIndex": {},
+        "legalTargetSelections": [],
+        "destinationChoices": [
+          {
+            "id": "BASE",
+            "label": "\u57FA\u5730"
+          }
+        ],
+        "optionalCostChoices": [],
+        "paymentResourceChoices": [],
+        "paymentResourcePowerByChoice": {},
+        "availableMana": 10,
+        "availableManaWithPaymentResources": 10,
+        "paymentResourceMana": 0,
+        "availablePower": 10,
+        "availablePowerByTrait": {},
+        "availablePowerWithPaymentResources": 10,
+        "availablePowerByTraitWithPaymentResources": {},
+        "hasteReadyPowerCost": 0,
+        "hasteReadyPowerTrait": "",
+        "composable": true,
+        "unsupportedReason": ""
+      }
+    ]
+  },
+  "selectionSteps": [
+    {
+      "role": "source",
+      "label": "\u6765\u6E90",
+      "required": true,
+      "choices": [
+        {
+          "id": "MECH",
+          "label": "SFD\u00B7075/221",
+          "objectIds": [
+            "MECH"
+          ],
+          "reason": "implemented payable PLAY_CARD source"
+        },
+        {
+          "id": "MECH2",
+          "label": "SFD\u00B7075/221",
+          "objectIds": [
+            "MECH2"
+          ],
+          "reason": "implemented payable PLAY_CARD source"
+        }
+      ]
+    },
+    {
+      "role": "destination",
+      "label": "\u4F4D\u7F6E",
+      "required": false,
+      "choices": [
+        {
+          "id": "BASE",
+          "label": "\u57FA\u5730",
+          "objectIds": [
+            "BASE"
+          ]
+        }
+      ]
+    }
+  ],
+  "commandTemplate": {
+    "cmdType": "PLAY_CARD",
+    "bindings": [
+      {
+        "field": "sourceObjectId",
+        "source": "selectedSource",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u6765\u6E90"
+      },
+      {
+        "field": "cardNo",
+        "source": "requirementMetadata",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "metadataKeys": [
+          "cardNo",
+          "equipmentCardNo"
+        ],
+        "label": "\u670D\u52A1\u7AEF"
+      },
+      {
+        "field": "targetObjectIds",
+        "source": "selectedTargets",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": false,
+        "label": "\u76EE\u6807"
+      },
+      {
+        "field": "mode",
+        "source": "selectedMode",
+        "required": false,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u6A21\u5F0F"
+      },
+      {
+        "field": "destination",
+        "source": "selectedDestination",
+        "required": false,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u4F4D\u7F6E"
+      },
+      {
+        "field": "optionalCosts",
+        "source": "selectedOptionalCosts",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": true,
+        "label": "\u8D39\u7528"
+      }
+    ]
+  },
+  "composer": {
+    "supported": true,
+    "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+    "selectionRoles": [
+      "destination",
+      "source"
+    ],
+    "requiredSelectionRoles": [
+      "source"
+    ],
+    "commandFields": [
+      "cardNo",
+      "destination",
+      "mode",
+      "optionalCosts",
+      "sourceObjectId",
+      "targetObjectIds"
+    ]
+  },
+  "presentation": {
+    "category": "play",
+    "intent": "play-card",
+    "uiHint": "card-action",
+    "priority": 100
+  }
+}

@@ -33,9 +33,9 @@ public sealed class PlayCostPreviewTests
     }
 
     [Fact]
-    public async Task TotalReductionAlsoPaysSpellshieldAdditionalMana()
+    public async Task ManaReductionLeavesWardPowerPayable()
     {
-        var state = Position(RunePool.Empty, "OGS·003/024");
+        var state = Position(new(0, 1), "OGS·003/024");
         state = state with
         {
             UntilEndOfTurnEffects = ["RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:DRAKE"],
@@ -49,6 +49,7 @@ public sealed class PlayCostPreviewTests
         var engine = new CoreRuleEngine();
         var quote = engine.PreviewPlayCard(state, "P1", Request(state, command));
         Assert.Equal(0, quote.Cost!.Mana);
+        Assert.Equal(1, quote.Cost.GenericPower);
         Assert.True(quote.CanPay, quote.Message);
         var result = await engine.ResolveAsync(state, new("tax-reduction", "P1", CommandTypes.PlayCard), command, default);
         Assert.True(result.Accepted, result.ErrorMessage);

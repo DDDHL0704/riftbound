@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p39-p42 rules 355-356; p57 rule 413.4; p58-p59 rule 416",
       "note": "打出法术时支付费用并确认结算链；抽取使卡牌加入手牌；回收使所选卡牌回到拥有者对应牌堆底部。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-08/rules-manifest.json",
+      "locator": "CN core resolution; official printed look/select effect",
+      "note": "2026-10-08 re-audit: privately select viewed cards only while resolving, after responses. Filtered selections reveal the card; Card Trick adds to hand rather than drawing."
     }
   ],
   "roomId": "p2-preflight-card-trick-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302053,
     "turnNumber": 48,
@@ -34,31 +42,60 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 1, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 1,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-CARD-TRICK-DRAW-001", "P1-CARD-TRICK-RECYCLE-A", "P1-CARD-TRICK-RECYCLE-B", "P1-MAIN-KEEPER"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-CARD-TRICK"],
+        "mainDeck": [
+          "P1-CARD-TRICK-DRAW-001",
+          "P1-CARD-TRICK-RECYCLE-A",
+          "P1-CARD-TRICK-RECYCLE-B",
+          "P1-MAIN-KEEPER"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-CARD-TRICK"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     }
   },
@@ -70,7 +107,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-CARD-TRICK",
         "cardNo": "OGN·183/298",
-        "targetObjectIds": ["P1-CARD-TRICK-DRAW-001"]
+        "targetObjectIds": []
       }
     },
     {
@@ -86,31 +123,61 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "p2-preflight-play-card-trick-draw-one-recycle-rest-choose",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "DECK-STACK-1-P1-SPELL-CARD-TRICK-0",
+        "choiceWindow": "DECK_EFFECT",
+        "chosenObjectIds": [
+          "P1-CARD-TRICK-DRAW-001"
+        ]
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "CARD_DRAWN",
-      "CARDS_RECYCLED"
+      "STACK_ITEM_SUSPENDED",
+      "CARD_CHOICE_REQUESTED",
+      "CARD_ADDED_TO_HAND",
+      "CARDS_RECYCLED",
+      "CARD_CHOICE_RESOLVED",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
-        "kind": "CARD_DRAWN",
-        "tick": 3,
-        "sequence": 7,
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "STACK_ITEM_ADDED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_SUSPENDED"
+      },
+      {
+        "kind": "CARD_CHOICE_REQUESTED"
+      },
+      {
+        "kind": "CARD_ADDED_TO_HAND",
+        "tick": 4,
+        "sequence": 8,
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-SPELL-CARD-TRICK",
@@ -119,18 +186,28 @@
       },
       {
         "kind": "CARDS_RECYCLED",
-        "tick": 3,
-        "sequence": 8,
+        "tick": 4,
+        "sequence": 9,
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-SPELL-CARD-TRICK",
           "count": 2
         }
+      },
+      {
+        "kind": "CARD_CHOICE_RESOLVED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 48,
@@ -143,24 +220,50 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-KEEPER", "P1-CARD-TRICK-RECYCLE-A", "P1-CARD-TRICK-RECYCLE-B"],
-          "hand": ["P1-CARD-TRICK-DRAW-001"],
-          "graveyard": ["P1-SPELL-CARD-TRICK"]
+          "mainDeck": [
+            "P1-MAIN-KEEPER",
+            "P1-CARD-TRICK-RECYCLE-A",
+            "P1-CARD-TRICK-RECYCLE-B"
+          ],
+          "hand": [
+            "P1-CARD-TRICK-DRAW-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-CARD-TRICK"
+          ]
         },
         "P2": {
-          "mainDeck": ["P2-MAIN-001"]
+          "mainDeck": [
+            "P2-MAIN-001"
+          ]
         }
       },
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

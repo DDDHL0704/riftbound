@@ -2385,7 +2385,7 @@ public sealed class ConformanceFixtureShapeTests
 
         var p1Prompt = prompts["P1"];
         Assert.True(p1Prompt.Actionable);
-        Assert.Equal(["PAY_COST", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(["PAY_COST", "ACTIVATE_ABILITY", "TAP_RUNE", "RECYCLE_RUNE", "SURRENDER"], p1Prompt.Actions);
         Assert.Equal(PromptTypes.PayCost, p1Prompt.View?.Type);
         Assert.NotNull(p1Prompt.PromptId);
         Assert.Equal(state.Tick, p1Prompt.SnapshotTick);
@@ -6627,7 +6627,7 @@ public sealed class ConformanceFixtureShapeTests
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(3, 0),
+                ["P1"] = new(2, 1),
                 ["P2"] = RunePool.Empty
             }
         };
@@ -10061,7 +10061,7 @@ public sealed class ConformanceFixtureShapeTests
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(2, 1),
+                ["P1"] = new(2, 2),
                 ["P2"] = RunePool.Empty
             }
         };
@@ -10107,7 +10107,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Contains("P2-UNIT", xerathTargetIds);
         Assert.Contains("P2-SPELLSHIELD-UNIT", xerathTargetIds);
 
-        var noSpellshieldTaxManaState = noResourceState with
+        var noSpellshieldTaxPowerState = noResourceState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
@@ -10115,10 +10115,10 @@ public sealed class ConformanceFixtureShapeTests
                 ["P2"] = RunePool.Empty
             }
         };
-        var noSpellshieldTaxManaCandidate = Assert.Single(
-            ResolutionResult.BuildPrompts(noSpellshieldTaxManaState)["P1"].Candidates ?? [],
+        var noSpellshieldTaxPowerCandidate = Assert.Single(
+            ResolutionResult.BuildPrompts(noSpellshieldTaxPowerState)["P1"].Candidates ?? [],
             candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
-        var noTaxMetadata = Assert.IsType<Dictionary<string, object?>>(noSpellshieldTaxManaCandidate.Metadata);
+        var noTaxMetadata = Assert.IsType<Dictionary<string, object?>>(noSpellshieldTaxPowerCandidate.Metadata);
         var noTaxRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             noTaxMetadata["sourceRequirements"]);
         var noTaxXerath = Assert.Single(noTaxRequirements, requirement =>

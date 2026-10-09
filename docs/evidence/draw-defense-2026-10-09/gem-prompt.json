@@ -1,0 +1,1105 @@
+{
+  "playerId": "P1",
+  "actionable": true,
+  "reason": "\u8BF7\u9009\u62E9\u8981\u5904\u7406\u7684\u5361\u724C",
+  "actions": [
+    "CHOOSE_CARDS",
+    "ACTIVATE_ABILITY",
+    "TAP_RUNE",
+    "RECYCLE_RUNE",
+    "SURRENDER"
+  ],
+  "promptId": "COUNTER-REPEAT:4:P1:CHOOSE_CARDS,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER",
+  "snapshotTick": 4,
+  "candidates": [
+    {
+      "action": "CHOOSE_CARDS",
+      "label": "\u786E\u8BA4\u89E6\u53D1\u6280\u80FD",
+      "enabled": true,
+      "reason": "\u8BF7\u9009\u62E9\u8981\u5904\u7406\u7684\u5361\u724C",
+      "metadata": {
+        "choiceId": "TRIGGER-TARGET:ordered-draw-3-4-2-G",
+        "choiceWindow": "TRIGGER_CONFIRMATION",
+        "choosingPlayerId": "P1",
+        "requiredCount": 1,
+        "maxCount": 1,
+        "reason": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D\u83B7\u5F97\u672C\u56DE\u5408 \u002B2 \u6218\u529B\uFF1B\u786E\u8BA4\u540E\u5F00\u653E\u54CD\u5E94",
+        "sourceObjectId": "G",
+        "effectKind": "FIELD_TARGETED_TRIGGER",
+        "legalCount": 2,
+        "contextCount": 2,
+        "serverCardChoiceState": "PENDING",
+        "cardChoices": [
+          {
+            "id": "MALZ",
+            "label": "\u739B\u5C14\u624E\u54C8",
+            "reason": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D\u83B7\u5F97\u672C\u56DE\u5408 \u002B2 \u6218\u529B\uFF1B\u786E\u8BA4\u540E\u5F00\u653E\u54CD\u5E94"
+          },
+          {
+            "id": "V",
+            "label": "\u620F\u7CBE\u8FDC\u89C1\u5BB6",
+            "reason": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D\u83B7\u5F97\u672C\u56DE\u5408 \u002B2 \u6218\u529B\uFF1B\u786E\u8BA4\u540E\u5F00\u653E\u54CD\u5E94"
+          }
+        ],
+        "legalObjectIds": [
+          "MALZ",
+          "V"
+        ]
+      },
+      "selectionSteps": [
+        {
+          "role": "target",
+          "label": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+          "required": true,
+          "choices": [
+            {
+              "id": "MALZ",
+              "label": "\u739B\u5C14\u624E\u54C8",
+              "objectIds": [
+                "MALZ"
+              ],
+              "reason": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D\u83B7\u5F97\u672C\u56DE\u5408 \u002B2 \u6218\u529B\uFF1B\u786E\u8BA4\u540E\u5F00\u653E\u54CD\u5E94"
+            },
+            {
+              "id": "V",
+              "label": "\u620F\u7CBE\u8FDC\u89C1\u5BB6",
+              "objectIds": [
+                "V"
+              ],
+              "reason": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D\u83B7\u5F97\u672C\u56DE\u5408 \u002B2 \u6218\u529B\uFF1B\u786E\u8BA4\u540E\u5F00\u653E\u54CD\u5E94"
+            }
+          ]
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "CHOOSE_CARDS",
+        "bindings": [
+          {
+            "field": "choiceId",
+            "source": "candidateMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKey": "choiceId",
+            "label": "\u5019\u9009\u6570\u636E"
+          },
+          {
+            "field": "choiceWindow",
+            "source": "candidateMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKey": "choiceWindow",
+            "label": "\u5019\u9009\u6570\u636E"
+          },
+          {
+            "field": "chosenObjectIds",
+            "source": "selectedTargets",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": false,
+            "label": "\u76EE\u6807"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "target"
+        ],
+        "requiredSelectionRoles": [
+          "target"
+        ],
+        "commandFields": [
+          "choiceId",
+          "choiceWindow",
+          "chosenObjectIds"
+        ]
+      },
+      "presentation": {
+        "category": "choice",
+        "intent": "choose-cards",
+        "uiHint": "choice",
+        "priority": 75
+      }
+    },
+    {
+      "action": "ACTIVATE_ABILITY",
+      "label": "\u6FC0\u6D3B\u80FD\u529B",
+      "enabled": false,
+      "reason": "\u6FC0\u6D3B\u80FD\u529B \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "targets": [],
+      "metadata": {
+        "sourcePolicy": "implemented-activated-ability-only",
+        "abilityPolicy": "source-specific-server-filtered-abilities",
+        "targetPolicy": "source-specific-server-filtered-targets",
+        "optionalCostPolicy": "source-specific-server-filtered-costs",
+        "sourceRequirements": []
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "ACTIVATE_ABILITY",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "abilityId",
+            "source": "requirementMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKey": "abilityId",
+            "label": "\u670D\u52A1\u7AEF"
+          },
+          {
+            "field": "targetObjectIds",
+            "source": "selectedTargets",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": false,
+            "label": "\u76EE\u6807"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "abilityId",
+          "optionalCosts",
+          "sourceObjectId",
+          "targetObjectIds"
+        ]
+      },
+      "presentation": {
+        "category": "ability",
+        "intent": "activate-ability",
+        "uiHint": "card-action",
+        "priority": 160
+      }
+    },
+    {
+      "action": "TAP_RUNE",
+      "label": "\u6A2A\u7F6E\u7B26\u6587",
+      "enabled": false,
+      "reason": "\u6A2A\u7F6E\u7B26\u6587 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "metadata": {
+        "sourcePolicy": "ready-controlled-base-rune",
+        "maxBatchSize": 12,
+        "resourceGain": "1-mana"
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "TAP_RUNE",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "sourceObjectId"
+        ]
+      },
+      "presentation": {
+        "category": "resource",
+        "intent": "tap-rune",
+        "uiHint": "resource",
+        "priority": 180
+      }
+    },
+    {
+      "action": "RECYCLE_RUNE",
+      "label": "\u56DE\u6536\u7B26\u6587",
+      "enabled": false,
+      "reason": "\u56DE\u6536\u7B26\u6587 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "metadata": {
+        "sourcePolicy": "controlled-trait-base-rune",
+        "maxBatchSize": 12,
+        "resourceGain": "1-matching-trait-power",
+        "destination": "rune-deck-bottom"
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "RECYCLE_RUNE",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "sourceObjectId"
+        ]
+      },
+      "presentation": {
+        "category": "resource",
+        "intent": "recycle-rune",
+        "uiHint": "resource",
+        "priority": 190
+      }
+    },
+    {
+      "action": "SURRENDER",
+      "label": "\u6295\u964D",
+      "enabled": true,
+      "reason": "\u8BF7\u9009\u62E9\u8981\u5904\u7406\u7684\u5361\u724C",
+      "commandTemplate": {
+        "cmdType": "SURRENDER",
+        "bindings": []
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [],
+        "requiredSelectionRoles": [],
+        "commandFields": []
+      },
+      "presentation": {
+        "category": "concede",
+        "intent": "surrender",
+        "uiHint": "danger",
+        "priority": 900
+      }
+    }
+  ],
+  "view": {
+    "type": "CARD_CHOICE",
+    "title": "\u9009\u62E9\u5361\u724C",
+    "message": "\u8BF7\u9009\u62E9\u8981\u5904\u7406\u7684\u5361\u724C",
+    "metadata": {
+      "choiceId": "TRIGGER-TARGET:ordered-draw-3-4-2-G",
+      "choiceWindow": "TRIGGER_CONFIRMATION",
+      "choosingPlayerId": "P1",
+      "requiredCount": 1,
+      "maxCount": 1,
+      "reason": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D\u83B7\u5F97\u672C\u56DE\u5408 \u002B2 \u6218\u529B\uFF1B\u786E\u8BA4\u540E\u5F00\u653E\u54CD\u5E94",
+      "sourceObjectId": "G",
+      "effectKind": "FIELD_TARGETED_TRIGGER",
+      "legalCount": 2,
+      "contextCount": 2,
+      "serverCardChoiceState": "PENDING",
+      "cardChoices": [
+        {
+          "id": "MALZ",
+          "label": "\u739B\u5C14\u624E\u54C8",
+          "reason": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D\u83B7\u5F97\u672C\u56DE\u5408 \u002B2 \u6218\u529B\uFF1B\u786E\u8BA4\u540E\u5F00\u653E\u54CD\u5E94"
+        },
+        {
+          "id": "V",
+          "label": "\u620F\u7CBE\u8FDC\u89C1\u5BB6",
+          "reason": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D\u83B7\u5F97\u672C\u56DE\u5408 \u002B2 \u6218\u529B\uFF1B\u786E\u8BA4\u540E\u5F00\u653E\u54CD\u5E94"
+        }
+      ],
+      "legalObjectIds": [
+        "MALZ",
+        "V"
+      ]
+    },
+    "responsibility": {
+      "promptType": "CARD_CHOICE",
+      "promptPlayerId": "P1",
+      "responsiblePlayerId": "P1",
+      "isResponsiblePlayer": true,
+      "actionableForPromptPlayer": true,
+      "state": "PLAYER_ACTION",
+      "nextStep": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u9009\u62E9\u5361\u724C\u3002",
+      "queueCounts": {
+        "stack": 1,
+        "pendingTasks": 0,
+        "triggerQueue": 0,
+        "pendingPayment": 0,
+        "pendingHandChoice": 0,
+        "pendingCardChoice": 1,
+        "activeBattle": 0
+      },
+      "relatedObjectIds": [
+        "G",
+        "MALZ",
+        "V"
+      ]
+    }
+  },
+  "contract": {
+    "promptKind": "CARD_CHOICE",
+    "candidateAction": "CHOOSE_CARDS",
+    "requiredPayload": [
+      "choiceId",
+      "choiceWindow",
+      "chosenObjectIds"
+    ],
+    "legalChoices": [
+      "candidate.metadata.cardChoices"
+    ],
+    "validationErrors": [
+      "INVALID_PAYLOAD",
+      "PHASE_NOT_ALLOWED",
+      "INVALID_TARGET",
+      "PROMPT_EXPIRED"
+    ],
+    "visibleMetadata": [
+      "choiceId",
+      "choiceWindow",
+      "choosingPlayerId",
+      "requiredCount",
+      "maxCount",
+      "cardChoices",
+      "reason",
+      "effectKind"
+    ],
+    "hiddenMetadata": [
+      "serverCardChoiceState",
+      "legalObjectIds",
+      "contextObjectIds"
+    ]
+  },
+  "objectContexts": [
+    {
+      "objectId": "MALZ",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "CHOOSE_CARDS",
+          "label": "\u786E\u8BA4\u89E6\u53D1\u6280\u80FD",
+          "enabled": true,
+          "reason": "\u8BF7\u9009\u62E9\u8981\u5904\u7406\u7684\u5361\u724C",
+          "roles": [
+            "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D"
+          ],
+          "commandType": "CHOOSE_CARDS",
+          "requiredCommandFields": [
+            "\u5019\u9009\u6570\u636E:choiceId*",
+            "\u5019\u9009\u6570\u636E:choiceWindow*"
+          ],
+          "commandFields": [
+            "\u5019\u9009\u6570\u636E:choiceId*",
+            "\u5019\u9009\u6570\u636E:choiceWindow*",
+            "\u76EE\u6807:chosenObjectIds"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "target"
+            ],
+            "commandFields": [
+              "choiceId",
+              "choiceWindow",
+              "chosenObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "target",
+              "label": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+              "required": true,
+              "choiceCount": 2,
+              "objectChoiceCount": 1,
+              "index": 0
+            }
+          ],
+          "presentation": {
+            "category": "choice",
+            "intent": "choose-cards",
+            "uiHint": "choice",
+            "priority": 75
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "MALZ"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "CHOOSE_CARDS"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 3 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "CHOOSE_CARDS / \u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D / \u6B65\u9AA4 \u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D* 1/2 / \u9700 \u5019\u9009\u6570\u636E:choiceId*/\u5019\u9009\u6570\u636E:choiceWindow* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u786E\u8BA4\u89E6\u53D1\u6280\u80FD / \u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D / 1/2",
+                "tone": "warn"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u5019\u9009\u6570\u636E:choiceId*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u5019\u9009\u6570\u636E:choiceWindow*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:chosenObjectIds",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "V",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "CHOOSE_CARDS",
+          "label": "\u786E\u8BA4\u89E6\u53D1\u6280\u80FD",
+          "enabled": true,
+          "reason": "\u8BF7\u9009\u62E9\u8981\u5904\u7406\u7684\u5361\u724C",
+          "roles": [
+            "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D"
+          ],
+          "commandType": "CHOOSE_CARDS",
+          "requiredCommandFields": [
+            "\u5019\u9009\u6570\u636E:choiceId*",
+            "\u5019\u9009\u6570\u636E:choiceWindow*"
+          ],
+          "commandFields": [
+            "\u5019\u9009\u6570\u636E:choiceId*",
+            "\u5019\u9009\u6570\u636E:choiceWindow*",
+            "\u76EE\u6807:chosenObjectIds"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "target"
+            ],
+            "commandFields": [
+              "choiceId",
+              "choiceWindow",
+              "chosenObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "target",
+              "label": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+              "required": true,
+              "choiceCount": 2,
+              "objectChoiceCount": 1,
+              "index": 0
+            }
+          ],
+          "presentation": {
+            "category": "choice",
+            "intent": "choose-cards",
+            "uiHint": "choice",
+            "priority": 75
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "V"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "CHOOSE_CARDS"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 3 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "CHOOSE_CARDS / \u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D / \u6B65\u9AA4 \u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D* 1/2 / \u9700 \u5019\u9009\u6570\u636E:choiceId*/\u5019\u9009\u6570\u636E:choiceWindow* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u786E\u8BA4\u89E6\u53D1\u6280\u80FD / \u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D / 1/2",
+                "tone": "warn"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u5019\u9009\u6570\u636E:choiceId*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u5019\u9009\u6570\u636E:choiceWindow*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:chosenObjectIds",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    }
+  ],
+  "inspection": {
+    "source": "server-action-prompt",
+    "boundary": "\u670D\u52A1\u7AEF\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u7A97\u53E3\u7684\u7C7B\u578B\u3001\u5019\u9009\u3001\u547D\u4EE4\u5951\u7EA6\u548C\u5BF9\u8C61\u7D22\u5F15\u6458\u8981\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u63D0\u793A\u68C0\u67E5\u3002",
+    "summaryRows": [
+      {
+        "key": "kind",
+        "label": "\u63D0\u793A\u7C7B\u578B",
+        "value": "CARD_CHOICE"
+      },
+      {
+        "key": "state",
+        "label": "\u7A97\u53E3",
+        "value": "\u53EF\u884C\u52A8",
+        "tone": "good"
+      },
+      {
+        "key": "candidate",
+        "label": "\u5019\u9009",
+        "value": "2 \u53EF\u63D0\u4EA4 / 3 \u963B\u65AD"
+      },
+      {
+        "key": "objects",
+        "label": "\u5BF9\u8C61\u7D22\u5F15",
+        "value": "2 \u4E2A\u5BF9\u8C61"
+      }
+    ],
+    "groups": [
+      {
+        "key": "candidate",
+        "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+        "rows": [
+          {
+            "key": "candidate-0",
+            "label": "\u53EF\u63D0\u4EA4",
+            "value": "CHOOSE_CARDS / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+            "tone": "good"
+          },
+          {
+            "key": "candidate-1",
+            "label": "\u963B\u65AD",
+            "value": "ACTIVATE_ABILITY / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u6FC0\u6D3B\u80FD\u529B \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-2",
+            "label": "\u963B\u65AD",
+            "value": "TAP_RUNE / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u6A2A\u7F6E\u7B26\u6587 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-3",
+            "label": "\u963B\u65AD",
+            "value": "RECYCLE_RUNE / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u56DE\u6536\u7B26\u6587 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-4",
+            "label": "\u53EF\u63D0\u4EA4",
+            "value": "SURRENDER / \u6765\u6E90 0 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+            "tone": "good"
+          }
+        ],
+        "emptyLabel": "\u5F53\u524D\u7A97\u53E3\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+      },
+      {
+        "key": "contract",
+        "title": "\u63D0\u4EA4\u5951\u7EA6",
+        "rows": [
+          {
+            "key": "candidate-action",
+            "label": "\u547D\u4EE4",
+            "value": "CHOOSE_CARDS",
+            "tone": "info"
+          },
+          {
+            "key": "required",
+            "label": "\u5FC5\u586B",
+            "value": "3 \u9879",
+            "tone": "warn"
+          },
+          {
+            "key": "legal",
+            "label": "\u5408\u6CD5\u9009\u62E9",
+            "value": "1 \u7EC4",
+            "tone": "info"
+          },
+          {
+            "key": "visible",
+            "label": "\u516C\u5F00 metadata",
+            "value": "8 \u9879",
+            "tone": "info"
+          },
+          {
+            "key": "hidden",
+            "label": "\u9690\u85CF metadata",
+            "value": "3 \u9879",
+            "tone": "warn"
+          }
+        ],
+        "emptyLabel": "\u5F53\u524D\u7A97\u53E3\u6CA1\u6709\u4E13\u7528\u63D0\u4EA4\u5951\u7EA6\u3002"
+      },
+      {
+        "key": "object-index",
+        "title": "\u5BF9\u8C61\u7D22\u5F15",
+        "rows": [
+          {
+            "key": "count",
+            "label": "\u7D22\u5F15",
+            "value": "2 \u4E2A\u5BF9\u8C61",
+            "tone": "info"
+          },
+          {
+            "key": "source",
+            "label": "\u6765\u6E90",
+            "value": "\u670D\u52A1\u7AEF\u9009\u62E9\u6B65\u9AA4\u4E0E\u547D\u4EE4\u6A21\u677F",
+            "tone": "info"
+          }
+        ]
+      },
+      {
+        "key": "safe-boundary",
+        "title": "\u4FE1\u606F\u8FB9\u754C",
+        "rows": [
+          {
+            "key": "candidate-source",
+            "label": "\u5408\u6CD5\u6027",
+            "value": "\u4EC5\u4EE5\u670D\u52A1\u7AEF\u5019\u9009\u548C\u63D0\u4EA4\u6821\u9A8C\u4E3A\u51C6",
+            "tone": "neutral"
+          },
+          {
+            "key": "hidden-metadata",
+            "label": "\u9690\u85CF\u5B57\u6BB5",
+            "value": "\u53EA\u516C\u5F00\u8BA1\u6570\u6216\u5B89\u5168\u6807\u7B7E\uFF0C\u4E0D\u5C55\u5F00\u9690\u85CF metadata",
+            "tone": "neutral"
+          },
+          {
+            "key": "frontend",
+            "label": "\u524D\u7AEF\u804C\u8D23",
+            "value": "\u5C55\u793A\u4E0E\u63D0\u4EA4\uFF0C\u4E0D\u91CD\u7B97\u89C4\u5219",
+            "tone": "neutral"
+          }
+        ]
+      }
+    ]
+  },
+  "serverFlow": {
+    "state": "respond",
+    "stateLabel": "\u54CD\u5E94",
+    "tone": "info",
+    "primaryLabel": "\u54CD\u5E94\u7ED3\u7B97\u94FE",
+    "summary": "\u9009\u62E9\u5361\u724C / \u54CD\u5E94 / \u6309\u670D\u52A1\u7AEF prompt \u9009\u62E9\u54CD\u5E94\u6216\u8BA9\u8FC7\u3002",
+    "nextStep": "\u6309\u670D\u52A1\u7AEF prompt \u9009\u62E9\u54CD\u5E94\u6216\u8BA9\u8FC7\u3002",
+    "reason": "\u7ED3\u7B97\u94FE\u9879\u76EE\u5B58\u5728\u65F6\uFF0C\u5408\u6CD5\u54CD\u5E94\u548C\u63D0\u4EA4\u5B57\u6BB5\u7531\u670D\u52A1\u7AEF\u5019\u9009\u51B3\u5B9A\u3002",
+    "promptType": "CARD_CHOICE",
+    "promptPlayerId": "P1",
+    "responsiblePlayerId": "P1",
+    "isResponsiblePlayer": true,
+    "actionableForPromptPlayer": true,
+    "candidateCount": 5,
+    "enabledCandidateCount": 2,
+    "disabledCandidateCount": 3,
+    "queueCounts": {
+      "stack": 1,
+      "pendingTasks": 0,
+      "triggerQueue": 0,
+      "pendingPayment": 0,
+      "pendingHandChoice": 0,
+      "pendingCardChoice": 1,
+      "activeBattle": 0
+    },
+    "lanes": [
+      {
+        "key": "stack",
+        "label": "\u7ED3\u7B97\u94FE",
+        "count": 1,
+        "state": "active",
+        "headline": "FIELD_TARGETED_TRIGGER / UNL-074/219 / \u63A7\u5236 P1"
+      },
+      {
+        "key": "task",
+        "label": "\u4EFB\u52A1",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u4EFB\u52A1"
+      },
+      {
+        "key": "trigger",
+        "label": "\u89E6\u53D1",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u89E6\u53D1"
+      },
+      {
+        "key": "resolution",
+        "label": "\u7ED3\u7B97",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u7ED3\u7B97\u8BB0\u5F55"
+      }
+    ],
+    "steps": [
+      {
+        "key": "prompt",
+        "label": "\u884C\u52A8\u7A97\u53E3",
+        "state": "ready",
+        "stateLabel": "\u53EF\u884C\u52A8",
+        "value": "\u9009\u62E9\u5361\u724C",
+        "detail": "\u8BF7\u9009\u62E9\u8981\u5904\u7406\u7684\u5361\u724C",
+        "role": "window"
+      },
+      {
+        "key": "responsibility",
+        "label": "\u8D23\u4EFB\u65B9",
+        "state": "ready",
+        "stateLabel": "PLAYER_ACTION",
+        "value": "P1",
+        "detail": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u9009\u62E9\u5361\u724C\u3002",
+        "role": "responsibility"
+      },
+      {
+        "key": "stack",
+        "label": "\u7ED3\u7B97\u94FE",
+        "state": "respond",
+        "stateLabel": "\u54CD\u5E94",
+        "value": "1 \u9879",
+        "detail": "FIELD_TARGETED_TRIGGER / UNL-074/219 / \u63A7\u5236 P1",
+        "role": "stack"
+      },
+      {
+        "key": "candidate",
+        "label": "\u5019\u9009",
+        "state": "ready",
+        "stateLabel": "2 \u53EF\u63D0\u4EA4",
+        "value": "CHOOSE_CARDS / ACTIVATE_ABILITY / TAP_RUNE / RECYCLE_RUNE / SURRENDER",
+        "detail": "\u524D\u7AEF\u53EA\u63D0\u4EA4\u670D\u52A1\u7AEF\u5019\u9009\uFF0C\u4E0D\u91CD\u7B97\u5408\u6CD5\u6027\u3002",
+        "role": "candidate"
+      }
+    ],
+    "relatedObjectIds": [
+      "G",
+      "MALZ",
+      "V"
+    ],
+    "relatedObjects": [
+      {
+        "objectId": "G",
+        "role": "\u7ED3\u7B97\u6765\u6E90"
+      },
+      {
+        "objectId": "G",
+        "role": "\u9009\u62E9\u6765\u6E90"
+      },
+      {
+        "objectId": "MALZ",
+        "role": "\u53EF\u9009\u5361\u724C",
+        "candidateRoles": [
+          "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "target",
+            "label": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+            "required": true,
+            "choiceCount": 2,
+            "objectChoiceCount": 1,
+            "index": 0
+          }
+        ],
+        "candidateActions": [
+          "CHOOSE_CARDS"
+        ]
+      },
+      {
+        "objectId": "V",
+        "role": "\u53EF\u9009\u5361\u724C",
+        "candidateRoles": [
+          "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "target",
+            "label": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+            "required": true,
+            "choiceCount": 2,
+            "objectChoiceCount": 1,
+            "index": 0
+          }
+        ],
+        "candidateActions": [
+          "CHOOSE_CARDS"
+        ]
+      },
+      {
+        "objectId": "MALZ",
+        "role": "\u5019\u9009\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+        "candidateRoles": [
+          "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "target",
+            "label": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+            "required": true,
+            "choiceCount": 2,
+            "objectChoiceCount": 1,
+            "index": 0
+          }
+        ],
+        "candidateActions": [
+          "CHOOSE_CARDS"
+        ]
+      },
+      {
+        "objectId": "V",
+        "role": "\u5019\u9009\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+        "candidateRoles": [
+          "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "target",
+            "label": "\u9009\u62E9\u4E00\u540D\u53CB\u65B9\u5355\u4F4D",
+            "required": true,
+            "choiceCount": 2,
+            "objectChoiceCount": 1,
+            "index": 0
+          }
+        ],
+        "candidateActions": [
+          "CHOOSE_CARDS"
+        ]
+      }
+    ]
+  }
+}

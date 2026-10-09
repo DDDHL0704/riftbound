@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-meditation-extra-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302080,
     "turnNumber": 73,
@@ -34,31 +37,60 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 2,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-DRAW-001", "P1-DRAW-002"],
-        "runeDeck": ["P1-RUNE-001"],
-        "hand": ["P1-SPELL-MEDITATION"],
+        "mainDeck": [
+          "P1-DRAW-001",
+          "P1-DRAW-002"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
+        "hand": [
+          "P1-SPELL-MEDITATION"
+        ],
         "base": [],
-        "battlefields": ["P1-UNIT-001"],
+        "battlefields": [
+          "P1-UNIT-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-UNIT-001"],
+        "battlefields": [
+          "P2-UNIT-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -85,7 +117,9 @@
         "sourceObjectId": "P1-SPELL-MEDITATION",
         "cardNo": "OGN·048/298",
         "targetObjectIds": [],
-        "optionalCosts": ["EXHAUST_FRIENDLY_UNIT:P1-UNIT-001"]
+        "optionalCosts": [
+          "EXHAUST_FRIENDLY_UNIT:P1-UNIT-001"
+        ]
       }
     },
     {
@@ -113,10 +147,15 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "CARD_DRAWN"
+      "CARD_DRAWN",
+      "SPELL_EXECUTION_COMPLETED",
+      "CARD_DRAWN",
+      "SPELL_EXECUTION_COMPLETED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "tick": 1,
@@ -125,7 +164,9 @@
           "playerId": "P1",
           "mana": 2,
           "baseMana": 2,
-          "optionalCosts": ["EXHAUST_FRIENDLY_UNIT:P1-UNIT-001"]
+          "optionalCosts": [
+            "EXHAUST_FRIENDLY_UNIT:P1-UNIT-001"
+          ]
         }
       },
       {
@@ -152,22 +193,53 @@
           "effectRepeatCount": 2
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "CARD_DRAWN",
         "tick": 3,
         "sequence": 8,
         "payload": {
           "playerId": "P1",
-          "count": 2
+          "count": 1
+        }
+      },
+      {
+        "kind": "SPELL_EXECUTION_COMPLETED",
+        "payload": {
+          "executionIndex": 0
+        }
+      },
+      {
+        "kind": "CARD_DRAWN",
+        "tick": 3,
+        "sequence": 10,
+        "payload": {
+          "playerId": "P1",
+          "count": 1
+        }
+      },
+      {
+        "kind": "SPELL_EXECUTION_COMPLETED",
+        "payload": {
+          "executionIndex": 1
         }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 73,
@@ -180,18 +252,33 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "mainDeck": [],
-          "hand": ["P1-DRAW-001", "P1-DRAW-002"],
-          "battlefields": ["P1-UNIT-001"],
-          "graveyard": ["P1-SPELL-MEDITATION"]
+          "hand": [
+            "P1-DRAW-001",
+            "P1-DRAW-002"
+          ],
+          "battlefields": [
+            "P1-UNIT-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-MEDITATION"
+          ]
         },
         "P2": {
-          "battlefields": ["P2-UNIT-001"]
+          "battlefields": [
+            "P2-UNIT-001"
+          ]
         }
       },
       "cardObjects": {
@@ -211,8 +298,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

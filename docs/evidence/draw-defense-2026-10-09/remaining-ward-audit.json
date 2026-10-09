@@ -1,0 +1,19 @@
+{
+  "status": "CONFIRMED_DEFECT_NOT_FIXED_IN_THIS_BATCH",
+  "authority": "CN 809.1.c, 809.1.c.1, 809.1.d: generic power, never mana",
+  "surfaces": [
+    {"path":"src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs","method":"CalculatePlayManaCost","finding":"Adds spellshield into mana total, permitting mana reductions to reduce a power cost"},
+    {"path":"src/Riftbound.Engine/CoreRuleEngine.PlayCostPreview.cs","finding":"Renders SpellshieldTaxMana as a mana adjustment"},
+    {"path":"src/Riftbound.Engine/CoreRuleEngine.cs","finding":"Xerath and other activation payment plans use SpellshieldTaxMana as baseManaCost/totalManaCost"},
+    {"path":"src/Riftbound.Engine/MatchSession.cs","finding":"Prompt availability, requirement metadata and inline resource payment estimates use Mana for target tax"},
+    {"path":"tests/Riftbound.ConformanceTests/LuxHighCostPaidCostTriggerTests.cs","finding":"Old lower-printed spell test assumes paying Ward increases paid mana and triggers Lux; passing this test is not official rule evidence"}
+  ],
+  "requiredNextBatch": [
+    "Replace tax calculator and payment-plan metadata with generic-power semantics; no aliases for old development protocols",
+    "Align target legality, cost preview, prompt eligibility, direct pool payment and inline rune recycling",
+    "Include repeated targets, multiple targets, trait-only pools, mana-only insufficient payment and reductions",
+    "Re-audit Lux printed/paid mana FAQ independently; replace wrong expectations with official examples",
+    "Run focused, adjacent/full, original native payment commands, persistence and replay"
+  ],
+  "scopedCorrectPath": "Field trigger confirmation uses the amount as genericPowerCost and totalPowerCost; Fan insufficient-cost and success tests pass"
+}

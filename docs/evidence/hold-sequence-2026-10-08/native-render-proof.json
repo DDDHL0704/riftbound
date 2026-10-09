@@ -1,0 +1,142 @@
+{
+  "scope": "Native render proof using actual server snapshots. Not a live two-client match and not Windows runtime acceptance.",
+  "stageLabels": [
+    "回合开始 · 响应窗口",
+    "回合开始 · 效果选择",
+    "回合开始 · 效果支付"
+  ],
+  "sizes": [
+    [
+      1280,
+      800
+    ],
+    [
+      1440,
+      900
+    ],
+    [
+      1920,
+      1080
+    ]
+  ],
+  "commandLog": "var/qa/hold-sequence-2026-10-08/native-visual.log",
+  "passed": true,
+  "files": [
+    {
+      "file": "SFD-214-221-4-P2-snapshot.json",
+      "sha256": "489a5fae8d65fd3a23aa7bc92714a055dde01d5fe2466e8380e51087b8ad716e"
+    },
+    {
+      "file": "OGN-288-298-1-P2-snapshot.json",
+      "sha256": "fa9c4d24f89ea6195ffd54aa7bffeec31c6ef07504de5d2fd1a72f76a17476a8"
+    },
+    {
+      "file": "SFD-214-221-replay.json",
+      "sha256": "e067d105b82ed69c9940037f4e3975b45be0a8bafe8bb96e164ab6c6a51aad6c"
+    },
+    {
+      "file": "OGN-288-298-1-P1-snapshot.json",
+      "sha256": "33d14c818d4d426b15e5c3e5d0927ec88e62cd7e03a25179a5499d5fa0bae5b5"
+    },
+    {
+      "file": "SFD-214-221-4-P1-snapshot.json",
+      "sha256": "8be837f6f65679fe29a31edb6a428cf9423fa1e97e0be47a9d7b155d46eda732"
+    },
+    {
+      "file": "SFD-214-221-1-P1-snapshot.json",
+      "sha256": "3af75b2c344fbe817b291dcc0096d0291573a8b1bde0b1b71dc481ce311298f1"
+    },
+    {
+      "file": "OGN-288-298-4-P1-snapshot.json",
+      "sha256": "3f5b0e3c7e3a91f09eb5c0d64b95da3016319571bea3d3e05ead455aff4bb004"
+    },
+    {
+      "file": "OGN-280-298-1-P2-snapshot.json",
+      "sha256": "b8ddc62562d8239de7e848f29db7909152f729afec7947382a2918b96b4012d0"
+    },
+    {
+      "file": "OGN-280-298-1-P1-window.png",
+      "sha256": "f1e055be2b2377ad8262148be69dc349e432dcd0ed88996a0031bb3d2d541487"
+    },
+    {
+      "file": "OGN-288-298-4-P2-snapshot.json",
+      "sha256": "3255abd9240c707899322d643c210ce1515390818af635c6b37b98c54c0b2d6b"
+    },
+    {
+      "file": "OGN-280-298-1-P1-snapshot.json",
+      "sha256": "4cfdf59b7d0e2ed11a63bc9adc76606460dbac27b5e260b2e491ec95529a1fe7"
+    },
+    {
+      "file": "SFD-214-221-1-P2-snapshot.json",
+      "sha256": "f93baf680e5625f91594f2b98a89fad111e334726979b213be48848d6d6bc32b"
+    },
+    {
+      "file": "OGN-280-298-replay.json",
+      "sha256": "c0587f81decbde6c3649b806eda652d12b835f2c6ea26252ab5492fcec5ffc66"
+    },
+    {
+      "file": "OGN-288-298-3-P2-snapshot.json",
+      "sha256": "c6ce272a8138f9e0fbe0a0bb347786e0c3a871f41ac0e1ce644894531deba849"
+    },
+    {
+      "file": "OGN-280-298-2-P2-snapshot.json",
+      "sha256": "6c46e132255eb3486c71e33a8ca4fd7a4cd61616bc0896a1a8dd95cc926e6cc6"
+    },
+    {
+      "file": "SFD-214-221-2-P1-snapshot.json",
+      "sha256": "9a225a12daa72db48bec782192554c53afb5a6a4ef5d07a271047d00bf91c7a2"
+    },
+    {
+      "file": "SFD-214-221-2-P2-snapshot.json",
+      "sha256": "aad8ff06d664ee5cf0a77455e577fea3fcbfb959092e57489f3dfb0e68a0593b"
+    },
+    {
+      "file": "OGN-288-298-replay.json",
+      "sha256": "b06c4fa427449f7e3da26c7c951a419cedb2514355c19b3e818b58b9b0f2a8c5"
+    },
+    {
+      "file": "OGN-280-298-2-P1-snapshot.json",
+      "sha256": "fd5b915f29098f570ed7e48ecb7ed3c42070432b71e723368af7226a3d81e3c5"
+    },
+    {
+      "file": "OGN-288-298-3-P1-snapshot.json",
+      "sha256": "9c5f13685908de78f62c3dab752fa758a5b946079d837aa620147325363254cc"
+    },
+    {
+      "file": "OGN-280-298-3-P2-snapshot.json",
+      "sha256": "876fd89b204a2cd871cbe3511c8f0b5bfd8586d42010585ad1b4604bb85cb0fd"
+    },
+    {
+      "file": "OGN-288-298-2-P2-snapshot.json",
+      "sha256": "58a3075132e88ae1e42dc80a53b2887a24ffd9fca560e94ca385bfa7b61f449d"
+    },
+    {
+      "file": "SFD-214-221-3-P1-snapshot.json",
+      "sha256": "06c95a2b4c97eb120ebdca46f862afb7ef85b2cba416e0294e232edabb2869b2"
+    },
+    {
+      "file": "SFD-214-221-3-P2-snapshot.json",
+      "sha256": "29fe3dde1c9bd72c82d299f1b949897eaccbc0790cb848f2be219a481c32c5ff"
+    },
+    {
+      "file": "OGN-288-298-3-P1-window.png",
+      "sha256": "47bfe8afb3f8f9fd5a5ba37c5518a7d5ba62760fdc537a1bec06131ad8505096"
+    },
+    {
+      "file": "OGN-288-298-2-P1-snapshot.json",
+      "sha256": "569c0c8d5e3bd523983c1704756efe8fec76421c087f1740e2b81897e2712ff6"
+    },
+    {
+      "file": "OGN-280-298-3-P1-snapshot.json",
+      "sha256": "12d1b13847ce03edecc612ce9290cfe9d3ab740837f7f92d2ed7c46352ecf8ca"
+    },
+    {
+      "file": "SFD-214-221-3-P1-window.png",
+      "sha256": "45849814facfbebe39cdad0451a9a88c9c83b98903bddf35bab71a39c096c11a"
+    }
+  ],
+  "notes": [
+    "Fixed compact missing-image name overflow and re-rendered all three stages.",
+    "The harness renders real snapshots; it does not perform a live two-client user match."
+  ]
+}

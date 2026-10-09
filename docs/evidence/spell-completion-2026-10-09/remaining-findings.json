@@ -1,0 +1,52 @@
+[
+  {
+    "id": "effect-origin-play",
+    "status": "CONFIRMED_DEFECT_OPEN",
+    "source": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "symbol": "TryResolveGraveyardSpellFreePlayRecycleTrigger",
+    "finding": "Directly selects first legal graveyard spell and targets, resolves a synthetic stack item without a play receipt, and does not preserve its trigger queue or suspended choices. Must replace with resumable formal effect-play flow, not just set PlayCost.",
+    "authority": [
+      "CN 419.3.b",
+      "CN 419.4.a",
+      "06.txt Kai Sa + Jhin + Echo QA"
+    ],
+    "needed": [
+      "Optional card, target, mode and Echo/payment choices",
+      "Response and source-zone replacement ordering",
+      "Queued triggers and private continuations",
+      "Current-version restore, native commands and replay"
+    ],
+    "replacementDesign": [
+      "Extend the existing PendingEffectPlay flow to legal spell sources and normal card/target/mode/cost choices, instead of adding another direct executor.",
+      "Apply the instructed post-resolution zone disposition before capturing completed-play triggers; verify the Kai Sa/Jhin interaction against the official QA.",
+      "Carry parent and child continuations through snapshots and replay, including decline, counter, Echo and private selection."
+    ]
+  },
+  {
+    "id": "all-completion-paths",
+    "status": "AUDIT_OPEN",
+    "finding": "Normal and standby PlayCard capture completion; repeat/private Insight continuations covered. Legacy hand-choice, direct free-play and other synthetic-resolution paths are not all verified."
+  },
+  {
+    "id": "legacy-recovery-schema",
+    "status": "CONFIRMED_DEAD_BRANCH_OPEN",
+    "source": "src/Riftbound.Engine/MatchRecovery.cs",
+    "symbol": "ValidateTriggerQueueOgsLuxHighCostSpellContext",
+    "finding": "Old OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 recovery validation and its synthetic schema tests remain. New engine emits typed SPELL_TRIGGER. Remove obsolete validation while replacing the corresponding projection/forgery tests; do not merely drop security checks."
+  },
+  {
+    "id": "generic-ability-counter",
+    "status": "AUDIT_OPEN",
+    "finding": "New optional triggers provide response windows; ability counter targeting, cannot-be-countered and replacement combinations are not certified."
+  },
+  {
+    "id": "all-rules-qa",
+    "status": "NOT_COMPLETE",
+    "finding": "This is a scoped spell-trigger batch, not whole-catalog or whole official QA acceptance. Remaining prior audit items still apply."
+  },
+  {
+    "id": "product-delivery",
+    "status": "NOT_EXECUTED",
+    "finding": "No server restart, user-match rewrite, package delivery, full two-client game acceptance or Windows hardware test in this batch."
+  }
+]

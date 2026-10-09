@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "打出法术需要支付费用并加入结算链；回响支付额外费用后重复法术效果；本回合内效果会在回合结束特殊清理移除；强攻关键词在目标为进攻方时提供对应战力加成。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-08/rules-manifest.json",
+      "locator": "CN core 820.2, 820.3, 321",
+      "note": "2026-10-08: ordered executions within one stack item, including repeated draw 1, with lethal cleanup only after the last execution."
     }
   ],
   "roomId": "p2-preflight-blood-rush-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302093,
     "turnNumber": 77,
@@ -34,31 +42,49 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 2,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
         "mainDeck": [],
         "runeDeck": [],
-        "hand": ["P1-SPELL-BLOOD-RUSH"],
+        "hand": [
+          "P1-SPELL-BLOOD-RUSH"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
         "mainDeck": [],
         "runeDeck": [],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-UNIT-BLOOD-RUSH-001"],
+        "battlefields": [
+          "P2-UNIT-BLOOD-RUSH-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -80,8 +106,12 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-BLOOD-RUSH",
         "cardNo": "SFD·003/221",
-        "targetObjectIds": ["P2-UNIT-BLOOD-RUSH-001"],
-        "optionalCosts": ["ECHO"]
+        "targetObjectIds": [
+          "P2-UNIT-BLOOD-RUSH-001"
+        ],
+        "optionalCosts": [
+          "ECHO"
+        ]
       }
     },
     {
@@ -110,11 +140,15 @@
       "STACK_ITEM_RESOLVED",
       "STATUS_EFFECT_APPLIED",
       "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "SPELL_EXECUTION_COMPLETED",
       "STATUS_EFFECT_APPLIED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "SPELL_EXECUTION_COMPLETED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "tick": 1,
@@ -123,7 +157,9 @@
           "playerId": "P1",
           "mana": 2,
           "baseMana": 1,
-          "optionalCosts": ["ECHO"]
+          "optionalCosts": [
+            "ECHO"
+          ]
         }
       },
       {
@@ -134,14 +170,22 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-BLOOD-RUSH",
           "cardNo": "SFD·003/221",
-          "targetObjectIds": ["P2-UNIT-BLOOD-RUSH-001"],
+          "targetObjectIds": [
+            "P2-UNIT-BLOOD-RUSH-001"
+          ],
           "effectKind": "BLOOD_RUSH_OVERWHELM_2",
           "effectRepeatCount": 2
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "STATUS_EFFECT_APPLIED",
         "tick": 3,
@@ -166,9 +210,15 @@
         }
       },
       {
+        "kind": "SPELL_EXECUTION_COMPLETED",
+        "payload": {
+          "executionIndex": 0
+        }
+      },
+      {
         "kind": "STATUS_EFFECT_APPLIED",
         "tick": 3,
-        "sequence": 9,
+        "sequence": 10,
         "payload": {
           "sourceObjectId": "P1-SPELL-BLOOD-RUSH",
           "targetObjectId": "P2-UNIT-BLOOD-RUSH-001",
@@ -178,7 +228,7 @@
       {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
         "tick": 3,
-        "sequence": 10,
+        "sequence": 11,
         "payload": {
           "sourceObjectId": "P1-SPELL-BLOOD-RUSH",
           "targetObjectId": "P2-UNIT-BLOOD-RUSH-001",
@@ -187,11 +237,21 @@
           "minimumPower": 0,
           "resultingPower": 6
         }
+      },
+      {
+        "kind": "SPELL_EXECUTION_COMPLETED",
+        "payload": {
+          "executionIndex": 1
+        }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 77,
@@ -204,23 +264,35 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "graveyard": ["P1-SPELL-BLOOD-RUSH"]
+          "graveyard": [
+            "P1-SPELL-BLOOD-RUSH"
+          ]
         },
         "P2": {
-          "battlefields": ["P2-UNIT-BLOOD-RUSH-001"]
+          "battlefields": [
+            "P2-UNIT-BLOOD-RUSH-001"
+          ]
         }
       },
       "cardObjects": {
         "P2-UNIT-BLOOD-RUSH-001": {
           "damage": 0,
           "power": 6,
-          "untilEndOfTurnEffects": ["OVERWHELM_2"],
+          "untilEndOfTurnEffects": [
+            "OVERWHELM_2"
+          ],
           "untilEndOfTurnPowerModifier": 4,
           "isAttacking": true,
           "isExhausted": false
@@ -229,8 +301,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

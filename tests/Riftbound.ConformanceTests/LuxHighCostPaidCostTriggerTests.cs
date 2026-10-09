@@ -25,7 +25,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:P1-UNIT-RAGING-DRAKE";
 
     [Fact]
-    public async Task LuxPaidCostHighPrintedSpellReducedBelowThresholdDoesNotTriggerUnitOrLegend()
+    public async Task LuxPrintedHighSpellStillTriggersAfterManaReduction()
     {
         var engine = new CoreRuleEngine();
         var state = BuildLuxPaidCostState(
@@ -35,6 +35,11 @@ public sealed class LuxHighCostPaidCostTriggerTests
             untilEndOfTurnEffects: [RagingDrakeReductionEffectId],
             includeDeck: true);
 
+        var cards = new Dictionary<string, CardObjectState>(state.CardObjects);
+        var extra = Enumerable.Range(1, 5).Select(i => "EXTRA" + i).ToArray();
+        foreach (var id in extra) cards[id] = cards[HiddenDrawObjectId] with { ObjectId = id };
+        state = state with { CardObjects = cards, PlayerZones = new Dictionary<string,PlayerZones>(state.PlayerZones)
+            { ["P1"] = state.PlayerZones["P1"] with { MainDeck = state.PlayerZones["P1"].MainDeck.Concat(extra).ToArray() } } };
         var result = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-lux-paid-cost-reduced-high-spell", "P1", CommandTypes.PlayCard),
@@ -46,21 +51,25 @@ public sealed class LuxHighCostPaidCostTriggerTests
         Assert.Equal(6, Assert.IsType<int>(costPaid.Payload["baseMana"]));
         Assert.Equal(1, Assert.IsType<int>(costPaid.Payload["mana"]));
         Assert.Equal(5, Assert.IsType<int>(costPaid.Payload["nextSpellCostReductionMana"]));
-        AssertLuxUnitDidNotTrigger(result);
-        AssertLuxLegendDidNotTrigger(result);
-        AssertLuxPowerUnchanged(result);
-        Assert.Equal([HiddenDrawObjectId], result.State.PlayerZones["P1"].MainDeck);
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(5, result.State.CardObjects[LuxUnitObjectId].Power);
+        Assert.Contains(HiddenDrawObjectId,result.State.PlayerZones["P1"].MainDeck);
+        result = await OfficialSpellCompletionTests.Top(result.State);
+        Assert.Equal(2, result.State.TriggerQueue.Count);
+        Assert.All(result.State.TriggerQueue,t=>Assert.NotNull(t.SpellContext));
+        var final = await OfficialSpellCompletionTests.Drain(result.State);
+        Assert.Equal(8, final.CardObjects[LuxUnitObjectId].Power);
+        Assert.Contains(HiddenDrawObjectId, final.PlayerZones["P1"].Hand);
+        OfficialSpellCompletionTests.Restore(final);
     }
 
     [Fact]
-    public async Task LuxPaidCostLowerPrintedSpellRaisedBySpellshieldTaxTriggersUnitAndLegend()
+    public async Task LuxLowerPrintedSpellDoesNotTriggerFromWardPower()
     {
         var engine = new CoreRuleEngine();
         var state = BuildLuxPaidCostState(
             LowerPrintedSpellObjectId,
             LowerPrintedSpellCardNo,
-            mana: 5,
+            mana: 3, wardPower: 2,
             includeSpellshieldTarget: true,
             includeDeck: true);
 
@@ -73,33 +82,17 @@ public sealed class LuxHighCostPaidCostTriggerTests
         Assert.True(result.Accepted, result.ErrorMessage);
         var costPaid = AssertSingleCostPaid(result);
         Assert.Equal(3, Assert.IsType<int>(costPaid.Payload["baseMana"]));
-        Assert.Equal(5, Assert.IsType<int>(costPaid.Payload["mana"]));
-        Assert.Equal(2, Assert.IsType<int>(costPaid.Payload["spellshieldTaxMana"]));
+        Assert.Equal(3, Assert.IsType<int>(costPaid.Payload["mana"]));
+        Assert.Equal(2, Assert.IsType<int>(costPaid.Payload["spellshieldTaxPower"]));
         Assert.Equal(
             [SpellshieldTargetObjectId],
             Assert.IsType<string[]>(costPaid.Payload["spellshieldTaxTargetObjectIds"]));
 
-        AssertLuxUnitTriggered(result);
-        var lux = result.State.CardObjects[LuxUnitObjectId];
-        Assert.Equal(8, lux.Power);
-        Assert.Equal(3, lux.UntilEndOfTurnPowerModifier);
-
-        var legendTrigger = Assert.Single(result.Events, IsLuxLegendTriggerEvent);
-        Assert.Equal(
-            ["legendCardNo", "playedCardManaCost", "playedCardNo", "playerId", "trigger"],
-            legendTrigger.Payload.Keys.Order(StringComparer.Ordinal).ToArray());
-        Assert.Equal(LuxLegendCardNo, Assert.IsType<string>(legendTrigger.Payload["legendCardNo"]));
-        Assert.Equal(3, Assert.IsType<int>(legendTrigger.Payload["playedCardManaCost"]));
-
-        var drawEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
-        Assert.Equal(["count", "playerId"], drawEvent.Payload.Keys.Order(StringComparer.Ordinal).ToArray());
-        Assert.Equal(1, Assert.IsType<int>(drawEvent.Payload["count"]));
-        Assert.Equal([HiddenDrawObjectId], result.State.PlayerZones["P1"].Hand);
-        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
-
-        var opponentSnapshot = JsonSerializer.Serialize(result.Snapshots["P2"]);
-        Assert.DoesNotContain(HiddenDrawCardNo, opponentSnapshot, StringComparison.Ordinal);
-        Assert.DoesNotContain(HiddenDrawObjectId, opponentSnapshot, StringComparison.Ordinal);
+        AssertLuxUnitDidNotTrigger(result);
+        AssertLuxLegendDidNotTrigger(result);
+        AssertLuxPowerUnchanged(result);
+        Assert.Equal([HiddenDrawObjectId], result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "CARD_DRAWN");
     }
 
     [Fact]
@@ -108,7 +101,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         var state = BuildLuxPaidCostState(
             LowerPrintedSpellObjectId,
             LowerPrintedSpellCardNo,
-            mana: 5,
+            mana: 3, wardPower: 2,
             includeSpellshieldTarget: true,
             includeDeck: true);
 
@@ -161,7 +154,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         var state = BuildLuxPaidCostState(
             LowerPrintedSpellObjectId,
             LowerPrintedSpellCardNo,
-            mana: 5,
+            mana: 3, wardPower: 2,
             includeSpellshieldTarget: true,
             includeDeck: true);
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
@@ -197,12 +190,11 @@ public sealed class LuxHighCostPaidCostTriggerTests
         Assert.Null(accepted.ErrorCode);
         var costPaid = AssertSingleCostPaid(accepted);
         Assert.Equal(3, Assert.IsType<int>(costPaid.Payload["baseMana"]));
-        Assert.Equal(5, Assert.IsType<int>(costPaid.Payload["mana"]));
-        Assert.Equal(2, Assert.IsType<int>(costPaid.Payload["spellshieldTaxMana"]));
-        AssertLuxUnitTriggered(accepted);
-        AssertLuxLegendTriggered(accepted);
-        var drawEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
-        Assert.Equal(1, Assert.IsType<int>(drawEvent.Payload["count"]));
+        Assert.Equal(3, Assert.IsType<int>(costPaid.Payload["mana"]));
+        Assert.Equal(2, Assert.IsType<int>(costPaid.Payload["spellshieldTaxPower"]));
+        AssertLuxUnitDidNotTrigger(accepted);
+        AssertLuxLegendDidNotTrigger(accepted);
+        Assert.DoesNotContain(accepted.Events, e => e.Kind == "CARD_DRAWN");
         var stackAdded = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
         Assert.Equal(LowerPrintedSpellEffectKind, Assert.IsType<string>(stackAdded.Payload["effectKind"]));
         var acceptedStackItem = AssertLuxPaidCostStackPriorityState(accepted);
@@ -380,7 +372,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         int mana,
         IReadOnlyList<string>? untilEndOfTurnEffects = null,
         bool includeSpellshieldTarget = false,
-        bool includeDeck = false)
+        bool includeDeck = false, int wardPower = 0)
     {
         var p1MainDeck = includeDeck ? new[] { HiddenDrawObjectId } : [];
         var p2Battlefields = includeSpellshieldTarget ? new[] { SpellshieldTargetObjectId } : [];
@@ -443,7 +435,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, PrintedCostFixture.Power(spellCardNo)),
+                ["P1"] = new(mana, PrintedCostFixture.Power(spellCardNo) + wardPower),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -544,8 +536,8 @@ public sealed class LuxHighCostPaidCostTriggerTests
             ["legendCardNo", "playedCardManaCost", "playedCardNo", "playerId", "trigger"],
             legendTrigger.Payload.Keys.Order(StringComparer.Ordinal).ToArray());
         Assert.Equal(LuxLegendCardNo, Assert.IsType<string>(legendTrigger.Payload["legendCardNo"]));
-        Assert.Equal(LowerPrintedSpellCardNo, Assert.IsType<string>(legendTrigger.Payload["playedCardNo"]));
-        Assert.Equal(3, Assert.IsType<int>(legendTrigger.Payload["playedCardManaCost"]));
+        Assert.Equal(HighPrintedSpellCardNo, Assert.IsType<string>(legendTrigger.Payload["playedCardNo"]));
+        Assert.Equal(6, Assert.IsType<int>(legendTrigger.Payload["playedCardManaCost"]));
         Assert.Equal("P1", Assert.IsType<string>(legendTrigger.Payload["playerId"]));
         Assert.Equal(LuxLegendHighCostTrigger, Assert.IsType<string>(legendTrigger.Payload["trigger"]));
         return legendTrigger;
@@ -566,8 +558,8 @@ public sealed class LuxHighCostPaidCostTriggerTests
         Assert.Empty(result.State.PassedFocusPlayerIds);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P2"]);
-        Assert.Equal([HiddenDrawObjectId], result.State.PlayerZones["P1"].Hand);
-        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal([HiddenDrawObjectId], result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal([LuxUnitObjectId], result.State.PlayerZones["P1"].Base);
         Assert.Equal([LuxLegendObjectId], result.State.PlayerZones["P1"].LegendZone);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
@@ -575,14 +567,14 @@ public sealed class LuxHighCostPaidCostTriggerTests
         Assert.Null(result.State.PendingPayment);
         Assert.Equal("STACK", result.State.ObjectLocations[LowerPrintedSpellObjectId].Zone);
         Assert.Equal("P1", result.State.ObjectLocations[LowerPrintedSpellObjectId].PlayerId);
-        Assert.Equal("HAND", result.State.ObjectLocations[HiddenDrawObjectId].Zone);
+        Assert.Equal("MAIN_DECK", result.State.ObjectLocations[HiddenDrawObjectId].Zone);
         Assert.Equal("P1", result.State.ObjectLocations[HiddenDrawObjectId].PlayerId);
         Assert.Equal(PromptTypes.StackPriority, result.Prompts["P1"].View?.Type);
         Assert.DoesNotContain(CommandTypes.PlayCard, result.Prompts["P1"].Actions);
 
         var lux = result.State.CardObjects[LuxUnitObjectId];
-        Assert.Equal(8, lux.Power);
-        Assert.Equal(3, lux.UntilEndOfTurnPowerModifier);
+        Assert.Equal(5, lux.Power);
+        Assert.Equal(0, lux.UntilEndOfTurnPowerModifier);
         Assert.Equal(0, result.State.CardObjects[SpellshieldTargetObjectId].Damage);
 
         var stackItem = Assert.Single(result.State.StackItems);

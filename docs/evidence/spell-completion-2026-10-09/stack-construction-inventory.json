@@ -1,0 +1,131 @@
+{
+  "source": "src/Riftbound.Engine/CoreRuleEngine.cs",
+  "sha256": "fff9949d57cf4ddefd8ac3c3e946c222c8ac0f26d460952d356477dc50da19d3",
+  "note": "Read-only audit inventory; occurrences are not automatically classified as defective or verified.",
+  "sites": [
+    {
+      "line": 4716,
+      "excerpt": "new StackItemState(\n            stackItemId: $\"ordered-{trigger.TriggerId}\",\n            controllerId: trigger.ControllerId,\n            sourceObjectId: trigger.SourceObjectId,\n            effectKind: trigger.EffectKind,"
+    },
+    {
+      "line": 5089,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            behavior.EffectKind,\n            command.CardNo,\n          "
+    },
+    {
+      "line": 5471,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            behavior.EffectKind,\n            command.CardNo,\n          "
+    },
+    {
+      "line": 5772,
+      "excerpt": "new StackItemState(\n                $\"ASSEMBLE_EQUIPMENT:{command.SourceObjectId}:{state.Tick + 1}\",\n                intent.PlayerId,\n                command.SourceObjectId,\n                \"ASSEMBLE_EQUIPMENT\",\n        "
+    },
+    {
+      "line": 7693,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.CardNo "
+    },
+    {
+      "line": 7988,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.CardNo "
+    },
+    {
+      "line": 8339,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-RENATA-DRAW\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.Car"
+    },
+    {
+      "line": 8647,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-RENATA-SCORE\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.Ca"
+    },
+    {
+      "line": 8985,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-AZIR-SWAP\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.CardN"
+    },
+    {
+      "line": 9246,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-EZREAL-MOVE-BASE\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceStat"
+    },
+    {
+      "line": 9524,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-MADULI-MOVE\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.Car"
+    },
+    {
+      "line": 11848,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            ability.SourceCardN"
+    },
+    {
+      "line": 12121,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-CRIMSON-READY\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.C"
+    },
+    {
+      "line": 12358,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-FLUFT-WARHAWK\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.C"
+    },
+    {
+      "line": 12686,
+      "excerpt": "new StackItemState(\n            $\"STACK-{state.Tick + 1}-{command.SourceObjectId}-SHADOW-STUN\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            ability.EffectKind,\n            sourceState.Car"
+    },
+    {
+      "line": 13304,
+      "excerpt": "new StackItemState(\n                $\"{sourceObjectId}:discarded-hand-cards\",\n                playerId,\n                sourceObjectId,\n                triggerSpec.Kind,\n                sourceState.CardNo);\n            e"
+    },
+    {
+      "line": 14552,
+      "excerpt": "new StackItemState(\n            $\"move-unit-{state.Tick + 1}\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            \"MOVE_UNIT\",\n            sourceState.CardNo,\n            [command.SourceObjectId"
+    },
+    {
+      "line": 14858,
+      "excerpt": "new StackItemState(\n            $\"move-unit-{state.Tick + 1}\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            \"MOVE_UNIT\",\n            sourceState.CardNo,\n            [command.SourceObjectId"
+    },
+    {
+      "line": 15065,
+      "excerpt": "new StackItemState(\n            $\"move-unit-{state.Tick + 1}\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            BaronNestMoveStaticPermission,\n            sourceState.CardNo,\n            [comm"
+    },
+    {
+      "line": 15318,
+      "excerpt": "new StackItemState(\n            $\"move-unit-{state.Tick + 1}\",\n            intent.PlayerId,\n            command.SourceObjectId,\n            \"MOVE_UNIT_ROAM\",\n            sourceState.CardNo,\n            [command.SourceObj"
+    },
+    {
+      "line": 15949,
+      "excerpt": "new StackItemState(\n            stackItemId: $\"declare-battle-{state.Tick + 1}\",\n            controllerId: intent.PlayerId,\n            sourceObjectId: attackerObjectId,\n            effectKind: \"DECLARE_BATTLE_COMBAT_DAM"
+    },
+    {
+      "line": 20761,
+      "excerpt": "new StackItemState(\n                $\"unit-conquest-{unitObjectId}\",\n                playerId,\n                unitObjectId,\n                unitConquestDestroyEquipmentTrigger.Kind,\n                unitState.CardNo,\n   "
+    },
+    {
+      "line": 21468,
+      "excerpt": "new StackItemState(\n            $\"{stackItemIdPrefix}-{sourceObjectId}-{spellObjectId}\",\n            playerId,\n            spellObjectId,\n            spellBehavior.EffectKind,\n            spellState.CardNo,\n            s"
+    },
+    {
+      "line": 24892,
+      "excerpt": "new StackItemState(\n                $\"STACK-{state.Tick + 1}-{command.SourceObjectId}\",\n                intent.PlayerId,\n                command.SourceObjectId,\n                behavior.EffectKind,\n                comman"
+    },
+    {
+      "line": 26678,
+      "excerpt": "new StackItemState(\n            $\"spell-duel-cleanup-{state.Tick}\",\n            state.ActivePlayerId,\n            \"SPELL_DUEL_CLEANUP\",\n            \"SPELL_DUEL_CLEANUP\");\n        var cleanup = RunStateBasedCleanupLoop(\n "
+    },
+    {
+      "line": 26892,
+      "excerpt": "new StackItemState(\n                $\"turn-end-cleanup-{state.Tick + 1}\",\n                state.TurnPlayerId,\n                \"TURN_END_CLEANUP\",\n                \"TURN_END_CLEANUP\"),\n            cleanupState.RunePools,\n "
+    },
+    {
+      "line": 27574,
+      "excerpt": "new StackItemState(\n                    stackItemId: $\"{sourceObjectId}:enemy-stunned-ready-power:{stunnedEnemyObjectId}\",\n                    controllerId: stackItem.ControllerId,\n                    sourceObjectId: sou"
+    },
+    {
+      "line": 28096,
+      "excerpt": "new StackItemState(\n                $\"TURN-START-{currentTick}-{objectId}\",\n                turnPlayerId,\n                objectId,\n                \"EPHEMERAL_TURN_START_DESTROY\",\n                string.Empty,\n          "
+    },
+    {
+      "line": 36392,
+      "excerpt": "new StackItemState(\n            stackItemId: trigger.TriggerId,\n            controllerId: trigger.ControllerId,\n            sourceObjectId: trigger.SourceObjectId,\n            effectKind: trigger.EffectKind,\n            "
+    },
+    {
+      "line": 43623,
+      "excerpt": "new StackItemState(\n            $\"TURN-START-BATTLEFIELD-DAMAGE-{currentTick}\",\n            turnPlayerId,\n            sourceObjectIds[0],\n            TriggerKinds.BattlefieldTurnStartDamageAllUnits,\n            string.Em"
+    },
+    {
+      "line": 43739,
+      "excerpt": "new StackItemState(\n            $\"TURN-START-BATTLEFIELD-DRAW-{state.Tick}\",\n            turnPlayerId,\n            sourceObjectIds[0],\n            TriggerKinds.BattlefieldTurnStartDestroyUnitDraw,\n            string.Empt"
+    }
+  ]
+}

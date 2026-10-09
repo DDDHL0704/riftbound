@@ -1,0 +1,7 @@
+[
+  {
+    "name": "SourceUnitEnemySpellSkillTargetProtectionUsesGenericStaticAbilitySpec",
+    "sha256": "ee2a5dc7bcff29f4cb6a86fc9f1633025da412f7ad80fc985bb2c3543a6bb4a1",
+    "reason": "Checks source method strings in one partial file; replaced by actual replayed-spell target-protection rejection cases."
+  }
+]

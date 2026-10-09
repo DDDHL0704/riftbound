@@ -89,7 +89,7 @@ public partial class PlayCardOverlay : Control
             _requirements.Add(requirement.Clone());
             var mode = Text(requirement, "modeLabel");
             if (mode == "默认") mode = "";
-            _source.AddItem(Text(requirement, "displayName") + (mode.Length > 0 ? " · " + mode : ""));
+            _source.AddItem(Text(requirement, "displayName") + (mode.Length > 0 ? " · " + Text(requirement, "modeLabel") : ""));
         }
         if (_requirements.Count == 0) return false;
         PromptId = promptId; SnapshotTick = tick;
@@ -100,7 +100,8 @@ public partial class PlayCardOverlay : Control
     private void Rebuild()
     {
         foreach (var node in _choices.GetChildren()) { _choices.RemoveChild(node); node.QueueFree(); }
-        _targets.Clear(); _optional.Clear(); _destination = null; _printed = null;
+        _repeats.Clear(); _repeatPanel = null;
+        _targets.Clear(); _focusedTarget = null; _optional.Clear(); _destination = null; _printed = null;
         var requirement = _requirements[_source.Selected];
         RefreshCardPreview();
         _origin.Text = Text(requirement, "effectPlayReason");
@@ -130,6 +131,7 @@ public partial class PlayCardOverlay : Control
                 var choices = ReadChoices(entry.Value);
                 var picker = Picker($"目标 {int.Parse(entry.Name) + 1}" + (required ? " · 必选" : " · 可选"), choices, true, "请选择目标");
                 _targets.Add((picker, choices.Select(x => x.Id).Prepend("").ToArray(), required));
+                picker.FocusEntered += () => { _focusedTarget = picker; TableSelectionChanged?.Invoke(); };
             }
         }
         var resources = Choices(requirement, "paymentResourceChoices");
@@ -144,6 +146,7 @@ public partial class PlayCardOverlay : Control
         AddChecks("额外费用", Choices(requirement, "optionalCostChoices")
             .Where(x => !resourceIds.Contains(x.Id) && !x.Id.StartsWith("PRINTED_POWER:", StringComparison.Ordinal)).ToArray());
         AddChecks("支付时使用资源", resources);
+        _repeatPanel = new VBoxContainer(); _choices.AddChild(_repeatPanel);
         MinimalTheme.Apply(_choices); Refresh();
     }
 
@@ -179,7 +182,9 @@ public partial class PlayCardOverlay : Control
     private void Refresh(bool clearFeedback = true, bool requestQuote = true)
     {
         if (clearFeedback) _rejection = string.Empty;
-        var missing = _targets.Count(target => target.Required && target.Picker.Selected <= 0);
+        UpdateRepeatChoices();
+        var missing = _targets.Count(target => target.Required && target.Picker.Selected <= 0)
+            + _repeats.Sum(entry => entry.Targets.Count(target => target.Required && target.Picker.Selected <= 0));
         var targets = _targets.Where(x => x.Picker.Selected > 0).Select(x => x.Ids[x.Picker.Selected]).ToArray();
         var legalCombination = _legalSelections.Length == 0 || _legalSelections.Any(selection => selection.SequenceEqual(targets));
         var selectedResources = _optional.Count(x => _resourceIds.Contains(x.Key) && x.Value.ButtonPressed);
@@ -261,7 +266,7 @@ public partial class PlayCardOverlay : Control
             ["cmdType"] = "PLAY_CARD", ["sourceObjectId"] = command.SourceObjectId,
             ["cardNo"] = command.CardNo, ["mode"] = command.Mode,
             ["destination"] = command.Destination, ["targetObjectIds"] = command.TargetObjectIds,
-            ["optionalCosts"] = command.OptionalCosts
+            ["optionalCosts"] = command.OptionalCosts, ["repeatChoices"] = command.RepeatChoices
         });
     }
 
@@ -272,7 +277,7 @@ public partial class PlayCardOverlay : Control
         if (_printed is not null && _printed.Selected > 0) optional.Add(_printedChoices[_printed.Selected]);
         return new(Text(requirement, "sourceObjectId"), Text(requirement, "cardNo"),
             _targets.Where(x => x.Picker.Selected > 0).Select(x => x.Ids[x.Picker.Selected]).ToArray(),
-            Text(requirement, "mode"), optional.ToArray(), _destination is null ? "" : _destinations[_destination.Selected]);
+            Text(requirement, "mode"), optional.ToArray(), _destination is null ? "" : _destinations[_destination.Selected], RepeatCommandChoices());
     }
 
     private static string Text(JsonElement value, string key) => value.TryGetProperty(key, out var found) && found.ValueKind == JsonValueKind.String ? found.GetString() ?? "" : "";

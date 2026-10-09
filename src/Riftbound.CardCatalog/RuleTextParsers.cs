@@ -1916,7 +1916,7 @@ public static class TriggerParser
             @"每当你打出费用不低于\{\{(\d+)\}\}的法术时，让我本回合内\{\{S\}\}\+(\d+)",
             RegexOptions.CultureInvariant);
         if (unitHighCostSpellPowerMatch.Success
-            && int.TryParse(unitHighCostSpellPowerMatch.Groups[1].Value, out var unitMinimumPaidMana)
+            && int.TryParse(unitHighCostSpellPowerMatch.Groups[1].Value, out var unitMinimumCardMana)
             && int.TryParse(unitHighCostSpellPowerMatch.Groups[2].Value, out var unitPowerDelta))
         {
             return new TriggerSpec(
@@ -1927,7 +1927,7 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.SourceUnit,
                 PowerDelta: unitPowerDelta,
                 Duration: TriggerDurations.UntilEndOfTurn,
-                MinimumPaidMana: unitMinimumPaidMana);
+                MinimumCardMana: unitMinimumCardMana);
         }
 
         var legendHighCostSpellDrawMatch = Regex.Match(
@@ -1935,14 +1935,14 @@ public static class TriggerParser
             @"每当你打出一张费用不低于\{\{(\d+)\}\}的法术时，抽一张牌",
             RegexOptions.CultureInvariant);
         if (legendHighCostSpellDrawMatch.Success
-            && int.TryParse(legendHighCostSpellDrawMatch.Groups[1].Value, out var legendMinimumPaidMana))
+            && int.TryParse(legendHighCostSpellDrawMatch.Groups[1].Value, out var legendMinimumCardMana))
         {
             return new TriggerSpec(
                 TriggerKinds.LegendHighCostSpellDrawOne,
                 TriggerTimings.BattlefieldSpellPlayed,
                 segment,
                 "Legend high-cost spell draw trigger parsed for spell-play trigger routing; execution is available through shared spell-play TriggerSpec resolution.",
-                MinimumPaidMana: legendMinimumPaidMana,
+                MinimumCardMana: legendMinimumCardMana,
                 DrawCount: 1);
         }
 

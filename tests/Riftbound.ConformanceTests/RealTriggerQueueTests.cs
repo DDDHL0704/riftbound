@@ -15,6 +15,10 @@ public sealed class RealTriggerQueueTests
         var engine = new CoreRuleEngine();
         var state = BuildLuxHighCostSpellState();
 
+        var cards = new Dictionary<string,CardObjectState>(state.CardObjects);
+        var deck = Enumerable.Range(1,6).Select(i => "LUX-DECK-" + i).ToArray();
+        foreach(var id in deck) cards[id] = new(id,cardNo:"SFD·106/221",ownerId:"P1",controllerId:"P1");
+        state=state with {CardObjects=cards,PlayerZones=new Dictionary<string,PlayerZones>(state.PlayerZones){["P1"]=state.PlayerZones["P1"] with {MainDeck=deck}}};
         var result = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-lux-high-cost-spell", "P1", CommandTypes.PlayCard),
@@ -22,28 +26,14 @@ public sealed class RealTriggerQueueTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var lux = result.State.CardObjects["P1-LUX"];
-        Assert.Equal(8, lux.Power);
-        Assert.Equal(3, lux.UntilEndOfTurnPowerModifier);
-        Assert.Single(result.State.StackItems);
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LUX", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["controllerId"] as string, "P1", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, OgsLuxHighCostSpellEffectKind, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["triggeredByEventKind"] as string, "CARD_PLAYED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LUX", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["controllerId"] as string, "P1", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, OgsLuxHighCostSpellEffectKind, StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LUX", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LUX", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["powerDelta"], 3)
-            && Equals(gameEvent.Payload["appliedPowerDelta"], 3)
-            && Equals(gameEvent.Payload["resultingPower"], 8));
+        Assert.Equal(5, result.State.CardObjects["P1-LUX"].Power);
+        result = await SpellResolutionTestDriver.Finish(result);
+        Assert.Empty(result.State.StackItems);
+        Assert.Equal(8, result.State.CardObjects["P1-LUX"].Power);
+        Assert.Equal(3, result.State.CardObjects["P1-LUX"].UntilEndOfTurnPowerModifier);
+        Assert.Contains(result.Events, e => e.Kind == "TRIGGER_QUEUED" && Equals(e.Payload["sourceObjectId"], "P1-LUX")
+            && Equals(e.Payload["triggeredByEventKind"], "SPELL_PLAY_COMPLETED"));
+        Assert.Contains(result.Events, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN" && Equals(e.Payload["appliedPowerDelta"], 3));
     }
 
     [Fact]

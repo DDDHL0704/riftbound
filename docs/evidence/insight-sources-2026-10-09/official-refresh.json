@@ -1,0 +1,16 @@
+[
+  {
+    "name": "化神争锋系列 勘误汇总",
+    "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-24/9fe1f19110dd4678a6ad7bd96e791bba.pdf",
+    "sha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+    "sameAsSnapshot": true,
+    "path": "var/qa/insight-sources-2026-10-09/04.pdf"
+  },
+  {
+    "name": "破限系列 裁判FAQ",
+    "url": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf",
+    "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+    "sameAsSnapshot": true,
+    "path": "var/qa/insight-sources-2026-10-09/06.pdf"
+  }
+]

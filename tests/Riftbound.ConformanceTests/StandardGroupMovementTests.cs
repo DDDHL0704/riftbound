@@ -7,6 +7,44 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class StandardGroupMovementTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PersistedMovementWindowRequiresBattleOnlyWhenBothSidesHaveUnits(bool defended)
+    {
+        var state = Position();
+        if (!defended)
+        {
+            var zones = state.PlayerZones.ToDictionary(e => e.Key, e => e.Value);
+            zones["P2"] = zones["P2"] with { Battlefields = ["BF"], Base = ["D"] };
+            var locations = state.ObjectLocations.ToDictionary(e => e.Key, e => e.Value);
+            locations["D"] = new("P2", "BASE");
+            state = state with { PlayerZones = zones, ObjectLocations = locations };
+        }
+        var result = await Resolve(state, new("A", Destination: "BATTLEFIELD:BF", SourceObjectIds: ["A"]));
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.True(result.State.SpellDuelState.IsActive);
+        Assert.Equal(defended, result.State.PendingTaskQueue.Tasks.Any(t => t.Kind == "START_BATTLE"));
+        var views = result.Snapshots.ToDictionary(e => e.Key, e =>
+            new RecoveredPlayerView(e.Key, result.State.Tick, 0, e.Value, result.State.Tick, 0, result.Prompts[e.Key]));
+        Assert.Empty(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], views));
+
+        // An actually defended contest must still reject a lost battle task.
+        if (defended)
+        {
+            var corruptViews = views.ToDictionary(e => e.Key, e =>
+            {
+                var timing = e.Value.Snapshot.Timing!.ToDictionary(item => item.Key, item => item.Value);
+                var tasks = JsonSerializer.SerializeToElement(timing["battlefieldTasks"]).EnumerateArray()
+                    .Where(task => task.GetProperty("kind").GetString() != "START_BATTLE").Select(task => task.Clone()).ToArray();
+                timing["battlefieldTasks"] = JsonSerializer.SerializeToElement(tasks);
+                return e.Value with { Snapshot = e.Value.Snapshot with { Timing = timing } };
+            });
+            Assert.Contains(MatchRecoveryValidator.Validate(state.RoomId, 0, [], [], corruptViews),
+                error => error.Contains("START_BATTLE is required", StringComparison.Ordinal));
+        }
+    }
+
     [Fact]
     public void MovementPromptSuppliesGroupCapabilityAndDestinationCost()
     {

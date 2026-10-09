@@ -30,13 +30,7 @@ public static class GameCommandJsonMapper
             "PASS" => new PassCommand(),
             "END_TURN" => new EndTurnCommand(),
             "SURRENDER" => new SurrenderCommand(),
-            "PLAY_CARD" => new PlayCardCommand(
-                Text(cmd, "sourceObjectId"),
-                Text(cmd, "cardNo"),
-                TextArray(cmd, "targetObjectIds"),
-                Text(cmd, "mode"),
-                TextArray(cmd, "optionalCosts"),
-                Text(cmd, "destination")),
+            "PLAY_CARD" => MapPlayCard(cmd),
             "ACTIVATE_ABILITY" => new ActivateAbilityCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "abilityId"),
@@ -96,6 +90,28 @@ public static class GameCommandJsonMapper
                 StrictTextArray(cmd, "chosenObjectIds")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
+    }
+
+    private static GameCommand MapPlayCard(JsonElement cmd)
+    {
+        SpellRepeatChoice[]? choices = null;
+        if (cmd.TryGetProperty("repeatChoices", out var repeats) && repeats.ValueKind != JsonValueKind.Null)
+        {
+            if (repeats.ValueKind != JsonValueKind.Array) return new UnsupportedCommand("MALFORMED_PLAY_CARD");
+            var list = new List<SpellRepeatChoice>();
+            foreach (var repeat in repeats.EnumerateArray())
+            {
+                if (repeat.ValueKind != JsonValueKind.Object
+                    || repeat.TryGetProperty("mode", out var mode) && mode.ValueKind != JsonValueKind.String
+                    || !repeat.TryGetProperty("targetObjectIds", out var targets) || targets.ValueKind != JsonValueKind.Array
+                    || targets.EnumerateArray().Any(target => target.ValueKind != JsonValueKind.String))
+                    return new UnsupportedCommand("MALFORMED_PLAY_CARD");
+                list.Add(new(Text(repeat, "mode"), TextArray(repeat, "targetObjectIds")));
+            }
+            choices = list.ToArray();
+        }
+        return new PlayCardCommand(Text(cmd, "sourceObjectId"), Text(cmd, "cardNo"), TextArray(cmd, "targetObjectIds"),
+            Text(cmd, "mode"), TextArray(cmd, "optionalCosts"), Text(cmd, "destination"), choices);
     }
 
     private static string Text(JsonElement cmd, string propertyName)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Godot;
 
 namespace Riftbound.GodotClient.Interaction;
@@ -74,6 +75,12 @@ internal sealed class PromptInteractionController
         }
 
         RevalidateSelection();
+        if (_selectedActionName is null && (_actions.TryGetValue("CHOOSE_HAND_CARDS", out var handChoice) || _actions.TryGetValue("CHOOSE_CARDS", out handChoice))
+            && handChoice.Option.Enabled)
+        {
+            _selectedActionName = handChoice.Option.Name;
+            AutoSelectForcedRequiredChoices(handChoice, 0);
+        }
         PublishSelection();
     }
 
@@ -228,6 +235,10 @@ internal sealed class PromptInteractionController
             return false;
         }
 
+        if (action.Option.Name is "CHOOSE_HAND_CARDS" or "CHOOSE_CARDS" && _selectedChoiceByStep.Any(selected =>
+                selected.Key < step.Index && selected.Value == choice.Id))
+            return false;
+
         _selectedChoiceByStep[step.Index] = choice.Id;
         foreach (var laterStep in action.Steps.Where(candidate => candidate.Index > step.Index))
         {
@@ -323,6 +334,32 @@ internal sealed class PromptInteractionController
                 ? $"{action.Option.Label} · 请选择{next.Label}"
                 : action.Option.Label;
 
+        if (action.Option.Name == "PAY_COST" && selected.Length > 0)
+            summary = "已选择：" + string.Join("、", selected.Select(entry => entry.Choice.Label));
+
+        if (action.Option.Name == "CHOOSE_CARDS")
+        {
+            using var candidate = JsonDocument.Parse(ReadString(action.Source, "candidateJson", "{}"));
+            if (candidate.RootElement.TryGetProperty("metadata", out var metadata)
+                && metadata.TryGetProperty("choiceWindow", out var window))
+            {
+                if (window.GetString() == "INSIGHT_ORDER")
+                    summary = selected.Length == 0 ? "从牌库顶开始选择顺序"
+                        : "牌库顶 → " + string.Join(" → ", selected.Select((entry, index) => $"{index + 1}. {entry.Choice.Label}"));
+                else if (window.GetString() is "TRIGGER_CONFIRMATION" or "SPELL_TRIGGER_CONFIRMATION")
+                    summary = selected.Length == 0 ? requiredComplete ? "放弃触发技能" : "请选择技能目标"
+                        : "技能目标：" + string.Join("、", selected.Select(entry => entry.Choice.Label));
+                else if (window.GetString() == "EFFECT_PLAY")
+                    summary = action.Option.Label;
+                else if (window.GetString() == "RECYCLE_FOR_EFFECT_PLAY")
+                    summary = selected.Length == 0 ? "放弃回收与再次打出"
+                        : "支付回收费用：" + string.Join("、", selected.Select(entry => entry.Choice.Label));
+                else if (window.GetString() == "INSIGHT")
+                    summary = selected.Length == 0 ? "全部保留 · 不回收"
+                        : "回收：" + string.Join("、", selected.Select(entry => entry.Choice.Label));
+            }
+        }
+
         return new PromptSelectionState(
             _promptId,
             _snapshotTick,
@@ -338,10 +375,48 @@ internal sealed class PromptInteractionController
 
     private PromptActionModel? CurrentAction()
     {
-        return !string.IsNullOrWhiteSpace(_selectedActionName)
-            && _actions.TryGetValue(_selectedActionName, out var action)
-                ? action
-                : null;
+        if (string.IsNullOrWhiteSpace(_selectedActionName)
+            || !_actions.TryGetValue(_selectedActionName, out var action)) return null;
+        if (action.Option.Name != "ACTIVATE_ABILITY"
+            || !_selectedChoiceByStep.TryGetValue(0, out var sourceId)) return action;
+
+        // The server supplies source-specific costs and targets. The candidate's
+        // union is only useful before a source is selected.
+        using var json = JsonDocument.Parse(ReadString(action.Source, "candidateJson"));
+        if (!json.RootElement.TryGetProperty("metadata", out var metadata)
+            || !metadata.TryGetProperty("sourceRequirements", out var requirements)
+            || requirements.ValueKind != JsonValueKind.Array) return action;
+        foreach (var requirement in requirements.EnumerateArray())
+        {
+            if (requirement.GetProperty("sourceObjectId").GetString() != sourceId) continue;
+            var steps = new List<PromptStep> { action.Steps.First(s => s.Role == "source") };
+            var minimum = requirement.GetProperty("minTargetCount").GetInt32();
+            var maximum = requirement.GetProperty("maxTargetCount").GetInt32();
+            for (var targetIndex = 0; targetIndex < maximum; targetIndex++)
+            {
+                var choices = new List<PromptChoice>();
+                var index = steps.Count;
+                if (requirement.TryGetProperty("targetChoicesByIndex", out var targets)
+                    && targets.TryGetProperty(targetIndex.ToString(), out var targetChoices))
+                    foreach (var choice in targetChoices.EnumerateArray())
+                    {
+                        var id = choice.GetProperty("id").GetString()!;
+                        choices.Add(new("target", id, choice.GetProperty("label").GetString() ?? id, [id], index));
+                    }
+                steps.Add(new(index, "target", minimum > 0 ? "目标／费用" : "目标", targetIndex < minimum, choices));
+            }
+            if (requirement.TryGetProperty("optionalCostChoices", out var costs) && costs.GetArrayLength() > 0)
+            {
+                var index = steps.Count;
+                var choices = costs.EnumerateArray().Select(choice => {
+                    var id = choice.GetProperty("id").GetString()!;
+                    return new PromptChoice("optionalCost", id, choice.GetProperty("label").GetString() ?? id, [id], index);
+                }).ToArray();
+                steps.Add(new(index, "optionalCost", "可选费用", false, choices));
+            }
+            return action with { Steps = steps };
+        }
+        return action;
     }
 
     private PromptStep? CurrentStep()
@@ -423,6 +498,7 @@ internal sealed class PromptInteractionController
             "ACTIVATE_ABILITY" => "激活技能",
             "ASSEMBLE_EQUIPMENT" => "装配装备",
             "CHOOSE_HAND_CARDS" => "选择手牌",
+            "CHOOSE_CARDS" => "选择卡牌",
             "DECLARE_BATTLE" => "宣战",
             "END_TURN" => "结束回合",
             "HIDE_CARD" => "布置待命",

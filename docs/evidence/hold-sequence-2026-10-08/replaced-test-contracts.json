@@ -1,0 +1,634 @@
+[
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponseActivationPreservesBrushReplacementContextAfterStackResolution",
+    "oldSha256": "49d49d727efa79c36bf52ce5bb4b827eaed194dc4c920720676f4e484ae62eca",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponseDropsUnnecessaryHeldScoreTemporaryResourceContextWhenNoResponseConsumesResources",
+    "oldSha256": "005fac5b223fa66bfb9c3811ef43f83a207cca54fd79fe77bffa638cfd6d6683",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponseActivationHeldScoreTemporaryPaymentAdvancesNextContestedBattlefieldTask",
+    "oldSha256": "aa0324c588eb5490c254119253df3674a672d4a3c9a3dd690eeb57b214fb58a3",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponseActivationPreservesHeldScoreTemporaryPaymentResourceContextAfterStackResolution",
+    "oldSha256": "776203a28f05b8a45a06e1cedd74be229b2c491a865cb254eabe9902546e1259",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponseHeldScoreConsumesTwoTemporaryResourcesWhenScoreCostNeedsBoth",
+    "oldSha256": "c650c7fe7b919c9466ae3e16451124c661501759f4ea73b4eeb453ccbc8098e4",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponseDropsUnnecessaryHeldScoreRecycleContextWhenNoResponseConsumesResources",
+    "oldSha256": "f6cf4c2e2a8d6706f7b02dd04b634a7902af3c51166e3d9767f0d62c221204cd",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponsePreservesBrushReplacementContextAfterPass",
+    "oldSha256": "145fa68ca1f5c3290267134ea419e47dbecd5bbb0b26b2a15e2de97de798b58b",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponseActivationAssignmentHeldResultOrdersBeforeNextAdvancement",
+    "oldSha256": "c99f30694c2899909f43782aad743d3a9d4357605d974ba1f780463f8fafb7da",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BattleDamageAssignmentLifecycleTests.cs",
+    "name": "NaturalBattleResponsePassAssignmentHeldResultOrdersBeforeNextAdvancement",
+    "oldSha256": "5077d2df10b8764961c5828d5cd4750d66668cf2bd7fad1d0ba351a5b5f145b2",
+    "replacement": "Preserves actual response/activation/assignment flow; verifies no Hold/payment and next battlefield follows battle closure",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BrushStaticAuraReplacementLifecycleTests.cs",
+    "name": "BrushStaticAuraPersistsThroughScoreReplacementChoice",
+    "oldSha256": "f973a49f36ad648ffdf50e5ab3706defab7f8b35a7fb5d85f2b3004a7577479b",
+    "replacement": "Retains card-specific defense setup; correct negative timing contract. Positive effects tested in OfficialHoldSequenceTests; not all positive QA revalidated.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "SubmitDeckAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "6067a5bb86cfc075c1ca9cdca05df7dcc8bd6e0ebdda3972e1a4663288bbe48d",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "SurrenderAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "a4dcf229a2bd5082d71980565c83722106a8cfd9a8a3853aacce946071ef16f9",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "MulliganAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "6cc660a0b66f2c022b0b159a46c183f4282d2aea8e847aa385d24ca43a5c0e55",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "PassAfterFinishedRedactsClientIntentAndDoesNotBroadcastOrMutate",
+    "oldSha256": "a22c0a1511acfa91537e641e5220f6c6c645775cdea8669387774c7c6cf99b72",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "ReadyAfterFinishedRedactsClientIntentAndDoesNotBroadcastOrMutate",
+    "oldSha256": "48cce58130e6248e0e5b17e6e187f7625a763626f69bc91af8a1eefcf1578541",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "EndTurnWrapperAfterFinishedRedactsClientIntentAndDoesNotBroadcastOrMutate",
+    "oldSha256": "1ae001225dd8a5d94dcfe89c93c667f9fff00ac87717421442f7324ffa4d4ce8",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "EndTurnAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "2da4ef692d9552be6188125e2fa8ed9582e3a9d4af4d45c215cca44278b836c2",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "LegendActAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "6de92a3b4cc03ded54c194f91dc456af8cec5606861f908bf2d57473c41f45a5",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "ActivateAbilityAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "18cd5119ffe458347df219d4740663bbedb1103cc0efab614a524187db7b373c",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "MoveUnitAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "1bd632c5a0a3b1bcb6493196fdb1427ca3a67286ec38a196ab5d0ec26bcf2472",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "RecycleRuneAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "16d8c8d8874cb0a30c2432594615b96552f4faca368b7b3f73677f320b3e858f",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "TapRuneAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "77781d1753f14b2034e9e7e44a72e6bf16a178f2fc99230b2a68a23a4295be2b",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "AssembleEquipmentAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "23b32b82f92cf5f14ea1c97d2da2a8e23b6f516e2d6b370492aff209008a0af6",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "RevealCardAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "dcd4dd282b1f1fe215edff13634d200c3fc3e0f660ddaa310d53f1973250b70e",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "HideCardAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "2e3db8b1284332b96c4489ad96eb7c2f92d7b807990ddd70bb572e8429e36e1e",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "PlayCardAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "f2336fe0eceb71b0d02f1e024fb58ac0783033f146abbf4c2dcf38933716448a",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "ChooseHandCardsAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "193d97ec330f17ee3d7857a27515565cb7bc789783483d60d78cc50a7044ec2e",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "OrderTriggersAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "202dba5c7db7c26ee98cab0a7d3a551103d82392fb753726d0d59cea6093e28b",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "AssignCombatDamageAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "fc2013e5345e9f44e1111d2abe80cd8a79d4b04ae92d1db257f63f79ba58019a",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "PayCostAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "5f4edfe8909b2d5e9d70c68118b135126304b694b47f40447e41abe77afb0c75",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "DeclareBattleAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "f54eb40830c0aced343e0a59e6c602eb2806402cba5e1c553d345540c3f9a2a6",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "SubmitIntentAfterFinishedRedactsSentinelPayloadAndDoesNotBroadcastOrMutate",
+    "oldSha256": "bcddabf618ae911c260e166354e1bfbd12b7f7f7fef5326265b0af61e9ed0b14",
+    "replacement": "Terminal-state transport guards now finish via actual surrender; assertions retained",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldSevenUnitsSeedOffersBattlefieldDestinationAndWins",
+    "oldSha256": "7f6564fba4deb4bca61569263d3605b40a907d4bcd86edeb22e75f7865b3a69c",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestSeedOffersBattlefieldDestinationAndActivatesUnits",
+    "oldSha256": "035ffef17de4d93e61248e051c697fb435f4ddbd7c67d6dff577a7cb012ea6d3",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldNextSpellEchoSeedOffersBattlefieldDestinationAndGrantsEcho",
+    "oldSha256": "139cd91217cac0408a797af7239bd6a7b12fd7f1445babb094964e941c3a8571",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldReturnHeroSeedOffersBattlefieldDestinationAndReturnsHero",
+    "oldSha256": "7082906e247cb879b05a29c8dbd7056ea93024dce9600100e4c42702798671ad",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldScoreSeedOffersBattlefieldDestinationAndGainsScore",
+    "oldSha256": "b3032c4e367ef49aedcae566edb822b1ffbc572eff5484088bec9c2317ffd27f",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldRuneSeedOffersBattlefieldDestinationAndCallsRuneForHolder",
+    "oldSha256": "c99913c4a61376e0bfc069d4e26dd9638056de00c9fcdf9d6cc68b5d73b80316",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldRunesSeedOffersBattlefieldDestinationAndCallsRunes",
+    "oldSha256": "e6a0e7f4f9d8da0dc9e9132ea9cdb70774ba80baee2196bcc9e9bb3e0e8462b1",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldMinionSeedOffersBattlefieldDestinationAndCreatesToken",
+    "oldSha256": "e5c6911ef2f42fe6506fe52b2cff9553d50e4c8d5effe6cac7ed8a652d4b0be7",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldMoveToBaseSeedOffersBattlefieldDestinationAndMovesDefender",
+    "oldSha256": "cb96d71197f44c0159061fdf9f11fb5445f3c4a9d48ccbab6d262ca039a02d4d",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldBoonSeedOffersBattlefieldDestinationAndGrantsBoon",
+    "oldSha256": "f2283b66d9eacd96302389da03ba5f37845c2c70dd60ff7dda0b5e8643919af7",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "GameHubJoinTests.cs",
+    "name": "P79BattlefieldHeldDrawSeedOffersBattlefieldDestinationAndDraws",
+    "oldSha256": "0972b7905eb8a5f0ce73c437278ae06eacaf74efd534fd576ca944515cd0fe5b",
+    "replacement": "Negative API regression: defense victory cannot emit Hold or win via Grand Plaza",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "BlueSentinelResourceSkillTests.cs",
+    "name": "whole obsolete payment-only suite",
+    "oldSha256": "74bede4e7fbd9df4d59e9b65d30f8df5f8bcb8452d8cefebdf4e9f6606044939",
+    "replacement": "OfficialHoldSequenceTests: actual start timing, amplifier, captured source, ordinary pool, recovery. Old delayed payment protocol removed.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldNextSpellEchoTriggerUsesGenericSpecPredicate",
+    "oldSha256": "01ff10bc3e76737165cab618376dc368bd60e12ee9505ddf163e4729a7a82d5f",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldUnitCostIncreaseTriggerUsesGenericSpecPredicate",
+    "oldSha256": "27775187fa333db9adadef13d961923f84cbda887ba9f948e0e97c68cbf115e9",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldActivateUnitConquestEffectsTriggerUsesGenericSpecPredicate",
+    "oldSha256": "d6767daa2622b454ed4406c462bc6bff56ba4b0ef63f614a8d953c5dba57bc7b",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldSevenUnitsWinTriggerUsesGenericSpecPredicate",
+    "oldSha256": "77c84e6bd9ce06b66731113498150d58216f2d257285c71134e5cd829c4bce22",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldReturnHeroTriggerUsesGenericSpecPredicate",
+    "oldSha256": "e25e99efcc31f2b874a3c353a2bdccd954e8553f0a9a8a5b083bdc1fadc96797",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldCreateMinionTriggerUsesGenericSpecPredicate",
+    "oldSha256": "0c2a5798e9a704a072f7ff2ad3650ef624fe56cf4b1b5c66b8443b05f14917ee",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldGrantBoonTriggerUsesGenericSpecPredicate",
+    "oldSha256": "9ddb7c467f856136199cd28243a638920c67b19daf9b5642cf399eaf0e87e6dd",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldMoveUnitToBaseTriggerUsesGenericSpecPredicate",
+    "oldSha256": "c45b87d3aa04d7659f2804379e9e4ebeac6c49bceb5e275781e9656bdb1dd1bd",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldEachPlayerCallRuneTriggerUsesGenericSpecPredicate",
+    "oldSha256": "776efa757a721a29ddf3ce7cf54f34697636ece40e99098a5b3d1349986bb221",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldCallRuneTriggerUsesGenericSpecPredicate",
+    "oldSha256": "35648448f6b8f120cdc0134888c581c93d5bc2440e3bf45eb9e1e69e48d1605f",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldDrawTriggerUsesGenericSpecPredicate",
+    "oldSha256": "849ca3d6abf934d974f76c8f2e5abec47a34e7bc1b35d968e766626215326ad1",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "name": "BattlefieldHeldPayPowerScoreTriggerUsesGenericSpecPredicate",
+    "oldSha256": "0afb173b06bc6035f5e734f889fc2ae8a6ba2cac34083fc21facaa0638dcd550",
+    "reason": "Only inspected source strings for retired immediate Hold handlers; replaced by official runtime Hold tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79LegendTriggerVexDrawsWhenControllerHoldsBattlefield",
+    "oldHeadMethodSha256": "efcffb29bd4402c96a6a5d9f5c9cab0c430b7d623668da4377ad3f50e009e97f",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79LegendTriggerRenataCreatesDormantGoldWhenControllerHoldsBattlefield",
+    "oldHeadMethodSha256": "bd629d9c3f4cf15cb6475feb64717c9be12c723970d6edf14951a54c7029f813",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79LegendTriggerRenataGoldBonusRequiresScoreWithinThree",
+    "oldHeadMethodSha256": "62b6ec89393dbc050e6acac5849ce322bededd148656c610c4cc6f60e437569d",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79LegendTriggerLeblancCreatesActiveImageOnHold",
+    "oldHeadMethodSha256": "717767b9d26c89136b9b227653d05e9b123a1dba091ad24ceec37f9d40fb451a",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79LegendTriggerIvernCreatesBrushBattlefieldTokenOnHold",
+    "oldHeadMethodSha256": "beaaf43114272650ca93c5bbc01d8f8a8e4f34d95ead84daa9e60291af044dd6",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldDrawsCardFromBattlefieldObject",
+    "oldHeadMethodSha256": "d8a13765b2181ae222847e961229fd04efe17d316eb930519963767e6370a7a5",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79DunehornBeastDrawsTwoWhenHoldingBattlefield",
+    "oldHeadMethodSha256": "eb96699ec412e7bd4b1c73ee7f283d44c97bc71c4fd39ffd1a4094a73691ab69",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldGrantsBoonToSurvivingDefender",
+    "oldHeadMethodSha256": "905400fd64a63650b8843e00c3986327cf8aa8a2912fa557aaf549e2f16c5fe7",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldMovesSurvivingDefenderToBase",
+    "oldHeadMethodSha256": "f1a12af4b15548687e0acccf3f7e7c0d65d4cdfe4a4200eef1f88db459c1f268",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldCreatesMinionInBase",
+    "oldHeadMethodSha256": "905ed76744da559b96d623d0ec43f7c6f8df14b4bb5d34bc5303a17ee6fcbdf8",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldCallsRunesForEachPlayer",
+    "oldHeadMethodSha256": "48e7618f493ef399bd7e2d0c71b803b91a1fe2b882b4c3bee80f5775cd2d419c",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldCallsRuneForHolder",
+    "oldHeadMethodSha256": "e7878630a059861cf0985a98a5fa9f4fe58d397cd9c04ea5eb58abcf788e3e70",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldUnitCostIncreaseMarksHolderUntilEndOfTurn",
+    "oldHeadMethodSha256": "ecbd981e15f0a6cebeaf774c466224a5b1d32fd222af42a26b1aaf14f916cd95",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldPaysPowerToGainScore",
+    "oldHeadMethodSha256": "b82e07c093ad46e27559fc0ab9f622f6dba4b4186565f099bf6cd2f6e15d64af",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "BrushReplacementChoiceUsesOriginalBattlefieldForHeldScore",
+    "oldHeadMethodSha256": "f127e21dbf7d7ef166c57d84f32bbcce939a6971c1f7c596e855ef928ee73e72",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldPaysTypedPowerToGainScore",
+    "oldHeadMethodSha256": "583f04e7b35be7497376d2c1933b204dd095f525f296a39c5b8191ced313ebfd",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldPaysPowerToGainScoreWithRecycleRunePaymentResource",
+    "oldHeadMethodSha256": "e3e991c515163a1eae86cdb5fa1b99d7a16505ff4e8329ffbede7ad66e45875d",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldPaysPowerToGainScoreWithTemporaryPaymentResource",
+    "oldHeadMethodSha256": "8b53c34965920f2081750d6c4485472d0ef64c2dca78333dadaac735062d6116",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldPaysGenericScoreCostWithTypedTemporaryPaymentResource",
+    "oldHeadMethodSha256": "718c26d4e23162ab73d82b2a978b505f09fbb347391bae9de551b4203f9bceef",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldPaysPowerToGainScoreWithRecycleAndTemporaryPaymentResources",
+    "oldHeadMethodSha256": "f86d166aeae7beb7692c6ac88e2c1c61cf8c8f07b52cb161fe62c279c6f608eb",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldScoreCanOnlyScoreSameBattlefieldOncePerTurn",
+    "oldHeadMethodSha256": "f4c597f0e38d52b229ddd66e5706285390cf4af04c6c301a10004a3151f935a3",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldScoreDelayDoesNotPreventOtherBattlefieldHeldScorePayment",
+    "oldHeadMethodSha256": "d1093fbcc8d075f60e1ecfe6248e275b2c4301abb38c4c91a1e6ff78d0479a82",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79OtherBattlefieldScoreDelayAllowsSelectedTemporaryPaymentResource",
+    "oldHeadMethodSha256": "7ed384ac44a5d796185df09625e172ff83d421d3145ac460d242a20ccbbfe73b",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldGrantsNextSpellEcho",
+    "oldHeadMethodSha256": "d3b0821e23f81adf6623789c320bcc34bcc1b617341e1f29addbbe1e43aadcd6",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws",
+    "oldHeadMethodSha256": "467634ca75c50a466dea4d90891bf3f4a9ddcfec55e5d97f358f486be5358b9c",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsSkipsOpponentOwnedUnits",
+    "oldHeadMethodSha256": "94b4dc5e7ec4ae4403d5e4a291687f23cd5425b55241817a52c04a68feff37c3",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsSkipsUnitsAtOtherBattlefields",
+    "oldHeadMethodSha256": "38a4c4976fd25a24991a8595bfb71d649a8728cb4ec2a4b31e86e9273c155973",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsQiyanaDrawsWhenMainDeckAvailable",
+    "oldHeadMethodSha256": "43b1b423e0a6920de1aaff18138983ee93f25c0c392c58a4e4e3edab6165ddf0",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsQiyanaCallsRuneWhenMainDeckEmpty",
+    "oldHeadMethodSha256": "cc8c48494e0c7ce1ea835b84939066bd3593c6f2647ef6f215450ac9e4dbeca2",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsReadiesLucianAndGrantsSettBoon",
+    "oldHeadMethodSha256": "3c729cfb1aae2e9aabdb09e13ec2c6293f7a46abab136affa23143d176f7c802",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsCrimsonSignetTreantGrantsFriendlyBoon",
+    "oldHeadMethodSha256": "1fd9783aa5d286ff6720e23ff7b56e95cf52354d1eb1f4ca138b09d9c57d1c82",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsSkyvoiceWyrmlingGrantsFriendlyPower",
+    "oldHeadMethodSha256": "0e2374d63663e6e5c86ae28495945d6d3ffeef4cd2e980197af7159baa85f02d",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldActivateConquestEffectsAdaptiveRobotDestroysEquipmentAndGrantsSelfBoon",
+    "oldHeadMethodSha256": "e0325b60a0433073061e26a4f2b3767474f40027d18e1763db3f8be2319e7a16",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone",
+    "oldHeadMethodSha256": "84991a4dcfb42e9e1459aad15961fecfea9d0f0d25243c5a8c7f8e965a17c6b1",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P79BattlefieldHeldSevenUnitsWinsGame",
+    "oldHeadMethodSha256": "c8953c8a64da90dfda6b9c7aa14f57311b06ef9d662bc3e6aebed7027aeaeb08",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "name": "P4DeclareBattleCommandGrantsHuntExperienceWhenDefenderHoldsBattlefield",
+    "oldHeadMethodSha256": "bf2733903695d81dad46ca4bc5ea5a1040e27b2d4b29aad0b07963ac278b0f7b",
+    "replacement": "Same defensive fixture must NOT cause Hold. Positive start sequence expectations live in OfficialHoldSequenceTests; untested card-specific branches remain unaudited.",
+    "authority": "CN 315.2.b.2 / 383.4.d"
+  }
+]

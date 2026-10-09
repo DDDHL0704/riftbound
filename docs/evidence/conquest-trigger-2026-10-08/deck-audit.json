@@ -1,0 +1,370 @@
+[
+  {
+    "cardNo": "OGN·247/298",
+    "name": "虚空之女",
+    "subTitle": "",
+    "officialText": "{{横置}}：{{反应}}—{{获得}}{{A}}，但仅可用于打出法术。（获得费用资源的技能无法成为其他法术的反应目标。）",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/LegendResourceBridgeVerifierTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "tests/Riftbound.ConformanceTests/LegendActionSourceIdentityGuardTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·039/298",
+    "name": "卡莎",
+    "subTitle": "九死一生",
+    "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n当我征服一处战场时，抽一张牌。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/ConquestLifecycleRegressionTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "tests/Riftbound.ConformanceTests/NaturalUnitConquestTriggerTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "SFD·069/221",
+    "name": "坏坏魄罗",
+    "subTitle": "",
+    "officialText": "当我征服一处战场时，打出一个休眠的“金币”装备指示物。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/ConquestLifecycleRegressionTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·103/298",
+    "name": "拉文布鲁姆学生",
+    "subTitle": "",
+    "officialText": "每当你打出一张法术牌时，让我本回合内{{S}}+1。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/TriggerSourceIdentityGuardTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·096/298",
+    "name": "警觉的哨兵",
+    "subTitle": "",
+    "officialText": "{{绝念}}—抽一张牌。（当我被摧毁后，发动此效果。）",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·012/298",
+    "name": "诺克萨斯新兵",
+    "subTitle": "",
+    "officialText": "{{鼓舞}}—我的费用减少{{2}}。（如果你在本回合内已打出过其他卡牌，则发动此效果。）",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·027/298",
+    "name": "德莱厄斯",
+    "subTitle": "崔法利",
+    "officialText": "每当你在回合中打出第二张牌时，让我本回合内{{S}}+2，并让我变为活跃状态。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·087/298",
+    "name": "约德尔教官",
+    "subTitle": "",
+    "officialText": "{{壁垒}}（我在战斗中首先承担伤害。）\n当你打出我时，抽一张牌。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialPermanentConfirmationTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialEffectReplayTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·116/298",
+    "name": "千尾监视者",
+    "subTitle": "",
+    "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{蓝色}}，让我以活跃状态进场。）\n当你打出我时，让所有敌方单位本回合内{{S}}-3，不得低于1{{S}}。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·026/298",
+    "name": "颂雷者 布林希尔",
+    "subTitle": "",
+    "officialText": "当你打出我时，对手本回合内不能打出卡牌。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·009/298",
+    "name": "海克斯射线",
+    "subTitle": "",
+    "officialText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对战场上的一名单位造成3点伤害。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs",
+      "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+      "tests/Riftbound.ConformanceTests/StandbyDefendTeemoTests.cs",
+      "tests/Riftbound.ConformanceTests/StandbyReactionBattleResponseTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialPermanentConfirmationTests.cs",
+      "tests/Riftbound.ConformanceTests/StandbyReactionSfdTeemoTests.cs",
+      "tests/Riftbound.ConformanceTests/DevScenarioResetTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·024/298",
+    "name": "虚空索敌",
+    "subTitle": "",
+    "officialText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对战场上的一名单位造成4点伤害，然后抽一张牌。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/OfficialStackTargetContinuityTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialPrintedTimingTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·029/298",
+    "name": "星落",
+    "subTitle": "",
+    "officialText": "进行两次：\n    对一名单位造成3点伤害。（可以选择不同的单位。）",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs",
+      "tests/Riftbound.ConformanceTests/UndercoverAgentTriggerTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·095/298",
+    "name": "“敲”诈",
+    "subTitle": "",
+    "officialText": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名单位在本回合内{{S}}-1，不得低于1{{S}}。抽一张牌。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·104/298",
+    "name": "择日再战",
+    "subTitle": "",
+    "officialText": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/SourceUnitPlayedTriggerTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialStackTargetContinuityTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialPrintedTimingTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·093/298",
+    "name": "烟幕弹",
+    "subTitle": "",
+    "officialText": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名单位在本回合内{{S}}-4，不得低于1{{S}}。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·289/298",
+    "name": "巨神峰之巅",
+    "subTitle": "",
+    "officialText": "当你征服此处时，选择两枚符文，并在本回合结束时，让它们变为活跃状态。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/ConquestLifecycleRegressionTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·280/298",
+    "name": "帝柳之林",
+    "subTitle": "",
+    "officialText": "当你据守此处时，抽一张牌。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·297/298",
+    "name": "疾风山丘",
+    "subTitle": "",
+    "officialText": "此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/PreconstructedDeckCatalogTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·007/298",
+    "name": "炽烈符文",
+    "subTitle": "",
+    "officialText": "",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/StandbyReactionTideCallerTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs",
+      "tests/Riftbound.ConformanceTests/ConquestLifecycleRegressionTests.cs",
+      "tests/Riftbound.ConformanceTests/StandbyReactionSfdTeemoTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialBattlefieldControlTests.cs",
+      "tests/Riftbound.ConformanceTests/RuneBatchTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·089/298",
+    "name": "灵光符文",
+    "subTitle": "",
+    "officialText": "",
+    "testSourceReferences": [],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "SFD·080/221",
+    "name": "风箱炎息",
+    "subTitle": "",
+    "officialText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1蓝色}}（你可以选择支付此额外费用，以重复此法术效果。）\n对同一位置的最多三名单位各造成1点伤害。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "SFD·077/221",
+    "name": "火箭轰击",
+    "subTitle": "",
+    "officialText": "{{回响4蓝色}}（你可以选择支付此额外费用，以重复此法术效果，并做出不同的选择。）\n选择一个效果 — \n-对基地中的一名单位造成4点伤害。\n-摧毁一件装备。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "SFD·021/221",
+    "name": "铁甲先锋",
+    "subTitle": "",
+    "officialText": "{{绝念}}—打出两名3{{S}}的“机器人”到你的基地。（当我被摧毁后，发动此效果。）",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·105/298",
+    "name": "星芒凝汇",
+    "subTitle": "",
+    "officialText": "对最多两名单位各造成6点伤害。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs",
+      "tests/Riftbound.ConformanceTests/UndercoverAgentTriggerTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialStackTargetContinuityTests.cs",
+      "tests/Riftbound.ConformanceTests/OfficialPrintedTimingTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·114/298",
+    "name": "进化日",
+    "subTitle": "",
+    "officialText": "抽四张牌。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/LuxHighCostPaidCostTriggerTests.cs",
+      "tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/LuxResourceSkillTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·122/298",
+    "name": "时间扭曲",
+    "subTitle": "",
+    "officialText": "在当前回合结束后，再进行一个回合，然后放逐此牌。",
+    "testSourceReferences": [],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·298/298",
+    "name": "祖安地沟",
+    "subTitle": "",
+    "officialText": "当你征服此处时，弃置一张手牌，然后抽一张牌。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/ConquestLifecycleRegressionTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "SFD·216/221",
+    "name": "落岩之径",
+    "subTitle": "",
+    "officialText": "单位无法被打出到此处。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  },
+  {
+    "cardNo": "OGN·296/298",
+    "name": "虚空之门",
+    "subTitle": "",
+    "officialText": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+    "testSourceReferences": [
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "tests/Riftbound.ConformanceTests/ConquestLifecycleRegressionTests.cs",
+      "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs"
+    ],
+    "referenceMeaning": "A reference is not proof of complete effect/timing coverage."
+  }
+]

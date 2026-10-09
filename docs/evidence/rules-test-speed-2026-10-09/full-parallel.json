@@ -1,0 +1,49 @@
+{
+  "status": "PASSED",
+  "profile": "full",
+  "seconds": 314.87,
+  "total": 9004,
+  "caseParityVerified": true,
+  "shards": [
+    {
+      "shard": "games-4",
+      "total": 46,
+      "passed": 46,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 178.75
+    },
+    {
+      "shard": "games-3",
+      "total": 44,
+      "passed": 44,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 184.93
+    },
+    {
+      "shard": "games-2",
+      "total": 44,
+      "passed": 44,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 186.37
+    },
+    {
+      "shard": "rules",
+      "total": 8869,
+      "passed": 8869,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 75.13
+    },
+    {
+      "shard": "games-1",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 311.34
+    }
+  ]
+}

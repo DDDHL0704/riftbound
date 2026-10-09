@@ -28,10 +28,18 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/upstream/2026-10-08/rules-manifest.json",
+      "locator": "CN core resolution; official printed look/select effect",
+      "note": "2026-10-08 re-audit: privately select viewed cards only while resolving, after responses. Filtered selections reveal the card; Card Trick adds to hand rather than drawing."
     }
   ],
   "roomId": "p2-preflight-sfd-058a-ornn-equipment-look-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302697,
     "turnNumber": 697,
@@ -39,7 +47,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 5,
@@ -55,39 +66,68 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-ORNNA-EQUIPMENT-001", "P1-ORNNA-UNIT-001", "P1-ORNNA-SPELL-001", "P1-ORNNA-EQUIPMENT-002", "P1-ORNNA-DECK-TAIL-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-SFD-058A-ORNN"],
+        "mainDeck": [
+          "P1-ORNNA-EQUIPMENT-001",
+          "P1-ORNNA-UNIT-001",
+          "P1-ORNNA-SPELL-001",
+          "P1-ORNNA-EQUIPMENT-002",
+          "P1-ORNNA-DECK-TAIL-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-SFD-058A-ORNN"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-ORNNA-EQUIPMENT-001": {
         "cardNo": "SFD·022/221",
-        "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
+        "tags": [
+          "CARD_TYPE:EQUIPMENT",
+          "武装"
+        ],
         "ownerId": "P1",
         "controllerId": "P1"
       },
       "P1-ORNNA-UNIT-001": {
         "cardNo": "SFD·125/221",
         "power": 3,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "ownerId": "P1",
         "controllerId": "P1"
       },
@@ -98,7 +138,10 @@
       },
       "P1-ORNNA-EQUIPMENT-002": {
         "cardNo": "SFD·022/221",
-        "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
+        "tags": [
+          "CARD_TYPE:EQUIPMENT",
+          "武装"
+        ],
         "ownerId": "P1",
         "controllerId": "P1"
       }
@@ -112,14 +155,38 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-SFD-058A-ORNN",
         "cardNo": "SFD·058a/221",
-        "targetObjectIds": ["P1-ORNNA-EQUIPMENT-001"]
+        "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-sfd-058a-ornn-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-sfd-058a-ornn-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-sfd-058a-ornn-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-sfd-058a-ornn-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "p2-preflight-play-sfd-058a-ornn-equipment-look-static-choose",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "DECK-STACK-1-P1-UNIT-SFD-058A-ORNN-0",
+        "choiceWindow": "DECK_EFFECT",
+        "chosenObjectIds": [
+          "P1-ORNNA-EQUIPMENT-001"
+        ]
+      }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -128,26 +195,50 @@
       "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
+      "STACK_ITEM_SUSPENDED",
+      "CARD_CHOICE_REQUESTED",
       "CARD_DRAWN",
-      "CARDS_RECYCLED"
+      "CARDS_RECYCLED",
+      "CARD_REVEALED",
+      "CARD_CHOICE_RESOLVED",
+      "STACK_ITEM_RESOLVED"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 697,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "hand": ["P1-ORNNA-EQUIPMENT-001"],
-          "base": ["P1-UNIT-SFD-058A-ORNN"],
+          "hand": [
+            "P1-ORNNA-EQUIPMENT-001"
+          ],
+          "base": [
+            "P1-UNIT-SFD-058A-ORNN"
+          ],
           "graveyard": []
         }
       },
@@ -155,14 +246,26 @@
       "cardObjects": {
         "P1-UNIT-SFD-058A-ORNN": {
           "power": 5,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": true
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

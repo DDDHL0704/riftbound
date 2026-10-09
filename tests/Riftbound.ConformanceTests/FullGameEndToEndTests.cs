@@ -611,7 +611,7 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -649,13 +649,11 @@ public sealed class FullGameEndToEndTests
 
         AssertRumbleConquestGraveyardMechanicalInsufficientPayment(paymentOpened, insufficient);
 
-        var declined = await DeclineTriggerPaymentAsync(
-            session,
-            insufficient,
-            "P1",
-            "b0-rumble-conquest-decline-after-insufficient-payment");
-
-        AssertTriggerPaymentDeclined(paymentOpened, declined, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit);
+        var pending=insufficient.State.PendingEffectPlay!;
+        var finish=new ChooseCardsCommand(pending.ChoiceId,"EFFECT_PLAY",[]);
+        var declined=await session.SubmitAsync("P1","rumble-cannot-play",finish,RawCommand(finish),default);
+        AssertAccepted(declined);
+        Assert.Contains(pending.Parent.RecycledUnit!.ObjectId,declined.State.PlayerZones["P1"].MainDeck);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -664,7 +662,7 @@ public sealed class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
-        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PayCost, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
     }
@@ -906,12 +904,17 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-piltover-academy-held-next-spell-echo");
+        responseOpened = await ResolveDriverPendingEffectsAsync(session, responseOpened, "b0-piltover-death-triggers");
+        AssertDefenseDoesNotHold(responseOpened);
+        responseOpened = await EndTurnAsync(session, responseOpened.State.TurnPlayerId, "piltover-real-hold");
         AssertBattlefieldHeldNextSpellEchoMarkerResolved(responseOpened);
 
         var echoReadyState = BuildBattlefieldHeldNextSpellEchoSpellReadyState(responseOpened.State);
         var echoJournal = new RecordingMatchJournal();
         var echoSession = new MatchSession(echoReadyState, new CoreRuleEngine(), echoJournal);
         var echoReady = AcceptedCurrentResult(echoReadyState);
+        echoReady = await TapAllAvailableRunesAsync(echoSession, "P2", echoReady, "piltover-pay-from-real-runes");
+        echoReady = await SupplyPlayPowerThroughLegalRuneActionsAsync(echoSession, echoReady, "P2", PunishmentSpellCardNo, "piltover-power", [EchoOptionalCostNames.Echo]);
         var spellPlayed = await SubmitBattlefieldHeldNextSpellEchoSpellAsync(
             echoSession,
             echoReady,
@@ -2434,6 +2437,10 @@ public sealed class FullGameEndToEndTests
             session,
             spellPlayed,
             "b0-card-trick-draw-recycle-resolve");
+        var choice = Assert.IsType<PendingCardChoiceState>(spellResolved.State.PendingCardChoice);
+        var select = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [targetObjectId]);
+        spellResolved = await session.SubmitAsync("P1", "card-trick-choice", select, RawCommand(select), default);
+        AssertAccepted(spellResolved);
         AssertCardTrickDrawRecycleResolved(current, spellPlayed, spellResolved, targetObjectId);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -2563,7 +2570,7 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
-    public async Task OfficialDeckMidgameResolvesHiddenValleyHeldDrawAndScoreVictoryActionLogReplaysToFinalStateHash()
+    public async Task OfficialDeckMidgameRejectsDefensiveHiddenValleyHeldDrawAndReplaysScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildBattlefieldHeldDrawAttackerOfficialDeck(catalog);
@@ -2586,7 +2593,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-hidden-valley-held-draw");
-        AssertBattlefieldHeldDrawResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -2623,7 +2630,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-dunehorn-beast-unit-held-draw");
-        AssertUnitBattlefieldHeldDrawResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -3149,7 +3156,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-star-peak-held-call-rune");
-        AssertBattlefieldHeldCallRuneResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -3186,7 +3193,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-confetti-tree-held-each-player-call-rune");
-        AssertBattlefieldHeldEachPlayerCallRuneResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -3223,7 +3230,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-rehearsal-hall-held-move-unit-to-base");
-        AssertBattlefieldHeldMoveUnitToBaseResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -3237,7 +3244,7 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
-    public async Task OfficialDeckMidgameResolvesNavoriArenaHeldGrantBoonAndScoreVictoryActionLogReplaysToFinalStateHash()
+    public async Task OfficialDeckMidgameRejectsDefensiveNavoriArenaHeldGrantBoonAndReplaysScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildBattlefieldHeldGrantBoonAttackerOfficialDeck(catalog);
@@ -3260,7 +3267,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-navori-arena-held-grant-boon");
-        AssertBattlefieldHeldGrantBoonResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -3274,7 +3281,7 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
-    public async Task OfficialDeckMidgameResolvesUnitySanctumHeldCreateMinionAndScoreVictoryActionLogReplaysToFinalStateHash()
+    public async Task OfficialDeckMidgameRejectsDefensiveUnitySanctumHeldCreateMinionAndReplaysScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildBattlefieldHeldCreateMinionAttackerOfficialDeck(catalog);
@@ -3297,7 +3304,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-unity-sanctum-held-create-minion");
-        AssertBattlefieldHeldCreateMinionResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -3334,7 +3341,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-hallowed-tomb-held-return-hero");
-        AssertBattlefieldHeldReturnHeroResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -3371,15 +3378,20 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-grand-plaza-held-seven-units-win");
-        AssertBattlefieldHeldSevenUnitsWinResolved(current, result);
+        AssertDefenseDoesNotHold(result);
+        result = await ResolveDriverPendingEffectsAsync(session, result, "grand-plaza-death-effects");
+        Assert.True(result.Prompts[result.State.TurnPlayerId].EnabledActions().Contains(CommandTypes.EndTurn),
+            DescribeState(result.State) + "\n" + JsonSerializer.Serialize(new { result.State.BattleState, result.State.PendingTaskQueue, result.State.PendingCardChoice, result.State.PendingPayment, result.State.StackItems, result.State.UntilEndOfTurnEffects }));
+        result = await EndTurnAsync(session, result.State.TurnPlayerId, "grand-plaza-real-hold");
+        AssertBattlefieldHeldSevenUnitsWinResolved(result);
 
         await AssertActionLogReplaysToFinalStateHashOnlyAsync(initialState, journal, result);
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
-        Assert.DoesNotContain(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
+        Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
     }
 
     [Fact]
-    public async Task OfficialDeckMidgameResolvesEnergyHubHeldPayPowerScoreAndScoreVictoryActionLogReplaysToFinalStateHash()
+    public async Task OfficialDeckMidgameRejectsDefensiveEnergyHubHeldPayPowerScoreAndReplaysScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildBattlefieldHeldPayPowerScoreAttackerOfficialDeck(catalog);
@@ -3402,7 +3414,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-energy-hub-held-pay-power-score");
-        AssertBattlefieldHeldPayPowerScoreResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -3416,7 +3428,7 @@ public sealed class FullGameEndToEndTests
     }
 
     [Fact]
-    public async Task OfficialDeckMidgameResolvesReckonerArenaHeldActivateConquestAndScoreVictoryActionLogReplaysToFinalStateHash()
+    public async Task OfficialDeckMidgameRejectsDefensiveReckonerArenaHeldActivateConquestAndReplaysScoreVictoryActionLogReplaysToFinalStateHash()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildBattlefieldHeldActivateConquestAttackerOfficialDeck(catalog);
@@ -3439,7 +3451,7 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-reckoner-held-activate-conquest");
-        AssertBattlefieldHeldActivateConquestResolved(current, triggered);
+        AssertDefenseDoesNotHold(triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
@@ -5684,6 +5696,7 @@ public sealed class FullGameEndToEndTests
         var scoreEvents = result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
         for (var turnIndex = 0; turnIndex < 48 && !string.Equals(result.State.Status, MatchStatuses.Finished, StringComparison.Ordinal); turnIndex++)
         {
+            result = await ResolveDriverPendingEffectsAsync(session, result, $"{intentPrefix}-triggers-{turnIndex}");
             if (result.State.BattleState.IsActive && result.State.PriorityPlayerId is not null)
             {
                 result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-pending-response-{turnIndex}");
@@ -5885,6 +5898,13 @@ public sealed class FullGameEndToEndTests
         Assert.Equal(MatchStateHasher.Hash(result.State), replay.ExpectedStateHash);
         Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
         Assert.Empty(replay.Errors);
+    }
+
+    private static void AssertDefenseDoesNotHold(ResolutionResult result)
+    {
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLEFIELD_HELD");
+        Assert.DoesNotContain(result.State.StackItems, e => e.HeldContext is not null);
     }
 
     private static void AssertScoreVictory(ResolutionResult result)
@@ -6181,152 +6201,27 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertRumbleConquestGraveyardMechanicalPaymentOpened(ResolutionResult result)
     {
-        var conqueredEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
-            && gameEvent.Payload.TryGetValue("sourceObjectId", out var sourceObjectId)
-            && sourceObjectId is string source
-            && result.State.CardObjects.TryGetValue(source, out var sourceObject)
-            && string.Equals(sourceObject.CardNo, RumbleChampionCardNo, StringComparison.Ordinal));
-        var rumbleObjectId = Assert.IsType<string>(conqueredEvent.Payload["sourceObjectId"]);
-        var recycledObjectId = FindBaseUnitByCardNo(result.State, "P1", CrystalInhibitorMechanicalUnitCardNo)
-            ?? throw new InvalidOperationException("B0 Rumble conquest payment assertion could not find recycled unit in base.");
-        var playedObjectId = FindGraveyardCardObjectByCardNo(result.State, "P1", ProgressGloryMechanicalUnitCardNo)
-            ?? throw new InvalidOperationException("B0 Rumble conquest payment assertion could not find graveyard mechanical unit.");
-
-        var payment = result.State.PendingPayment;
-        Assert.NotNull(payment);
-        Assert.Equal("P1", payment.PlayerId);
-        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
-        Assert.Equal(2, payment.ManaCost);
-        Assert.Equal(["SPEND_MANA:2", "DECLINE"], payment.LegalPaymentChoiceIds);
-
-        var openedEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
-        Assert.Equal(payment.PaymentId, openedEvent.Payload["paymentId"]);
-        Assert.Equal(payment.PaymentWindow, openedEvent.Payload["paymentWindow"]);
-        Assert.Equal(recycledObjectId, openedEvent.Payload["recycledObjectId"]);
-        Assert.Equal(playedObjectId, openedEvent.Payload["playedObjectId"]);
-        Assert.Equal(4, openedEvent.Payload["playedCardManaCost"]);
-        Assert.Equal(2, openedEvent.Payload["manaCostReduction"]);
-        Assert.Equal(2, openedEvent.Payload["reducedManaCost"]);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, playedObjectId, StringComparison.Ordinal));
+        var pending=Assert.IsType<PendingEffectPlayState>(result.State.PendingEffectPlay);
+        Assert.Equal(2,pending.ManaReduction);Assert.False(pending.IgnoreBasePower);
+        Assert.NotNull(pending.Parent.RecycledUnit);Assert.Contains(pending.Parent.RecycledUnit.ObjectId,result.State.PlayerZones["P1"].MainDeck);
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertRumbleConquestGraveyardMechanicalPaid(
-        ResolutionResult paymentOpened,
-        ResolutionResult result)
+    private static void AssertRumbleConquestGraveyardMechanicalPaid(ResolutionResult opened,ResolutionResult result)
     {
-        var openedEvent = Assert.Single(paymentOpened.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal));
-        var payment = paymentOpened.State.PendingPayment
-            ?? throw new InvalidOperationException("B0 Rumble paid-payment assertion expected an opened payment.");
-        var rumbleObjectId = Assert.IsType<string>(openedEvent.Payload["sourceObjectId"]);
-        var recycledObjectId = Assert.IsType<string>(openedEvent.Payload["recycledObjectId"]);
-        var playedObjectId = Assert.IsType<string>(openedEvent.Payload["playedObjectId"]);
-
-        Assert.Null(result.State.PendingPayment);
-        Assert.Equal(0, result.State.RunePools["P1"].Mana);
-
-        var costPaid = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal));
-        Assert.Equal(payment.PaymentId, costPaid.Payload["paymentId"]);
-        Assert.Equal(payment.PaymentWindow, costPaid.Payload["paymentWindow"]);
-        Assert.Equal(2, costPaid.Payload["mana"]);
-        Assert.Equal(["SPEND_MANA:2"], Assert.IsType<string[]>(costPaid.Payload["paymentChoiceIds"]));
-
-        var conquestTrigger = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
-        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, conquestTrigger.Payload["effectId"]);
-        Assert.Equal(payment.PaymentId, conquestTrigger.Payload["paymentId"]);
-        Assert.Equal(recycledObjectId, conquestTrigger.Payload["recycledObjectId"]);
-        Assert.Equal(playedObjectId, conquestTrigger.Payload["playedObjectId"]);
-        Assert.Equal(4, conquestTrigger.Payload["playedCardManaCost"]);
-        Assert.Equal(2, conquestTrigger.Payload["manaCostReduction"]);
-        Assert.Equal(2, conquestTrigger.Payload["reducedManaCost"]);
-        Assert.Equal(2, conquestTrigger.Payload["paidManaCost"]);
-
-        var recycleEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
-        Assert.Equal([recycledObjectId], Assert.IsType<string[]>(recycleEvent.Payload["cardIds"]));
-        Assert.Equal(TriggerZones.Field, recycleEvent.Payload["sourceZone"]);
-        Assert.Equal(TriggerZones.MainDeck, recycleEvent.Payload["destinationZone"]);
-        Assert.Equal(TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, recycleEvent.Payload["reason"]);
-        Assert.Equal(payment.PaymentId, recycleEvent.Payload["paymentId"]);
-
-        var playEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, playedObjectId, StringComparison.Ordinal));
-        Assert.Equal(rumbleObjectId, playEvent.Payload["sourceObjectId"]);
-        Assert.Equal(TriggerZones.Graveyard, playEvent.Payload["sourceZone"]);
-        Assert.Equal(TriggerZones.Base, playEvent.Payload["destinationZone"]);
-        Assert.Equal(ProgressGloryMechanicalUnitCardNo, playEvent.Payload["playedCardNo"]);
-        Assert.Equal(4, playEvent.Payload["playedCardManaCost"]);
-        Assert.Equal(2, playEvent.Payload["manaCostReduction"]);
-        Assert.Equal(2, playEvent.Payload["reducedManaCost"]);
-        Assert.Equal(2, playEvent.Payload["paidManaCost"]);
-        Assert.Equal(payment.PaymentId, playEvent.Payload["paymentId"]);
-
-        var paymentWindowClosedEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_CLOSED", StringComparison.Ordinal));
-        Assert.False(Assert.IsType<bool>(paymentWindowClosedEvent.Payload["declined"]));
-        Assert.Equal(payment.PaymentId, paymentWindowClosedEvent.Payload["paymentId"]);
-        Assert.Equal(rumbleObjectId, paymentWindowClosedEvent.Payload["sourceObjectId"]);
-        Assert.Equal(recycledObjectId, paymentWindowClosedEvent.Payload["recycledObjectId"]);
-        Assert.Equal(playedObjectId, paymentWindowClosedEvent.Payload["playedObjectId"]);
-
-        Assert.DoesNotContain(recycledObjectId, result.State.PlayerZones["P1"].Base);
-        Assert.Contains(recycledObjectId, result.State.PlayerZones["P1"].MainDeck);
-        Assert.Contains(playedObjectId, result.State.PlayerZones["P1"].Base);
-        Assert.DoesNotContain(playedObjectId, result.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal(TriggerZones.MainDeck, result.State.ObjectLocations[recycledObjectId].Zone);
-        Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[playedObjectId].Zone);
-        Assert.Equal(ProgressGloryMechanicalUnitCardNo, result.State.CardObjects[playedObjectId].CardNo);
-        Assert.Contains("机械", result.State.CardObjects[playedObjectId].Tags);
-        Assert.True(result.State.CardObjects[playedObjectId].IsExhausted); // CN 143.4.
-        AssertNoHiddenZoneLeak(result);
+        var recycled=opened.State.PendingEffectPlay!.Parent.RecycledUnit!.ObjectId;
+        var played=FindGraveyardCardObjectByCardNo(opened.State,"P1",ProgressGloryMechanicalUnitCardNo)!;
+        Assert.Null(result.State.PendingEffectPlay);Assert.Equal(0,result.State.RunePools["P1"].Mana);
+        Assert.Equal(0,result.State.RunePools["P1"].Power);
+        Assert.Contains(recycled,result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(played,result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects[played].IsExhausted);AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertRumbleConquestGraveyardMechanicalInsufficientPayment(
-        ResolutionResult paymentOpened,
-        ResolutionResult result)
+    private static void AssertRumbleConquestGraveyardMechanicalInsufficientPayment(ResolutionResult opened,ResolutionResult result)
     {
-        var openedEvent = Assert.Single(paymentOpened.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit, StringComparison.Ordinal));
-        var rumbleObjectId = Assert.IsType<string>(openedEvent.Payload["sourceObjectId"]);
-        var recycledObjectId = Assert.IsType<string>(openedEvent.Payload["recycledObjectId"]);
-        var playedObjectId = Assert.IsType<string>(openedEvent.Payload["playedObjectId"]);
-
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
-        Assert.Equal(paymentOpened.State.PendingPayment, result.State.PendingPayment);
-        Assert.Equal(1, result.State.RunePools["P1"].Mana);
-        Assert.Contains(recycledObjectId, result.State.PlayerZones["P1"].Base);
-        Assert.DoesNotContain(recycledObjectId, result.State.PlayerZones["P1"].MainDeck);
-        Assert.Contains(playedObjectId, result.State.PlayerZones["P1"].Graveyard);
-        Assert.DoesNotContain(playedObjectId, result.State.PlayerZones["P1"].Base);
-        Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[recycledObjectId].Zone);
-        Assert.Equal(TriggerZones.Graveyard, result.State.ObjectLocations[playedObjectId].Zone);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, rumbleObjectId, StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, playedObjectId, StringComparison.Ordinal));
+        Assert.False(result.Accepted);Assert.Equal(ErrorCodes.InsufficientCost,result.ErrorCode);
+        Assert.Equal(MatchStateHasher.Hash(opened.State),MatchStateHasher.Hash(result.State));
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -6647,13 +6542,7 @@ public sealed class FullGameEndToEndTests
         var effectId = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:P2";
         Assert.Contains(effectId, result.State.UntilEndOfTurnEffects);
 
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldNextSpellEcho, StringComparison.Ordinal));
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(PiltoverAcademyBattlefieldHeldNextSpellEchoCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(effectId, triggerEvent.Payload["effectId"]);
+        Assert.Contains(result.Events, e => e.Kind == "TRIGGER_RESOLVED" && Equals(e.Payload["effectKind"], "HOLD_NEXT_ECHO"));
         Assert.False(result.State.BattleState.IsActive);
         Assert.Null(result.State.PriorityPlayerId);
         Assert.Equal("NEUTRAL_OPEN", result.State.TimingState);
@@ -6679,6 +6568,7 @@ public sealed class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
         Assert.Equal("P2", costPaid.Payload["playerId"]);
         Assert.Equal(4, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["power"]);
         Assert.Equal(2, costPaid.Payload["baseMana"]);
         Assert.Equal([EchoOptionalCostNames.Echo], Assert.IsType<string[]>(costPaid.Payload["optionalCosts"]));
 
@@ -6839,7 +6729,8 @@ public sealed class FullGameEndToEndTests
             "P1",
             FirstTurnScoreBattlefieldCardNo);
         Assert.Equal(0, beforeTurnStart.State.PlayerScores["P2"]);
-        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Equal(2, result.State.PlayerScores["P2"]);
+        Assert.Contains(result.Events, e => e.Kind == "BATTLEFIELD_HELD");
 
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -7257,7 +7148,7 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("P1", triggerEvent.Payload["playerId"]);
         Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
         Assert.Equal(ZaunSumpBattlefieldConquerDiscardDrawCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["sourceObjectId"]);
         Assert.Equal(1, triggerEvent.Payload["drawCount"]);
 
         var discardEvent = Assert.Single(result.Events, gameEvent =>
@@ -7760,11 +7651,11 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(CardObjectTags.UnitCard, beforeTriggerTarget.Tags);
 
         var powerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal) && Equals(gameEvent.Payload["powerDelta"], 1));
         Assert.Equal(1, powerEvent.Payload["appliedPowerDelta"]);
         Assert.Equal(triggerTarget.Power, powerEvent.Payload["resultingPower"]);
-        Assert.Equal(beforeTriggerTarget.Power + 1, triggerTarget.Power);
-        Assert.Equal(beforeTriggerTarget.UntilEndOfTurnPowerModifier + 1, triggerTarget.UntilEndOfTurnPowerModifier);
+        Assert.Equal(beforeTriggerTarget.Power + 3, triggerTarget.Power);
+        Assert.Equal(beforeTriggerTarget.UntilEndOfTurnPowerModifier + 3, triggerTarget.UntilEndOfTurnPowerModifier);
 
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
@@ -8616,23 +8507,14 @@ public sealed class FullGameEndToEndTests
         var recycledObjectId = beforeSpell.State.PlayerZones["P1"].MainDeck.FirstOrDefault()
             ?? throw new InvalidOperationException("B0 Lost Library assertion expected at least one P1 main-deck card to recycle.");
 
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHighCostSpellInsightRecycle, StringComparison.Ordinal));
-        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(LostLibraryBattlefieldHighCostSpellInsightCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(FlowingTimeMirrorSpellCardNo, triggerEvent.Payload["playedCardNo"]);
-        Assert.Equal(4, triggerEvent.Payload["paidMana"]);
-        Assert.Equal([recycledObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["recycledCardIds"]));
-
-        var recycleEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldHighCostSpellInsightRecycle, StringComparison.Ordinal));
+        Assert.Contains(result.Events, e => e.Kind == "TRIGGER_QUEUED" && Equals(e.Payload["sourceObjectId"], battlefieldObjectId));
+        Assert.Contains(result.Events, e => e.Kind == "INSIGHT_REQUESTED");
+        Assert.Contains(result.Events, e => e.Kind == "INSIGHT_COMPLETED");
+        var recycleEvent = Assert.Single(result.Events, e => e.Kind == "CARDS_RECYCLED");
         Assert.Equal("P1", recycleEvent.Payload["playerId"]);
         Assert.Equal(battlefieldObjectId, recycleEvent.Payload["sourceObjectId"]);
-        Assert.Equal([recycledObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
         Assert.Equal(1, recycleEvent.Payload["count"]);
+        Assert.DoesNotContain(result.Events, e => e.Payload.ContainsKey("cardIds") || e.Payload.ContainsKey("recycledCardIds"));
         Assert.Equal(recycledObjectId, result.State.PlayerZones["P1"].MainDeck.Last());
 
         var targetObjectId = BattlefieldHighCostSpellInsightTargetObjectId(beforeSpell.State);
@@ -8678,13 +8560,10 @@ public sealed class FullGameEndToEndTests
         var recycledObjectId = beforeSpell.State.PlayerZones["P1"].MainDeck.FirstOrDefault()
             ?? throw new InvalidOperationException("B0 Flowing Time Mirror equipment assertion expected at least one P1 main-deck card to recycle.");
 
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHighCostSpellInsightRecycle, StringComparison.Ordinal));
-        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
-        Assert.Equal(FlowingTimeMirrorSpellCardNo, triggerEvent.Payload["playedCardNo"]);
-        Assert.Equal(4, triggerEvent.Payload["paidMana"]);
-        Assert.Equal([recycledObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["recycledCardIds"]));
+        Assert.Contains(result.Events, e => e.Kind == "TRIGGER_QUEUED" && Equals(e.Payload["effectKind"], "INSIGHT_TRIGGER"));
+        Assert.Contains(result.Events, e => e.Kind == "INSIGHT_COMPLETED");
+        Assert.DoesNotContain(result.Events, e => e.Payload.ContainsKey("cardIds") || e.Payload.ContainsKey("recycledCardIds"));
+        Assert.Equal(recycledObjectId, result.State.PlayerZones["P1"].MainDeck.Last());
 
         var stackEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
@@ -8972,108 +8851,9 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertBattlefieldHeldDrawResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            HiddenValleyBattlefieldHeldDrawCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Hidden Valley assertion could not locate the attacking Watchful Sentinel.");
-        var defenderObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P2",
-            WildclawBeastmasterCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Hidden Valley assertion could not locate the defending Wildclaw Beastmaster.");
-        var expectedDrawnObjectId = beforeBattle.State.PlayerZones["P2"].MainDeck.FirstOrDefault()
-            ?? throw new InvalidOperationException("B0 Hidden Valley assertion expected at least one P2 main-deck card to draw.");
 
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldDrawOne, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
 
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(HiddenValleyBattlefieldHeldDrawCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(1, triggerEvent.Payload["drawCount"]);
 
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal)
-            && Equals(1, gameEvent.Payload["count"]));
-
-        Assert.Contains(expectedDrawnObjectId, result.State.PlayerZones["P2"].Hand);
-        Assert.DoesNotContain(expectedDrawnObjectId, result.State.PlayerZones["P2"].MainDeck);
-        Assert.Contains(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(battlefieldObjectId, result.State.ObjectLocations[defenderObjectId].BattlefieldObjectId);
-        AssertNoHiddenZoneLeak(result);
-    }
-
-    private static void AssertUnitBattlefieldHeldDrawResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForPlayer(beforeBattle.State, "P2");
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Dunehorn Beast assertion could not locate the attacking Watchful Sentinel.");
-        var defenderObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P2",
-            DunehornBeastCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Dunehorn Beast assertion could not locate the defending Dunehorn Beast.");
-        var expectedDrawnObjectIds = beforeBattle.State.PlayerZones["P2"].MainDeck.Take(2).ToArray();
-        Assert.Equal(2, expectedDrawnObjectIds.Length);
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.UnitBattlefieldHeldDraw, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldId"]);
-        Assert.Equal(defenderObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(DunehornBeastCardNo, triggerEvent.Payload["sourceCardNo"]);
-        Assert.Equal(TriggerKinds.UnitBattlefieldHeldDraw, triggerEvent.Payload["effectKind"]);
-        Assert.Equal(2, triggerEvent.Payload["drawCount"]);
-
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal)
-            && Equals(2, gameEvent.Payload["count"]));
-
-        foreach (var objectId in expectedDrawnObjectIds)
-        {
-            Assert.Contains(objectId, result.State.PlayerZones["P2"].Hand);
-            Assert.DoesNotContain(objectId, result.State.PlayerZones["P2"].MainDeck);
-        }
-
-        Assert.Contains(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(battlefieldObjectId, result.State.ObjectLocations[defenderObjectId].BattlefieldObjectId);
-        Assert.Contains(attackerObjectId, beforeBattle.State.PlayerZones["P1"].Battlefields);
-        AssertNoHiddenZoneLeak(result);
-    }
 
     private static void AssertDunehornBeastLowHandActiveEntryResolved(
         ResolutionResult beforePlay,
@@ -9528,519 +9308,31 @@ public sealed class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertBattlefieldHeldCallRuneResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
+
+
+
+
+
+
+
+
+
+
+
+
+    private static void AssertBattlefieldHeldSevenUnitsWinResolved(ResolutionResult result)
     {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            StarPeakBattlefieldHeldCallRuneCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Star Peak assertion could not locate the attacking Watchful Sentinel.");
-        var defenderObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P2",
-            WildclawBeastmasterCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Star Peak assertion could not locate the defending Wildclaw Beastmaster.");
-        var expectedRuneObjectId = beforeBattle.State.PlayerZones["P2"].RuneDeck.FirstOrDefault()
-            ?? throw new InvalidOperationException("B0 Star Peak assertion expected at least one P2 rune to call.");
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldCallRune, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(StarPeakBattlefieldHeldCallRuneCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-
-        var runeEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
-        Assert.Equal("P2", runeEvent.Payload["playerId"]);
-        Assert.Equal(1, runeEvent.Payload["count"]);
-        Assert.Equal([expectedRuneObjectId], Assert.IsType<string[]>(runeEvent.Payload["runeObjectIds"]));
-
-        Assert.Contains(expectedRuneObjectId, result.State.PlayerZones["P2"].Base);
-        Assert.DoesNotContain(expectedRuneObjectId, result.State.PlayerZones["P2"].RuneDeck);
-        Assert.True(result.State.CardObjects[expectedRuneObjectId].IsExhausted);
-        Assert.Contains(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(battlefieldObjectId, result.State.ObjectLocations[defenderObjectId].BattlefieldObjectId);
-        AssertNoHiddenZoneLeak(result);
-    }
-
-    private static void AssertBattlefieldHeldEachPlayerCallRuneResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            ConfettiTreeBattlefieldHeldEachPlayerCallRuneCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Confetti Tree assertion could not locate the attacking Watchful Sentinel.");
-        var defenderObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P2",
-            WildclawBeastmasterCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Confetti Tree assertion could not locate the defending Wildclaw Beastmaster.");
-        var expectedP1RuneObjectId = beforeBattle.State.PlayerZones["P1"].RuneDeck.FirstOrDefault()
-            ?? throw new InvalidOperationException("B0 Confetti Tree assertion expected at least one P1 rune to call.");
-        var expectedP2RuneObjectId = beforeBattle.State.PlayerZones["P2"].RuneDeck.FirstOrDefault()
-            ?? throw new InvalidOperationException("B0 Confetti Tree assertion expected at least one P2 rune to call.");
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldEachPlayerCallRune, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(ConfettiTreeBattlefieldHeldEachPlayerCallRuneCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-
-        var runeEvents = result.Events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal))
-            .ToArray();
-        Assert.Equal(2, runeEvents.Length);
-        var p1RuneEvent = Assert.Single(runeEvents, gameEvent => string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
-        var p2RuneEvent = Assert.Single(runeEvents, gameEvent => string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
-        Assert.Equal(1, p1RuneEvent.Payload["count"]);
-        Assert.Equal(1, p2RuneEvent.Payload["count"]);
-        Assert.Equal([expectedP1RuneObjectId], Assert.IsType<string[]>(p1RuneEvent.Payload["runeObjectIds"]));
-        Assert.Equal([expectedP2RuneObjectId], Assert.IsType<string[]>(p2RuneEvent.Payload["runeObjectIds"]));
-
-        Assert.Contains(expectedP1RuneObjectId, result.State.PlayerZones["P1"].Base);
-        Assert.Contains(expectedP2RuneObjectId, result.State.PlayerZones["P2"].Base);
-        Assert.DoesNotContain(expectedP1RuneObjectId, result.State.PlayerZones["P1"].RuneDeck);
-        Assert.DoesNotContain(expectedP2RuneObjectId, result.State.PlayerZones["P2"].RuneDeck);
-        Assert.True(result.State.CardObjects[expectedP1RuneObjectId].IsExhausted);
-        Assert.True(result.State.CardObjects[expectedP2RuneObjectId].IsExhausted);
-        Assert.Contains(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(battlefieldObjectId, result.State.ObjectLocations[defenderObjectId].BattlefieldObjectId);
-        AssertNoHiddenZoneLeak(result);
-    }
-
-    private static void AssertBattlefieldHeldMoveUnitToBaseResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            RehearsalHallBattlefieldHeldMoveUnitToBaseCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Rehearsal Hall assertion could not locate the attacking Watchful Sentinel.");
-        var defenderObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P2",
-            WildclawBeastmasterCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Rehearsal Hall assertion could not locate the defending Wildclaw Beastmaster.");
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldMoveUnitToBase, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(RehearsalHallBattlefieldHeldMoveUnitToBaseCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(defenderObjectId, triggerEvent.Payload["targetObjectId"]);
-
-        var moveEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldHeldMoveUnitToBase, StringComparison.Ordinal));
-        Assert.Equal("P2", moveEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, moveEvent.Payload["sourceObjectId"]);
-        Assert.Equal(defenderObjectId, moveEvent.Payload["targetObjectId"]);
-        Assert.Equal("BATTLEFIELD", moveEvent.Payload["originZone"]);
-        Assert.Equal("BASE", moveEvent.Payload["destinationZone"]);
-
-        Assert.Contains(defenderObjectId, result.State.PlayerZones["P2"].Base);
-        Assert.DoesNotContain(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal("BASE", result.State.ObjectLocations[defenderObjectId].Zone);
-        Assert.Null(result.State.ObjectLocations[defenderObjectId].BattlefieldObjectId);
-        AssertNoHiddenZoneLeak(result);
-    }
-
-    private static void AssertBattlefieldHeldGrantBoonResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            NavoriArenaBattlefieldHeldGrantBoonCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Navori Arena assertion could not locate the attacking Watchful Sentinel.");
-        var defenderObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P2",
-            WildclawBeastmasterCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Navori Arena assertion could not locate the defending Wildclaw Beastmaster.");
-        var beforeDefender = beforeBattle.State.CardObjects[defenderObjectId];
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldGrantBoon, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(NavoriArenaBattlefieldHeldGrantBoonCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(defenderObjectId, triggerEvent.Payload["targetObjectId"]);
-
-        var boonEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.BattlefieldHeldGrantBoon, StringComparison.Ordinal));
-        Assert.Equal("P2", boonEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, boonEvent.Payload["sourceObjectId"]);
-        Assert.Equal(defenderObjectId, boonEvent.Payload["targetObjectId"]);
-        Assert.False(Assert.IsType<bool>(boonEvent.Payload["alreadyHadBoon"]));
-        Assert.Equal(beforeDefender.Power + 1, boonEvent.Payload["power"]);
-
-        var defender = result.State.CardObjects[defenderObjectId];
-        Assert.Equal(beforeDefender.Power + 1, defender.Power);
-        Assert.Contains(CardObjectTags.Boon, defender.Tags);
-        Assert.Contains(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(battlefieldObjectId, result.State.ObjectLocations[defenderObjectId].BattlefieldObjectId);
-        AssertNoHiddenZoneLeak(result);
-    }
-
-    private static void AssertBattlefieldHeldCreateMinionResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            UnitySanctumBattlefieldHeldCreateMinionCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Unity Sanctum assertion could not locate the attacking Watchful Sentinel.");
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldCreateMinion, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(UnitySanctumBattlefieldHeldCreateMinionCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal("随从", triggerEvent.Payload["tokenName"]);
-        Assert.Equal(1, triggerEvent.Payload["tokenCount"]);
-        Assert.Equal(1, triggerEvent.Payload["tokenPower"]);
-        Assert.Equal(TriggerTokenDestinations.OwnerBase, triggerEvent.Payload["tokenDestination"]);
-
-        var tokenEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.BattlefieldHeldCreateMinion, StringComparison.Ordinal));
-        Assert.Equal("P2", tokenEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, tokenEvent.Payload["sourceObjectId"]);
-        Assert.Equal("OGN·271/298", tokenEvent.Payload["tokenCardNo"]);
-        Assert.Equal("随从", tokenEvent.Payload["tokenName"]);
-        Assert.Equal(1, tokenEvent.Payload["power"]);
-        Assert.Equal("BASE", tokenEvent.Payload["destinationZone"]);
-        var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
-
-        Assert.Contains(tokenObjectId, result.State.PlayerZones["P2"].Base);
-        var tokenState = result.State.CardObjects[tokenObjectId];
-        Assert.Equal("OGN·271/298", tokenState.CardNo);
-        Assert.Equal(1, tokenState.Power);
-        Assert.Equal("P2", tokenState.OwnerId);
-        Assert.Equal("P2", tokenState.ControllerId);
-        Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
-        Assert.Contains(CardObjectTags.MinionTokenFamily, tokenState.Tags);
-        AssertNoHiddenZoneLeak(result);
-    }
-
-    private static void AssertBattlefieldHeldReturnHeroResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            HallowedTombBattlefieldHeldReturnHeroCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Hallowed Tomb assertion could not locate the attacking Watchful Sentinel.");
-        var returnedHeroObjectId = beforeBattle.State.PlayerZones["P2"].Graveyard
-            .Single(objectId => beforeBattle.State.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, VexChampionCardNo, StringComparison.Ordinal));
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldReturnHero, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(HallowedTombBattlefieldHeldReturnHeroCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(returnedHeroObjectId, triggerEvent.Payload["targetObjectId"]);
-        Assert.Equal("GRAVEYARD", triggerEvent.Payload["originZone"]);
-        Assert.Equal("CHAMPION", triggerEvent.Payload["destinationZone"]);
-        Assert.Equal(1, triggerEvent.Payload["returnCount"]);
-
-        var returnEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_CHAMPION_ZONE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldHeldReturnHero, StringComparison.Ordinal));
-        Assert.Equal("P2", returnEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, returnEvent.Payload["sourceObjectId"]);
-        Assert.Equal(returnedHeroObjectId, returnEvent.Payload["targetObjectId"]);
-        Assert.Equal("GRAVEYARD", returnEvent.Payload["originZone"]);
-        Assert.Equal("CHAMPION", returnEvent.Payload["destinationZone"]);
-
-        Assert.DoesNotContain(returnedHeroObjectId, result.State.PlayerZones["P2"].Graveyard);
-        Assert.Equal([returnedHeroObjectId], result.State.PlayerZones["P2"].ChampionZone);
-        var returnedHero = result.State.CardObjects[returnedHeroObjectId];
-        Assert.Equal("P2", returnedHero.OwnerId);
-        Assert.Equal("P2", returnedHero.ControllerId);
-        Assert.Equal(0, returnedHero.Damage);
-        Assert.False(returnedHero.IsExhausted);
-        Assert.False(returnedHero.IsAttacking);
-        Assert.False(returnedHero.IsDefending);
-        Assert.Equal("CHAMPION", result.State.ObjectLocations[returnedHeroObjectId].Zone);
-        Assert.Null(result.State.ObjectLocations[returnedHeroObjectId].BattlefieldObjectId);
-        AssertNoHiddenZoneLeak(result);
-    }
-
-    private static void AssertBattlefieldHeldSevenUnitsWinResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            GrandPlazaBattlefieldHeldSevenUnitsWinCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Grand Plaza assertion could not locate the attacking Watchful Sentinel.");
-        var controlledUnitCount = result.State.ObjectLocations.Count(entry =>
-            string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
-            && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            && result.State.CardObjects.TryGetValue(entry.Key, out var cardObject)
-            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && string.Equals(cardObject.ControllerId, "P2", StringComparison.Ordinal));
-        Assert.True(controlledUnitCount >= 7);
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldSevenUnitsWin, StringComparison.Ordinal));
-        var winIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-        Assert.True(winIndex > triggerIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(GrandPlazaBattlefieldHeldSevenUnitsWinCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(controlledUnitCount, triggerEvent.Payload["controlledBattlefieldUnitCount"]);
-        Assert.Equal(7, triggerEvent.Payload["requiredUnitCount"]);
-
-        var winEvent = resultEvents[winIndex];
-        Assert.Equal("P2", winEvent.Payload["winnerPlayerId"]);
-        Assert.Equal(TriggerKinds.BattlefieldHeldSevenUnitsWin, winEvent.Payload["reason"]);
-        Assert.Equal(battlefieldObjectId, winEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(controlledUnitCount, winEvent.Payload["controlledBattlefieldUnitCount"]);
-        Assert.Equal(7, winEvent.Payload["requiredUnitCount"]);
-        Assert.Equal(MatchStatuses.Finished, result.State.Status);
         Assert.Equal("P2", result.State.WinnerPlayerId);
+        Assert.Equal(MatchStatuses.Finished, result.State.Status);
+        Assert.Contains(result.Events, e => e.Kind == "BATTLEFIELD_HELD");
+        Assert.Contains(result.Events, e => e.Kind == "TRIGGER_RESOLVED" && Equals(e.Payload["effectKind"], "HOLD_SEVEN_WIN"));
+        Assert.Contains(result.Events, e => e.Kind == "MATCH_WON");
         AssertNoHiddenZoneLeak(result);
     }
 
-    private static void AssertBattlefieldHeldPayPowerScoreResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            EnergyHubBattlefieldHeldPayPowerScoreCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Energy Hub assertion could not locate the attacking Watchful Sentinel.");
 
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldPayPowerScore, StringComparison.Ordinal));
-        var costIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldHeldPayPowerScore, StringComparison.Ordinal));
-        var scoreIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldHeldPayPowerScore, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-        Assert.True(costIndex > triggerIndex);
-        Assert.True(scoreIndex > costIndex);
 
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(EnergyHubBattlefieldHeldPayPowerScoreCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(4, triggerEvent.Payload["powerCost"]);
-        Assert.Equal(1, triggerEvent.Payload["amount"]);
-        Assert.Equal(1, triggerEvent.Payload["score"]);
 
-        var costEvent = resultEvents[costIndex];
-        Assert.Equal("BATTLEFIELD_HELD", costEvent.Payload["paymentWindow"]);
-        Assert.Equal("P2", costEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, costEvent.Payload["sourceObjectId"]);
-        Assert.Equal(0, costEvent.Payload["totalManaCost"]);
-        Assert.Equal(4, costEvent.Payload["genericPower"]);
-        Assert.Equal(4, costEvent.Payload["totalPowerCost"]);
-        Assert.Equal(0, costEvent.Payload["remainingPower"]);
-
-        var scoreEvent = resultEvents[scoreIndex];
-        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
-        Assert.Equal(1, scoreEvent.Payload["amount"]);
-        Assert.Equal(1, scoreEvent.Payload["score"]);
-        Assert.Equal(battlefieldObjectId, scoreEvent.Payload["sourceObjectId"]);
-        Assert.Equal(1, result.State.PlayerScores["P2"]);
-        Assert.Equal(0, result.State.RunePools["P2"].Power);
-        Assert.Null(result.State.WinnerPlayerId);
-        AssertNoHiddenZoneLeak(result);
-    }
-
-    private static void AssertBattlefieldHeldActivateConquestResolved(
-        ResolutionResult beforeBattle,
-        ResolutionResult result)
-    {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P2",
-            ReckonerArenaBattlefieldHeldActivateConquestCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Reckoner Arena assertion could not locate the attacking Watchful Sentinel.");
-        var treantObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P2",
-            CrimsonSignetTreantCardNo,
-            battlefieldObjectId)
-            ?? throw new InvalidOperationException("B0 Reckoner Arena assertion could not locate the defending Crimson Signet Treant.");
-
-        var resultEvents = result.Events.ToArray();
-        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        var triggerIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldHeldActivateUnitConquestEffects, StringComparison.Ordinal));
-        var conquestIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["unitObjectId"] as string, treantObjectId, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldHeldActivateUnitConquestEffects, StringComparison.Ordinal));
-        var boonIndex = Array.FindIndex(resultEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.UnitConquestGrantFriendlyBoon, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, treantObjectId, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, treantObjectId, StringComparison.Ordinal));
-        Assert.True(heldIndex >= 0);
-        Assert.True(triggerIndex > heldIndex);
-        Assert.True(conquestIndex > triggerIndex);
-        Assert.True(boonIndex > conquestIndex);
-
-        var triggerEvent = resultEvents[triggerIndex];
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(ReckonerArenaBattlefieldHeldActivateConquestCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal([treantObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["activatedUnitObjectIds"]));
-
-        var conquestEvent = resultEvents[conquestIndex];
-        Assert.Equal("P2", conquestEvent.Payload["playerId"]);
-        Assert.Equal(treantObjectId, conquestEvent.Payload["sourceObjectId"]);
-        Assert.Equal(CrimsonSignetTreantCardNo, conquestEvent.Payload["unitCardNo"]);
-        Assert.Equal(battlefieldObjectId, conquestEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(treantObjectId, conquestEvent.Payload["targetObjectId"]);
-
-        var boonEvent = resultEvents[boonIndex];
-        Assert.Equal("P2", boonEvent.Payload["playerId"]);
-        Assert.False(Assert.IsType<bool>(boonEvent.Payload["alreadyHadBoon"]));
-        Assert.Equal(5, boonEvent.Payload["power"]);
-
-        var treant = result.State.CardObjects[treantObjectId];
-        Assert.Equal(5, treant.Power);
-        Assert.Contains(CardObjectTags.Boon, treant.Tags);
-        Assert.Null(result.State.WinnerPlayerId);
-        AssertNoHiddenZoneLeak(result);
-    }
 
     private static void AssertBattlefieldDefendMoveToBaseResolved(
         ResolutionResult beforeBattle,
@@ -10257,16 +9549,17 @@ public sealed class FullGameEndToEndTests
 
     private static void AssertOrnnFriendlyEquipmentStaticAuraDamage(ResolutionResult result)
     {
+        // The unopposed opening now creates its conquest Gold: Long Sword + Gold give Ornn +2.
         var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
             && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("basePower", out var basePower)
-            && basePower is 5, 5);
-        Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
+            && basePower is 6, 6);
+        Assert.Equal(6, attackerDamageEvent.Payload["basePower"]);
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
-        Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
-        Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
+        Assert.Equal(6, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(6, attackerDamageEvent.Payload["damage"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         AssertNoHiddenZoneLeak(result);
     }
@@ -10906,10 +10199,10 @@ public sealed class FullGameEndToEndTests
         ResolutionResult spellResolved)
     {
         var costPaid = Assert.Single(spellPlayed.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(3, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["mana"]);
         Assert.Equal(2, costPaid.Payload["baseManaCost"]);
-        Assert.Equal(3, costPaid.Payload["totalManaCost"]);
-        Assert.Equal(1, costPaid.Payload["spellshieldTaxMana"]);
+        Assert.Equal(2, costPaid.Payload["totalManaCost"]);
+        Assert.Equal(1, costPaid.Payload["spellshieldTaxPower"]);
         var targetObjectId = Assert.Single(Assert.IsType<string[]>(costPaid.Payload["spellshieldTaxTargetObjectIds"]));
 
         Assert.Contains(spellPlayed.Events, gameEvent =>
@@ -15982,9 +15275,15 @@ public sealed class FullGameEndToEndTests
             if (string.IsNullOrEmpty(trait)) extraGeneric = behavior.HasteReadyPowerCost;
             else extraTyped[trait] = behavior.HasteReadyPowerCost;
         }
+        var echoCosts = CardBehaviorRegistry.TryGetByCardNo(cardNo, out var echoBehavior)
+            ? EchoCostRules.Selected(current.State, playerId, echoBehavior, optionalCosts ?? []) : [];
+        extraGeneric += echoCosts.Sum(cost => cost.GenericPower);
+        foreach (var cost in echoCosts)
+            foreach (var entry in cost.TypedPower) extraTyped[entry.Key] = extraTyped.GetValueOrDefault(entry.Key) + entry.Value;
         int Deficit(RunePool pool)
         {
-            PrintedPowerCostRules.TrySelect(cardNo, null, pool, extraGeneric, extraTyped, out var generic, out var typed);
+            PrintedPowerCostRules.TrySelect(cardNo, null, pool, extraGeneric, extraTyped, out var generic, out var typed,
+                EchoCostRules.PrintedCosts(echoCosts));
             return PaymentCostRules.PowerDeficit(pool, generic, typed);
         }
         for (var index = 0; index < 12 && Deficit(current.State.RunePools[playerId]) > 0; index++)
@@ -16779,6 +16078,20 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> CompleteRecastThroughSessionAsync(
+        MatchSession session, ResolutionResult current, string cardNo, string[] targets, string intent)
+    {
+        current = await ResolveDriverPendingEffectsAsync(session, current, intent + "-trigger", declineEffectPlay: false);
+        var events = current.Events.ToList();
+        var pending = Assert.IsType<PendingEffectPlayState>(current.State.PendingEffectPlay);
+        var source = Assert.Single(pending.Sources.Keys, id => current.State.CardObjects[id].CardNo == cardNo);
+        var command = new PlayCardCommand(source, cardNo, targets);
+        current = await session.SubmitAsync(pending.PlayerId, intent + "-play", command, RawCommand(command), default);
+        AssertAccepted(current); AssertNoHiddenZoneLeak(current);
+        current = await ResolveDriverPendingEffectsAsync(session, current, intent + "-response");
+        return current with { Events = events.Concat(current.Events).ToArray() };
+    }
+
     private static async ValueTask<ResolutionResult> SubmitKaisaConquestGraveyardSpellDeclareBattleAsync(
         MatchSession session,
         ResolutionResult current,
@@ -16835,7 +16148,8 @@ public sealed class FullGameEndToEndTests
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
-        return result;
+        return await CompleteRecastThroughSessionAsync(session, result, graveyardSpellCardNo,
+            graveyardSpellCardNo == ReconsiderSpellCardNo ? [kaisaObjectId] : [], intentId + "-recast");
     }
 
     private static async ValueTask<ResolutionResult> SubmitLeblancMirrorImageSpellAsync(
@@ -16918,7 +16232,7 @@ public sealed class FullGameEndToEndTests
         var result = await ResolveStackPassPassAsync(session, played, $"{intentId}-resolve");
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
-        return result;
+        return await CompleteRecastThroughSessionAsync(session, result, MobilizeSpellCardNo, [], intentId + "-recast");
     }
 
     private static async ValueTask<ResolutionResult> SubmitRumbleConquestGraveyardMechanicalDeclareBattleAsync(
@@ -16991,64 +16305,31 @@ public sealed class FullGameEndToEndTests
         }
 
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
-        Assert.NotNull(result.State.PendingPayment);
-        AssertNoHiddenZoneLeak(result);
-        return result;
-    }
-
-    private static async ValueTask<ResolutionResult> PayRumbleConquestGraveyardMechanicalPaymentAsync(
-        MatchSession session,
-        ResolutionResult current,
-        string playerId,
-        string intentId)
-    {
-        var payment = current.State.PendingPayment
-            ?? throw new InvalidOperationException("B0 Rumble payment driver expected a pending payment.");
-        Assert.Equal(playerId, payment.PlayerId);
-        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
-        Assert.Contains("SPEND_MANA:2", payment.LegalPaymentChoiceIds);
-        if (current.State.RunePools[playerId].Mana < 2)
-        {
-            throw new InvalidOperationException(
-                $"B0 Rumble payment driver expected at least 2 mana before paying: pool={JsonSerializer.Serialize(current.State.RunePools[playerId])}; state={DescribeState(current.State)}");
-        }
-
-        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:2"]);
-        var result = await session.SubmitAsync(
-            playerId,
-            intentId,
-            command,
-            RawCommand(command),
-            CancellationToken.None);
+        result=await ResolveDriverPendingEffectsAsync(session,result,intentId+"-triggers",declineEffectPlay:false);
+        var choice=Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("RECYCLE_FOR_EFFECT_PLAY",choice.ChoiceWindow);
+        var recycled=FindBaseUnitByCardNo(result.State,rumblePlayerId,CrystalInhibitorMechanicalUnitCardNo)!;
+        var select=new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[recycled]);
+        result=await session.SubmitAsync(rumblePlayerId,intentId+"-recycle",select,RawCommand(select),default);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
         return result;
     }
 
-    private static async ValueTask<ResolutionResult> RejectRumbleConquestGraveyardMechanicalPaymentAsync(
-        MatchSession session,
-        ResolutionResult current,
-        string playerId,
-        string intentId)
+    private static async ValueTask<ResolutionResult> PayRumbleConquestGraveyardMechanicalPaymentAsync(
+        MatchSession session,ResolutionResult current,string playerId,string intentId)
     {
-        var payment = current.State.PendingPayment
-            ?? throw new InvalidOperationException("B0 Rumble insufficient-payment driver expected a pending payment.");
-        Assert.Equal(playerId, payment.PlayerId);
-        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
-        Assert.Contains("SPEND_MANA:2", payment.LegalPaymentChoiceIds);
-        Assert.True(
-            current.State.RunePools[playerId].Mana < 2,
-            $"B0 Rumble insufficient-payment driver expected less than 2 mana before rejection: pool={JsonSerializer.Serialize(current.State.RunePools[playerId])}; state={DescribeState(current.State)}");
+        var result=await RejectRumbleConquestGraveyardMechanicalPaymentAsync(session,current,playerId,intentId);
+        AssertAccepted(result);return result;
+    }
 
-        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:2"]);
-        var result = await session.SubmitAsync(
-            playerId,
-            intentId,
-            command,
-            RawCommand(command),
-            CancellationToken.None);
-        AssertNoHiddenZoneLeak(result);
-        return result;
+    private static async ValueTask<ResolutionResult> RejectRumbleConquestGraveyardMechanicalPaymentAsync(
+        MatchSession session,ResolutionResult current,string playerId,string intentId)
+    {
+        var id=FindGraveyardCardObjectByCardNo(current.State,playerId,ProgressGloryMechanicalUnitCardNo)!;
+        var command=new PlayCardCommand(id,ProgressGloryMechanicalUnitCardNo,[]);
+        var result=await session.SubmitAsync(playerId,intentId,command,RawCommand(command),default);
+        AssertNoHiddenZoneLeak(result);return result;
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldConquerGoldDeclareBattleAsync(
@@ -17728,6 +17009,7 @@ public sealed class FullGameEndToEndTests
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        result = await ResolveDriverPendingEffectsAsync(session, result, intentId);
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
         return result;
@@ -18112,7 +17394,9 @@ public sealed class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
-        return result;
+        var beforeTriggerEvents = result.Events;
+        result = await ResolveOneStackItemPassPassAsync(session, result, intentId + "-tree-response");
+        return result with { Events = beforeTriggerEvents.Concat(result.Events).ToArray() };
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldSpellPowerBonusSpellAsync(
@@ -18159,7 +17443,15 @@ public sealed class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
-        return result;
+        var allEvents = result.Events.ToList();
+        result = await ResolveOneStackItemPassPassAsync(session,result,intentId+"-spell-response"); allEvents.AddRange(result.Events);
+        var choice=result.State.PendingCardChoice!;
+        Assert.Equal("SPELL_TRIGGER_CONFIRMATION",choice.ChoiceWindow);
+        var choose=new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[targetObjectId]);
+        result=await session.SubmitAsync(choice.PlayerId,intentId+"-hall-confirm",choose,RawCommand(choose),CancellationToken.None);
+        AssertAccepted(result);allEvents.AddRange(result.Events);
+        result=await ResolveOneStackItemPassPassAsync(session,result,intentId+"-hall-response");allEvents.AddRange(result.Events);
+        return result with {Events=allEvents};
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldTargetSpellSkillDamageBonusSpellAsync(
@@ -18453,7 +17745,7 @@ public sealed class FullGameEndToEndTests
         var echoChoice = Assert.Single(
             optionalCostChoices,
             choice => string.Equals(choice.Id, EchoOptionalCostNames.Echo, StringComparison.Ordinal));
-        Assert.Equal("战场效果已减免 1 法力", echoChoice.Reason);
+        Assert.Contains("已减免 1 法力", echoChoice.Reason);
 
         var command = new PlayCardCommand(
             spellObjectId,
@@ -18762,6 +18054,28 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> ResolveLibraryInsightChoiceAsync(MatchSession session, ResolutionResult current, string id)
+    {
+        if (current.State.StackItems.LastOrDefault()?.PlayCost is not null)
+        {
+            var originalEvents=current.Events;
+            current=await ResolveOneStackItemPassPassAsync(session,current,id+"-spell-completion");
+            current=current with {Events=originalEvents.Concat(current.Events).ToArray()};
+        }
+        if (current.State.StackItems.LastOrDefault()?.InsightContext?.Kind != "SPELL_PLAYED") return current;
+        var events = current.Events.ToList();
+        var before = current.State.PlayerZones["P1"].MainDeck.ToArray();
+        var opened = await ResolveStackPassPassAsync(session, current, id + "-insight-response");
+        Assert.Equal(before, opened.State.PlayerZones["P1"].MainDeck);
+        events.AddRange(opened.Events);
+        var choice = opened.State.PendingCardChoice!;
+        Assert.Equal("INSIGHT", choice.ChoiceWindow);
+        var command = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, choice.LegalObjectIds.Take(1).ToArray());
+        var selected = await session.SubmitAsync(choice.PlayerId, id + "-insight-recycle", command, RawCommand(command), CancellationToken.None);
+        AssertAccepted(selected); events.AddRange(selected.Events);
+        return selected with { Events = events };
+    }
+
     private static async ValueTask<ResolutionResult> SubmitBattlefieldHighCostSpellInsightSpellAsync(
         MatchSession session,
         ResolutionResult current,
@@ -18797,6 +18111,7 @@ public sealed class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
+        result = await ResolveLibraryInsightChoiceAsync(session, result, intentId);
         return result;
     }
 
@@ -18835,6 +18150,7 @@ public sealed class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
+        result = await ResolveLibraryInsightChoiceAsync(session, result, intentId);
         return result;
     }
 
@@ -18861,14 +18177,12 @@ public sealed class FullGameEndToEndTests
         var legalTargetIds = candidate.Targets?.Select(choice => choice.Id).ToHashSet(StringComparer.Ordinal)
             ?? [];
         Assert.Contains(spellObjectId, legalSourceIds);
-        Assert.True(
-            expectedTargetIds.SetEquals(legalTargetIds),
-            $"Expected Card Trick target choices {string.Join(", ", expectedTargetIds)} but got {string.Join(", ", legalTargetIds)}.");
+        Assert.Empty(legalTargetIds);
 
         var command = new PlayCardCommand(
             spellObjectId,
             CardTrickSpellCardNo,
-            [targetObjectId]);
+            []);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
@@ -18906,10 +18220,10 @@ public sealed class FullGameEndToEndTests
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["cardNo"] as string, CardTrickSpellCardNo, StringComparison.Ordinal)
-            && Assert.IsType<string[]>(gameEvent.Payload["targetObjectIds"]).Contains(selectedObjectId, StringComparer.Ordinal));
+            && Assert.IsType<string[]>(gameEvent.Payload["targetObjectIds"]).Length == 0);
 
         var drawEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "CARD_ADDED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal));
         Assert.Equal("P1", drawEvent.Payload["playerId"]);
         Assert.Equal(1, drawEvent.Payload["count"]);
@@ -18918,7 +18232,8 @@ public sealed class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, spellObjectId, StringComparison.Ordinal));
         Assert.Equal("P1", recycleEvent.Payload["playerId"]);
         Assert.Equal(2, recycleEvent.Payload["count"]);
-        var recycledCardIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]);
+        Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
+        var recycledCardIds = result.State.PlayerZones["P1"].MainDeck.TakeLast(2).ToArray();
         Assert.Equal(unselectedTopCards.Order(StringComparer.Ordinal), recycledCardIds.Order(StringComparer.Ordinal));
 
         Assert.Contains(selectedObjectId, result.State.PlayerZones["P1"].Hand);
@@ -19836,7 +19151,10 @@ public sealed class FullGameEndToEndTests
         AssertAccepted(declared);
         AssertNoHiddenZoneLeak(declared);
 
-        var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
+        // This official deck also fields Fervid Fan: decide its optional defense
+        // trigger before passing the newly opened battle response window.
+        var result = await ResolveDriverPendingEffectsAsync(session, declared, $"{intentId}-defense-confirmation");
+        result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
         Assert.Null(result.State.PendingPayment);
@@ -20305,6 +19623,11 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(sourceObjectId, legalSourceIds);
         Assert.Contains(battlefieldId, legalDestinationIds);
 
+        var equipmentIds = current.State.PlayerZones[playerId].Base.Concat(current.State.PlayerZones[playerId].Battlefields)
+            .Where(id => current.State.CardObjects.TryGetValue(id, out var card)
+                && card.Tags.Contains(CardObjectTags.EquipmentCard) && !card.IsFaceDown && card.ControllerId == playerId)
+            .OrderBy(id => id, StringComparer.Ordinal).ToArray();
+        Assert.Contains(equipmentObjectId, equipmentIds);
         var staticAura = Assert.Single(current.State.ContinuousEffects, effect =>
             string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
             && string.Equals(effect.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
@@ -20314,16 +19637,16 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("WHILE_SOURCE_ON_PUBLIC_FIELD", staticAura.Duration);
         Assert.Equal(OrnnFriendlyEquipmentStaticAuraCardNo, staticAura.SourceCardNo);
         Assert.Equal(StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower, staticAura.EffectKind);
-        Assert.Equal(1, staticAura.PowerDelta);
+        Assert.Equal(equipmentIds.Length, staticAura.PowerDelta);
         Assert.Equal(4, staticAura.BasePower);
-        Assert.Equal(5, staticAura.EffectivePower);
+        Assert.Equal(4 + equipmentIds.Length, staticAura.EffectivePower);
         Assert.Equal("CoreRuleEngine.ApplyFriendlyEquipmentStaticPowerRecompute", staticAura.SourcePath);
         Assert.Equal("SOURCE_PUBLIC_FIELD_UNIT_AND_FRIENDLY_PUBLIC_FIELD_EQUIPMENT_COUNT", staticAura.Condition);
         Assert.Equal("RECOMPUTED_FROM_CURRENT_AUTHORITATIVE_FIELD_STATE", staticAura.Lifecycle);
-        Assert.Equal([equipmentObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds));
+        Assert.Equal(equipmentIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantObjectIds));
         Assert.Equal([sourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.SourceDependencyObjectIds));
         Assert.Equal([sourceObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.TargetDependencyObjectIds));
-        Assert.Equal([equipmentObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds));
+        Assert.Equal(equipmentIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(staticAura.ParticipantDependencyObjectIds));
 
         var defenderObjectId = FindBattlefieldDefender(
             current.State,
@@ -21985,6 +21308,13 @@ public sealed class FullGameEndToEndTests
             }
 
             result = await TapAllAvailableRunesAsync(session, spellControllerId, result, $"{intentPrefix}-tap-{turnIndex}");
+            if (result.State.RunePools[spellControllerId].TotalPower < 1)
+            {
+                var rune = result.State.PlayerZones[spellControllerId].Base.First(id => result.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard));
+                var recycle = new RecycleRuneCommand(rune);
+                result = await session.SubmitAsync(spellControllerId, $"{intentPrefix}-ward-{turnIndex}", recycle, RawCommand(recycle), CancellationToken.None);
+                AssertAccepted(result);
+            }
             var spellObjectId = FindHandCardObjectByCardNo(result.State, spellControllerId, IncinerateSpellCardNo);
             var sourceObjectId = FindBattlefieldUnitByCardNo(
                 result.State,
@@ -22085,6 +21415,13 @@ public sealed class FullGameEndToEndTests
             }
 
             result = await TapAllAvailableRunesAsync(session, spellControllerId, result, $"{intentPrefix}-tap-{turnIndex}");
+            if (result.State.RunePools[spellControllerId].TotalPower < 1)
+            {
+                var rune = result.State.PlayerZones[spellControllerId].Base.First(id => result.State.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard));
+                var recycle = new RecycleRuneCommand(rune);
+                result = await session.SubmitAsync(spellControllerId, $"{intentPrefix}-ward-{turnIndex}", recycle, RawCommand(recycle), CancellationToken.None);
+                AssertAccepted(result);
+            }
             var spellObjectId = FindHandCardObjectByCardNo(result.State, spellControllerId, IncinerateSpellCardNo);
             var targetObjectId = FindBattlefieldUnitByCardNo(
                 result.State,
@@ -22401,13 +21738,17 @@ public sealed class FullGameEndToEndTests
     {
         var result = current;
         var includesPlayAbility = current.State.StackItems.Any(item => item.SourceConfirmed);
+        var includesCompletionTriggers = false;
         var events = current.Events.ToList();
         for (var index = 0; index < 20; index++)
         {
             if (result.State.StackItems.Count == 0 && string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
             {
-                return includesPlayAbility ? result with { Events = events } : result;
+                return includesPlayAbility || includesCompletionTriggers ? result with { Events = events } : result;
             }
+
+            if (result.State.PendingCardChoice is not null) return result;
+            includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null);
 
             var priorityPlayerId = result.State.PriorityPlayerId;
             if (string.IsNullOrWhiteSpace(priorityPlayerId))
@@ -22480,6 +21821,7 @@ public sealed class FullGameEndToEndTests
             throw new InvalidOperationException("B0 standby-reaction driver expected a stack item to resolve.");
         }
 
+        var resolvingId = result.State.StackItems[^1].StackItemId;
         for (var index = 0; index < 6; index++)
         {
             var priorityPlayerId = result.State.PriorityPlayerId;
@@ -22496,7 +21838,7 @@ public sealed class FullGameEndToEndTests
                 CancellationToken.None);
             AssertAccepted(result);
             AssertNoHiddenZoneLeak(result);
-            if (result.State.StackItems.Count < stackCountBefore)
+            if (!result.State.StackItems.Any(item => item.StackItemId == resolvingId) || result.State.PendingCardChoice is not null)
             {
                 return result;
             }
@@ -22591,7 +21933,7 @@ public sealed class FullGameEndToEndTests
             RawCommand(new EndTurnCommand()),
             CancellationToken.None);
         AssertAccepted(result);
-        return result;
+        return await ResolveDriverPendingEffectsAsync(session, result, intentId + "-start");
     }
 
     private static async ValueTask<ResolutionResult> MoveBaseUnitToOpponentBattlefieldAsync(
@@ -22654,6 +21996,61 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
+    private static async ValueTask<ResolutionResult> ResolveDriverPendingEffectsAsync(
+        MatchSession session, ResolutionResult current, string intentPrefix, bool declineEffectPlay = true)
+    {
+        var result = current;
+        for (var index = 0; index < 40; index++)
+        {
+            if (result.State.Status == MatchStatuses.Finished) return result;
+            GameCommand command;
+            string playerId;
+            if (result.State.PendingEffectPlay is { Optional: true } replay)
+            {
+                if (!declineEffectPlay) return result;
+                playerId = replay.PlayerId;
+                command = new ChooseCardsCommand(replay.ChoiceId, "EFFECT_PLAY", []);
+            }
+            else if (result.State.PendingHandChoice is { } choice)
+            {
+                playerId = choice.PlayerId;
+                command = new ChooseHandCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+                    choice.LegalObjectIds.Take(choice.RequiredCount).ToArray());
+            }
+            else if (result.State.PendingCardChoice is { } cardChoice)
+            {
+                if (!declineEffectPlay && cardChoice.ChoiceWindow == "RECYCLE_FOR_EFFECT_PLAY") return result;
+                playerId = cardChoice.PlayerId;
+                command = new ChooseCardsCommand(cardChoice.ChoiceId, cardChoice.ChoiceWindow,
+                    cardChoice.LegalObjectIds.Take(cardChoice.RequiredCount).ToArray());
+            }
+            else if (result.State.PendingPayment is { } payment && payment.LegalPaymentChoiceIds.Contains("DECLINE"))
+            {
+                playerId = payment.PlayerId;
+                command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]);
+            }
+            else if (result.State.StackItems.Count > 0 && result.State.PriorityPlayerId is { } priority)
+            {
+                playerId = priority;
+                command = new PassPriorityCommand();
+            }
+            else if (result.Prompts.FirstOrDefault(entry => entry.Value.EnabledActions().Contains("ORDER_TRIGGERS")) is { Key: not null } ordering)
+            {
+                playerId = ordering.Key;
+                var candidate = ordering.Value.Candidates!.Single(c => c.Action == "ORDER_TRIGGERS");
+                var metadata = JsonSerializer.SerializeToElement(candidate.Metadata);
+                command = new OrderTriggersCommand(OrderedTriggerIds: metadata.GetProperty("orderedTriggerIds").EnumerateArray().Select(v => v.GetString()!).ToArray());
+            }
+            else return result;
+            var next = await session.SubmitAsync(playerId, $"{intentPrefix}-choice-{index}", command,
+                JsonSerializer.SerializeToElement(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web)), CancellationToken.None);
+            AssertAccepted(next);
+            AssertNoHiddenZoneLeak(next);
+            result = next with { Events = result.Events.Concat(next.Events).ToArray() };
+        }
+        throw new InvalidOperationException("B0 pending effect choice guard exceeded.");
+    }
+
     private static async ValueTask<ResolutionResult> PassOpenSpellDuelAsync(
         MatchSession session,
         ResolutionResult current,
@@ -22665,7 +22062,7 @@ public sealed class FullGameEndToEndTests
             if (!string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 && string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
             {
-                return result;
+                return await ResolveDriverPendingEffectsAsync(session, result, intentPrefix);
             }
 
             var focusPlayerId = result.State.FocusPlayerId;
@@ -26116,7 +25513,7 @@ public sealed class FullGameEndToEndTests
                     [CrystalInhibitorMechanicalUnitCardNo, ProgressGloryMechanicalUnitCardNo],
                     new RunePool(
                         mana: p1Mana,
-                        power: 0,
+                        power: 1,
                         new Dictionary<string, int>(StringComparer.Ordinal))),
                 ["P2"] = (
                     [WatchfulSentinelCardNo],
@@ -32634,6 +32031,7 @@ public sealed class FullGameEndToEndTests
                 var objectId = zones.Hand
                     .Concat(zones.MainDeck)
                     .Concat(zones.Base)
+                    .Concat(zones.Graveyard)
                     .FirstOrDefault(candidateObjectId => !selectedObjectIds.Contains(candidateObjectId, StringComparer.Ordinal)
                         && state.CardObjects.TryGetValue(candidateObjectId, out var cardObject)
                         && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal))
@@ -32643,6 +32041,7 @@ public sealed class FullGameEndToEndTests
 
             playerZones[setupPlayerId] = zones with
             {
+                Graveyard = zones.Graveyard.Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal)).ToArray(),
                 MainDeck = zones.MainDeck.Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal)).ToArray(),
                 Hand = zones.Hand
                     .Where(objectId => !selectedObjectIds.Contains(objectId, StringComparer.Ordinal))

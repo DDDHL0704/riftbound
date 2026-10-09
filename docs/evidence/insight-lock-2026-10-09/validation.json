@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-09",
+  "status": "SCOPED_INSIGHT_AND_SPELL_LOCK_VERIFIED_NOT_ALL_RULES",
+  "officialCoreUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+  "officialCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "officialCatalogSha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+  "officialRefresh": "Fixed CN core PDF retrieved by HTTP; unchanged hash; not an all-announcement freshness claim",
+  "clauses": [
+    "321",
+    "436.1",
+    "436.3.a",
+    "436.4",
+    "436.4.a"
+  ],
+  "cardNumbers": [
+    "UNL-131/219",
+    "UNL-063/219",
+    "UNL-190/219"
+  ],
+  "backendFull": {
+    "total": 8869,
+    "passed": 8869,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/insight-lock-verified.trx",
+    "sha256": "c007f70010790f0eaccab7375ea73aacff8e0bde7ada3492458d8c81d72befeb",
+    "log": "full-verified.log"
+  },
+  "focused": {
+    "total": 57,
+    "passed": 57,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/insight-lock-scoped-final.trx",
+    "sha256": "82a45793d3380883f2987d8be5832227f3107430924a57a7b06ab3910099e19b",
+    "log": "scoped-final.log"
+  },
+  "nativeCommandRoundTrip": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/insight-lock-native-roundtrip.trx",
+    "sha256": "7ce940f8c3e9089652a768c84ce4fe5fd710a3ca0e6e5d745543197b81b0f1fa",
+    "log": "native-roundtrip.log"
+  },
+  "testCountsOverlap": true,
+  "nativeBuild": "Zero warnings and errors",
+  "nativeInteraction": "INSIGHT_INTERACTION_PASS",
+  "nativeVisualScope": "Production ActionBar and prompt/controller/command adapters using real backend private prompts; isolated scene, not a complete live match",
+  "replayHashes": {
+    "abandon-keep": "2c07a7422ce67eb1a52555404a64db1c67a276a0e3d3431516634404f734f1a7",
+    "abandon-recycle": "b12c6dee2f97f604c8addc5fc6730beb971cce41f90839c6ee1547a86ba39c0b",
+    "eclipse-keep": "877afbfa9e7a77d11d75e7b633b84e28060c7baae911cb24e13613bac6c69890",
+    "eclipse-recycle": "7bc054b90f95c8455f8da781b29c14cec709ba5c260aae47b55d94403e82c344"
+  },
+  "runningServiceRestarted": false,
+  "packagesReplaced": false,
+  "historicalCompatibilityAdded": false,
+  "remaining": [
+    "Multiple-card Insight and private-choice repeat continuations",
+    "Lost Library forced top-card recycle and public card-ID event; code-confirmed, not fixed this batch",
+    "Other Insight sources and basic-rule/QA audit",
+    "Ability counters, opponent optional payments, retargeting and counter replacements",
+    "Jhin special banish ownership/tracking",
+    "Paired live clients, packages and Windows acceptance"
+  ],
+  "sourceHashes": {
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "9c5c2d84c4b9d16d7acb566136fd41dc6398f1fc3a7014e1cc2ddd6155d8a301",
+    "src/Riftbound.Engine/CoreRuleEngine.Insight.cs": "866a51a1fb98800d4d50e2d9631e617d27ec16cc4e1df697fd848c7dbdbbe6d7",
+    "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs": "2798841c2f1332f34368f2c4f93658f69406b2680cf586c05749d86162159ecb",
+    "src/Riftbound.Engine/CoreRuleEngine.PlayCostPreview.cs": "1a0d3f57836ddf8716d5580bc9cfd2d583b3b0c18c4c240f50fe4c2d9748154d",
+    "src/Riftbound.Engine/CardBehaviorRegistry.cs": "49d872717a94eb864a40aacec86fb39ca87b52c8313b1196ce4adadedb423000",
+    "src/Riftbound.Engine/CardPermissionKeywordRules.cs": "dc9ae17810ade6665f3016d7a882421a41be4cb724fef194e025e3e2d592784a",
+    "src/Riftbound.Engine/MatchSession.cs": "d7cf2f99da7d5537264d8f2f0061d0b18858635398e083ac332ce469933769fe",
+    "src/Riftbound.Engine/MatchRecovery.cs": "a22def5ec0f99c7ae4ac5c537b78170631ebe74136955c462d922c020a9f1398",
+    "clients/godot/scripts/debug/InsightInteractionProof.cs": "1b834f331f3148b1dc0c906dba7a7bc054eeee4acd8a736f43f831a51ed025ee",
+    "clients/godot/scenes/debug/InsightInteractionProof.tscn": "d243dadf75c88a1c9ab58d087614a6bc89c00b05101be986962e4d080abe1f50",
+    "clients/godot/scripts/Main.cs": "b1a045a757393a9bb98ce287fc7ec767449544ff6daaed29db2dede98dbfbb9c",
+    "clients/godot/scripts/ui/ActionBar.cs": "bc4123bdf8a8140beba4760335b37e6887e120e485ff656692ed1700dd6167d5",
+    "clients/godot/scripts/interaction/PromptInteractionController.cs": "995c72285dd5cd327ec568a4db48d5f0226fbf200a6c7b312fce2693bfe3446b",
+    "tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs": "43ab2cb3faf72f51b4a460c1a9c3ded60cbe111a0687273788462a31e67ff295",
+    "tests/Riftbound.ConformanceTests/InsightContinuationTests.cs": "9e7e4afacd5481d58d0ae0c2f29cafb22820863df1231614956b039e35eaf7a9",
+    "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs": "d7f01060a2d8c0b4085b33fbb0d7c6f2979ef1b22ac82acfc1f308f379f8a2a4",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abandon-counter-spell-to-hand.fixture.json": "6481a2c166599f983d3421d87dd6e358479f91163e7a6b040c9913c09c007a7d",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-nightfall-lullaby-counter-spell.fixture.json": "b65a2177f8168c11a2e94aa628cd4e3c3d5b50f73b3138355b9c734abc3eeea3",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-eclipse-power-minus-4.fixture.json": "5f0250f60f6942ce72d412f3d526333aa52be968cf8a307ab3b7f9313029bc98",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-eclipse-power-minus-4-insight-recycle.fixture.json": "0402d317d56d4e0481945041549cf1ec2a65019a05132b4e78bdd211aea653ed"
+  },
+  "artifactHashes": {
+    "abandon-keep-replay.json": "6ae4fbc319fe9ac206fc7f4f3a26510b64534f0d6c224d3490f19289acabc484",
+    "abandon-prompt.json": "4bf99cb22595fff6a22a6f412c8977f653db848f3eb935588e81307b2cd6de02",
+    "abandon-recycle-replay.json": "0efa904dc1848288ce62e49e227e66773b0653d954437743154a676f84ef075f",
+    "eclipse-keep-replay.json": "cff752e8fb3ce2e927e22b435a2862f60142d329997cbc540b158826d1ccc76c",
+    "eclipse-prompt.json": "f757b017f528bab700417f084fdc72161a30b6c3bdb35b58d98e80215371c0ce",
+    "eclipse-recycle-replay.json": "b563c4a83d0803394a112ad50631ff63ba72e61558fe43863d8b9d8d96312923",
+    "full-verified.log": "acc38c5a56fb6e6be22635af9a8f99b85672b713923f8a62cc73f896d8538188",
+    "insight-source-inventory.json": "73475f2541c86abbff8e079667c2020da924a4530af958e40b150c7c8e240816",
+    "native-abandon-command.json": "2c4da67918856cf3595c8e6b7761e5ed098a096557503163507bdd6864328c18",
+    "native-abandon-keep-command.json": "ca946ab40d083f47647afdc4cb040f2118e8c4a429d754456beb5d913d9f67f7",
+    "native-abandon-keep.png": "79f06c44eac7e479ea6afc74484140aa4a41557a6981ca397462f80e394f1aab",
+    "native-abandon.png": "cc3c256dfe4d290e16f6cf2a21690b9e654aa6e8cc108a38798afefe0d16ce32",
+    "native-build-final.log": "e0396b85a6e58cfd02e930ede6aee1176bd5c1ce3c6bef5e1a1af9f3427ba12e",
+    "native-eclipse-command.json": "2c4da67918856cf3595c8e6b7761e5ed098a096557503163507bdd6864328c18",
+    "native-eclipse-keep-command.json": "ca946ab40d083f47647afdc4cb040f2118e8c4a429d754456beb5d913d9f67f7",
+    "native-eclipse-keep.png": "79f06c44eac7e479ea6afc74484140aa4a41557a6981ca397462f80e394f1aab",
+    "native-eclipse.png": "cc3c256dfe4d290e16f6cf2a21690b9e654aa6e8cc108a38798afefe0d16ce32",
+    "native-interaction-final.log": "b8879a59d14fc61c12736f0f69cef50a2eb90ba427588e52f8750f81cf33675a",
+    "native-roundtrip.log": "fd49c6a7edf143eecf282d3deee0c35ac778a878e5c87b421eb59fc0afd1001c",
+    "scoped-final.log": "154dc2c6294fdb852bfad110bbad293dae8f656c2d3f299736f01ee34367be42"
+  }
+}

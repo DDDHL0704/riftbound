@@ -10,7 +10,7 @@ public sealed class MatchRecoveryTests
 {
     private const string KnownTriggerQueueTriggeredEventKindsDiagnostic =
         "[UNIT_PLAYED_TO_BASE, UNIT_DESTROYED, BATTLEFIELD_HELD, UNIT_MOVED_TO_BATTLEFIELD, "
-        + "UNIT_MOVED_TO_BASE, CARD_PLAYED, BATTLE_DECLARED, OBJECT_DESTROYED, UNIT_READY]";
+        + "UNIT_MOVED_TO_BASE, CARD_PLAYED, SPELL_PLAY_COMPLETED, SPELL_TARGET_CHOSEN, BATTLEFIELD_CONQUERED, BATTLE_DECLARED, OBJECT_DESTROYED, UNIT_READY]";
     private const string KnownTriggerSourceVisibilitiesDiagnostic = "[VISIBLE, HIDDEN]";
 
     [Theory]
@@ -22942,7 +22942,7 @@ public sealed class MatchRecoveryTests
                     " ownerPlayerId ": "alice",
                     "": true,
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 2,
                     "remainingPower": 1,
@@ -22950,7 +22950,7 @@ public sealed class MatchRecoveryTests
                     "remainingPowerByTrait": { "blue": 1 },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 0
                 }
                 """)
@@ -23042,7 +23042,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 2,
                     "remainingPower": 1,
@@ -23050,7 +23050,7 @@ public sealed class MatchRecoveryTests
                     "remainingPowerByTrait": true,
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 0
                 }
                 """)
@@ -23117,7 +23117,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 2,
                     "remainingPower": 1,
@@ -23135,7 +23135,7 @@ public sealed class MatchRecoveryTests
                     },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 0
                 }
                 """)
@@ -23555,7 +23555,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 2,
                     "remainingPower": 1,
@@ -23563,7 +23563,7 @@ public sealed class MatchRecoveryTests
                     "remainingPowerByTrait": { "blue": 1 },
                     "allowedPaymentKinds": { "kind": "RUNE_COST" },
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 0
                 }
                 """)
@@ -23601,7 +23601,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 2,
                     "remainingPower": 1,
@@ -23609,7 +23609,7 @@ public sealed class MatchRecoveryTests
                     "remainingPowerByTrait": { "blue": 1 },
                     "allowedPaymentKinds": [ "RUNE_COST", " RUNE_COST ", "" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 0
                 }
                 """)
@@ -23657,7 +23657,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY_1",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER_1",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 2,
                     "remainingPower": 1,
@@ -23665,7 +23665,7 @@ public sealed class MatchRecoveryTests
                     "remainingPowerByTrait": { "blue": 1 },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 0
                 }
                 """),
@@ -23674,7 +23674,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-2",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY_2",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER_2",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 3,
                     "remainingPower": 2,
@@ -23682,7 +23682,7 @@ public sealed class MatchRecoveryTests
                     "remainingPowerByTrait": { "red": 2 },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 1
                 }
                 """)
@@ -23880,7 +23880,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 3,
                     "remainingPower": 5,
@@ -23893,7 +23893,7 @@ public sealed class MatchRecoveryTests
                     },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 0
                 }
                 """)
@@ -23941,7 +23941,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 3,
                     "remainingPower": 1,
@@ -23958,7 +23958,7 @@ public sealed class MatchRecoveryTests
                     },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 0
                 }
                 """)
@@ -30179,11 +30179,9 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
+        Assert.True(errors.Any(error => error.Contains(
                 $"authoritative state trigger queue item trigger-1 triggered event kind FORGED_EVENT is invalid; expected {KnownTriggerQueueTriggeredEventKindsDiagnostic} but got FORGED_EVENT",
-                StringComparison.Ordinal));
+                StringComparison.Ordinal)), string.Join("; ", errors));
     }
 
     [Fact]
@@ -36469,7 +36467,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 5,
@@ -36540,7 +36538,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -61933,7 +61931,7 @@ public sealed class MatchRecoveryTests
                     temporaryResourceId,
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 2,
                     remainingPower: 2,
@@ -162241,7 +162239,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId1,
-                    "TEST_TEMP_RESOURCE_ABILITY_1",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER_1",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -162259,7 +162257,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-2",
                     "alice",
                     sourceObjectId2,
-                    "TEST_TEMP_RESOURCE_ABILITY_2",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER_2",
                     "PAY_COST",
                     generatedPower: 2,
                     remainingPower: 2,
@@ -162464,7 +162462,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -162616,7 +162614,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -162705,7 +162703,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -162794,7 +162792,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -162893,7 +162891,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -162999,7 +162997,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163093,7 +163091,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163199,7 +163197,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163261,7 +163259,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
     }
 
@@ -163293,7 +163291,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163328,7 +163326,7 @@ public sealed class MatchRecoveryTests
         Assert.Single(temporaryResources);
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        resource["abilityId"] = new object?[] { "TEST_TEMP_RESOURCE_ABILITY" };
+        resource["abilityId"] = new object?[] { "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER" };
         temporaryResources[0] = resource;
         timing["temporaryPaymentResources"] = temporaryResources;
         spectatorReplayFrame = spectatorReplayFrame with
@@ -163357,7 +163355,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item ability id does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -163399,7 +163397,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163493,7 +163491,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163599,7 +163597,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163698,7 +163696,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163804,7 +163802,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -163903,7 +163901,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164009,7 +164007,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164105,7 +164103,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164211,7 +164209,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164307,7 +164305,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164413,7 +164411,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164509,7 +164507,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164618,7 +164616,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164729,7 +164727,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164851,7 +164849,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -164952,7 +164950,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165058,7 +165056,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165164,7 +165162,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165265,7 +165263,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165371,7 +165369,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165435,7 +165433,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -165472,7 +165470,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165509,7 +165507,7 @@ public sealed class MatchRecoveryTests
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         resource["resourceRestriction"] = new object?[]
         {
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
         };
         temporaryResources[0] = resource;
         timing["temporaryPaymentResources"] = temporaryResources;
@@ -165539,7 +165537,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -165581,7 +165579,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165682,7 +165680,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165780,7 +165778,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165873,7 +165871,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -165980,7 +165978,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -166087,7 +166085,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -166194,7 +166192,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -166301,7 +166299,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -166408,7 +166406,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -166515,7 +166513,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -166551,7 +166549,7 @@ public sealed class MatchRecoveryTests
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         Assert.Equal(
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction,
             Assert.IsType<string>(resource["resourceRestriction"]));
 
         resource["ownerPlayerId"] = "bob";
@@ -166605,7 +166603,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id WRONG_ABILITY does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item ability id WRONG_ABILITY does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -166645,7 +166643,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -166752,7 +166750,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -166788,7 +166786,7 @@ public sealed class MatchRecoveryTests
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         Assert.Equal(
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction,
             Assert.IsType<string>(resource["resourceRestriction"]));
 
         resource["ownerPlayerId"] = "bob";
@@ -166849,7 +166847,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id WRONG_ABILITY does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item ability id WRONG_ABILITY does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -166889,7 +166887,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -166926,7 +166924,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -166962,15 +166960,15 @@ public sealed class MatchRecoveryTests
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         Assert.Equal(
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction,
             Assert.IsType<string>(resource["resourceRestriction"]));
 
         resource["resourceId"] = " temp-payment-resource-1 ";
         resource["ownerPlayerId"] = " alice ";
         resource["sourceObjectId"] = " source-1 ";
-        resource["abilityId"] = " TEST_TEMP_RESOURCE_ABILITY ";
+        resource["abilityId"] = " BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER ";
         resource["paymentWindow"] = " PAY_COST ";
-        resource["resourceRestriction"] = $" {P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction} ";
+        resource["resourceRestriction"] = $" {P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction} ";
         temporaryResources[0] = resource;
         timing["temporaryPaymentResources"] = temporaryResources;
         spectatorReplayFrame = spectatorReplayFrame with
@@ -167009,7 +167007,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id TEST_TEMP_RESOURCE_ABILITY has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -167019,7 +167017,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -167043,7 +167041,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -167059,7 +167057,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item resource restriction",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -167141,7 +167139,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -167182,9 +167180,9 @@ public sealed class MatchRecoveryTests
         resource["resourceId"] = " temp-payment-resource-1 ";
         resource["ownerPlayerId"] = " alice ";
         resource["sourceObjectId"] = " source-1 ";
-        resource["abilityId"] = " TEST_TEMP_RESOURCE_ABILITY ";
+        resource["abilityId"] = " BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER ";
         resource["paymentWindow"] = " PAY_COST ";
-        resource["resourceRestriction"] = $" {P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction} ";
+        resource["resourceRestriction"] = $" {P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction} ";
         timing["temporaryPaymentResources"] = new object?[] { resource, extraResource };
         spectatorReplayFrame = spectatorReplayFrame with
         {
@@ -167222,7 +167220,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id TEST_TEMP_RESOURCE_ABILITY has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -167232,7 +167230,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -167256,7 +167254,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -167272,7 +167270,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item resource restriction",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -167309,7 +167307,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -167438,7 +167436,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -167548,7 +167546,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -167658,7 +167656,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -167768,7 +167766,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -167897,7 +167895,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168007,7 +168005,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168117,7 +168115,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168246,7 +168244,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168356,7 +168354,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168461,7 +168459,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168590,7 +168588,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168714,7 +168712,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168819,7 +168817,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -168943,7 +168941,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169048,7 +169046,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169182,7 +169180,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169292,7 +169290,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169359,7 +169357,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -169426,7 +169424,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169494,7 +169492,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -169536,7 +169534,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169599,7 +169597,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -169641,7 +169639,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169703,7 +169701,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -169775,7 +169773,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169838,7 +169836,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -169880,7 +169878,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -169942,7 +169940,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -170014,7 +170012,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -170077,7 +170075,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -170119,7 +170117,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -170181,7 +170179,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -170253,7 +170251,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -170289,7 +170287,7 @@ public sealed class MatchRecoveryTests
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var extraResource = resource.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        resource["abilityId"] = new object?[] { "TEST_TEMP_RESOURCE_ABILITY" };
+        resource["abilityId"] = new object?[] { "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER" };
         extraResource["resourceId"] = "temp-payment-resource-extra";
         timing["temporaryPaymentResources"] = new object?[] { resource, extraResource };
         spectatorReplayFrame = spectatorReplayFrame with
@@ -170321,7 +170319,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -170363,7 +170361,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -170398,7 +170396,7 @@ public sealed class MatchRecoveryTests
         Assert.Single(temporaryResources);
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        resource["abilityId"] = new object?[] { "TEST_TEMP_RESOURCE_ABILITY" };
+        resource["abilityId"] = new object?[] { "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER" };
         temporaryResources[0] = resource;
         timing["temporaryPaymentResources"] = temporaryResources;
         spectatorReplayFrame = spectatorReplayFrame with
@@ -170430,7 +170428,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item ability id",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -170502,7 +170500,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -170607,7 +170605,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -170746,7 +170744,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -170851,7 +170849,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -170990,7 +170988,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -171095,7 +171093,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -171234,7 +171232,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -171344,7 +171342,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -171488,7 +171486,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -171598,7 +171596,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -171747,7 +171745,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -171857,7 +171855,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -172006,7 +172004,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -172116,7 +172114,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -172218,7 +172216,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -172369,7 +172367,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -172476,7 +172474,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -172632,7 +172630,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -172739,7 +172737,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -172898,7 +172896,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -173005,7 +173003,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -173164,7 +173162,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -173271,7 +173269,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -173430,7 +173428,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -173532,7 +173530,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -173688,7 +173686,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -173795,7 +173793,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -173956,7 +173954,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -174063,7 +174061,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -174224,7 +174222,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -174385,7 +174383,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -174546,7 +174544,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -174710,7 +174708,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -174817,7 +174815,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -174929,7 +174927,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -175034,7 +175032,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -175141,7 +175139,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -175302,7 +175300,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -175463,7 +175461,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -175624,7 +175622,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -175788,7 +175786,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -175895,7 +175893,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -176007,7 +176005,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -176112,7 +176110,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -176298,7 +176296,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -176484,7 +176482,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -176670,7 +176668,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -176872,7 +176870,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -177068,7 +177066,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -177264,7 +177262,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -177450,7 +177448,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -177636,7 +177634,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -177822,7 +177820,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -178008,7 +178006,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -178072,7 +178070,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -178082,7 +178080,7 @@ public sealed class MatchRecoveryTests
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -178189,7 +178187,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -178253,7 +178251,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -178263,7 +178261,7 @@ public sealed class MatchRecoveryTests
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -178370,7 +178368,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -178407,7 +178405,7 @@ public sealed class MatchRecoveryTests
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         resource["resourceRestriction"] = new object?[]
         {
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
         };
         temporaryResources[0] = resource;
         timing["temporaryPaymentResources"] = temporaryResources;
@@ -178437,7 +178435,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -178447,7 +178445,7 @@ public sealed class MatchRecoveryTests
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -178554,7 +178552,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -178613,7 +178611,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -178628,7 +178626,7 @@ public sealed class MatchRecoveryTests
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -178735,7 +178733,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -178770,7 +178768,7 @@ public sealed class MatchRecoveryTests
         Assert.Single(temporaryResources);
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        resource["resourceRestriction"] = $" {P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction} ";
+        resource["resourceRestriction"] = $" {P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction} ";
         temporaryResources[0] = resource;
         timing["temporaryPaymentResources"] = temporaryResources;
         spectatorReplayFrame = spectatorReplayFrame with
@@ -178794,7 +178792,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -178802,7 +178800,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item resource restriction",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -178919,7 +178917,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -178986,7 +178984,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item resource restriction",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -178996,7 +178994,7 @@ public sealed class MatchRecoveryTests
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -179103,7 +179101,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -179289,7 +179287,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -179475,7 +179473,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -179661,7 +179659,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -179847,7 +179845,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -180033,7 +180031,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -180072,7 +180070,7 @@ public sealed class MatchRecoveryTests
                     " ownerPlayerId ": "alice",
                     "": true,
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 3,
                     "remainingPower": 1,
@@ -180080,7 +180078,7 @@ public sealed class MatchRecoveryTests
                     "remainingPowerByTrait": { "blue": 1 },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 2
                 }
                 """)
@@ -180228,7 +180226,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -180265,7 +180263,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 3,
                     "remainingPower": 1,
@@ -180283,7 +180281,7 @@ public sealed class MatchRecoveryTests
                     },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 2
                 }
                 """)
@@ -180456,7 +180454,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -180588,7 +180586,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1; expected TEST_TEMP_RESOURCE_ABILITY but got <unreadable>",
+                "spectator replay frame timing temporary payment resource item ability id does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1; expected BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER but got <unreadable>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -180628,7 +180626,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1; expected PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J but got <missing>",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1; expected PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ but got <missing>",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -180670,7 +180668,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -180708,7 +180706,7 @@ public sealed class MatchRecoveryTests
         var extraResource = resource.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         extraResource["resourceId"] = "temp-payment-resource-extra";
         Assert.Equal(
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction,
             Assert.IsType<string>(resource["resourceRestriction"]));
 
         resource["ownerPlayerId"] = new object?[] { "alice" };
@@ -180716,7 +180714,7 @@ public sealed class MatchRecoveryTests
         {
             ["objectId"] = sourceObjectId
         };
-        resource["abilityId"] = new object?[] { "TEST_TEMP_RESOURCE_ABILITY" };
+        resource["abilityId"] = new object?[] { "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER" };
         resource["paymentWindow"] = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             ["window"] = "PAY_COST"
@@ -180737,7 +180735,7 @@ public sealed class MatchRecoveryTests
         resource["paymentOnly"] = "true";
         resource["resourceRestriction"] = new object?[]
         {
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
         };
         resource["createdTick"] = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
@@ -180840,7 +180838,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item ability id does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -180875,7 +180873,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -180922,7 +180920,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181013,7 +181011,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item ability id WRONG_ABILITY does not match authoritative state temporary payment resource ability id TEST_TEMP_RESOURCE_ABILITY for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item ability id WRONG_ABILITY does not match authoritative state temporary payment resource ability id BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -181070,7 +181068,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181193,7 +181191,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181339,7 +181337,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181441,7 +181439,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181543,7 +181541,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181645,7 +181643,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181764,7 +181762,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181877,7 +181875,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -181990,7 +181988,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182097,7 +182095,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182204,7 +182202,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182311,7 +182309,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182418,7 +182416,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182483,7 +182481,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -182525,7 +182523,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182590,7 +182588,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -182632,7 +182630,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182670,7 +182668,7 @@ public sealed class MatchRecoveryTests
         var extraResource = resource.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         resource["resourceRestriction"] = new object?[]
         {
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
         };
         extraResource["resourceId"] = "temp-payment-resource-extra";
         timing["temporaryPaymentResources"] = new object?[] { resource, extraResource };
@@ -182700,7 +182698,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -182742,7 +182740,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182802,7 +182800,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                "spectator replay frame timing temporary payment resource item resource restriction WRONG_RESTRICTION does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -182844,7 +182842,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -182880,7 +182878,7 @@ public sealed class MatchRecoveryTests
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var extraResource = resource.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        resource["resourceRestriction"] = $" {P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction} ";
+        resource["resourceRestriction"] = $" {P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction} ";
         extraResource["resourceId"] = "temp-payment-resource-extra";
         timing["temporaryPaymentResources"] = new object?[] { resource, extraResource };
         spectatorReplayFrame = spectatorReplayFrame with
@@ -182904,7 +182902,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J has surrounding whitespace",
+                "spectator replay frame timing temporary payment resource item resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ has surrounding whitespace",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -182912,7 +182910,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item resource restriction",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -182954,7 +182952,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183022,7 +183020,7 @@ public sealed class MatchRecoveryTests
                     "spectator replay frame timing temporary payment resource item resource restriction",
                     StringComparison.Ordinal)
                 && error.Contains(
-                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J for resource id temp-payment-resource-1",
+                    "does not match authoritative state temporary payment resource resource restriction PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ for resource id temp-payment-resource-1",
                     StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -183064,7 +183062,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183171,7 +183169,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183278,7 +183276,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183385,7 +183383,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183487,7 +183485,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183594,7 +183592,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183640,7 +183638,7 @@ public sealed class MatchRecoveryTests
                     " ownerPlayerId ": "alice",
                     "": true,
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 3,
                     "remainingPower": 1,
@@ -183648,7 +183646,7 @@ public sealed class MatchRecoveryTests
                     "remainingPowerByTrait": { "blue": 1 },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 2
                 }
                 """),
@@ -183732,7 +183730,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     sourceObjectId,
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183776,7 +183774,7 @@ public sealed class MatchRecoveryTests
                     "resourceId": "temp-payment-resource-1",
                     "ownerPlayerId": "alice",
                     "sourceObjectId": "source-1",
-                    "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                    "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "paymentWindow": "PAY_COST",
                     "generatedPower": 3,
                     "remainingPower": 1,
@@ -183794,7 +183792,7 @@ public sealed class MatchRecoveryTests
                     },
                     "allowedPaymentKinds": [ "RUNE_COST" ],
                     "paymentOnly": true,
-                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                    "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                     "createdTick": 2
                 }
                 """),
@@ -183897,7 +183895,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -183932,7 +183930,7 @@ public sealed class MatchRecoveryTests
         var resource = Assert.IsType<Dictionary<string, object?>>(temporaryResources[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         Assert.Equal(
-            P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction,
+            P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction,
             Assert.IsType<string>(resource["resourceRestriction"]));
 
         resource["resourceId"] = "wrong-resource";
@@ -184043,7 +184041,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY_1",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER_1",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -184061,7 +184059,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-2",
                     "alice",
                     "source-2",
-                    "TEST_TEMP_RESOURCE_ABILITY_2",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER_2",
                     "PAY_COST",
                     generatedPower: 2,
                     remainingPower: 2,
@@ -184151,7 +184149,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -184190,7 +184188,7 @@ public sealed class MatchRecoveryTests
                 " ownerPlayerId ": "alice",
                 "": true,
                 "sourceObjectId": "source-1",
-                "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                 "paymentWindow": "PAY_COST",
                 "generatedPower": 3,
                 "remainingPower": 1,
@@ -184198,7 +184196,7 @@ public sealed class MatchRecoveryTests
                 "remainingPowerByTrait": { "blue": 1 },
                 "allowedPaymentKinds": [ "RUNE_COST" ],
                 "paymentOnly": true,
-                "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                 "createdTick": 2
             }
             """);
@@ -184259,7 +184257,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -184441,7 +184439,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -184478,7 +184476,7 @@ public sealed class MatchRecoveryTests
                 "resourceId": "temp-payment-resource-1",
                 "ownerPlayerId": "alice",
                 "sourceObjectId": "source-1",
-                "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                 "paymentWindow": "PAY_COST",
                 "generatedPower": 3,
                 "remainingPower": 5,
@@ -184491,7 +184489,7 @@ public sealed class MatchRecoveryTests
                 },
                 "allowedPaymentKinds": [ "RUNE_COST" ],
                 "paymentOnly": true,
-                "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                 "createdTick": 2
             }
             """);
@@ -184558,7 +184556,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -184596,7 +184594,7 @@ public sealed class MatchRecoveryTests
                 "resourceId": "temp-payment-resource-1",
                 "ownerPlayerId": "alice",
                 "sourceObjectId": "source-1",
-                "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                 "paymentWindow": "PAY_COST",
                 "generatedPower": 3,
                 "remainingPower": 1,
@@ -184613,7 +184611,7 @@ public sealed class MatchRecoveryTests
                 },
                 "allowedPaymentKinds": [ "RUNE_COST" ],
                 "paymentOnly": true,
-                "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                 "createdTick": 2
             }
             """);
@@ -184695,7 +184693,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 3,
                     remainingPower: 1,
@@ -184795,7 +184793,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 2,
                     remainingPower: 1,
@@ -184913,7 +184911,7 @@ public sealed class MatchRecoveryTests
                     "temp-payment-resource-1",
                     "alice",
                     "source-1",
-                    "TEST_TEMP_RESOURCE_ABILITY",
+                    "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                     "PAY_COST",
                     generatedPower: 2,
                     remainingPower: 1,
@@ -184969,7 +184967,7 @@ public sealed class MatchRecoveryTests
                 "resourceId": "temp-payment-resource-1",
                 "ownerPlayerId": "alice",
                 "sourceObjectId": "source-1",
-                "abilityId": "TEST_TEMP_RESOURCE_ABILITY",
+                "abilityId": "BLUE_SENTINEL_HELD_DELAYED_NEXT_MAIN_GAIN_GENERIC_POWER",
                 "paymentWindow": "PAY_COST",
                 "generatedPower": 2,
                 "remainingPower": 1,
@@ -184987,7 +184985,7 @@ public sealed class MatchRecoveryTests
                 },
                 "allowedPaymentKinds": [ "RUNE_COST" ],
                 "paymentOnly": true,
-                "resourceRestriction": "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J",
+                "resourceRestriction": "PAY_RUNE_COSTS_ONLY_BLUE_SENTINEL_DELAYED_TEMPORARY_LEDGER_4D_03CQ",
                 "createdTick": 2
             }
             """);

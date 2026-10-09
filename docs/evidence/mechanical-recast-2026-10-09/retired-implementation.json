@@ -1,0 +1,25 @@
+{
+  "removedFunctions": [
+    "ResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTriggerPayment",
+    "BuildUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentReason",
+    "TryReadUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentContext",
+    "TryResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTrigger",
+    "TryOpenUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitPaymentWindow",
+    "TryGetFirstRecyclableOtherControlledUnit",
+    "TryGetUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitSource",
+    "TryGetRecyclableOtherControlledUnit",
+    "TryGetFirstPlayableGraveyardMechanicalUnit",
+    "TryGetPlayableGraveyardMechanicalUnit"
+  ],
+  "mainCoreDeltaFromBatchStart": {
+    "removedLines": 763,
+    "addedLines": 1
+  },
+  "newHistoricalCompatibility": false,
+  "oldBehaviorNotPreserved": [
+    "first-unit and first-mechanical auto-selection",
+    "mana-only custom TRIGGER_PAYMENT branch",
+    "pay first then recycle/play in one direct zone move"
+  ],
+  "testChanges": "Four natural conquest scenarios and two complete-game journal scenarios now submit explicit choice and normal PlayCard; successful Progress Glory fixture receives required power; failed plays keep already-paid recycling cost."
+}

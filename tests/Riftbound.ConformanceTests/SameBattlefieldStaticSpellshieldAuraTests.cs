@@ -15,7 +15,7 @@ public sealed class SameBattlefieldStaticSpellshieldAuraTests
     [Fact]
     public void AerieHeadFanProjectsSameBattlefieldOtherFriendlySpellshield()
     {
-        var state = BuildState(mana: 3);
+        var state = BuildState(mana: 2, power: 1);
 
         var ruleTextAura = Assert.Single(
             state.ContinuousEffects,
@@ -49,7 +49,7 @@ public sealed class SameBattlefieldStaticSpellshieldAuraTests
     [Fact]
     public async Task AerieHeadFanSameBattlefieldSpellshieldAddsEnemySpellTargetTax()
     {
-        var state = BuildState(mana: 3);
+        var state = BuildState(mana: 2, power: 1);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -62,10 +62,10 @@ public sealed class SameBattlefieldStaticSpellshieldAuraTests
 
         Assert.True(result.Accepted, result.ErrorMessage);
         var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
-        Assert.Equal(3, costPaidEvent.Payload["mana"]);
+        Assert.Equal(2, costPaidEvent.Payload["mana"]);
         Assert.Equal(2, costPaidEvent.Payload["baseManaCost"]);
-        Assert.Equal(3, costPaidEvent.Payload["totalManaCost"]);
-        Assert.Equal(1, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(2, costPaidEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costPaidEvent.Payload["spellshieldTaxPower"]);
         Assert.Equal(
             [TargetObjectId],
             Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
@@ -93,7 +93,7 @@ public sealed class SameBattlefieldStaticSpellshieldAuraTests
         Assert.True(result.Accepted, result.ErrorMessage);
         var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
         Assert.Equal(2, costPaidEvent.Payload["mana"]);
-        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxPower"]);
         Assert.Empty(Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
     }
 
@@ -118,14 +118,14 @@ public sealed class SameBattlefieldStaticSpellshieldAuraTests
         Assert.True(result.Accepted, result.ErrorMessage);
         var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
         Assert.Equal(2, costPaidEvent.Payload["mana"]);
-        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxPower"]);
         Assert.Empty(Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
     }
 
     private static MatchState BuildState(
         int mana,
         bool targetAtSameBattlefield = true,
-        bool sourceFaceDown = false)
+        bool sourceFaceDown = false, int power = 0)
     {
         var targetBattlefieldObjectId = targetAtSameBattlefield
             ? BattlefieldObjectId
@@ -148,7 +148,7 @@ public sealed class SameBattlefieldStaticSpellshieldAuraTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, 0),
+                ["P1"] = new(mana, power),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

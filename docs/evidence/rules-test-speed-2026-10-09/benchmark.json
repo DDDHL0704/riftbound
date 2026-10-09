@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-09",
+  "baseline": {
+    "path": "tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+    "sha256": "943cba169434b2ca6cd5a01ee853fa038672ca7825e0ec8db8c0281f0848ba57",
+    "passed": 9004,
+    "displayedTestSeconds": 782
+  },
+  "profiles": {
+    "focus": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 12.61,
+      "total": 125,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 125,
+          "passed": 125,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 7.74
+        }
+      ]
+    },
+    "check": {
+      "status": "PASSED",
+      "profile": "check",
+      "seconds": 78.97,
+      "total": 8871,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "check",
+          "total": 8871,
+          "passed": 8871,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 74.59
+        }
+      ]
+    },
+    "full-parallel": {
+      "status": "PASSED",
+      "profile": "full",
+      "seconds": 314.87,
+      "total": 9004,
+      "caseParityVerified": true,
+      "shards": [
+        {
+          "shard": "games-4",
+          "total": 46,
+          "passed": 46,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 178.75
+        },
+        {
+          "shard": "games-3",
+          "total": 44,
+          "passed": 44,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 184.93
+        },
+        {
+          "shard": "games-2",
+          "total": 44,
+          "passed": 44,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 186.37
+        },
+        {
+          "shard": "rules",
+          "total": 8869,
+          "passed": 8869,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 75.13
+        },
+        {
+          "shard": "games-1",
+          "total": 1,
+          "passed": 1,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 311.34
+        }
+      ]
+    }
+  },
+  "sameTestCaseMultisetVerified": true,
+  "fullWallTimeReductionApprox": 0.5974,
+  "runnerUnitTests": {
+    "passed": 6
+  },
+  "ruleAssertionsRemoved": 0,
+  "remoteCiExecuted": false,
+  "windowsRunnerExecuted": false,
+  "sources": [
+    {
+      "path": "scripts/test-rules.py",
+      "sha256": "effa97c18b8433c6b69402c8dce8f764bf235456b1df502fbb4d07f188605df2"
+    },
+    {
+      "path": "scripts/rule-test-timings.json",
+      "sha256": "5f149260889be59f340d3721e4ea955e522790c4d51a7648aaae345b0e11d230"
+    },
+    {
+      "path": "scripts/tests/test_rules_runner.py",
+      "sha256": "018679df79e63e29d363f2352a16ab1c75e08ee8708488abb58fe43e4ea8e249"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "0b8d2ea17c22ad41693b1990a5ee84c7f6b8eb711380e4cf80685ce3e5dce2d4"
+    },
+    {
+      "path": ".github/workflows/native-desktop.yml",
+      "sha256": "90f3725f46f2dedeabbc712f56e5637f51c240d272455cc5d20566f830c283eb"
+    }
+  ],
+  "fullShards": [
+    {
+      "path": "var/qa/rules-test-speed-2026-10-09/full-parallel/games-1/results.trx",
+      "sha256": "6fe622911d15d7e87317811a8a6615c34c04c286bb389b1bdfbe97be292cfef7"
+    },
+    {
+      "path": "var/qa/rules-test-speed-2026-10-09/full-parallel/games-2/results.trx",
+      "sha256": "4fccc22fe75bc26094c519e94c2c4a9f99af758f8189c5aca5dbfb02f0d39aad"
+    },
+    {
+      "path": "var/qa/rules-test-speed-2026-10-09/full-parallel/games-3/results.trx",
+      "sha256": "58a37cdbe05f3018545227e8bc6813a0a9e160382ad8cd1af9ef0df50f30773a"
+    },
+    {
+      "path": "var/qa/rules-test-speed-2026-10-09/full-parallel/games-4/results.trx",
+      "sha256": "670afd23f0dcd3f8fd984edba8adb40cf2168669dc6af808cd56c80703dd175c"
+    },
+    {
+      "path": "var/qa/rules-test-speed-2026-10-09/full-parallel/rules/results.trx",
+      "sha256": "c16e363996f1a35ec28e472b2df996f27a3fbc9ddb0970f53d3699c7040cc794"
+    }
+  ]
+}

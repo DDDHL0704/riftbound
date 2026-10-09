@@ -1,0 +1,257 @@
+{
+  "action": "PLAY_CARD",
+  "label": "\u6253\u51FA\u5361\u724C",
+  "enabled": true,
+  "reason": "\u5F53\u524D\u73A9\u5BB6\u53EF\u8BA9\u8FC7\u4F18\u5148\u884C\u52A8\u6743",
+  "sources": [
+    {
+      "id": "C",
+      "label": "OGN\u00B7064/298",
+      "reason": "implemented payable PLAY_CARD source",
+      "objectIds": [
+        "C"
+      ]
+    }
+  ],
+  "targets": [
+    {
+      "id": "S1",
+      "label": "\u7B2C 1 \u9879 \u00B7 \u53F0\u524D\u4F5C\u79C0\uFF08P2\uFF09",
+      "reason": "\u8D8A\u9760\u540E\u7684\u9879\u76EE\u8D8A\u5148\u7ED3\u7B97",
+      "objectIds": [
+        "S1"
+      ]
+    },
+    {
+      "id": "S2",
+      "label": "\u7B2C 2 \u9879 \u00B7 \u53F0\u524D\u4F5C\u79C0\uFF08P2\uFF09",
+      "reason": "\u8D8A\u9760\u540E\u7684\u9879\u76EE\u8D8A\u5148\u7ED3\u7B97",
+      "objectIds": [
+        "S2"
+      ]
+    }
+  ],
+  "optionalCosts": [
+    {
+      "id": "ECHO",
+      "label": "\u6388\u4E88\u56DE\u54CD\uFF1A3 \u6CD5\u529B \u002B 2 \u7EFF\u8272\u7B26\u80FD",
+      "reason": "\u6388\u4E88\u56DE\u54CD\uFF1B\u652F\u4ED8\u5B8C\u6574\u57FA\u7840\u8D39\u7528",
+      "objectIds": [
+        "ECHO"
+      ]
+    }
+  ],
+  "metadata": {
+    "sourcePolicy": "implemented-card-behavior-only",
+    "targetPolicy": "source-specific-server-filtered-targets",
+    "modePolicy": "source-specific-server-filtered-modes",
+    "optionalCostPolicy": "source-specific-server-filtered-costs",
+    "destinationPolicy": "source-specific-server-filtered-destinations",
+    "sourceRequirements": [
+      {
+        "sourceObjectId": "C",
+        "cardNo": "OGN\u00B7064/298",
+        "displayName": "\u98CE\u4E4B\u969C\u58C1",
+        "sourceZone": "HAND",
+        "mode": null,
+        "modeLabel": "\u9ED8\u8BA4",
+        "manaCost": 3,
+        "minimumManaCost": 3,
+        "minimumPrintedPowerShortfall": 0,
+        "printedPowerCost": 2,
+        "effectPlayReason": null,
+        "printedPowerTraits": [
+          "green"
+        ],
+        "printedPowerChoices": [],
+        "availableRainbowPower": 20,
+        "battlefieldEquipmentCostReductionMana": 0,
+        "dragonUnitCostReductionMana": 0,
+        "nextSpellCostReductionMana": 0,
+        "battlefieldSpellCostReductionMana": 0,
+        "battlefieldHeldUnitCostIncreaseMana": 0,
+        "minTargetCount": 1,
+        "maxTargetCount": 1,
+        "targetCountLabel": "1",
+        "targetScope": "STACK_SPELL",
+        "targetScopeLabel": "\u7ED3\u7B97\u94FE\u6CD5\u672F",
+        "allowsRepeatedTargets": false,
+        "supportsSeparateExecutions": true,
+        "targetChoicesByIndex": {
+          "0": [
+            {
+              "id": "S1",
+              "label": "\u7B2C 1 \u9879 \u00B7 \u53F0\u524D\u4F5C\u79C0\uFF08P2\uFF09",
+              "reason": "\u8D8A\u9760\u540E\u7684\u9879\u76EE\u8D8A\u5148\u7ED3\u7B97"
+            },
+            {
+              "id": "S2",
+              "label": "\u7B2C 2 \u9879 \u00B7 \u53F0\u524D\u4F5C\u79C0\uFF08P2\uFF09",
+              "reason": "\u8D8A\u9760\u540E\u7684\u9879\u76EE\u8D8A\u5148\u7ED3\u7B97"
+            }
+          ]
+        },
+        "legalTargetSelections": [],
+        "destinationChoices": null,
+        "optionalCostChoices": [
+          {
+            "id": "ECHO",
+            "label": "\u6388\u4E88\u56DE\u54CD\uFF1A3 \u6CD5\u529B \u002B 2 \u7EFF\u8272\u7B26\u80FD",
+            "reason": "\u6388\u4E88\u56DE\u54CD\uFF1B\u652F\u4ED8\u5B8C\u6574\u57FA\u7840\u8D39\u7528"
+          }
+        ],
+        "paymentResourceChoices": [],
+        "paymentResourcePowerByChoice": {},
+        "availableMana": 20,
+        "availableManaWithPaymentResources": 20,
+        "paymentResourceMana": 0,
+        "availablePower": 20,
+        "availablePowerByTrait": {},
+        "availablePowerWithPaymentResources": 20,
+        "availablePowerByTraitWithPaymentResources": {},
+        "hasteReadyPowerCost": 0,
+        "hasteReadyPowerTrait": "",
+        "composable": true,
+        "unsupportedReason": ""
+      }
+    ]
+  },
+  "selectionSteps": [
+    {
+      "role": "source",
+      "label": "\u6765\u6E90",
+      "required": true,
+      "choices": [
+        {
+          "id": "C",
+          "label": "OGN\u00B7064/298",
+          "objectIds": [
+            "C"
+          ],
+          "reason": "implemented payable PLAY_CARD source"
+        }
+      ]
+    },
+    {
+      "role": "target",
+      "label": "\u76EE\u6807",
+      "required": false,
+      "choices": [
+        {
+          "id": "S1",
+          "label": "\u7B2C 1 \u9879 \u00B7 \u53F0\u524D\u4F5C\u79C0\uFF08P2\uFF09",
+          "objectIds": [
+            "S1"
+          ],
+          "reason": "\u8D8A\u9760\u540E\u7684\u9879\u76EE\u8D8A\u5148\u7ED3\u7B97"
+        },
+        {
+          "id": "S2",
+          "label": "\u7B2C 2 \u9879 \u00B7 \u53F0\u524D\u4F5C\u79C0\uFF08P2\uFF09",
+          "objectIds": [
+            "S2"
+          ],
+          "reason": "\u8D8A\u9760\u540E\u7684\u9879\u76EE\u8D8A\u5148\u7ED3\u7B97"
+        }
+      ]
+    },
+    {
+      "role": "optionalCost",
+      "label": "\u8D39\u7528",
+      "required": false,
+      "choices": [
+        {
+          "id": "ECHO",
+          "label": "\u6388\u4E88\u56DE\u54CD\uFF1A3 \u6CD5\u529B \u002B 2 \u7EFF\u8272\u7B26\u80FD",
+          "objectIds": [
+            "ECHO"
+          ],
+          "reason": "\u6388\u4E88\u56DE\u54CD\uFF1B\u652F\u4ED8\u5B8C\u6574\u57FA\u7840\u8D39\u7528"
+        }
+      ]
+    }
+  ],
+  "commandTemplate": {
+    "cmdType": "PLAY_CARD",
+    "bindings": [
+      {
+        "field": "sourceObjectId",
+        "source": "selectedSource",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u6765\u6E90"
+      },
+      {
+        "field": "cardNo",
+        "source": "requirementMetadata",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "metadataKeys": [
+          "cardNo",
+          "equipmentCardNo"
+        ],
+        "label": "\u670D\u52A1\u7AEF"
+      },
+      {
+        "field": "targetObjectIds",
+        "source": "selectedTargets",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": false,
+        "label": "\u76EE\u6807"
+      },
+      {
+        "field": "mode",
+        "source": "selectedMode",
+        "required": false,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u6A21\u5F0F"
+      },
+      {
+        "field": "destination",
+        "source": "selectedDestination",
+        "required": false,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u4F4D\u7F6E"
+      },
+      {
+        "field": "optionalCosts",
+        "source": "selectedOptionalCosts",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": true,
+        "label": "\u8D39\u7528"
+      }
+    ]
+  },
+  "composer": {
+    "supported": true,
+    "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+    "selectionRoles": [
+      "optionalCost",
+      "source",
+      "target"
+    ],
+    "requiredSelectionRoles": [
+      "source"
+    ],
+    "commandFields": [
+      "cardNo",
+      "destination",
+      "mode",
+      "optionalCosts",
+      "sourceObjectId",
+      "targetObjectIds"
+    ]
+  },
+  "presentation": {
+    "category": "play",
+    "intent": "play-card",
+    "uiHint": "card-action",
+    "priority": 100
+  }
+}

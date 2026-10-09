@@ -1,0 +1,34 @@
+[
+  {
+    "branch": "exile-accept",
+    "command": "docs/evidence/spell-completion-2026-10-09/native/native-exile-accept-command.json",
+    "sha256": "8110d9085f67f6da6821b2beac207eb8f0f3f46660e45f0adf3fc5fbcd51b0a2",
+    "selectedCount": 1,
+    "promptId": "COUNTER-REPEAT:4:P1:CHOOSE_CARDS,SURRENDER",
+    "snapshotTick": 4
+  },
+  {
+    "branch": "exile-decline",
+    "command": "docs/evidence/spell-completion-2026-10-09/native/native-exile-decline-command.json",
+    "sha256": "669512b4665cf62e0ce3fd495ae27ab0dbcda1bbaab7676d3efb94785d203777",
+    "selectedCount": 0,
+    "promptId": "COUNTER-REPEAT:4:P1:CHOOSE_CARDS,SURRENDER",
+    "snapshotTick": 4
+  },
+  {
+    "branch": "hall-accept",
+    "command": "docs/evidence/spell-completion-2026-10-09/native/native-hall-accept-command.json",
+    "sha256": "162c917161eb16c2852ebb01681e04fb1b393496f724737132e6cbca0624aa11",
+    "selectedCount": 1,
+    "promptId": "p2-punishment-room:3:P1:CHOOSE_CARDS,SURRENDER",
+    "snapshotTick": 3
+  },
+  {
+    "branch": "hall-decline",
+    "command": "docs/evidence/spell-completion-2026-10-09/native/native-hall-decline-command.json",
+    "sha256": "dfa864a6e04298997082b4e908494eea3448c7a91755e49fda6265712ea5ab3c",
+    "selectedCount": 0,
+    "promptId": "p2-punishment-room:3:P1:CHOOSE_CARDS,SURRENDER",
+    "snapshotTick": 3
+  }
+]

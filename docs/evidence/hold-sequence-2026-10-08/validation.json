@@ -1,0 +1,118 @@
+{
+  "scope": "Turn-start Hold and captured delayed-resource continuation; not full official rules or all-card certification",
+  "overallRulesAudit": "IN_PROGRESS_NOT_READY",
+  "gitHead": "b0e6508380f694f281c251f517ba51e8adf3b58e",
+  "workingTree": "Uncommitted changes; no commit or push requested",
+  "fullConformance": {
+    "passed": 8780,
+    "failed": 0,
+    "total": 8780,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/hold-verified.trx",
+    "sha256": "654d0dec000654d45427ee0629697b6eeb822cc3baa2d7a4f4633b0b3b7be308"
+  },
+  "focused": {
+    "holdSequenceTests": 33,
+    "holdAndResourceTotal": 267,
+    "latestDriverFixes": 3,
+    "allPassed": true,
+    "note": "Overlapping subsets; do not add to derive rule coverage"
+  },
+  "native": {
+    "compile": "PASS; zero warnings/errors",
+    "renderProof": "native-render-proof.json",
+    "actualTwoClientLiveAcceptance": false,
+    "windowsRuntimeAcceptance": false,
+    "installedPackageUpdated": false,
+    "runningApiReplaced": false
+  },
+  "logs": [
+    {
+      "path": "var/qa/hold-sequence-2026-10-08/full-verified.log",
+      "sha256": "6086761ebb787f4fdfe5f46562f46ddb4411efde3621b61362d98f6a192fa896"
+    },
+    {
+      "path": "var/qa/hold-sequence-2026-10-08/resource-hold-final.log",
+      "sha256": "0344424b80c9397ff82164cd58c7ed416c299c9ebdad6645a471214c4c46068f"
+    },
+    {
+      "path": "var/qa/hold-sequence-2026-10-08/last-three-final.log",
+      "sha256": "7c7a9e2c5b53cb42a6d8406c691bb8f60a11906efcb439620eb790ecf9273f12"
+    },
+    {
+      "path": "var/qa/hold-sequence-2026-10-08/native-build.log",
+      "sha256": "14ffffe29f166b428080bde8fb0dfdfde34106b172d31c53b19dbb26e8bbe2b3"
+    },
+    {
+      "path": "var/qa/hold-sequence-2026-10-08/native-interaction.log",
+      "sha256": "7329aa65aba0fbfe278ceebce1352fbca9105269a1911c32a8505681f7ea8695"
+    },
+    {
+      "path": "var/qa/hold-sequence-2026-10-08/native-visual.log",
+      "sha256": "02bb133af56ad23fad3ee34e301b901f297c0c58b18fc155375ef0478022773f"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "94b33f3859c8a03b60c4d237271b2c5a1107730e9d0b1ddd9860de301235746b"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+      "sha256": "59d0ad81b6edca56dd1b3f53bea6e5d44c3b7a561b8578f05cd2d4cc78936f5b"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs",
+      "sha256": "5336f60a08e74f2d32cef0ca724af6d9c9af1ff685808bef0d311b8895e28ea4"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+      "sha256": "2978d2625e3eedb6e2808e27816e82a50030d0e6f875b26a2749dc488e7e4097"
+    },
+    {
+      "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
+      "sha256": "706c062984603bb37da7a0fcf95507910c9486617725064a73b8709e8f0d9e28"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "1047538027c2249728bf4c031649b3ab83aa5d2ff891c1727c8b2a0e5ef6f5b8"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "sha256": "1428b9cff0e71f66f0a427831b61e8da515457ba0038c7539d80bd41f9f528c9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialHoldSequenceTests.cs",
+      "sha256": "2efed9e8cb743790486df0ea33db2a671cba211c3a0e97051550a0d82a17e3ed"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+      "sha256": "c68bb59bd354c73c67bc20f540f9a2bb8b0ebeb705140ff74a27fe560b4483f3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "sha256": "785c68b086c5b0310a56e2efee47a453261ca55557f615df41bdeb6b810cfb86"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TurnSequenceTestDriver.cs",
+      "sha256": "7272788a99f141ebbb0146861f4f9344ca2f233aa5d41c0b1c831f7526754950"
+    },
+    {
+      "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+      "sha256": "75c64891c8930fae0a6af1294c531a41750cfdd551b458800df18f372001c540"
+    },
+    {
+      "path": "clients/godot/scripts/ui/OfficialCardView.cs",
+      "sha256": "889696557115b56989d02c503e280051d32369b67d5d77afa3bd4d0d4baba357"
+    },
+    {
+      "path": "clients/godot/scripts/debug/HoldSequenceInteractionProof.cs",
+      "sha256": "36f63050bddbd597da14590038eb48204cee9af296aa5b8dc1bd4bdb028dbe86"
+    },
+    {
+      "path": "clients/godot/scenes/debug/HoldSequenceInteractionProof.tscn",
+      "sha256": "f880b7ab99cf89afeaf89a91d071b0ec4378c8889eb9c452362317fd9f321989"
+    }
+  ],
+  "boundaries": "HOLD_SEQUENCE_AUDIT_2026-10-08.md lists unresolved rule families and the confirmed Echo power-cost defect."
+}

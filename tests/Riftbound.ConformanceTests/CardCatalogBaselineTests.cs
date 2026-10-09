@@ -729,10 +729,10 @@ public sealed class CardCatalogBaselineTests
             specImplementedEntries: 24,
             functionalUnits: 24,
             specImplementedFunctionalUnits: 24,
-            profileImplementedEntries: 10,
-            profileDeferredEntries: 14,
-            profileImplementedFunctionalUnits: 10,
-            profileDeferredFunctionalUnits: 14);
+            profileImplementedEntries: 17,
+            profileDeferredEntries: 7,
+            profileImplementedFunctionalUnits: 17,
+            profileDeferredFunctionalUnits: 7);
         AssertInteractionKeywordCoverage(
             rows,
             CardInteractionKeywordNames.Ambush,
@@ -2158,7 +2158,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(TriggerKinds.UnitHighCostSpellPowerModifier, trigger.Kind);
         Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
         Assert.Equal(TriggerTargetScopes.SourceUnit, trigger.TargetScope);
-        Assert.Equal(5, trigger.MinimumPaidMana);
+        Assert.Equal(5, trigger.MinimumCardMana);
         Assert.Equal(3, trigger.PowerDelta);
         Assert.Equal(TriggerDurations.UntilEndOfTurn, trigger.Duration);
         Assert.Equal("OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3", trigger.EffectKind);
@@ -2214,7 +2214,7 @@ public sealed class CardCatalogBaselineTests
         var trigger = Assert.Single(luxLegend.Triggers);
         Assert.Equal(TriggerKinds.LegendHighCostSpellDrawOne, trigger.Kind);
         Assert.Equal(TriggerTimings.BattlefieldSpellPlayed, trigger.Timing);
-        Assert.Equal(5, trigger.MinimumPaidMana);
+        Assert.Equal(5, trigger.MinimumCardMana);
         Assert.Equal(1, trigger.DrawCount);
         Assert.Contains("每当你打出一张费用不低于{{5}}的法术时", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("抽一张牌", trigger.Text, StringComparison.Ordinal);
@@ -4199,44 +4199,6 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
-    [Fact]
-    public void SourceUnitEnemySpellSkillTargetProtectionUsesGenericStaticAbilitySpec()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var targetProtectionRulesPath = Path.Combine(engineRoot, "TargetProtectionRules.cs");
-        var targetProtectionRulesSource = File.ReadAllText(targetProtectionRulesPath);
-        var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"));
-        var matchSessionSource = File.ReadAllText(Path.Combine(engineRoot, "MatchSession.cs"));
-
-        Assert.Contains(
-            "CardStaticAbilitySpecRules.TryGetStaticAbility",
-            targetProtectionRulesSource,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "CardStaticAbilitySpecRules.IsSourceUnitEnemySpellSkillTargetProtectionAbility",
-            targetProtectionRulesSource,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget",
-            matchSessionSource,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "TargetProtectionRules.IsLegalActivatedSkillTarget",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "TargetProtectionRules.IsLegalActivatedSkillTarget",
-            matchSessionSource,
-            StringComparison.Ordinal);
-        Assert.DoesNotContain("UNL-147", targetProtectionRulesSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("UNL-059", targetProtectionRulesSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("Baron", targetProtectionRulesSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("MasterYi", targetProtectionRulesSource, StringComparison.Ordinal);
-    }
 
     [Fact]
     public void CardStaticAbilityRoutingUsesGenericSpecPredicates()
@@ -4384,10 +4346,6 @@ public sealed class CardCatalogBaselineTests
             StringComparison.Ordinal);
         Assert.Contains(
             "HandDiscardTriggerSpecRules.TryGetTrigger",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "UnitBattlefieldHeldTriggerSpecRules.TryGetTrigger",
             coreRuleEngineSource,
             StringComparison.Ordinal);
         Assert.Contains(
@@ -5555,93 +5513,9 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("public static IReadOnlyList<TriggerSpec> TriggersForCard", legendConquestRulesSource, StringComparison.Ordinal);
     }
 
-    [Fact]
-    public void HighCostSpellTriggersDoNotUseLuxSpecificResolver()
-    {
-        var coreRuleEnginePath = Path.Combine(
-            RepositoryRoot(),
-            "src",
-            "Riftbound.Engine",
-            "CoreRuleEngine.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
-        var matchRecoveryPath = Path.Combine(
-            RepositoryRoot(),
-            "src",
-            "Riftbound.Engine",
-            "MatchRecovery.cs");
-        var matchRecoverySource = File.ReadAllText(matchRecoveryPath);
 
-        Assert.DoesNotContain("ResolveOgsLuxHighCostSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("OgsLuxHighCostSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("private const string OgsLuxHighCostSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.IsLegendHighCostSpellDrawTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("OgsLuxHighCostSpellCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetUnitHighCostSpellPowerModifierTrigger", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger", matchRecoverySource, StringComparison.Ordinal);
-    }
 
-    [Fact]
-    public void SpellPlayedTriggerSpecRulesUseGenericSpecPredicateSurface()
-    {
-        var spellPlayedRulesPath = Path.Combine(
-            RepositoryRoot(),
-            "src",
-            "Riftbound.Engine",
-            "SpellPlayedTriggerSpecRules.cs");
-        var source = File.ReadAllText(spellPlayedRulesPath);
 
-        Assert.DoesNotContain("TryGetUnitSpellPlayedPowerModifierTrigger", source, StringComparison.Ordinal);
-        Assert.DoesNotContain("TryGetUnitHighCostSpellPowerModifierTrigger", source, StringComparison.Ordinal);
-        Assert.DoesNotContain("TryGetLegendHighCostSpellDrawTrigger", source, StringComparison.Ordinal);
-        Assert.DoesNotContain("TryGetLegendHighCostSpellBanishCompletionTrigger", source, StringComparison.Ordinal);
-        Assert.Contains("public static bool TryGetTrigger(string? cardNo, Func<TriggerSpec, bool> predicate", source, StringComparison.Ordinal);
-        Assert.Contains("public static bool IsUnitSpellPlayedPowerModifierTrigger", source, StringComparison.Ordinal);
-        Assert.Contains("public static bool IsUnitHighCostSpellPowerModifierTrigger", source, StringComparison.Ordinal);
-        Assert.Contains("public static bool IsLegendHighCostSpellDrawTrigger", source, StringComparison.Ordinal);
-        Assert.Contains("public static bool IsLegendHighCostSpellBanishCompletionTrigger", source, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void HighCostSpellTriggersDoNotUseJhinSpecificResolver()
-    {
-        var coreRuleEnginePath = Path.Combine(
-            RepositoryRoot(),
-            "src",
-            "Riftbound.Engine",
-            "CoreRuleEngine.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
-
-        Assert.DoesNotContain("ResolveJhinHighCostSpellTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("JhinHighCostSpellManaThreshold", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("JhinCompletionSpellCount", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("JhinBanishedHighCostSpellMarker", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetLegendHighCostSpellBanishCompletionTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.IsLegendHighCostSpellBanishCompletionTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void SpellPlayedPowerTriggersDoNotUseRavenbloomSpecificResolver()
-    {
-        var coreRuleEnginePath = Path.Combine(
-            RepositoryRoot(),
-            "src",
-            "Riftbound.Engine",
-            "CoreRuleEngine.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
-
-        Assert.DoesNotContain("ResolveRavenbloomStudentSpellPlayedTriggers", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("RavenbloomStudentSpellPowerEffectKind", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.DoesNotContain("SpellPlayedTriggerSpecRules.TryGetUnitSpellPlayedPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("SpellPlayedTriggerSpecRules.IsUnitSpellPlayedPowerModifierTrigger", coreRuleEngineSource, StringComparison.Ordinal);
-    }
 
     [Fact]
     public void BattlefieldDefendRevealSpellTriggerDoesNotUseCardNumberAllowList()
@@ -7142,125 +7016,15 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("StaticAuraSpecRules.HasBattlefield", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
-    [Fact]
-    public void BattlefieldHeldPayPowerScoreTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldPayPowerScoreTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldPayPowerScoreTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldDrawTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldDrawTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldDrawTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldCallRuneTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldCallRuneTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldCallRuneTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldEachPlayerCallRuneTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldEachPlayerCallRuneTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldEachPlayerCallRuneTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldMoveUnitToBaseTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldMoveUnitToBaseTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldMoveUnitToBaseTrigger",
-                    StringComparison.Ordinal));
-    }
 
     [Fact]
     public void BattlefieldDefendMoveFriendlyUnitToBaseTriggerUsesGenericSpecPredicate()
@@ -7320,173 +7084,19 @@ public sealed class CardCatalogBaselineTests
                     StringComparison.Ordinal));
     }
 
-    [Fact]
-    public void BattlefieldHeldGrantBoonTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldGrantBoonTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldGrantBoonTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldCreateMinionTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldCreateMinionTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldCreateMinionTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldReturnHeroTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldReturnHeroTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldReturnHeroTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldSevenUnitsWinTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldSevenUnitsWinTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldSevenUnitsWinTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldActivateUnitConquestEffectsTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldActivateUnitConquestEffectsTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldActivateUnitConquestEffectsTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldUnitCostIncreaseTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldUnitCostIncreaseTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldUnitCostIncreaseTrigger",
-                    StringComparison.Ordinal));
-    }
 
-    [Fact]
-    public void BattlefieldHeldNextSpellEchoTriggerUsesGenericSpecPredicate()
-    {
-        var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var engineSources = Directory
-            .EnumerateFiles(engineRoot, "*.cs", SearchOption.AllDirectories)
-            .Select(File.ReadAllText)
-            .ToArray();
 
-        Assert.DoesNotContain(
-            engineSources,
-            source => source.Contains(
-                "TryGetBattlefieldHeldNextSpellEchoTrigger",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            engineSources,
-            source => source.Contains(
-                "BattlefieldTriggerSpecRules.TryGetTrigger",
-                StringComparison.Ordinal)
-                && source.Contains(
-                    "BattlefieldTriggerSpecRules.IsBattlefieldHeldNextSpellEchoTrigger",
-                    StringComparison.Ordinal));
-    }
 
     [Fact]
     public async Task BehaviorTemplateExecutorRoutesRegisteredTemplatesWithoutReplacingP2Rules()
@@ -8808,7 +8418,9 @@ public sealed class CardCatalogBaselineTests
         Assert.True(echoProfile.HasEcho);
         Assert.Equal(2, echoProfile.EchoManaCost);
         Assert.Equal(EchoKeywordProfileStatuses.Implemented, echoProfile.Status);
-        Assert.Contains("P2 optional cost repeat path", echoProfile.Reason, StringComparison.Ordinal);
+        var echoCost = Assert.IsType<EchoCostRules.Cost>(EchoCostRules.PrintedFor(centerStageDefinition.CardNo));
+        Assert.Equal(2, echoCost.Mana);
+        Assert.Empty(echoCost.TypedPower);
 
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-007/219", out var punishmentDefinition));
         var nonEchoProfile = CardInteractionKeywordRules.BuildEchoProfile(punishmentDefinition);

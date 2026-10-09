@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p39-p42 rules 355-356; p58-p59 rule 416",
       "note": "打出法术时支付费用并确认结算链；回收使所选卡牌回到拥有者对应牌堆底部。"
+    },
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·062/298",
+      "note": "2026-10-09: decline is now an explicit private choice after response, not automatic recycling; choosing a unit goes through formal play and mana reduction."
     }
   ],
   "roomId": "p2-preflight-reinforcements-no-selection-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302056,
     "turnNumber": 51,
@@ -34,8 +42,14 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 5, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 5,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
@@ -47,25 +61,43 @@
           "P1-REINFORCEMENTS-RECYCLE-E",
           "P1-MAIN-KEEPER"
         ],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-REINFORCEMENTS-NO-SELECT"],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-REINFORCEMENTS-NO-SELECT"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     }
   },
@@ -93,40 +125,70 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "reinforcements-decline",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "EFFECT-PLAY:3:STACK-1-P1-SPELL-REINFORCEMENTS-NO-SELECT",
+        "choiceWindow": "EFFECT_PLAY",
+        "chosenObjectIds": []
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "CARDS_RECYCLED"
+      "EFFECT_PLAY_REQUESTED",
+      "CARDS_RECYCLED",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "STACK_ITEM_ADDED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "EFFECT_PLAY_REQUESTED"
+      },
       {
         "kind": "CARDS_RECYCLED",
-        "tick": 3,
+        "tick": 4,
         "sequence": 7,
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-SPELL-REINFORCEMENTS-NO-SELECT",
           "count": 5
         }
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 51,
@@ -139,8 +201,14 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
@@ -153,17 +221,31 @@
             "P1-REINFORCEMENTS-RECYCLE-B"
           ],
           "hand": [],
-          "graveyard": ["P1-SPELL-REINFORCEMENTS-NO-SELECT"]
+          "graveyard": [
+            "P1-SPELL-REINFORCEMENTS-NO-SELECT"
+          ]
         },
         "P2": {
-          "mainDeck": ["P2-MAIN-001"]
+          "mainDeck": [
+            "P2-MAIN-001"
+          ]
         }
       },
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

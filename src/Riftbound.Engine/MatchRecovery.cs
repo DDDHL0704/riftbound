@@ -1009,6 +1009,9 @@ public static class MatchRecoveryValidator
         "UNIT_MOVED_TO_BATTLEFIELD",
         "UNIT_MOVED_TO_BASE",
         "CARD_PLAYED",
+        "SPELL_PLAY_COMPLETED",
+        "SPELL_TARGET_CHOSEN",
+        "BATTLEFIELD_CONQUERED",
         "BATTLE_DECLARED",
         "OBJECT_DESTROYED",
         "UNIT_READY"
@@ -7203,7 +7206,14 @@ public static class MatchRecoveryValidator
             }
 
             taskKinds.Add("START_SPELL_DUEL");
-            taskKinds.Add("START_BATTLE");
+            // Taking an undefended enemy-controlled battlefield still opens a
+            // spell duel, but there is no battle task with only one occupying side.
+            // Missing participant evidence remains subject to the strict check.
+            var singleOccupyingSide = TryReadObjectStringList(battlefieldPayload, "occupantControllerIds", out var occupants)
+                && occupants.Count > 0
+                && occupants.All(id => !string.IsNullOrWhiteSpace(id))
+                && occupants.Select(id => id.Trim()).Distinct(StringComparer.Ordinal).Count() == 1;
+            if (!singleOccupyingSide) taskKinds.Add("START_BATTLE");
         }
 
         return taskKindsByBattlefield.ToDictionary(
@@ -24695,22 +24705,8 @@ public static class MatchRecoveryValidator
 
     private static string TemporaryPaymentResourceRestrictionForRecovery(TemporaryPaymentResourceState resource)
     {
-        if (P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(resource.AbilityId, out var profile))
-        {
-            return profile.ResourceRestriction;
-        }
-
-        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
-            ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
-            : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
-                ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
-            : P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
+        return P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var ability)
+            && ability.PaymentOnlyResource ? ability.ResourceRestriction : string.Empty;
     }
 
     private static void ValidateSpectatorPendingHandChoicePayload(
@@ -25886,6 +25882,8 @@ public static class MatchRecoveryValidator
             errors.Add($"authoritative state tick {authoritativeState.Tick} does not match recovery tick {expectedTick}");
         }
 
+        ValidateSpellContinuations(authoritativeState, errors);
+        ValidateTurnSequenceState(authoritativeState, errors);
         ValidateAuthoritativeStateScalars(authoritativeState, errors);
         ValidateAuthoritativeStateSeats(authoritativeState, errors);
         ValidateAuthoritativeStateResourceValues(authoritativeState, errors);
@@ -25921,6 +25919,158 @@ public static class MatchRecoveryValidator
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
             }
         }
+    }
+
+    private static void ValidateSpellContinuations(MatchState state, List<string> errors)
+    {
+        if (state.PendingCardChoice is { ChoiceWindow: "RECYCLE_FOR_EFFECT_PLAY" } recycling
+            && !CoreRuleEngine.ValidRecyclingChoice(state, recycling)) errors.Add("invalid recycling cost choice");
+        foreach (var item in state.StackItems)
+        {
+            if (item.RecycledUnit is not null && !CoreRuleEngine.ValidRecycledUnit(item)) errors.Add("invalid recycled unit receipt");
+            if (item.RecastContext is { } context ? !CoreRuleEngine.ValidRecastContext(context, item.EffectKind, item.CardNo)
+                : item.EffectKind == CoreRuleEngine.RecastTriggerEffect) errors.Add("invalid effect-play trigger context");
+            if (item.AfterPlayRecycle is { } recycle && (item.PlayCost is null || !CoreRuleEngine.ValidRecycleInstruction(recycle)
+                || !state.CardObjects.ContainsKey(recycle.SourceObjectId))) errors.Add("invalid after-play recycle instruction");
+        }
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.RecastContext is { } context ? !CoreRuleEngine.ValidRecastContext(context, trigger.EffectKind)
+                || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
+                : trigger.EffectKind == CoreRuleEngine.RecastTriggerEffect) errors.Add("invalid queued effect-play trigger context");
+        if (state.PendingEffectPlay is { } recast && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
+            errors.Add("invalid spell effect-play continuation");
+
+        if (state.PendingEffectPlay is { } graveyard && graveyard.Parent.RecastContext is null
+            && graveyard.DestinationPolicy != "STACK"
+            && (graveyard.SourceZone == "GRAVEYARD"
+                || CardBehaviorRegistry.TryGetByEffectKind(graveyard.Parent.EffectKind, out var graveyardBehavior)
+                    && graveyardBehavior.EffectPlaySourceZone == "GRAVEYARD")
+            && !CoreRuleEngine.ValidGraveyardUnitEffectPlay(state, graveyard))
+            errors.Add("invalid graveyard unit effect-play continuation");
+
+        foreach (var item in state.StackItems)
+        {
+            if (item.PlayCost is { } cost && (cost.CardMana < 0 || cost.PaidMana < 0
+                || item.SpellContext is not null || !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
+                || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)) errors.Add("invalid card play cost receipt");
+            if (item.SpellContext is { } context ? !CoreRuleEngine.ValidSpellContext(context, item.EffectKind, item.CardNo)
+                || !state.Seats.ContainsKey(context.PlayedOwnerId)
+                || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
+                    || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]))
+                : item.EffectKind == CoreRuleEngine.SpellTriggerEffect) errors.Add("invalid spell completion trigger");
+        }
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.SpellContext is { } context ? !CoreRuleEngine.ValidSpellContext(context, trigger.EffectKind)
+                || !state.Seats.ContainsKey(context.PlayedOwnerId)
+                : trigger.EffectKind == CoreRuleEngine.SpellTriggerEffect) errors.Add("invalid queued spell completion trigger");
+        if (state.PendingCardChoice is { ChoiceWindow: "SPELL_TRIGGER_CONFIRMATION" } spellChoice
+            && !CoreRuleEngine.ValidSpellTriggerChoice(state, spellChoice)) errors.Add("invalid spell trigger confirmation");
+        if (state.LinkedExiles.Any(g => string.IsNullOrWhiteSpace(g.SourceObjectId) || g.SourceGeneration < 0
+            || !state.Seats.ContainsKey(g.ControllerId) || g.Objects.Any(e => string.IsNullOrWhiteSpace(e.Key) || e.Value < 0))
+            || state.LinkedExiles.Select(g => (g.SourceObjectId, g.SourceGeneration, g.ControllerId)).Distinct().Count() != state.LinkedExiles.Count)
+            errors.Add("invalid linked exile ledger");
+        if (state.DrawLedger.TurnNumber < 0 || state.DrawLedger.TurnNumber > state.TurnNumber
+            || state.DrawLedger.Counts.Any(e => !state.Seats.ContainsKey(e.Key) || e.Value < 0)) errors.Add("invalid turn draw ledger");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContext(field, trigger.EffectKind)
+                : trigger.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger context");
+        foreach (var item in state.StackItems)
+            if (item.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContext(field, item.EffectKind, item.CardNo)
+                || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
+                    || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
+                || field.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(field.ReturnFocusPlayerId)
+                : item.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger stack context");
+        if (state.PendingCardChoice is { ChoiceWindow: "TRIGGER_CONFIRMATION" } confirmation
+            && !CoreRuleEngine.ValidTriggerChoice(state, confirmation)) errors.Add("invalid trigger confirmation");
+
+        if (state.PendingPayment is { } payment
+            && (payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
+            && !CoreRuleEngine.ValidInsightPayment(state, payment)) errors.Add("invalid Insight payment continuation");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.InsightContext is { } captured
+                ? captured.PaymentAccepted || !CoreRuleEngine.ValidInsightTrigger(captured, trigger.EffectKind, trigger.ControllerId)
+                    || captured.Kind == "DUEL" && !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!)
+                : trigger.EffectKind == CoreRuleEngine.InsightTriggerEffect)
+                errors.Add("invalid captured Insight trigger");
+        foreach (var item in state.StackItems)
+        {
+            if (item.InsightContext is { } captured
+                ? !CoreRuleEngine.ValidInsightTrigger(captured, item.EffectKind, item.ControllerId, item.CardNo)
+                    || captured.Kind == "DUEL" && !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!)
+                : item.EffectKind == CoreRuleEngine.InsightTriggerEffect)
+                errors.Add("invalid captured Insight stack item");
+            if (item.InsightCompleted)
+                errors.Add("completed Insight must resume atomically and cannot remain on stack");
+            if (item.CompletedDeckExecutions < 0 || item.CompletedDeckExecutions > item.EffectRepeatCount
+                || (item.DeckChoiceCompleted && item.CompletedDeckExecutions < item.EffectRepeatCount))
+                errors.Add("invalid deck resolution continuation count");
+            if (item.RepeatExecutions is { } executions && (executions.Count != item.EffectRepeatCount
+                || executions.Any(execution => execution is null || execution.TargetObjectIds is null || execution.TargetGenerations is null
+                    || execution.TargetGenerations.Values.Any(generation => generation < 0)
+                    || !CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var definition)
+                    || definition.CardNo != item.CardNo || !CoreRuleEngine.SupportsSeparateExecution(definition))))
+                errors.Add("invalid spell repeat execution plan");
+        }
+        if (state.PendingCardChoice is { ChoiceWindow: "DECK_EFFECT" } choice)
+        {
+            var top = state.StackItems.LastOrDefault();
+            if (choice.DeckContext is not { } context || top is null || context.StackItemId != top.StackItemId
+                || context.ExecutionIndex != top.CompletedDeckExecutions || top.DeckChoiceCompleted
+                || choice.PlayerId != top.ControllerId || choice.SourceObjectId != top.SourceObjectId
+                || !CoreRuleEngine.TryGetDeckChoiceBehavior(top, out var behavior)
+                || !state.PlayerZones[top.ControllerId].MainDeck.Take(behavior.MainDeckLookCount).SequenceEqual(choice.ContextObjectIds))
+                errors.Add("invalid private deck choice continuation");
+            else
+            {
+                var legal = choice.ContextObjectIds.Where(id => string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag)
+                    || state.CardObjects.TryGetValue(id, out var card) && card.Tags.Contains(behavior.MainDeckTargetRequiredTag)).ToArray();
+                var required = behavior.MinTargetCount != 0 && legal.Length > 0 ? 1 : 0;
+                if (!legal.SequenceEqual(choice.LegalObjectIds) || choice.RequiredCount != required
+                    || choice.MaxCount != (legal.Length > 0 ? 1 : 0) || choice.EffectKind != top.EffectKind)
+                    errors.Add("invalid private deck choice permissions");
+            }
+        }
+        else if (state.PendingCardChoice is { ChoiceWindow: "INSIGHT" or "INSIGHT_ORDER" } insight)
+        {
+            if (!CoreRuleEngine.ValidInsightChoice(state, insight, state.StackItems.LastOrDefault()))
+                errors.Add("invalid private Insight continuation");
+        }
+        else if (state.PendingCardChoice?.DeckContext is not null)
+            errors.Add("deck choice context outside private deck window");
+    }
+
+    private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
+    {
+        if (state.TurnStartStep is { } step && (step is not ("READY" or "START" or "SCORE" or "CHANNEL" or "DRAW" or "MAIN")
+            || state.Phase != MatchPhases.TurnStart)) errors.Add("invalid turn-start continuation");
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var gain in state.DelayedResourceGains)
+        {
+            if (string.IsNullOrWhiteSpace(gain.Id) || !ids.Add(gain.Id)
+                || !state.Seats.ContainsKey(gain.ControllerId) || gain.Power != 1
+                || gain.DueTurn != state.TurnNumber || state.TurnStartStep is null
+                || string.IsNullOrWhiteSpace(gain.SourceObjectId) || string.IsNullOrWhiteSpace(gain.BattlefieldObjectId)
+                || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId, gain.SourceCardNo))
+                errors.Add("invalid captured delayed resource gain");
+            // A captured delayed ability is independent of the source's current zone/controller.
+        }
+        foreach (var context in state.StackItems.Select(x => x.HeldContext)
+            .Concat(state.TriggerQueue.Select(x => x.HeldContext)).Append(state.PendingCardChoice?.HeldContext)
+            .Append(state.PendingPayment?.HeldContext).Where(x => x is not null))
+        {
+            if (string.IsNullOrWhiteSpace(context!.CardNo) || string.IsNullOrWhiteSpace(context.BattlefieldObjectId)
+                || context.SourceGeneration < 0 || context.Amount < 0
+                || context.Kind is not ("MINION" or "DRAW" or "RETURN_HERO" or "BOON" or "ACTIVATE_CONQUEST"
+                    or "CHANNEL_OPTIONAL" or "SEVEN_WIN" or "SCORE" or "RETURN_SELF" or "RETURN_PERMANENT"
+                    or "ROBOT" or "GOLD" or "RENATA" or "PAY_POWER_SCORE" or "CHANNEL_ALL" or "BOON_ALL"
+                    or "VEX" or "IVERN" or "LEBLANC_DISCARD" or "LEBLANC_COPY" or "EXPERIENCE" or "MOVE_BASE"
+                    or "NEXT_ECHO" or "UNIT_TAX" or "CONQUEST_UNIT" or "LOOK_EQUIPMENT")) errors.Add("invalid captured Hold context");
+        }
+        if (state.StackItems.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)
+            || state.TriggerQueue.Any(x => x.EffectKind.StartsWith("HOLD_", StringComparison.Ordinal) && x.HeldContext is null)
+            || state.PendingCardChoice is { ChoiceWindow: "HOLD_EFFECT", HeldContext: null }
+            || state.PendingPayment is { PaymentWindow: "HOLD_EFFECT", HeldContext: null })
+            errors.Add("missing captured Hold context");
     }
 
     private static void ValidateAuthoritativeStateScalars(
@@ -28958,9 +29108,25 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending effect play {effectPlay.ChoiceId} source", effectPlay.Sources.Keys.ToArray(), knownObjectIds, errors);
             if (!authoritativeState.Seats.ContainsKey(effectPlay.PlayerId)
-                || effectPlay.SourceZone is not ("HAND" or "GRAVEYARD" or "BANISHED")
+                || effectPlay.SourceZone is not ("HAND" or "GRAVEYARD" or "BANISHED" or "MAIN_DECK")
                 || effectPlay.Sources.Values.Any(generation => generation < 0))
                 errors.Add("pending effect play has an invalid actor, source zone or generation");
+            if (effectPlay.SourceZone == "MAIN_DECK")
+            {
+                if (!CardBehaviorRegistry.TryGetByEffectKind(effectPlay.Parent.EffectKind, out var definition)
+                    || definition.EffectPlaySourceZone != "MAIN_DECK" || effectPlay.ViewedCardIds is null
+                    || !authoritativeState.PlayerZones.TryGetValue(effectPlay.PlayerId, out var zones)
+                    || !zones.MainDeck.Take(definition.MainDeckLookCount).SequenceEqual(effectPlay.ViewedCardIds)
+                    || effectPlay.ManaReduction != definition.EffectPlayManaReduction
+                    || effectPlay.IgnoreBaseMana != definition.EffectPlayIgnoreBaseMana
+                    || effectPlay.IgnoreBasePower != definition.EffectPlayIgnoreBasePower
+                    || effectPlay.Optional != definition.EffectPlayOptional || effectPlay.DestinationPolicy != definition.EffectPlayDestination
+                    || effectPlay.Sources.Any(source => !effectPlay.ViewedCardIds.Contains(source.Key)
+                        || !authoritativeState.CardObjects.TryGetValue(source.Key, out var card)
+                        || source.Value != card.ObjectGeneration || !card.Tags.Contains(CardObjectTags.UnitCard)))
+                    errors.Add("invalid private deck effect-play continuation");
+            }
+            else if (effectPlay.ViewedCardIds is not null) errors.Add("viewed deck cards outside deck effect play");
         }
 
         if (authoritativeState.PendingCardChoice is not null)
@@ -29085,11 +29251,31 @@ public static class MatchRecoveryValidator
                 stackItem.SourceObjectId,
                 knownObjectIds,
                 errors);
+            var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
+                && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell)
+            {
+                foreach (var live in stackItems) targetReferences.Add(live.StackItemId);
+                foreach (var binding in stackItem.TargetStackSources ?? new Dictionary<string,string>())
+                {
+                    var live = stackItems.FirstOrDefault(item => item.StackItemId == binding.Key);
+                    if (!knownObjectIds.Contains(binding.Value) || live is not null && live.SourceObjectId != binding.Value
+                        || !(stackItem.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? stackItem.TargetObjectIds).Contains(binding.Key))
+                        errors.Add("invalid captured stack target identity");
+                    else targetReferences.Add(binding.Key);
+                }
+            }
+            else if (stackItem.TargetStackSources is { Count: > 0 })
+                errors.Add("stack target identity captured for a non-stack target scope");
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"stack item {stackItem.StackItemId} target object",
                 stackItem.TargetObjectIds,
-                knownObjectIds,
+                targetReferences,
                 errors);
+            if (stackItem.RepeatExecutions is { } executions)
+                foreach (var execution in executions)
+                    ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
+                        $"stack item {stackItem.StackItemId} repeat target object", execution.TargetObjectIds, targetReferences, errors);
         }
     }
 

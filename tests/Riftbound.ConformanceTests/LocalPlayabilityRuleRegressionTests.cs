@@ -481,18 +481,20 @@ public sealed class LocalPlayabilityRuleRegressionTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(MatchPhases.TurnStart, result.State.Phase);
+        result = await TurnSequenceTestDriver.Complete(result);
         Assert.Equal(MatchPhases.Main, result.State.Phase);
         Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
         Assert.Equal(1, result.State.PlayerScores["P1"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CREATE_MINION", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "HOLD_MINION", StringComparison.Ordinal));
         var scoreEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
         Assert.Equal("BATTLEFIELD_HELD_SCORE", scoreEvent.Payload["reason"]);
         var tokenEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["abilityId"] as string, "BATTLEFIELD_HELD_CREATE_MINION", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["abilityId"] as string, "HOLD_MINION", StringComparison.Ordinal));
         var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
         Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Base);
     }

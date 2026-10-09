@@ -38,6 +38,11 @@ public sealed record CardPlayTimingDecision(
 
 public static class CardPermissionKeywordRules
 {
+    public const string SpellPlayProhibitionReason = "本回合内不能打出法术；已在结算链上的法术仍可结算。";
+    public static bool IsSpellPlayProhibited(MatchState state, string player, CardBehaviorDefinition behavior)
+        => !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment
+            && state.UntilEndOfTurnEffects.Contains(SpellPlayProhibitionPrefix + player, StringComparer.Ordinal);
+    public const string SpellPlayProhibitionPrefix = "CANNOT_PLAY_SPELLS_THIS_TURN:";
     public static CardPermissionKeywordProfile BuildProfile(CardBehaviorDefinition behavior)
     {
         ArgumentNullException.ThrowIfNull(behavior);
@@ -76,8 +81,16 @@ public static class CardPermissionKeywordRules
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(behavior);
 
+        if (IsSpellPlayProhibited(state, playerId, behavior))
+            return Rejected(SpellPlayProhibitionReason);
+
         if (state.PendingEffectPlay is { } pending)
-            return new(pending.PlayerId == playerId && behavior.PlaysSourceToBaseAsUnit, "EFFECT_PLAY", "由正在结算的效果许可再次打出。");
+            return new(CoreRuleEngine.EffectPlayAllowsBehavior(state, playerId, behavior), "EFFECT_PLAY", "由正在结算的效果许可再次打出。");
+
+        // CN 312.2.c and 383: a confirmed trigger opens a response window even during turn start.
+        if (state.Phase is MatchPhases.Main or MatchPhases.TurnStart
+            && CanPlayReactionInPriorityWindow(state, playerId, behavior))
+            return new(true, CardPermissionKeywordNames.Reaction, "Reaction during an authoritative priority window.");
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
@@ -97,7 +110,7 @@ public static class CardPermissionKeywordRules
             return new CardPlayTimingDecision(
                 true,
                 CardPermissionKeywordNames.Reaction,
-                "Reaction card may be played by the priority player while a stack item is pending.");
+                "Reaction card may be played by the priority player in a response window.");
         }
 
         if (CanPlaySwiftInSpellDuelFocusWindow(state, playerId, behavior))
@@ -178,6 +191,7 @@ public static class CardPermissionKeywordRules
     private static bool IsTurnPlayerOrdinaryOpenMainPhase(MatchState state, string playerId)
     {
         return string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && state.StackItems.Count == 0
             && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal);
     }
 
@@ -187,7 +201,9 @@ public static class CardPermissionKeywordRules
         CardBehaviorDefinition behavior)
     {
         return (behavior.CanPlayDuringPriority || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction))
-            && state.StackItems.Count > 0
+            && (state.StackItems.Count > 0
+                || (state.BattleState.IsActive
+                    && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)))
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
     }

@@ -1,0 +1,193 @@
+{
+  "date": "2026-10-08",
+  "status": "reported Roam and related battlefield scope defects fixed; historical functional review incomplete",
+  "source": {
+    "baseCommit": "b0e6508380f694f281c251f517ba51e8adf3b58e",
+    "includesUncommittedChanges": true
+  },
+  "conformance": {
+    "counters": {
+      "total": "9448",
+      "executed": "9448",
+      "passed": "9448",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "targetedTestsPassed": 30,
+    "wrongSemanticTestsReplaced": 7,
+    "evidence": [
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/battlefield-final.trx",
+        "sha256": "3ee999ddcc0c9240d40ae44ab0e5f1c47a070364b79745fa6173c93a3d960c45",
+        "bytes": 14711787
+      },
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/final.log",
+        "sha256": "aed9fa794b50f5c05fdc4bb15f9671c26555d47bdc7e5185f6cc61ed4022a819",
+        "bytes": 1261
+      },
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/focused-final.log",
+        "sha256": "67c1f4b847d9bbc6f88277324c05eefebd1d5b8d747d4f861ed34033ad907873",
+        "bytes": 1146
+      }
+    ]
+  },
+  "native": {
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "productionMovementComposer": "Interaction only; initial proof bypassed Main payload assembly. Superseded by move-confirmation.json.",
+    "officialDestinationName": "PASS",
+    "evidence": [
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/native-final-build.log",
+        "sha256": "222bf9e3f2953766f31a7c6039c68db54fbbd0bdd3734236dbf995a852257738",
+        "bytes": 340
+      },
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/native-final-proof.log",
+        "sha256": "3a8272cc8f0c7f0199741feba23f161f4ad1345faef60e1d4b8a43ea5c271525",
+        "bytes": 231
+      }
+    ]
+  },
+  "offlineCommandVerification": {
+    "accepted": true,
+    "tick": 47,
+    "unit": "试玩玩家二-MAIN-SFD-069-221-12",
+    "location": {
+      "playerId": "试玩玩家二",
+      "zone": "BATTLEFIELD",
+      "battlefieldObjectId": "试玩玩家二-BATTLEFIELD-OGN-298-298-01"
+    },
+    "isExhausted": true,
+    "isActive": true,
+    "duplicateStable": true,
+    "staleRejected": true,
+    "serverStateWasNotModified": true,
+    "limitation": "Initial command was hand-assembled with an empty origin and did not prove Main submission. See move-confirmation.json for captured production payload and actual two-client acceptance."
+  },
+  "actualInstalledClients": {
+    "bothReconnected": true,
+    "playerTwoHasSelectedRoamDestination": "祖安地沟",
+    "moveWasNotConfirmed": true,
+    "screenshots": [
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/player1-restored.png",
+        "sha256": "bfdcf85755ce78835ca33be388827da96d42b4aa0dac94b68b18e2b684c41d89",
+        "bytes": 251951
+      },
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/player2-restored-roam.png",
+        "sha256": "d155974c0a1e8290e1a365f2ff97b91ced6868d1d5d171bf500c0881aea3aadd",
+        "bytes": 266667
+      }
+    ]
+  },
+  "preservedMatch": {
+    "room": "RB-KAISA-DUEL-389802",
+    "tick": 46,
+    "turn": 6,
+    "activePlayer": "试玩玩家二",
+    "scores": {
+      "试玩玩家一": 2,
+      "试玩玩家二": 2
+    },
+    "stateHashBeforeAndAfter": "FDC4060B4B72E21B57DF597C1A74FD847FB4D6D017CCBCACBBE4E8A9F012B191",
+    "authoritativeStateUnchanged": true,
+    "recoveryErrors": [],
+    "replayErrors": [],
+    "logs": [
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/before-recovery.log",
+        "sha256": "a89346ab6b2a9285dea61aab5977f82abe9e3e52f59d9e7876bf66e644ee01b9",
+        "bytes": 302
+      },
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/delivery-recovery.log",
+        "sha256": "a89346ab6b2a9285dea61aab5977f82abe9e3e52f59d9e7876bf66e644ee01b9",
+        "bytes": 302
+      },
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/restored-state.log",
+        "sha256": "c0fdd7927f7d6ede0f25a2e2a3823fd3baa101409afb8181f566fde76f2b15d2",
+        "bytes": 282
+      }
+    ]
+  },
+  "delivery": {
+    "macosExport": true,
+    "windowsExport": true,
+    "macosInstalledSignatureVerified": true,
+    "windowsRuntimeVerified": false,
+    "packages": [
+      {
+        "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-battlefield-aura/Riftbound-macos.zip",
+        "sha256": "3d86ed0a6f67f2420787d1f745e78c4dad3dcd6e883c2c089c79ef1864c72bb5",
+        "bytes": 142015075
+      },
+      {
+        "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-battlefield-aura/Riftbound-windows-x64.zip",
+        "sha256": "18fd99c8d071236dc9c72691c1e3988cd4adbf3d0279d7cf2bfe50081b6d0469",
+        "bytes": 88816853
+      }
+    ],
+    "logs": [
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/export-macos.log",
+        "sha256": "72869ffdf6af59764d02663af46f159f363338db217c7cce455de9b5ff9bb282",
+        "bytes": 90
+      },
+      {
+        "path": "var/qa/battlefield-aura-2026-10-08/export-windows.log",
+        "sha256": "2121786a577b7f94b6cd30fc73b2cbb5495c0cb18e23aae9f6839d596dde6e19",
+        "bytes": 92
+      }
+    ]
+  },
+  "inventory": {
+    "activeCards": 1009,
+    "officialBattlefields": 78,
+    "activeBattlefields": 57,
+    "historicalPartialFixtures": 738,
+    "warning": "Registry implemented status and stale partial fixture notes are not evidence of current full gameplay support.",
+    "files": [
+      {
+        "path": "docs/evidence/battlefield-aura-2026-10-08/active-card-rule-inventory.json",
+        "sha256": "76b0f2c1f71b99538fe4dcdd0036e6bed047c472b1830068dc582d1d660c7675",
+        "bytes": 750373
+      },
+      {
+        "path": "docs/evidence/battlefield-aura-2026-10-08/official-battlefield-review.json",
+        "sha256": "0349cdca8556c812b0dec0e5191d021f05d13da2dbae5bbf7c79c5388bfba002",
+        "bytes": 33454
+      },
+      {
+        "path": "docs/evidence/battlefield-aura-2026-10-08/inventory-summary.json",
+        "sha256": "1fd54b35ad0ac7e2743a4debeee9c9108dc7dada5ca8d24bc4c626884ddb78fa",
+        "bytes": 80489
+      }
+    ]
+  },
+  "remainingWork": [
+    "Movement-trigger timing, scope and simultaneous movement continuation",
+    "Real battlefield Ambush and Standby paths instead of abstract legacy destinations",
+    "Turn-start/held/defend optional choices, trigger ordering and APNAP continuation",
+    "Previously identified special last-breath and replacement gaps",
+    "Independent official-text-to-outcome review for the remaining registered cards",
+    "Windows runtime acceptance"
+  ],
+  "privateEvidence": "Full snapshots, private cards and session files remain in ignored var/qa. No credentials are copied to this record.",
+  "confirmationFixEvidence": "move-confirmation.json"
+}

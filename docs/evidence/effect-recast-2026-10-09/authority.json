@@ -1,0 +1,41 @@
+{
+  "documents": [
+    {
+      "ruleCategory": "核心规则",
+      "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/897d82c00906432eae5975b85a66a1c0.jpg",
+      "updateDate": "2026-07-17",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "localPath": "var/official/2026-10-08/01.pdf"
+    },
+    {
+      "ruleCategory": "破限系列 FAQ",
+      "ruleName": "破限系列 裁判FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-16/688953d3fea2420da802163a9381b33c.jpg",
+      "updateDate": "2026-05-11",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "localPath": "var/official/2026-10-08/06.pdf"
+    }
+  ],
+  "allOfficialDocumentsResyncedThisBatch": false,
+  "clauses": [
+    "CN 124.1",
+    "CN 359.3.e.14",
+    "CN 383.4.c",
+    "CN 419.3.b",
+    "CN 419.3.c",
+    "CN 419.4.a"
+  ],
+  "qa": [
+    "06.txt lines 500-518: Fizz / Kai Sa recast countered spells still recycle",
+    "06.txt lines 718-727: Kai Sa + Echo Rocket Barrage recycles instead of Jhin exile"
+  ],
+  "cards": [
+    "SFD·140/221",
+    "OGN·112/298",
+    "OGN·112a/298"
+  ],
+  "officialCardCatalogSha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7"
+}

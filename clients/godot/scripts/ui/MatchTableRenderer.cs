@@ -31,12 +31,14 @@ public sealed class MatchTableRenderer
     private readonly HashSet<string> _tapRunes = new(StringComparer.Ordinal);
     private readonly HashSet<string> _recycleRunes = new(StringComparer.Ordinal);
     private bool _runePending;
+    private readonly List<OfficialCardView> _handViews = [];
 
     private Vector2 _handCardSize = new(112, 156);
     private Vector2 _tableCardSize = new(84, 117);
     private Vector2 _compactCardSize = new(58, 81);
     private Vector2 _identityCardSize;
     private Vector2 _baseCardSize;
+    private Vector2 _opponentCardSize;
 
     public MatchTableRenderer(MatchScreen screen, Action<CardDictionary> cardActivated,
         Action<string, CardArray> pileRequested)
@@ -85,6 +87,7 @@ public sealed class MatchTableRenderer
 
     public void Clear()
     {
+        _handViews.Clear();
         _cardBindings.Clear();
         _opponentSummary.Text = "对手 · 等待数据";
         _selfSummary.Text = "我方 · 等待数据";
@@ -142,12 +145,14 @@ public sealed class MatchTableRenderer
 
     private void ConfigureCardSizes()
     {
-        var compactViewport = _screen.GetViewportRect().Size.Y <= 760;
-        _handCardSize = compactViewport ? new Vector2(128, 179) : new Vector2(148, 207);
-        _tableCardSize = compactViewport ? new Vector2(98, 137) : new Vector2(116, 162);
-        _identityCardSize = compactViewport ? new Vector2(74, 104) : new Vector2(86, 120);
-        _baseCardSize = compactViewport ? new Vector2(86, 120) : new Vector2(100, 140);
-        _compactCardSize = compactViewport ? new Vector2(48, 67) : new Vector2(56, 78);
+        var compactViewport = _screen.Size.Y <= 780;
+        var roomyViewport = _screen.Size.Y >= 1000;
+        _handCardSize = compactViewport ? new Vector2(108, 151) : roomyViewport ? new Vector2(148, 207) : new Vector2(128, 179);
+        _tableCardSize = compactViewport ? new Vector2(88, 123) : new Vector2(116, 162);
+        _identityCardSize = compactViewport ? new Vector2(62, 87) : new Vector2(74, 104);
+        _baseCardSize = compactViewport ? new Vector2(64, 90) : new Vector2(80, 112);
+        _compactCardSize = compactViewport ? new Vector2(36, 50) : new Vector2(44, 61);
+        _opponentCardSize = compactViewport ? new Vector2(44, 61) : new Vector2(56, 78);
     }
 
     private void RenderOpponentHand(CardDictionary opponent)
@@ -167,6 +172,7 @@ public sealed class MatchTableRenderer
 
     private void RenderSelfHand(CardDictionary self)
     {
+        _handViews.Clear();
         ClearChildren(_selfHand);
         var cards = ReadCards(self, "hand");
         _selfHandCount.Text = $"{cards.Count} 张";
@@ -180,13 +186,26 @@ public sealed class MatchTableRenderer
 
         foreach (var card in cards)
         {
-            AddCard(_selfHand, card, _handCardSize);
+            _handViews.Add(AddCard(_selfHand, card, _handCardSize));
         }
+        RefreshHandGeometry();
+    }
+
+    public void RefreshHandGeometry()
+    {
+        ConfigureCardSizes();
+        var extraControls = Math.Max(0, _layout.ActionPanel.CustomMinimumSize.Y - 60) + _screen.ConnectionBannerHeight;
+        var height = Math.Max(126, _handCardSize.Y - extraControls);
+        var size = _handCardSize * (height / _handCardSize.Y);
+        foreach (var card in _handViews) card.CustomMinimumSize = size;
+        _layout.SelfHand.UpdateMinimumSize();
+        _layout.SelfHand.QueueSort();
     }
 
     private void RenderPublicZones(Container parent, CardDictionary player)
     {
         ClearChildren(parent);
+        var ownPlayer = ReadString(player, "playerId") == _viewerPlayerId;
         foreach (var (key, label) in PublicZones)
         {
             var cards = ReadCards(player, key);
@@ -224,6 +243,7 @@ public sealed class MatchTableRenderer
                         Disabled = _runePending || _tapRunes.Count + _recycleRunes.Count == 0 };
                     header.AddChild(_runeBatchButton); MinimalTheme.Apply(_runeBatchButton);
                     _runeBatchButton.AddThemeFontSizeOverride("font_size", 12);
+                    CompactButton(_runeBatchButton, 28);
                     _runeBatchButton.Pressed += _screen.OpenRuneBatch;
                 }
             }
@@ -237,20 +257,32 @@ public sealed class MatchTableRenderer
                 zone.AddChild(row);
                 foreach (var card in cards)
                 {
-                    if (!ownRunes) { AddCard(row, card, key == "base" ? _baseCardSize : _compactCardSize); continue; }
+                    if (!ownRunes) { AddCard(row, card, ownPlayer ? _baseCardSize : _opponentCardSize); continue; }
                     var slot = new VBoxContainer(); slot.AddThemeConstantOverride("separation", 2); row.AddChild(slot);
                     AddCard(slot, card, _compactCardSize);
                     var id = ReadString(card, "objectId");
                     var recycle = new Button { Text = "回收", CustomMinimumSize = new Vector2(_compactCardSize.X, 24),
                         TooltipText = "回收到符文牌堆底部，获得 1 点对应特性的符能", Disabled = _runePending || !_recycleRunes.Contains(id) };
                     slot.AddChild(recycle); MinimalTheme.Apply(recycle); recycle.AddThemeFontSizeOverride("font_size", 12);
+                    CompactButton(recycle, 28);
                     recycle.Pressed += () => _screen.RecycleRune(id); _runeRecycleButtons[id] = recycle;
                 }
             }
             else if (cards.Count > 0 && key is not ("graveyard" or "banished"))
             {
-                AddCard(zone, cards[cards.Count - 1], key is "legend" or "hero" ? _identityCardSize : _compactCardSize, cards.Count);
+                AddCard(zone, cards[cards.Count - 1], ownPlayer ? _identityCardSize : _opponentCardSize, cards.Count);
             }
+        }
+    }
+
+    private static void CompactButton(Button button, float height)
+    {
+        button.CustomMinimumSize = new Vector2(button.CustomMinimumSize.X, height);
+        foreach (var state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
+        {
+            var style = (StyleBoxFlat)button.GetThemeStylebox(state).Duplicate();
+            style.SetContentMarginAll(3);
+            button.AddThemeStyleboxOverride(state, style);
         }
     }
 
@@ -343,7 +375,7 @@ public sealed class MatchTableRenderer
         }
     }
 
-    private void AddCard(
+    private OfficialCardView AddCard(
         Container parent,
         CardDictionary card,
         Vector2 size,
@@ -379,6 +411,7 @@ public sealed class MatchTableRenderer
                 _cardBindings[objectId] = new CardBinding(view, safeCard, restingState);
             }
         }
+        return view;
     }
 
     private static CardDictionary NeutralHiddenCard(int count)

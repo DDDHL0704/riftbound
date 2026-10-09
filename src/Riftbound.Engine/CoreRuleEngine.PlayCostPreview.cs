@@ -13,6 +13,11 @@ public sealed partial class CoreRuleEngine
         if (IsAmbushPlayMode(request.Command.Mode))
             return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.UnsupportedCommand, "此特殊打出方式暂不支持费用预览。");
 
+        if (CardBehaviorRegistry.TryGetByCardNoAndMode(request.Command.CardNo, request.Command.Mode, out var behavior)
+            && CardPermissionKeywordRules.IsSpellPlayProhibited(state, playerId, behavior))
+            return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PhaseNotAllowed,
+                CardPermissionKeywordRules.SpellPlayProhibitionReason);
+
         var accepted = TryBuildPlayCardPlan(state, new("COST_PREVIEW", playerId, CommandTypes.PlayCard),
             request.Command, out var plan, out var rejection, includeRejectionProjections: false);
         if (plan is null)
@@ -39,7 +44,7 @@ public sealed partial class CoreRuleEngine
         Adjust("下次法术减费", -plan.NextSpellCostReductionMana);
         Adjust("战场法术减费", -plan.BattlefieldSpellCostReductionMana);
         Adjust("战场增费", plan.BattlefieldHeldUnitCostIncreaseMana);
-        Adjust("法盾费用", plan.SpellshieldTaxMana);
+        Adjust("法盾费用", 0, plan.SpellshieldTaxPower);
         var cost = new PlayCostBreakdownDto(plan.Behavior.ManaCost, PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount,
             plan.TotalManaCost, plan.AnyPowerCost, plan.PowerCostByTrait, plan.TotalExperienceCost,
             pool.Mana, pool.Power, pool.PowerByTrait, missingMana, missingPower, missingExperience,

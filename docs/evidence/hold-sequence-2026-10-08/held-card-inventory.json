@@ -1,0 +1,750 @@
+{
+  "source": "data/official/upstream/2026-10-08/card-catalog.zh-CN.json",
+  "policy": "Every entry still needs branch-specific official behavior evidence; no automatic verified flag",
+  "cards": [
+    {
+      "cardNo": "OGN·066/298",
+      "name": "阿狸",
+      "subtitle": "嫣然狐媚",
+      "officialEffect": "当我据守一处战场时，你获得的分数+1。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·066a/298",
+      "name": "阿狸",
+      "subtitle": "嫣然狐媚",
+      "officialEffect": "当我据守一处战场时，你获得的分数+1。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·067/298",
+      "name": "布里茨",
+      "subtitle": "钢铁意志",
+      "officialEffect": "{{壁垒}}（我在战斗中首先承担伤害。）\n每当你将我打出到一处战场时，你可以选择移动任意一名敌方单位到此处。\n当我据守一处战场时，把我送回所属的手牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·275/298",
+      "name": "团结圣坛",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，打出一名1{{S}}的“随从”到你的基地。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·280/298",
+      "name": "帝柳之林",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·281/298",
+      "name": "圣化之墓",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，如果你的英雄区域已无英雄单位牌，则可以选择让该英雄从废牌堆中返回英雄区域。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·283/298",
+      "name": "纳沃利角斗场",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，给予此处的一名单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·286/298",
+      "name": "清算人竞技场",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，激活此处所有单位的征服效果。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·288/298",
+      "name": "星尖峰",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，你可以选择召出一枚休眠的符文。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·027/221",
+      "name": "穿沙角兽",
+      "subtitle": "",
+      "officialEffect": "如果你的手牌不超过两张，则我以活跃状态进场。\n当我据守一处战场时，抽两张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·035/221",
+      "name": "幽径守卫",
+      "subtitle": "",
+      "officialEffect": "当我据守一处战场时，你可以选择让你废牌堆里的一名单位或一件装备返回你的手牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·055/221",
+      "name": "超大型约德尔人",
+      "subtitle": "",
+      "officialEffect": "{{坚守5}}（如果我是防守方，则{{S}}+5。）\n{{壁垒}}（我在战斗中首先承担伤害。）\n在本回合内，你每通过据守获得1分，我的费用就减少{{2}}和{{绿色}}。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·058/221",
+      "name": "奥恩",
+      "subtitle": "铁匠",
+      "officialEffect": "当你打出我时，或当我据守一处战场时，查看主牌堆顶部的四张牌。你可以选择从中展示一件装备，并抽取该卡牌，然后回收其余卡牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·058a/221",
+      "name": "奥恩",
+      "subtitle": "铁匠",
+      "officialEffect": "当你打出我时，或当我据守一处战场时，查看主牌堆顶部的四张牌。你可以选择从中展示一件装备，并抽取该卡牌，然后回收其余卡牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·089/221",
+      "name": "兰博",
+      "subtitle": "机械师",
+      "officialEffect": "你的“机械”属性单位获得{{S}}+1。（包括我。）\n当我据守一处战场时，打出一名3{{S}}的“机器人”到你的基地。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·089a/221",
+      "name": "兰博",
+      "subtitle": "机械师",
+      "officialEffect": "你的“机械”属性单位获得{{S}}+1。（包括我。）\n当我据守一处战场时，打出一名3{{S}}的“机器人”到你的基地。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·150/221",
+      "name": "临终仪式",
+      "subtitle": "",
+      "officialEffect": "[装配] — 支付{{紫色}}，从你的废牌堆回收两张卡牌。（支付此费用：将此牌贴附到你控制的一名单位上。）\n当我征服或据守一处战场时，你可以选择从你的废牌堆中打出一名单位。（仍需支付其费用。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·152/221",
+      "name": "显赫金主",
+      "subtitle": "",
+      "officialEffect": "当我据守一处战场时，打出两个休眠的“金币”装备指示物。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·201/221",
+      "name": "炼金男爵",
+      "subtitle": "",
+      "officialEffect": "当你或一名友方玩家据守一处战场时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。\n如果你的得分距离胜利得分不超过3分，则你的“金币”装备指示物的{{获得}}效果额外产生{{1}}。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·214/221",
+      "name": "能量枢纽",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，你可以选择支付{{A}}{{A}}{{A}}{{A}}，以此额外获得1分。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·219/221",
+      "name": "彩纸灵树",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，每名玩家召出一枚休眠的符文。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SFD·249/221",
+      "name": "炼金男爵",
+      "subtitle": "",
+      "officialEffect": "当你或一名友方玩家据守一处战场时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。\n如果你的得分距离胜利得分不超过3分，则你的“金币”装备指示物的{{获得}}效果额外产生{{1}}。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-016/219",
+      "name": "焰爪",
+      "subtitle": "",
+      "officialEffect": "{{狩猎2}}（当我征服或据守一处战场时，获得2经验。）\n{{等级3>}} 我获得{{S}}+1，并以活跃状态进场。（如果你拥有不少于3经验，则获得该效果。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-034/219",
+      "name": "暖春之使",
+      "subtitle": "",
+      "officialEffect": "{{狩猎}}（当我征服或据守一处战场时，获得1经验。）\n当你打出我时，获得2经验。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-040/219",
+      "name": "无极学徒",
+      "subtitle": "",
+      "officialEffect": "{{狩猎}}（当我征服或据守一处战场时，获得1经验。）\n{{等级6>}} 当你打出我时，抽一张牌。（如果你拥有不少于6经验，则获得该效果。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-043/219",
+      "name": "热情的播报员",
+      "subtitle": "",
+      "officialEffect": "{{后排}}（我在战斗中最后承担伤害。）\n当我据守一处战场时，给予此处的所有单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-047/219",
+      "name": "踏苔蜥",
+      "subtitle": "",
+      "officialEffect": "{{狩猎2}}（当我征服或据守一处战场时，获得2经验。）\n{{等级3>}} 我获得{{S}}+1和{{法盾}}。（如果你拥有不少于3经验，则获得该效果。对手必须支付{{A}}才能将拥有{{法盾}}的目标选作法术或技能的目标。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-048/219",
+      "name": "特雷弗·达顿尔",
+      "subtitle": "",
+      "officialEffect": "{{坚守}}（如果我是防守方，则{{S}}+1。）\n当我据守一处战场时，在此处打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。（在其控制者的下个开始阶段开始时，结算得分之前将其摧毁。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-050/219",
+      "name": "娅希拉",
+      "subtitle": "",
+      "officialEffect": "当我据守一处战场时，在你的下一个主阶段开始时，你可以选择将一名敌方单位移动到此战场。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-051/219",
+      "name": "艾翁",
+      "subtitle": "自然恩赐",
+      "officialEffect": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。如果你展示了一名“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，则进行一次：给予一名友方单位{{增益}}。（如果其未拥有增益，则获得一个{{S}}+1增益。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-051a/219",
+      "name": "艾翁",
+      "subtitle": "自然恩赐",
+      "officialEffect": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。如果你展示了一名“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，则进行一次：给予一名友方单位{{增益}}。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-052/219",
+      "name": "娜美",
+      "subtitle": "移海之志",
+      "officialEffect": "你可以选择支付{{绿色}}，作为打出我的额外费用。\n当你打出我时，如果你支付了该额外费用，则{{眩晕}}一名敌方单位。（使其在本回合内无法造成战斗伤害。）\n当我据守一处战场时，则你本回合下一次打出一名单位时，让其变为活跃状态，并给予其{{增益}}。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-053/219",
+      "name": "迅捷蟹",
+      "subtitle": "",
+      "officialEffect": "（0{{S}}的单位可以进行征服和据守。）\n当你打出我时，抽一张牌。\n{{绝念>}} 选择一名对手。让其展示手牌。本回合内，你可以查看该对手正面朝下的卡牌。获得1经验。（当我被摧毁后，发动此效果。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-060/219",
+      "name": "卑鄙之喉",
+      "subtitle": "",
+      "officialEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n此处战力低于我的敌方单位无法造成战斗伤害。\n当我据守一处战场时，抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-060a/219",
+      "name": "卑鄙之喉",
+      "subtitle": "",
+      "officialEffect": "{{伏击}}\n此处战力低于我的敌方单位无法在战斗中造成伤害。\n当我据守一处战场时，抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-075/219",
+      "name": "风行狐",
+      "subtitle": "",
+      "officialEffect": "{{狩猎2}}（当我征服或据守一处战场时，获得2经验。）\n{{等级3>}} 我获得{{S}}+1和{{游走}}。（如果你拥有不少于3经验，则获得该效果。拥有{{游走}}的单位可以向其他战场进行移动。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-087/219",
+      "name": "苍蓝雕纹魔像",
+      "subtitle": "",
+      "officialEffect": "{{坚守2}}（如果我是防守方，则{{S}}+2。）\n你据守此处时的据守效果额外触发一次。\n当我据守一处战场时，在你的下一个主阶段开始时{{获得}}{{A}}。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-087a/219",
+      "name": "苍蓝雕纹魔像",
+      "subtitle": "",
+      "officialEffect": "{{坚守2}}\n你据守此处时的据守效果额外触发一次。\n当我据守一处战场时，在你的下一个主阶段开始时{{获得}}{{A}}。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-094/219",
+      "name": "晶手猎人",
+      "subtitle": "",
+      "officialEffect": "{{狩猎}}（当我征服或据守一处战场时，获得1经验。）\n{{等级6>}} 我获得{{S}}+1。（如果你拥有不少于6经验，则获得该效果。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-100/219",
+      "name": "贪食魔沼蛙",
+      "subtitle": "",
+      "officialEffect": "{{狩猎3}}（当我征服或据守一处战场时，获得3经验。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-102/219",
+      "name": "竞技场人气王",
+      "subtitle": "",
+      "officialEffect": "{{狩猎}}（当我征服或据守一处战场时，获得1点经验值。）\n消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-113/219",
+      "name": "易",
+      "subtitle": "臻入化境",
+      "officialEffect": "{{狩猎2}}（当我征服或据守一处战场时，获得2经验。）\n{{等级6>}} 我获得{{法盾}}和{{游走}}。（如果你拥有不少于6经验，对手必须支付{{A}}才能将我选作法术或技能的目标，且我可以向其他战场进行移动。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-117/219",
+      "name": "恐怖蛛怪",
+      "subtitle": "",
+      "officialEffect": "{{狩猎2}}（当我征服或据守一处战场时，获得2经验。）\n如果一处战场上的敌方单位落单，则可以将我打出至该战场。\n如果一处战场上的敌方单位落单，则可以将友方单位打出至该战场。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-119/219",
+      "name": "卡兹克",
+      "subtitle": "进化猎手",
+      "officialEffect": "{{狩猎}}（当我征服或据守一处战场时，获得1经验。）\n当我进攻时，你可以选择消耗3经验，以此对此处的一名敌方单位造成等同于我战力的伤害。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-162/219",
+      "name": "惊艳守护者",
+      "subtitle": "",
+      "officialEffect": "{{狩猎}}（当我征服或据守一处战场时，获得1经验。）\n消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-169/219",
+      "name": "艾希",
+      "subtitle": "凛如寒芒",
+      "officialEffect": "当你打出我时，选择一名对手。让该对手展示自己的手牌。选择一张对手以此方式展示的卡牌，将其放逐。当该对手据守一处战场时，让这张被放逐的牌返回其手牌（即使我已经不在场上）。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-177/219",
+      "name": "艾翁",
+      "subtitle": "万物之友",
+      "officialEffect": "打出我时，从“鸟类”、“猫科”、“犬形”或“魄罗”属性标签中选择一个。我获得该属性标签。\n当我征服或据守一处战场时，如果你的单位合计具有以下所有属性标签，则你获得1分 — “鸟类”、“猫科”、“犬形”和“魄罗”。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-177a/219",
+      "name": "艾翁",
+      "subtitle": "万物之友",
+      "officialEffect": "打出我时，从“鸟类”、“猫科”、“犬形”或“魄罗”属性标签中选择一个。我获得该属性标签。\n当我征服或据守一处战场时，如果你的单位合计具有以下所有属性标签，则你获得1分 — “鸟类”、“猫科”、“犬形”和“魄罗”。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-193/219",
+      "name": "愁云使者",
+      "subtitle": "",
+      "officialEffect": "当你或一名盟友据守一处战场时，你可以选择让我变为休眠状态，以此抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-195/219",
+      "name": "翠神",
+      "subtitle": "",
+      "officialEffect": "当你征服或据守一处战场时，你可以选择让我变为休眠状态，以此将该战场替换为一个“草丛”战场指示物。（位于草丛的“鸟类”、“猫科”、“犬形”、“魄罗”和“艾翁”属性单位获得{{S}}+1。得分后可将其换回原战场。）",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-199/219",
+      "name": "诡术妖姬",
+      "subtitle": "",
+      "officialEffect": "当你征服或据守一处战场时，你可以选择弃置一张手牌并让我变为休眠状态，以此在该处打出一名处于活跃状态的“映像”。然后进行一次：该“映像”变为该处另一名单位的复制体。让其获得{{瞬息}}。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-203/219",
+      "name": "圣锤之毅",
+      "subtitle": "",
+      "officialEffect": "当你据守一处战场时，获得1经验。\n消耗3经验，{{横置}}：抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-207/219",
+      "name": "业余排练厅",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，你可以选择将战场上的一名单位移动到其基地。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-216/219",
+      "name": "皮城学院",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，在本回合内，你的下一个法术获得等同于其基础费用的{{回响}}。（你可以选择支付此额外费用，以重复此法术效果。）",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-219/219",
+      "name": "海力亚秘库",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，你的非指示物单位在本回合内的打出费用增加{{1}}。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-232/219",
+      "name": "愁云使者",
+      "subtitle": "",
+      "officialEffect": "当你或一名盟友据守一处战场时，你可以选择让我变为休眠状态，以此抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-232*/219",
+      "name": "愁云使者",
+      "subtitle": "",
+      "officialEffect": "当你或一名盟友据守一处战场时，你可以选择让我变为休眠状态，以此抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-233/219",
+      "name": "翠神",
+      "subtitle": "",
+      "officialEffect": "当你征服或据守一处战场时，你可以选择让我变为休眠状态，以此将该战场替换为一个“草丛”战场指示物。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-233*/219",
+      "name": "翠神",
+      "subtitle": "",
+      "officialEffect": "当你征服或据守一处战场时，你可以选择让我变为休眠状态，以此将该战场替换为一个“草丛”战场指示物。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-235/219",
+      "name": "诡术妖姬",
+      "subtitle": "",
+      "officialEffect": "当你征服或据守一处战场时，你可以选择弃置一张手牌并让我变为休眠状态，以此在该处打出一名处于活跃状态的“映像”。然后进行一次：该“映像”变为该处另一名单位的复制体。让其获得{{瞬息}}。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-235*/219",
+      "name": "诡术妖姬",
+      "subtitle": "",
+      "officialEffect": "当你征服或据守一处战场时，你可以选择弃置一张手牌并让我变为休眠状态，以此在该处打出一名处于活跃状态的“映像”。然后进行一次：该“映像”变为该处另一名单位的复制体。让其获得{{瞬息}}。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-237/219",
+      "name": "圣锤之毅",
+      "subtitle": "",
+      "officialEffect": "当你据守一处战场时，获得1经验。\n消耗3经验，{{横置}}：抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "UNL-237*/219",
+      "name": "圣锤之毅",
+      "subtitle": "",
+      "officialEffect": "当你据守一处战场时，获得1经验。\n消耗3经验，{{横置}}：抽一张牌。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·293/298",
+      "name": "宏伟广场",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，如果你在此拥有至少七名单位，则你赢得游戏胜利。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "OGN·293a/298",
+      "name": "宏伟广场",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，如果你在此拥有至少七名单位，则你赢得游戏胜利。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "VEN·042",
+      "name": "慎",
+      "subtitle": "破影之光",
+      "officialEffect": "当我据守一处战场时，如果你在此处控制的其他单位有且仅有一个，则抽一张牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "VEN·042a",
+      "name": "慎",
+      "subtitle": "破影之光",
+      "officialEffect": "当我据守一处战场时，如果你在此处控制的其他单位有且仅有一个，则抽一张牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "VEN·053",
+      "name": "章獭",
+      "subtitle": "",
+      "officialEffect": "如果一名玩家将在其第一或第二个回合期间通过征服或据守获得1分，则改为该玩家抽一张牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "VEN·138",
+      "name": "慎",
+      "subtitle": "均衡领袖",
+      "officialEffect": "{{坚守}}（如果我是防守方，则{{S}}+1。）\n当我据守一处战场时，如果此处受你控制的其他单位有且仅有一个，则你获得1分。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "VEN·138a",
+      "name": "慎",
+      "subtitle": "均衡领袖",
+      "officialEffect": "{{坚守}}\n当我据守一处战场时，如果此处受你控制的其他单位有且仅有一个，则你获得1分。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "VEN·165",
+      "name": "影流寺院",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，{{燃烧3}}。（将你主牌堆顶部的三张牌放入你的废牌堆。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "VEN·170",
+      "name": "慎",
+      "subtitle": "破影之光",
+      "officialEffect": "当我据守一处战场时，如果你在此处控制的其他单位有且仅有一个，则抽一张牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "SGN·002/003·P·SC",
+      "name": "翠神",
+      "subtitle": "",
+      "officialEffect": "当你征服或据守一处战场时，你可以选择让我变为休眠状态，以此将该战场替换为一个“草丛”战场指示物。",
+      "classification": "HANDLER_FAMILY_CANDIDATE_REQUIRES_BRANCH_QA",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·067/167",
+      "name": "钟塔守护者",
+      "subtitle": "",
+      "officialEffect": "当你打出我时，或当我据守一处战场时，{{洞察3}}。\n{{绝念>}} 放逐你主牌堆顶部的一张牌。你可以选择将其打出，无视其法力费用。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·073/167",
+      "name": "搜刮来的武器堆",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你打出此牌时，或当你征服此处时，给予一名友方单位{{增益}}。（如果其未拥有增益，则获得一个{{S}}+1增益。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·086/167",
+      "name": "奎桑提",
+      "subtitle": "骄勇无敌",
+      "officialEffect": "{{急速}}（你可以选择额外支付{{1}}和{{C}}，让我以活跃状态进场。）\n{{坚守2}}（只要我是防守方，便{{S}}+2。） \n当我据守一处战场时，召出一枚符文。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·086a/167",
+      "name": "奎桑提",
+      "subtitle": "骄勇无敌",
+      "officialEffect": "{{急速}}\n{{坚守2}}\n当我据守一处战场时，召出一枚符文。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·136/167",
+      "name": "码头囚笼",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你打出此牌时，放逐此处的一名单位。\n当你据守此处时，摧毁此牌，以此打出所放逐的卡牌，无视其费用。（指示物不是卡牌。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·178/167",
+      "name": "奎桑提",
+      "subtitle": "骄勇无敌",
+      "officialEffect": "{{急速}}\n{{坚守2}}\n当我据守一处战场时，召出一枚符文。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·002/167",
+      "name": "征服之旗",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n此处的友方单位具有{{强攻}}。（只要他们是进攻方，便{{S}}+1。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·160/167",
+      "name": "星界绝景",
+      "subtitle": "",
+      "officialEffect": "当你据守此处时，如果你的符文牌堆为空，则你获得1分。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·024/167",
+      "name": "幻梦之根",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你在此处赢得一场战斗时，抽一张牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·106/167",
+      "name": "好东西",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你打出此牌时，弃置一张手牌，然后抽三张牌。\n当你据守此处时，让此牌返回其所属的手牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·116/167",
+      "name": "演出海报",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你打出此牌时，或当你征服此处时，你可以选择支付{{1}}，以此打出一名1{{S}}的“随从”单位指示物到你的基地。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·156/167",
+      "name": "德邦军旗",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当至少一名友方单位进攻此处时，给予其中一名在本回合内{{S}}+2。\n当你据守此处时，你可以选择让此牌返回其所属的手牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·109/167",
+      "name": "伊芙琳",
+      "subtitle": "掌握全场",
+      "officialEffect": "{{缴械}}（当我进攻时，给予此处的一名敌方单位在本回合内{{S}}-1。）\n当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·109a/167",
+      "name": "伊芙琳",
+      "subtitle": "掌握全场",
+      "officialEffect": "{{缴械}}\n当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·SP3/005",
+      "name": "伊芙琳",
+      "subtitle": "掌握全场",
+      "officialEffect": "{{缴械}}（当我进攻时，给予此处的一名敌方单位在本回合内{{S}}-1。）\n当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·017/167",
+      "name": "爆破增幅器",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你打出此牌时，你可以选择摧毁另一个友方单位或装备，以此抽一张牌。\n此处所有友方的{{绝念}}效果额外触发一次。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·087/167",
+      "name": "便携传送门",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你打出此牌时，你可以选择支付{{C}}，以此让此处的一名单位变为活跃状态。\n此处的友方单位具有{{游走}}。（他们可以从战场移动到其他战场。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·052/167",
+      "name": "资源开采器",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n在你回合结束时，如果此战场受你控制，则打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{T}}：{{获得}}{{A}}。”）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·062/167",
+      "name": "重力场",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n对手必须支付{{1}}和{{A}}，才能将一名或多名单位移动到此战场。\n{{绝念>}} 抽一张牌。（当我被摧毁后，发动此效果。）",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    },
+    {
+      "cardNo": "RAD·108/167",
+      "name": "伏击陷阱",
+      "subtitle": "",
+      "officialEffect": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n只要此战场受你或一名盟友控制，该玩家便可以选择在此处额外布置一张{{待命}}卡牌。",
+      "classification": "REQUIRES_HANDLER_REVIEW",
+      "policy": "Name-family match is inventory only, not proof of identity or behavior."
+    }
+  ]
+}

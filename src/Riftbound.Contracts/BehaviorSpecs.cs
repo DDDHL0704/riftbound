@@ -489,6 +489,7 @@ public sealed record TriggerSpec(
     int? DrawCount = null,
     int? DrawCountPerParticipant = null,
     int? MinimumPaidMana = null,
+    int? MinimumCardMana = null,
     int? RequiredOverkillDamage = null,
     int? RevealCount = null,
     string? RevealSourceZone = null,

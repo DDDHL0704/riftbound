@@ -123,8 +123,10 @@ public partial class OfficialCardView : PanelContainer
         _cardTexture.Visible = texture is not null;
         _fallbackBackground.Visible = texture is null;
         _fallbackLabel.Visible = texture is null;
+        var compactFallback = CustomMinimumSize.Y < 60;
+        _fallbackLabel.AddThemeFontSizeOverride("font_size", compactFallback ? 10 : 16);
         _fallbackLabel.Text = canRevealIdentity
-            ? ReadString(_card, "cardName", ReadString(_card, "cardNo", "CARD"))
+            ? compactFallback ? "卡牌" : ReadString(_card, "cardName", ReadString(_card, "cardNo", "CARD"))
             : "RIFTBOUND\nCARD BACK";
         _fallbackLabel.AddThemeColorOverride("font_color", canRevealIdentity
             ? MinimalTheme.Text

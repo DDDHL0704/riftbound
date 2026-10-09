@@ -12,7 +12,7 @@ public partial class FanHandContainer : Container
     {
         var cards = GetChildren().OfType<OfficialCardView>().ToArray();
         return cards.Length == 0 ? new Vector2(180, 28)
-            : new Vector2(Math.Max(180, 44 * (cards.Length - 1) + cards[0].CustomMinimumSize.X + 16), cards.Max(c => c.CustomMinimumSize.Y) + 40);
+            : new Vector2(Math.Max(180, 44 * (cards.Length - 1) + cards[0].CustomMinimumSize.X + 16), cards.Max(c => c.CustomMinimumSize.Y) + 28);
     }
     public void Register(OfficialCardView card, int index)
     {
@@ -43,10 +43,10 @@ public partial class FanHandContainer : Container
         {
             var card = cards[i]; var raised = card == _raised;
             var spread = cards.Length <= 1 ? 0 : (i - (cards.Length - 1) / 2f) / Math.Max(1, (cards.Length - 1) / 2f);
-            FitChildInRect(card, new Rect2(left + i * step, raised ? 14 : 20 + Math.Abs(spread) * 6, cardSize.X, cardSize.Y));
+            FitChildInRect(card, new Rect2(left + i * step, raised ? 10 : 12 + Math.Abs(spread) * 4, cardSize.X, cardSize.Y));
             card.PivotOffset = cardSize / 2;
             card.RotationDegrees = raised ? 0 : spread * 3;
-            card.Scale = raised ? new Vector2(1.1f, 1.1f) : Vector2.One;
+            card.Scale = raised ? new Vector2(1.08f, 1.08f) : Vector2.One;
             card.ZIndex = raised ? 20 : 0;
         }
     }

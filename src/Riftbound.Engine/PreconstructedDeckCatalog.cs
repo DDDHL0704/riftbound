@@ -14,8 +14,8 @@ public sealed record PreconstructedDeck(
     OfficialDecklist Decklist);
 
 /// <summary>
-/// Builds the shippable set of preconstructed decks. The card lists are derived from
-/// the official catalog (not hard-coded card numbers) and each result is checked with
+/// Builds starter and curated preconstructed decks from official catalog entries.
+/// Each result is checked with
 /// <see cref="OfficialDeckValidator"/> so an illegal definition fails fast rather than
 /// reaching a player.
 /// </summary>
@@ -79,7 +79,36 @@ public static class PreconstructedDeckCatalog
             "UNL-203/219",
             "UNL-116/219",
             ["OGS·013/024", "UNL-092/219"],
-            ["OGN·279/298"])
+            ["OGN·279/298"]),
+        new(
+            "kaisa-red-tempo",
+            "红卡莎 · 征服节奏",
+            "红卡莎急速抢场，德莱厄斯与低费法术接力进攻。7 炽烈 / 5 灵光。",
+            "OGN·247/298",
+            "OGN·039/298",
+            Copies(
+                ("SFD·069/221", 3), ("OGN·103/298", 3), ("OGN·096/298", 3),
+                ("OGN·012/298", 3), ("OGN·027/298", 3), ("OGN·087/298", 3),
+                ("OGN·039/298", 2), ("OGN·116/298", 2), ("OGN·026/298", 1),
+                ("OGN·009/298", 3), ("OGN·024/298", 3), ("OGN·029/298", 3),
+                ("OGN·095/298", 3), ("OGN·104/298", 2), ("OGN·093/298", 2)),
+            ["OGN·289/298", "OGN·280/298", "OGN·297/298"],
+            Copies(("OGN·007/298", 7), ("OGN·089/298", 5))),
+        new(
+            "kaisa-red-control",
+            "红卡莎 · 法术控场",
+            "用传奇补足法术符能，解场积累优势，铁甲先锋与千尾监视者收尾。7 炽烈 / 5 灵光。",
+            "OGN·247/298",
+            "OGN·039/298",
+            Copies(
+                ("OGN·095/298", 3), ("OGN·104/298", 2), ("OGN·009/298", 3),
+                ("SFD·080/221", 1), ("SFD·069/221", 3), ("OGN·103/298", 2),
+                ("OGN·096/298", 3), ("OGN·029/298", 3), ("OGN·093/298", 2),
+                ("OGN·087/298", 2), ("OGN·012/298", 3), ("SFD·077/221", 1),
+                ("SFD·021/221", 3), ("OGN·026/298", 1), ("OGN·105/298", 1),
+                ("OGN·114/298", 1), ("OGN·116/298", 3), ("OGN·122/298", 2)),
+            ["OGN·298/298", "SFD·216/221", "OGN·296/298"],
+            Copies(("OGN·007/298", 7), ("OGN·089/298", 5)))
     ];
 
     public static IReadOnlyList<PreconstructedDeck> Build(OfficialCardCatalog catalog, OfficialDeckFormat format = OfficialDeckFormat.CoreRules)
@@ -100,7 +129,8 @@ public static class PreconstructedDeckCatalog
                 definition.LegendCardNo,
                 definition.ChampionCardNo,
                 definition.RequiredMainDeckCardNos ?? [],
-                definition.RequiredBattlefieldCardNos ?? []);
+                definition.RequiredBattlefieldCardNos ?? [],
+                definition.RuneDeckCardNos);
             var validation = OfficialDeckValidator.Validate(decklist, catalog, format);
             if (!validation.IsValid)
             {
@@ -120,7 +150,8 @@ public static class PreconstructedDeckCatalog
         string legendCardNo,
         string championCardNo,
         IReadOnlyList<string> requiredMainDeckCardNos,
-        IReadOnlyList<string> requiredBattlefieldCardNos)
+        IReadOnlyList<string> requiredBattlefieldCardNos,
+        IReadOnlyList<string>? runeDeckCardNos)
     {
         var legend = cardsByNo[legendCardNo];
         var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
@@ -186,7 +217,7 @@ public static class PreconstructedDeckCatalog
                 $"Unable to fill a legal {OfficialDeckValidator.MinimumMainDeckCount}-card main deck for legend {legendCardNo}.");
         }
 
-        var runeDeck = catalog.Cards
+        var runeDeck = runeDeckCardNos?.ToArray() ?? catalog.Cards
             .Where(card => string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
             .Where(card => TraitsAllowed(card, allowedColors))
             .OrderBy(card => card.CardNo, StringComparer.Ordinal)
@@ -324,5 +355,9 @@ public static class PreconstructedDeckCatalog
         string LegendCardNo,
         string ChampionCardNo,
         IReadOnlyList<string>? RequiredMainDeckCardNos = null,
-        IReadOnlyList<string>? RequiredBattlefieldCardNos = null);
+        IReadOnlyList<string>? RequiredBattlefieldCardNos = null,
+        IReadOnlyList<string>? RuneDeckCardNos = null);
+
+    private static string[] Copies(params (string CardNo, int Count)[] cards) =>
+        cards.SelectMany(card => Enumerable.Repeat(card.CardNo, card.Count)).ToArray();
 }

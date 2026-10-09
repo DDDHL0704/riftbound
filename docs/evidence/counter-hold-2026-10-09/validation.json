@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-09",
+  "status": "THREE_SCOPED_BATCHES_VERIFIED_NOT_ALL_RULES",
+  "scopes": [
+    "Wind Wall counter repeat and ordinary spell exit ownership",
+    "Ornn Hold private equipment selection",
+    "Reinforcements top-five optional reduced-cost play"
+  ],
+  "officialCoreUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+  "officialCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "officialCardCatalogSha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+  "officialRefresh": "Fixed Chinese core PDF refetched directly over HTTP; identical to October 8 corpus. Not a full latest-announcement sync.",
+  "officialClauses": [
+    "157",
+    "315",
+    "316",
+    "321",
+    "355-359",
+    "359.3.d",
+    "383.4.d",
+    "820.2",
+    "820.2.a"
+  ],
+  "backendFull": {
+    "total": 8854,
+    "passed": 8854,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/counter-hold-guarded-final.trx",
+    "sha256": "0e524881d80672434ce5057d514faa06cb712248bd5800ba7b87ceec4a8d5c8d",
+    "log": "full-guarded-final.log"
+  },
+  "focused": {
+    "total": 74,
+    "passed": 74,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/counter-hold-scoped-final.trx",
+    "sha256": "2ff5bafadeba738ce16899046a1239705bf58250ecb8c74f5c46f28a0f7488e2",
+    "log": "scoped-final.log"
+  },
+  "nativeCommandRoundTrip": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/counter-hold-native-command-final.trx",
+    "sha256": "166a73c386f82676189994be6b73f6dfd9e80911f29877074a060effcabec2bc",
+    "log": "native-command-final.log"
+  },
+  "testCountsOverlap": true,
+  "nativeBuild": "Zero warnings and errors",
+  "nativeInteraction": "COUNTER_HOLD_INTERACTION_PASS",
+  "nativeVisualScope": "Production Godot controls with backend candidates/quotes; placeholder card art; header layout and visible confirm checked. Not paired live-client or Windows acceptance.",
+  "replayHashes": {
+    "counter": "471e64e728596477032b0b58201a70b1205e8e4c9bed9a59dc71a6734aad96a5",
+    "ornn": "1c3fff6a46e7715d1c42ff1ba5fea291ceaa176977a76f8792a941bdf86b3290",
+    "reinforcements": "26cf288d0c3be141019fbf4e12ec5657b3e5d457c9c4428961e6ff2ec11c927a"
+  },
+  "runningServiceRestarted": false,
+  "packagesReplaced": false,
+  "oldMatchMigrated": false,
+  "remaining": [
+    "Abandon Insight and Nightfall Lullaby spell prohibition missing in historical behavior",
+    "Quick Counter ability targets and Reversal retargeting",
+    "Hard Bargain opponent payment continuation and non-Wind-Wall counter repeats",
+    "Jhin special banish replacement ownership and tracking",
+    "Other basic rules and QA, special Echo, effect-play repeats, simultaneous ordering",
+    "Paired live clients, packages and Windows runtime acceptance"
+  ],
+  "sourceHashes": {
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "31343b223bd791a628607c2d0163db3af66cdeaa2b9cb84a782b5b688d6cc8dc",
+    "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs": "fc4340930fff47a98c747579bb8d841570403da9dfd8d5632920366bed314fdb",
+    "src/Riftbound.Engine/CoreRuleEngine.Hold.cs": "fabafcc148b140ea53c9be4167c47e3f2866826b68c6425558f390c5b957727c",
+    "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs": "0be7ac2ff5052a0a934d5f6f2c07a12dd9ac5eed912482b1d32d2d44fe25c200",
+    "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs": "86e7a7667754868f33dfc092421a21f01e80dbcc5f5632150a0ab8ff4795720b",
+    "src/Riftbound.Engine/CardBehaviorRegistry.cs": "9f0145b3659db33a8457fe47d18c0eb7284cdb3fe28f8c11ddc5356a23f278da",
+    "src/Riftbound.Engine/MatchSession.cs": "3eccebe19b617460dfc671021616ea6d4ceb2f78f77b9753bbcd29d9d7aeba75",
+    "src/Riftbound.Engine/MatchRecovery.cs": "3cd6ac83b0362868debc9eed6f71709564c47311dba648bf15328a863260fb82",
+    "clients/godot/scripts/Main.cs": "b1a045a757393a9bb98ce287fc7ec767449544ff6daaed29db2dede98dbfbb9c",
+    "clients/godot/scripts/debug/CounterHoldInteractionProof.cs": "bb62c56c148d9986ebe4de0d8fb2f54060a873267a535919781d73e08ca0f9ac",
+    "clients/godot/scenes/debug/CounterHoldInteractionProof.tscn": "c65cba3c7459688192e59779bdc51ea3b26dd412c8377864b6b53b40178734f3",
+    "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs": "e03437b826803f4c6a0a026032cd0504c329bd433f5a59e87c1350b178fc7fc6",
+    "tests/Riftbound.ConformanceTests/OfficialOrnnHoldTests.cs": "94464599784a3833ee1681017266f9a0b8f34470af4c579f87d4a79ec396a8f3",
+    "tests/Riftbound.ConformanceTests/OfficialReinforcementsTests.cs": "3572cf9b11a3bedab5df06e460ed169e67309b639a1cf237c9e5fb99817fa2e7",
+    "tests/Riftbound.ConformanceTests/CounterHoldContinuationTests.cs": "972416b25953be62070c301562f5d8ba1d790c7515b69a5b0555ed9f2ee49043",
+    "tests/Riftbound.ConformanceTests/OfficialRepeatAndDeckChoiceTests.cs": "8651bf6933aa48974d4078173489426a7444136e9bcf517e333e407faa500601",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-reinforcements-no-selection-recycle-top-five.fixture.json": "fb181e480628eb02e555573493acc77559f470355c124339d0234dd7514f2ebe"
+  },
+  "artifactHashes": {
+    "counter-candidate.json": "d409656649beccce61ddb6be54aaacd98ef1493937a9053830129d70cea9e291",
+    "counter-quote.json": "da1ef06e865b188c900102bf6465c3f49a55752e555cdd7576728cff00781494",
+    "counter-replay.json": "67c096b455733e31d3edcc581c722f17fbd7a921d5bb4b27fc9329b6a8b1006f",
+    "full-guarded-final.log": "856d08de572066afe01fe9a35cf82ecd0fc3cb2e910515c84bc8e167a74cf009",
+    "native-build-final.log": "bd589ea26c90ebc54d6831aeb3f807982b49d4d2ef8bb5b7231a9cafbf0f9d66",
+    "native-command-final.log": "6e3d459bca38e5f8e100e466de99fa39f162ff9af8d3e3152aa1c9a0067dd86a",
+    "native-counter-command.json": "3e4ff142db3186ac3524a764e8e75c39d878dea12fb005b142b00af6d84b1ad0",
+    "native-counter-layout.json": "346b6c3223f29a6c2411ff8b82f8168e7fa8693bc392cc2bb5a0b00c9a46d0d5",
+    "native-counter.png": "3bd8f0dd80c9676e14853e0aab0f6e83434294e152674932b042093d58cc316b",
+    "native-ornn-command.json": "b9231398fcc93292feb79edf045efce55f5e0a2299088c2ff80094598a7f5c4b",
+    "native-reinforcements-command.json": "5886392599529d419770197b27978125c2dc1fb744ab140938e0d7c3eaffa339",
+    "native-reinforcements-layout.json": "24f973ae0fd851220d0cbd84d9925c535acac41ae69bf97662177e94d172befb",
+    "native-reinforcements.png": "df432a6053b7b7272d98269a10a8e9de341a303c97ee0270c26e08591f08e5d0",
+    "native-visual-final.log": "18f70575124afbb6662a9051ac47ea32f733b32dffdfba8b3d3ed6cef0561de8",
+    "ornn-prompt.json": "a1ae743b1b811f36c8a8d3d5f4d70c34a2e0861c14fb0fc6a21232995b9d9279",
+    "ornn-replay.json": "00e2caba8e7e4d843d1ef18136e656a032b9653a5dd813f896ca9915937ba26d",
+    "reinforcements-candidate.json": "6a1f3018160e10bf64e7ee40b7ef0f90143912848d577b10fa7ce069a7f5f068",
+    "reinforcements-prompt.json": "e1c8bc19e9e7d3841ba8f1a0abdce599eb893fae8f0dfded87acbe784438109d",
+    "reinforcements-quote.json": "1e22a23012ee60f9dd25aad5a0a35c752b083c0abf9a3c2c617629a2a6e35e2b",
+    "reinforcements-replay.json": "d679f638b336f1c6a9a42a62236ea2f32adf328f12d617335b96eaa83ba9d1f7",
+    "scoped-final.log": "69f50cc4f6640de56428c4c83dfedfcf0ee318edb87ef0e8381adde998a09708"
+  }
+}

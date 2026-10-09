@@ -15,6 +15,30 @@ namespace Riftbound.GodotClient.Debug;
 public partial class BattleTableInteractionProof : Control
 {
     private static void Check(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
+    private static void CheckTableBounds(MatchScreen screen)
+    {
+        var layout = screen.TableLayout;
+        Check(layout.ActionPanel.GetGlobalRect().End.Y <= screen.GetGlobalRect().End.Y + 1,
+            $"Bottom action bar must stay within viewport: screen={screen.Size}, root={layout.Root.Size}, action={layout.ActionPanel.GetGlobalRect()}, field={layout.Battlefields[0].Panel.GetGlobalRect()}, base={layout.BaseZone.GetGlobalRect()}, hand={layout.SelfHand.GetGlobalRect()}");
+        Check(layout.SelfHand.GetGlobalRect().End.Y <= layout.ActionPanel.GetGlobalRect().Position.Y, "Hand must remain above action bar under load");
+        foreach (var field in layout.Battlefields)
+        {
+            Check(field.Panel.GetGlobalRect().End.Y <= layout.BaseZone.GetGlobalRect().Position.Y,
+                "Own base must not cover the battlefield");
+            var cards = field.OpponentUnits.GetChildren().Concat(field.SelfUnits.GetChildren()).OfType<OfficialCardView>().ToArray();
+            Check(cards.Length == 6, "Visibility fixture must include both sides' units");
+            foreach (var card in cards)
+            {
+                var bounds = card.GetGlobalRect();
+                Check(bounds.Size.Y > 0 && bounds.Position.Y >= screen.GetGlobalRect().Position.Y && bounds.End.Y <= screen.GetGlobalRect().End.Y,
+                    "Battlefield cards must remain inside the visible table");
+                for (var ancestor = card.GetParent(); ancestor is not null; ancestor = ancestor.GetParent())
+                    if (ancestor is Control clip && (clip.ClipContents || clip is ScrollContainer))
+                        Check(bounds.Position.Y >= clip.GetGlobalRect().Position.Y - 1 && bounds.End.Y <= clip.GetGlobalRect().End.Y + 1,
+                            $"Battlefield card is vertically clipped by {clip.GetClass()}: card={bounds}, viewport={clip.GetGlobalRect()}");
+            }
+        }
+    }
     public override async void _Ready()
     {
         try
@@ -27,12 +51,37 @@ public partial class BattleTableInteractionProof : Control
             var playCandidate = candidates.First(candidate => candidate.GetProperty("action").GetString() == "PLAY_CARD");
             var screen = GD.Load<PackedScene>("res://scenes/screens/MatchScreen.tscn").Instantiate<MatchScreen>();
             AddChild(screen);
-            CardDictionary Visible(string id) => new() { ["objectId"] = id, ["cardName"] = "测试单位", ["visible"] = true };
+            var requestedSize = OS.GetCmdlineUserArgs().FirstOrDefault(arg => arg.StartsWith("--table-size="))?[13..] ?? "1440x900";
+            var dimensions = requestedSize.Split('x').Select(float.Parse).ToArray();
+            screen.SetAnchorsAndOffsetsPreset(LayoutPreset.TopLeft);
+            // Headless display reports a square viewport on macOS. Reproduce the
+            // native project's canvas_items/expand geometry from the requested window.
+            var canvas = new Vector2(ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(),
+                ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32());
+            var scale = Math.Min(dimensions[0] / canvas.X, dimensions[1] / canvas.Y);
+            screen.Size = new Vector2(dimensions[0], dimensions[1]) / scale;
+            var visualProof = OS.GetCmdlineUserArgs().Contains("--visual-proof");
+            var artwork = new Dictionary<string, CardDictionary>();
+            if (visualProof)
+            {
+                GetTree().Root.Title = "布局验收 · 模拟满场";
+                var catalog = await new OfficialCardCatalogService().LoadSnapshotAsync("res://data/card-catalog.zh-CN.json");
+                var factory = new CardViewFactory(new OfficialCardImageLoader());
+                foreach (var (role, cardNo) in new[] { ("legend", "OGN·247/298"), ("hero", "OGN·039/298"),
+                    ("rune", "OGN·007/298"), ("one", "OGN·289/298"), ("two", "OGN·298/298"), ("unit", "OGN·096/298") })
+                    artwork[role] = (await factory.BuildAsync(new(role, cardNo, true, false), catalog, default)).ToGodotDictionary();
+            }
+            CardDictionary Visible(string id)
+            {
+                if (!visualProof) return new() { ["objectId"] = id, ["cardName"] = "测试单位", ["visible"] = true };
+                var role = artwork.Keys.FirstOrDefault(key => id == key || id.EndsWith("-" + key)) ?? "unit";
+                var card = artwork[role].Duplicate(true); card["objectId"] = id;
+                return card;
+            }
             var movement = new MovementOverlay { TableMode = true }; screen.ComposerHost.AddChild(movement);
             var play = new PlayCardOverlay { TableMode = true }; screen.ComposerHost.AddChild(play);
             var source = moveCandidate.GetProperty("metadata").GetProperty("sourceRequirements")[0].GetProperty("sourceObjectId").GetString()!;
             Check(movement.Open(moveCandidate, "TABLE-PROOF", 1, Visible, label => label, source), "Movement candidate must open");
-            Check(movement.OriginFor(source) == "BASE", "Native movement must retain its server-authored origin for recovery");
             Check(movement.TableSelectedObjects.SequenceEqual(new[] { source }), "Clicking a unit must preselect exactly that unit");
             Check(!movement.TryToggleTableSource("not-authorized"), "Unknown source cannot be selected");
             Check(!movement.TrySelectTableDestination("BATTLEFIELD:invented"), "Unknown destination cannot be selected");
@@ -41,7 +90,7 @@ public partial class BattleTableInteractionProof : Control
             var next = movement.TableSources.FirstOrDefault(id => id != source);
             if (next is not null) Check(movement.TryToggleTableSource(next) && movement.TableSelectedObjects.Count() == 2, "Group movement must retain two selected sources");
             var submitCount = 0;
-            movement.Confirmed += (destination, ids) => { submitCount++; Check(ids.Contains(source), "Submission must preserve source identity"); };
+            movement.Confirmed += payload => { submitCount++; Check(((string[])payload["sourceObjectIds"]!).Contains(source), "Submission must preserve source identity"); Check(!payload.ContainsKey("origin"), "Each source origin is resolved by the server"); };
             var moveConfirm = (Button)movement.FindChild("ConfirmMovementButton", true, false);
             moveConfirm.EmitSignal(Button.SignalName.Pressed); moveConfirm.EmitSignal(Button.SignalName.Pressed);
             Check(submitCount == 1 && movement.Visible && moveConfirm.Disabled, "Pending movement must stay open and reject double submission");
@@ -86,9 +135,9 @@ public partial class BattleTableInteractionProof : Control
                 ["chain"] = new CardArray(Enumerable.Range(0, 6).Select(i => new CardDictionary { ["objectId"] = "stack-" + i, ["title"] = "待结算法术", ["detail"] = "我方 → 对手单位" })) } });
             screen.SetComposerVisible(false);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            Check(screen.ActionBar.GetGlobalRect().End.Y <= screen.GetGlobalRect().End.Y + 1, "Bottom action bar must stay within viewport");
+            GD.Print($"TABLE_GEOMETRY screen={screen.Size} root={screen.TableLayout.Root.Size} field={screen.TableLayout.Battlefields[0].Panel.GetGlobalRect()} base={screen.TableLayout.BaseZone.GetGlobalRect()} hand={screen.TableLayout.SelfHand.GetGlobalRect()} action={screen.TableLayout.ActionPanel.GetGlobalRect()}");
+            CheckTableBounds(screen);
             Check(!screen.TableLayout.InspectPanel.Visible, "Empty card preview must collapse");
-            Check(screen.TableLayout.SelfHand.GetGlobalRect().End.Y <= screen.TableLayout.ActionPanel.GetGlobalRect().Position.Y, "Hand must remain above action bar under load");
             screen.TableDragRequested = _ => true;
             screen.SetObjectState("one-opponent-0", OfficialCardVisualState.LegalTarget);
             screen.SetDestinationChoices(["BATTLEFIELD:one"]);
@@ -116,6 +165,7 @@ public partial class BattleTableInteractionProof : Control
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             Check(confirm.GetGlobalRect().End.Y <= screen.GetGlobalRect().End.Y + 1, "Composer submit button must stay within viewport");
             Check(confirm.GetGlobalRect().End.X <= screen.GetGlobalRect().End.X + 1, "Composer submit button must stay within width");
+            CheckTableBounds(screen);
             using var visibleEvent = JsonDocument.Parse("""{"kind":"STACK_ITEM_RESOLVED","description":"STACK-RAW-ID 结算","objectRefs":[{"role":"来源","cardNo":"OGN·009/298","isHidden":false,"isFaceDown":false}]}""");
             Check(BattleEventPresenter.Describe(visibleEvent.RootElement, "own", _ => "海克斯射线") == "海克斯射线已结算", "Activity must show card names instead of stack identifiers");
             using var hiddenEvent = JsonDocument.Parse("""{"kind":"STACK_ITEM_RESOLVED","objectRefs":[{"role":"来源","cardNo":"POISON","isHidden":true}]}""");
@@ -129,6 +179,14 @@ public partial class BattleTableInteractionProof : Control
             Check(!controller.TrySelectSource("unit") && !controller.TrySelectObject("unit") && controller.Current?.CanSubmit == false,
                 "One card with two abilities must not silently choose the first ability");
             Check(controller.TrySelectChoice("source", "ability-b") && controller.Current?.CanSubmit == true, "Explicit server alias must remain selectable");
+            screen.ActionBar.ShowSelection(controller.Current!, [], "选择技能", true);
+            for (var frame = 0; frame < 4; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            CheckTableBounds(screen);
+            screen.ActionBar.ClearSelectionDisplay();
+            screen.SetConnectionStatus(false, true);
+            for (var frame = 0; frame < 4; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            CheckTableBounds(screen);
+            screen.SetConnectionStatus(true, false);
             ambiguousPrompt["snapshotTick"] = 2L; controller.Load(ambiguousPrompt);
             Check(controller.Current is null, "A new snapshot must discard the previous card choice");
             using var battleCandidate = JsonDocument.Parse(File.ReadAllText(Path.Combine(Path.GetDirectoryName(path)!, "battle-declaration-prompt.json")));
@@ -169,7 +227,14 @@ public partial class BattleTableInteractionProof : Control
                     p95Ms = samples[854], p99Ms = samples[890], maxMs = samples[^1]
                 }));
             }
-            GD.Print("BATTLE_TABLE_INTERACTION_PASS"); GetTree().Quit();
+            GD.Print("BATTLE_TABLE_INTERACTION_PASS");
+            if (visualProof)
+            {
+                screen.SetComposerVisible(false); screen.ClearPromptStates();
+                screen.SetTurnStatus("布局验收 · 模拟满场", "每处战场双方各 3 名单位；横向滚动查看更多单位。", false);
+                return;
+            }
+            GetTree().Quit();
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
     }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ravenbloom-student-spell-power-plus-1",
-  "description": "Ravenbloom Student gets +1 power until end of turn when its controller plays a spell.",
+  "description": "CN 419.4: spell resolves, then Ravenbloom trigger receives its own response window and resolves for +1 this turn.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -23,10 +23,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
       "note": "单位和法术是游戏对象；打出法术需要支付费用、选择合法目标、加入结算链并在双方让过后结算；期限为本回合内的战力修正由回合结束特殊清理移除。"
+    },
+    {
+      "source": "CN core 2026-07-23",
+      "locator": "419.4.a/a.1",
+      "note": "Spell-play trigger only occurs on completed resolution; countered spells do not trigger."
     }
   ],
   "roomId": "p2-preflight-ogn-103-ravenbloom-student-spell-power-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302609,
     "turnNumber": 609,
@@ -34,33 +42,66 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
-      "P1": { "mana": 1, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 1,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-PRACTICAL-EXPERIENCE"],
-        "base": ["P1-UNIT-RAVENBLOOM-STUDENT"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-PRACTICAL-EXPERIENCE"
+        ],
+        "base": [
+          "P1-UNIT-RAVENBLOOM-STUDENT"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
+        "battlefields": [
+          "P2-BATTLEFIELD-UNIT-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -70,7 +111,9 @@
         "cardNo": "OGN·103/298",
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false,
@@ -82,7 +125,9 @@
         "cardNo": "UNL-097/219",
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       }
@@ -96,7 +141,9 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-PRACTICAL-EXPERIENCE",
         "cardNo": "UNL-031/219",
-        "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"]
+        "targetObjectIds": [
+          "P2-BATTLEFIELD-UNIT-001"
+        ]
       }
     },
     {
@@ -112,23 +159,44 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "raven-completed-trigger-P1",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "raven-completed-trigger-P2",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 5,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
-      "TRIGGER_RESOLVED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "TRIGGER_RESOLVED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -138,15 +206,50 @@
         }
       },
       {
-        "kind": "TRIGGER_RESOLVED",
+        "kind": "STACK_ITEM_ADDED",
         "payload": {
-          "playerId": "P1",
-          "trigger": "UNIT_SPELL_PLAYED_POWER_MODIFIER",
-          "triggerSourceObjectId": "P1-UNIT-RAVENBLOOM-STUDENT",
-          "playedCardNo": "UNL-031/219",
-          "playedSourceObjectId": "P1-SPELL-PRACTICAL-EXPERIENCE",
-          "powerDelta": 1
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-PRACTICAL-EXPERIENCE",
+          "cardNo": "UNL-031/219",
+          "targetObjectIds": [
+            "P2-BATTLEFIELD-UNIT-001"
+          ],
+          "effectKind": "PRACTICAL_EXPERIENCE_POWER_PLUS_1"
         }
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-PRACTICAL-EXPERIENCE",
+          "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
+          "powerDelta": 1,
+          "appliedPowerDelta": 1,
+          "resultingPower": 3
+        }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
@@ -159,32 +262,24 @@
         }
       },
       {
-        "kind": "STACK_ITEM_ADDED",
+        "kind": "TRIGGER_RESOLVED",
         "payload": {
-          "controllerId": "P1",
-          "sourceObjectId": "P1-SPELL-PRACTICAL-EXPERIENCE",
-          "cardNo": "UNL-031/219",
-          "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"],
-          "effectKind": "PRACTICAL_EXPERIENCE_POWER_PLUS_1"
-        }
-      },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
-      {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
-        "payload": {
-          "sourceObjectId": "P1-SPELL-PRACTICAL-EXPERIENCE",
-          "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
-          "powerDelta": 1,
-          "appliedPowerDelta": 1,
-          "resultingPower": 3
+          "playerId": "P1",
+          "trigger": "UNIT_SPELL_PLAYED_POWER_MODIFIER",
+          "triggerSourceObjectId": "P1-UNIT-RAVENBLOOM-STUDENT",
+          "playedCardNo": "UNL-031/219",
+          "playedSourceObjectId": "P1-SPELL-PRACTICAL-EXPERIENCE",
+          "powerDelta": 1
         }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 609,
@@ -192,21 +287,40 @@
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
-      "untilEndOfTurnEffects": ["PLAYED_SPELL_THIS_TURN:P1"],
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "untilEndOfTurnEffects": [
+        "PLAYED_SPELL_THIS_TURN:P1"
+      ],
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-RAVENBLOOM-STUDENT"],
-          "graveyard": ["P1-SPELL-PRACTICAL-EXPERIENCE"]
+          "base": [
+            "P1-UNIT-RAVENBLOOM-STUDENT"
+          ],
+          "graveyard": [
+            "P1-SPELL-PRACTICAL-EXPERIENCE"
+          ]
         },
         "P2": {
-          "battlefields": ["P2-BATTLEFIELD-UNIT-001"]
+          "battlefields": [
+            "P2-BATTLEFIELD-UNIT-001"
+          ]
         }
       },
       "cardObjects": {
@@ -216,19 +330,23 @@
           "cardNo": "OGN·103/298",
           "damage": 0,
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 1,
           "isExhausted": false,
           "isFaceDown": false
         },
-      "P2-BATTLEFIELD-UNIT-001": {
-        "ownerId": "P2",
-        "controllerId": "P2",
-        "cardNo": "UNL-097/219",
-        "damage": 0,
-        "power": 3,
-        "tags": ["CARD_TYPE:UNIT"],
+        "P2-BATTLEFIELD-UNIT-001": {
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "cardNo": "UNL-097/219",
+          "damage": 0,
+          "power": 3,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 1
         }
@@ -236,8 +354,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

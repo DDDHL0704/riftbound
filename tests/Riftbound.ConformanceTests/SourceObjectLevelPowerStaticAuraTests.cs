@@ -106,7 +106,7 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
     [Fact]
     public void MossStepperLevelSpellshieldProjectsSourceObjectKeywordAuraAtRequiredExperience()
     {
-        var state = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 3);
+        var state = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 2, wardPower: 1);
 
         var keywordAura = Assert.Single(
             state.ContinuousEffects,
@@ -126,7 +126,7 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
     [Fact]
     public async Task MossStepperLevelSpellshieldAddsEnemySpellTargetTaxWithoutMaterializedTag()
     {
-        var state = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 3);
+        var state = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 2, wardPower: 1);
         Assert.DoesNotContain(CardObjectTags.Spellshield, state.CardObjects[MossStepperLevelSpellshieldObjectId].Tags);
 
         var result = await new CoreRuleEngine().ResolveAsync(
@@ -140,10 +140,10 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
 
         Assert.True(result.Accepted, result.ErrorMessage);
         var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
-        Assert.Equal(3, costPaidEvent.Payload["mana"]);
+        Assert.Equal(2, costPaidEvent.Payload["mana"]);
         Assert.Equal(2, costPaidEvent.Payload["baseManaCost"]);
-        Assert.Equal(3, costPaidEvent.Payload["totalManaCost"]);
-        Assert.Equal(1, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(2, costPaidEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costPaidEvent.Payload["spellshieldTaxPower"]);
         Assert.Equal(
             [MossStepperLevelSpellshieldObjectId],
             Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
@@ -166,12 +166,12 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
         Assert.True(result.Accepted, result.ErrorMessage);
         var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
         Assert.Equal(2, costPaidEvent.Payload["mana"]);
-        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxPower"]);
         Assert.Empty(Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
     }
 
     [Fact]
-    public void MossStepperLevelSpellshieldTaxFiltersPlayCardPromptWhenTaxManaIsMissing()
+    public void MossStepperLevelSpellshieldTaxFiltersPlayCardPromptWhenTaxPowerIsMissing()
     {
         var insufficientState = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 2);
 
@@ -185,7 +185,7 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
         Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             insufficientMetadata["sourceRequirements"]));
 
-        var payableState = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 3);
+        var payableState = BuildMossStepperLevelSpellshieldTaxState(playerTwoExperience: 3, mana: 2, wardPower: 1);
 
         var payablePrompt = ResolutionResult.BuildPrompts(payableState)["P1"];
         var payablePlayCandidate = Assert.Single(
@@ -362,7 +362,7 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
             });
     }
 
-    private static MatchState BuildMossStepperLevelSpellshieldTaxState(int playerTwoExperience, int mana)
+    private static MatchState BuildMossStepperLevelSpellshieldTaxState(int playerTwoExperience, int mana, int wardPower = 0)
     {
         return new MatchState(
             "source-object-level-spellshield-tax-room",
@@ -381,7 +381,7 @@ public sealed class SourceObjectLevelPowerStaticAuraTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, 0),
+                ["P1"] = new(mana, wardPower),
                 ["P2"] = RunePool.Empty
             },
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)

@@ -1,0 +1,69 @@
+{
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 316.86,
+    "total": 9026,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 177.64
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 180.71
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 182.34
+      },
+      {
+        "shard": "rules",
+        "total": 8891,
+        "passed": 8891,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 76.91
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 313.39
+      }
+    ]
+  },
+  "testLogs": {
+    "var/qa/delivery-2026-10-09/full/games-1/results.trx": "87625c01b75df7e3e7b57cb4d59e0bb0f36dbd2ac7c659c62d7b6df1f097d287",
+    "var/qa/delivery-2026-10-09/full/games-3/results.trx": "628689ad52b1c3d29f4e9144a9486390cb95e6793b9ab31e1b5e56db586203df",
+    "var/qa/delivery-2026-10-09/full/games-4/results.trx": "c9d86e77bac15c46c9228458550d332744062235217862a6e4aaf33e047b5bf5",
+    "var/qa/delivery-2026-10-09/full/games-2/results.trx": "2ff2f1ce73fba9700128c23b7b22d2fba7df95c4475e652a3db73986001643c9",
+    "var/qa/delivery-2026-10-09/full/rules/results.trx": "3f2ab5a4e22fdb3df372ddbd779fbb76b8170de1c5d9e27ca0879fe5e622b2c6"
+  },
+  "nativeBuild": "var/qa/graveyard-unit-2026-10-09/native-build-final.log",
+  "nativeCommandReplay": "docs/evidence/graveyard-unit-2026-10-09/validation.json",
+  "pythonRunnerTests": 6,
+  "obsoleteRemoteBranch": {
+    "name": "codex/stage4d-matrix-docs-current",
+    "tip": "17bde0c378b8dabc0a5bd54c778b8ad93b178baa",
+    "archive": "var/qa/delivery-2026-10-09/obsolete-stage4d.bundle",
+    "sha256": "26f9819e59bcf8dd3efab3da023395d142ce47ec6ae27a602d74cff3ffbc8c80"
+  },
+  "runtimeRestarted": false,
+  "windowsAccepted": false
+}

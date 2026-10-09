@@ -47,6 +47,8 @@ public sealed class SourceUnitPlayedTriggerTests
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Empty(p2Pass.State.StackItems);
 
+        p2Pass = await RecastTestDriver.Complete(p2Pass, FizzSpellObjectId, []);
+
         var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
@@ -97,6 +99,8 @@ public sealed class SourceUnitPlayedTriggerTests
             BuildFizzGraveyardRuneSpellState(runeDeckAvailable: true),
             "intent-fizz-rune-spell");
 
+        p2Pass = await RecastTestDriver.Complete(p2Pass, FizzRuneSpellObjectId, []);
+
         var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
@@ -144,6 +148,8 @@ public sealed class SourceUnitPlayedTriggerTests
             BuildFizzGraveyardRuneSpellState(runeDeckAvailable: false),
             "intent-fizz-rune-spell-fallback-draw");
 
+        p2Pass = await RecastTestDriver.Complete(p2Pass, FizzRuneSpellObjectId, []);
+
         var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
@@ -181,6 +187,8 @@ public sealed class SourceUnitPlayedTriggerTests
         var p2Pass = await ResolveFizzPlayThroughStackAsync(
             BuildFizzGraveyardTokenSpellState(),
             "intent-fizz-token-spell");
+
+        p2Pass = await RecastTestDriver.Complete(p2Pass, FizzTokenSpellObjectId, []);
 
         var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
@@ -231,6 +239,8 @@ public sealed class SourceUnitPlayedTriggerTests
         var p2Pass = await ResolveFizzPlayThroughStackAsync(
             BuildFizzTargetedGraveyardRuneSpellState(extraFriendlyUnitTarget: false),
             "intent-fizz-targeted-rune-spell");
+
+        p2Pass = await RecastTestDriver.Complete(p2Pass, FizzTargetedRuneSpellObjectId, [FizzObjectId]);
 
         var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
@@ -289,6 +299,7 @@ public sealed class SourceUnitPlayedTriggerTests
             BuildFizzTargetedGraveyardRuneSpellState(extraFriendlyUnitTarget: true),
             "intent-fizz-targeted-rune-spell-multiple-targets");
 
+        Assert.NotNull(p2Pass.State.PendingEffectPlay);
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
@@ -320,6 +331,8 @@ public sealed class SourceUnitPlayedTriggerTests
         var p2Pass = await ResolveFizzPlayThroughStackAsync(
             BuildFizzCopyTargetGraveyardTokenSpellState(extraUnitTarget: false),
             "intent-fizz-copy-token-spell");
+
+        p2Pass = await RecastTestDriver.Complete(p2Pass, FizzCopyTokenSpellObjectId, [FizzObjectId]);
 
         var sourceTrigger = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
@@ -379,6 +392,7 @@ public sealed class SourceUnitPlayedTriggerTests
             BuildFizzCopyTargetGraveyardTokenSpellState(extraUnitTarget: true),
             "intent-fizz-copy-token-spell-multiple-targets");
 
+        Assert.NotNull(p2Pass.State.PendingEffectPlay);
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SOURCE_UNIT_PLAYED_EFFECT_ACTIVATED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, FizzObjectId, StringComparison.Ordinal));
@@ -655,7 +669,7 @@ public sealed class SourceUnitPlayedTriggerTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(3, 1),
+                ["P1"] = new(3, 3),
                 ["P2"] = RunePool.Empty
             },
             playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

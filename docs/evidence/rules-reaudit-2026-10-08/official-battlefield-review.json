@@ -1,0 +1,921 @@
+[
+  {
+    "cardNo": "OGN·275/298",
+    "cardName": "团结圣坛",
+    "officialText": "当你据守此处时，打出一名1{{S}}的“随从”到你的基地。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_CREATE_MINION"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·277/298",
+    "cardName": "后巷酒吧",
+    "officialText": "每当一名单位从此处向别处移动时，让其本回合内{{S}}+1。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·278/298",
+    "cardName": "班德尔树",
+    "officialText": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "keyword",
+      "BATTLEFIELD_EXTRA_STANDBY_DESTINATION"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·278a/298",
+    "cardName": "班德尔树",
+    "officialText": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "keyword",
+      "BATTLEFIELD_EXTRA_STANDBY_DESTINATION"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·279/298",
+    "cardName": "强化阵地",
+    "officialText": "当你防守此处时，选择一名单位，使其在本次战斗期间获得{{坚守2}}。（如果它是防守方，则{{S}}+2。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO"
+    ],
+    "registeredStaticAbilities": [
+      "keyword",
+      "keyword"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·280/298",
+    "cardName": "帝柳之林",
+    "officialText": "当你据守此处时，抽一张牌。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_DRAW_ONE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·281/298",
+    "cardName": "圣化之墓",
+    "officialText": "当你据守此处时，如果你的英雄区域已无英雄单位牌，则可以选择让该英雄从废牌堆中返回英雄区域。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·282/298",
+    "cardName": "希拉娜修道院",
+    "officialText": "当你征服此处时，你可以选择消耗一个增益，以此抽一张牌。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW"
+    ],
+    "registeredStaticAbilities": [
+      "keyword"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·283/298",
+    "cardName": "纳沃利角斗场",
+    "officialText": "当你据守此处时，给予此处的一名单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_GRANT_BOON"
+    ],
+    "registeredStaticAbilities": [
+      "keyword"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·284/298",
+    "cardName": "力量方尖碑",
+    "officialText": "每名玩家在各自的第一个回合开始阶段，额外召出一枚符文。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_FIRST_TURN_EXTRA_RUNE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·285/298",
+    "cardName": "劫掠船巷",
+    "officialText": "当你防守此处时，你可以选择将此处的一名友方单位移动到基地。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·286/298",
+    "cardName": "清算人竞技场",
+    "officialText": "当你据守此处时，激活此处所有单位的征服效果。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·287/298",
+    "cardName": "雷霆之纹",
+    "officialText": "当你征服此处时，回收一枚你的符文。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_RECYCLE_RUNE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·288/298",
+    "cardName": "星尖峰",
+    "officialText": "当你据守此处时，你可以选择召出一枚休眠的符文。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_CALL_RUNE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·291/298",
+    "cardName": "烛光圣殿",
+    "officialText": "当你征服此处时，查看主牌堆顶部的两张牌。你可以选择从这两张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·292/298",
+    "cardName": "幻梦之树",
+    "officialText": "每回合首次：当你对此处的友方单位使用法术时，抽一张牌。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·294/298",
+    "cardName": "崔法利兵营",
+    "officialText": "此处的所有单位获得{{S}}+1。（包括进攻方单位。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": [
+      "BATTLEFIELD_ALL_UNITS_POWER_PLUS_ONE"
+    ]
+  },
+  {
+    "cardNo": "OGN·295/298",
+    "cardName": "卑鄙之喉的巢穴",
+    "officialText": "单位无法从此处移动到基地。\n",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_PREVENT_MOVE_TO_BASE"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·296/298",
+    "cardName": "虚空之门",
+    "officialText": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·297/298",
+    "cardName": "疾风山丘",
+    "officialText": "此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "keyword"
+    ],
+    "registeredStaticAuras": [
+      "BATTLEFIELD_ALL_UNITS_KEYWORD"
+    ]
+  },
+  {
+    "cardNo": "OGN·298/298",
+    "cardName": "祖安地沟",
+    "officialText": "当你征服此处时，弃置一张手牌，然后抽一张牌。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_DISCARD_DRAW"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·208/221",
+    "cardName": "魄罗熔炉",
+    "officialText": "如果此战场受你控制，则所有友方传奇获得“{{横置}}：将你控制的一件武装贴附到你控制的一名单位上。”",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_GRANT_LEGEND_EXHAUST_ATTACH_ARMAMENT"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·209/221",
+    "cardName": "遗忘丰碑",
+    "officialText": "每名玩家在各自的第三回合开始前，无法从此处获得分数。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "turn-start"
+    ],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_SCORE_DELAY_UNTIL_TURN"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·210/221",
+    "cardName": "传奇殿堂",
+    "officialText": "当你征服此处时，你可以选择支付{{1}}，以此让你的传奇变为活跃状态。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·211/221",
+    "cardName": "玛莱尖塔",
+    "officialText": "如果此战场受你控制，则友方{{回响}}的费用减少{{1}}。",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "keyword",
+      "BATTLEFIELD_ECHO_COST_REDUCTION"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·212/221",
+    "cardName": "雷区",
+    "officialText": "当你征服此处时，将你主牌堆顶部的两张牌放入废牌堆。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_MILL_TOP_TWO"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·213/221",
+    "cardName": "奥恩的锻炉",
+    "officialText": "如果此战场受你控制，则每回合打出的第一件友方装备的费用减少{{1}}，不包括指示物。",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_EQUIPMENT_COST_REDUCTION"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·214/221",
+    "cardName": "能量枢纽",
+    "officialText": "当你据守此处时，你可以选择支付{{A}}{{A}}{{A}}{{A}}，以此额外获得1分。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·215/221",
+    "cardName": "拉文布鲁姆学院",
+    "officialText": "当你防守此处时，展示你主牌堆顶部的一张牌。如果是一张法术牌，则将其放入你的手牌，否则将其回收。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·216/221",
+    "cardName": "落岩之径",
+    "officialText": "单位无法被打出到此处。",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_PREVENT_UNIT_PLAY"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·217/221",
+    "cardName": "权能之座",
+    "officialText": "当你征服此处时，你和盟友每控制一处其他战场，你便抽一张牌。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·218/221",
+    "cardName": "沉没神庙",
+    "officialText": "当你征服此处时，如果此战场上留存至少一名{{强力}}单位，则你可以选择支付{{1}}来抽一张牌。（战力达到5或以上时，即为强力单位。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·219/221",
+    "cardName": "彩纸灵树",
+    "officialText": "当你据守此处时，每名玩家召出一枚休眠的符文。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_EACH_PLAYER_CALL_RUNE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·220/221",
+    "cardName": "珍宝堆",
+    "officialText": "当你征服此处时，你可以选择支付{{1}}，以此打出一个休眠的“金币”装备指示物。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·221/221",
+    "cardName": "月帷祭坛",
+    "officialText": "当你征服此处时，你可以选择让一件友方装备变为活跃状态。如果它是一件武装，则你可以选择将其卸除。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_READY_EQUIPMENT"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-205/219",
+    "cardName": "废弃大厅",
+    "officialText": "当一名玩家打出法术时，该玩家可以选择让自己在此处控制的一名单位在本回合内{{S}}+1。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_SPELL_POWER_PLUS_1"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-206/219",
+    "cardName": "鲜血祭坛",
+    "officialText": "如果此处的一名单位在战斗中被摧毁，其控制者可以选择支付{{A}}{{A}}{{A}}，以此改为移除其所受伤害、将其变为休眠状态、并将其召回。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "destroyed"
+    ],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-207/219",
+    "cardName": "业余排练厅",
+    "officialText": "当你据守此处时，你可以选择将战场上的一名单位移动到其基地。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-208/219",
+    "cardName": "黑焰祭坛",
+    "officialText": "此处拥有{{瞬息}}的单位获得{{坚守}}。（如果它们是防守方，则{{S}}+1。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "keyword",
+      "keyword"
+    ],
+    "registeredStaticAuras": [
+      "BATTLEFIELD_FILTERED_UNITS_KEYWORD"
+    ]
+  },
+  {
+    "cardNo": "UNL-209/219",
+    "cardName": "暮色玫瑰实验室",
+    "officialText": "在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-210/219",
+    "cardName": "禁忌荒原",
+    "officialText": "如果防守此处的单位落单，则该单位{{S}}-2。（所在位置没有其他友方单位时，即视为“落单”。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": [
+      "BATTLEFIELD_ISOLATED_DEFENDER_KEYWORD_MODIFIER"
+    ]
+  },
+  {
+    "cardNo": "UNL-211/219",
+    "cardName": "失落书库",
+    "officialText": "若此战场受你控制，当你打出一张法术牌时，如果消耗了不低于{{4}}法力，则进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-212/219",
+    "cardName": "冰霜要塞",
+    "officialText": "在每名玩家各自的开始阶段开始时，对此处的所有单位造成1点伤害。（此行动在得分前进行。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-213/219",
+    "cardName": "蜕变花园",
+    "officialText": "此处的单位获得“{{横置}}：获得1经验。”",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-214/219",
+    "cardName": "鬼影湾",
+    "officialText": "当此处的一名单位返回到一名玩家的手牌时，该玩家可以选择支付{{1}}，以此召出一枚休眠的符文。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-215/219",
+    "cardName": "流星疗泉",
+    "officialText": "每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-216/219",
+    "cardName": "皮城学院",
+    "officialText": "当你据守此处时，在本回合内，你的下一个法术获得等同于其基础费用的{{回响}}。（你可以选择支付此额外费用，以重复此法术效果。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO"
+    ],
+    "registeredStaticAbilities": [
+      "keyword"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-217/219",
+    "cardName": "捕猎场",
+    "officialText": "当你征服此处时，如果你给敌方单位分配了不低于3点的过量伤害，则打出一名1{{S}}“战鹰”，它拥有{{法盾}}。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK"
+    ],
+    "registeredStaticAbilities": [
+      "keyword"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-218/219",
+    "cardName": "偶像谷",
+    "officialText": "当一名玩家在此处打出一名单位时，该玩家可以选择支付{{1}}，以此给予该单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON"
+    ],
+    "registeredStaticAbilities": [
+      "keyword"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "UNL-219/219",
+    "cardName": "海力亚秘库",
+    "officialText": "当你据守此处时，你的非指示物单位在本回合内的打出费用增加{{1}}。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·293/298",
+    "cardName": "宏伟广场",
+    "officialText": "当你据守此处，且在此拥有至少七名单位时，你赢得游戏胜利。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_SEVEN_UNITS_WIN"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·293a/298",
+    "cardName": "宏伟广场",
+    "officialText": "当你据守此处，且在此拥有至少七名单位时，你赢得游戏胜利。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_HELD_SEVEN_UNITS_WIN"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·157",
+    "cardName": "龙栖峰",
+    "officialText": "任何玩家都可以选择支付{{A}}{{A}}，作为打出“龙”属性单位的额外费用。若如此做，则将其打出到此战场。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·158",
+    "cardName": "世界之壳 亥宿",
+    "officialText": "玩家为将此处的物体选为目标的法术或技能支付费用时，无视{{法盾}}。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·159",
+    "cardName": "均衡寺院",
+    "officialText": "此处拥有{{壁垒}}的单位获得{{S}}+1。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·160",
+    "cardName": "神秘星旋",
+    "officialText": "在此处的法术对决中，拥有{{反应}}的卡牌费用增加{{A}}才能打出。（处于待命状态的卡牌具有{{反应}}。）",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·161",
+    "cardName": "皮城锻炉",
+    "officialText": "如果此战场受你控制，则每回合首次打出的友方装备的主动技能，该技能费用减少{{1}}。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·162",
+    "cardName": "藏古之漠",
+    "officialText": "当你征服此处时，如果你控制的符文数量不多于四枚，则你可以选择支付{{1}}，以此抽一张牌。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·163",
+    "cardName": "升格圣坛",
+    "officialText": "你在此处的单位的{{强化}}费用减少{{1}}或{{A}}。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·164",
+    "cardName": "沙蚀墓穴",
+    "officialText": "每个将此处同为友方的一名或多名单位选为目标的法术，其费用减少{{A}}。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·165",
+    "cardName": "影流寺院",
+    "officialText": "当你据守此处时，{{燃烧3}}。（将你主牌堆顶部的三张牌放入你的废牌堆。）",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "VEN·166",
+    "cardName": "灰亡阈门",
+    "officialText": "当战斗在此处开始时，进攻方和防守方各{{获得}}{{1}}。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·276/298",
+    "cardName": "攀圣长阶",
+    "officialText": "使赢得游戏所需的分数+1。",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_WINNING_SCORE_INCREASE"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·290/298",
+    "cardName": "荣耀竞技场",
+    "officialText": "每名玩家在各自的第一个回合开始阶段，获得1分。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_FIRST_TURN_GAIN_SCORE"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·276a/298",
+    "cardName": "攀圣长阶",
+    "officialText": "使赢得游戏所需的分数+1。",
+    "inActiveCatalog": true,
+    "review": "LOCAL_OR_CONTROL_SCOPE_RETESTED; NOT_ALL_RULE_COMBINATIONS",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [
+      "BATTLEFIELD_WINNING_SCORE_INCREASE"
+    ],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "SFD·207/221",
+    "cardName": "帝王神坛",
+    "officialText": "当你征服此处时，你可以选择支付{{1}}并让你在此处控制的一名单位返回其所属的手牌，以此在此处打出一名2{{S}}的“黄沙士兵”。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "OGN·289/298",
+    "cardName": "巨神峰之巅",
+    "officialText": "当你征服此处时，选择两枚符文，并在本回合结束时，让它们变为活跃状态。",
+    "inActiveCatalog": true,
+    "review": "REQUIRES_INDEPENDENT_GAMEPLAY_REVIEW",
+    "registeredTriggers": [
+      "BATTLEFIELD_CONQUERED_READY_RUNES_AT_END"
+    ],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·164/167",
+    "cardName": "星耀殿堂",
+    "officialText": "此处的英雄单位具有{{S}}+1。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·160/167",
+    "cardName": "星界绝景",
+    "officialText": "当你据守此处时，如果你的符文牌堆为空，则你获得1分。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·165/167",
+    "cardName": "拉克斯塔克",
+    "officialText": "于每名玩家，当其每回合首次在此处打出一个单位或装备时，其{{洞察}}。（该玩家查看自己主牌堆顶部的一张牌，可以选择将其回收。）",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·161/167",
+    "cardName": "杜朗纪念碑",
+    "officialText": "当你在此处防守时，选择此处你控制的一名单位。在本次战斗中给予其{{壁垒}}。（必须先为其分配战斗伤害。）",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·166/167",
+    "cardName": "破败修道院",
+    "officialText": "当你征服此处时，你可以选择弃置一张手牌并召出一枚休眠的符文。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·157/167",
+    "cardName": "班德尔斥候学院",
+    "officialText": "当你在此处布置一张{{待命}}卡牌时，打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{T}}：{{获得}}{{A}}。”）",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·162/167",
+    "cardName": "野火帮秘密基地",
+    "officialText": "当你征服此处时，你在本回合内打出的下一名单位具有{{急速}}。（你可以选择额外支付{{1}}及一点其所属特性的符能，让该单位以活跃状态进场。）",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·158/167",
+    "cardName": "黑市",
+    "officialText": "支付{{A}}{{A}}：抽一张牌。每名玩家都可以选择在其回合内使用一次此技能。（即使该玩家未控制此战场。）",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·159/167",
+    "cardName": "黑色玫瑰圣所",
+    "officialText": "于每名玩家，当每回合首次有其控制的一名非指示物单位在此处被摧毁时，该玩家将一名1{{S}}的“随从”单位指示物打出到其基地。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·163/167",
+    "cardName": "猎风广场",
+    "officialText": "于每名玩家，该玩家在其回合内在此处打出的首个单位或装备，其费用减少{{1}}。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  },
+  {
+    "cardNo": "RAD·184/167",
+    "cardName": "星耀殿堂",
+    "officialText": "此处的英雄单位具有{{S}}+1。",
+    "inActiveCatalog": false,
+    "review": "OUTSIDE_ACTIVE_CATALOG; NOT_VERIFIED_PLAYABLE",
+    "registeredTriggers": [],
+    "registeredStaticAbilities": [],
+    "registeredStaticAuras": []
+  }
+]

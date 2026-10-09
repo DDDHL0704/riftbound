@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-fervid-fan-defense-trigger-static",
-  "description": "SFD 128 Fervid Fan enters as a unit while its defense sacrifice movement trigger is deferred.",
+  "description": "SFD 128 Fervid Fan enters as a unit. This fixture verifies entry only; defense confirmation, destruction cost and movement are covered by OfficialDrawDefenseTests and DrawDefenseContinuationTests.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",

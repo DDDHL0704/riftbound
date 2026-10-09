@@ -1,0 +1,35 @@
+{
+  "note": "Before hashes are this batch start in an already dirty checkout, not Git HEAD. Prior user work is retained.",
+  "files": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "beforeSha256": "326d1eb79369856af18c7efe80bdfaf919363a16ddb71c5394956508102f7694",
+      "currentSha256": "fff9949d57cf4ddefd8ac3c3e946c222c8ac0f26d460952d356477dc50da19d3"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+      "beforeSha256": "f3c9a2bc144853e662e698d1c0bc8a470c115ee31a627fb64c8ab5ba27a60ae1",
+      "currentSha256": "cbd82249a1e780a4d844f360ce88cb71ca999a60287220f0dcddac401a73fc58"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+      "beforeSha256": "4c63c89af19a4f8d711ad0ce63f87556d781be85b9e27eb25939d903400b9204",
+      "currentSha256": "ef66eb090dd6d52360ca0c19c7ec0dc39378fb722c82817aee3b13d0efc702a5"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "beforeSha256": "66b71a9988de192c092517a7bebb4db63a603379373ce8da113a45e11dbd5796",
+      "currentSha256": "1ef0ff2f1c01509d7b457d83a5dc6b3ed07fd0f24962a88a3f30be3d2466829a"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+      "beforeSha256": "2798841c2f1332f34368f2c4f93658f69406b2680cf586c05749d86162159ecb",
+      "currentSha256": "80bf0322e29b61fa9831d96adfec3bea6e4b1294d6dbb24e512b8ffed3685b4b"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "e5dcfae4ac68c3a1579de953aac170e97aada2b5c66906b5d41bfa9d9006c668",
+      "currentSha256": "4d6f5f6c6be15cbc9dbf2b05b55a3b3842c6fc4ddfa78427bcf0a3dcb4f5aeff"
+    }
+  ]
+}

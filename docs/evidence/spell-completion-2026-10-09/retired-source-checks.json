@@ -1,0 +1,22 @@
+[
+  {
+    "name": "HighCostSpellTriggersDoNotUseLuxSpecificResolver",
+    "sha256": "487ccbc9b8ce3725cbd178f7b28b87ee33a699c063b1aa831f2852fc980868c7",
+    "reason": "Only inspects method names/source strings; replaced by executed spell completion, source-family and replay tests."
+  },
+  {
+    "name": "SpellPlayedTriggerSpecRulesUseGenericSpecPredicateSurface",
+    "sha256": "4fb5263895dcde4f03c7c8241016cc72375728a2c30caa4c1ee7cb54fb3efe53",
+    "reason": "Only inspects method names/source strings; replaced by executed spell completion, source-family and replay tests."
+  },
+  {
+    "name": "HighCostSpellTriggersDoNotUseJhinSpecificResolver",
+    "sha256": "946ce130af9b39a03def404d9e2a6f1a80a9f910747e2052ed4129bfe9e34709",
+    "reason": "Only inspects method names/source strings; replaced by executed spell completion, source-family and replay tests."
+  },
+  {
+    "name": "SpellPlayedPowerTriggersDoNotUseRavenbloomSpecificResolver",
+    "sha256": "ec6d478999205719e47385d803a775935cb34b6eceb81c05efe89885d8056b92",
+    "reason": "Only inspects method names/source strings; replaced by executed spell completion, source-family and replay tests."
+  }
+]

@@ -1,0 +1,227 @@
+{
+  "action": "PLAY_CARD",
+  "label": "\u6253\u51FA\u5361\u724C",
+  "enabled": true,
+  "reason": "\u300A\u589E\u63F4\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u8D39\u7528\u51CF\u5C11 5\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD",
+  "sources": [
+    {
+      "id": "U",
+      "label": "SFD\u00B7125/221",
+      "reason": "implemented payable PLAY_CARD source",
+      "objectIds": [
+        "U"
+      ]
+    }
+  ],
+  "destinations": [
+    {
+      "id": "BASE",
+      "label": "\u57FA\u5730",
+      "objectIds": [
+        "BASE"
+      ]
+    }
+  ],
+  "metadata": {
+    "sourcePolicy": "implemented-card-behavior-only",
+    "targetPolicy": "source-specific-server-filtered-targets",
+    "modePolicy": "source-specific-server-filtered-modes",
+    "optionalCostPolicy": "source-specific-server-filtered-costs",
+    "destinationPolicy": "source-specific-server-filtered-destinations",
+    "sourceRequirements": [
+      {
+        "sourceObjectId": "U",
+        "cardNo": "SFD\u00B7125/221",
+        "displayName": "\u5927\u529B\u4ED9\u7075",
+        "sourceZone": "MAIN_DECK",
+        "mode": null,
+        "modeLabel": "\u9ED8\u8BA4",
+        "manaCost": 4,
+        "minimumManaCost": 0,
+        "minimumPrintedPowerShortfall": 0,
+        "printedPowerCost": 0,
+        "effectPlayReason": "\u300A\u589E\u63F4\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u8D39\u7528\u51CF\u5C11 5\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD",
+        "printedPowerTraits": [
+          "purple"
+        ],
+        "printedPowerChoices": [],
+        "availableRainbowPower": 20,
+        "battlefieldEquipmentCostReductionMana": 0,
+        "dragonUnitCostReductionMana": 0,
+        "nextSpellCostReductionMana": 0,
+        "battlefieldSpellCostReductionMana": 0,
+        "battlefieldHeldUnitCostIncreaseMana": 0,
+        "minTargetCount": 0,
+        "maxTargetCount": 0,
+        "targetCountLabel": "0",
+        "targetScope": "BATTLEFIELD_UNIT",
+        "targetScopeLabel": "\u6218\u573A\u5355\u4F4D",
+        "allowsRepeatedTargets": false,
+        "supportsSeparateExecutions": false,
+        "targetChoicesByIndex": {},
+        "legalTargetSelections": [],
+        "destinationChoices": [
+          {
+            "id": "BASE",
+            "label": "\u57FA\u5730"
+          }
+        ],
+        "optionalCostChoices": [],
+        "paymentResourceChoices": [],
+        "paymentResourcePowerByChoice": {},
+        "availableMana": 15,
+        "availableManaWithPaymentResources": 15,
+        "paymentResourceMana": 0,
+        "availablePower": 20,
+        "availablePowerByTrait": {},
+        "availablePowerWithPaymentResources": 20,
+        "availablePowerByTraitWithPaymentResources": {},
+        "hasteReadyPowerCost": 0,
+        "hasteReadyPowerTrait": "",
+        "composable": true,
+        "unsupportedReason": ""
+      }
+    ],
+    "viewedCards": [
+      {
+        "id": "U",
+        "label": "\u5927\u529B\u4ED9\u7075",
+        "reason": "\u4EC5\u4F60\u53EF\u89C1"
+      },
+      {
+        "id": "N1",
+        "label": "\u957F\u5251",
+        "reason": "\u4EC5\u4F60\u53EF\u89C1"
+      },
+      {
+        "id": "N2",
+        "label": "\u957F\u5251",
+        "reason": "\u4EC5\u4F60\u53EF\u89C1"
+      },
+      {
+        "id": "N3",
+        "label": "\u957F\u5251",
+        "reason": "\u4EC5\u4F60\u53EF\u89C1"
+      },
+      {
+        "id": "N4",
+        "label": "\u957F\u5251",
+        "reason": "\u4EC5\u4F60\u53EF\u89C1"
+      }
+    ],
+    "reason": "\u300A\u589E\u63F4\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u8D39\u7528\u51CF\u5C11 5\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD"
+  },
+  "selectionSteps": [
+    {
+      "role": "source",
+      "label": "\u6765\u6E90",
+      "required": true,
+      "choices": [
+        {
+          "id": "U",
+          "label": "SFD\u00B7125/221",
+          "objectIds": [
+            "U"
+          ],
+          "reason": "implemented payable PLAY_CARD source"
+        }
+      ]
+    },
+    {
+      "role": "destination",
+      "label": "\u4F4D\u7F6E",
+      "required": false,
+      "choices": [
+        {
+          "id": "BASE",
+          "label": "\u57FA\u5730",
+          "objectIds": [
+            "BASE"
+          ]
+        }
+      ]
+    }
+  ],
+  "commandTemplate": {
+    "cmdType": "PLAY_CARD",
+    "bindings": [
+      {
+        "field": "sourceObjectId",
+        "source": "selectedSource",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u6765\u6E90"
+      },
+      {
+        "field": "cardNo",
+        "source": "requirementMetadata",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "metadataKeys": [
+          "cardNo",
+          "equipmentCardNo"
+        ],
+        "label": "\u670D\u52A1\u7AEF"
+      },
+      {
+        "field": "targetObjectIds",
+        "source": "selectedTargets",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": false,
+        "label": "\u76EE\u6807"
+      },
+      {
+        "field": "mode",
+        "source": "selectedMode",
+        "required": false,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u6A21\u5F0F"
+      },
+      {
+        "field": "destination",
+        "source": "selectedDestination",
+        "required": false,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u4F4D\u7F6E"
+      },
+      {
+        "field": "optionalCosts",
+        "source": "selectedOptionalCosts",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": true,
+        "label": "\u8D39\u7528"
+      }
+    ]
+  },
+  "composer": {
+    "supported": true,
+    "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+    "selectionRoles": [
+      "destination",
+      "source"
+    ],
+    "requiredSelectionRoles": [
+      "source"
+    ],
+    "commandFields": [
+      "cardNo",
+      "destination",
+      "mode",
+      "optionalCosts",
+      "sourceObjectId",
+      "targetObjectIds"
+    ]
+  },
+  "presentation": {
+    "category": "play",
+    "intent": "play-card",
+    "uiHint": "card-action",
+    "priority": 100
+  }
+}

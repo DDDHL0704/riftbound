@@ -46,7 +46,7 @@ internal static class SpellPlayedTriggerSpecRules
             && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
             && string.Equals(trigger.TargetScope, TriggerTargetScopes.SourceUnit, StringComparison.Ordinal)
             && string.Equals(trigger.Duration, TriggerDurations.UntilEndOfTurn, StringComparison.Ordinal)
-            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.MinimumCardMana.GetValueOrDefault() > 0
             && trigger.PowerDelta.GetValueOrDefault() != 0
             && !string.IsNullOrWhiteSpace(trigger.EffectKind);
     }
@@ -55,7 +55,7 @@ internal static class SpellPlayedTriggerSpecRules
     {
         return string.Equals(trigger.Kind, TriggerKinds.LegendHighCostSpellDrawOne, StringComparison.Ordinal)
             && string.Equals(trigger.Timing, TriggerTimings.BattlefieldSpellPlayed, StringComparison.Ordinal)
-            && trigger.MinimumPaidMana.GetValueOrDefault() > 0
+            && trigger.MinimumCardMana.GetValueOrDefault() > 0
             && trigger.DrawCount.GetValueOrDefault() > 0;
     }
 

@@ -22,7 +22,7 @@ public sealed class ShadowActivatedAbilityTests
     [Fact]
     public void ShadowBattleResponsePromptExposesSwiftStunRequirement()
     {
-        var state = BuildShadowState(mana: 2, power: 1);
+        var state = BuildShadowState(mana: 1, power: 2);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
 
@@ -65,7 +65,7 @@ public sealed class ShadowActivatedAbilityTests
             .ToArray();
         Assert.Equal([EnemyAttackerObjectId, EnemySpellshieldAttackerObjectId], targetIds);
         var spellshieldTaxByTarget = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
-            requirement["spellshieldTaxManaByTargetObjectId"]);
+            requirement["spellshieldTaxPowerByTargetObjectId"]);
         Assert.Equal(0, spellshieldTaxByTarget[EnemyAttackerObjectId]);
         Assert.Equal(1, spellshieldTaxByTarget[EnemySpellshieldAttackerObjectId]);
     }
@@ -545,7 +545,7 @@ public sealed class ShadowActivatedAbilityTests
         Assert.Equal(1, costEvent.Payload["totalManaCost"]);
         Assert.Equal(1, costEvent.Payload["genericPower"]);
         Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
-        Assert.Equal(0, costEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(0, costEvent.Payload["spellshieldTaxPower"]);
         Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.True(Assert.IsType<bool>(costEvent.Payload["exhaustsSource"]));
     }
@@ -579,19 +579,19 @@ public sealed class ShadowActivatedAbilityTests
     }
 
     [Fact]
-    public async Task ShadowEnemySpellshieldTargetPaysManaTax()
+    public async Task ShadowEnemySpellshieldTargetPaysPowerTax()
     {
         var result = await ActivateShadowAsync(
-            BuildShadowState(mana: 2, power: 1),
+            BuildShadowState(mana: 1, power: 2),
             targetObjectId: EnemySpellshieldAttackerObjectId);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(1, costEvent.Payload["printedManaCost"]);
-        Assert.Equal(1, costEvent.Payload["spellshieldTaxMana"]);
-        Assert.Equal(2, costEvent.Payload["baseManaCost"]);
-        Assert.Equal(2, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costEvent.Payload["spellshieldTaxPower"]);
+        Assert.Equal(1, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
         Assert.Equal([EnemySpellshieldAttackerObjectId], Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
     }
 
@@ -599,7 +599,7 @@ public sealed class ShadowActivatedAbilityTests
     public async Task ShadowEnemySpellshieldTargetTaxRejectsSuccessfulCommandReplayWithoutMutation()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildShadowState(mana: 2, power: 1);
+        var state = BuildShadowState(mana: 1, power: 2);
         var command = ShadowCommand(targetObjectIds: [EnemySpellshieldAttackerObjectId]);
 
         var activated = await engine.ResolveAsync(
@@ -624,9 +624,9 @@ public sealed class ShadowActivatedAbilityTests
         Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunAbilityEffectKind, stackItem.EffectKind);
         Assert.Equal([EnemySpellshieldAttackerObjectId], stackItem.TargetObjectIds);
         var costEvent = Assert.Single(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(1, costEvent.Payload["spellshieldTaxMana"]);
-        Assert.Equal(2, costEvent.Payload["totalManaCost"]);
-        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(1, costEvent.Payload["spellshieldTaxPower"]);
+        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(2, costEvent.Payload["totalPowerCost"]);
         Assert.Equal([EnemySpellshieldAttackerObjectId], Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
         var postActivationHash = MatchStateHasher.Hash(activated.State);
 

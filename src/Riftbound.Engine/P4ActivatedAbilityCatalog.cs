@@ -35,16 +35,6 @@ public sealed record P4ActivatedAbilityDefinition(
     bool RecycleUnplayedLookedCards = false,
     string PlayCardFilter = "");
 
-public sealed record P4DeferredActivatedAbilitySurface(
-    string AbilityId,
-    string SourceCardNo,
-    string DisplayName,
-    string OfficialTextAnchorKey,
-    bool RequiresBattlefieldSource,
-    bool IsTargetBearing,
-    bool EnemySpellshieldTaxRisk,
-    string Reason);
-
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
     string SourceCardNo,
@@ -52,8 +42,6 @@ public sealed record P4SigilTypedResourceProfile(
     string DisplayName,
     string Trait,
     string TraitLabel,
-    string ResourceRestriction,
-    string ResourceIdPrefix,
     bool IsOgnReprint);
 
 public static class P4ActivatedAbilityCatalog
@@ -72,10 +60,9 @@ public static class P4ActivatedAbilityCatalog
     public const int XerathDamageAbilityDamageAmount = 3;
 
     public const string MalzaharCardNo = "OGN·113/298";
-    public const string MalzaharResourceAbilityId = "MALZAHAR_DESTROY_FRIENDLY_EXHAUST_GAIN_2_PAYMENT_POWER";
-    public const string MalzaharResourceAbilityEffectKind = "MALZAHAR_RESOURCE_SKILL_GAIN_2_PAYMENT_ONLY_POWER";
+    public const string MalzaharResourceAbilityId = "MALZAHAR_EXHAUST_DESTROY_FRIENDLY_GAIN_2_POWER";
+    public const string MalzaharResourceAbilityEffectKind = "MALZAHAR_RESOURCE_GAIN_2_POWER";
     public const int MalzaharResourceGeneratedPower = 2;
-    public const string MalzaharPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_TEMPORARY_LEDGER_4D_03J";
 
     public const string DragonSoulSageCardNo = "UNL-093/219";
     public const string DragonSoulSageResourceAbilityId = "DRAGON_SOUL_SAGE_REACTION_EXHAUST_GAIN_1_MANA";
@@ -88,8 +75,6 @@ public static class P4ActivatedAbilityCatalog
     public const string JhinMoveResourceAbilityEffectKind = "JHIN_MOVEMENT_RESOURCE_SKILL_GAIN_1_MANA_1_POWER";
     public const int JhinMoveResourceGeneratedMana = 1;
     public const int JhinMoveResourceGeneratedPower = 1;
-    public const string JhinMoveResourceRestriction = "PAY_RUNE_COSTS_ONLY_JHIN_MOVE_TEMPORARY_LEDGER_4D_03CO";
-    public const string JhinMoveTriggerOptionalCostPrefix = "JHIN_MOVE_TRIGGER:";
 
     public const string HoneyfruitCardNo = "UNL-049/219";
     public const string HoneyfruitResourceAbilityId = "HONEYFRUIT_REACTION_EXHAUST_GAIN_GENERIC_POWER";
@@ -98,7 +83,6 @@ public static class P4ActivatedAbilityCatalog
     public const int HoneyfruitUpgradedGeneratedMana = 1;
     public const int HoneyfruitLevelSixExperience = 6;
     public const string HoneyfruitLevelSixOptionalCostPrefix = "HONEYFRUIT_LEVEL_SIX:";
-    public const string HoneyfruitPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_HONEYFRUIT_TEMPORARY_LEDGER_4D_03CP";
 
     public const string BlueSentinelCardNo = "UNL-087/219";
     public const string BlueSentinelAltACardNo = "UNL-087a/219";
@@ -167,63 +151,51 @@ public static class P4ActivatedAbilityCatalog
     public const string RageSigilCardNo = "SFD·222/221";
     public const string RageSigilResourceAbilityId = "RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER";
     public const string RageSigilResourceAbilityEffectKind = "RAGE_SIGIL_REACTION_TYPED_RESOURCE_GAIN_RED";
-    public const string RageSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_RED_TEMPORARY_LEDGER_4D_03R";
     public const int RageSigilGeneratedRedPower = 1;
 
     public const string FocusSigilCardNo = "SFD·226/221";
     public const string FocusSigilResourceAbilityId = "FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER";
     public const string FocusSigilResourceAbilityEffectKind = "FOCUS_SIGIL_REACTION_TYPED_RESOURCE_GAIN_GREEN";
-    public const string FocusSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_GREEN_TEMPORARY_LEDGER_4D_03S";
 
     public const string InsightSigilCardNo = "SFD·229/221";
     public const string InsightSigilResourceAbilityId = "INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER";
     public const string InsightSigilResourceAbilityEffectKind = "INSIGHT_SIGIL_REACTION_TYPED_RESOURCE_GAIN_BLUE";
-    public const string InsightSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_BLUE_TEMPORARY_LEDGER_4D_03S";
 
     public const string PowerSigilCardNo = "SFD·231/221";
     public const string PowerSigilResourceAbilityId = "POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER";
     public const string PowerSigilResourceAbilityEffectKind = "POWER_SIGIL_REACTION_TYPED_RESOURCE_GAIN_ORANGE";
-    public const string PowerSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_ORANGE_TEMPORARY_LEDGER_4D_03S";
 
     public const string DiscordSigilCardNo = "SFD·234/221";
     public const string DiscordSigilResourceAbilityId = "DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER";
     public const string DiscordSigilResourceAbilityEffectKind = "DISCORD_SIGIL_REACTION_TYPED_RESOURCE_GAIN_PURPLE";
-    public const string DiscordSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_PURPLE_TEMPORARY_LEDGER_4D_03S";
 
     public const string UnitySigilCardNo = "SFD·238/221";
     public const string UnitySigilResourceAbilityId = "UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER";
     public const string UnitySigilResourceAbilityEffectKind = "UNITY_SIGIL_REACTION_TYPED_RESOURCE_GAIN_YELLOW";
-    public const string UnitySigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_YELLOW_TEMPORARY_LEDGER_4D_03S";
 
     public const string OgnRageSigilCardNo = "OGN·040/298";
     public const string OgnRageSigilResourceAbilityId = "OGN_RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER";
     public const string OgnRageSigilResourceAbilityEffectKind = "OGN_RAGE_SIGIL_REACTION_TYPED_RESOURCE_GAIN_RED";
-    public const string OgnRageSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_RED_TEMPORARY_LEDGER_4D_03T";
 
     public const string OgnFocusSigilCardNo = "OGN·081/298";
     public const string OgnFocusSigilResourceAbilityId = "OGN_FOCUS_SIGIL_REACTION_EXHAUST_GAIN_1_GREEN_POWER";
     public const string OgnFocusSigilResourceAbilityEffectKind = "OGN_FOCUS_SIGIL_REACTION_TYPED_RESOURCE_GAIN_GREEN";
-    public const string OgnFocusSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_GREEN_TEMPORARY_LEDGER_4D_03T";
 
     public const string OgnInsightSigilCardNo = "OGN·120/298";
     public const string OgnInsightSigilResourceAbilityId = "OGN_INSIGHT_SIGIL_REACTION_EXHAUST_GAIN_1_BLUE_POWER";
     public const string OgnInsightSigilResourceAbilityEffectKind = "OGN_INSIGHT_SIGIL_REACTION_TYPED_RESOURCE_GAIN_BLUE";
-    public const string OgnInsightSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_BLUE_TEMPORARY_LEDGER_4D_03T";
 
     public const string OgnPowerSigilCardNo = "OGN·163/298";
     public const string OgnPowerSigilResourceAbilityId = "OGN_POWER_SIGIL_REACTION_EXHAUST_GAIN_1_ORANGE_POWER";
     public const string OgnPowerSigilResourceAbilityEffectKind = "OGN_POWER_SIGIL_REACTION_TYPED_RESOURCE_GAIN_ORANGE";
-    public const string OgnPowerSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_ORANGE_TEMPORARY_LEDGER_4D_03T";
 
     public const string OgnDiscordSigilCardNo = "OGN·204/298";
     public const string OgnDiscordSigilResourceAbilityId = "OGN_DISCORD_SIGIL_REACTION_EXHAUST_GAIN_1_PURPLE_POWER";
     public const string OgnDiscordSigilResourceAbilityEffectKind = "OGN_DISCORD_SIGIL_REACTION_TYPED_RESOURCE_GAIN_PURPLE";
-    public const string OgnDiscordSigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_PURPLE_TEMPORARY_LEDGER_4D_03T";
 
     public const string OgnUnitySigilCardNo = "OGN·245/298";
     public const string OgnUnitySigilResourceAbilityId = "OGN_UNITY_SIGIL_REACTION_EXHAUST_GAIN_1_YELLOW_POWER";
     public const string OgnUnitySigilResourceAbilityEffectKind = "OGN_UNITY_SIGIL_REACTION_TYPED_RESOURCE_GAIN_YELLOW";
-    public const string OgnUnitySigilTypedResourceRestriction = "PAY_RUNE_COSTS_ONLY_TYPED_YELLOW_TEMPORARY_LEDGER_4D_03T";
 
     public const string EnergyChannelCardNo = "OGN·098/298";
     public const string EnergyChannelResourceAbilityId = "ENERGY_CHANNEL_REACTION_EXHAUST_GAIN_1_MANA";
@@ -234,7 +206,6 @@ public static class P4ActivatedAbilityCatalog
     public const string AncientSteleResourceAbilityId = "ANCIENT_STELE_REACTION_PAY_MANA_GAIN_GENERIC_POWER";
     public const string AncientSteleResourceAbilityEffectKind = "ANCIENT_STELE_REACTION_RESOURCE_CONVERT_MANA_TO_GENERIC_POWER";
     public const string AncientSteleConversionOptionalCostPrefix = "CONVERT_MANA_TO_GENERIC_POWER:";
-    public const string AncientStelePaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_GENERIC_TEMPORARY_LEDGER_4D_03U";
 
     public const string HextechAnomalyCardNo = "SFD·083/221";
     public const string HextechAnomalyResourceAbilityId = "HEXTECH_ANOMALY_REACTION_PAY_GENERIC_POWER_GAIN_MANA";
@@ -250,13 +221,23 @@ public static class P4ActivatedAbilityCatalog
     public const int GoldTokenGeneratedPower = 1;
     public const string GoldTokenRenataBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
     public const int GoldTokenRenataBonusMana = 1;
-    public const string GoldTokenPaymentOnlyResourceRestriction = "PAY_RUNE_COSTS_ONLY_GOLD_TEMPORARY_LEDGER_4D_03V";
 
     private static readonly Lazy<IReadOnlyList<P4SigilTypedResourceProfile>> SigilTypedResourceProfiles =
         new(BuildSigilTypedResourceProfiles, LazyThreadSafetyMode.ExecutionAndPublication);
 
+    public const string ScryingBlossomAbilityId = "SCRYING_BLOSSOM_DESTROY_INSIGHT_DRAW_EXPERIENCE";
+
+    public const string NextSpellEchoAbilityId = "NEXT_SPELL_ECHO";
+    public const string NextSpellEchoEffectKind = "GRANT_NEXT_SPELL_BASE_COST_ECHO";
+
     private static readonly P4ActivatedAbilityDefinition[] Definitions =
     [
+        new(ScryingBlossomAbilityId, "UNL-136/219", "INSIGHT_TRIGGER", "占卜花朵 · 洞察 2 后抽牌",
+            1, 0, 0, RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0,
+            AppliesSpellshieldTargetTax: false, "支付 1 法力、横置并摧毁此牌：洞察 2，然后抽一张牌并获得 1 经验", RequiresBaseEquipmentSource: true),
+        new(NextSpellEchoAbilityId, "SFD·078/221", NextSpellEchoEffectKind, "预时之门 · 下个法术获得回响",
+            0, 1, 0, RequiresBattlefieldSource: false, ExhaustsSourceAsCost: true, 0,
+            AppliesSpellshieldTargetTax: false, "支付任意符能并横置，结算后授予本回合下个法术回响", RequiresBaseEquipmentSource: true),
         new(
             ViDoublePowerAbilityId,
             ViCardNo,
@@ -295,12 +276,10 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03J opens the open-main and spell-duel focus representative resource skill path with an auditable temporary payment-only ledger; the broader resource skill family remains deferred.",
+            "CN 357.2 and 429: destroy a friendly permanent and exhaust; gain two wildcard power immediately.",
             IsResourceSkill: true,
-            PaymentOnlyResource: true,
             GeneratedPower: MalzaharResourceGeneratedPower,
-            UsesTargetAsCost: true,
-            ResourceRestriction: MalzaharPaymentOnlyResourceRestriction),
+            UsesTargetAsCost: true),
         new(
             DragonSoulSageResourceAbilityId,
             DragonSoulSageCardNo,
@@ -309,7 +288,7 @@ public static class P4ActivatedAbilityCatalog
             0,
             0,
             0,
-            RequiresBattlefieldSource: true,
+            RequiresBattlefieldSource: false,
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
@@ -329,12 +308,10 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: false,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03CO opens only Jhin's movement-triggered non-legend resource-skill lane with server-captured movement context and payment-only generated power.",
+            "CN 429.2: movement-triggered resources resolve automatically into the rune pool.",
             IsResourceSkill: true,
-            PaymentOnlyResource: true,
             GeneratedPower: JhinMoveResourceGeneratedPower,
-            ResourceRestriction: JhinMoveResourceRestriction,
-            GeneratedMana: JhinMoveResourceGeneratedMana),
+            GeneratedMana: JhinMoveResourceGeneratedMana, Kind: "TRIGGERED_RESOURCE"),
         new(
             HoneyfruitResourceAbilityId,
             HoneyfruitCardNo,
@@ -347,11 +324,9 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03CP opens Honeyfruit's base-equipment reaction-speed payment-only resource skill plus its level-six upgraded mana branch.",
+            "CN 166-168 and 429: resources enter the rune pool with normal timing and lifetime.",
             IsResourceSkill: true,
-            PaymentOnlyResource: true,
             GeneratedPower: HoneyfruitGeneratedPower,
-            ResourceRestriction: HoneyfruitPaymentOnlyResourceRestriction,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
         new(
@@ -546,10 +521,8 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03U opens only Ancient Stele's base-equipment reaction-speed mana-to-generic-temporary-power conversion representative.",
+            "CN 166-168 and 429: resources enter the rune pool with normal timing and lifetime.",
             IsResourceSkill: true,
-            PaymentOnlyResource: true,
-            ResourceRestriction: AncientStelePaymentOnlyResourceRestriction,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
         new(
@@ -580,11 +553,9 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03V opens the UNL Gold token's base-equipment reaction-speed destroy self resource representative; Stage 4D-03W applies the Renata marker bonus while non-Gold token surfaces remain deferred.",
+            "CN 166-168 and 429: resources enter the rune pool with normal timing and lifetime.",
             IsResourceSkill: true,
-            PaymentOnlyResource: true,
             GeneratedPower: GoldTokenGeneratedPower,
-            ResourceRestriction: GoldTokenPaymentOnlyResourceRestriction,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
         new(
@@ -599,11 +570,9 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Stage 4D-03V opens the SFD Gold token's base-equipment reaction-speed destroy self resource representative; Stage 4D-03W applies the Renata marker bonus while non-Gold token surfaces remain deferred.",
+            "CN 166-168 and 429: resources enter the rune pool with normal timing and lifetime.",
             IsResourceSkill: true,
-            PaymentOnlyResource: true,
             GeneratedPower: GoldTokenGeneratedPower,
-            ResourceRestriction: GoldTokenPaymentOnlyResourceRestriction,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true),
         .. SigilTypedResourceProfiles.Value.Select(SigilTypedResourceDefinition)
@@ -615,20 +584,11 @@ public static class P4ActivatedAbilityCatalog
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> SourceCardNosByRepresentativeCardNo =
         new(BuildSourceCardNosByRepresentativeCardNo, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
-    [
-    ];
-
     public static IReadOnlyList<P4ActivatedAbilityDefinition> GetAll()
     {
         return Definitions
             .Concat(BehaviorSpecActivatedAbilityDefinitions.Value)
             .ToArray();
-    }
-
-    public static IReadOnlyList<P4DeferredActivatedAbilitySurface> GetDeferredSurfaces()
-    {
-        return DeferredSurfaces;
     }
 
     public static bool TryGetByAbilityId(
@@ -806,8 +766,6 @@ public static class P4ActivatedAbilityCatalog
             AppliesSpellshieldTargetTax: false,
             "Stage 4D typed Sigil slices open the SFD/OGN base-equipment reaction-speed typed payment-only resource representatives; the broader Sigil family remains deferred.",
             IsResourceSkill: true,
-            PaymentOnlyResource: true,
-            ResourceRestriction: profile.ResourceRestriction,
             ReactionSpeed: true,
             RequiresBaseEquipmentSource: true,
             GeneratedPowerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
@@ -950,8 +908,6 @@ public static class P4ActivatedAbilityCatalog
             spec.CardName,
             trait,
             SigilResourceTraitLabel(trait),
-            SigilResourceRestriction(trait, isOgnReprint),
-            prefix,
             isOgnReprint);
     }
 
@@ -996,16 +952,6 @@ public static class P4ActivatedAbilityCatalog
             RuneTrait.Yellow => "黄色",
             _ => throw new InvalidOperationException($"Unsupported typed resource trait '{trait}'.")
         };
-    }
-
-    private static string SigilResourceRestriction(string trait, bool isOgnReprint)
-    {
-        var suffix = isOgnReprint
-            ? "T"
-            : string.Equals(trait, RuneTrait.Red, StringComparison.Ordinal)
-                ? "R"
-                : "S";
-        return $"PAY_RUNE_COSTS_ONLY_TYPED_{SigilResourceTraitUpper(trait)}_TEMPORARY_LEDGER_4D_03{suffix}";
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<string>> BuildSourceCardNosByRepresentativeCardNo()

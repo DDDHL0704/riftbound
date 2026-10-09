@@ -1,0 +1,35 @@
+{
+  "requestId": "preview-id",
+  "promptId": "COUNTER-REPEAT:1:P1:PLAY_CARD,PASS_PRIORITY,SURRENDER",
+  "snapshotTick": 1,
+  "isValid": true,
+  "canPay": true,
+  "message": "\u8D39\u7528\u5DF2\u6838\u5BF9\uFF0C\u53EF\u4EE5\u786E\u8BA4\u6253\u51FA\u3002",
+  "errorCode": null,
+  "cost": {
+    "printedMana": 3,
+    "printedPower": 2,
+    "mana": 6,
+    "genericPower": 0,
+    "powerByTrait": {
+      "green": 4
+    },
+    "experience": 0,
+    "availableMana": 20,
+    "availableRainbowPower": 20,
+    "availablePowerByTrait": {},
+    "missingMana": 0,
+    "missingPower": 0,
+    "missingExperience": 0,
+    "remainingMana": 14,
+    "remainingRainbowPower": 16,
+    "remainingPowerByTrait": {},
+    "adjustments": [
+      {
+        "label": "\u989D\u5916\u8D39\u7528",
+        "mana": 3,
+        "power": 2
+      }
+    ]
+  }
+}

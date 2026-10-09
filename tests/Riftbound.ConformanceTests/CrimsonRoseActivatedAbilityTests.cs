@@ -17,7 +17,7 @@ public sealed class CrimsonRoseActivatedAbilityTests
     [Fact]
     public void CrimsonRoseOpenMainPromptExposesExperienceReadyUnitRequirement()
     {
-        var state = BuildCrimsonRoseState(mana: 1, experience: 3);
+        var state = BuildCrimsonRoseState(mana: 0, experience: 3, power: 1);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
 
@@ -167,14 +167,14 @@ public sealed class CrimsonRoseActivatedAbilityTests
         Assert.Equal("ACTIVATE_ABILITY", costEvent.Payload["paymentWindow"]);
         Assert.Equal(3, costEvent.Payload["experienceCost"]);
         Assert.Equal(0, costEvent.Payload["remainingExperience"]);
-        Assert.Equal(0, costEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(0, costEvent.Payload["spellshieldTaxPower"]);
         Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
     }
 
     [Fact]
-    public async Task CrimsonRoseEnemySpellshieldTargetPaysManaTax()
+    public async Task CrimsonRoseEnemySpellshieldTargetPaysPowerTax()
     {
-        var state = BuildCrimsonRoseState(mana: 1, experience: 3);
+        var state = BuildCrimsonRoseState(mana: 0, experience: 3, power: 1);
 
         var result = await ActivateCrimsonRoseAsync(state, EnemySpellshieldUnitObjectId);
 
@@ -184,9 +184,9 @@ public sealed class CrimsonRoseActivatedAbilityTests
         Assert.True(result.State.CardObjects[CrimsonRoseObjectId].IsExhausted);
         Assert.True(result.State.CardObjects[EnemySpellshieldUnitObjectId].IsExhausted);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(1, costEvent.Payload["spellshieldTaxMana"]);
-        Assert.Equal(1, costEvent.Payload["baseManaCost"]);
-        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costEvent.Payload["spellshieldTaxPower"]);
+        Assert.Equal(0, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(0, costEvent.Payload["totalManaCost"]);
         Assert.Equal([EnemySpellshieldUnitObjectId], Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
     }
 
@@ -194,7 +194,7 @@ public sealed class CrimsonRoseActivatedAbilityTests
     public async Task CrimsonRoseEnemySpellshieldTargetTaxRejectsSuccessfulCommandReplayWithoutMutation()
     {
         var engine = new CoreRuleEngine();
-        var state = BuildCrimsonRoseState(mana: 1, experience: 3);
+        var state = BuildCrimsonRoseState(mana: 0, experience: 3, power: 1);
         var command = CrimsonRoseCommand([EnemySpellshieldUnitObjectId]);
 
         var activated = await engine.ResolveAsync(
@@ -219,7 +219,7 @@ public sealed class CrimsonRoseActivatedAbilityTests
         Assert.Equal(P4ActivatedAbilityCatalog.CrimsonRoseReadyAbilityEffectKind, stackItem.EffectKind);
         Assert.Equal([EnemySpellshieldUnitObjectId], stackItem.TargetObjectIds);
         var costEvent = Assert.Single(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(1, costEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(1, costEvent.Payload["spellshieldTaxPower"]);
         Assert.Equal([EnemySpellshieldUnitObjectId], Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
         var postActivationHash = MatchStateHasher.Hash(activated.State);
 
@@ -247,7 +247,7 @@ public sealed class CrimsonRoseActivatedAbilityTests
     public async Task CrimsonRoseEnemySpellshieldStalePromptReplayAfterStackPriorityStartsUsesRejectedCacheWithoutMutation()
     {
         var journal = new RecordingMatchJournal();
-        var state = BuildCrimsonRoseState(mana: 1, experience: 3);
+        var state = BuildCrimsonRoseState(mana: 0, experience: 3, power: 1);
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
@@ -752,7 +752,7 @@ public sealed class CrimsonRoseActivatedAbilityTests
         int mana,
         int experience,
         IReadOnlyList<string>? friendlyBaseUnitTags = null,
-        IReadOnlyDictionary<string, CardObjectState>? extraCardObjects = null)
+        IReadOnlyDictionary<string, CardObjectState>? extraCardObjects = null, int power = 0)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -783,7 +783,7 @@ public sealed class CrimsonRoseActivatedAbilityTests
             timingState: TimingStates.NeutralOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(mana, 0),
+                ["P1"] = new(mana, power),
                 ["P2"] = RunePool.Empty
             },
             playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)

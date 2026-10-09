@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-08",
+  "status": "reported death queue and reaction permission defects fixed; native timing presentation verified; broader rules incomplete",
+  "source": {
+    "baseCommit": "b0e6508380f694f281c251f517ba51e8adf3b58e",
+    "includesUncommittedChanges": true
+  },
+  "authority": {
+    "region": "CN",
+    "coreRulesPdfSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "officialCardText": {
+      "path": "docs/evidence/death-duel-2026-10-08/official-last-breath-cards.json",
+      "sha256": "3bcee8f829a00dcce3dad59329296dcb80b2864d885d932cb5ec60fd62461cbe",
+      "bytes": 3776
+    }
+  },
+  "oldMatch": {
+    "room": "RB-KAISA-FIX-576212",
+    "archivedTick": 42,
+    "historyMigrated": false,
+    "sentinelTriggerLostAtTick": 27,
+    "defenderReactionCandidateMissingAtTicks": [
+      24,
+      25
+    ],
+    "inspection": {
+      "path": "var/qa/death-duel-2026-10-08/replay-inspection.log",
+      "sha256": "eab4768dc9f94375db65bf249bc83ea7532c4027d5e1abae9467ebc2bc40b166",
+      "bytes": 7052
+    }
+  },
+  "conformance": {
+    "counters": {
+      "total": "9425",
+      "executed": "9425",
+      "passed": "9425",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "evidence": {
+      "path": "var/qa/death-duel-2026-10-08/death-duel-final.trx",
+      "sha256": "274794823d81398f026fceedda0dbae3fbef6092f8363d3dd244c78d56b0f801",
+      "bytes": 14675654
+    },
+    "summary": {
+      "path": "var/qa/death-duel-2026-10-08/final.log",
+      "sha256": "a0ccba48f09f39ec10c5002db08c5b28f334ee3ce7aacd79eab7e07db3870c9a",
+      "bytes": 1254
+    },
+    "targetedScope": [
+      "8 combat-death representative cards",
+      "priority-holder permission for every registered reaction definition",
+      "single trigger, simultaneous ordering, stack response and JSON recovery",
+      "native cost-preview intent accepted by authoritative engine",
+      "duplicate submission and stale prompt rejection",
+      "full-game victory and action replay"
+    ]
+  },
+  "native": {
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "interaction": "PASS",
+    "sizes": [
+      "1280x800",
+      "1440x900",
+      "1920x1080"
+    ],
+    "evidence": [
+      {
+        "path": "var/qa/death-duel-2026-10-08/native-final-build.log",
+        "sha256": "15bd39d902c655879fd91080035832b8b8fcbfa2af85f9be1044ec2d126b83b7",
+        "bytes": 340
+      },
+      {
+        "path": "var/qa/death-duel-2026-10-08/native-final-visual-proof.log",
+        "sha256": "0907a902cb3ef33bbfb0d8154d3f56a1da0f266296a70e6c0429eef27e6e336a",
+        "bytes": 287
+      },
+      {
+        "path": "var/qa/death-duel-2026-10-08/native-response-preview.json",
+        "sha256": "3e54272b57ac9adfbd5ebed25d48cf58ca2c67e5f2851419f7021722bbcd717b",
+        "bytes": 285
+      }
+    ],
+    "screenshots": [
+      {
+        "path": "docs/evidence/death-duel-2026-10-08/window-focus.png",
+        "sha256": "ad60de4056e1d5379f44f4150a78710e1cc548dc172454695ede9d598abb8af4",
+        "bytes": 137941
+      },
+      {
+        "path": "docs/evidence/death-duel-2026-10-08/window-duel-stack.png",
+        "sha256": "8b9d54c8ac86565894a4a0cf872a00f9a11399f106fbd291e9f15abb4967ef6f",
+        "bytes": 306184
+      },
+      {
+        "path": "docs/evidence/death-duel-2026-10-08/window-death.png",
+        "sha256": "4e6258e3ee5aeb1107beec0d49ba9771b511b172bbf27a4f2264dce42995466e",
+        "bytes": 303902
+      },
+      {
+        "path": "docs/evidence/death-duel-2026-10-08/window-battle-response.png",
+        "sha256": "d46be2b0b648e743858888aec04bdd54a03af0fd4ebe3c2638f66bf41cff53cb",
+        "bytes": 306528
+      }
+    ],
+    "screenshotScope": "Isolated regression scenario from real engine snapshots, not the user current match.",
+    "installedAppSignatureVerification": [
+      {
+        "app": "/Users/dinghaolin/.local/share/riftbound-play/20261008/符文战场·玩家1.app",
+        "deepStrictVerificationExitCode": 0
+      },
+      {
+        "app": "/Users/dinghaolin/.local/share/riftbound-play/20261008/符文战场·玩家2.app",
+        "deepStrictVerificationExitCode": 0
+      }
+    ]
+  },
+  "packages": {
+    "macosExport": true,
+    "windowsExport": true,
+    "windowsRuntimeVerified": false,
+    "files": [
+      {
+        "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-death-duel/Riftbound-macos.zip",
+        "sha256": "26887658a2b4a1e64b01e93cc70c45bbe24eb2b9f36ed80900532f43d5b5058b",
+        "bytes": 142002414
+      },
+      {
+        "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-death-duel/Riftbound-windows-x64.zip",
+        "sha256": "0f4d65848e8e4d2499c9bbb152b54f1f132910ab780a23678fbbec01dfd42d9e",
+        "bytes": 88810430
+      }
+    ],
+    "logs": [
+      {
+        "path": "var/qa/death-duel-2026-10-08/export-macos.log",
+        "sha256": "72869ffdf6af59764d02663af46f159f363338db217c7cce455de9b5ff9bb282",
+        "bytes": 90
+      },
+      {
+        "path": "var/qa/death-duel-2026-10-08/export-windows.log",
+        "sha256": "2121786a577b7f94b6cd30fc73b2cbb5495c0cb18e23aae9f6839d596dde6e19",
+        "bytes": 92
+      }
+    ]
+  },
+  "freshMatch": {
+    "room": "RB-KAISA-DUEL-389802",
+    "tick": 2,
+    "turn": 1,
+    "phase": "MULLIGAN",
+    "scores": {
+      "试玩玩家一": 0,
+      "试玩玩家二": 0
+    },
+    "activePlayer": "试玩玩家一",
+    "decks": [
+      "kaisa-red-tempo",
+      "kaisa-red-control"
+    ],
+    "bothNativeClientsEntered": true,
+    "mulliganNotSubmitted": true,
+    "recoveryErrors": [],
+    "actionReplayErrors": [],
+    "engineStateHash": "89C7CD2989ED0631FFD61C0C15F71A21432FA97687737D19679AA2E331FC32FC",
+    "evidence": [
+      {
+        "path": "var/qa/death-duel-2026-10-08/new-game/match-setup.json",
+        "sha256": "064f568e5502c01ea82bc162d7354d9bca053940f7218ed55b49a56fcf808554",
+        "bytes": 1497
+      },
+      {
+        "path": "var/qa/death-duel-2026-10-08/new-game-recovery.log",
+        "sha256": "dd7c3516e2120c3d65f9e83b65b75dc0d54cdb7967b497d64d676c4e9c81f0a0",
+        "bytes": 301
+      },
+      {
+        "path": "var/qa/death-duel-2026-10-08/player1-new-game.png",
+        "sha256": "41c08c6d88ce7dab7be9f24179124e55bb2bcbdf0152d5d39798a25e5b542774",
+        "bytes": 134703
+      },
+      {
+        "path": "var/qa/death-duel-2026-10-08/player2-new-game.png",
+        "sha256": "58c123b2a3328101fe6e3ed283f4bff0a2c063cd9ecaf3475bb8f55cb1867fd2",
+        "bytes": 185340
+      }
+    ]
+  },
+  "limitations": [
+    "Tasty Faerie, Ekko and Glasc Bartender special last-breath paths remain incomplete.",
+    "Karthus and RAD017 additional last-breath triggers are not fully implemented.",
+    "Independent turn-phase suspension/resumption, complete APNAP ordering and optional payment interleaving require further work.",
+    "Official text coverage and green tests do not establish complete card/rule support.",
+    "Windows export has not been tested on a Windows machine."
+  ],
+  "privateEvidence": "Private sessions and full user match states remain in ignored var/qa; no credentials are included in this record."
+}

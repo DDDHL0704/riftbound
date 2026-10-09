@@ -579,8 +579,15 @@ public sealed record CardObjectState
     }
 }
 
+public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations);
+
 public sealed record StackItemState
 {
+    public AfterPlayRecycleInstruction? AfterPlayRecycle { get; init; }
+    public RecycledUnitReceipt? RecycledUnit { get; init; }
+    public CardPlayCostReceipt? PlayCost { get; init; }
+    public RecastTriggerContext? RecastContext { get; init; }
+    public SpellTriggerContext? SpellContext { get; init; }
     [JsonConstructor]
     public StackItemState(
         string? stackItemId = null,
@@ -616,11 +623,29 @@ public sealed record StackItemState
         EffectPlayCompleted = effectPlayCompleted;
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, string>? TargetStackSources { get; init; }
+    public int CompletedDeckExecutions { get; init; }
+    public bool DeckChoiceCompleted { get; init; }
+    public bool InsightCompleted { get; init; }
+
     public string StackItemId { get; init; }
 
     public string ControllerId { get; init; }
 
     public string SourceObjectId { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public HeldTriggerContext? HeldContext { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public InsightTriggerContext? InsightContext { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public FieldTriggerContext? FieldContext { get; init; }
+
 
     public string EffectKind { get; init; }
 
@@ -665,19 +690,23 @@ public sealed record StackItemState
 
 public sealed record TriggerQueueItemState
 {
+    public RecastTriggerContext? RecastContext { get; init; }
+    public SpellTriggerContext? SpellContext { get; init; }
     [JsonConstructor]
     public TriggerQueueItemState(
         string? triggerId = null,
         string? controllerId = null,
         string? sourceObjectId = null,
         string? effectKind = null,
-        string? triggeredByEventKind = null)
+        string? triggeredByEventKind = null,
+        string? timingContext = null)
     {
         TriggerId = Normalize(triggerId);
         ControllerId = Normalize(controllerId);
         SourceObjectId = Normalize(sourceObjectId);
         EffectKind = Normalize(effectKind);
         TriggeredByEventKind = Normalize(triggeredByEventKind);
+        TimingContext = Normalize(timingContext);
     }
 
     public string TriggerId { get; init; }
@@ -686,9 +715,21 @@ public sealed record TriggerQueueItemState
 
     public string SourceObjectId { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public HeldTriggerContext? HeldContext { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public InsightTriggerContext? InsightContext { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public FieldTriggerContext? FieldContext { get; init; }
+
+
     public string EffectKind { get; init; }
 
     public string TriggeredByEventKind { get; init; }
+
+    public string TimingContext { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -721,6 +762,12 @@ public sealed record PendingPaymentState
         Reason = Normalize(reason);
         PaymentResourceActionIds = NormalizeList(paymentResourceActionIds);
     }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public HeldTriggerContext? HeldContext { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ResolvingStackItemId { get; init; }
 
     public string PaymentId { get; init; }
 
@@ -835,7 +882,8 @@ public sealed record PendingHandChoiceState
         IReadOnlyList<string>? legalObjectIds = null,
         string? reason = null,
         string? sourceObjectId = null,
-        string? effectKind = null)
+        string? effectKind = null,
+        int drawCount = 2)
     {
         ChoiceId = Normalize(choiceId);
         ChoiceWindow = Normalize(choiceWindow);
@@ -846,6 +894,7 @@ public sealed record PendingHandChoiceState
         Reason = Normalize(reason);
         SourceObjectId = Normalize(sourceObjectId);
         EffectKind = Normalize(effectKind);
+        DrawCount = Math.Max(0, drawCount);
     }
 
     public string ChoiceId { get; init; }
@@ -865,6 +914,8 @@ public sealed record PendingHandChoiceState
     public string SourceObjectId { get; init; }
 
     public string EffectKind { get; init; }
+
+    public int DrawCount { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -908,6 +959,16 @@ public sealed record PendingCardChoiceState
         EffectKind = Normalize(effectKind);
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public HeldTriggerContext? HeldContext { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ResolvingStackItemId { get; init; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DeckChoiceContext? DeckContext { get; init; }
+
     public string ChoiceId { get; init; }
 
     public string ChoiceWindow { get; init; }
@@ -945,6 +1006,9 @@ public sealed record PendingCardChoiceState
 
 public sealed record MatchState
 {
+    public IReadOnlyList<LinkedExileGroup> LinkedExiles { get; init; } = [];
+    public TurnDrawLedger DrawLedger { get; init; } = new(0, new Dictionary<string, int>());
+
     private const string BattleResponseDeclarationContextPrefix = "BATTLE_RESPONSE_DECLARATION_CONTEXT:";
     private const string BattleDamageAssignmentLedgerPrefix = "BATTLE_DAMAGE_ASSIGNMENT_LEDGER:";
 
@@ -1050,6 +1114,11 @@ public sealed record MatchState
         UntilEndOfTurnEffects = NormalizeTextList(untilEndOfTurnEffects);
         ExtraTurnPlayerId = NormalizeOptionalText(extraTurnPlayerId);
     }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TurnStartStep { get; init; }
+
+    public IReadOnlyList<DelayedResourceGain> DelayedResourceGains { get; init; } = [];
 
     public string RoomId { get; init; }
 
@@ -4125,7 +4194,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted))
+                item.EffectPlayCompleted) { HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4138,7 +4207,8 @@ public sealed record MatchState
                 item.ControllerId,
                 item.SourceObjectId,
                 item.EffectKind,
-                item.TriggeredByEventKind))
+                item.TriggeredByEventKind,
+                item.TimingContext) { HeldContext = item.HeldContext, InsightContext = item.InsightContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -4161,7 +4231,7 @@ public sealed record MatchState
             pendingPayment.PowerCostByTrait,
             pendingPayment.LegalPaymentChoiceIds,
             pendingPayment.Reason,
-            pendingPayment.PaymentResourceActionIds);
+            pendingPayment.PaymentResourceActionIds) { HeldContext = pendingPayment.HeldContext, ResolvingStackItemId = pendingPayment.ResolvingStackItemId };
     }
 
     private static IReadOnlyList<TemporaryPaymentResourceState> NormalizeTemporaryPaymentResources(
@@ -4213,7 +4283,8 @@ public sealed record MatchState
             pendingHandChoice.LegalObjectIds,
             pendingHandChoice.Reason,
             pendingHandChoice.SourceObjectId,
-            pendingHandChoice.EffectKind);
+            pendingHandChoice.EffectKind,
+            pendingHandChoice.DrawCount);
     }
 
     private static PendingCardChoiceState? NormalizePendingCardChoice(PendingCardChoiceState? pendingCardChoice)
@@ -4240,7 +4311,7 @@ public sealed record MatchState
             pendingCardChoice.ContextObjectIds,
             pendingCardChoice.Reason,
             pendingCardChoice.SourceObjectId,
-            pendingCardChoice.EffectKind);
+            pendingCardChoice.EffectKind) { HeldContext = pendingCardChoice.HeldContext, DeckContext = pendingCardChoice.DeckContext, ResolvingStackItemId = pendingCardChoice.ResolvingStackItemId };
     }
 
     private static IReadOnlyList<BattlefieldResolutionState> NormalizeBattlefieldResolutions(
@@ -5033,6 +5104,7 @@ public sealed record ResolutionResult(
             new Dictionary<string, object?>
             {
                 ["phase"] = state.Phase,
+                ["turnStartStep"] = state.TurnStartStep,
                 ["timingState"] = state.TimingState,
                 ["turnPlayerId"] = state.TurnPlayerId,
                 ["priorityPlayerId"] = state.PriorityPlayerId,
@@ -5226,26 +5298,8 @@ public sealed record ResolutionResult(
             visible ? objectId : null);
     }
 
-    private static int EffectiveWinningScore(MatchState state)
-    {
-        var modifier = state.PlayerZones
-            .Sum(entry => entry.Value.Battlefields.Sum(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)
-                    ? BattlefieldWinningScoreIncreaseAmount(cardObject.CardNo)
-                    : 0));
-        return BaseWinningScore + modifier;
-    }
-
-    private static int BattlefieldWinningScoreIncreaseAmount(string? cardNo)
-    {
-        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
-                cardNo,
-                BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
-                out var ability)
-                ? ability.Amount
-                : 0;
-    }
+    private static int EffectiveWinningScore(MatchState state) =>
+        BaseWinningScore + BattlefieldLocalRules.WinningScoreIncrease(state.PlayerZones, state.CardObjects);
 
     private static bool SourceObjectControlledByPlayerOrLegacyOwned(CardObjectState cardObject, string playerId)
     {
@@ -5269,6 +5323,12 @@ public sealed record ResolutionResult(
             ["targetObjectIds"] = VisibleObjectIdsForViewer(state, item.TargetObjectIds, viewerPlayerId),
             ["damageAmount"] = item.DamageAmount
         };
+        if (item.RepeatExecutions is { } executions && !hiddenSource)
+            view["repeatExecutions"] = executions.Select((execution, index) => new Dictionary<string, object?>
+            {
+                ["index"] = index, ["effectKind"] = execution.EffectKind,
+                ["targetObjectIds"] = VisibleObjectIdsForViewer(state, execution.TargetObjectIds, viewerPlayerId)
+            }).ToArray();
         if (item.SourceConfirmed) view["playAbility"] = true;
         if (!string.IsNullOrWhiteSpace(item.Destination))
         {
@@ -5426,22 +5486,8 @@ public sealed record ResolutionResult(
 
     private static string TemporaryPaymentResourceRestriction(TemporaryPaymentResourceState resource)
     {
-        if (P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(resource.AbilityId, out var profile))
-        {
-            return profile.ResourceRestriction;
-        }
-
-        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
-            ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
-            : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
-                ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
-            : P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
+        return P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var ability)
+            && ability.PaymentOnlyResource ? ability.ResourceRestriction : string.Empty;
     }
 
     private static int TemporaryPaymentResourceTotalRemainingPower(TemporaryPaymentResourceState resource)
@@ -5483,121 +5529,9 @@ public sealed record ResolutionResult(
                 .Concat(payment.LegalPaymentChoiceIds.Where(choiceId =>
                     choiceId.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)))
                 .Concat(TemporaryPaymentResourceActionIds(state, payment))
-                .Concat(BlueSentinelDelayedResourceActionIds(state, payment))
+
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
-    }
-
-    private static IReadOnlyList<string> BlueSentinelDelayedResourceActionIds(
-        MatchState state,
-        PendingPaymentState payment)
-    {
-        if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
-        {
-            return [];
-        }
-
-        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        if (PaymentCostRules.CanPayPowerCost(runePool, payment.PowerCost, payment.PowerCostByTrait))
-        {
-            return [];
-        }
-
-        return state.TriggerQueue
-            .Where(trigger => BlueSentinelDelayedTriggerCanPay(state, payment, trigger))
-            .Select(trigger => $"{P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix}{trigger.TriggerId}")
-            .ToArray();
-    }
-
-    private static bool BlueSentinelDelayedTriggerCanPay(
-        MatchState state,
-        PendingPaymentState payment,
-        TriggerQueueItemState trigger)
-    {
-        if (!TryReadBlueSentinelDelayedTriggerContext(trigger.TriggerId, out var capturedTurnNumber, out var sourceObjectId, out var battlefieldObjectId)
-            || !string.Equals(trigger.ControllerId, payment.PlayerId, StringComparison.Ordinal)
-            || !string.Equals(trigger.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
-            || !string.Equals(trigger.EffectKind, P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, StringComparison.Ordinal)
-            || !string.Equals(trigger.TriggeredByEventKind, "BATTLEFIELD_HELD", StringComparison.Ordinal)
-            || state.TurnNumber != capturedTurnNumber + 1
-            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.ActivePlayerId, payment.PlayerId, StringComparison.Ordinal)
-            || !BlueSentinelDelayedSourceStillHoldsBattlefield(state, payment.PlayerId, sourceObjectId, battlefieldObjectId))
-        {
-            return false;
-        }
-
-        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        return TemporaryPaymentResourceCanHelpPowerCost(
-            runePool,
-            new TemporaryPaymentResourceState(
-                $"BLUE_SENTINEL:QUOTE:{trigger.TriggerId}",
-                payment.PlayerId,
-                sourceObjectId,
-                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
-                payment.PaymentWindow,
-                generatedPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
-                remainingPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
-                allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
-                createdTick: state.Tick),
-            payment.PowerCost,
-            payment.PowerCostByTrait);
-    }
-
-    private static bool TryReadBlueSentinelDelayedTriggerContext(
-        string triggerId,
-        out int capturedTurnNumber,
-        out string sourceObjectId,
-        out string battlefieldObjectId)
-    {
-        capturedTurnNumber = 0;
-        sourceObjectId = string.Empty;
-        battlefieldObjectId = string.Empty;
-        var parts = triggerId.Split("::", StringSplitOptions.None);
-        if (parts.Length != 4
-            || !string.Equals(parts[0], "BLUE_SENTINEL_HELD_DELAYED_RESOURCE", StringComparison.Ordinal)
-            || !int.TryParse(
-                parts[1],
-                System.Globalization.NumberStyles.Integer,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out capturedTurnNumber)
-            || string.IsNullOrWhiteSpace(parts[2])
-            || string.IsNullOrWhiteSpace(parts[3]))
-        {
-            return false;
-        }
-
-        sourceObjectId = parts[2];
-        battlefieldObjectId = parts[3];
-        return capturedTurnNumber > 0;
-    }
-
-    private static bool BlueSentinelDelayedSourceStillHoldsBattlefield(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        string battlefieldObjectId)
-    {
-        return state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
-                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
-                sourceState.CardNo)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            && state.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
-            && string.Equals(sourceLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
-            && string.Equals(sourceLocation.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
-            && (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-                || SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId));
     }
 
     private static IReadOnlyList<string> TemporaryPaymentResourceActionIds(
@@ -5685,6 +5619,12 @@ public sealed record ResolutionResult(
             view["legalObjectIds"] = choice.LegalObjectIds;
         }
 
+        if (!ownChoice && choice.DeckContext is not null)
+        {
+            view.Remove("legalCount");
+            view.Remove("requiredCount");
+            view.Remove("maxCount");
+        }
         return view;
     }
 
@@ -6751,7 +6691,7 @@ public sealed record ResolutionResult(
                     ? "请选择服务端允许的支付项"
                     : "等待对手支付费用",
                 string.Equals(playerId, state.PendingPayment.PlayerId, StringComparison.Ordinal)
-                    ? WithSurrender(CommandTypes.PayCost)
+                    ? WithSurrender(CommandTypes.PayCost, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune)
                     : WithSurrender("WAIT")));
         }
 
@@ -6779,7 +6719,9 @@ public sealed record ResolutionResult(
                     ? "请选择要处理的卡牌"
                     : "等待对手选择卡牌",
                 string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal)
-                    ? WithSurrender(CommandTypes.ChooseCards)
+                    ? state.PendingCardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION"
+                        ? WithSurrender(CommandTypes.ChooseCards, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune)
+                        : WithSurrender(CommandTypes.ChooseCards)
                     : WithSurrender("WAIT")));
         }
 
@@ -7075,7 +7017,7 @@ internal static class ActionPromptBuilder
         bool ResolvesImmediately,
         bool Composable,
         string? UnsupportedReason,
-        IReadOnlyDictionary<string, int>? SpellshieldTaxManaByTargetObjectId = null,
+        IReadOnlyDictionary<string, int>? SpellshieldTaxPowerByTargetObjectId = null,
         bool RenataGoldExtraManaAvailable = false,
         int BonusMana = 0,
         IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>? AzirArmamentReattachChoicesByTargetObjectId = null);
@@ -7290,6 +7232,8 @@ internal static class ActionPromptBuilder
         string reason,
         IReadOnlyList<string> actions)
     {
+        if (state.UntilEndOfTurnEffects.Contains(CardPermissionKeywordRules.SpellPlayProhibitionPrefix + playerId, StringComparer.Ordinal))
+            reason += " · " + CardPermissionKeywordRules.SpellPlayProhibitionReason;
         var normalizedActions = actions
             .Where(action => !string.IsNullOrWhiteSpace(action))
             .Select(action => action.Trim())
@@ -8226,6 +8170,10 @@ internal static class ActionPromptBuilder
         string playerId,
         string reason)
     {
+        if (type == PromptTypes.HandChoice && state.PendingHandChoice is { } choice)
+            return choice.PlayerId == playerId
+                ? $"请选择 {choice.RequiredCount} 张手牌弃置，随后抽 {choice.DrawCount} 张牌。"
+                : "等待对手选择要弃置的手牌。";
         if (string.Equals(type, PromptTypes.MatchResult, StringComparison.Ordinal))
         {
             if (string.Equals(state.WinnerPlayerId, playerId, StringComparison.Ordinal))
@@ -8663,22 +8611,7 @@ internal static class ActionPromptBuilder
             return;
         }
 
-        if (TryParseBlueSentinelDelayedResourceActionId(resourceActionId, out var triggerId))
-        {
-            var trigger = state.TriggerQueue.FirstOrDefault(candidate =>
-                string.Equals(candidate.TriggerId, triggerId, StringComparison.Ordinal));
-            if (trigger is not null && !IsHiddenRelatedTriggerSourceForViewer(state, trigger, playerId))
-            {
-                AddRelatedObjectRef(state, playerId, relatedObjects, trigger.SourceObjectId, "费用触发");
-            }
 
-            if (TryReadBlueSentinelDelayedTriggerContext(triggerId, out _, out _, out var battlefieldObjectId))
-            {
-                AddRelatedObjectRef(state, playerId, relatedObjects, battlefieldObjectId, "费用战场");
-            }
-
-            return;
-        }
 
         AddRelatedObjectRef(state, playerId, relatedObjects, resourceActionId, "费用资源");
     }
@@ -8962,9 +8895,39 @@ internal static class ActionPromptBuilder
             modes,
             optionalCosts,
             commandTemplate);
+        if (action == CommandTypes.ChooseHandCards && state.PendingHandChoice is { } handChoice
+            && handChoice.PlayerId == playerId)
+        {
+            var handChoices = AnnotatePromptChoiceObjectIds(PendingHandChoiceDtos(state, handChoice));
+            var steps = new List<ActionPromptSelectionStepDto>();
+            for (var index = 0; index < handChoice.RequiredCount; index++)
+                AddSelectionStep(steps, "target", $"第 {index + 1} 张弃牌", true, handChoices);
+            selectionSteps = steps;
+        }
+        if (action == CommandTypes.ChooseCards && state.PendingCardChoice is { } cardChoice
+            && cardChoice.PlayerId == playerId)
+        {
+            var cards = AnnotatePromptChoiceObjectIds(PendingCardChoiceDtos(state, cardChoice));
+            var steps = new List<ActionPromptSelectionStepDto>();
+            for (var index = 0; index < cardChoice.MaxCount; index++)
+                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择一名友方单位" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
+            selectionSteps = steps;
+        }
+        if (action == CommandTypes.PayCost && state.PendingPayment is { } payment && payment.PlayerId == playerId
+            && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"]))
+        {
+            var steps = new List<ActionPromptSelectionStepDto>();
+            AddSelectionStep(steps, "target", "支付或放弃此效果", true,
+                [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
+            selectionSteps = steps;
+            commandTemplate = CommandTemplate(CommandTypes.PayCost,
+                CandidateMetadataBinding("paymentId", required: true, metadataKeys: ["paymentId"]),
+                CandidateMetadataBinding("paymentWindow", required: true, metadataKeys: ["paymentWindow"]),
+                SelectedTargetsBinding("paymentChoiceIds", required: true));
+        }
         return new ActionPromptCandidateDto(
             action,
-            LabelFor(action),
+            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == "TRIGGER_CONFIRMATION" ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -9096,6 +9059,16 @@ internal static class ActionPromptBuilder
     {
         return action switch
         {
+            CommandTypes.ChooseCards => CommandTemplate(
+                CommandTypes.ChooseCards,
+                CandidateMetadataBinding("choiceId", required: true, metadataKeys: ["choiceId"]),
+                CandidateMetadataBinding("choiceWindow", required: true, metadataKeys: ["choiceWindow"]),
+                SelectedTargetsBinding("chosenObjectIds", required: false, omitEmpty: false)),
+            CommandTypes.ChooseHandCards => CommandTemplate(
+                CommandTypes.ChooseHandCards,
+                CandidateMetadataBinding("choiceId", required: true, metadataKeys: ["choiceId"]),
+                CandidateMetadataBinding("choiceWindow", required: true, metadataKeys: ["choiceWindow"]),
+                SelectedTargetsBinding("chosenObjectIds", required: true, omitEmpty: false)),
             CommandTypes.PassPriority => CommandTemplate(CommandTypes.PassPriority),
             CommandTypes.PassFocus => CommandTemplate(CommandTypes.PassFocus),
             CommandTypes.Pass => CommandTemplate(CommandTypes.Pass),
@@ -9748,6 +9721,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
+        if (CardPermissionKeywordRules.IsSpellPlayProhibited(state, playerId, behavior)) return false;
+
         return cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || HasDelimitedTag(behavior.SourceUnitTags, CardObjectTags.Standby);
     }
@@ -9988,18 +9963,8 @@ internal static class ActionPromptBuilder
         return requirements;
     }
 
-    private static bool HasMoveUnitPromptPreventMoveToBase(MatchState state, string playerId, string sourceObjectId)
-    {
-        return state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
-            && zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldStaticAbilitySpecRules.TryGetAbility(
-                    cardObject.CardNo,
-                    BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventMoveToBaseAbility,
-                    out _)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
-    }
+    private static bool HasMoveUnitPromptPreventMoveToBase(MatchState state, string playerId, string sourceObjectId) =>
+        BattlefieldLocalRules.PreventsMoveToBase(state, sourceObjectId);
 
     private static bool HasMoveUnitPromptRoamPermission(
         MatchState state,
@@ -10021,11 +9986,7 @@ internal static class ActionPromptBuilder
                 sourceObjectId,
                 sourceState,
                 MoveUnitRoamKeyword)
-            || zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && !cardObject.IsFaceDown
-                && HasBattlefieldAllUnitsGrantedKeywordStaticAura(cardObject.CardNo, MoveUnitRoamKeyword)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
+            || BattlefieldLocalRules.GrantsKeyword(state, sourceObjectId, MoveUnitRoamKeyword);
     }
 
     private static IEnumerable<ActionPromptChoiceDto> MoveUnitBaronNestDestinationChoices(
@@ -10234,8 +10195,7 @@ internal static class ActionPromptBuilder
                 || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
                 || P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(ability.AbilityId)
-                || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
-                    && !TryGetJhinMovementResourceTrigger(state, playerId, sourceObjectId, out _))
+                || ability.Kind == "TRIGGERED_RESOURCE"
                 || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
                     && state.UntilEndOfTurnEffects.Contains(
                         P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(playerId, sourceObjectId),
@@ -10268,7 +10228,7 @@ internal static class ActionPromptBuilder
             var paymentResourcePowerByChoice = ActivateAbilityPaymentResourcePowerByChoice(state, playerId, ability);
             var conversionOptionalCostChoices = ActivateAbilityConversionOptionalCostChoices(state, playerId, ability);
             var isResourceConversionAbility = P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId);
-            var jhinMoveTriggerChoices = ActivateAbilityJhinMoveTriggerChoices(state, playerId, sourceObjectId, ability);
+
             var honeyfruitLevelSixChoices = ActivateAbilityHoneyfruitLevelSixChoices(state, playerId, sourceObjectId, ability);
             if (isResourceConversionAbility
                 && !string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal)
@@ -10278,9 +10238,9 @@ internal static class ActionPromptBuilder
             }
 
             var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
-            var spellshieldTaxManaByTargetObjectId = ActivateAbilitySpellshieldTaxManaByTargetObjectId(state, playerId, ability, targetChoicesByIndex);
+            var spellshieldTaxPowerByTargetObjectId = ActivateAbilitySpellshieldTaxPowerByTargetObjectId(state, playerId, ability, targetChoicesByIndex);
             var renataGoldExtraManaAvailable = P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId)
-                && cardObject.Tags.Contains(P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag, StringComparer.Ordinal);
+                && CoreRuleEngine.RenataGoldBonusActive(state, playerId);
             var azirArmamentReattachChoicesByTargetObjectId = string.Equals(
                     ability.AbilityId,
                     P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
@@ -10315,9 +10275,7 @@ internal static class ActionPromptBuilder
                 targetChoicesByIndex,
                 isResourceConversionAbility
                     ? conversionOptionalCostChoices
-                    : jhinMoveTriggerChoices.Count > 0
-                        ? jhinMoveTriggerChoices
-                        : honeyfruitLevelSixChoices.Count > 0
+                    : honeyfruitLevelSixChoices.Count > 0
                             ? honeyfruitLevelSixChoices
                             : paymentResourceChoices.Concat(armamentReattachChoices).ToArray(),
                 isResourceConversionAbility ? [] : paymentResourceChoices,
@@ -10328,12 +10286,12 @@ internal static class ActionPromptBuilder
                 availablePowerByTrait,
                 runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
                 availablePowerByTraitWithPaymentResources,
-                jhinMoveTriggerChoices.Select(choice => choice.Id).ToArray(),
+                [],
                 ability.ExhaustsSourceAsCost,
                 ability.IsResourceSkill,
                 true,
                 null,
-                spellshieldTaxManaByTargetObjectId,
+                spellshieldTaxPowerByTargetObjectId,
                 renataGoldExtraManaAvailable,
                 renataGoldExtraManaAvailable ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0,
                 azirArmamentReattachChoicesByTargetObjectId));
@@ -10383,27 +10341,6 @@ internal static class ActionPromptBuilder
             .ToArray();
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityJhinMoveTriggerChoices(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        P4ActivatedAbilityDefinition ability)
-    {
-        if (!string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
-            || !TryGetJhinMovementResourceTrigger(state, playerId, sourceObjectId, out var trigger))
-        {
-            return [];
-        }
-
-        return
-        [
-            new ActionPromptChoiceDto(
-                $"{P4ActivatedAbilityCatalog.JhinMoveTriggerOptionalCostPrefix}{trigger.TriggerId}",
-                "移动触发",
-                "server-owned Jhin movement trigger context")
-        ];
-    }
-
     private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityHoneyfruitLevelSixChoices(
         MatchState state,
         string playerId,
@@ -10422,106 +10359,8 @@ internal static class ActionPromptBuilder
             new ActionPromptChoiceDto(
                 $"{P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix}{sourceObjectId}",
                 "6 级强化",
-                "Honeyfruit level-six branch: gain 1 mana plus 1 payment-only power")
+                "Honeyfruit level-six branch: gain 1 mana plus 1 wildcard power")
         ];
-    }
-
-    private static bool TryGetJhinMovementResourceTrigger(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        out TriggerQueueItemState trigger)
-    {
-        trigger = state.TriggerQueue
-            .Select(candidate => new
-            {
-                Trigger = candidate,
-                Parsed = TryReadJhinMovementTriggerContext(
-                    candidate.TriggerId,
-                    out var tick,
-                    out var parsedSourceObjectId,
-                    out _,
-                    out var destination),
-                Tick = tick,
-                SourceObjectId = parsedSourceObjectId,
-                Destination = destination
-            })
-            .Where(candidate =>
-                candidate.Parsed
-                && string.Equals(candidate.Trigger.ControllerId, playerId, StringComparison.Ordinal)
-                && string.Equals(candidate.Trigger.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
-                && string.Equals(candidate.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
-                && string.Equals(candidate.Trigger.EffectKind, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind, StringComparison.Ordinal)
-                && (string.Equals(candidate.Trigger.TriggeredByEventKind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal)
-                    || string.Equals(candidate.Trigger.TriggeredByEventKind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal))
-                && JhinMovementTriggerDestinationStillMatches(state, sourceObjectId, candidate.Destination))
-            .OrderByDescending(candidate => candidate.Tick)
-            .Select(candidate => candidate.Trigger)
-            .FirstOrDefault()!;
-        return trigger is not null;
-    }
-
-    private static bool TryReadJhinMovementTriggerContext(
-        string triggerId,
-        out long tick,
-        out string sourceObjectId,
-        out string origin,
-        out string destination)
-    {
-        tick = 0;
-        sourceObjectId = string.Empty;
-        origin = string.Empty;
-        destination = string.Empty;
-        var parts = triggerId.Split("::", StringSplitOptions.None);
-        if (parts.Length != 5
-            || !string.Equals(parts[0], "JHIN_MOVE_RESOURCE", StringComparison.Ordinal)
-            || !long.TryParse(
-                parts[1],
-                System.Globalization.NumberStyles.Integer,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out tick)
-            || string.IsNullOrWhiteSpace(parts[2])
-            || string.IsNullOrWhiteSpace(parts[3])
-            || string.IsNullOrWhiteSpace(parts[4]))
-        {
-            return false;
-        }
-
-        sourceObjectId = parts[2];
-        origin = parts[3];
-        destination = parts[4];
-        return true;
-    }
-
-    private static bool JhinMovementTriggerDestinationStillMatches(
-        MatchState state,
-        string sourceObjectId,
-        string destination)
-    {
-        if (!state.ObjectLocations.TryGetValue(sourceObjectId, out var location))
-        {
-            return false;
-        }
-
-        if (string.Equals(destination, MoveUnitBaseZone, StringComparison.Ordinal))
-        {
-            return string.Equals(location.Zone, MoveUnitBaseZone, StringComparison.Ordinal);
-        }
-
-        if (string.Equals(destination, MoveUnitBattlefieldZone, StringComparison.Ordinal))
-        {
-            return string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal);
-        }
-
-        var preciseBattlefieldPrefix = $"{MoveUnitBattlefieldZone}:";
-        if (!destination.StartsWith(preciseBattlefieldPrefix, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var battlefieldObjectId = destination[preciseBattlefieldPrefix.Length..];
-        return string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
     }
 
     private static bool ActivateAbilitySourceMatches(
@@ -10530,16 +10369,9 @@ internal static class ActionPromptBuilder
         string sourceObjectId,
         CardObjectState cardObject)
     {
-        if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId)
-            && (!cardObject.Tags.Contains("金币", StringComparer.Ordinal)
-                || !cardObject.Tags.Contains("反应", StringComparer.Ordinal)))
-        {
-            return false;
-        }
-
         if (ability.RequiresBaseEquipmentSource)
         {
-            return zones.Base.Contains(sourceObjectId, StringComparer.Ordinal)
+            return (zones.Base.Contains(sourceObjectId, StringComparer.Ordinal) || zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
                 && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
                 && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
         }
@@ -10568,8 +10400,8 @@ internal static class ActionPromptBuilder
         {
             return ResourceConversionChoices(
                 P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix,
-                runePool.Power,
-                "转换通用符能为法力");
+                runePool.TotalPower,
+                "转换任意特性符能为法力");
         }
 
         return [];
@@ -10580,7 +10412,7 @@ internal static class ActionPromptBuilder
         int maxAmount,
         string labelPrefix)
     {
-        return Enumerable.Range(1, Math.Max(0, maxAmount))
+        return Enumerable.Range(0, Math.Max(0, maxAmount) + 1)
             .Select(amount => new ActionPromptChoiceDto(
                 $"{prefix}{amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
                 $"{labelPrefix}：{amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
@@ -10588,7 +10420,7 @@ internal static class ActionPromptBuilder
             .ToArray();
     }
 
-    private static IReadOnlyDictionary<string, int> ActivateAbilitySpellshieldTaxManaByTargetObjectId(
+    private static IReadOnlyDictionary<string, int> ActivateAbilitySpellshieldTaxPowerByTargetObjectId(
         MatchState state,
         string playerId,
         P4ActivatedAbilityDefinition ability,
@@ -10605,7 +10437,7 @@ internal static class ActionPromptBuilder
             .Distinct(StringComparer.Ordinal)
             .ToDictionary(
                 objectId => objectId,
-                objectId => SpellshieldTaxManaForTarget(state, playerId, objectId),
+                objectId => SpellshieldTaxPowerForTarget(state, playerId, objectId),
                 StringComparer.Ordinal);
     }
 
@@ -11392,7 +11224,7 @@ internal static class ActionPromptBuilder
                     state,
                     objectId,
                     IsPromptEnemyFieldObject(state, playerId, objectId)
-                        && SpellshieldTaxManaForTarget(state, playerId, objectId) > 0
+                        && SpellshieldTaxPowerForTarget(state, playerId, objectId) > 0
                             ? "unit target with spellshield tax"
                             : "unit target"))
                 .ToArray();
@@ -11413,7 +11245,7 @@ internal static class ActionPromptBuilder
                     state,
                     objectId,
                     IsPromptEnemyFieldObject(state, playerId, objectId)
-                        && SpellshieldTaxManaForTarget(state, playerId, objectId) > 0
+                        && SpellshieldTaxPowerForTarget(state, playerId, objectId) > 0
                             ? "unit target with spellshield tax"
                             : "unit target"))
                 .ToArray();
@@ -11431,7 +11263,7 @@ internal static class ActionPromptBuilder
                 .Select(objectId => ObjectChoice(
                     state,
                     objectId,
-                    SpellshieldTaxManaForTarget(state, playerId, objectId) > 0
+                    SpellshieldTaxPowerForTarget(state, playerId, objectId) > 0
                         ? "enemy attacking unit at this battlefield with spellshield tax"
                         : "enemy attacking unit at this battlefield"))
                 .ToArray();
@@ -11527,7 +11359,7 @@ internal static class ActionPromptBuilder
             ? currentExperience
             : 0;
         return experience >= ability.ExperienceCost
-            && runePool.Mana >= SpellshieldTaxManaForTarget(state, playerId, targetObjectId);
+            && runePool.TotalPower >= SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
     private static bool IsPromptReadyTargetObject(MatchState state, string objectId)
@@ -11545,8 +11377,8 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return runePool.Mana >= ability.ManaCost + SpellshieldTaxManaForTarget(state, playerId, targetObjectId)
-            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost;
+        return runePool.Mana >= ability.ManaCost
+            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
     private static bool IsPromptShadowStunTarget(
@@ -11765,9 +11597,8 @@ internal static class ActionPromptBuilder
         string sourceObjectId,
         string objectId)
     {
-        return !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
-            && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.ControllerId == playerId
             && !cardObject.IsFaceDown
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -11805,8 +11636,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return runePool.Mana >= SpellshieldTaxManaForTarget(state, playerId, targetObjectId)
-            && ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost;
+        return ActivateAbilityAvailablePowerWithPaymentResources(state, playerId, ability) >= ability.PowerCost + SpellshieldTaxPowerForTarget(state, playerId, targetObjectId);
     }
 
     private static int TemporaryPaymentResourceTotalRemainingPower(TemporaryPaymentResourceState resource)
@@ -11816,22 +11646,8 @@ internal static class ActionPromptBuilder
 
     private static string TemporaryPaymentResourceRestriction(TemporaryPaymentResourceState resource)
     {
-        if (P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(resource.AbilityId, out var profile))
-        {
-            return profile.ResourceRestriction;
-        }
-
-        return string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal)
-            ? P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction
-            : string.Equals(resource.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal)
-                ? P4ActivatedAbilityCatalog.JhinMoveResourceRestriction
-            : P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(resource.AbilityId)
-                ? P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction
-            : P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
+        return P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var ability)
+            && ability.PaymentOnlyResource ? ability.ResourceRestriction : string.Empty;
     }
 
     private static bool TemporaryPaymentResourceCanHelpPowerCost(
@@ -11871,10 +11687,12 @@ internal static class ActionPromptBuilder
             return [];
         }
 
+        var totalPower = ability.PowerCost + (ability.AppliesSpellshieldTargetTax
+            ? state.PlayerZones.Where(z => z.Key != playerId).SelectMany(z => z.Value.Base.Concat(z.Value.Battlefields)).Distinct().Select(id => SpellshieldTaxPowerForTarget(state, playerId, id)).DefaultIfEmpty().Max() : 0);
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        if (PaymentCostRules.CanPayPowerCost(runePool, ability.PowerCost, powerCostByTrait)
+        if (PaymentCostRules.CanPayPowerCost(runePool, totalPower, powerCostByTrait)
             || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return [];
@@ -11886,7 +11704,7 @@ internal static class ActionPromptBuilder
                 state,
                 objectId,
                 runePool,
-                ability.PowerCost,
+                totalPower,
                 powerCostByTrait))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .Select(objectId =>
@@ -11901,7 +11719,7 @@ internal static class ActionPromptBuilder
         var temporaryChoices = TemporaryPaymentResourceChoicesForGenericPower(
             state,
             playerId,
-            ability.PowerCost,
+            totalPower,
             powerCostByTrait,
             "payment resource action: temporary resource for activate ability power");
         return recycleChoices.Concat(temporaryChoices).ToArray();
@@ -12231,67 +12049,14 @@ internal static class ActionPromptBuilder
         string playerId,
         P4ActivatedAbilityDefinition ability)
     {
-        if (state.PendingPayment is not null
-            || state.PendingHandChoice is not null
-            || state.PendingCardChoice is not null
-            || (state.PendingTaskQueue.IsBlocking && !HasOpenBattleResponsePriority(state)))
-        {
-            return false;
-        }
+        if (ability.IsResourceSkill && ability.ReactionSpeed)
+            return CoreRuleEngine.CanActivateReactionResourceSkill(state, playerId);
+        if (state.PendingPayment is not null || state.PendingHandChoice is not null || state.PendingCardChoice is not null
+            || (state.PendingTaskQueue.IsBlocking && !HasOpenBattleResponsePriority(state))) return false;
 
-        var isOpenMain = string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            && string.Equals(state.ActivePlayerId, playerId, StringComparison.Ordinal)
-            && state.StackItems.Count == 0;
-        if (isOpenMain)
-        {
-            return !ability.ReactionSpeed;
-        }
-
-        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId, StringComparison.Ordinal))
-        {
-            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-                && state.StackItems.Count > 0
-                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
-        }
-
-        if (P4ActivatedAbilityCatalog.IsSigilTypedResourceAbility(ability.AbilityId))
-        {
-            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-                && state.StackItems.Count > 0
-                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
-        }
-
-        if (P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId))
-        {
-            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-                && state.StackItems.Count > 0
-                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
-        }
-
-        if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(ability.AbilityId))
-        {
-            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-                && state.StackItems.Count > 0
-                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
-        }
-
-        if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId))
-        {
-            return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-                && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-                && state.StackItems.Count > 0
-                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
-        }
+        var isOpenMain = state.Phase == MatchPhases.Main && state.TimingState == TimingStates.NeutralOpen
+            && state.ActivePlayerId == playerId && state.StackItems.Count == 0;
+        if (isOpenMain) return !ability.ReactionSpeed;
 
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal))
         {
@@ -12352,7 +12117,7 @@ internal static class ActionPromptBuilder
         {
             P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
             P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
-            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点费用符能",
+            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId => "玛尔扎哈：摧毁友方单位或装备并横置，获得 2 点任意特性符能",
             P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId => "龙魂贤者：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId => "烈娜塔·戈拉斯克：支付 1 法力和 1 蓝色符能，抽 1 张牌",
             P4ActivatedAbilityCatalog.RenataGlascScoreAbilityId => "烈娜塔·戈拉斯克：支付 4 法力和 4 蓝色符能并横置，获得 1 分",
@@ -12366,8 +12131,8 @@ internal static class ActionPromptBuilder
             P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId => "能量通道：反应，横置，获得 1 点法力",
             P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId => "远古簇碑：反应，横置，支付法力获得等量费用符能",
             P4ActivatedAbilityCatalog.HextechAnomalyResourceAbilityId => "海克斯异常体：反应，横置，支付通用符能获得等量法力",
-            P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId => "金币：反应，摧毁自身并横置，获得 1 点费用符能",
-            P4ActivatedAbilityCatalog.GoldTokenSfdResourceAbilityId => "金币：反应，摧毁自身并横置，获得 1 点费用符能",
+            P4ActivatedAbilityCatalog.GoldTokenUnlResourceAbilityId => "使用金币：横置并摧毁，获得 1 点任意特性符能",
+            P4ActivatedAbilityCatalog.GoldTokenSfdResourceAbilityId => "使用金币：横置并摧毁，获得 1 点任意特性符能",
             _ when P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(ability.AbilityId, out var profile)
                 => $"{profile.DisplayName}：反应，横置，获得 1 点{profile.TraitLabel}费用符能",
             _ => ability.DisplayName
@@ -12398,97 +12163,14 @@ internal static class ActionPromptBuilder
                         : "服务端目标";
     }
 
-    private static int SpellshieldTaxManaForTarget(MatchState state, string playerId, string targetObjectId)
+    private static int SpellshieldTaxPowerForTarget(MatchState state, string playerId, string targetObjectId)
+        => CoreRuleEngine.SpellshieldPowerCostForTarget(state, playerId, targetObjectId);
+
+    private static string? BattlefieldGrantUnitExperienceObjectId(MatchState state, string playerId, string sourceObjectId)
     {
-        if (!IsPromptEnemyFieldObject(state, playerId, targetObjectId)
-            || !state.CardObjects.TryGetValue(targetObjectId, out var targetState))
-        {
-            return 0;
-        }
-
-        return Math.Max(
-            Math.Max(
-                CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags),
-                SourceObjectGrantedSpellshieldTax(state, targetObjectId, targetState)),
-            FriendlyFilteredUnitsGrantedSpellshieldTax(state, targetObjectId, targetState));
-    }
-
-    private static int SourceObjectGrantedSpellshieldTax(
-        MatchState state,
-        string objectId,
-        CardObjectState cardObject)
-    {
-        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !TryFindPromptPublicFieldObjectLocation(state.PlayerZones, objectId, out var targetLocation)
-            || !IsPromptPublicObjectLocationCompatible(state, objectId, targetLocation.Zone))
-        {
-            return 0;
-        }
-
-        var tax = 0;
-        foreach (var aura in StaticAuraSpecRules.GetStaticAuras(cardObject.CardNo)
-            .Where(StaticAuraSpecRules.IsSourceObjectKeywordStaticAura)
-            .Where(aura => SourceObjectPromptKeywordStaticAuraApplies(state, objectId, cardObject, aura)))
-        {
-            if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
-            {
-                continue;
-            }
-
-            tax = Math.Max(
-                tax,
-                CardResourceKeywordRules.SpellshieldTaxFromTags([aura.GrantedKeyword]));
-        }
-
-        return tax;
-    }
-
-    private static bool SourceObjectPromptKeywordStaticAuraApplies(
-        MatchState state,
-        string objectId,
-        CardObjectState cardObject,
-        StaticAuraSpec aura)
-    {
-        if (!string.IsNullOrWhiteSpace(aura.TargetFilter)
-            && !StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject))
-        {
-            return false;
-        }
-
-        if (aura.RequiredPlayerExperience.HasValue)
-        {
-            var controllerId = EffectivePromptPublicObjectControllerId(state.PlayerZones, objectId, cardObject);
-            if (string.IsNullOrWhiteSpace(controllerId)
-                || !state.PlayerExperience.TryGetValue(controllerId, out var experience)
-                || experience < aura.RequiredPlayerExperience.Value)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static string? BattlefieldGrantUnitExperienceObjectId(
-        MatchState state,
-        string playerId,
-        string sourceObjectId)
-    {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return null;
-        }
-
-        return zones.Battlefields.FirstOrDefault(battlefieldObjectId =>
-            !string.Equals(battlefieldObjectId, sourceObjectId, StringComparison.Ordinal)
-            && state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-            && BattlefieldStaticAbilitySpecRules.TryGetAbility(
-                battlefieldState.CardNo,
-                BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility,
-                out _)
-            && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId));
+        var battlefield = BattlefieldLocalRules.AtUnit(state, sourceObjectId);
+        return BattlefieldLocalRules.HasAbility(battlefield, BattlefieldStaticAbilitySpecRules.IsBattlefieldGrantUnitExperienceAbility)
+            ? battlefield!.ObjectId : null;
     }
 
     private static IReadOnlyList<AssembleEquipmentPromptRequirement> AssembleEquipmentSourceRequirements(
@@ -13031,26 +12713,8 @@ internal static class ActionPromptBuilder
             !string.Equals(seatPlayerId, playerId, StringComparison.Ordinal));
     }
 
-    private static int PromptEffectiveWinningScore(MatchState state)
-    {
-        var modifier = state.PlayerZones
-            .Sum(entry => entry.Value.Battlefields.Sum(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)
-                    ? PromptBattlefieldWinningScoreIncreaseAmount(cardObject.CardNo)
-                    : 0));
-        return BaseWinningScore + modifier;
-    }
-
-    private static int PromptBattlefieldWinningScoreIncreaseAmount(string? cardNo)
-    {
-        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
-                cardNo,
-                BattlefieldStaticAbilitySpecRules.IsBattlefieldWinningScoreIncreaseAbility,
-                out var ability)
-                ? ability.Amount
-                : 0;
-    }
+    private static int PromptEffectiveWinningScore(MatchState state) =>
+        BaseWinningScore + BattlefieldLocalRules.WinningScoreIncrease(state.PlayerZones, state.CardObjects);
 
     private static IReadOnlyList<string> PromptDelimitedValues(string values)
     {
@@ -13308,6 +12972,7 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         bool targetCountConditionApplies)
     {
+        if (CoreRuleEngine.IsDeferredDeckChoice(behavior)) return 0;
         if (!targetCountConditionApplies)
         {
             return 0;
@@ -13327,6 +12992,7 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         bool targetCountConditionApplies)
     {
+        if (CoreRuleEngine.IsDeferredDeckChoice(behavior)) return 0;
         if (!targetCountConditionApplies)
         {
             return 0;
@@ -13485,7 +13151,7 @@ internal static class ActionPromptBuilder
             || choicesByIndex
                 .SelectMany(choiceIds => choiceIds)
                 .Distinct(StringComparer.Ordinal)
-                .Any(objectId => SpellshieldTaxManaForTarget(state, playerId, objectId) > 0);
+                .Any(objectId => SpellshieldTaxPowerForTarget(state, playerId, objectId) > 0);
     }
 
     private static bool IsLegalPlayCardTargetSelection(
@@ -13539,9 +13205,10 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var manaRequired = PromptMinimumManaCost(state, playerId, behavior)
-            + targetObjectIds.Sum(targetObjectId => SpellshieldTaxManaForTarget(state, playerId, targetObjectId));
-        return runePool.Mana + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired;
+        var manaRequired = PromptMinimumManaCost(state, playerId, behavior);
+        var ward = targetObjectIds.Sum(target => SpellshieldTaxPowerForTarget(state, playerId, target));
+        return runePool.Mana + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
+            && CanPayPlayPowerCosts(runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
     }
 
     private static bool HasValidPromptTotalTargetPower(
@@ -13662,7 +13329,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
                 || IsPromptEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
-            CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId),
+            CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId) && state.CardObjects.TryGetValue(objectId, out var baseUnit) && baseUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal),
             CardTargetScopes.FriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
@@ -13683,9 +13350,6 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
                 ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
                 : IsPromptStackSpellItem(state, objectId),
-            CardTargetScopes.AnyUnitThenFriendlyMainDeckCard => targetIndex == 0
-                ? IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId)
-                : false,
             CardTargetScopes.FriendlyBattlefieldUnit => IsPromptControlledBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
             CardTargetScopes.AnyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
@@ -15038,13 +14702,31 @@ internal static class ActionPromptBuilder
             choices.AddRange(SourceStealEnemyEquipmentChoices(state, playerId, behavior));
         }
 
-        if (TryPromptEchoOptionalCost(state, playerId, behavior, out var effectiveEchoManaCost, out var echoReason)
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, effectiveEchoManaCost))
+        var echoReduction = EchoCostRules.Reduction(state, playerId);
+        var echoPool = runePool with
         {
-            choices.Add(new ActionPromptChoiceDto(
-                "ECHO",
-                $"回响：额外支付 {effectiveEchoManaCost} 法力",
-                echoReason));
+            Power = runePool.Power + paymentResourcePowerByTrait.GetValueOrDefault(string.Empty),
+            PowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait)
+        };
+        foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
+        {
+            var mana = Math.Max(0, echo.Mana - echoReduction);
+            PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, null, echoPool,
+                echo.GenericPower, echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]));
+            if (runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
+                || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed)) continue;
+            var parts = new List<string> { $"{mana} 法力" };
+            if (echo.GenericPower > 0) parts.Add($"{echo.GenericPower} 任意符能");
+            parts.AddRange(echo.TypedPower.Select(entry => $"{entry.Value} {RuneTraitLabel(entry.Key)}符能"));
+            if (echo.PrintedCardNo is { } printedCard)
+            {
+                var printed = PrintedPowerCostRules.ForCard(printedCard);
+                if (printed.Amount > 0) parts.Add($"{printed.Amount} {string.Join("/", printed.Traits.Select(RuneTraitLabel))}符能");
+            }
+            var origin = echo.Id.StartsWith("ECHO:SOURCE:", StringComparison.Ordinal) ? "辛德拉回响" : echo.PrintedCardNo is null ? "卡牌回响" : "授予回响";
+            var reason = echo.PrintedCardNo is null ? "卡牌回响；每项可支付一次" : "授予回响；支付完整基础费用";
+            if (echoReduction > 0 && echo.Mana > 0) reason += $"；已减免 {Math.Min(echoReduction, echo.Mana)} 法力";
+            choices.Add(new ActionPromptChoiceDto(echo.Id, $"{origin}：{string.Join(" + ", parts)}", reason));
         }
 
         if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
@@ -15278,34 +14960,6 @@ internal static class ActionPromptBuilder
             : "一张手牌";
     }
 
-    private static bool TryPromptEchoOptionalCost(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior,
-        out int effectiveEchoManaCost,
-        out string? reason)
-    {
-        effectiveEchoManaCost = 0;
-        reason = null;
-        if (PromptBattlefieldHeldNextSpellEchoActive(state, playerId)
-            && IsPromptSpellPlayBehavior(behavior))
-        {
-            effectiveEchoManaCost = behavior.ManaCost;
-            reason = "战场效果授予此法术回响";
-            return true;
-        }
-
-        if (behavior.EchoManaCost <= 0)
-        {
-            return false;
-        }
-
-        var reduction = PromptBattlefieldEchoCostReductionMana(state, playerId, behavior.EchoManaCost);
-        effectiveEchoManaCost = Math.Max(0, behavior.EchoManaCost - reduction);
-        reason = reduction > 0 ? $"战场效果已减免 {reduction} 法力" : null;
-        return true;
-    }
-
     private static bool IsPromptSpellPlayBehavior(CardBehaviorDefinition behavior)
     {
         return !behavior.PlaysSourceToBaseAsUnit
@@ -15384,50 +15038,11 @@ internal static class ActionPromptBuilder
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
-    private static bool PromptBattlefieldHeldNextSpellEchoActive(MatchState state, string playerId)
-    {
-        return state.UntilEndOfTurnEffects.Contains(
-            $"BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:{playerId}",
-            StringComparer.Ordinal);
-    }
-
     private static bool PromptPlayerPlayedSpellThisTurn(MatchState state, string playerId)
     {
         return state.UntilEndOfTurnEffects.Contains(
             $"{PlayedSpellThisTurnEffectPrefix}{playerId}",
             StringComparer.Ordinal);
-    }
-
-    private static int PromptBattlefieldEchoCostReductionMana(
-        MatchState state,
-        string playerId,
-        int echoManaCost)
-    {
-        if (echoManaCost <= 0
-            || !state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return 0;
-        }
-
-        var reductionAmount = zones.Battlefields
-            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
-                    ? BattlefieldEchoCostReductionAmount(cardObject.CardNo)
-                    : 0)
-            .DefaultIfEmpty(0)
-            .Max();
-
-        return Math.Min(reductionAmount, echoManaCost);
-    }
-
-    private static int BattlefieldEchoCostReductionAmount(string? cardNo)
-    {
-        return BattlefieldStaticAbilitySpecRules.TryGetAbility(
-            cardNo,
-            BattlefieldStaticAbilitySpecRules.IsBattlefieldEchoCostReductionAbility,
-            out var ability)
-            ? Math.Max(0, ability.Amount)
-            : 0;
     }
 
     private sealed record PlayCardPowerPaymentRequirement(
@@ -15501,7 +15116,7 @@ internal static class ActionPromptBuilder
         void AddRequirement(int genericPowerCost, IReadOnlyDictionary<string, int>? powerCostByTrait = null)
         {
             var printed = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo);
-            genericPowerCost += printed.Traits.Count == 0 ? printed.Amount : 0;
+            genericPowerCost += (printed.Traits.Count == 0 ? printed.Amount : 0) + PromptMaximumWardPower(state, playerId, behavior);
             foreach (var allocation in PrintedPowerCostRules.Allocations(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo))
             {
                 var normalizedPowerCostByTrait = PrintedPowerCostRules.Combine(allocation, PaymentCostRules.NormalizePowerCostByTrait(
@@ -15517,6 +15132,22 @@ internal static class ActionPromptBuilder
         }
 
         AddRequirement(0);
+
+        // Include the combined cost: several individually affordable Echoes can
+        // still require additional runes when selected together.
+        var echoCosts = EchoCostRules.Available(state, playerId, behavior);
+        var echoGeneric = echoCosts.Sum(cost => cost.GenericPower);
+        IReadOnlyList<IReadOnlyDictionary<string, int>> echoAllocations =
+            [echoCosts.Aggregate((IReadOnlyDictionary<string, int>)new Dictionary<string, int>(),
+                (typed, cost) => PrintedPowerCostRules.Combine(typed, cost.TypedPower))];
+        foreach (var cardNo in EchoCostRules.PrintedCosts(echoCosts))
+        {
+            var printed = PrintedPowerCostRules.ForCard(cardNo);
+            echoGeneric += printed.Traits.Count == 0 ? printed.Amount : 0;
+            echoAllocations = echoAllocations.SelectMany(first => PrintedPowerCostRules.Allocations(cardNo)
+                .Select(second => PrintedPowerCostRules.Combine(first, second))).DistinctBy(PrintedPowerCostRules.ChoiceId).ToArray();
+        }
+        foreach (var allocation in echoAllocations) AddRequirement(echoGeneric, allocation);
 
         if (behavior.DamageAmountFromOptionalPowerCost)
         {
@@ -15888,13 +15519,25 @@ internal static class ActionPromptBuilder
         };
     }
 
+    private static int PromptMaximumWardPower(MatchState state, string playerId, CardBehaviorDefinition behavior)
+    {
+        if (behavior.RequiredTargetCount <= 0 || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment) return 0;
+        var taxes = state.PlayerZones.Where(z => z.Key != playerId).SelectMany(z => z.Value.Base.Concat(z.Value.Battlefields))
+            .Distinct().Select(id => SpellshieldTaxPowerForTarget(state, playerId, id)).ToArray();
+        return Math.Max(taxes.Sum(), taxes.DefaultIfEmpty().Max() * behavior.RequiredTargetCount)
+            * (1 + EchoCostRules.Available(state, playerId, behavior).Count);
+    }
+
     private static bool PlayCardBehaviorMayNeedPaymentResource(
         MatchState state,
         string playerId,
         CardBehaviorDefinition behavior,
         string? sourceObjectId = null)
     {
-        return PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Amount > 0
+        return PromptMaximumWardPower(state, playerId, behavior) > 0
+            || PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Amount > 0
+            || EchoCostRules.Available(state, playerId, behavior).Any(cost => cost.GenericPower > 0
+                || cost.TypedPower.Count > 0 || cost.PrintedCardNo is not null)
             || behavior.DamageAmountFromOptionalPowerCost
             || behavior.SourceDrawAdditionalPowerCost > 0
             || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
@@ -16008,6 +15651,8 @@ internal static class ActionPromptBuilder
             "DRAW_1" => "抽 1 张",
             "SELF_BOON" => "给予我增益",
             "DAMAGE_2" => "造成 2 点伤害",
+            "BASE_UNIT_DAMAGE_4" => "对基地单位造成 4 点伤害",
+            "DESTROY_EQUIPMENT" => "摧毁一件装备",
             _ => string.IsNullOrWhiteSpace(mode) ? "默认" : mode
         };
     }
@@ -16073,6 +15718,7 @@ internal static class ActionPromptBuilder
             ["choiceWindow"] = choice.ChoiceWindow,
             ["choosingPlayerId"] = choice.PlayerId,
             ["requiredCount"] = choice.RequiredCount,
+            ["drawCount"] = choice.DrawCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
             ["sourceObjectId"] = choice.SourceObjectId,
@@ -16129,6 +15775,8 @@ internal static class ActionPromptBuilder
         if (ownChoice)
         {
             metadata["cardChoices"] = PendingCardChoiceDtos(state, choice);
+            if (choice.DeckContext is not null)
+                metadata["viewedCards"] = choice.ContextObjectIds.Select(id => new ActionPromptChoiceDto(id, CoreRuleEngine.DeckChoiceLabel(state, id), "仅你可见；查看不等于展示")).ToArray();
             metadata["legalObjectIds"] = choice.LegalObjectIds;
         }
 
@@ -16140,7 +15788,10 @@ internal static class ActionPromptBuilder
         PendingCardChoiceState choice)
     {
         return choice.LegalObjectIds
-            .Select(objectId => ObjectChoice(state, objectId, "可选卡牌"))
+            .Select(objectId => choice.ChoiceWindow == "TRIGGER_CONFIRMATION"
+                ? new ActionPromptChoiceDto(objectId, CoreRuleEngine.DeckChoiceLabel(state, objectId), choice.Reason)
+                : choice.DeckContext is null ? ObjectChoice(state, objectId, "可选卡牌")
+                : new ActionPromptChoiceDto(objectId, CoreRuleEngine.DeckChoiceLabel(state, objectId), choice.ChoiceWindow == "INSIGHT" ? "选择回收；不选则留在牌库顶" : choice.ChoiceWindow == "INSIGHT_ORDER" ? "按从顶到底顺序选择" : "选择加入手牌"))
             .ToArray();
     }
 
@@ -16338,10 +15989,7 @@ internal static class ActionPromptBuilder
                 {
                     label = $"临时费用符能：{TemporaryPaymentResourceTotalRemainingPower(resource)}";
                 }
-                else if (TryParseBlueSentinelDelayedResourceActionId(choiceId, out _))
-                {
-                    label = $"苍蓝雕纹魔像延迟费用符能：{P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower}";
-                }
+
 
                 return new ActionPromptChoiceDto(choiceId, label, "服务端支付资源候选");
             })
@@ -16420,134 +16068,9 @@ internal static class ActionPromptBuilder
     {
         return PendingPaymentResourceActionIds(payment)
             .Concat(TemporaryPaymentResourceActionIds(state, payment))
-            .Concat(BlueSentinelDelayedResourceActionIds(state, payment))
+
             .Distinct(StringComparer.Ordinal)
             .ToArray();
-    }
-
-    private static IReadOnlyList<string> BlueSentinelDelayedResourceActionIds(
-        MatchState state,
-        PendingPaymentState payment)
-    {
-        if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
-        {
-            return [];
-        }
-
-        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        if (PaymentCostRules.CanPayPowerCost(runePool, payment.PowerCost, payment.PowerCostByTrait))
-        {
-            return [];
-        }
-
-        return state.TriggerQueue
-            .Where(trigger => BlueSentinelDelayedTriggerCanPay(state, payment, trigger))
-            .Select(trigger => $"{P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix}{trigger.TriggerId}")
-            .ToArray();
-    }
-
-    private static bool TryParseBlueSentinelDelayedResourceActionId(string actionId, out string triggerId)
-    {
-        triggerId = string.Empty;
-        if (string.IsNullOrWhiteSpace(actionId)
-            || !actionId.StartsWith(P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        triggerId = actionId[P4ActivatedAbilityCatalog.BlueSentinelDelayedResourceActionPrefix.Length..].Trim();
-        return !string.IsNullOrWhiteSpace(triggerId);
-    }
-
-    private static bool BlueSentinelDelayedTriggerCanPay(
-        MatchState state,
-        PendingPaymentState payment,
-        TriggerQueueItemState trigger)
-    {
-        if (!TryReadBlueSentinelDelayedTriggerContext(trigger.TriggerId, out var capturedTurnNumber, out var sourceObjectId, out var battlefieldObjectId)
-            || !string.Equals(trigger.ControllerId, payment.PlayerId, StringComparison.Ordinal)
-            || !string.Equals(trigger.SourceObjectId, sourceObjectId, StringComparison.Ordinal)
-            || !string.Equals(trigger.EffectKind, P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, StringComparison.Ordinal)
-            || !string.Equals(trigger.TriggeredByEventKind, "BATTLEFIELD_HELD", StringComparison.Ordinal)
-            || state.TurnNumber != capturedTurnNumber + 1
-            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.ActivePlayerId, payment.PlayerId, StringComparison.Ordinal)
-            || !BlueSentinelDelayedSourceStillHoldsBattlefield(state, payment.PlayerId, sourceObjectId, battlefieldObjectId))
-        {
-            return false;
-        }
-
-        var runePool = state.RunePools.TryGetValue(payment.PlayerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        return TemporaryPaymentResourceCanHelpPowerCost(
-            runePool,
-            new TemporaryPaymentResourceState(
-                $"BLUE_SENTINEL:QUOTE:{trigger.TriggerId}",
-                payment.PlayerId,
-                sourceObjectId,
-                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
-                payment.PaymentWindow,
-                generatedPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
-                remainingPower: P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower,
-                allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
-                createdTick: state.Tick),
-            payment.PowerCost,
-            payment.PowerCostByTrait);
-    }
-
-    private static bool TryReadBlueSentinelDelayedTriggerContext(
-        string triggerId,
-        out int capturedTurnNumber,
-        out string sourceObjectId,
-        out string battlefieldObjectId)
-    {
-        capturedTurnNumber = 0;
-        sourceObjectId = string.Empty;
-        battlefieldObjectId = string.Empty;
-        var parts = triggerId.Split("::", StringSplitOptions.None);
-        if (parts.Length != 4
-            || !string.Equals(parts[0], "BLUE_SENTINEL_HELD_DELAYED_RESOURCE", StringComparison.Ordinal)
-            || !int.TryParse(
-                parts[1],
-                System.Globalization.NumberStyles.Integer,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out capturedTurnNumber)
-            || string.IsNullOrWhiteSpace(parts[2])
-            || string.IsNullOrWhiteSpace(parts[3]))
-        {
-            return false;
-        }
-
-        sourceObjectId = parts[2];
-        battlefieldObjectId = parts[3];
-        return capturedTurnNumber > 0;
-    }
-
-    private static bool BlueSentinelDelayedSourceStillHoldsBattlefield(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        string battlefieldObjectId)
-    {
-        return state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
-                P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
-                sourceState.CardNo)
-            && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            && state.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
-            && string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            && string.Equals(sourceLocation.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-            && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
-            && (!state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-                || SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId));
     }
 
     private static IReadOnlyDictionary<string, int> PendingPaymentResourcePowerByTrait(
@@ -16583,12 +16106,7 @@ internal static class ActionPromptBuilder
             }
         }
 
-        foreach (var choiceId in BlueSentinelDelayedResourceActionIds(state, payment))
-        {
-            powerByTrait[string.Empty] = powerByTrait.TryGetValue(string.Empty, out var existing)
-                ? existing + P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower
-                : P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower;
-        }
+
 
         return powerByTrait;
     }
@@ -16610,10 +16128,7 @@ internal static class ActionPromptBuilder
             {
                 total += TemporaryPaymentResourceTotalRemainingPower(resource);
             }
-            else if (TryParseBlueSentinelDelayedResourceActionId(choiceId, out _))
-            {
-                total += P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower;
-            }
+
         }
 
         return total;
@@ -16645,29 +16160,6 @@ internal static class ActionPromptBuilder
                             ? resource.RemainingPowerByTrait.Keys.Single()
                             : string.Empty;
                     }
-                    else if (TryParseBlueSentinelDelayedResourceActionId(choiceId, out var triggerId)
-                        && state.TriggerQueue.FirstOrDefault(trigger =>
-                            string.Equals(trigger.TriggerId, triggerId, StringComparison.Ordinal)) is { } trigger
-                        && TryReadBlueSentinelDelayedTriggerContext(trigger.TriggerId, out _, out var sourceObjectId, out var battlefieldObjectId))
-                    {
-                        power = P4ActivatedAbilityCatalog.BlueSentinelGeneratedPower;
-                        trait = string.Empty;
-                        return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
-                        {
-                            ["trait"] = trait,
-                            ["power"] = power,
-                            ["paymentOnly"] = true,
-                            ["delayedTriggerId"] = trigger.TriggerId,
-                            ["sourceObjectId"] = sourceObjectId,
-                            ["battlefieldObjectId"] = battlefieldObjectId,
-                            ["abilityId"] = P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityId,
-                            ["resourceRestriction"] = P4ActivatedAbilityCatalog.BlueSentinelPaymentOnlyResourceRestriction,
-                            ["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind },
-                            ["resourceLifecycle"] = "temporary-payment-resource-ledger",
-                            ["generatedResourceCannotBeTargetedAsResponse"] = true
-                        };
-                    }
-
                     return (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
                     {
                         ["trait"] = trait,
@@ -16960,146 +16452,44 @@ internal static class ActionPromptBuilder
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
 
+        if (P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var resourceAbility)
+            && resourceAbility.IsResourceSkill && resourceAbility.ReactionSpeed)
+        {
+            view["resourceSkill"] = true;
+            view["reactionSpeed"] = true;
+            view["generatedMana"] = resourceAbility.GeneratedMana;
+            view["generatedPower"] = resourceAbility.GeneratedPower;
+            view["generatedPowerByTrait"] = P4ActivatedAbilityCatalog.GeneratedPowerByTraitForAbility(resourceAbility);
+            view["resourceLifecycle"] = resourceAbility.AbilityId == P4ActivatedAbilityCatalog.LuxResourceAbilityId ? "spell-only-mana" : "rune-pool";
+            view["reactionPolicy"] = "resolves-immediately-without-passing-action-rights";
+            view["usesSourceAsDestroyCost"] = P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(requirement.AbilityId);
+            view["bonusMana"] = requirement.BonusMana;
+        }
+
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
         {
             view["resourceSkill"] = true;
-            view["paymentOnly"] = true;
+            view["paymentOnly"] = false;
             view["generatedPower"] = P4ActivatedAbilityCatalog.MalzaharResourceGeneratedPower;
             view["usesTargetAsCost"] = true;
-            view["resourceRestriction"] = P4ActivatedAbilityCatalog.MalzaharPaymentOnlyResourceRestriction;
+
             view["timingPolicy"] = "open-main-and-spell-duel-focus-representative";
             view["reactionPolicy"] = "resolves-immediately-without-stack-item";
-            view["resourceLifecycle"] = "temporary-payment-resource-ledger";
+            view["resourceLifecycle"] = "rune-pool";
             view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
         }
 
-        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId, StringComparison.Ordinal))
-        {
-            view["resourceSkill"] = true;
-            view["reactionSpeed"] = true;
-            view["generatedMana"] = P4ActivatedAbilityCatalog.DragonSoulSageGeneratedMana;
-            view["timingPolicy"] = "stack-priority-reaction-representative";
-            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
-            view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
-        }
 
-        if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, StringComparison.Ordinal))
-        {
-            view["resourceSkill"] = true;
-            view["paymentOnly"] = true;
-            view["movementTriggered"] = true;
-            view["generatedMana"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedMana;
-            view["generatedPower"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower;
-            view["generatedGenericPower"] = P4ActivatedAbilityCatalog.JhinMoveResourceGeneratedPower;
-            view["resourceRestriction"] = P4ActivatedAbilityCatalog.JhinMoveResourceRestriction;
-            view["timingPolicy"] = "server-captured-movement-trigger-open-main";
-            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
-            view["stackPolicy"] = "no-ordinary-stack-item";
-            view["resourceLifecycle"] = "mana-rune-pool-plus-temporary-payment-resource-ledger";
-            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
-            view["movementTriggerChoice"] = requirement.RequiredOptionalCosts.FirstOrDefault() ?? string.Empty;
-            view["generatedResourceCannotBeTargetedAsResponse"] = true;
-        }
 
-        if (P4ActivatedAbilityCatalog.TryGetSigilTypedResourceProfile(requirement.AbilityId, out var sigilProfile))
-        {
-            view["resourceSkill"] = true;
-            view["reactionSpeed"] = true;
-            view["paymentOnly"] = true;
-            view["typedPaymentOnlyResource"] = true;
-            view["generatedPowerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
-            {
-                [sigilProfile.Trait] = 1
-            };
-            view["requiresBaseEquipmentSource"] = true;
-            view["resourceRestriction"] = sigilProfile.ResourceRestriction;
-            view["timingPolicy"] = "stack-priority-reaction-representative";
-            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
-            view["stackPolicy"] = "no-ordinary-stack-item";
-            view["resourceLifecycle"] = "temporary-payment-resource-ledger";
-            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
-        }
 
-        if (P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(requirement.AbilityId))
-        {
-            view["resourceSkill"] = true;
-            view["reactionSpeed"] = true;
-            view["requiresBaseEquipmentSource"] = true;
-            view["timingPolicy"] = "stack-priority-reaction-representative";
-            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
-            view["stackPolicy"] = "no-ordinary-stack-item";
-            if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.EnergyChannelResourceAbilityId, StringComparison.Ordinal))
-            {
-                view["conversionKind"] = "gain-mana";
-                view["generatedMana"] = P4ActivatedAbilityCatalog.EnergyChannelGeneratedMana;
-                view["maxConversionAmount"] = P4ActivatedAbilityCatalog.EnergyChannelGeneratedMana;
-                view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
-            }
-            else if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.AncientSteleResourceAbilityId, StringComparison.Ordinal))
-            {
-                view["conversionKind"] = "mana-to-generic-power";
-                view["conversionChoicePrefix"] = P4ActivatedAbilityCatalog.AncientSteleConversionOptionalCostPrefix;
-                view["maxConversionAmount"] = requirement.OptionalCostChoices.Count;
-                view["paymentOnly"] = true;
-                view["generatedPower"] = requirement.OptionalCostChoices.Count;
-                view["resourceRestriction"] = P4ActivatedAbilityCatalog.AncientStelePaymentOnlyResourceRestriction;
-                view["resourceLifecycle"] = "temporary-payment-resource-ledger";
-                view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
-            }
-            else
-            {
-                view["conversionKind"] = "generic-power-to-mana";
-                view["conversionChoicePrefix"] = P4ActivatedAbilityCatalog.HextechAnomalyConversionOptionalCostPrefix;
-                view["maxConversionAmount"] = requirement.OptionalCostChoices.Count;
-                view["generatedMana"] = requirement.OptionalCostChoices.Count;
-                view["ordinaryGenericPowerOnly"] = true;
-                view["resourceLifecycle"] = "rune-pool-mana-reset-at-turn-cleanup";
-            }
-        }
 
-        if (P4ActivatedAbilityCatalog.IsGoldTokenResourceAbility(requirement.AbilityId))
-        {
-            view["resourceSkill"] = true;
-            view["reactionSpeed"] = true;
-            view["paymentOnly"] = true;
-            view["generatedPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower;
-            view["generatedGenericPower"] = P4ActivatedAbilityCatalog.GoldTokenGeneratedPower;
-            view["requiresBaseEquipmentSource"] = true;
-            view["usesSourceAsDestroyCost"] = true;
-            view["resourceRestriction"] = P4ActivatedAbilityCatalog.GoldTokenPaymentOnlyResourceRestriction;
-            view["timingPolicy"] = "stack-priority-reaction-representative";
-            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
-            view["stackPolicy"] = "no-ordinary-stack-item";
-            view["resourceLifecycle"] = "temporary-payment-resource-ledger";
-            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
-            view["renataGoldExtraManaAvailable"] = requirement.RenataGoldExtraManaAvailable;
-            view["bonusMana"] = requirement.BonusMana;
-            view["bonusTag"] = requirement.RenataGoldExtraManaAvailable
-                ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusTag
-                : string.Empty;
-        }
 
-        if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(requirement.AbilityId))
-        {
-            view["resourceSkill"] = true;
-            view["reactionSpeed"] = true;
-            view["paymentOnly"] = true;
-            view["generatedPower"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower;
-            view["generatedGenericPower"] = P4ActivatedAbilityCatalog.HoneyfruitGeneratedPower;
-            view["requiresBaseEquipmentSource"] = true;
-            view["resourceRestriction"] = P4ActivatedAbilityCatalog.HoneyfruitPaymentOnlyResourceRestriction;
-            view["timingPolicy"] = "stack-priority-reaction-representative";
-            view["reactionPolicy"] = "resolves-immediately-without-stack-item";
-            view["stackPolicy"] = "no-ordinary-stack-item";
-            view["resourceLifecycle"] = "temporary-payment-resource-ledger";
-            view["allowedPaymentKinds"] = new[] { PaymentCostRules.RuneCostPaymentKind };
-            view["levelSixExperienceRequirement"] = P4ActivatedAbilityCatalog.HoneyfruitLevelSixExperience;
-            view["levelSixEligible"] = requirement.OptionalCostChoices.Any(choice =>
-                choice.Id.StartsWith(P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix, StringComparison.Ordinal));
-            view["levelSixOptionalCostPrefix"] = P4ActivatedAbilityCatalog.HoneyfruitLevelSixOptionalCostPrefix;
-            view["upgradedGeneratedMana"] = P4ActivatedAbilityCatalog.HoneyfruitUpgradedGeneratedMana;
-            view["generatedResourceCannotBeTargetedAsResponse"] = true;
-        }
+
+
+
+
+
+
 
         if (string.Equals(requirement.AbilityId, P4ActivatedAbilityCatalog.RenataGlascDrawAbilityId, StringComparison.Ordinal))
         {
@@ -17196,7 +16586,7 @@ internal static class ActionPromptBuilder
             view["timingPolicy"] = "battle-response-priority-representative";
             view["stackPolicy"] = "ordinary-stack-item-before-stun";
             view["paymentPolicy"] = "payment-plan-mana-generic-power-spellshield-tax-exhaust-as-cost";
-            view["spellshieldTaxManaByTargetObjectId"] = requirement.SpellshieldTaxManaByTargetObjectId
+            view["spellshieldTaxPowerByTargetObjectId"] = requirement.SpellshieldTaxPowerByTargetObjectId
                 ?? new Dictionary<string, int>(StringComparer.Ordinal);
         }
 
@@ -17388,6 +16778,7 @@ internal static class ActionPromptBuilder
             ["targetScope"] = targetScope,
             ["targetScopeLabel"] = PromptTargetScopeLabel(targetScope),
             ["allowsRepeatedTargets"] = behavior.AllowsRepeatedTargets,
+            ["supportsSeparateExecutions"] = CoreRuleEngine.SupportsSeparateExecution(behavior),
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
@@ -17487,7 +16878,7 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        if (state.PendingEffectPlay is not null)
+        if (state.PendingEffectPlay is not null && behavior.PlaysSourceToBaseAsUnit)
             return CoreRuleEngine.EffectPlayDestinations(state, playerId).Select(id => new ActionPromptChoiceDto(id, id == "BASE" ? "基地" : "受控战场")).ToArray();
 
         if (!behavior.PlaysSourceToBaseAsUnit)
@@ -17523,21 +16914,8 @@ internal static class ActionPromptBuilder
         return choices.Count == 0 ? null : choices;
     }
 
-    private static bool PromptBattlefieldStaticPreventsUnitPlayToBattlefield(
-        MatchState state,
-        string playerId,
-        string destination)
-    {
-        return destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
-            && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldStaticAbilitySpecRules.TryGetAbility(
-                    cardObject.CardNo,
-                    BattlefieldStaticAbilitySpecRules.IsBattlefieldPreventUnitPlayAbility,
-                    out _)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
-    }
+    private static bool PromptBattlefieldStaticPreventsUnitPlayToBattlefield(MatchState state, string playerId, string destination) =>
+        BattlefieldLocalRules.PreventsUnitPlay(state, destination);
 
     private static string UnsupportedPlayCardCompositionReason(CardBehaviorDefinition behavior)
     {
@@ -17664,91 +17042,6 @@ internal static class ActionPromptBuilder
                     EffectivePromptPublicObjectControllerId(state.PlayerZones, sourceObjectId, sourceState),
                     controllerId,
                     StringComparison.Ordinal));
-    }
-
-    private static int FriendlyFilteredUnitsGrantedSpellshieldTax(
-        MatchState state,
-        string objectId,
-        CardObjectState cardObject)
-    {
-        if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !TryFindPromptPublicFieldObjectLocation(state.PlayerZones, objectId, out var targetLocation)
-            || !IsPromptPublicObjectLocationCompatible(state, objectId, targetLocation.Zone))
-        {
-            return 0;
-        }
-
-        var controllerId = EffectivePromptPublicObjectControllerId(state.PlayerZones, objectId, cardObject);
-        if (string.IsNullOrWhiteSpace(controllerId))
-        {
-            return 0;
-        }
-
-        var tax = 0;
-        var targetBattlefieldObjectId = state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
-            && string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            ? objectLocation.BattlefieldObjectId
-            : null;
-        foreach (var sourceObjectId in PromptPublicStaticAuraSourceObjectIds(state))
-        {
-            if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                || !string.Equals(
-                    EffectivePromptPublicObjectControllerId(state.PlayerZones, sourceObjectId, sourceState),
-                    controllerId,
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
-                .Where(StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura)
-                .Where(aura => PublicFieldFriendlyPromptKeywordAuraAppliesToParticipant(
-                    aura,
-                    sourceObjectId,
-                    objectId,
-                    cardObject)))
-            {
-                if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
-                {
-                    continue;
-                }
-
-                tax = Math.Max(
-                    tax,
-                    CardResourceKeywordRules.SpellshieldTaxFromTags([aura.GrantedKeyword]));
-            }
-
-            if (string.IsNullOrWhiteSpace(targetBattlefieldObjectId)
-                || string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
-                || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || !state.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
-                || !string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-                || !string.Equals(sourceLocation.BattlefieldObjectId, targetBattlefieldObjectId, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
-                .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura)
-                .Where(aura => string.IsNullOrWhiteSpace(aura.TargetFilter)
-                    || StaticAuraSpecRules.TargetMatchesFilter(aura, cardObject)))
-            {
-                if (string.IsNullOrWhiteSpace(aura.GrantedKeyword))
-                {
-                    continue;
-                }
-
-                tax = Math.Max(
-                    tax,
-                    CardResourceKeywordRules.SpellshieldTaxFromTags([aura.GrantedKeyword]));
-            }
-        }
-
-        return tax;
     }
 
     private static IReadOnlyList<string> PromptPublicStaticAuraSourceObjectIds(MatchState state)
@@ -17907,17 +17200,9 @@ internal static class ActionPromptBuilder
             : [];
     }
 
-    private static bool PlayerControlsBattlefieldStaticAbility(MatchState state, string playerId, string staticAbilityKind)
-    {
-        return state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldStaticAbilitySpecRules.TryGetAbility(
-                    cardObject.CardNo,
-                    ability => string.Equals(ability.Kind, staticAbilityKind, StringComparison.Ordinal),
-                    out _)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
-    }
+    private static bool PlayerControlsBattlefieldStaticAbility(MatchState state, string playerId, string staticAbilityKind) =>
+        BattlefieldLocalRules.ControlledBy(state, playerId).Any(card => BattlefieldStaticAbilitySpecRules.TryGetAbility(
+            card.CardNo, ability => ability.Kind == staticAbilityKind, out _));
 
     private static bool IsControlledObjectWithTag(
         MatchState state,
@@ -18011,12 +17296,11 @@ internal static class ActionPromptBuilder
 
     private static ActionPromptChoiceDto StackItemChoice(MatchState state, string stackItemId, string reason)
     {
-        var stackItem = state.StackItems.FirstOrDefault(item =>
-            string.Equals(item.StackItemId, stackItemId, StringComparison.Ordinal));
-        var label = stackItem is null
-            ? "结算链项目"
-            : string.IsNullOrWhiteSpace(stackItem.CardNo) ? "结算链项目" : stackItem.CardNo;
-        return new ActionPromptChoiceDto(stackItemId, label, reason);
+        var index = state.StackItems.ToList().FindIndex(item => item.StackItemId == stackItemId);
+        if (index < 0) return new(stackItemId, "结算链项目", reason);
+        var item = state.StackItems[index];
+        var name = CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var card) ? card.DisplayName : item.CardNo;
+        return new(stackItemId, $"第 {index + 1} 项 · {name}（{item.ControllerId}）", "越靠后的项目越先结算");
     }
 
     private static string PromptTargetReasonForScope(string targetScope, int targetIndex)
@@ -18047,7 +17331,6 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "友方单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "友方战场单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => "友方战场单位，然后结算链法术",
-            CardTargetScopes.AnyUnitThenFriendlyMainDeckCard => "单位，然后己方主牌堆牌",
             CardTargetScopes.FriendlyBattlefieldUnit => "友方战场单位",
             CardTargetScopes.FriendlyHandCard => "己方手牌",
             CardTargetScopes.AnyHandCard => "手牌",
@@ -18138,163 +17421,6 @@ internal static class ActionPromptBuilder
         return string.Equals(action, "WAIT", StringComparison.Ordinal)
             ? promptReason
             : $"当前行动提示不允许执行 {actionLabel}";
-    }
-}
-
-public sealed class PlaceholderRuleEngine : IRuleEngine
-{
-    public ValueTask<ResolutionResult> ResolveAsync(
-        MatchState state,
-        PlayerIntent intent,
-        GameCommand command,
-        CancellationToken cancellationToken)
-    {
-        if (command is UnsupportedCommand)
-        {
-            return ValueTask.FromResult(ResolutionResult.Rejected(
-                state,
-                "当前命令不受服务端支持。",
-                ErrorCodes.UnsupportedCommand));
-        }
-
-        var nextState = BuildNextState(state, command);
-        var events = BuildAcceptedEvents(intent, command, nextState);
-
-        return ValueTask.FromResult(new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            ResolutionResult.BuildPrompts(nextState)));
-    }
-
-    private static MatchState BuildNextState(MatchState state, GameCommand command)
-    {
-        if (command is EndTurnCommand)
-        {
-            var nextPlayerId = NextPlayerId(state);
-            return state with
-            {
-                Tick = state.Tick + 1,
-                TurnNumber = state.TurnNumber + 1,
-                ActivePlayerId = nextPlayerId,
-                TurnPlayerId = nextPlayerId,
-                Phase = MatchPhases.Main,
-                TimingState = TimingStates.NeutralOpen
-            };
-        }
-
-        if (command is SurrenderCommand)
-        {
-            return state with
-            {
-                Tick = state.Tick + 1,
-                Status = MatchStatuses.Finished,
-                WinnerPlayerId = NextPlayerId(state)
-            };
-        }
-
-        return state with
-        {
-            Tick = state.Tick + 1
-        };
-    }
-
-    private static string NextPlayerId(MatchState state)
-    {
-        var players = state.Seats
-            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
-            .Select(entry => entry.Key)
-            .ToArray();
-        if (players.Length == 0)
-        {
-            return state.ActivePlayerId;
-        }
-
-        var activeIndex = Array.IndexOf(players, state.ActivePlayerId);
-        if (activeIndex < 0)
-        {
-            return players[0];
-        }
-
-        return players[(activeIndex + 1) % players.Length];
-    }
-
-    private static IReadOnlyList<GameEvent> BuildAcceptedEvents(
-        PlayerIntent intent,
-        GameCommand command,
-        MatchState nextState)
-    {
-        if (command is PassCommand)
-        {
-            return
-            [
-                new GameEvent(
-                    "TURN_ENDED",
-                    $"{intent.PlayerId} 选择暂不行动",
-                    new Dictionary<string, object?>())
-            ];
-        }
-
-        if (command is EndTurnCommand)
-        {
-            return
-            [
-                new GameEvent(
-                    "TURN_ENDED",
-                    $"{intent.PlayerId} 结束回合",
-                    new Dictionary<string, object?>()),
-                new GameEvent(
-                    "TURN_BEGAN",
-                    "轮到下一位行动",
-                    new Dictionary<string, object?>
-                    {
-                        ["active"] = nextState.ActivePlayerId
-                    }),
-                new GameEvent(
-                    "RUNE_CHANNELLED",
-                    $"{nextState.ActivePlayerId} 通道 1 点占位符能",
-                    new Dictionary<string, object?>()),
-                new GameEvent(
-                    "RUNE_CHANNELLED",
-                    $"{nextState.ActivePlayerId} 通道 1 点占位符能",
-                    new Dictionary<string, object?>()),
-                new GameEvent(
-                    "CARD_DRAWN",
-                    $"{nextState.ActivePlayerId} 抽 1 张牌",
-                    new Dictionary<string, object?>())
-            ];
-        }
-
-        if (command is SurrenderCommand)
-        {
-            return
-            [
-                new GameEvent(
-                    "MATCH_WON",
-                    $"{nextState.WinnerPlayerId} 因 {intent.PlayerId} 投降获胜",
-                    new Dictionary<string, object?>
-                    {
-                        ["winnerPlayerId"] = nextState.WinnerPlayerId,
-                        ["surrenderedPlayerId"] = intent.PlayerId,
-                        ["reason"] = "SURRENDER"
-                    })
-            ];
-        }
-
-        return
-        [
-            new GameEvent(
-                command.CmdType,
-                "占位规则引擎接受了命令",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["intentId"] = intent.IntentId,
-                    ["cmdType"] = command.CmdType
-                })
-        ];
     }
 }
 
@@ -20016,6 +19142,7 @@ public sealed class MatchSession : IMatchSession
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
             "native-play-confirmation" => BuildNativePlayConfirmationScenario(current, seed),
+            "official-resource-costs" => BuildOfficialResourceCostsScenario(current, seed),
             "royal-attendant-legend-mode" => BuildRoyalAttendantLegendModeScenario(current, seed),
             "ornn-equipment-look" => BuildOrnnEquipmentLookScenario(current, seed),
             "movement" => BuildMovementScenario(current, seed),
@@ -20246,6 +19373,33 @@ public sealed class MatchSession : IMatchSession
                 ["P1-EQUIPMENT-UNATTACHED-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-UNATTACHED-EQUIPMENT-001")
             }
         };
+    }
+
+    private static MatchState BuildOfficialResourceCostsScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo);
+        var cards = new Dictionary<string, CardObjectState>();
+        foreach (var (id, no) in new[] { ("QA-MALZAHAR", "OGN·113/298"), ("QA-SENTINEL", "OGN·096/298"),
+            ("QA-DRAW", "SFD·125/221"), ("QA-FIELD", "OGN·294/298") })
+            cards[id] = OfficialCardObject(id, seed.P1, catalog[no]);
+        cards["QA-GOLD"] = new("QA-GOLD", cardNo: "SFD·T03", tags: [CardObjectTags.EquipmentCard], ownerId: seed.P1, controllerId: seed.P1);
+        cards["QA-SLEEPING-GOLD"] = cards["QA-GOLD"] with { ObjectId = "QA-SLEEPING-GOLD", IsExhausted = true };
+        cards["QA-FIELD"] = cards["QA-FIELD"] with { ControllerId = seed.P1 };
+        cards["QA-OTHER-FIELD"] = OfficialCardObject("QA-OTHER-FIELD", seed.P2, catalog["OGN·287/298"]) with { ControllerId = seed.P2 };
+        cards["QA-OTHER-DRAW"] = OfficialCardObject("QA-OTHER-DRAW", seed.P2, catalog["SFD·125/221"]);
+        var state = BuildScenarioState(current, seed, 2026100807, 5,
+            new Dictionary<string, RunePool> { [seed.P1] = RunePool.Empty, [seed.P2] = RunePool.Empty },
+            new Dictionary<string, PlayerZones> {
+                [seed.P1] = Zones(mainDeck: ["QA-DRAW"], baseZone: ["QA-MALZAHAR", "QA-SENTINEL", "QA-GOLD", "QA-SLEEPING-GOLD"], battlefields: ["QA-FIELD"]),
+                [seed.P2] = Zones(mainDeck: ["QA-OTHER-DRAW"], battlefields: ["QA-OTHER-FIELD"]) }, cards);
+        var locations = new Dictionary<string, ObjectLocationState>();
+        foreach (var (playerId, zones) in state.PlayerZones)
+        {
+            foreach (var id in zones.Base) locations[id] = new(playerId, "BASE");
+            foreach (var id in zones.Battlefields) locations[id] = new(playerId, "BATTLEFIELD");
+            foreach (var id in zones.MainDeck) locations[id] = new(playerId, "MAIN_DECK");
+        }
+        return state with { ObjectLocations = locations };
     }
 
     private static MatchState BuildBasicPlayScenario(MatchState current, DevScenarioSeed seed)
@@ -20910,7 +20064,7 @@ public sealed class MatchSession : IMatchSession
             4159,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(6, 0),
+                [seed.P1] = new(3, 3),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -24520,9 +23674,9 @@ public sealed class MatchSession : IMatchSession
                 ["P1-HAND-UNL-GLOOMY-APOTHECARY"] = new(
                     "P1-HAND-UNL-GLOOMY-APOTHECARY",
                     power: 3,
-                    tags: [CardObjectTags.UnitCard, CardInteractionKeywordNames.Ambush],
+                    tags: [CardObjectTags.UnitCard],
                     manaCost: 3,
-                    cardNo: "UNL-021/219"),
+                    cardNo: "OGN·012/298"),
                 ["P1-BATTLEFIELD-FALLING-ROCKS"] = new(
                     "P1-BATTLEFIELD-FALLING-ROCKS",
                     cardNo: "SFD·216/221",
@@ -24537,12 +23691,11 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1)
             });
 
-        return state with
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState>
         {
-            TimingState = TimingStates.NeutralClosed,
-            PriorityPlayerId = seed.P1,
-            StackItems = [PendingProbeStackItem(seed)]
-        };
+            ["P1-BATTLEFIELD-FALLING-ROCKS"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-FALLING-ROCKS"),
+            ["P1-BATTLEFIELD-FRIENDLY-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-FALLING-ROCKS")
+        } };
     }
 
     private static MatchState BuildBattlefieldStaticEchoCostReductionScenario(MatchState current, DevScenarioSeed seed)
@@ -25006,7 +24159,7 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldFriendlySpellDrawScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var seeded = BuildScenarioState(
             current,
             seed,
             2603303066,
@@ -25057,11 +24210,14 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+        return seeded with { ObjectLocations = new Dictionary<string,ObjectLocationState>(seeded.ObjectLocations)
+            { ["P1-BATTLEFIELD-DREAMTREE"] = new(seed.P1,"BATTLEFIELD","P1-BATTLEFIELD-DREAMTREE"), ["P1-BATTLEFIELD-ALLY"] = new(seed.P1,"BATTLEFIELD","P1-BATTLEFIELD-DREAMTREE") } };
+
     }
 
     private static MatchState BuildBattlefieldSpellPowerBonusScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var seeded = BuildScenarioState(
             current,
             seed,
             2603303066,
@@ -25107,11 +24263,14 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+        return seeded with { ObjectLocations = new Dictionary<string,ObjectLocationState>(seeded.ObjectLocations)
+            { ["P1-BATTLEFIELD-WASTE-HALL"] = new(seed.P1,"BATTLEFIELD","P1-BATTLEFIELD-WASTE-HALL"), ["P1-BATTLEFIELD-ALLY"] = new(seed.P1,"BATTLEFIELD","P1-BATTLEFIELD-WASTE-HALL") } };
+
     }
 
     private static MatchState BuildBattlefieldHighCostSpellInsightScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var seeded = BuildScenarioState(
             current,
             seed,
             2603303067,
@@ -25168,11 +24327,14 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+        return seeded with {ObjectLocations = new Dictionary<string,ObjectLocationState>(seeded.ObjectLocations)
+            { ["P1-BATTLEFIELD-LOST-LIBRARY"] = new(seed.P1,"BATTLEFIELD","P1-BATTLEFIELD-LOST-LIBRARY") }};
+
     }
 
     private static MatchState BuildBattlefieldUnitExperienceAbilityScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303075,
@@ -25212,6 +24374,11 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState>
+        {
+            ["P1-BATTLEFIELD-MUTATION-GARDEN"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MUTATION-GARDEN"),
+            ["P1-BATTLEFIELD-EXPERIENCE-UNIT"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-MUTATION-GARDEN")
+        } };
     }
 
     private static MatchState BuildBattlefieldReturnCallRuneScenario(MatchState current, DevScenarioSeed seed)
@@ -25276,7 +24443,7 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldTargetDamageBonusScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303068,
@@ -25322,6 +24489,11 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState>
+        {
+            ["P2-BATTLEFIELD-VOID-GATE"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-VOID-GATE"),
+            ["P2-BATTLEFIELD-TARGET"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-VOID-GATE")
+        } };
     }
 
     private static MatchState BuildBattlefieldPlayUnitBoonScenario(MatchState current, DevScenarioSeed seed)
@@ -25458,7 +24630,7 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldStaticPreventMoveBaseScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303062,
@@ -25498,11 +24670,16 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState>
+        {
+            ["P1-BATTLEFIELD-VILEMAW-LAIR"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-VILEMAW-LAIR"),
+            ["P1-BATTLEFIELD-TRAPPED-UNIT"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-VILEMAW-LAIR")
+        } };
     }
 
     private static MatchState BuildBattlefieldStaticRoamScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303061,
@@ -25542,6 +24719,11 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState>
+        {
+            ["P1-BATTLEFIELD-WIND-HILL"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-WIND-HILL"),
+            ["P1-BATTLEFIELD-WIND-RUNNER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-WIND-HILL")
+        } };
     }
 
     private static MatchState BuildBattlefieldConquerMillScenario(MatchState current, DevScenarioSeed seed)

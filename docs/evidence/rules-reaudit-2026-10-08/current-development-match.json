@@ -1,0 +1,36 @@
+{
+  "operation": "read-only recovery and replay using new code",
+  "stateReadback": {
+    "RoomId": "RB-KAISA-DUEL-389802",
+    "Tick": 50,
+    "TurnNumber": 6,
+    "ActivePlayerId": "试玩玩家二",
+    "PlayerScores": {
+      "试玩玩家一": 2,
+      "试玩玩家二": 3
+    },
+    "hash": "F353AB1C5D79EC741D746A9E95F67FC4AE258083E3FB3DBDFC39F9E3102C7F86",
+    "errors": []
+  },
+  "newEngineReplay": {
+    "replayErrors": [
+      "action-log replay audit failed: command prompt-pass_focus-3006ab84e29f47dea7b3849ad086488f accepted=False but recovered accepted=True",
+      "action-log replay audit failed: command prompt-pass_focus-3006ab84e29f47dea7b3849ad086488f error message \"行动窗口已过期，请按最新提示重新提交。\" but recovered error message <null>",
+      "action-log replay audit failed: command prompt-pass_focus-3006ab84e29f47dea7b3849ad086488f completed tick 47 but recovered tick 48",
+      "action-log replay audit failed: command prompt-pass_focus-3006ab84e29f47dea7b3849ad086488f replayed 0 event(s) but recovered span expects 1",
+      "action-log replay audit failed: command prompt-pass_focus-3006ab84e29f47dea7b3849ad086488f replayed 0 event(s) but recovered event stream has 1",
+      "action-log replay audit failed: command prompt-pass_focus-9069d9b623394bcca566e592e689243d accepted=False but recovered accepted=True",
+      "action-log replay audit failed: command prompt-pass_focus-9069d9b623394bcca566e592e689243d error message \"行动窗口已过期，请按最新提示重新提交。\" but recovered error message <null>",
+      "action-log replay audit failed: command prompt-pass_focus-9069d9b623394bcca566e592e689243d completed tick 47 but recovered tick 49",
+      "action-log replay audit failed: command prompt-pass_focus-9069d9b623394bcca566e592e689243d replayed 0 event(s) but recovered span expects 8",
+      "action-log replay audit failed: command prompt-pass_focus-9069d9b623394bcca566e592e689243d replayed 0 event(s) but recovered event stream has 8",
+      "action-log replay audit failed: command prompt-choose_hand_cards-f1dac4ebb7df47a4b314e145a3fed6e8 accepted=False but recovered accepted=True",
+      "action-log replay audit failed: command prompt-choose_hand_cards-f1dac4ebb7df47a4b314e145a3fed6e8 error message \"行动窗口已过期，请按最新提示重新提交。\" but recovered error message <null>",
+      "action-log replay audit failed: command prompt-choose_hand_cards-f1dac4ebb7df47a4b314e145a3fed6e8 completed tick 47 but recovered tick 50",
+      "action-log replay audit failed: command prompt-choose_hand_cards-f1dac4ebb7df47a4b314e145a3fed6e8 replayed 0 event(s) but recovered span expects 4",
+      "action-log replay audit failed: command prompt-choose_hand_cards-f1dac4ebb7df47a4b314e145a3fed6e8 replayed 0 event(s) but recovered event stream has 4",
+      "action-log replay audit failed: replayed final state hash d845d22745c0d6697c8a502f89dc7e5f3920c5b1595f2937e12cab3ea375b304 does not match expected 902a61ad521d3f42099348bd738e81de582e97c84bac40ad2f9a65a72b99b5e5"
+    ]
+  },
+  "disposition": "No accepted history edited; no compatibility migration added. Do not use this old development match as new-rule acceptance. Running API has not been replaced."
+}

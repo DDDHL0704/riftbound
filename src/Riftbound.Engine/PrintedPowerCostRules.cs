@@ -48,7 +48,8 @@ public static class PrintedPowerCostRules
         => first.Concat(second).GroupBy(x => x.Key, StringComparer.Ordinal).ToDictionary(x => x.Key, x => x.Sum(y => y.Value));
 
     public static bool TrySelect(string cardNo, string? choice, RunePool pool, int extraGeneric,
-        IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed)
+        IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed,
+        IReadOnlyList<string>? additionalPrintedCosts = null)
     {
         var cost = ForCard(cardNo);
         generic = extraGeneric + (cost.Traits.Count == 0 ? cost.Amount : 0);
@@ -57,6 +58,16 @@ public static class PrintedPowerCostRules
         {
             allocations = allocations.Where(a => cost.Amount > 0 && string.Equals(ChoiceId(a), choice, StringComparison.Ordinal)).ToArray();
             if (allocations.Count == 0) { typed = extraTyped; return false; }
+        }
+        // Each base-cost Echo can choose its printed traits independently of the
+        // original spell's explicit allocation.
+        foreach (var additionalCard in additionalPrintedCosts ?? [])
+        {
+            var additional = ForCard(additionalCard);
+            generic += additional.Traits.Count == 0 ? additional.Amount : 0;
+            allocations = allocations.SelectMany(first => Allocations(additionalCard)
+                .Select(second => Combine(first, second)))
+                .DistinctBy(ChoiceId).ToArray();
         }
         var genericCost = generic;
         typed = allocations.Select(a => Combine(a, extraTyped))

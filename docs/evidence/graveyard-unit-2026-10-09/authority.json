@@ -1,0 +1,431 @@
+{
+  "checkedAt": "2026-10-09",
+  "scope": "Verified existing Chinese official corpus; no claim of a fresh full website sync",
+  "documents": [
+    {
+      "ruleCategory": "核心规则",
+      "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/897d82c00906432eae5975b85a66a1c0.jpg",
+      "updateDate": "2026-07-17",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "localPath": "var/official/2026-10-08/01.pdf",
+      "verifiedLocalSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64"
+    },
+    {
+      "ruleCategory": "破限系列 FAQ",
+      "ruleName": "破限系列 裁判FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-16/688953d3fea2420da802163a9381b33c.jpg",
+      "updateDate": "2026-05-11",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "localPath": "var/official/2026-10-08/06.pdf",
+      "verifiedLocalSha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b"
+    },
+    {
+      "ruleCategory": "破限系列 勘误",
+      "ruleName": "破限系列 勘误汇总",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-03/69a177b6352c4a069dd764403977c43d.jpg",
+      "updateDate": "2026-04-03",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf",
+      "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f",
+      "localPath": "var/official/2026-10-08/07.pdf",
+      "verifiedLocalSha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f"
+    }
+  ],
+  "cardCatalog": {
+    "path": "data/official/card-catalog.zh-CN.json",
+    "sha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+    "fetchedAt": "2026-04-27"
+  },
+  "cards": [
+    {
+      "id": 34680,
+      "cardCategory": "unit",
+      "cardCategoryName": "单位",
+      "cardNo": "UNL-137/219",
+      "cardName": "悚悚魄罗",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "暗影岛",
+      "tag": "魄罗",
+      "artist": "Six More Vodka",
+      "cardEffect": "当我进攻时，你可以选择支付{{1}}，将此处的一名敌方单位移动到其基地。",
+      "flavorText": "你难道忍心告诉他他其实一点儿也不可怕吗？",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": 1,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/16be8e9766e14a45a4520c07fa323cc9.webp",
+      "backImage": "",
+      "listSort": 1344,
+      "status": 1,
+      "cardGroupLimit": null
+    },
+    {
+      "id": 34682,
+      "cardCategory": "spell",
+      "cardCategoryName": "法术",
+      "cardNo": "UNL-139/219",
+      "cardName": "透骨尖钉",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n选择一处战场。让一名对手展示自己的手牌。你可以从中选择一名单位。让该对手将该单位打出到该战场，无视一切费用。当对手如此做时，{{眩晕}}该单位。（使其在本回合内无法造成战斗伤害。）",
+      "flavorText": "",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/30b05ee66f70490ea89283024fc33419.webp",
+      "backImage": "",
+      "listSort": 1342,
+      "status": 1,
+      "cardGroupLimit": null
+    },
+    {
+      "id": 34685,
+      "cardCategory": "spell",
+      "cardCategoryName": "法术",
+      "cardNo": "UNL-142/219",
+      "cardName": "残酷复活",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n你必须摧毁一名友方单位，作为打出此牌的额外费用。\n从你的废牌堆中打出一名法力和符能费用不高于被摧毁单位的单位，无视其费用。",
+      "flavorText": "",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/7fb7a4a30255442b9e35e5d9a78e0f1a.webp",
+      "backImage": "",
+      "listSort": 1339,
+      "status": 1,
+      "cardGroupLimit": null
+    },
+    {
+      "id": 34716,
+      "cardCategory": "spell",
+      "cardCategoryName": "法术",
+      "cardNo": "UNL-168/219",
+      "cardName": "忠诚不渝",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Max Grecke",
+      "cardEffect": "如果你选择的单位为“鸟类”、“猫科”、“犬形”或“魄罗”属性，则此法术费用减少{{2}}。\n从你的废牌堆中打出一名费用不高于{{2}}且不高于{{A}}的单位，无视其费用。",
+      "flavorText": "“要是它们都能回来该有多好。”",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/d2e5d37b532f42888aa5a81f2e69d8eb.webp",
+      "backImage": "",
+      "listSort": 1308,
+      "status": 1,
+      "cardGroupLimit": null
+    },
+    {
+      "id": 31257,
+      "cardCategory": "spell",
+      "cardCategoryName": "法术",
+      "cardNo": "OGN·045/298",
+      "cardName": "蔑视",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n无效化一个法术，但其费用不得高于{{4}}，也不得高于{{A}}。",
+      "flavorText": "“我拒绝。”",
+      "energy": 1,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/013f0156d4c74dd0b52f19e6e758a590.png",
+      "backImage": "",
+      "listSort": 448,
+      "status": 1,
+      "cardGroupLimit": null
+    },
+    {
+      "id": 31335,
+      "cardCategory": "unit",
+      "cardCategoryName": "单位",
+      "cardNo": "OGN·116/298",
+      "cardName": "千尾监视者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{蓝色}}，让我以活跃状态进场。）\n当你打出我时，让所有敌方单位本回合内{{S}}-3，不得低于1{{S}}。",
+      "flavorText": "把大自然惹火了，你一眼就能知道。",
+      "energy": 7,
+      "returnEnergy": 1,
+      "power": 7,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/beffb3996ec94dbcbdef967ea48f7305.png",
+      "backImage": "",
+      "listSort": 370,
+      "status": 1,
+      "cardGroupLimit": null
+    },
+    {
+      "id": 31427,
+      "cardCategory": "unit",
+      "cardCategoryName": "单位",
+      "cardNo": "OGN·195/298",
+      "cardName": "裂魂者喇煞",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "暗影岛",
+      "tag": "灵体",
+      "artist": "Six More Vodka",
+      "cardEffect": "你的废牌堆中每有一张牌，我的费用便减少{{1}}。",
+      "flavorText": "它喜欢死亡的味道，但更喜欢疯狂的滋味。",
+      "energy": 10,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "OGN(英雄预组 金克丝)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 金克丝",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/f8a0fc22872f452987731d8c5b635eb9.png",
+      "backImage": "",
+      "listSort": 278,
+      "status": 1,
+      "cardGroupLimit": null
+    },
+    {
+      "id": 31444,
+      "cardCategory": "unit",
+      "cardCategoryName": "单位",
+      "cardNo": "OGN·208/298",
+      "cardName": "冷血贵族",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "你必须摧毁一名友方单位，作为打出我的额外费用。",
+      "flavorText": "忠诚是种义务，而不是选择。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 6,
+      "productCodeList": [
+        "OGN(英雄预组 维克托)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 维克托",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/b00544775d984fb8b60061e438123271.png",
+      "backImage": "",
+      "listSort": 261,
+      "status": 1,
+      "cardGroupLimit": null
+    },
+    {
+      "id": 31464,
+      "cardCategory": "unit",
+      "cardCategoryName": "单位",
+      "cardNo": "OGN·226/298",
+      "cardName": "幽灵主母",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "暗影岛",
+      "tag": "灵体",
+      "artist": "Six More Vodka",
+      "cardEffect": "当你打出我时，你可以选择从你的废牌堆中打出一名费用不高于{{3}}且不高于{{A}}的单位，无需支付打出费用。",
+      "flavorText": "“过来——你的用处还不止于此。”",
+      "energy": 4,
+      "returnEnergy": 2,
+      "power": 4,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/2ebdca24625e4bfba869a2d9474b3ad8.png",
+      "backImage": "",
+      "listSort": 241,
+      "status": 1,
+      "cardGroupLimit": null
+    }
+  ],
+  "locators": {
+    "01.txt": [
+      "355.10 public graveyard target before costs",
+      "356.1.b base waiver; additional costs remain",
+      "419.3 effect play"
+    ],
+    "06.txt": [
+      "246-260 Cruel Revival cost vs target; cannot replay sacrifice",
+      "755-763 Cold Blooded Noble extra cost",
+      "773-785 Bone Skewer ignores all costs"
+    ],
+    "07.txt": [
+      "48-61 Bone Skewer erratum"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "requestId": "native-mechanical",
+  "promptId": "conquest-regression:6:P1:PLAY_CARD,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER",
+  "snapshotTick": 6,
+  "isValid": true,
+  "canPay": true,
+  "message": "\u8D39\u7528\u5DF2\u6838\u5BF9\uFF0C\u53EF\u4EE5\u786E\u8BA4\u6253\u51FA\u3002",
+  "errorCode": null,
+  "cost": {
+    "printedMana": 4,
+    "printedPower": 1,
+    "mana": 1,
+    "genericPower": 0,
+    "powerByTrait": {
+      "blue": 1
+    },
+    "experience": 0,
+    "availableMana": 10,
+    "availableRainbowPower": 10,
+    "availablePowerByTrait": {},
+    "missingMana": 0,
+    "missingPower": 0,
+    "missingExperience": 0,
+    "remainingMana": 9,
+    "remainingRainbowPower": 9,
+    "remainingPowerByTrait": {},
+    "adjustments": [
+      {
+        "label": "\u5361\u724C\u51CF\u8D39",
+        "mana": -3,
+        "power": 0
+      }
+    ]
+  }
+}

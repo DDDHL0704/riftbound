@@ -1,0 +1,84 @@
+{
+  "scope": "Graveyard unit base-cost waiver and shared formal play; not full-product acceptance",
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.7,
+    "total": 166,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 166,
+        "passed": 166,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.95
+      }
+    ],
+    "log": {
+      "path": "var/qa/graveyard-unit-2026-10-09/verified-focus.log",
+      "sha256": "4c5721a98eef7b9a8251adeeaab630cd0e5f8e79c7aa0f7ef165b82ea9b0b32d"
+    },
+    "trx": {
+      "path": "var/qa/graveyard-unit-2026-10-09/verified-focus/focus/results.trx",
+      "sha256": "91fc2d8239aba9595dc3e0869f7fe22b5292204ecd9720bcf686a878c6e4180b"
+    }
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 77.19,
+    "total": 8893,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 8893,
+        "passed": 8893,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 73.54
+      }
+    ],
+    "log": {
+      "path": "var/qa/graveyard-unit-2026-10-09/verified-check.log",
+      "sha256": "e38b5d9a45ba7a73aa08ba6f4020bee68acb92e6f3d85ec098356076bba6d6a9"
+    },
+    "trx": {
+      "path": "var/qa/graveyard-unit-2026-10-09/verified-check/check/results.trx",
+      "sha256": "af4e02cf4136c44142d843dab0a0ab658a4b707a7dc91062d223bfb4aacea105"
+    }
+  },
+  "native": {
+    "branches": [
+      "decline",
+      "pay-power",
+      "pick-second",
+      "unit-decline",
+      "unit-play"
+    ],
+    "actualCommandsUsed": true,
+    "restoreAndReplayPassed": true,
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "mode": "Godot production controls, headless",
+    "fullTableVisualAcceptance": false
+  },
+  "sourceHashes": {
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "fcd98d22705a94582f7939dc78727f680e7e8952645d31177a259867a0f73836",
+    "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs": "183d08e5e934f0f6395954e4220b38fba171bb0ff7d14e539ed1039a61bb8285",
+    "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs": "0d153f35e40e96edf024fe08c7739b1bd1b97a0545c51b4d696e4963afc5adf1",
+    "src/Riftbound.Engine/CardBehaviorRegistry.cs": "224e7dc64bd3f140799619ae0c93312ec34743d1f9bd245e2e1d30f5ccf4cd0f",
+    "src/Riftbound.Engine/MatchRecovery.cs": "c3c0420f51ad8fef559aaba0fb831e6fa697807161261be83bcf224c927b80fc",
+    "tests/Riftbound.ConformanceTests/OfficialUnitRevivalTests.cs": "3ee1ed75f649729a1843efbacc9e5e07575997db0cad3308472c6f96fb683e3b",
+    "tests/Riftbound.ConformanceTests/RecastNativeContinuationTests.cs": "11060a3dc3aab23464606790fb985042ca9b4aa8d2c5630aca6019f904b2f264",
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs": "14901c86dad38a3ace95936849ec9f807dfb50fde6d615b795e80d2a808b806b",
+    "clients/godot/scripts/debug/RecastInteractionProof.cs": "826acad931bfea142fd59f448ef6e3b42e52a847578a39c2850602fafa3bbcf9"
+  },
+  "fullSuiteRun": false,
+  "runtimeRestarted": false,
+  "packaged": false,
+  "windowsAccepted": false,
+  "committedOrPushed": false
+}

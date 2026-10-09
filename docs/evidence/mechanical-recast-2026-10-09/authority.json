@@ -1,0 +1,47 @@
+{
+  "documents": [
+    {
+      "ruleCategory": "核心规则",
+      "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/897d82c00906432eae5975b85a66a1c0.jpg",
+      "updateDate": "2026-07-17",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "localPath": "var/official/2026-10-08/01.pdf"
+    },
+    {
+      "ruleCategory": "破限系列 勘误",
+      "ruleName": "破限系列 勘误汇总",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-03/69a177b6352c4a069dd764403977c43d.jpg",
+      "updateDate": "2026-04-03",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf",
+      "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f",
+      "localPath": "var/official/2026-10-08/07.pdf"
+    },
+    {
+      "ruleCategory": "铸魂淬炼系列 FAQ",
+      "ruleName": "铸魂淬炼系列 官方FAQ",
+      "coverUrl": "https://cdn.playloltcg.com/lol/2026/01/2026-01-14/c8fe15554b65440e82a8bbb3517b2cc4.jpeg",
+      "updateDate": "2026-01-14",
+      "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf",
+      "sha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01",
+      "localPath": "var/official/2026-10-08/10.pdf"
+    }
+  ],
+  "allOfficialDocumentsResyncedThisBatch": false,
+  "clauses": [
+    "CN 203.1-3",
+    "CN 355.10.c.1",
+    "CN 359.3.e.14",
+    "CN 383.4.c",
+    "CN 419.3.b-c",
+    "CN 186.1"
+  ],
+  "cardNumbers": [
+    "SFD·026/221",
+    "SFD·026a/221"
+  ],
+  "errata": "07.txt lines 247-252 explicitly limits play origin to your graveyard",
+  "qa": "10.txt lines 430-440 permits recycling Robot token; disappearance does not erase its last-known power",
+  "webPdfRead": "Official URLs attempted; web reader inaccessible. Verified local official corpus hashes against upstream manifest."
+}

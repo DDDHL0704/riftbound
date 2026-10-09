@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-perfect-finale-base-damage-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302080,
     "turnNumber": 64,
@@ -34,31 +37,61 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 4, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 4,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-PERFECT-FINALE"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-PERFECT-FINALE"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
-        "base": ["P2-BASE-UNIT-001"],
-        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
+        "base": [
+          "P2-BASE-UNIT-001"
+        ],
+        "battlefields": [
+          "P2-BATTLEFIELD-UNIT-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -66,7 +99,10 @@
         "damage": 0,
         "power": 5,
         "untilEndOfTurnEffects": [],
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ]
       },
       "P2-BATTLEFIELD-UNIT-001": {
         "damage": 0,
@@ -85,7 +121,9 @@
         "sourceObjectId": "P1-SPELL-PERFECT-FINALE",
         "cardNo": "UNL-182/219",
         "mode": "BASE_UNIT_DAMAGE_3",
-        "targetObjectIds": ["P2-BASE-UNIT-001"]
+        "targetObjectIds": [
+          "P2-BASE-UNIT-001"
+        ]
       }
     },
     {
@@ -115,20 +153,32 @@
       "DAMAGE_APPLIED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
           "cardNo": "UNL-182/219",
           "mode": "BASE_UNIT_DAMAGE_3",
-          "targetObjectIds": ["P2-BASE-UNIT-001"],
+          "targetObjectIds": [
+            "P2-BASE-UNIT-001"
+          ],
           "effectKind": "PERFECT_FINALE_BASE_DAMAGE_3"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "DAMAGE_APPLIED",
         "payload": {
@@ -139,8 +189,12 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 64,
@@ -149,17 +203,29 @@
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "graveyard": ["P1-SPELL-PERFECT-FINALE"]
+          "graveyard": [
+            "P1-SPELL-PERFECT-FINALE"
+          ]
         },
         "P2": {
-          "base": ["P2-BASE-UNIT-001"],
-          "battlefields": ["P2-BATTLEFIELD-UNIT-001"]
+          "base": [
+            "P2-BASE-UNIT-001"
+          ],
+          "battlefields": [
+            "P2-BATTLEFIELD-UNIT-001"
+          ]
         }
       },
       "stackItems": [],
@@ -177,8 +243,18 @@
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

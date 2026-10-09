@@ -21,12 +21,14 @@ public partial class MatchScreen : AppScreen
     internal MatchTableLayout TableLayout { get; private set; } = null!;
     public Control ComposerHost => TableLayout.Composer;
     public ActionBar ActionBar => TableLayout.Actions;
+    internal float ConnectionBannerHeight => _connectionBanner.Visible ? _connectionBanner.GetCombinedMinimumSize().Y + 6 : 0;
     private HBoxContainer _connectionBanner = null!;
     private Label _connectionMessage = null!;
     private Button _reconnectButton = null!;
     private MatchTableRenderer? _renderer;
     private CardArray? _lastSections;
     private CardDictionary? _inspected;
+    private CardDictionary? _phaseWindow;
     private readonly Queue<string> _history = new();
     private long _lastEventTick = -1;
     private readonly HashSet<string> _eventKeys = new(StringComparer.Ordinal);
@@ -87,6 +89,8 @@ public partial class MatchScreen : AppScreen
         }
         _renderer = new MatchTableRenderer(this, card => CardActivated?.Invoke(card),
             (title, cards) => PublicPileRequested?.Invoke(title, cards));
+        TableLayout.Actions.SelectionVisibilityChanged += _ => _renderer.RefreshHandGeometry();
+        Resized += () => _renderer.RefreshHandGeometry();
         ApplyTheme(); RenderSections(_lastSections ?? []);
     }
 
@@ -115,6 +119,7 @@ public partial class MatchScreen : AppScreen
         _connectionMessage.Text = recovering ? "连接中断，正在恢复对局… 当前显示断线前的局面。" : "已断开连接。重新连接后同步最新局面。";
         ActionBar.Visible = connected;
         if (!connected) SetTurnStatus(recovering ? "正在恢复连接" : "连接已断开", "同步最新局面后可继续行动。", false);
+        _renderer?.RefreshHandGeometry();
     }
 
     public void RenderSections(CardArray sections)
@@ -139,7 +144,14 @@ public partial class MatchScreen : AppScreen
         _destinations = table["lanes"].As<CardArray>().Select(lane => "BATTLEFIELD:" + Read(lane, "battlefieldId")).ToArray();
         ClearChildren(TableLayout.Chain);
         var chain = table.TryGetValue("chain", out var chainValue) ? chainValue.As<CardArray>() : [];
-        TableLayout.ChainPanel.Visible = chain.Count > 0;
+        _phaseWindow = table.TryGetValue("phaseWindow", out var phaseValue) ? phaseValue.As<CardDictionary>() : null;
+        var activeWindow = _phaseWindow is not null && _phaseWindow["activeWindow"].AsBool();
+        TableLayout.PhaseTitle.Text = _phaseWindow is null ? "行动阶段" : Read(_phaseWindow, "title");
+        TableLayout.PhaseBattlefield.Text = _phaseWindow is null ? "" : Read(_phaseWindow, "battlefield");
+        TableLayout.PhaseBattlefield.Visible = TableLayout.PhaseBattlefield.Text.Length > 0;
+        TableLayout.PassConsequence.Text = _phaseWindow is null ? "" : Read(_phaseWindow, "hint");
+        TableLayout.PassConsequence.Visible = activeWindow;
+        TableLayout.ChainPanel.Visible = chain.Count > 0 || activeWindow;
         if (chain.Count == 0) MatchTableLayout.Label(TableLayout.Chain, "当前没有待结算行动", 13, MinimalTheme.TextSecondary, true);
         foreach (var entry in chain)
         {
@@ -158,12 +170,23 @@ public partial class MatchScreen : AppScreen
         }
     }
 
-    public void SetTurnStatus(string headline, string detail, bool actionable)
+    public void SetTurnStatus(string headline, string detail, bool actionable, bool useWindowDetail = false)
     {
         if (!IsNodeReady()) return;
+        if (useWindowDetail && _phaseWindow is not null && _phaseWindow["activeWindow"].AsBool())
+        {
+            headline = Read(_phaseWindow, "actor");
+            detail = Read(_phaseWindow, "detail");
+        }
         TableLayout.TurnHeadline.Text = headline; TableLayout.TurnDetail.Text = detail;
         TableLayout.TurnHeadline.AddThemeColorOverride("font_color", actionable ? MinimalTheme.Selectable : MinimalTheme.Waiting);
         if (!actionable) ActionBar.SetWaiting(detail);
+    }
+
+    public void SetCommandFeedback(string message)
+    {
+        TableLayout.CommandFeedback.Text = string.IsNullOrWhiteSpace(message) ? "" : $"操作未完成：{message}";
+        TableLayout.CommandFeedback.Visible = !string.IsNullOrWhiteSpace(message);
     }
 
     public void SetComposerVisible(bool visible)

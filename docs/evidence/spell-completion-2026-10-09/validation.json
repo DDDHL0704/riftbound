@@ -1,0 +1,186 @@
+{
+  "date": "2026-10-09",
+  "status": "SCOPED_SPELL_TRIGGER_BATCH_VERIFIED_NOT_WHOLE_RULES_COMPLETE",
+  "authority": "authority.json",
+  "tests": {
+    "adjacent": {
+      "trx": "tests/Riftbound.ConformanceTests/TestResults/spell-completion-broad3.trx",
+      "sha256": "b83e1fb58a3e89fd3eeb42291fac5a24f337aff6785b2475b28e615368f8392d",
+      "total": 469,
+      "passed": 469,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T12:04:08.6949600+08:00",
+        "queuing": "2026-10-09T12:04:08.6949600+08:00",
+        "start": "2026-10-09T12:04:07.2168170+08:00",
+        "finish": "2026-10-09T12:04:57.0623660+08:00"
+      }
+    },
+    "nativeRoundTrip": {
+      "trx": "tests/Riftbound.ConformanceTests/TestResults/spell-completion-native-replay.trx",
+      "sha256": "a770fb5075c171ed02c00fab0e1629f63128ff66f1f55d33f924bd0a82ff86f9",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T12:09:42.9829160+08:00",
+        "queuing": "2026-10-09T12:09:42.9829160+08:00",
+        "start": "2026-10-09T12:09:38.0138320+08:00",
+        "finish": "2026-10-09T12:09:43.8769930+08:00"
+      }
+    },
+    "full": {
+      "trx": "tests/Riftbound.ConformanceTests/TestResults/spell-completion-full-final.trx",
+      "sha256": "0364461682e9baf3ea469c08a6db274dfd7132e0be89b15df4016aec8c3eddba",
+      "total": 8972,
+      "passed": 8972,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T12:11:33.4567610+08:00",
+        "queuing": "2026-10-09T12:11:33.4567610+08:00",
+        "start": "2026-10-09T12:11:32.0731500+08:00",
+        "finish": "2026-10-09T12:25:06.9914520+08:00"
+      }
+    }
+  },
+  "testCountsOverlap": true,
+  "newBehaviorCases": 25,
+  "newContinuationCases": 4,
+  "retiredSourceInspectionCases": 4,
+  "replacedIncorrectControlCases": 2,
+  "firstFullRun": "Stopped after four stale diagnostic-enum assertions failed; those checks retained and updated. Final complete run supersedes it.",
+  "native": {
+    "platform": "macOS",
+    "productionControl": "ActionBar + PromptInteractionController + Main.CommandFromTemplate",
+    "build": "0 warnings, 0 errors",
+    "interactionLog": "var/qa/spell-completion-2026-10-09/native-interaction.log",
+    "roundTrips": [
+      {
+        "branch": "exile-accept",
+        "replay": "docs/evidence/spell-completion-2026-10-09/native/exile-accept-replay.json",
+        "sha256": "4af8d0a631985b24922cb84fc1ebe91a699d8ef57b2f89df7a94dbae8ba20eb9",
+        "nativeCommandUsed": true,
+        "stateHash": "13ba2d29c5f9151f999db11d53dc6ffd647db653c699cd01ab246d7170aa4d07"
+      },
+      {
+        "branch": "exile-decline",
+        "replay": "docs/evidence/spell-completion-2026-10-09/native/exile-decline-replay.json",
+        "sha256": "d1beeda52476b34c9b89975682e8ed0dc2927b99f11656204dd8d51aa3c83d0c",
+        "nativeCommandUsed": true,
+        "stateHash": "deb995b128065f0211cd2f29393da36196313f5500235b55f3d27ae1ad90e1e9"
+      },
+      {
+        "branch": "hall-accept",
+        "replay": "docs/evidence/spell-completion-2026-10-09/native/hall-accept-replay.json",
+        "sha256": "3425a5009a72486fe941ec4ab604b467232d7e16a46930b8fd3c679d539bab14",
+        "nativeCommandUsed": true,
+        "stateHash": "1e4010b25a0a379c8c180501af5645f9b1f95beb2b22e4f5a7e5a9b7acaa71c9"
+      },
+      {
+        "branch": "hall-decline",
+        "replay": "docs/evidence/spell-completion-2026-10-09/native/hall-decline-replay.json",
+        "sha256": "72956a3af56182837d1629f5b21735d91ad93bffb2b2f55c5d97cf0145bafdc2",
+        "nativeCommandUsed": true,
+        "stateHash": "052b2049ca83f4050bb2a33320a835b581b6393716ec77a84c4464e402c47e58"
+      }
+    ],
+    "fullBoardAcceptance": false
+  },
+  "sources": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "fff9949d57cf4ddefd8ac3c3e946c222c8ac0f26d460952d356477dc50da19d3"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
+      "sha256": "73ad30748a884035d127cc49ca7a1c1235f00cae319d2051cf45e1101b97703f"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+      "sha256": "80bf0322e29b61fa9831d96adfec3bea6e4b1294d6dbb24e512b8ffed3685b4b"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+      "sha256": "ef66eb090dd6d52360ca0c19c7ec0dc39378fb722c82817aee3b13d0efc702a5"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+      "sha256": "cbd82249a1e780a4d844f360ce88cb71ca999a60287220f0dcddac401a73fc58"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "1ef0ff2f1c01509d7b457d83a5dc6b3ed07fd0f24962a88a3f30be3d2466829a"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "sha256": "4d6f5f6c6be15cbc9dbf2b05b55a3b3842c6fc4ddfa78427bcf0a3dcb4f5aeff"
+    },
+    {
+      "path": "clients/godot/scripts/interaction/PromptInteractionController.cs",
+      "sha256": "018f26ec6fc16edc240ce9120d4b780eb4a3f53708a6fd81c30406b8ab4a73f5"
+    },
+    {
+      "path": "clients/godot/scripts/debug/InsightSourceInteractionProof.cs",
+      "sha256": "10baca5688382ac408f75fdb90cdb2773dbc92de7c444901b489613e57d2a03a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs",
+      "sha256": "9ee28118718faf095e02cf3402275fd92158e4aac59779ee72d3bbc33c49983d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SpellCompletionContinuationTests.cs",
+      "sha256": "c9702ee9009e9efafdaf617dc431d94f839f2ef06dde663e32897aaeffac61cd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SpellResolutionTestDriver.cs",
+      "sha256": "21e6b9cc2509f73548fc2084a2c49b7b2223fca902747bc7e65eec079af2a09e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialInsightTriggerTests.cs",
+      "sha256": "20703182e950c95b2b74781432b017e2db330141888472d437555e936a68af24"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/InsightTriggerContinuationTests.cs",
+      "sha256": "9124ee8fa2826605bf59f812102da6617dd8ea9d8c73d4ae033cd518a4f0eec6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LuxHighCostPaidCostTriggerTests.cs",
+      "sha256": "38860111cd528a21c5ca7af2c8f00ebf28adf1e735fa9b6df715567f28a2da1e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "sha256": "b3c2aee3eb9d5ccd480260d9fa376c82973c864154a60f76544ae4fb8fb2857c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "sha256": "9e57b77f7290c84ad165eba4397b93033b6c50ab44779abf439bf2aab0301082"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs",
+      "sha256": "68b94901ee3add8efd37972cdaa687a3772324e8e26ba9df6d88dbd9e071f9b4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+      "sha256": "646130dafcced71d5277e95350b50807593c8f1917edabdcd3419ea632cc5035"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "sha256": "b1439653d04eb33264399000aab5b9c0299387ecd0e5eee02541aa59e033d45c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+      "sha256": "33657fdb93ee76c29cea033a8687c8e7823b4b12cf53ebde4b8534eb0ff0d67f"
+    }
+  ],
+  "delivery": {
+    "runningServerRestarted": false,
+    "userMatchRewritten": false,
+    "packaged": false,
+    "windowsHardwareTested": false,
+    "committedOrPushed": false
+  },
+  "remainingFindings": "remaining-findings.json"
+}

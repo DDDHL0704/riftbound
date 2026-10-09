@@ -1,0 +1,18 @@
+{
+  "relativeTo": "this batch baseline, not Git HEAD",
+  "coreAdded": 28,
+  "coreRemoved": 104,
+  "removed": [
+    "TryPlayGraveyardCardToBase",
+    "PlaysGraveyardTargetToBase",
+    "RequiresTargetManaCostAtMostControllerPower",
+    "RequiresTargetManaCostAtMostDestroyedAdditionalCostUnit"
+  ],
+  "replacement": [
+    "PendingEffectPlayState and ordinary PlayCard",
+    "MaxTargetPowerCost",
+    "RequiresTargetCostsAtMostDestroyedAdditionalCostUnit",
+    "TargetTraitsManaReductionTags and TargetTraitsManaReduction"
+  ],
+  "legacyFixtureCorrection": "mana 3 versus remaining rune power 2 is not an invalid Matron target; Defiance mana 2 target remains legal with only its own required 1 power available"
+}

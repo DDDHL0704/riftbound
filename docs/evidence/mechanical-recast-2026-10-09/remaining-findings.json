@@ -1,0 +1,40 @@
+[
+  {
+    "scope": "other-effect-play-paths",
+    "status": "OPEN",
+    "finding": "Direct graveyard play in other spell effects, unit-copy and token-creation play triggers remain to audit; this batch covers the recycle-friendly-unit discount family only.",
+    "codeEvidence": {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "symbols": [
+        "TryPlayGraveyardCardToBase",
+        "TryPlayHandCardToBase"
+      ],
+      "cardNumbers": [
+        "OGN·226/298",
+        "UNL-168/219",
+        "UNL-142/219",
+        "UNL-139/219"
+      ],
+      "status": "SOURCE_PATH_CONFIRMED_OFFICIAL_BEHAVIOR_NOT_YET_REAUDITED"
+    }
+  },
+  {
+    "scope": "disappearing-trigger-source",
+    "status": "SOURCE_REVIEW_OPEN",
+    "finding": "This batch verifies ordinary Rumble leaving the field and a Robot disappearing as the paid cost. Copied-token trigger sources disappearing before resolution/recovery are not covered; generic stack source-reference validation still requires a known object. Audit captured source identity across all typed trigger families together.",
+    "codeEvidence": {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "symbol": "ValidateAuthoritativeStateStackItemObjectReferences"
+    }
+  },
+  {
+    "scope": "general-rule-audit",
+    "status": "OPEN",
+    "finding": "Global simultaneous ordering permissions, skill-target counter/cannot-counter replacement, old Lux-specific recovery validators and all leave-chain destinations remain unclosed."
+  },
+  {
+    "scope": "native-delivery",
+    "status": "NOT_EXECUTED",
+    "finding": "Production controls verified in isolated native scene; no full two-client natural match, running service replacement, packaging or Windows hardware verification."
+  }
+]

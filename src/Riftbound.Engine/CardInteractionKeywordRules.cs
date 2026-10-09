@@ -53,8 +53,9 @@ public static class CardInteractionKeywordRules
         var hasStandby = HasKeyword(spec, CardInteractionKeywordNames.Standby)
             || HasExactKeyword(tags, CardInteractionKeywordNames.Standby);
         var hasEchoKeyword = HasKeyword(spec, CardInteractionKeywordNames.Echo);
-        var echoManaCost = behavior?.EchoManaCost ?? 0;
-        var hasEcho = hasEchoKeyword || echoManaCost > 0;
+        var echoCost = behavior is null ? null : EchoCostRules.PrintedFor(behavior.CardNo);
+        var echoManaCost = echoCost?.Mana ?? 0;
+        var hasEcho = hasEchoKeyword || echoCost is not null;
         var hasAmbush = HasKeyword(spec, CardInteractionKeywordNames.Ambush);
         var hasAnyInteractionKeyword = hasStandby
             || hasEcho
@@ -70,7 +71,7 @@ public static class CardInteractionKeywordRules
             status switch
             {
                 InteractionKeywordProfileStatuses.Implemented =>
-                    "P4.4 implements mana-only Echo through the existing P2 optional cost repeat path.",
+                    "Resource Echo costs are available; independent repeat targets and modes require separate verification.",
                 InteractionKeywordProfileStatuses.RecognizedDeferred =>
                     "P4.9 recognizes interaction keyword surfaces; P4.70/P4.71/P4.76/P4.386 cover narrow Standby hide/reveal/reaction and one reaction resolution trigger, the B0 battlefield-source Teemo slice covers one Standby target-damage representative, and P4.387 covers one Ambush battlefield reaction play representative, while base-context/broader Standby target damage, broader Ambush targets/cards, and complex Echo costs remain deferred unless a separate P2 path covers the ordinary play effect.",
                 _ =>
@@ -84,44 +85,10 @@ public static class CardInteractionKeywordRules
     {
         ArgumentNullException.ThrowIfNull(behavior);
 
-        if (behavior.EchoManaCost <= 0)
-        {
-            return new CardEchoKeywordProfile(
-                false,
-                0,
-                EchoKeywordProfileStatuses.NotApplicable,
-                "Card does not expose a P2 mana-only Echo optional cost.");
-        }
-
-        return new CardEchoKeywordProfile(
-            true,
-            behavior.EchoManaCost,
-            EchoKeywordProfileStatuses.Implemented,
-            "P4.4 mana-only Echo is implemented through the existing P2 optional cost repeat path.");
-    }
-
-    public static bool TryBuildEchoOptionalCost(
-        IReadOnlyList<string> normalizedOptionalCosts,
-        CardBehaviorDefinition behavior,
-        out int extraManaCost,
-        out int effectRepeatCount)
-    {
-        ArgumentNullException.ThrowIfNull(normalizedOptionalCosts);
-        ArgumentNullException.ThrowIfNull(behavior);
-
-        extraManaCost = 0;
-        effectRepeatCount = 1;
-        var profile = BuildEchoProfile(behavior);
-        if (normalizedOptionalCosts.Count == 1
-            && string.Equals(normalizedOptionalCosts[0], EchoOptionalCostNames.Echo, StringComparison.Ordinal)
-            && profile.HasEcho)
-        {
-            extraManaCost = profile.EchoManaCost;
-            effectRepeatCount = 2;
-            return true;
-        }
-
-        return false;
+        var cost = EchoCostRules.PrintedFor(behavior.CardNo);
+        return new CardEchoKeywordProfile(cost is not null, cost?.Mana ?? 0,
+            cost is null ? EchoKeywordProfileStatuses.NotApplicable : EchoKeywordProfileStatuses.Implemented,
+            cost is null ? "No resource-only printed Echo cost." : "Resource Echo cost recognized; repeat choices are audited separately.");
     }
 
     private static string ResolveProfileStatus(

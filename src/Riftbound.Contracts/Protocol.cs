@@ -184,13 +184,16 @@ public sealed record EndTurnCommand() : GameCommand("END_TURN");
 
 public sealed record SurrenderCommand() : GameCommand("SURRENDER");
 
+public sealed record SpellRepeatChoice(string Mode, IReadOnlyList<string> TargetObjectIds);
+
 public sealed record PlayCardCommand(
     string SourceObjectId,
     string CardNo,
     IReadOnlyList<string> TargetObjectIds,
     string Mode = "",
     IReadOnlyList<string>? OptionalCosts = null,
-    string Destination = "") : GameCommand("PLAY_CARD");
+    string Destination = "",
+    IReadOnlyList<SpellRepeatChoice>? RepeatChoices = null) : GameCommand("PLAY_CARD");
 
 public sealed record ActivateAbilityCommand(
     string SourceObjectId,

@@ -6,7 +6,7 @@ namespace Riftbound.Engine;
 public sealed record PendingEffectPlayState(
     string ChoiceId, string PlayerId, StackItemState Parent, string SourceZone,
     IReadOnlyDictionary<string, long> Sources, bool IgnoreBaseMana, bool IgnoreBasePower,
-    int ManaReduction, string DestinationPolicy, bool Optional);
+    int ManaReduction, string DestinationPolicy, bool Optional, IReadOnlyList<string>? ViewedCardIds = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -16,11 +16,31 @@ public sealed partial class CoreRuleEngine
             return state.PlayerZones.TryGetValue(playerId, out var handZones)
                 ? handZones.Hand.Concat(handZones.ChampionZone).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
-        var sourceZone = pending.SourceZone switch { "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };
+        var sourceZone = pending.SourceZone switch { "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, "MAIN_DECK" => zones.MainDeck, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
-            && state.CardObjects.TryGetValue(x.Key, out var card) && card.ObjectGeneration == x.Value)
+            && state.CardObjects.TryGetValue(x.Key, out var card) && card.ObjectGeneration == x.Value
+            && (RecastSpec(pending.Parent) is not { } spec || RecastSourceAllowed(state, playerId, card, spec)))
             .Select(x => x.Key).ToArray();
     }
+
+    // Restore the same policy selected by the registered effect, never client-supplied waivers.
+    internal static bool ValidGraveyardUnitEffectPlay(MatchState state, PendingEffectPlayState pending)
+        => CardBehaviorRegistry.TryGetByEffectKind(pending.Parent.EffectKind, out var behavior)
+            && behavior.CardNo == pending.Parent.CardNo && behavior.EffectPlaySourceZone == "GRAVEYARD"
+            && pending.SourceZone == behavior.EffectPlaySourceZone && pending.PlayerId == pending.Parent.ControllerId
+            && state.Seats.ContainsKey(pending.PlayerId) && state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)
+            && pending.IgnoreBaseMana == behavior.EffectPlayIgnoreBaseMana
+            && pending.IgnoreBasePower == behavior.EffectPlayIgnoreBasePower
+            && pending.ManaReduction == behavior.EffectPlayManaReduction
+            && pending.DestinationPolicy == behavior.EffectPlayDestination && pending.Optional == behavior.EffectPlayOptional
+            && pending.ViewedCardIds is null && !pending.Parent.EffectPlayCompleted
+            && (!behavior.PlaysSourceToBaseAsUnit || pending.Parent.SourceConfirmed)
+            && pending.Sources.Count > 0
+            && pending.Sources.All(s => pending.Parent.TargetObjectIds.Contains(s.Key)
+                && zones.Graveyard.Contains(s.Key) && state.CardObjects.TryGetValue(s.Key, out var card)
+                && card.ObjectGeneration == s.Value && card.Tags.Contains(CardObjectTags.UnitCard)
+                && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var unit) && unit.PlaysSourceToBaseAsUnit
+                && IsTargetManaCostAllowed(state, pending.PlayerId, s.Key, behavior));
 
     internal static CardBehaviorDefinition EffectPlayBehavior(MatchState state, string playerId, CardBehaviorDefinition behavior)
         => state.PendingEffectPlay is { } pending && pending.PlayerId == playerId
@@ -30,6 +50,7 @@ public sealed partial class CoreRuleEngine
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
+        if (pending.DestinationPolicy == "STACK") return ["BASE"];
         var destinations = new List<string>();
         if (pending.DestinationPolicy != "CONTROLLED_BATTLEFIELD") destinations.Add("BASE");
         if (pending.DestinationPolicy != "BASE")
@@ -44,13 +65,18 @@ public sealed partial class CoreRuleEngine
             ["choiceId"] = p.ChoiceId, ["playerId"] = p.PlayerId,
             ["sourceObjectId"] = p.Parent.SourceObjectId, ["sourceCardNo"] = p.Parent.CardNo,
             ["optional"] = p.Optional, ["step"] = "PLAY_CARD",
-            ["reason"] = "效果要求再次打出：选择单位、位置与费用后确认。" };
+            ["reason"] = "效果要求再次打出：选择卡牌、目标与费用后确认。" };
 
     internal static IReadOnlyDictionary<string, ActionPromptDto> BuildEffectPlayPrompts(MatchState state)
     {
         var p = state.PendingEffectPlay!;
         var own = ActionPromptBuilder.Build(state, p.PlayerId, true,
-            EffectPlayReason(p), [CommandTypes.PlayCard, CommandTypes.TapRune, CommandTypes.RecycleRune, CommandTypes.Surrender]);
+            EffectPlayReason(p), [CommandTypes.PlayCard, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune, CommandTypes.Surrender]);
+        if (p.ViewedCardIds is not null)
+            own = own with { Candidates = own.Candidates!.Select(candidate => candidate.Action != CommandTypes.PlayCard ? candidate
+                : candidate with { Metadata = new Dictionary<string, object?>(candidate.Metadata!)
+                    { ["viewedCards"] = p.ViewedCardIds.Select(id => new ActionPromptChoiceDto(id, DeckChoiceLabel(state, id), "仅你可见" )).ToArray(),
+                      ["reason"] = EffectPlayReason(p) } }).ToArray() };
         // A decline is a zero-card choice, using the existing native card-choice composer.
         if (CanFinishWithoutEffectPlay(state))
         {
@@ -102,7 +128,7 @@ public sealed partial class CoreRuleEngine
             PowerByTrait = temporary.Aggregate((IReadOnlyDictionary<string, int>)traits, (a, x) => PrintedPowerCostRules.Combine(a, x.RemainingPowerByTrait)) };
         return EffectPlaySources(state, p.PlayerId).All(id => {
             var card = state.CardObjects[id];
-            return !CardBehaviorRegistry.GetAll().Where(b => b.CardNo == card.CardNo && b.PlaysSourceToBaseAsUnit).Any(b => {
+            return !CardBehaviorRegistry.GetAll().Where(b => b.CardNo == card.CardNo && EffectPlayAllowsBehavior(state, p.PlayerId, b)).Any(b => {
                 var behavior = EffectPlayBehavior(state, p.PlayerId, b);
                 PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : b.CardNo, null, available, 0,
                     new Dictionary<string, int>(), out var generic, out var typed);
@@ -119,7 +145,8 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         var actor = parent.ControllerId;
         var sourceZone = behavior.EffectPlaySourceZone;
-        IReadOnlyList<string> sources = sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray();
+        var viewed = sourceZone == "MAIN_DECK" ? zones[actor].MainDeck.Take(behavior.MainDeckLookCount).ToArray() : null;
+        IReadOnlyList<string> sources = viewed ?? (sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray());
         if (sourceZone == "BANISHED")
         {
             sources = sources.Take(1).ToArray();
@@ -139,12 +166,12 @@ public sealed partial class CoreRuleEngine
         }
         sources = sources.Where(id => cards.TryGetValue(id, out var card) && card.Tags.Contains(CardObjectTags.UnitCard)
             && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var unit) && unit.PlaysSourceToBaseAsUnit).ToArray();
-        if (sources.Count == 0 && !behavior.EffectPlayOptional && events.Count == 0)
+        if (sources.Count == 0 && events.Count == 0 && viewed is null)
             return ResolveStackItemEffect(state, parent with { EffectPlayCompleted = true });
         var pending = new PendingEffectPlayState($"EFFECT-PLAY:{state.Tick + 1}:{parent.StackItemId}", actor, parent,
             sourceZone, sources.ToDictionary(id => id, id => cards[id].ObjectGeneration, StringComparer.Ordinal),
             behavior.EffectPlayIgnoreBaseMana, behavior.EffectPlayIgnoreBasePower, behavior.EffectPlayManaReduction,
-            behavior.EffectPlayDestination, behavior.EffectPlayOptional);
+            behavior.EffectPlayDestination, behavior.EffectPlayOptional, viewed);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, Events = events,
             PendingEffectPlay = pending, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }
@@ -169,15 +196,32 @@ public sealed partial class CoreRuleEngine
                 return RejectWithCorePrompts(state, "再次打出的来源或位置已失效。", ErrorCodes.InvalidTarget);
             var result = ResolvePlayCard(state, intent, play);
             if (!result.Accepted) return result;
-            return FinishEffectPlay(result.State, intent, pending, result.Events);
+            return FinishEffectPlay(result.State, intent, pending, result.Events.Concat(RecastPlayedEvents(result.State, pending, play)).ToArray());
         }
         if (command is TapRuneCommand tap) return ResolveTapRune(state, intent, tap);
         if (command is RecycleRuneCommand recycle) return ResolveRecycleRune(state, intent, recycle);
+        if (command is ActivateAbilityCommand resource
+            && P4ActivatedAbilityCatalog.TryGetByAbilityId(resource.AbilityId, out var ability)
+            && ability.IsResourceSkill && ability.ReactionSpeed)
+            return ResolveActivateAbility(state, intent, resource);
         return RejectWithCorePrompts(state, "请先完成效果要求的再次打出。", ErrorCodes.PhaseNotAllowed);
     }
 
     private static ResolutionResult FinishEffectPlay(MatchState state, PlayerIntent intent, PendingEffectPlayState pending, IReadOnlyList<GameEvent> playEvents)
     {
+        if (pending.ViewedCardIds is { } viewed)
+        {
+            var zones = NormalizeZonesForSeats(state);
+            var remaining = viewed.Where(id => zones[pending.PlayerId].MainDeck.Contains(id)).ToArray();
+            var recycled = RandomizeForMainDeckBottom(remaining, state.Seed, state.RngCursor, pending.Parent.SourceObjectId);
+            zones[pending.PlayerId] = zones[pending.PlayerId] with { MainDeck = zones[pending.PlayerId].MainDeck
+                .Where(id => !remaining.Contains(id)).Concat(recycled).ToArray() };
+            state = state with { PlayerZones = zones, RngCursor = state.RngCursor + (remaining.Length > 1 ? 1 : 0) };
+            if (remaining.Length > 0)
+                playEvents = playEvents.Append(new GameEvent("CARDS_RECYCLED", $"回收其余 {remaining.Length} 张查看的牌",
+                    new Dictionary<string, object?> { ["playerId"] = pending.PlayerId,
+                        ["sourceObjectId"] = pending.Parent.SourceObjectId, ["count"] = remaining.Length })).ToArray();
+        }
         // Resume the parent immediately. Its remaining cleanup and observers still
         // run through the ordinary stack resolver, before responding to child triggers.
         var resumed = state with { Tick = state.Tick - 1, PendingEffectPlay = null,

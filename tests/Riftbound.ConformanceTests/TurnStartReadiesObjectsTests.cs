@@ -19,6 +19,7 @@ public sealed class TurnStartReadiesObjectsTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
+        result = await TurnSequenceTestDriver.Complete(result);
         Assert.Equal("P1", result.State.ActivePlayerId);
         Assert.Equal("P1", result.State.TurnPlayerId);
         Assert.Equal(MatchPhases.Main, result.State.Phase);

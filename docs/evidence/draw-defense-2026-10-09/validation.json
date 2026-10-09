@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-09",
+  "status": "SCOPED_BEHAVIOR_VERIFIED_FULL_RUN_TEST_DRIVER_FAILURE_CORRECTED_BY_TARGETED_RERUN",
+  "officialCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "officialCatalogSha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+  "clauses": [
+    "383.1.b",
+    "383.3.a",
+    "383.3.b",
+    "383.3.d",
+    "355",
+    "809.1.c",
+    "809.1.d"
+  ],
+  "focused": {
+    "total": 67,
+    "passed": 67,
+    "failed": 0,
+    "notExecuted": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/draw-defense-focused.trx",
+    "sha256": "1938a7decf0c2cbc977e9fe9db31c0c2146d339df08978ecb91e6012b59ba9a0"
+  },
+  "nativeRoundTrip": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "notExecuted": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/draw-defense-native-roundtrip.trx",
+    "sha256": "545de858a9aa35c5c9bc11710c15b98ea39a86f3549b020b74228410554a0f73"
+  },
+  "nativeProductionButtonPaths": 12,
+  "nativeBuild": "0 warnings, 0 errors",
+  "nativeVisualScope": "macOS isolated production ActionBar/controller/command mapping; not a full live paired-client match",
+  "rawNativeCommandsInclude": [
+    "promptId",
+    "snapshotTick"
+  ],
+  "testCountsOverlap": true,
+  "historicalCompatibilityAdded": false,
+  "runningServiceRestarted": false,
+  "packagesReplaced": false,
+  "windowsRuntimeVerified": false,
+  "supersedes": "Previous Diana pay-at-resolution timing; corrected to confirmation before response",
+  "remaining": "See DRAW_DEFENSE_AUDIT_2026-10-09.md and remaining-ward-audit.json",
+  "sourceSha256": {
+    "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs": "304ad762103f104de3e58718ba3c39c563b1123f0533abd30990e16c8072f2b6",
+    "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs": "424152317a14060227cf2cfe6084e27323839a4418db0848801a8072857b6409",
+    "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs": "c4bc44a2f1c51e8b9fb2e95e439ace8437231c4674948855d054e6c0386ee67f",
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "bff86ea1fb803d62a8af908519bcb8d66054d69724e79a22ca509c27a13e0f71",
+    "src/Riftbound.Engine/MatchSession.cs": "d38918d2e8d510fb5537b86ed4c9c724fc85f5ece55664765d496768c5e61609",
+    "src/Riftbound.Engine/MatchRecovery.cs": "e5dcfae4ac68c3a1579de953aac170e97aada2b5c66906b5d41bfa9d9006c668",
+    "src/Riftbound.Engine/ResourceActionWindow.cs": "f9c8c89d4a0630969eeaa08bc0ddd77b5517513b12e4cc888df968c0b6b376ff",
+    "tests/Riftbound.ConformanceTests/OfficialDrawDefenseTests.cs": "ae937573584f341fade5bc53ab57e046a88fd278d21af99742bb9c982d2950b5",
+    "tests/Riftbound.ConformanceTests/DrawDefenseContinuationTests.cs": "20b406186756900fbedf8f6a4edac96bd1a301e837b01b7682ae09c85be0e3df",
+    "tests/Riftbound.ConformanceTests/OfficialInsightSourceTests.cs": "882cb6ab40ead44d92e62540aa3159cdf7e164c00eed833fd8137aa87737d826",
+    "tests/Riftbound.ConformanceTests/InsightSourceContinuationTests.cs": "f99c835f9d0c5f7bd11099a05f81527cea46fd6ed5682749a0fa33db3f316101",
+    "clients/godot/scripts/interaction/PromptInteractionController.cs": "5c057eb48e8b5deb0af17e43482be726bbf6163b955a661ddebb3fac7c0e98f0",
+    "clients/godot/scripts/debug/InsightSourceInteractionProof.cs": "0e720a4d2261fd4fe3ec37f8f8bfae54d600e1af2ba2261f0ef0b5beb4aee5d0",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "f9b5f12a677712118c56296fa119c3ad2fc7aa1f23d2cdaccb2bc78e70ac8aa0",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-fervid-fan-defense-trigger-static.fixture.json": "6ce860380f4a9ba7c04e638ab6ebef1e28c339f4eb8b22cce5b0daed90516d35"
+  },
+  "replays": {
+    "fan-replay": {
+      "isMatch": true,
+      "replayedStateHash": "e3a2d4689529a5252e71aa6ba8a74099387332de9ae487f0616010192d5ac888",
+      "expectedStateHash": "e3a2d4689529a5252e71aa6ba8a74099387332de9ae487f0616010192d5ac888",
+      "errors": []
+    },
+    "blossom-2-replay": {
+      "isMatch": true,
+      "replayedStateHash": "52b1a199d607431d0695f25ded546db2aab1905ae730db703572d7e32fb12957",
+      "expectedStateHash": "52b1a199d607431d0695f25ded546db2aab1905ae730db703572d7e32fb12957",
+      "errors": []
+    },
+    "diana-0-replay": {
+      "isMatch": true,
+      "replayedStateHash": "a671116d7714b9878f02b9adc60da03c94d38143355452cff634e471fc3c124d",
+      "expectedStateHash": "a671116d7714b9878f02b9adc60da03c94d38143355452cff634e471fc3c124d",
+      "errors": []
+    },
+    "diana--1-replay": {
+      "isMatch": true,
+      "replayedStateHash": "cd73d794f3c0603d7c80e415cd3fa6496a907a6d48ed23fcdf8eb8e4ccef0c48",
+      "expectedStateHash": "cd73d794f3c0603d7c80e415cd3fa6496a907a6d48ed23fcdf8eb8e4ccef0c48",
+      "errors": []
+    },
+    "gem-replay": {
+      "isMatch": true,
+      "replayedStateHash": "ca8c2c8f1d41a6180901efdf2fb6e8ef8a808efcf43499df60117715da2fe500",
+      "expectedStateHash": "ca8c2c8f1d41a6180901efdf2fb6e8ef8a808efcf43499df60117715da2fe500",
+      "errors": []
+    },
+    "fan-decline-replay": {
+      "isMatch": true,
+      "replayedStateHash": "10b55e7a9383da421daa2aa7d1234a7021c2714480e5a9a15ddd4b8a893e78bd",
+      "expectedStateHash": "10b55e7a9383da421daa2aa7d1234a7021c2714480e5a9a15ddd4b8a893e78bd",
+      "errors": []
+    },
+    "blossom-1-replay": {
+      "isMatch": true,
+      "replayedStateHash": "29493fc824c89584563d4a772a72763d2a44ec95de582632e910f89f0538f367",
+      "expectedStateHash": "29493fc824c89584563d4a772a72763d2a44ec95de582632e910f89f0538f367",
+      "errors": []
+    },
+    "diana-1-replay": {
+      "isMatch": true,
+      "replayedStateHash": "63224859db3dd51e9c1f2f070eb273849ba0c85430acdf81ff115aa957338cb0",
+      "expectedStateHash": "63224859db3dd51e9c1f2f070eb273849ba0c85430acdf81ff115aa957338cb0",
+      "errors": []
+    },
+    "blossom-0-replay": {
+      "isMatch": true,
+      "replayedStateHash": "0eb492e3f97883817f0e0cd631f505ead03331ca4f9a0609cf2d8e9a5fd5a315",
+      "expectedStateHash": "0eb492e3f97883817f0e0cd631f505ead03331ca4f9a0609cf2d8e9a5fd5a315",
+      "errors": []
+    }
+  },
+  "evidenceSha256": {
+    "blossom-0-replay.json": "1796da74d7786964b7f85790b3710426a69fda15e34a13d724488aa38238bfbb",
+    "blossom-1-replay.json": "732b477d20e073fc1a9e35a63f8a4c475db01b0b9fdc5daf5593e403c8e0437b",
+    "blossom-2-replay.json": "db36641d84fd4193b516f9989331c0c22d4fbb1af4a321aee4a13529d78a260a",
+    "blossom-activation-prompt.json": "1a3c4cb8df7e912f5bab39b23ad8b04368381b5c3c580072d7b1eb795600adb8",
+    "blossom-order-prompt.json": "82b23bbdd7500382c5e5dbd08c1a1832cdb473480652e431cab4fb8b2426be35",
+    "blossom-prompt.json": "b131e04dc89b292f06517023c25539c0344bfd779b19e4dc002cf2f9fc191918",
+    "diana--1-replay.json": "621c61f84ad256239412bdcdf54a0fc1775408213ec6975d837ad0f9a89b0515",
+    "diana-0-replay.json": "2ad1e0fc3d3fd150aa1dce3fe10166760490b90b08df6bf062d4a9dacec546b7",
+    "diana-1-replay.json": "cb9a88d2644b0c96d9f214fc7862961029486783f83d050f5726fe6afa1fe36c",
+    "diana-payment-prompt.json": "d0da702f7eeb3ebcffa6948c9c09f543edbd0bc654354d3a7931c577157e8de6",
+    "diana-prompt.json": "1b8992eaee5a289e042f4e234228a9fcf7e980ccae58e741f17d839e8d577c27",
+    "diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fan-decline-replay.json": "9153502c17685f67b4bec2e77604d00642d8ed11e037b71a906f7a341247d051",
+    "fan-prompt.json": "61118f97e5536182a11518377e1f7788d2a3aaddb1472e9645af8a25debf620c",
+    "fan-replay.json": "31e6cf0ccf0a49bdf991937da9fd58ed0fe4ed15c92cc11f413c83ddaf3e0316",
+    "final-adjacent.log": "7bd4227a4c40795671059e830dc9643ce16623bd53084e0f9565d1ecf04d95b5",
+    "focused.log": "579cdf2be0dcf57ca573a3a2a11e4929073f1f96f751816179e032082e2dd145",
+    "full-final.log": "9873f363f43b88ca4123339b6420328cbae9adb5e7a7ee2df88a8f9cd6c9c467",
+    "full.log": "b7e125de6fec5669b98de8e2355646cab0b378f362272fcb0309a158737c1579",
+    "gem-prompt.json": "e3d479ca3d23813a916b2e48d4bd5c489c894230168bc8a60830308329284ce7",
+    "gem-replay.json": "ca275c0e6f62b718370e7e7659ed459cf115369761e84de4a2086178c1cbca4a",
+    "grand-plaza.log": "3a2ce02daa2f067162d5f68339222f0cbdb0bdff63bead21ed583ba447ad7ee5",
+    "lux.log": "98fae4d6058351ff3bf2ddce163fe09b4ab286b893178b2569e81012ed8dfa36",
+    "native-blossom-activation-command.json": "37d7073b960e5db5fc363a689c24123c62e1838e63568224222de7fe94aede4f",
+    "native-blossom-activation.png": "4296817aded7e2af607aa5a0b4ce79a02cc855bc7e8148fb0211a2981f3d3ac0",
+    "native-blossom-all-command.json": "e2ab8d48761fa7bded7b51b32552ce503b0fda43c757e533d072bdf8bd82ebf2",
+    "native-blossom-all.png": "01d7250bd02827c163f82b71c54cf3557cc7affe7c72dd1cbb2ca5ef7b010bab",
+    "native-blossom-keep-command.json": "90d3c74305b15c068435266bd57260adfd33a83489d092674724588d75c4c1b8",
+    "native-blossom-keep.png": "9fabb8c5d5bcf0906e76f65d120be56bce840cd227cb8fa1dd788aefa8fccc98",
+    "native-blossom-order-command.json": "822db556b2e9485aed1738d89bbed3c1c57821ffa317cf22e40de4a8b41e6c35",
+    "native-blossom-order.png": "dfb1e2320620c55ebd60f8b0b6ac7782c8eb166d12a1b0325e3bfab05fa62944",
+    "native-blossom-recycle-command.json": "f8d07ebc7ad8d87026a4d0e62db2740273df5204f8fb96c2700b85c1b63bc59c",
+    "native-blossom-recycle.png": "f01d5eda0259910498af3e3c808defbaecdce8514ad439059c253f36427a7dce",
+    "native-build.log": "861412eebc93ef83756e8e76fd9034f916fbb72bd489eadff2ef6cb561dbb9ea",
+    "native-diana-decline-command.json": "9849174b77f86f6ed4e4d5770588d7ca3980f59f2f5b167267d2a58dd4f6e258",
+    "native-diana-decline-options.png": "b6c58cbaa96e326805c933bb4d6679293bdf27f397590045bf45c2f6addf9077",
+    "native-diana-decline.png": "011c0768468fd5dc1d7189c81da4d853c80290cd25e1b76df138188b44ca701a",
+    "native-diana-keep-command.json": "953f138727676097f6ae02ac25eb15caf9c15ac2060b414e671e2f02c7b5ba06",
+    "native-diana-keep.png": "7b443337708a4aef834a9e8f947b0bb7a43bb37cb2c93d0fe72b1c49f5d39ef0",
+    "native-diana-pay-command.json": "d9b626f9b66d84e613a62e2efc51548db26478da1215a5fb9426530f9fc1c887",
+    "native-diana-pay-options.png": "b6c58cbaa96e326805c933bb4d6679293bdf27f397590045bf45c2f6addf9077",
+    "native-diana-pay.png": "8ae5ef1634b19b263dfd6e3e29955023a9526e681f90f8139d2f2d85fd73e86e",
+    "native-diana-recycle-command.json": "9a6fbc354e835414fe6cb70fcb48820f26a9cb883754bcaa9453e14990c62718",
+    "native-diana-recycle.png": "b6434b8bcfe41626f785bd9eb6b998018c3f03694c79efa795ff96802fe4e762",
+    "native-fan-command.json": "4291808d7e31c19499996df21ef32bd3af5595ec84fa769d0c51cc81efb84331",
+    "native-fan-decline-command.json": "d26997bd66f7573ba76ab9631ea42d084df3b3a32b9a24507ad335986e8ef32d",
+    "native-fan-decline.png": "4ba8fc359a13ac3554b03c66f9602634304590d77804b5399140547780b3e6cd",
+    "native-fan.png": "be5a86e2edf92d592a3745ced04a3f6c795fb304cf6522314ba3496360b540d8",
+    "native-field-visual.log": "ae73e1ab0a29362f95050b8be7bbe9aed80f5be59eaeb2a55b5c79a7ecbaf75f",
+    "native-field.log": "9eb72cddc4ef1cf66f4391a6695b8ce42786573a5c2e209bf2901a7123b57748",
+    "native-gem-command.json": "4542be9647ae82b8b0dcc09da8c5ad5d788aa1ebcd476dad745b7de6708da4a0",
+    "native-gem.png": "c614c7118da9fc312aa1fb4dcf7a37d269386288cbf852180cd606b22d442720",
+    "native-insight-visual.log": "68a16cbbe27f414ec705c89a055a75255d6bfd7ed6bd3b98f61616e5b4962811",
+    "native-roundtrip.log": "bed56bc51fec1f5c69860461a59844f435b72110cdd9790bb6de7bcd0e8abf03",
+    "remaining-ward-audit.json": "e2561b1900c5f9c49019f3bc55781907701c30f48ca0502adc81f8fc397a3fcb"
+  },
+  "branch": "codex/native-platform-20261004",
+  "backendFull": {
+    "total": 8937,
+    "passed": 8936,
+    "failed": 1,
+    "notExecuted": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/draw-defense-full-final.trx",
+    "sha256": "3d8363fd7ec2a00469c85191e92a6be1d6f586b1e2fba2249b7b4b96171f928c"
+  },
+  "finalAdjacent": {
+    "total": 45,
+    "passed": 45,
+    "failed": 0,
+    "notExecuted": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/draw-defense-final-adjacent.trx",
+    "sha256": "9916d69592f84b73a0822ade1ee3f571240b449b620ada209ace0800c08a4c81"
+  },
+  "diffCheckPassed": true,
+  "fullRunFailureDisposition": {
+    "test": "OfficialDeckMidgameResolvesGrandPlazaHeldSevenUnitsWinActionLogReplaysToFinalStateHash",
+    "reason": "Official deck includes Fervid Fan; old driver declined the new confirmation then skipped battle response and damage assignment before ending turn",
+    "change": "Only this test helper and an explicit EndTurn availability assertion; production code unchanged after full run",
+    "retested": "Full official-deck scenario, command/event replay, 44 adjacent cases; 45/45 passed",
+    "fullSuiteRepeatedAfterTestOnlyFix": false
+  },
+  "postFullNonProductionChanges": [
+    "FullGameEndToEndTests: complete defense confirmation before battle response; explicit EndTurn precondition",
+    "Fervid Fan entry-only fixture description: remove obsolete deferred claim"
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "date": "2026-10-09",
+  "status": "SCOPED_EFFECT_RECAST_RULES_VERIFIED_NOT_FINAL_PRODUCT",
+  "authority": "authority.json",
+  "tests": {
+    "adjacent": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/effect-recast-broad4.trx",
+      "sha256": "bd2701f6df4d09bdcde0101a19f6054f7fc979c3fe44c0de64f8bc293d771b0f",
+      "total": 117,
+      "passed": 117,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T12:45:51.8977230+08:00",
+        "queuing": "2026-10-09T12:45:51.8977230+08:00",
+        "start": "2026-10-09T12:45:48.7018900+08:00",
+        "finish": "2026-10-09T12:46:03.4619760+08:00"
+      }
+    },
+    "focused": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/effect-recast-final-focused.trx",
+      "sha256": "559ada5796427cca25027feb61734fa193abe1ffd537a550c548df4ebc008bbc",
+      "total": 251,
+      "passed": 251,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T12:51:08.3049420+08:00",
+        "queuing": "2026-10-09T12:51:08.3049420+08:00",
+        "start": "2026-10-09T12:51:02.8449220+08:00",
+        "finish": "2026-10-09T12:51:09.4909750+08:00"
+      }
+    },
+    "context": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/effect-recast-context-final.trx",
+      "sha256": "e03d839a24c4b0d5e79336caa57ce0b1d82a119c6029e13e92c400e5b6319e73",
+      "total": 20,
+      "passed": 20,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T12:55:29.9391090+08:00",
+        "queuing": "2026-10-09T12:55:29.9391090+08:00",
+        "start": "2026-10-09T12:55:24.6051770+08:00",
+        "finish": "2026-10-09T12:55:31.4785480+08:00"
+      }
+    },
+    "native": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/effect-recast-native-final.trx",
+      "sha256": "62d278751629137ab5014545b49a3020c9f417df27f95d8844fae4866452e42b",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T12:56:01.5207340+08:00",
+        "queuing": "2026-10-09T12:56:01.5207340+08:00",
+        "start": "2026-10-09T12:55:55.5214370+08:00",
+        "finish": "2026-10-09T12:56:01.5290990+08:00"
+      }
+    },
+    "full": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/effect-recast-full-verified.trx",
+      "sha256": "17adfee83df92a3df84344cdb5ebeace439c822e4304d4f7991f78f766eee53b",
+      "total": 8991,
+      "passed": 8991,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T12:56:10.8693760+08:00",
+        "queuing": "2026-10-09T12:56:10.8693760+08:00",
+        "start": "2026-10-09T12:56:09.7191610+08:00",
+        "finish": "2026-10-09T13:09:52.4958320+08:00"
+      }
+    }
+  },
+  "testCountsOverlap": true,
+  "newBehaviorCases": 17,
+  "newContinuationCases": 3,
+  "retiredSourceInspectionCases": 1,
+  "initialRuns": "First full run stopped after empty-eligible-source fixture failure; fixed CN 419.3.c no-op. Second full run stopped to strengthen suspended-parent validation. Final full run verifies resulting source.",
+  "native": {
+    "platform": "macOS",
+    "build": "0 warnings, 0 errors",
+    "controls": [
+      "PlayCardOverlay",
+      "ActionBar",
+      "PromptInteractionController",
+      "Main.CommandFromTemplate"
+    ],
+    "roundTrips": [
+      {
+        "branch": "pick-second",
+        "command": "docs/evidence/effect-recast-2026-10-09/native/pick-second/native-command.json",
+        "sha256": "94c5e7a97c40aada37a26f4de7560e72b72ed94944757b108376680d9a777136",
+        "nativeCommandUsed": true,
+        "finalStateHash": "07083faebf61e3c16fa746cb42dfdab86c344f0f7739a5c6a2c2342c393de748"
+      },
+      {
+        "branch": "pay-power",
+        "command": "docs/evidence/effect-recast-2026-10-09/native/pay-power/native-command.json",
+        "sha256": "0c82a6a9f3f56eb74e01bfab00bee91f646ba25a1d0b831a3b81b67b00f5a947",
+        "nativeCommandUsed": true,
+        "finalStateHash": "3fe5d60a33f93fc35421e120bc277d600087ff453ffc77dd2602d1c3fbbe685e"
+      },
+      {
+        "branch": "decline",
+        "command": "docs/evidence/effect-recast-2026-10-09/native/decline/native-command.json",
+        "sha256": "c87c63e6227d5f6af75d8ed1a3d9bc1d261d2848a992d05b245bf14122e7f421",
+        "nativeCommandUsed": true,
+        "finalStateHash": "a5e82ec5602d08ff9251d00b1eac2d15920fdefdc119301161645f4b83dcac87"
+      }
+    ],
+    "fullBoardVisualAcceptance": false
+  },
+  "sources": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "a094ed4c1360fbf6adfd1b89b91d3aad6b58b8a38e6ffa48f5db550730e6b9c1"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Recast.cs",
+      "sha256": "b30468716c3c5e893d5b93f1a83d5dc0d388667fc74f15a08b1421a47a658f1b"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+      "sha256": "4ac53c9cd525efa5474d5cf587820e5b008579b1180ddfa0659bea128890dbfe"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+      "sha256": "c703c5f56c5c4da890174ab3c4687b8703254a48cd94ab3b2f8e41c27bc6d291"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+      "sha256": "5a8c382c43a0c726fa5906dd704d427de8702fe0c8c9433522dcc962a562b0ca"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
+      "sha256": "bf9606b00198fe20f7dc0212781bd1334ed41d52273f42c2301ea37cdb4ccf98"
+    },
+    {
+      "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
+      "sha256": "053c3d91d59b9bdf711af0f1bff1b04da05139a1893573aac9d0ea63869f7388"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "f958ef029a13dc2e5a6e25f6fd49b66019a522e598a50cd77fb99f3427f44cd1"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "sha256": "2a1db9333aa9dca0ab7e5c9054e058b3fbe58ef735144f37b348d041f68632ef"
+    },
+    {
+      "path": "clients/godot/scripts/debug/RecastInteractionProof.cs",
+      "sha256": "c23f3cfe57b2a720aacf81f9de7e5534ca308e29838021b9e3202305626b321e"
+    },
+    {
+      "path": "clients/godot/scenes/debug/RecastInteractionProof.tscn",
+      "sha256": "06fd36c237ae22a886546b9705c2e8579c256502c6e51a15b96e1a78f2b792eb"
+    },
+    {
+      "path": "clients/godot/scripts/interaction/PromptInteractionController.cs",
+      "sha256": "6de0344e75cbec34781fd826230c9d3ad94e93f9ece05f5f1d3ca95082946e1d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs",
+      "sha256": "d3da58cb621566d2ab03a9901c8a2adbdc9728902d8012db741b22125e23b97b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecastNativeContinuationTests.cs",
+      "sha256": "fd897601033195191e472b3afcca584d2b90f4bd41b7198e6d5801b6f2659ded"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecastTestDriver.cs",
+      "sha256": "c9edd376ee19a7c64ad640987db6cec942353ff8354fec71fcfceb9df8f1ba89"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SourceUnitPlayedTriggerTests.cs",
+      "sha256": "e7d2f4a7ad4d806c81929084ef513edff998eb7cc0a76b42d0b9c3ba39c8d603"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/NaturalUnitConquestTriggerTests.cs",
+      "sha256": "19cc7960b670e2343fb20bdbcdc48841009a48de7ffba1dc40394d4f6c4716dc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConquestLifecycleRegressionTests.cs",
+      "sha256": "f2ef191fcfb69945a2641c955a5d392141351d19b531b8995ae66a1a0e7e0a4c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "sha256": "d1a6d0266e8b7d9af9eeb521e5e728bb833bc659930a1ff6a3afde7211b09793"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "sha256": "745a472071272305410b579fe7db1a50780b0b9cb857e03ce313b79733147777"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+      "sha256": "e78ca957efa87b5ac982f2dfeae5bd87adc83c693e420137fd9df72e1ed5ecb4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-fizz-graveyard-spell-static.fixture.json",
+      "sha256": "137739b2856f26930c7293a7556601d76c1bd8e4dafddd67bb785694e6fa34b4"
+    }
+  ],
+  "delivery": {
+    "runningServerRestarted": false,
+    "userMatchRewritten": false,
+    "packageProduced": false,
+    "windowsHardwareTested": false,
+    "committedOrPushed": false
+  },
+  "remainingFindings": "remaining-findings.json"
+}

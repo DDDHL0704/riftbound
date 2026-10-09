@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-08",
+  "status": "conquest-path-and-hand-choice-verified; broader-rules-incomplete",
+  "source": {
+    "baseCommit": "b0e65083",
+    "includesUncommittedChanges": true
+  },
+  "developmentPolicy": {
+    "intermediateVersionCompatibility": false,
+    "oldMatchMigrationAdded": false,
+    "normalReconnectAndRecoveryValidationRetained": true
+  },
+  "conformance": {
+    "counters": {
+      "total": "9410",
+      "executed": "9410",
+      "passed": "9410",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "evidence": {
+      "path": "var/qa/conquest-trigger-2026-10-08/conquest-final.trx",
+      "sha256": "b5e3766d0f44a8247e8f6f05f8f2df68f528980762e5732327fb76b3906179f9",
+      "bytes": 14653126
+    },
+    "scope": "Full suite before behavior-preserving extraction of conquest dispatcher into partial file."
+  },
+  "afterExtraction": {
+    "passed": 399,
+    "failed": 0,
+    "skipped": 0,
+    "filter": [
+      "ConquestLifecycleRegressionTests",
+      "CardCatalogBaselineTests"
+    ],
+    "evidence": {
+      "path": "var/qa/conquest-trigger-2026-10-08/cleanup-test.log",
+      "sha256": "be3409dd18aaf30336d72e82045678db301aa921559acb41d898dc535846106b",
+      "bytes": 1147
+    }
+  },
+  "native": {
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "handChoiceInteraction": "PASS",
+    "selection": "real backend prompt -> click H2 -> chosenObjectIds plus prompt/tick identity; hidden and stale choices rejected",
+    "evidence": [
+      {
+        "path": "var/qa/conquest-trigger-2026-10-08/native-build.log",
+        "sha256": "15829c5a6408ccb3772152f78e33433cf90e13d19acce4015977c30a3b54d90c",
+        "bytes": 340
+      },
+      {
+        "path": "var/qa/conquest-trigger-2026-10-08/native-hand-choice.log",
+        "sha256": "ef1a620a9e9553da47312e613676ea1487417ab865c589d3521b349e5c5bc5d7",
+        "bytes": 168
+      },
+      {
+        "path": "var/qa/conquest-trigger-2026-10-08/native-hand-choice-command.json",
+        "sha256": "6602be5b72443ce383dad6fb23d5f1bf23e62a7640f8692e3e5a3a271b228857",
+        "bytes": 229
+      }
+    ]
+  },
+  "packages": {
+    "macosExport": true,
+    "windowsExport": true,
+    "windowsRuntimeVerified": false,
+    "evidence": [
+      {
+        "path": "var/qa/conquest-trigger-2026-10-08/export-macos.log",
+        "sha256": "72869ffdf6af59764d02663af46f159f363338db217c7cce455de9b5ff9bb282",
+        "bytes": 90
+      },
+      {
+        "path": "var/qa/conquest-trigger-2026-10-08/export-windows.log",
+        "sha256": "2121786a577b7f94b6cd30fc73b2cbb5495c0cb18e23aae9f6839d596dde6e19",
+        "bytes": 92
+      }
+    ]
+  },
+  "freshMatch": {
+    "room": "RB-KAISA-FIX-576212",
+    "tick": 2,
+    "turn": 1,
+    "scores": [
+      0,
+      0
+    ],
+    "phase": "MULLIGAN",
+    "activePlayer": "试玩玩家一",
+    "decks": [
+      "kaisa-red-tempo",
+      "kaisa-red-control"
+    ],
+    "bothNativeClientsEntered": true,
+    "mulliganNotSubmitted": true,
+    "recoveryErrors": [],
+    "actionReplayErrors": [],
+    "stateSha256": "33462f4aeb606421461d39e079915f95b9a964f57affc1e5593040df863787bd",
+    "screenshots": [
+      {
+        "path": "var/qa/conquest-trigger-2026-10-08/new-player1.png",
+        "sha256": "f63fd87094f0762672c026c763dfc83aa7b426143ad68c45d4963baf580716ef",
+        "bytes": 755241
+      },
+      {
+        "path": "var/qa/conquest-trigger-2026-10-08/new-player2.png",
+        "sha256": "929664a71e8b27de4a78e4af17c3fcdf6d82c740f1c17f503b2ed26624b5533e",
+        "bytes": 952082
+      }
+    ]
+  },
+  "limitations": [
+    "Simultaneous trigger ordering and response windows are not complete.",
+    "Held triggers and end-of-turn delayed choices require lifecycle refactoring.",
+    "Some optional target/payment choices still use representative automatic branches.",
+    "Full newly published official catalog is not yet promoted to verified playable support.",
+    "Windows native runtime has not been exercised."
+  ],
+  "privateEvidence": "Full match frames, sessions, and screenshots remain in ignored var/qa; no session credentials are included here."
+}

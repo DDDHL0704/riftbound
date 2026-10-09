@@ -8,6 +8,10 @@ internal sealed class MatchTableLayout
     public VBoxContainer Root { get; }
     public Label TurnHeadline { get; }
     public Label TurnDetail { get; }
+    public Label PhaseTitle { get; }
+    public Label CommandFeedback { get; }
+    public Label PhaseBattlefield { get; }
+    public Label PassConsequence { get; }
     public Label Score { get; }
     public Label Round { get; }
     public CheckButton ReduceMotion { get; }
@@ -56,18 +60,15 @@ internal sealed class MatchTableLayout
         var main = Row(Root, 12); main.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         var playArea = Column(main, 6);
         playArea.SizeFlagsHorizontal = playArea.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-        var boardScroll = new ScrollContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-            SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        playArea.AddChild(boardScroll);
-        var table = Column(boardScroll, 8); table.SizeFlagsHorizontal = table.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-        var opponent = Panel(table, new Color("17273e"));
+        var opponent = Panel(playArea, new Color("17273e"));
         var enemyRow = Row(opponent, 12);
         OpponentSummary = Label(enemyRow, "对手", 13, MinimalTheme.TextSecondary);
         OpponentSummary.CustomMinimumSize = new Vector2(112, 0);
         OpponentPublicZones = CardStrip(enemyRow, 78);
         OpponentHand = Row(enemyRow);
 
-        var fields = Row(table, 10); fields.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        // Keep both battlefields in the visible layout, independent of base/hand scrolling.
+        var fields = Row(playArea, 10); fields.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         Battlefields = [BuildBattlefield(fields, 0), BuildBattlefield(fields, 1)];
 
         var self = Panel(playArea, new Color("17273e")); BaseZone = self;
@@ -91,8 +92,15 @@ internal sealed class MatchTableLayout
         Rail = Column(main, 8); Rail.CustomMinimumSize = new Vector2(280, 0);
         var status = Panel(Rail, new Color("1b304b"));
         var statusColumn = Column(status, 6);
+        PhaseTitle = Label(statusColumn, "行动阶段", 17, MinimalTheme.Selected);
+        PhaseBattlefield = Label(statusColumn, "", 13, MinimalTheme.TextSecondary, wrap: true);
+        PhaseBattlefield.Visible = false;
+        CommandFeedback = Label(statusColumn, "", 14, MinimalTheme.Selected, wrap: true);
+        CommandFeedback.Visible = false;
         TurnHeadline = Label(statusColumn, "等待对局", 22, MinimalTheme.Selectable);
         TurnDetail = Label(statusColumn, "同步最新局面后可继续行动。", 13, MinimalTheme.TextSecondary, wrap: true);
+        PassConsequence = Label(statusColumn, "", 12, MinimalTheme.Selected, wrap: true);
+        PassConsequence.Visible = false;
         var intelScroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         Rail.AddChild(intelScroll);
         Intel = Column(intelScroll, 8); Intel.SizeFlagsHorizontal = Intel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
@@ -140,15 +148,21 @@ internal sealed class MatchTableLayout
         name.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         var state = Label(titles, "尚未控制", 12, MinimalTheme.TextSecondary);
         var destination = new Button { Text = "选择此处", Visible = false, CustomMinimumSize = new Vector2(92, 36) }; header.AddChild(destination);
-        var enemy = CardStrip(content, 76);
+        var teams = Row(content, 8); teams.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        var enemySide = Row(teams, 3); enemySide.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        Label(enemySide, "对\n手", 12, MinimalTheme.Hostile);
+        var enemy = CardStrip(enemySide, 76);
         enemy.Alignment = BoxContainer.AlignmentMode.Center;
         enemy.GetParent<ScrollContainer>().SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        teams.AddChild(new VSeparator());
+        var ownSide = Row(teams, 3); ownSide.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        Label(ownSide, "我\n方", 12, MinimalTheme.Selectable);
+        var own = CardStrip(ownSide, 76);
+        own.Alignment = BoxContainer.AlignmentMode.Center;
+        own.GetParent<ScrollContainer>().SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         var divider = Row(content, 5);
         var standby = Row(divider, 5); standby.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         var force = Label(divider, "", 13, MinimalTheme.TextSecondary);
-        var own = CardStrip(content, 76);
-        own.Alignment = BoxContainer.AlignmentMode.Center;
-        own.GetParent<ScrollContainer>().SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         return new Battlefield(panel, name, state, site, enemy, own, standby, destination, force, backdrop);
     }
 

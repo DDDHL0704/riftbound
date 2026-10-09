@@ -1,0 +1,54 @@
+{
+  "status": "PARTIAL_ITERATION_VERIFIED_NOT_FULL_RULES_ACCEPTANCE",
+  "backend": {
+    "allRegressionCounters": {
+      "total": "8786",
+      "executed": "8786",
+      "passed": "8786",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "trxSha256": "fb652178fd867b9e83782b1b39c486d5aa84b88784e0b2f0848ab587e6edff13",
+    "log": "var/qa/rules-reaudit-2026-10-08/acceptance-regression.log",
+    "sourceFirstBehaviorTests": {
+      "passed": 235,
+      "failed": 0,
+      "log": "var/qa/rules-reaudit-2026-10-08/official-behavior-final.log"
+    },
+    "resourceAndRecoveryTests": {
+      "passed": 474,
+      "failed": 0,
+      "log": "var/qa/rules-reaudit-2026-10-08/recovery-resource-tests.log"
+    }
+  },
+  "nativeBuild": {
+    "succeeded": true,
+    "warnings": 0,
+    "errors": 0,
+    "log": "var/qa/rules-reaudit-2026-10-08/native-build-final.log"
+  },
+  "diffCheck": "passed",
+  "deployment": "Existing API and installed clients not replaced",
+  "nativeGameplay": "NOT_VALIDATED_THIS_ITERATION",
+  "windowsRuntime": "NOT_VALIDATED",
+  "sourceSha256": {
+    "src/Riftbound.Engine/CoreRuleEngine.Resources.cs": "6672ccc03bae18a9f1f42f4446c5a0acf3803974e06ad9deebe6875f8e386823",
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "5b49e25cf3f9d803a6b1636bd99614d5304007df2e7312640adce4b628b7eb1c",
+    "src/Riftbound.Engine/ResourceActionWindow.cs": "e045f8993d41d1425237f749ba664c1c33608885422378223d96a5d73687ca3f",
+    "src/Riftbound.Engine/MatchSession.cs": "b0c273dccf302088bf912e88ddc4ffc92dcd46506e5a177ed59cbf6df16f691e",
+    "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs": "fcdb208b9a42b46476486d7eb7e8a94002b22247de00a5d48d48b64e8be8cb64",
+    "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs": "85b42b8b0a8b61787f4afda6c4dafaa2e996cbba0f6c1ca7fe46ea97b49b1f9c",
+    "tests/Riftbound.ConformanceTests/JhinMovementResourceSkillTests.cs": "53ea4ca6a9317cf7e995cca2c905b3b6515e4f3a0fd85cc058eb1b70775ea48e"
+  }
+}

@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+; p31-p33 rules 318-324",
       "note": "从手牌支付费用和额外费用打出法术、选择合法目标、加入结算链、双方让过后结算；回响重复此法术效果；期限为本回合内的持续修正由回合结束特殊清理移除。"
+    },
+    {
+      "source": "data/official/upstream/2026-10-08/rules-manifest.json",
+      "locator": "CN core 820.2, 820.3, 321",
+      "note": "2026-10-08: ordered executions within one stack item, including repeated draw 1, with lethal cleanup only after the last execution."
     }
   ],
   "roomId": "p2-preflight-power-bind-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302064,
     "turnNumber": 50,
@@ -34,31 +42,63 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 4, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 4,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-POWER-BIND"],
-        "base": ["P1-BASE-UNIT-001"],
-        "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-POWER-BIND"
+        ],
+        "base": [
+          "P1-BASE-UNIT-001"
+        ],
+        "battlefields": [
+          "P1-BATTLEFIELD-UNIT-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
+        "battlefields": [
+          "P2-BATTLEFIELD-UNIT-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -90,8 +130,13 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-POWER-BIND",
         "cardNo": "SFD·151/221",
-        "targetObjectIds": ["P1-BASE-UNIT-001", "P1-BATTLEFIELD-UNIT-001"],
-        "optionalCosts": ["ECHO"]
+        "targetObjectIds": [
+          "P1-BASE-UNIT-001",
+          "P1-BATTLEFIELD-UNIT-001"
+        ],
+        "optionalCosts": [
+          "ECHO"
+        ]
       }
     },
     {
@@ -120,17 +165,23 @@
       "STACK_ITEM_RESOLVED",
       "POWER_MODIFIED_UNTIL_END_OF_TURN",
       "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "SPELL_EXECUTION_COMPLETED",
       "POWER_MODIFIED_UNTIL_END_OF_TURN",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "SPELL_EXECUTION_COMPLETED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
           "mana": 4,
-          "optionalCosts": ["ECHO"]
+          "optionalCosts": [
+            "ECHO"
+          ]
         }
       },
       {
@@ -139,14 +190,23 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-POWER-BIND",
           "cardNo": "SFD·151/221",
-          "targetObjectIds": ["P1-BASE-UNIT-001", "P1-BATTLEFIELD-UNIT-001"],
+          "targetObjectIds": [
+            "P1-BASE-UNIT-001",
+            "P1-BATTLEFIELD-UNIT-001"
+          ],
           "effectKind": "POWER_BIND_TWO_FRIENDLY_POWER_PLUS_1",
           "effectRepeatCount": 2
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
         "payload": {
@@ -168,6 +228,12 @@
         }
       },
       {
+        "kind": "SPELL_EXECUTION_COMPLETED",
+        "payload": {
+          "executionIndex": 0
+        }
+      },
+      {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
         "payload": {
           "sourceObjectId": "P1-SPELL-POWER-BIND",
@@ -186,11 +252,21 @@
           "appliedPowerDelta": 1,
           "resultingPower": 6
         }
+      },
+      {
+        "kind": "SPELL_EXECUTION_COMPLETED",
+        "payload": {
+          "executionIndex": 1
+        }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 50,
@@ -203,19 +279,35 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-BASE-UNIT-001"],
-          "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
-          "graveyard": ["P1-SPELL-POWER-BIND"]
+          "base": [
+            "P1-BASE-UNIT-001"
+          ],
+          "battlefields": [
+            "P1-BATTLEFIELD-UNIT-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-POWER-BIND"
+          ]
         },
         "P2": {
-          "battlefields": ["P2-BATTLEFIELD-UNIT-001"]
+          "battlefields": [
+            "P2-BATTLEFIELD-UNIT-001"
+          ]
         }
       },
       "cardObjects": {
@@ -241,8 +333,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

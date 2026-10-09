@@ -1,0 +1,48 @@
+{
+  "scope": "Enabled Chinese official catalog; text matches are candidates, not implementation verdicts",
+  "cards": [
+    {
+      "cardNo": "UNL-062/219",
+      "name": "戏精远见家",
+      "effect": "{{绝念>}} {{洞察2}}。（当我被摧毁时，查看主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）",
+      "status": "requires_individual_source_and_continuation_audit"
+    },
+    {
+      "cardNo": "UNL-063/219",
+      "name": "月蚀",
+      "effect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名单位在本回合内{{S}}-4。\n进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+      "status": "single_insight_audited_this_batch"
+    },
+    {
+      "cardNo": "UNL-079/219",
+      "name": "黛安娜",
+      "effect": "当法术对决在此处开始时，你可以选择支付{{1}}，以此进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。（洞察时，查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+      "status": "requires_individual_source_and_continuation_audit"
+    },
+    {
+      "cardNo": "UNL-079a/219",
+      "name": "黛安娜",
+      "effect": "当法术对决在此处开始时，你可以选择支付{{1}}，以此进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。",
+      "status": "requires_individual_source_and_continuation_audit"
+    },
+    {
+      "cardNo": "UNL-131/219",
+      "name": "遗弃",
+      "effect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n无效化一个法术。让其返回所属的手牌，而不是将其放入废牌堆。\n进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+      "status": "single_insight_audited_this_batch"
+    },
+    {
+      "cardNo": "UNL-136/219",
+      "name": "占卜花朵",
+      "effect": "此牌以休眠状态进场。\n摧毁此牌，支付{{1}}，{{横置}}：{{洞察2}}，然后抽一张牌。获得1经验。（执行洞察2，即查看你主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）",
+      "status": "requires_individual_source_and_continuation_audit"
+    },
+    {
+      "cardNo": "UNL-211/219",
+      "name": "失落书库",
+      "effect": "若此战场受你控制，当你打出一张法术牌时，如果消耗了不低于{{4}}法力，则进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+      "status": "code_confirmed_missing_private_optional_choice_and_public_event_card_ids",
+      "evidence": "CoreRuleEngine.TryResolveBattlefieldHighCostSpellInsightTrigger moves the top card immediately and emits recycledCardIds; not yet fixed or independently reproduced in live clients in this batch."
+    }
+  ]
+}

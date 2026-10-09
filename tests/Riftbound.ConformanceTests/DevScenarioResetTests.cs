@@ -55,7 +55,9 @@ public sealed class DevScenarioResetTests
         var move = await Submit("P1", "move", new MoveUnitCommand("P1-BASE-GUARD-001", "BASE", "BATTLEFIELD:P1-SHOWCASE-ARENA"));
         Assert.True(move.Accepted, move.ErrorMessage);
         Assert.True((await Submit("P1", "end1", new EndTurnCommand())).Accepted);
-        Assert.True((await Submit("P2", "end2", new EndTurnCommand())).Accepted);
+        var end = await Submit("P2", "end2", new EndTurnCommand());
+        Assert.True(end.Accepted);
+        await TurnSequenceTestDriver.Complete(end, (p, c) => Submit(p, Guid.NewGuid().ToString(), c));
         var tap = await Submit("P1", "tap", new TapRuneCommand("P1-SHOWCASE-RUNE-READY"));
         Assert.True(tap.Accepted, tap.ErrorMessage);
         var play = await Submit("P1", "play", new PlayCardCommand("P1-SPELL-HEXTECH-RAY", "OGN·009/298",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p4-play-spirit-fire-multiple-spellshield-tax",
-  "description": "Spirit Fire pays the Spellshield target tax for each enemy Spellshield target, including Spellshield 2.",
+  "description": "Spirit Fire pays the Spellshield target tax for each enemy Spellshield target, including Spellshield 2. CN 809 correction: Ward is additional generic power, not mana.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -26,7 +26,10 @@
     }
   ],
   "roomId": "p4-spirit-fire-multiple-spellshield-tax-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603304159,
     "turnNumber": 4159,
@@ -39,24 +42,44 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 6, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 3,
+        "power": 3
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
-        "hand": ["P1-SPELL-SPIRIT-FIRE"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
+        "hand": [
+          "P1-SPELL-SPIRIT-FIRE"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [
@@ -66,29 +89,41 @@
         ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P2-SPIRIT-FIRE-SPELLSHIELD-001": {
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT", "法盾"],
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "法盾"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       },
       "P2-SPIRIT-FIRE-SPELLSHIELD2-001": {
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT", "法盾2"],
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "法盾2"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       },
       "P2-SPIRIT-FIRE-KEEPER-001": {
         "damage": 0,
         "power": 5,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       }
@@ -102,7 +137,10 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-SPIRIT-FIRE",
         "cardNo": "OGN·256/298",
-        "targetObjectIds": ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"]
+        "targetObjectIds": [
+          "P2-SPIRIT-FIRE-SPELLSHIELD-001",
+          "P2-SPIRIT-FIRE-SPELLSHIELD2-001"
+        ]
       }
     },
     {
@@ -133,17 +171,22 @@
       "UNIT_DESTROYED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "tick": 1,
         "sequence": 2,
         "payload": {
           "playerId": "P1",
-          "mana": 6,
+          "mana": 3,
           "baseMana": 3,
-          "spellshieldTaxMana": 3,
-          "spellshieldTaxTargetObjectIds": ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"]
+          "spellshieldTaxPower": 3,
+          "spellshieldTaxTargetObjectIds": [
+            "P2-SPIRIT-FIRE-SPELLSHIELD-001",
+            "P2-SPIRIT-FIRE-SPELLSHIELD2-001"
+          ]
         }
       },
       {
@@ -154,13 +197,22 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-SPIRIT-FIRE",
           "cardNo": "OGN·256/298",
-          "targetObjectIds": ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
+          "targetObjectIds": [
+            "P2-SPIRIT-FIRE-SPELLSHIELD-001",
+            "P2-SPIRIT-FIRE-SPELLSHIELD2-001"
+          ],
           "effectKind": "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "UNIT_DESTROYED",
         "tick": 3,
@@ -185,8 +237,12 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 4159,
@@ -199,17 +255,30 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "graveyard": ["P1-SPELL-SPIRIT-FIRE"]
+          "graveyard": [
+            "P1-SPELL-SPIRIT-FIRE"
+          ]
         },
         "P2": {
-          "battlefields": ["P2-SPIRIT-FIRE-KEEPER-001"],
-          "graveyard": ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"]
+          "battlefields": [
+            "P2-SPIRIT-FIRE-KEEPER-001"
+          ],
+          "graveyard": [
+            "P2-SPIRIT-FIRE-SPELLSHIELD-001",
+            "P2-SPIRIT-FIRE-SPELLSHIELD2-001"
+          ]
         }
       },
       "stackItems": [],
@@ -217,15 +286,27 @@
         "P2-SPIRIT-FIRE-KEEPER-001": {
           "damage": 0,
           "power": 5,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

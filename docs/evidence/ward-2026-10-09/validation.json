@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-09",
+  "status": "SCOPED_RULE_FIXES_FULL_REGRESSION_AND_NATIVE_QUOTE_ROUNDTRIP_VERIFIED",
+  "authority": {
+    "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+    "localPath": "var/qa/ward-2026-10-09/cn-core.pdf",
+    "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "clauses": [
+      "809.1.c",
+      "809.1.c.1",
+      "809.1.d",
+      "809.2",
+      "206"
+    ],
+    "allOfficialDocumentsResyncedThisBatch": false
+  },
+  "tests": {
+    "adjacent": {
+      "trx": "tests/Riftbound.ConformanceTests/TestResults/ward-adjacent-final.trx",
+      "sha256": "b6e6f57533504286c08d5974db1f7013b6566639116ef969373b92dee3ecbda0",
+      "total": 558,
+      "passed": 558,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "focused": {
+      "trx": "tests/Riftbound.ConformanceTests/TestResults/ward-final-focused.trx",
+      "sha256": "6963744176227b49b1ebb7be957bcb4d4e37a1ec58973018c7e6e23bf9c29dd7",
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "finalFocused": {
+      "trx": "tests/Riftbound.ConformanceTests/TestResults/ward-final-verification.trx",
+      "sha256": "ad2b2e310c1d839dda8e68139f118abc3484ee737a7ba2d5267fa6478bec1c4f",
+      "total": 23,
+      "passed": 23,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "nativeRoundTrip": {
+      "trx": "tests/Riftbound.ConformanceTests/TestResults/ward-native-roundtrip.trx",
+      "sha256": "c92694bd98a9244c16be1b8868d6831271b80a7782d13a32c7406b901fe23021",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "full": {
+      "trx": "tests/Riftbound.ConformanceTests/TestResults/ward-full-final.trx",
+      "sha256": "8876ed0d9ba69e0e41d0fbd68e6eac338549f0fa8bef9dae588f1f371b8755f3",
+      "total": 8949,
+      "passed": 8949,
+      "failed": 0,
+      "notExecuted": 0
+    }
+  },
+  "testCountsOverlap": true,
+  "newWardBehaviorCases": 11,
+  "newNativeContinuationCases": 1,
+  "correctedLuxCostCases": 5,
+  "native": {
+    "platform": "macOS",
+    "build": "0 warnings, 0 errors",
+    "proofScope": "Isolated production PlayCardOverlay target/quote/confirmation and actual emitted command replay; not live paired-match UX acceptance",
+    "passMarker": "WARD_COST_INTERACTION_PASS",
+    "replayMatches": true,
+    "includesPromptAndTick": true
+  },
+  "historicalCompatibilityAdded": false,
+  "runningServiceReplaced": false,
+  "userMatchMutated": false,
+  "windowsRuntimeVerified": false,
+  "packagesPublished": false,
+  "priorWardFindingSuperseded": "docs/evidence/draw-defense-2026-10-09/remaining-ward-audit.json",
+  "remaining": "remaining-findings.json",
+  "sourceSha256": {
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "326d1eb79369856af18c7efe80bdfaf919363a16ddb71c5394956508102f7694",
+    "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs": "6cce05a128c507de9f15f364d702231f2ef77e4bedc8fa4f022be552deab2a0c",
+    "src/Riftbound.Engine/CoreRuleEngine.PlayCostPreview.cs": "e1fabf99520d8d751a6310095b48e7e18e29980aa8de99f2142c0d56efa7b71c",
+    "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs": "f3c9a2bc144853e662e698d1c0bc8a470c115ee31a627fb64c8ab5ba27a60ae1",
+    "src/Riftbound.Engine/MatchSession.cs": "66b71a9988de192c092517a7bebb4db63a603379373ce8da113a45e11dbd5796",
+    "src/Riftbound.Engine/SpellPlayedTriggerSpecRules.cs": "01f309d5db83f001c5eb18901c9b4235c811193b40b9cfdaa397f22e78ac4fc4",
+    "src/Riftbound.CardCatalog/RuleTextParsers.cs": "071eabeb443705fa0e1221dc46fda95de31011fc458d48424e3c8e9ef9d0ac08",
+    "src/Riftbound.Contracts/BehaviorSpecs.cs": "77e244bf7c07327d9c2f542963b3e9e22448f050087d6f319b73f65f0be2278a",
+    "tests/Riftbound.ConformanceTests/OfficialWardCostTests.cs": "f54790508661075873d2270b345d1ac537fd506df608343569f22e3ba847ff47",
+    "tests/Riftbound.ConformanceTests/WardNativeContinuationTests.cs": "4acc7e119df66ac03ecab63b56fbdbe45230fb0765dd95122fd85612e06ceb25",
+    "tests/Riftbound.ConformanceTests/LuxHighCostPaidCostTriggerTests.cs": "b3b3fe9c7e61871469ca681a4fb2fcfb85176d6c02ea0d6a3f77169c11310217",
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs": "d3daff6bfc585d580584aa85a5d009bb813a4c116740ce31d308d9542175c010",
+    "clients/godot/scripts/debug/WardCostInteractionProof.cs": "e766a5327b1d9fad8160eda099d8b846703884942ae033f05626c2e441c04cf0",
+    "clients/godot/scenes/debug/WardCostInteractionProof.tscn": "a6247a8175df0569270f52442ee69b4470ed4627568562b5ba36de23d93c2c79",
+    "tests/Riftbound.ConformanceTests/SourceObjectLevelPowerStaticAuraTests.cs": "1edf6c85cd544b7d703cf328b65b382f4a8b730491d8e483b3a156f02419fe23",
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs": "075c71cb297083ae5725189a6b090c97077c487ccc4756e2e0cc23244ff00807",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "1efe20eaf08484f660fc6178a4a4eebec1296f82813cfc448864ddbeb35c1b2e",
+    "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs": "6fea54bf99be39510ccb1a47be94b73c089cd82553b5da9335d24d415712c8bc",
+    "tests/Riftbound.ConformanceTests/ShadowActivatedAbilityTests.cs": "87a708ec5c65606ee83f9eef81fb5fa45366583657ed4275435f3b0051604654",
+    "tests/Riftbound.ConformanceTests/CrimsonRoseActivatedAbilityTests.cs": "c387eb7b717a1d411d4abc3135aa3a0140882e76a6e113e49272ec4c11fe28b6",
+    "tests/Riftbound.ConformanceTests/PlayCostPreviewTests.cs": "5cedba6741b65005d8d17ce7620265ecf4a95c6ce94e60de4366412bf7a01e55",
+    "tests/Riftbound.ConformanceTests/SameBattlefieldStaticSpellshieldAuraTests.cs": "5f69c42a27aec8c95953e429bf6a0f6e240d685c2b9ee342d4b8de9734e431ee",
+    "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs": "903ea109803cf38b6abd552b15da863589c134e63d4e6134c77ab3f5ad824a7e",
+    "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs": "335b8f11a95fdae1e48d80b4c43a7c6cf3a21bda58f23b1bea8e5692160773ed",
+    "tests/Riftbound.ConformanceTests/Fixtures/p4-play-incinerate-spellshield-tax.fixture.json": "09868600773c0c512fd7af381fd72379c885063818edabdde5a8573ee648b8c9",
+    "tests/Riftbound.ConformanceTests/Fixtures/p4-activate-xerath-damage-skill-friendly-spellshield-no-tax.fixture.json": "efc7807c4d6167ea1341ac553eca6143ea09dc1b313f0cb63afe1e727efd69ee",
+    "tests/Riftbound.ConformanceTests/Fixtures/p4-activate-xerath-damage-skill-spellshield-tax.fixture.json": "833c6059e91007af2bd2cede2c67d3c7aa0083e689b552342a10b18ffad40b42",
+    "tests/Riftbound.ConformanceTests/Fixtures/p4-play-secret-art-mercy-friendly-spellshield-no-tax.fixture.json": "f259912318be68450a433768bf684311a9a6dca4d7d8fb38f55fb870634013a2",
+    "tests/Riftbound.ConformanceTests/Fixtures/p4-play-spirit-fire-multiple-spellshield-tax.fixture.json": "e580eb6397160dcbb6453a848a733c90ac424b3377a4753572ed2c8c29a9aa16"
+  },
+  "evidenceSha256": {
+    "adjacent-final.log": "ce56be6364d2b2c8af915d69ce00399fe9387bb15e347ca2484ba32b7da05155",
+    "final-focused.log": "a3a8055d73a08bb3618f59c3b77999dbc9b1ae027a354c527cd6fc6541b75529",
+    "final-verification.log": "3bc5ab1274df6d9205f21876fa1ba6b46e6e26bc41e0f54462b3f912a09e8eed",
+    "full-final.log": "ccf9cbd983bdc6262b6c3acf345e6d1a0a6ace9ab90d018665e8975d653d0ae8",
+    "native-build.log": "403c2f4b917d24ca01fffc12310383038af01b6b09a5f928e35bb23da3e6e77c",
+    "native-candidate.json": "4f265018bbe1ed5397a080bd6f56a30879f358afb268094cd6d6029eddba98b3",
+    "native-command.json": "5e52e4fdcc984d57398495712ce8a092c80d9a0861cb89e6f2803cdb23bb9470",
+    "native-quote.json": "fe830337fde428a47bd11a18637de400b8038c2625874bb48e1cd52f19c628be",
+    "native-replay.json": "074d725acc065c29cf4060658d81fe5413eb4438af56b02e091d200d9c703ad7",
+    "native-roundtrip.log": "8961ae117ae1052f86fae2a8ed73fed8d1ea09b86f1cd304ad4acdc0d7be5bc7",
+    "native-visual.log": "29149cedb360914e3160d3a1fa2bf0baa7443b128603c3f50b31658ece85dc88",
+    "native-ward-cost.png": "3de105778039b1e83f7491763a86993c55ad97a21c9166fffdf9c78095c0a18d",
+    "remaining-findings.json": "4553ff9081d7eabf73ec9fcee417a4ae7d08d9154aff4cc8ef95cb1b2a297a0c"
+  },
+  "initialNewTestFailureCaveat": "Initial red fixture failures used an invalid base target for a battlefield-only spell; do not treat their count as old-rule defect reproductions.",
+  "initialFullRun": "Cancelled and superseded after an old mechanical-aura test was found paying Ward with mana. Only its test funding and exact expected charges were corrected; final full suite then reran all tests.",
+  "diffCheck": "passed",
+  "obsoleteWardManaFieldsInRuntimeSources": 0
+}

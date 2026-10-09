@@ -12,7 +12,7 @@ public sealed class BrushStaticAuraReplacementLifecycleTests
     private const string DefenderObjectId = "P2-BRUSH-LIFECYCLE-CAT-DEFENDER";
 
     [Fact]
-    public async Task BrushStaticAuraPersistsThroughScoreReplacementChoice()
+    public async Task BrushStaticAuraPersistsThroughScoreReplacementChoiceDoesNotTriggerOnDefensiveVictory()
     {
         var state = BuildState();
         var staticAuras = state.ContinuousEffects
@@ -47,40 +47,10 @@ public sealed class BrushStaticAuraReplacementLifecycleTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, AttackerObjectId, StringComparison.Ordinal));
-        Assert.Equal(1, attackerDamageEvent.Payload["basePower"]);
-        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
-        Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
-        Assert.Equal(2, attackerDamageEvent.Payload["damage"]);
-
-        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, DefenderObjectId, StringComparison.Ordinal));
-        Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
-        Assert.Equal(1, defenderDamageEvent.Payload["staticPowerBonus"]);
-        Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
-        Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
-
-        var replacementEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACEMENT_APPLIED", StringComparison.Ordinal));
-        Assert.Equal(BrushBattlefieldObjectId, replacementEvent.Payload["brushBattlefieldObjectId"]);
-        Assert.Equal(P6TokenFactoryCatalog.BrushBattlefieldTokenCardNo, replacementEvent.Payload["brushBattlefieldCardNo"]);
-        Assert.Equal(OriginalBattlefieldObjectId, replacementEvent.Payload["replacementBattlefieldObjectId"]);
-        Assert.Equal("SFD·214/221", replacementEvent.Payload["replacementBattlefieldCardNo"]);
-        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", replacementEvent.Payload["replacementReason"]);
-        Assert.Equal(OriginalBattlefieldObjectId, replacementEvent.Payload["effectiveBattlefieldObjectId"]);
-
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
-        Assert.Equal(OriginalBattlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal("SFD·214/221", triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(1, result.State.PlayerScores["P2"]);
-        Assert.Equal(0, result.State.RunePools["P2"].Power);
-        Assert.Contains(BrushBattlefieldObjectId, result.State.PlayerZones["P2"].Battlefields);
-        Assert.Contains(OriginalBattlefieldObjectId, result.State.PlayerZones["P2"].Battlefields);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "BATTLEFIELD_HELD");
+        Assert.DoesNotContain(result.State.TriggerQueue, t => t.HeldContext is not null);
+        Assert.DoesNotContain(result.State.StackItems, t => t.HeldContext is not null);
+        Assert.Empty(result.State.DelayedResourceGains);
     }
 
     private static MatchState BuildState()

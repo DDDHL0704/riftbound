@@ -1,0 +1,105 @@
+{
+  "policy": "Expectations re-audited against Chinese official text; illegal target, wrong player, resource, privacy and final-zone assertions retained or strengthened. No compatibility/migration layer.",
+  "fixtures": [
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-blood-rush-echo-overwhelm-attacking-power.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "523ed2dcf6b5f1f7ae3909174a44521929852479391577846c9268f9ed61d6d9"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-card-trick-draw-one-recycle-rest.fixture.json",
+      "reason": "Selection moved from PLAY_CARD to private CHOOSE_CARDS after responses; filter/reveal/add-to-hand semantics corrected",
+      "sha256": "e869410dd983de09ed8a7bc59e9267c41395ea3ab153fcda246c2c05dcd8ad27"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-center-stage-echo-draw-stack.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "2b414c9885e8f6a88ba09d6c20d826452d04dd726421db3be0a30d13c63c8d61"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dragon-tiger-draw-unit-recycle-rest.fixture.json",
+      "reason": "Selection moved from PLAY_CARD to private CHOOSE_CARDS after responses; filter/reveal/add-to-hand semantics corrected",
+      "sha256": "907a3b2129c249eb6f11d0a19055ea673c813dfcbefd41a10c1a709409c1a62f"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dragon-tiger-no-unit-selection-recycle-all.fixture.json",
+      "reason": "Selection moved from PLAY_CARD to private CHOOSE_CARDS after responses; filter/reveal/add-to-hand semantics corrected",
+      "sha256": "fe85ca6510b8945fcc34ea70e99e3999eb1d5e8d6a589ff4be6133ff412b3f60"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-existential-dread-echo-stun-then-return.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "a6efdbf747cdcb7f323523d52d35f054091944b40801edd1a0d183cf6656a131"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-freeze-echo-power-minus-2.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "b9eebb17945dd57d5f06d79a4680aecfce3f0c0057e69299c79c253867bd9fa7"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kerplunk-echo-stun-attacking-unit.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "920ca13cd2ce63a04e1824566f9b29527e41243bee5935e1b466a9d2e6176452"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-marching-orders-echo-mutual-power-damage.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "deb86a67e22b24e1fc97483442478a47a2f2cdb6d2a242d64a81cde34ba3aa6a"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-meditation-exhaust-friendly-extra-draw.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "dadea197af2ad60c0abf2f22cae938d1e088b5d64fe1cd9da064707d66192c64"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-perfect-finale-base-damage-mode.fixture.json",
+      "reason": "Fixture target explicitly typed as UNIT; equipment cannot satisfy base-unit targeting",
+      "sha256": "2ee3a3d63fd80ff239bf563cd90c67970b3a756e0de52e20f4fc640b932cc8ba"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-power-bind-echo-two-friendly-power-plus-1.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "160e900d1575fdc7dd633d19127bc017cd84921e7e90ce6daf82bb2fb707fc8b"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-predictive-offensive-draw-one-recycle-other.fixture.json",
+      "reason": "Selection moved from PLAY_CARD to private CHOOSE_CARDS after responses; filter/reveal/add-to-hand semantics corrected",
+      "sha256": "78786a86b06420ad1faa649cc31e025d84bd40f982eddc1a7c5225dcf1515f0f"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-roaring-reckoning-discard-echo-overwhelm-attacking-power.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "8d09d157fcb782cc0c0cac2844bf5408da0094985521afd0c72ee390fd80445b"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rocket-barrage-base-unit-mode-stack.fixture.json",
+      "reason": "Fixture target explicitly typed as UNIT; equipment cannot satisfy base-unit targeting",
+      "sha256": "6e1947b00e1a408e09a7e7e6c86e29eba998fcc25c685a4db3c50f6fa026b05e"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sandcraft-echo-create-two-sand-soldiers-base.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "fda4afe1cc10bb663d232bd3804ec7d5232cf9f235bc79affe2d2f4889aaf39c"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-savage-strength-echo-power-stack.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "dd8803f225ba080b54984ecf17aa5d826592f1f4f593c652d2dc9839712852d6"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-058-ornn-equipment-look-static.fixture.json",
+      "reason": "Selection moved from PLAY_CARD to private CHOOSE_CARDS after responses; filter/reveal/add-to-hand semantics corrected",
+      "sha256": "78ce68f1757f03600bb624df77fd3be307624bbf1b97942ee7e8c4fa6838e75c"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-058a-ornn-equipment-look-static.fixture.json",
+      "reason": "Selection moved from PLAY_CARD to private CHOOSE_CARDS after responses; filter/reveal/add-to-hand semantics corrected",
+      "sha256": "757035fd816411a61bf9aece6896d3c00448114f7a8655bb61132c175ed022f2"
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-the-curtain-rises-echo-ready-unit.fixture.json",
+      "reason": "Per-execution events; no cleanup between repeats, official final-state outcome retained",
+      "sha256": "f0b6ad8fef00f0f4fcb7fb00470f5c62865d90162860cc78293ea1a2f0dfa8e1"
+    }
+  ]
+}

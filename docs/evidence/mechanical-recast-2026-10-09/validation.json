@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-09",
+  "status": "SCOPED_MECHANICAL_RECAST_VERIFIED_NOT_FINAL_PRODUCT",
+  "authority": "authority.json",
+  "tests": {
+    "adjacent": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/mechanical-adjacent2.trx",
+      "sha256": "0863375199d9c3aa5ed6e10e91155e895c5e08672eb3a0ff94d1252ae9954faf",
+      "total": 45,
+      "passed": 45,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T13:20:18.2189360+08:00",
+        "queuing": "2026-10-09T13:20:18.2189360+08:00",
+        "start": "2026-10-09T13:20:12.9319650+08:00",
+        "finish": "2026-10-09T13:20:24.0104350+08:00"
+      }
+    },
+    "behavior": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/mechanical-behavior.trx",
+      "sha256": "db587143e10ebd15f7162a4bbae918ca99b02149f13c7b1ba7a4da3721b2062f",
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T13:22:11.5735090+08:00",
+        "queuing": "2026-10-09T13:22:11.5735090+08:00",
+        "start": "2026-10-09T13:22:05.7042990+08:00",
+        "finish": "2026-10-09T13:22:12.2389490+08:00"
+      }
+    },
+    "native": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/mechanical-native-final.trx",
+      "sha256": "0b7f173f3906ca8b238d57a80f2b2218a447e6cf9e25c5fab58e5583ab4b1411",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T13:24:42.2041360+08:00",
+        "queuing": "2026-10-09T13:24:42.2041360+08:00",
+        "start": "2026-10-09T13:24:36.8360930+08:00",
+        "finish": "2026-10-09T13:24:42.7905600+08:00"
+      }
+    },
+    "full": {
+      "path": "tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+      "sha256": "943cba169434b2ca6cd5a01ee853fa038672ca7825e0ec8db8c0281f0848ba57",
+      "total": 9004,
+      "passed": 9004,
+      "failed": 0,
+      "notExecuted": 0,
+      "times": {
+        "creation": "2026-10-09T13:22:34.5964740+08:00",
+        "queuing": "2026-10-09T13:22:34.5964740+08:00",
+        "start": "2026-10-09T13:22:33.1700960+08:00",
+        "finish": "2026-10-09T13:35:37.2938710+08:00"
+      }
+    }
+  },
+  "testCountsOverlap": true,
+  "native": {
+    "platform": "macOS",
+    "buildWarnings": 0,
+    "buildErrors": 0,
+    "roundTrips": [
+      {
+        "branch": "play-mech",
+        "nativeCommandsUsed": true,
+        "finalStateHash": "dc1fc212c3baa22fd6a5011febc3abc6ad2f055dd5f947803fcae75e40492ef4"
+      },
+      {
+        "branch": "decline",
+        "nativeCommandsUsed": true,
+        "finalStateHash": "7b0da31e4205fa36976f024122991bfb72fe028c48d98e00c84f7fc4a4ec3d04"
+      }
+    ],
+    "standaloneProductionControls": true,
+    "fullBoardVisualAcceptance": false
+  },
+  "sources": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "ebbd36ccadc8e434d3414c8ea7efa854f73ef91a8d412978ba2fb96f13f67379"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Recast.cs",
+      "sha256": "67bca5018fc881d39a6c786752d25646a84dec6ff599ea3a1f1b34552bbe6578"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.RecyclingChoice.cs",
+      "sha256": "fad06b594020022292257ee4af31bd8785478e01732f6ad2a8c0a16b84b4e5c8"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "639717cca40fd9274df9c4644d3cf9324f133cda9bf560c6225ab46402bb608c"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "sha256": "dff3883c55dc37f664c64f68fa70952275dee8c2288c65c38936b9079195131d"
+    },
+    {
+      "path": "clients/godot/scripts/interaction/PromptInteractionController.cs",
+      "sha256": "39d830724e8ec108194e4e252589d138235984a7986c20f7aef3a2a6cf76b24d"
+    },
+    {
+      "path": "clients/godot/scripts/debug/MechanicalRecastInteractionProof.cs",
+      "sha256": "6b3a5c44370fe202f2e562992dbd56f48aa7b91054bfd17dfcba18609dd429a0"
+    },
+    {
+      "path": "clients/godot/scenes/debug/MechanicalRecastInteractionProof.tscn",
+      "sha256": "af0a0bb5d6dd00e8bd21e10afe74bd078ab7f42f779d52f92b4584f455a5259c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialMechanicalRecastTests.cs",
+      "sha256": "9c0d854cf5ad50587b5576dc3512fbdb393ea5dd8373ef4edfdc175a15cd77c6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MechanicalRecastContinuationTests.cs",
+      "sha256": "34048d0a479e3fb62aad304899fcf3fbf8a00fb8531c286f865e028236ff1f85"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/NaturalUnitConquestTriggerTests.cs",
+      "sha256": "d0767f697df75e1f73a517b619f0f6110e53ee13cebed00d69599739c7d5e50d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "sha256": "9c90469d8fa30d4ec14d0ba312a8d2294813ba772377152a2c69fb16f0d1eb29"
+    }
+  ],
+  "delivery": {
+    "runningServerRestarted": false,
+    "userMatchRewritten": false,
+    "packageProduced": false,
+    "windowsHardwareTested": false,
+    "committedOrPushed": false
+  },
+  "remainingFindings": "remaining-findings.json"
+}

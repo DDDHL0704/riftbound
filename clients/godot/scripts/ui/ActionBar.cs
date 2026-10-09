@@ -70,7 +70,12 @@ public partial class ActionBar : Control
         _guidance.TooltipText = guidance;
         var primary = actions.FirstOrDefault(option => option.Enabled && IsPrimary(option.Name));
         _primaryActionName = primary?.Name;
-        _primaryAction.Text = primary?.Name == "PASS_PRIORITY" ? "让过响应" : primary?.Label ?? "等待行动";
+        _primaryAction.Text = primary?.Name switch {
+            "PASS_PRIORITY" => "不响应 · 让过",
+            "PASS_FOCUS" => "不出牌 · 让过",
+            _ => primary?.Label ?? "等待行动"
+        };
+        _primaryAction.TooltipText = guidance;
         _primaryAction.Disabled = primary is null || _composing;
         ClearChildren(_actionChoices);
         foreach (var action in actions.Where(option => option.Enabled && !option.IsSpecial && !IsPrimary(option.Name)).OrderBy(option => option.Name == "SURRENDER" ? 1 : 0))
@@ -119,6 +124,7 @@ public partial class ActionBar : Control
         _selectionSummary.GetParent<Control>().Visible = true;
         SelectionVisibilityChanged?.Invoke(true);
         _selectionSummary.Text = state.Summary;
+        _selectionSummary.TooltipText = state.Summary;
         _stepLabel.Text = string.IsNullOrWhiteSpace(stepLabel)
             ? state.CanSubmit ? "可以提交" : "等待可选行动"
             : stepRequired ? $"{stepLabel}（必选）" : $"{stepLabel}（可选）";

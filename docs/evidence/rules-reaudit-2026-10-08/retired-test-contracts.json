@@ -1,0 +1,62 @@
+[
+  {
+    "file": "tests/Riftbound.ConformanceTests/GoldTokenResourceSkillTests.cs",
+    "sha256": "d309467e8936a5fc47a1f263bc375695b093f0f6a2ce4f67bc7c11df2bdf8da7",
+    "lines": 1106,
+    "reason": "Superseded temporary-ledger/base-only/stack-only resource contract; valid authority, atomicity, color payment, exhaustion, idempotency and stale-prompt checks are covered by current official-resource behavioral tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/HoneyfruitResourceSkillTests.cs",
+    "sha256": "9f9f8554105e83e58544a10c83d35250d51b1d9228a3ad7038afe1bf08ee3253",
+    "lines": 866,
+    "reason": "Superseded temporary-ledger/base-only/stack-only resource contract; valid authority, atomicity, color payment, exhaustion, idempotency and stale-prompt checks are covered by current official-resource behavioral tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ResourceConversionEquipmentSkillTests.cs",
+    "sha256": "01114548db047c85689a446ee933d38eaaa8707b8a5322db5042e7a7025a4d42",
+    "lines": 911,
+    "reason": "Superseded temporary-ledger/base-only/stack-only resource contract; valid authority, atomicity, color payment, exhaustion, idempotency and stale-prompt checks are covered by current official-resource behavioral tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/OgnSigilResourceSkillTests.cs",
+    "sha256": "f7c381daa112a6cad821e92f1a8445493ffd8a4763040db1ad8d541f455c3055",
+    "lines": 836,
+    "reason": "Superseded temporary-ledger/base-only/stack-only resource contract; valid authority, atomicity, color payment, exhaustion, idempotency and stale-prompt checks are covered by current official-resource behavioral tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/RageSigilResourceSkillTests.cs",
+    "sha256": "95f55a6bed4c8de7731a97758b95c3e524bd5f75a8a2f0142948b41f4efe7d87",
+    "lines": 1048,
+    "reason": "Superseded temporary-ledger/base-only/stack-only resource contract; valid authority, atomicity, color payment, exhaustion, idempotency and stale-prompt checks are covered by current official-resource behavioral tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ReactionResourceSkillTests.cs",
+    "sha256": "344b84fc98dee12adaaa8e6568821dab608e9b736df7c389cffa42303f1ca7cb",
+    "lines": 704,
+    "reason": "Superseded temporary-ledger/base-only/stack-only resource contract; valid authority, atomicity, color payment, exhaustion, idempotency and stale-prompt checks are covered by current official-resource behavioral tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/SfdSigilResourceSkillTests.cs",
+    "sha256": "d2c22bdbf02ac154f20ec103a5b3ecfa736b3479a8bbd20d8bc54b3257b7a68b",
+    "lines": 694,
+    "reason": "Superseded temporary-ledger/base-only/stack-only resource contract; valid authority, atomicity, color payment, exhaustion, idempotency and stale-prompt checks are covered by current official-resource behavioral tests."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineCoverageAuditTests.cs",
+    "sha256": "0eae5bf6508a1fc00fc1b062adc3bfa1b065799e80b9196fa4b83dccaf3ef7d6",
+    "lines": 74724,
+    "reason": "Historical self-referential document, stage-name and method-name manifests (no rule execution); cannot establish official behavior. Replaced by source-first corpus plus explicit behavioral evidence."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/JhinMovementResourceSkillTests.cs",
+    "sha256": "85e167442e5ffe9a69e06ab7d01bdaac42f47dc3c604d822b0fa2d61dc65db74",
+    "lines": 899,
+    "reason": "Manual activation of a movement-triggered gain and payment-only power contradict CN 166 and 429.2. Replaced with immediate gain tests on actual battlefield objects, alternate art, return, roaming, rejected double activation and serialization."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MalzaharResourceSkillTests.cs",
+    "sha256": "bed5b1d3f869b0b46ccc3f0b074cd3bc0da80302b4a3814f6068d30ea9e0dd93",
+    "lines": 1075,
+    "reason": "Removed obsolete payment-only ledger and exclusion of self as destruction cost. Replaced by official destruction-cost tests, including self, friendly equipment, Sentinel death trigger, Zhonya replacement, strict authority, duplicate and stale commands, and token departure. Native two-client evidence is recorded separately."
+  }
+]

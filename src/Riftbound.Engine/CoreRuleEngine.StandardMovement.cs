@@ -100,7 +100,7 @@ public sealed partial class CoreRuleEngine
         {
             Tick = state.Tick + 1, PlayerZones = zones, CardObjects = cards,
             ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = cleanup.RunePools,
-            PassedPriorityPlayerIds = [], TriggerQueue = state.TriggerQueue.Concat(queued).ToArray(),
+            PassedPriorityPlayerIds = [], TriggerQueue = state.TriggerQueue.Concat(queued).Concat(cleanup.TriggerQueue).ToArray(),
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, cleanup.DestroyedUnitOwnerIds)
         };
         var advance = AdvancePendingBattlefieldTasksAfterStateChange(next, intent.PlayerId, state);

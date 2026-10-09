@@ -131,7 +131,7 @@
           "mana": 0,
           "power": 1,
           "abilityId": "PAY_RED_EXHAUST_DAMAGE_3",
-          "spellshieldTaxMana": 0,
+          "spellshieldTaxPower": 0,
           "spellshieldTaxTargetObjectIds": []
         }
       },

@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-08",
+  "status": "RESOURCE_ECHO_COST_SCOPE_VERIFIED_NOT_ALL_RULES",
+  "officialCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "officialClauses": [
+    "204.1.a",
+    "206",
+    "356.1.c",
+    "820.1.c.2",
+    "820.1.c.3",
+    "820.1.d",
+    "820.3"
+  ],
+  "backendFull": {
+    "passed": 8806,
+    "total": 8806,
+    "failed": 0,
+    "skipped": 0,
+    "trx": "tests/Riftbound.ConformanceTests/TestResults/echo-final.trx",
+    "sha256": "c81c2bc364a984a8656a237472dfadfe60e822e2716d345c1f5ab53660f751b6",
+    "log": "full-final.log"
+  },
+  "focused": {
+    "passed": 79,
+    "total": 79,
+    "log": "focused-final.log",
+    "includes": "Echo costs, Hold, printed power, Marai full-game replay; overlaps full suite"
+  },
+  "native": {
+    "build": "PASS, 0 warnings and 0 errors",
+    "interaction": "PASS, backend candidate/quote to two independent checkboxes and emitted intent",
+    "render": "PASS, macOS window at 520x850; screenshot visually inspected",
+    "commandRoundTrip": {
+      "accepted": true,
+      "hash": "a84cac005c65db451610d6ad2358be27e8f2c16345b8623ebf89971efb20f4c1"
+    },
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "08e22fea36abb558b93c9ace5ade405f7292f25d035147e04f8dde35998ed5e0",
+      "expectedStateHash": "08e22fea36abb558b93c9ace5ade405f7292f25d035147e04f8dde35998ed5e0",
+      "errors": []
+    },
+    "screenshot": "native-echo-cost.png",
+    "scope": "Native renderer and real engine command/replay; not a live two-client or Windows acceptance"
+  },
+  "testRevisionNote": "Final focused run also replaces its rune fixture identity with the official red rune OGN·007/298. Production code is unchanged from the final full run.",
+  "retiredExpectations": "replaced-test-contracts.json",
+  "remaining": [
+    "Independent targets and modes for each Echo execution",
+    "Deck-selection repeat continuation (explicitly rejected, no cost charged)",
+    "Non-resource Echo, skill Echo and additional granting sources",
+    "Full legacy effect-path and basic-rule/QA audit",
+    "Installed service/package update and two-client plus Windows acceptance"
+  ],
+  "servicesAndInstalledPackagesUpdated": false,
+  "evidenceSha256": {
+    "native-candidate.json": "a9e26392214267db372316301b86a63ed7024b503c0b4786e4242a1f4087a807",
+    "native-quote.json": "5280ffc8a10ad3b93bd5bdc3aa84676cede547b79cb93910308ec9be2a93930d",
+    "native-command.json": "1778c495fbc4bf58e7fa6f37582b66207dfed1e87fd116b7c56ecb080a111215",
+    "native-command-verified.json": "7530daff575b3b39d2aa7f37767fd3b0126614fba4fd540b164ce21f83f0f754",
+    "replay.json": "2ff904f1b7563fa7ee4d031931bd9e6abe45a75473cb27757c36ddd6770a408b",
+    "native-echo-cost.png": "deab1b957ff053b18b66a62946d8242982fff185a0cd98bd5448a787dfcde9df",
+    "native-build.log": "adadb06b54c080252b0838eef8715fdfb388ad8e95cb9270cde0c1535c37f8d5",
+    "native-interaction.log": "abb75fe6aba85c5fa4018d2b9eb7817cd338a458b2d9e69b1765842bade4506b",
+    "native-visual.log": "4294ba0ad0e2fbf2528e69fce7dce23f998eaf5366ed0a9c0c92eccac54c4d81",
+    "focused-final.log": "8f303c745f08df526fe6dd47a6e6ff68f4624fbd5fac52ae76702accba0897c9",
+    "full-final.log": "a5631c699f2aa2c027dd1a4203294f3bbedb161f65e36a2364b581c2bb8ca8ca"
+  },
+  "codeSha256": {
+    "src/Riftbound.Engine/EchoCostRules.cs": "a46bd39883db8d5b185f89edd6d89d37ef738b7642c4ee699f802bbf8ae384b9",
+    "src/Riftbound.Engine/PrintedPowerCostRules.cs": "a452f188518863bfebabe740a5867035ca8b345f55cb2668a707517c2e2dd102",
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "2439bcef290c98b62105403b2cf9c6bec22037f6170ec298a9cbc1e173d660a3",
+    "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs": "7e34663a459d86471ee59cbc728b1aa81f7172c5f0ee0f714a6285bafef73c15",
+    "src/Riftbound.Engine/CoreRuleEngine.Hold.cs": "8caf5162dfa0536e22c5eaab3df2b4544b5af8f207a5ab134a4a0a57402c18ff",
+    "src/Riftbound.Engine/MatchSession.cs": "612461480af1ad620c01954c6a76a07ffecc4690ca8ac815981b1460053449ae",
+    "src/Riftbound.Engine/CardBehaviorRegistry.cs": "a4b2c47f890ece301a076f0f861dc54fdc8b6beef95aedf0b622c4eb28712218",
+    "src/Riftbound.Engine/CardInteractionKeywordRules.cs": "eba5e2362ce37fb090a5fe721c007a57401715bc84a98552366e1395b0ae16a4",
+    "clients/godot/scripts/ui/PlayCardOverlay.Table.cs": "f0e14be10bd6a323212506ede207294676cd36cf08be771d21154858a0d5ff12",
+    "clients/godot/scripts/debug/EchoCostInteractionProof.cs": "960d2a2adb8fe5cf4e131b24da354dd8c6f6e135f5b46f6cbce3515cb36af540",
+    "tests/Riftbound.ConformanceTests/OfficialEchoCostTests.cs": "49244b4f951bc9c695283127bbd0d29a835bd48f94f3d020a127b784f3f4bec4",
+    "tests/Riftbound.ConformanceTests/OfficialHoldSequenceTests.cs": "afcb039d3feaf98505daac796ef02935e53714000033cdc232c789a04ae55bc0",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "63959f7668e39d1a2d3aa1af7cd938345bec9cb501e89c2d4227cafbd10d9cd1"
+  }
+}

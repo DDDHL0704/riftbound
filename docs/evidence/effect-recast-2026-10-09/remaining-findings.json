@@ -1,0 +1,40 @@
+[
+  {
+    "id": "other-effect-origin-unit-paths",
+    "status": "AUDIT_OPEN",
+    "finding": "Fizz and Kai Sa spell-replay families now use formal effect play. Other legacy unit/token creation and conquest replay paths remain separate; audit Rumble mechanical graveyard play, direct copy/token play triggers, chosen-card/target choices, payment and completion observers.",
+    "codeEvidence": [
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "symbol": "TryResolveUnitConquestRecycleFriendlyPlayGraveyardMechanicalUnitTrigger",
+        "observed": "Selects first recyclable controlled unit and first graveyard mechanical unit; zero-mana branch calls TryPlayGraveyardCardToBase directly."
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "symbol": "TryGetFirstPlayableGraveyardMechanicalUnit",
+        "observed": "Returns first qualifying graveyard entry without player choice."
+      }
+    ],
+    "nextVerification": "Recheck exact official Rumble text, choice and payment sequencing, unit-play timing, respondable trigger creation, and journal restoration before migrating to shared effect-play state."
+  },
+  {
+    "id": "all-leave-chain-variants",
+    "status": "AUDIT_OPEN",
+    "finding": "Normal completion, repeats, Insight suspension, counter-to-graveyard and counter-to-hand are verified. All self-exile, alternative counter destinations, spell-control changes and nested effect-play combinations are not yet certified."
+  },
+  {
+    "id": "legacy-lux-recovery",
+    "status": "OPEN",
+    "finding": "Old Lux-specific recovery validator and synthetic schema tests from prior audit remain to be retired with equivalent current-context security coverage."
+  },
+  {
+    "id": "simultaneous-triggers-and-ability-counters",
+    "status": "OPEN",
+    "finding": "Two same-player recast trigger choices and death-plus-conquest journal scenarios covered; global per-player simultaneous ordering, ability counters and cannot-be-countered replacements still require audit."
+  },
+  {
+    "id": "product-delivery",
+    "status": "NOT_EXECUTED",
+    "finding": "No running server restart, user-match rewrite, package, full two-client visual match or Windows hardware acceptance."
+  }
+]

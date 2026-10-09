@@ -1,0 +1,35 @@
+{
+  "requestId": "native-recast",
+  "promptId": "COUNTER-REPEAT:4:P1:PLAY_CARD,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER",
+  "snapshotTick": 4,
+  "isValid": true,
+  "canPay": true,
+  "message": "\u8D39\u7528\u5DF2\u6838\u5BF9\uFF0C\u53EF\u4EE5\u786E\u8BA4\u6253\u51FA\u3002",
+  "errorCode": null,
+  "cost": {
+    "printedMana": 3,
+    "printedPower": 2,
+    "mana": 0,
+    "genericPower": 0,
+    "powerByTrait": {
+      "blue": 2
+    },
+    "experience": 0,
+    "availableMana": 17,
+    "availableRainbowPower": 19,
+    "availablePowerByTrait": {},
+    "missingMana": 0,
+    "missingPower": 0,
+    "missingExperience": 0,
+    "remainingMana": 17,
+    "remainingRainbowPower": 17,
+    "remainingPowerByTrait": {},
+    "adjustments": [
+      {
+        "label": "\u6548\u679C\u5FFD\u7565\u57FA\u7840\u6CD5\u529B",
+        "mana": -3,
+        "power": 0
+      }
+    ]
+  }
+}

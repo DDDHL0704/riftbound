@@ -1,0 +1,391 @@
+{
+  "action": "PLAY_CARD",
+  "label": "\u6253\u51FA\u5361\u724C",
+  "enabled": true,
+  "reason": "\u300A\u83F2\u5179\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u5FFD\u7565\u57FA\u7840\u6CD5\u529B\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD\u4E0E\u989D\u5916\u8D39\u7528",
+  "sources": [
+    {
+      "id": "C",
+      "label": "UNL-200/219",
+      "reason": "implemented payable PLAY_CARD source",
+      "objectIds": [
+        "C"
+      ]
+    },
+    {
+      "id": "OTHER",
+      "label": "OGN\u00B7048/298",
+      "reason": "implemented payable PLAY_CARD source",
+      "objectIds": [
+        "OTHER"
+      ]
+    }
+  ],
+  "targets": [
+    {
+      "id": "F",
+      "label": "SFD\u00B7140/221",
+      "reason": "\u4EFB\u610F\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807",
+      "objectIds": [
+        "F"
+      ]
+    }
+  ],
+  "optionalCosts": [
+    {
+      "id": "ECHO",
+      "label": "\u6388\u4E88\u56DE\u54CD\uFF1A3 \u6CD5\u529B \u002B 2 \u84DD\u8272/\u9EC4\u8272\u7B26\u80FD",
+      "reason": "\u6388\u4E88\u56DE\u54CD\uFF1B\u652F\u4ED8\u5B8C\u6574\u57FA\u7840\u8D39\u7528",
+      "objectIds": [
+        "ECHO"
+      ]
+    },
+    {
+      "id": "PRINTED_POWER:blue:2",
+      "label": "\u5361\u9762\u8D39\u7528\uFF1A2 \u84DD\u8272\u7B26\u80FD",
+      "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206",
+      "objectIds": [
+        "PRINTED_POWER:blue:2",
+        "2"
+      ]
+    },
+    {
+      "id": "PRINTED_POWER:blue:1,yellow:1",
+      "label": "\u5361\u9762\u8D39\u7528\uFF1A1 \u84DD\u8272\u7B26\u80FD \u002B 1 \u9EC4\u8272\u7B26\u80FD",
+      "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206",
+      "objectIds": [
+        "PRINTED_POWER:blue:1,yellow:1",
+        "1"
+      ]
+    },
+    {
+      "id": "PRINTED_POWER:yellow:2",
+      "label": "\u5361\u9762\u8D39\u7528\uFF1A2 \u9EC4\u8272\u7B26\u80FD",
+      "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206",
+      "objectIds": [
+        "PRINTED_POWER:yellow:2",
+        "2"
+      ]
+    }
+  ],
+  "metadata": {
+    "sourcePolicy": "implemented-card-behavior-only",
+    "targetPolicy": "source-specific-server-filtered-targets",
+    "modePolicy": "source-specific-server-filtered-modes",
+    "optionalCostPolicy": "source-specific-server-filtered-costs",
+    "destinationPolicy": "source-specific-server-filtered-destinations",
+    "sourceRequirements": [
+      {
+        "sourceObjectId": "C",
+        "cardNo": "UNL-200/219",
+        "displayName": "\u955C\u82B1\u6C34\u6708",
+        "sourceZone": "GRAVEYARD",
+        "mode": null,
+        "modeLabel": "\u9ED8\u8BA4",
+        "manaCost": 3,
+        "minimumManaCost": 0,
+        "minimumPrintedPowerShortfall": 0,
+        "printedPowerCost": 2,
+        "effectPlayReason": "\u300A\u83F2\u5179\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u5FFD\u7565\u57FA\u7840\u6CD5\u529B\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD\u4E0E\u989D\u5916\u8D39\u7528",
+        "printedPowerTraits": [
+          "blue",
+          "yellow"
+        ],
+        "printedPowerChoices": [
+          {
+            "id": "PRINTED_POWER:blue:2",
+            "label": "\u5361\u9762\u8D39\u7528\uFF1A2 \u84DD\u8272\u7B26\u80FD",
+            "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+          },
+          {
+            "id": "PRINTED_POWER:blue:1,yellow:1",
+            "label": "\u5361\u9762\u8D39\u7528\uFF1A1 \u84DD\u8272\u7B26\u80FD \u002B 1 \u9EC4\u8272\u7B26\u80FD",
+            "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+          },
+          {
+            "id": "PRINTED_POWER:yellow:2",
+            "label": "\u5361\u9762\u8D39\u7528\uFF1A2 \u9EC4\u8272\u7B26\u80FD",
+            "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+          }
+        ],
+        "availableRainbowPower": 19,
+        "battlefieldEquipmentCostReductionMana": 0,
+        "dragonUnitCostReductionMana": 0,
+        "nextSpellCostReductionMana": 0,
+        "battlefieldSpellCostReductionMana": 0,
+        "battlefieldHeldUnitCostIncreaseMana": 0,
+        "minTargetCount": 1,
+        "maxTargetCount": 1,
+        "targetCountLabel": "1",
+        "targetScope": "ANY_UNIT",
+        "targetScopeLabel": "\u4EFB\u610F\u5355\u4F4D",
+        "allowsRepeatedTargets": false,
+        "supportsSeparateExecutions": true,
+        "targetChoicesByIndex": {
+          "0": [
+            {
+              "id": "F",
+              "label": "SFD\u00B7140/221",
+              "reason": "\u4EFB\u610F\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+            }
+          ]
+        },
+        "legalTargetSelections": [],
+        "destinationChoices": null,
+        "optionalCostChoices": [
+          {
+            "id": "ECHO",
+            "label": "\u6388\u4E88\u56DE\u54CD\uFF1A3 \u6CD5\u529B \u002B 2 \u84DD\u8272/\u9EC4\u8272\u7B26\u80FD",
+            "reason": "\u6388\u4E88\u56DE\u54CD\uFF1B\u652F\u4ED8\u5B8C\u6574\u57FA\u7840\u8D39\u7528"
+          },
+          {
+            "id": "PRINTED_POWER:blue:2",
+            "label": "\u5361\u9762\u8D39\u7528\uFF1A2 \u84DD\u8272\u7B26\u80FD",
+            "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+          },
+          {
+            "id": "PRINTED_POWER:blue:1,yellow:1",
+            "label": "\u5361\u9762\u8D39\u7528\uFF1A1 \u84DD\u8272\u7B26\u80FD \u002B 1 \u9EC4\u8272\u7B26\u80FD",
+            "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+          },
+          {
+            "id": "PRINTED_POWER:yellow:2",
+            "label": "\u5361\u9762\u8D39\u7528\uFF1A2 \u9EC4\u8272\u7B26\u80FD",
+            "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+          }
+        ],
+        "paymentResourceChoices": [],
+        "paymentResourcePowerByChoice": {},
+        "availableMana": 17,
+        "availableManaWithPaymentResources": 17,
+        "paymentResourceMana": 0,
+        "availablePower": 19,
+        "availablePowerByTrait": {},
+        "availablePowerWithPaymentResources": 19,
+        "availablePowerByTraitWithPaymentResources": {},
+        "hasteReadyPowerCost": 0,
+        "hasteReadyPowerTrait": "",
+        "composable": true,
+        "unsupportedReason": ""
+      },
+      {
+        "sourceObjectId": "OTHER",
+        "cardNo": "OGN\u00B7048/298",
+        "displayName": "\u51A5\u60F3",
+        "sourceZone": "GRAVEYARD",
+        "mode": null,
+        "modeLabel": "\u9ED8\u8BA4",
+        "manaCost": 2,
+        "minimumManaCost": 0,
+        "minimumPrintedPowerShortfall": 0,
+        "printedPowerCost": 0,
+        "effectPlayReason": "\u300A\u83F2\u5179\u300B\u8981\u6C42\u518D\u6B21\u6253\u51FA \u00B7 \u5FFD\u7565\u57FA\u7840\u6CD5\u529B\uFF0C\u4ECD\u9700\u652F\u4ED8\u7B26\u80FD\u4E0E\u989D\u5916\u8D39\u7528",
+        "printedPowerTraits": [
+          "green"
+        ],
+        "printedPowerChoices": [],
+        "availableRainbowPower": 19,
+        "battlefieldEquipmentCostReductionMana": 0,
+        "dragonUnitCostReductionMana": 0,
+        "nextSpellCostReductionMana": 0,
+        "battlefieldSpellCostReductionMana": 0,
+        "battlefieldHeldUnitCostIncreaseMana": 0,
+        "minTargetCount": 0,
+        "maxTargetCount": 0,
+        "targetCountLabel": "0",
+        "targetScope": "BATTLEFIELD_UNIT",
+        "targetScopeLabel": "\u6218\u573A\u5355\u4F4D",
+        "allowsRepeatedTargets": false,
+        "supportsSeparateExecutions": true,
+        "targetChoicesByIndex": {},
+        "legalTargetSelections": [],
+        "destinationChoices": null,
+        "optionalCostChoices": [
+          {
+            "id": "ECHO",
+            "label": "\u6388\u4E88\u56DE\u54CD\uFF1A2 \u6CD5\u529B",
+            "reason": "\u6388\u4E88\u56DE\u54CD\uFF1B\u652F\u4ED8\u5B8C\u6574\u57FA\u7840\u8D39\u7528"
+          }
+        ],
+        "paymentResourceChoices": [],
+        "paymentResourcePowerByChoice": {},
+        "availableMana": 17,
+        "availableManaWithPaymentResources": 17,
+        "paymentResourceMana": 0,
+        "availablePower": 19,
+        "availablePowerByTrait": {},
+        "availablePowerWithPaymentResources": 19,
+        "availablePowerByTraitWithPaymentResources": {},
+        "hasteReadyPowerCost": 0,
+        "hasteReadyPowerTrait": "",
+        "composable": true,
+        "unsupportedReason": ""
+      }
+    ]
+  },
+  "selectionSteps": [
+    {
+      "role": "source",
+      "label": "\u6765\u6E90",
+      "required": true,
+      "choices": [
+        {
+          "id": "C",
+          "label": "UNL-200/219",
+          "objectIds": [
+            "C"
+          ],
+          "reason": "implemented payable PLAY_CARD source"
+        },
+        {
+          "id": "OTHER",
+          "label": "OGN\u00B7048/298",
+          "objectIds": [
+            "OTHER"
+          ],
+          "reason": "implemented payable PLAY_CARD source"
+        }
+      ]
+    },
+    {
+      "role": "target",
+      "label": "\u76EE\u6807",
+      "required": false,
+      "choices": [
+        {
+          "id": "F",
+          "label": "SFD\u00B7140/221",
+          "objectIds": [
+            "F"
+          ],
+          "reason": "\u4EFB\u610F\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+        }
+      ]
+    },
+    {
+      "role": "optionalCost",
+      "label": "\u8D39\u7528",
+      "required": false,
+      "choices": [
+        {
+          "id": "ECHO",
+          "label": "\u6388\u4E88\u56DE\u54CD\uFF1A3 \u6CD5\u529B \u002B 2 \u84DD\u8272/\u9EC4\u8272\u7B26\u80FD",
+          "objectIds": [
+            "ECHO"
+          ],
+          "reason": "\u6388\u4E88\u56DE\u54CD\uFF1B\u652F\u4ED8\u5B8C\u6574\u57FA\u7840\u8D39\u7528"
+        },
+        {
+          "id": "PRINTED_POWER:blue:2",
+          "label": "\u5361\u9762\u8D39\u7528\uFF1A2 \u84DD\u8272\u7B26\u80FD",
+          "objectIds": [
+            "PRINTED_POWER:blue:2",
+            "2"
+          ],
+          "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+        },
+        {
+          "id": "PRINTED_POWER:blue:1,yellow:1",
+          "label": "\u5361\u9762\u8D39\u7528\uFF1A1 \u84DD\u8272\u7B26\u80FD \u002B 1 \u9EC4\u8272\u7B26\u80FD",
+          "objectIds": [
+            "PRINTED_POWER:blue:1,yellow:1",
+            "1"
+          ],
+          "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+        },
+        {
+          "id": "PRINTED_POWER:yellow:2",
+          "label": "\u5361\u9762\u8D39\u7528\uFF1A2 \u9EC4\u8272\u7B26\u80FD",
+          "objectIds": [
+            "PRINTED_POWER:yellow:2",
+            "2"
+          ],
+          "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+        }
+      ]
+    }
+  ],
+  "commandTemplate": {
+    "cmdType": "PLAY_CARD",
+    "bindings": [
+      {
+        "field": "sourceObjectId",
+        "source": "selectedSource",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u6765\u6E90"
+      },
+      {
+        "field": "cardNo",
+        "source": "requirementMetadata",
+        "required": true,
+        "asArray": false,
+        "omitEmpty": true,
+        "metadataKeys": [
+          "cardNo",
+          "equipmentCardNo"
+        ],
+        "label": "\u670D\u52A1\u7AEF"
+      },
+      {
+        "field": "targetObjectIds",
+        "source": "selectedTargets",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": false,
+        "label": "\u76EE\u6807"
+      },
+      {
+        "field": "mode",
+        "source": "selectedMode",
+        "required": false,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u6A21\u5F0F"
+      },
+      {
+        "field": "destination",
+        "source": "selectedDestination",
+        "required": false,
+        "asArray": false,
+        "omitEmpty": true,
+        "label": "\u4F4D\u7F6E"
+      },
+      {
+        "field": "optionalCosts",
+        "source": "selectedOptionalCosts",
+        "required": false,
+        "asArray": true,
+        "omitEmpty": true,
+        "label": "\u8D39\u7528"
+      }
+    ]
+  },
+  "composer": {
+    "supported": true,
+    "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+    "selectionRoles": [
+      "optionalCost",
+      "source",
+      "target"
+    ],
+    "requiredSelectionRoles": [
+      "source"
+    ],
+    "commandFields": [
+      "cardNo",
+      "destination",
+      "mode",
+      "optionalCosts",
+      "sourceObjectId",
+      "targetObjectIds"
+    ]
+  },
+  "presentation": {
+    "category": "play",
+    "intent": "play-card",
+    "uiHint": "card-action",
+    "priority": 100
+  }
+}

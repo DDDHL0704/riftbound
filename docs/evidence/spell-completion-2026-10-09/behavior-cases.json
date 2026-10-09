@@ -1,0 +1,106 @@
+{
+  "trx": "tests/Riftbound.ConformanceTests/TestResults/spell-completion-broad3.trx",
+  "sha256": "b83e1fb58a3e89fd3eeb42291fac5a24f337aff6785b2475b28e615368f8392d",
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.ReducedHighPrintedSpellDoesNotQualifyForPaidManaTrigger",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.WasteHallLetsCasterChooseAfterSpellCompletes(accept: True, controller: \"P1\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.ParsedSourceFamiliesShareCompletionAndResponse(sourceCard: \"OGN·103/298\", delta: 1)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.PaidManaExileIsOptionalRespondableAndOwned(accept: True)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.WasteHallLetsCasterChooseAfterSpellCompletes(accept: False, controller: \"P2\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.DreamTreeErratumTriggersAtTargetSelectionRegardlessOfBattlefieldController(controller: null)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.ParsedSourceFamiliesShareCompletionAndResponse(sourceCard: \"UNL-149a/219\", delta: 2)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.PaidManaExileIsOptionalRespondableAndOwned(accept: False)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.CounteredSpellNeverCreatesPlayTriggers",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.WasteHallLetsCasterChooseAfterSpellCompletes(accept: False, controller: \"P1\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.WasteHallLetsCasterChooseAfterSpellCompletes(accept: True, controller: \"P2\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.SpellPlayTriggersWaitForCompletionAndRespondIndependently",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.LinkedExileUsesObjectGenerationsAndReturnsEachCardToItsOwner(staleCard: False, newSource: True)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.PrivateSpellChoiceMustFinishBeforePlayTriggersAreQueued",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.ForgedCompletionContextAndReceiptAreRejectedOnRecovery",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.DreamTreeErratumTriggersAtTargetSelectionRegardlessOfBattlefieldController(controller: \"P2\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.LinkedExileUsesObjectGenerationsAndReturnsEachCardToItsOwner(staleCard: False, newSource: False)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.SelfExilingSpellDoesNotOfferAnotherExile",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.WasteHallLetsCasterChooseAfterSpellCompletes(accept: False, controller: null)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.WasteHallLetsCasterChooseAfterSpellCompletes(accept: True, controller: null)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.EchoPaysOnceAndProducesOneCompletedPlay",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.LinkedExileUsesObjectGenerationsAndReturnsEachCardToItsOwner(staleCard: True, newSource: False)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.ParsedSourceFamiliesShareCompletionAndResponse(sourceCard: \"OGS·006/024\", delta: 3)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.DreamTreeErratumTriggersAtTargetSelectionRegardlessOfBattlefieldController(controller: \"P1\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialSpellCompletionTests.ParsedSourceFamiliesShareCompletionAndResponse(sourceCard: \"UNL-149/219\", delta: 2)",
+      "outcome": "Passed"
+    }
+  ]
+}

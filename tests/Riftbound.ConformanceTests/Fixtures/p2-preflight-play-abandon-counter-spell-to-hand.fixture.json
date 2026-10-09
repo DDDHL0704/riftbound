@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
       "note": "反应牌可在优先权窗口中打出；打出法术需要支付费用和合法目标；法术作为结算链项目在双方让过后结算，被无效化的法术不会继续结算，并按反制效果指定目的地移动。"
+    },
+    {
+      "source": "Chinese core PDF 2026-07-23 and Chinese card text",
+      "locator": "CN 321 / 436; UNL-063/219, UNL-131/219, UNL-190/219",
+      "note": "2026-10-09 重审：洞察在前置效果之后私下选择，不在打出时提交牌库目标；夜阑谣限制被指定法术当前控制者本回合打出法术。旧中间协议不兼容。"
     }
   ],
   "roomId": "p2-preflight-abandon-room",
@@ -149,10 +154,20 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "insight-choose-at-resolution",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "INSIGHT:STACK-3-P2-SPELL-ABANDON",
+        "choiceWindow": "INSIGHT",
+        "chosenObjectIds": []
+      }
     }
   ],
   "expected": {
-    "finalTick": 5,
+    "finalTick": 6,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -163,8 +178,11 @@
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "STACK_ITEM_COUNTERED"
+      "STACK_ITEM_SUSPENDED",
+      "STACK_ITEM_COUNTERED",
+      "INSIGHT_REQUESTED",
+      "INSIGHT_COMPLETED",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
       {
@@ -215,7 +233,7 @@
           "targetObjectIds": [
             "STACK-1-P1-SPELL-INCINERATE"
           ],
-          "effectKind": "ABANDON_COUNTER_SPELL_RETURN_TO_HAND_NO_INSIGHT"
+          "effectKind": "ABANDON_COUNTER_SPELL_RETURN_TO_HAND_INSIGHT"
         }
       },
       {
@@ -225,13 +243,7 @@
         "kind": "PRIORITY_PASSED"
       },
       {
-        "kind": "STACK_ITEM_RESOLVED",
-        "payload": {
-          "stackItemId": "STACK-3-P2-SPELL-ABANDON",
-          "controllerId": "P2",
-          "sourceObjectId": "P2-SPELL-ABANDON",
-          "effectKind": "ABANDON_COUNTER_SPELL_RETURN_TO_HAND_NO_INSIGHT"
-        }
+        "kind": "STACK_ITEM_SUSPENDED"
       },
       {
         "kind": "STACK_ITEM_COUNTERED",
@@ -242,6 +254,24 @@
           "controllerId": "P1",
           "counteredByPlayerId": "P2",
           "destinationZone": "HAND"
+        }
+      },
+      {
+        "kind": "INSIGHT_REQUESTED"
+      },
+      {
+        "kind": "INSIGHT_COMPLETED",
+        "payload": {
+          "recycledCount": 0
+        }
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "payload": {
+          "stackItemId": "STACK-3-P2-SPELL-ABANDON",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-ABANDON",
+          "effectKind": "ABANDON_COUNTER_SPELL_RETURN_TO_HAND_INSIGHT"
         }
       }
     ],

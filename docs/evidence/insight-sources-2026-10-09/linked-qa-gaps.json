@@ -1,0 +1,20 @@
+{
+  "source": "Official CN Unleashed Judge FAQ 260511, local text 06.txt lines 893-900 and 919-925",
+  "sourceSha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+  "gaps": [
+    {
+      "cardNo": "UNL-074/219",
+      "name": "冰封宝石",
+      "officialRequirement": "Each turn, drawing the second card triggers a friendly unit gaining 2 might until end of turn; Diana's conditional draw counts as a draw.",
+      "codeEvidence": "CardBehaviorRegistry FROZEN_GEM_PLAY_EQUIPMENT contains only equipment entry; no second-card-drawn counter and targeted trigger implementation was found.",
+      "status": "NOT_IMPLEMENTED_LINKED_QA_NOT_CLOSED"
+    },
+    {
+      "cardNo": "SFD·128/221",
+      "name": "狂热粉丝",
+      "officialRequirement": "On defense, optional destruction moves one attacker to its base; Diana's duel-start trigger occurs first.",
+      "codeEvidence": "CardBehaviorRegistry FERVID_FAN_DEFENSE_TRIGGER_PLAY_UNIT only enters a unit; its fixture explicitly states the defense sacrifice movement trigger is deferred.",
+      "status": "NOT_IMPLEMENTED_LINKED_QA_NOT_CLOSED"
+    }
+  ]
+}

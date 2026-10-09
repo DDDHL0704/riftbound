@@ -389,14 +389,9 @@ public partial class Main : Control
         _movementOverlay = new MovementOverlay { TableMode = true }; _matchScreen!.ComposerHost.AddChild(_movementOverlay);
         _movementOverlay.VisibilityChanged += RefreshTableComposer;
         _movementOverlay.TableSelectionChanged += RefreshPromptInteractionVisuals;
-        _movementOverlay.Confirmed += (destination, ids) =>
+        _movementOverlay.Confirmed += payload =>
         {
-            if (_movementAction is null || ids.Count == 0) return;
-            _ = SubmitTableActionAsync(_movementAction, new Dictionary<string, object?>
-            {
-                ["cmdType"] = "MOVE_UNIT", ["sourceObjectId"] = ids[0], ["sourceObjectIds"] = ids,
-                ["origin"] = _movementOverlay.OriginFor(ids[0]), ["destination"] = destination
-            }, "move_units");
+            if (_movementAction is not null) _ = SubmitTableActionAsync(_movementAction, payload, "move_units");
         };
         _lobbyScreen!.ConnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: true);
         _lobbyScreen.ReconnectRequested += () => _ = ConnectAndRequestSnapshotAsync(useReconnectToken: true);
@@ -535,8 +530,24 @@ public partial class Main : Control
     {
         if (!TryGetCurrentSpecialAction("PLAY_CARD", out var action)) return false;
         using var document = JsonDocument.Parse(action["candidateJson"].AsString());
+        var privateSources = new Dictionary<string,string>(StringComparer.Ordinal);
+        if (document.RootElement.TryGetProperty("metadata", out var metadata)
+            && metadata.ValueKind == JsonValueKind.Object && metadata.TryGetProperty("sourceRequirements", out var requirements))
+            foreach (var requirement in requirements.EnumerateArray())
+                if (ReadString(requirement, "sourceZone") == "MAIN_DECK")
+                    privateSources[ReadString(requirement, "sourceObjectId")] = ReadString(requirement, "cardNo");
+        Godot.Collections.Dictionary? CardView(string objectId)
+        {
+            if (VisibleTableCardView(objectId, includeOpponents: true) is { } visible) return visible;
+            if (!privateSources.TryGetValue(objectId, out var cardNo)) return null;
+            // Only the owner's server-authorized effect-play sources may reveal a
+            // deck card. Cached rendering never waits for the image CDN.
+            var card = _cardViewFactory.BuildAsync(new SnapshotCardRef(objectId, cardNo, true, false),
+                _officialCatalog, _shutdown.Token, waitForImage: false);
+            return card.IsCompletedSuccessfully ? card.Result.ToGodotDictionary() : null;
+        }
         if (_playCardOverlay?.Open(document.RootElement, action["promptId"].AsString(),
-                action["snapshotTick"].AsInt64(), objectId => VisibleTableCardView(objectId, includeOpponents: true), sourceId) != true) return false;
+                action["snapshotTick"].AsInt64(), CardView, sourceId) != true) return false;
         _playCardAction = action;
         _promptInteractionController.ClearSelection();
         return true;
@@ -568,8 +579,15 @@ public partial class Main : Control
         if (!TryGetCurrentSpecialAction("MOVE_UNIT", out var action)) return false;
         using var document = JsonDocument.Parse(action["candidateJson"].AsString());
         if (_movementOverlay?.Open(document.RootElement, action["promptId"].AsString(), action["snapshotTick"].AsInt64(),
-            VisibleMovementCardView, label => _officialCatalog.TryGetValue(label, out var entry) ? entry.CardName : label, sourceId) != true) return false;
+            VisibleMovementCardView, MovementDestinationLabel, sourceId) != true) return false;
         _movementAction = action; _promptInteractionController.ClearSelection(); RefreshTableComposer(); return true;
+    }
+
+    private string MovementDestinationLabel(string label)
+    {
+        var cardNo = label.Split(" / ", StringSplitOptions.None)[0];
+        return _officialCatalog.TryGetValue(cardNo, out var entry) ? entry.CardName
+            : label.Contains(" / ", StringComparison.Ordinal) ? "战场" : label;
     }
 
     private Godot.Collections.Dictionary? VisibleMovementCardView(string objectId)
@@ -1508,7 +1526,7 @@ public partial class Main : Control
             cmd,
             _shutdown.Token).WaitAsync(TimeSpan.FromSeconds(10), _shutdown.Token).ConfigureAwait(false);
         AppendReceipt(label, receipt);
-        if (intentSuffix is "play_card" or "move_units")
+        if (intentSuffix is "play_card" or "move_units" or "declare_battle")
             QueueMainThread(nameof(ApplyPlayCardReceipt), new Godot.Collections.Dictionary
             {
                 ["promptId"] = promptId, ["tick"] = snapshotTick,
@@ -1558,7 +1576,12 @@ public partial class Main : Control
 
     private async Task SubmitTableActionAsync(Godot.Collections.Dictionary action, Dictionary<string, object?> payload, string suffix)
     {
-        try { await SubmitSpecialPromptAsync(action, payload, suffix); }
+        try
+        {
+            if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
+                throw new InvalidOperationException("连接已断开，请等待恢复后重试。");
+            await SubmitSpecialPromptAsync(action, payload, suffix);
+        }
         catch (Exception error)
         {
             AppendLog($"[color=yellow]Table action failed: {Escape(error.Message)}[/color]");
@@ -2585,6 +2608,10 @@ public partial class Main : Control
             foreach (var candidate in candidates.EnumerateArray())
             {
                 actions.Add(PromptAction(candidate, promptId, snapshotTick, actionable));
+                if (candidate.TryGetProperty("metadata", out var choiceMetadata)
+                    && choiceMetadata.ValueKind == JsonValueKind.Object
+                    && choiceMetadata.TryGetProperty("viewedCards", out var viewedCards))
+                    message = ReadString(choiceMetadata, "reason") + "\n仅你可见：" + string.Join("、", viewedCards.EnumerateArray().Select(card => ReadString(card, "label")));
             }
         }
 
@@ -3140,6 +3167,9 @@ public partial class Main : Control
             ["turnNumber"] = ReadInt(snapshot, "turnNumber"),
             ["winningScore"] = snapshot.TryGetProperty("timing", out var timing) ? ReadInt(timing, "winningScore") : 0,
             ["chain"] = BuildTableChain(snapshot, viewerPlayerId, objectIndex),
+            ["phaseWindow"] = MatchPhasePresentation.Build(snapshot, viewerPlayerId,
+                id => objectIndex.TryGetValue(id, out var reference) && _officialCatalog.TryGetValue(reference.CardNo, out var card)
+                    ? card.CardName : "当前战场"),
             ["runeDeckSize"] = runeDeckSize,
             ["self"] = self,
             ["opponent"] = opponent,
@@ -4042,12 +4072,15 @@ public partial class Main : Control
 
     private void AppendReceipt(string label, CommandReceiptDto receipt)
     {
+        QueueMainThread(nameof(ApplyCommandFeedback), receipt.Accepted ? "" : receipt.Message);
         if (!receipt.Accepted && receipt.CmdType == CommandTypes.AssignCombatDamage)
             QueueMainThread(nameof(ApplyDamageRejection), receipt.Message);
         var tone = receipt.Accepted ? "green" : "red";
         AppendLog(
             $"[color={tone}]{Escape(label)} receipt accepted={receipt.Accepted} state={Escape(receipt.State)} message={Escape(receipt.Message)}[/color]");
     }
+
+    public void ApplyCommandFeedback(string message) => _matchScreen?.SetCommandFeedback(message);
 
     public void ApplyDamageRejection(string message) => _damageAssignmentOverlay?.ShowServerRejection(message);
 
@@ -4561,7 +4594,10 @@ public partial class Main : Control
             responding ? "轮到你响应" : actionable && _promptInteractionController.Actions.Any(action => action.Enabled && action.Name == "PASS_FOCUS")
                     ? "战场争夺中" : actionable ? "轮到你行动" : settling ? "正在结算" : waitingForResponse ? "等待对手响应" : "等待对手行动",
             detail,
-            actionable);
+            actionable,
+            useWindowDetail: responding || waitingForResponse
+                || _promptInteractionController.Actions.Any(action => action.Enabled && action.Name == "PASS_FOCUS")
+                || reason.Contains("焦点", StringComparison.Ordinal));
         _matchScreen.ActionBar.ShowPrompt(detail, _promptInteractionController.Actions);
         if (_promptInteractionController.Current is { } state)
         {

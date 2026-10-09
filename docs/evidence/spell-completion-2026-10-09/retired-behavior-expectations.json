@@ -1,0 +1,15 @@
+{
+  "removedCases": [
+    {
+      "name": "P79BattlefieldFriendlySpellTargetSkipsOpponentControlledSource",
+      "replacement": "OfficialSpellCompletionTests Tree cases for P1, P2 and null controller",
+      "reason": "Chinese erratum says any player selecting a friendly unit here; field control is not a condition."
+    },
+    {
+      "name": "P79BattlefieldSpellPowerBonusSkipsOpponentControlledSource",
+      "replacement": "WasteHallLetsCasterChooseAfterSpellCompletes: accept/decline x P1/P2/null controller",
+      "reason": "CN 190.6: explicit casting player controls the granted trigger."
+    }
+  ],
+  "note": "Incorrect control restrictions replaced by executed real-field cases for both players and uncontrolled battlefields."
+}

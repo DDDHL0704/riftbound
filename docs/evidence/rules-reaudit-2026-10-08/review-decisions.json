@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "baseline": "official-corpus.json",
+  "overall": "IN_PROGRESS_NOT_READY",
+  "policy": "Scope-limited behavior evidence only. None of these entries certifies its entire parent rule, card, QA document or current desktop runtime.",
+  "reviews": [
+    {
+      "id": "RESOURCE-POOL",
+      "officialClauses": [
+        "135.2.e.5.a",
+        "135.2.e.5.b",
+        "166.1",
+        "166.2",
+        "168",
+        "429.1"
+      ],
+      "status": "PARTIAL_FIXED",
+      "scope": "Gold, Honeyfruit, twelve Sigils, Dragon Soul Sage, Energy Channel, Ancient Stele, Hextech Anomaly ordinary resources; Malzahar ordinary two power after shared destruction cost",
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.Resources.cs"
+      ],
+      "tests": [
+        "OfficialResourceAbilityRulesTests"
+      ],
+      "remaining": [
+        "Lux spell-only mana",
+        "complete pool clearing lifecycle"
+      ]
+    },
+    {
+      "id": "RESOURCE-TIMING",
+      "officialClauses": [
+        "312.2.c",
+        "312.2.d",
+        "429.2",
+        "429.3",
+        "813.1.c.2"
+      ],
+      "status": "PARTIAL_FIXED",
+      "scope": "Owned open/closed windows and paying-player reaction gain; source authority, atomic refusal, duplicate and stale intent",
+      "implementation": [
+        "src/Riftbound.Engine/ResourceActionWindow.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs"
+      ],
+      "tests": [
+        "OfficialResourceAbilityRulesTests"
+      ],
+      "remaining": [
+        "general nonresource start/end phase response and continuation"
+      ],
+      "nativeEvidence": "../rules-continuation-2026-10-08/native-proof.json"
+    },
+    {
+      "id": "JHIN-MOVE",
+      "officialClauses": [
+        "429.2",
+        "429.2.a"
+      ],
+      "officialCards": [
+        "UNL-022/219",
+        "UNL-022a/219"
+      ],
+      "status": "PARTIAL_FIXED",
+      "scope": "Standard base-to-battlefield, battlefield-to-battlefield, return-to-base, no manual activation; real battlefield objects",
+      "tests": [
+        "JhinMovementResourceSkillTests"
+      ],
+      "remaining": [
+        "all spell-driven movement paths",
+        "multiple moves within one resolving effect"
+      ]
+    },
+    {
+      "id": "GOLD-LEAVE",
+      "officialClauses": [
+        "186.1"
+      ],
+      "status": "PARTIAL_FIXED",
+      "scope": "Gold consumed for its own resource ability disappears from objects/locations rather than remaining a graveyard card",
+      "tests": [
+        "OfficialResourceAbilityRulesTests"
+      ],
+      "remaining": [
+        "all token removal paths",
+        "destroyed-equipment trigger and last known information",
+        "attached token removal"
+      ]
+    },
+    {
+      "id": "COMMAND-AUTHORITY",
+      "status": "FIXED_TESTED",
+      "scope": "Unknown commands rejected, production placeholder removed; TurnStart no longer accepts arbitrary commands as phase advance",
+      "tests": [
+        "OfficialResourceAbilityRulesTests.MissingCommandImplementationCannotFallThroughToFakeSuccess",
+        "OfficialResourceAbilityRulesTests.TurnStartMustNotConvertAnUnknownCommandIntoPhaseAdvancement"
+      ],
+      "remaining": []
+    },
+    {
+      "id": "DESTRUCTION-COST",
+      "officialClauses": [
+        "203.2",
+        "357.2",
+        "357.2.a",
+        "429.2"
+      ],
+      "status": "PARTIAL_FIXED",
+      "scope": "Malzahar and Gold use shared field destruction; self is allowed; Sentinel Last Breath enters response stack; Zhonya replacement counts as paid without Last Breath for the saved unit",
+      "tests": [
+        "OfficialDestructionCostRulesTests"
+      ],
+      "remaining": [
+        "All other nonstandard cost families",
+        "Replacement choice ordering and optionality across multiple replacements"
+      ]
+    },
+    {
+      "id": "TOKEN-DEPARTURE",
+      "status": "PARTIAL_FIXED",
+      "scope": "Shared reset on destruction, exile and return removes known tokens; tested Gold cost, Malzahar cost, equipment destruction and recall to hand; physical equipment retained",
+      "tests": [
+        "OfficialDestructionCostRulesTests"
+      ],
+      "remaining": [
+        "All recycling and direct zone mutation paths",
+        "Creation and departure within the same effect",
+        "Copied token last-known information"
+      ]
+    },
+    {
+      "id": "HOLD-TIMING",
+      "officialClauses": [
+        "315.2.b.2",
+        "383.4.d",
+        "383.4.d.2.c",
+        "390",
+        "391",
+        "392",
+        "316.3",
+        "316.4"
+      ],
+      "status": "PARTIAL_FIXED",
+      "scope": "Turn-start resumable Hold sequence; combat defense no longer dispatches Hold; Blue Sentinel captured next-main gain after pool clearing; priority reactions and optional choices/payment.",
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.Hold.cs"
+      ],
+      "requiredFix": [
+        "Resumable turn-start stages",
+        "Hold event and ability dispatch at scoring, including replaced score",
+        "Independent delayed ability state resolving after main-phase pool clear",
+        "Per-controller trigger ordering, response and optional cost/target windows"
+      ],
+      "verifiedBy": "Official corpus comparison and production source trace, not yet behavioral acceptance",
+      "tests": [
+        "OfficialHoldSequenceTests",
+        "FullGameEndToEndTests"
+      ],
+      "remaining": [
+        "Other start/end immediate-trigger families",
+        "All held card branches and QA",
+        "Conquest LKI/Brush replacement/Image copy paths",
+        "General legacy resource/recovery metadata"
+      ],
+      "evidence": "../hold-sequence-2026-10-08/validation.json"
+    },
+    {
+      "id": "HELD-ECHO-COST",
+      "status": "FIXED_RESOURCE_COST_SCOPE",
+      "officialClauses": [
+        "204.1.a",
+        "356.1.c"
+      ],
+      "scope": "Complete base mana and printed power for granted Echo, independent resource Echo choices, per-Echo mana reduction, authoritative preview/payment and native selection.",
+      "implementation": [
+        "src/Riftbound.Engine/EchoCostRules.cs",
+        "src/Riftbound.Engine/PrintedPowerCostRules.cs",
+        "tests/Riftbound.ConformanceTests/OfficialEchoCostTests.cs"
+      ],
+      "remaining": [
+        "Non-resource and skill Echo; special-mode restrictions",
+        "Counter/control-stack/effect-play repeat continuations",
+        "Other deck-look families including Ornn Hold; complete effect and QA audit"
+      ],
+      "evidence": "../echo-cost-2026-10-08/validation.json",
+      "followupEvidence": "../multi-batch-2026-10-08/validation.json"
+    }
+  ]
+}

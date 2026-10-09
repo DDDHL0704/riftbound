@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-08",
+  "scope": "Shared destruction costs, token exits, source-specific native ability choices, native two-client resource/death acceptance",
+  "targeted": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "log": "var/qa/rules-continuation-2026-10-08/cost-extra-tests.log"
+  },
+  "nativeCommandProof": "RESOURCE_ABILITY_INTERACTION_PASS",
+  "nativeBuild": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "nativeMatch": "QA-RESOURCE-706847",
+  "nativeProof": "native-proof.json",
+  "gitDiffCheck": "passed",
+  "delivery": {
+    "committed": false,
+    "pushed": false,
+    "original15103ServiceUpdated": false,
+    "isolated15104Service": "current engine used for acceptance",
+    "windowsRuntime": "not verified",
+    "completeRuleAudit": "not complete"
+  },
+  "sourceSha256": {
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "1f411402a4462d667279b8e8d727036598d02aa7eb5dd696b20b73dcc0005bc1",
+    "src/Riftbound.Engine/CoreRuleEngine.Resources.cs": "0bb022d81ced0daae4e3e30938c53b90c30b9b965fccf05cac2850e5da490b5c",
+    "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs": "a74eb3d2bbe1748ffc82a03cdb5274616ecb655d02227d3d9d6d96d80f6c9d65",
+    "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs": "99ab05567d93528d12d0ac832bdcbe6758a4ce8f43b93430956b6c25312a2b34",
+    "src/Riftbound.Engine/MatchSession.cs": "0ed60b5cfc85ef043445e32f0174e280afa755889c7611f6a2f78162fda2a35f",
+    "tests/Riftbound.ConformanceTests/OfficialDestructionCostRulesTests.cs": "228b23723226832c38a86e8909cb3f6c1fed0a9e9eead59efa2b904d720eb6e3",
+    "clients/godot/scripts/interaction/PromptInteractionController.cs": "97e45bb8ba2b2ef75ddca73df42b869cee3ecce45bfdf6e4525054b7aad02278",
+    "clients/godot/scripts/Main.cs": "d83b218d5bb0f39315e4ee1de9885c567d70bd150e57fc909660a6f6fd2fae8b",
+    "clients/godot/scripts/ui/MatchScreen.cs": "dffb71479c93297c89d3cb566a370b7df868982c409808f10dba9d32f9e5e055",
+    "clients/godot/scripts/ui/MatchTableLayout.cs": "642027aeb2a24bcfc1cb16b14ba24fd69fbf1d59dc0a987e6de166bf31c94002",
+    "clients/godot/scripts/debug/ResourceAbilityInteractionProof.cs": "ad37f8751fda72385ad4f171522f7d7a5e7eb7669d8d7161e2f1a11eb48e3fde"
+  },
+  "fullSuite": {
+    "total": "8773",
+    "executed": "8773",
+    "passed": "8773",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0",
+    "trx": "var/qa/rules-continuation-2026-10-08/final-8773.trx",
+    "sha256": "00855e338ab2e1ac5d7cd22d7477bc47099de03cb8389af9a44ae35d0a4d85c6"
+  }
+}

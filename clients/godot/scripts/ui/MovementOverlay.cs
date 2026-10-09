@@ -9,7 +9,7 @@ namespace Riftbound.GodotClient.Ui;
 /// <summary>Multi-unit intent composer using only the destinations supplied by the server.</summary>
 public partial class MovementOverlay : Control
 {
-    public event Action<string, IReadOnlyList<string>>? Confirmed;
+    public event Action<Dictionary<string, object?>>? Confirmed;
     public event Action? TableSelectionChanged;
     public bool TableMode { get; set; }
     public string PromptId { get; private set; } = string.Empty;
@@ -21,10 +21,8 @@ public partial class MovementOverlay : Control
     private Button _confirm = null!;
     private Button _cancel = null!;
     private readonly HashSet<string> _selected = new(StringComparer.Ordinal);
-    private readonly List<(string Id, string Name, string[] Destinations)> _sources = [];
+    private readonly List<(string Id, string Name, string[] Destinations, bool Roam)> _sources = [];
     private readonly List<string> _destinations = [];
-    private readonly Dictionary<string, string> _origins = new(StringComparer.Ordinal);
-    public string OriginFor(string objectId) => _origins.GetValueOrDefault(objectId, string.Empty);
     private readonly Dictionary<string, int> _powerPerExtraUnit = new(StringComparer.Ordinal);
     private readonly Dictionary<string, CheckBox> _checks = new(StringComparer.Ordinal);
     private Func<string, Godot.Collections.Dictionary?>? _cardView;
@@ -67,7 +65,14 @@ public partial class MovementOverlay : Control
         {
             if (_selected.Count == 0 || _destination.Selected < 0 || _submitting) return;
             var ids = _sources.Where(source => _selected.Contains(source.Id)).Select(source => source.Id).ToArray();
-            _submitting = true; RefreshSummary(); Confirmed?.Invoke(TableDestination, ids);
+            // Simultaneous movement may have different origins. The server resolves
+            // each source's precise location; a shared coarse origin breaks Roam.
+            var payload = new Dictionary<string, object?>
+            {
+                ["cmdType"] = "MOVE_UNIT", ["sourceObjectId"] = ids[0],
+                ["sourceObjectIds"] = ids, ["destination"] = TableDestination
+            };
+            _submitting = true; RefreshSummary(); Confirmed?.Invoke(payload);
         };
         MinimalTheme.Apply(panel); Hide();
     }
@@ -78,14 +83,13 @@ public partial class MovementOverlay : Control
         if (!candidate.TryGetProperty("metadata", out var metadata)
             || !metadata.TryGetProperty("supportsSimultaneousMovement", out var supported) || !supported.GetBoolean()
             || !metadata.TryGetProperty("sourceRequirements", out var requirements)) return false;
-        _sources.Clear(); _destinations.Clear(); _selected.Clear(); _destination.Clear(); _origins.Clear(); _cardView = cardView;
+        _sources.Clear(); _destinations.Clear(); _selected.Clear(); _destination.Clear(); _cardView = cardView;
         _powerPerExtraUnit.Clear(); _submitting = false; _feedback = "";
         if (metadata.TryGetProperty("powerPerExtraUnitByDestination", out var taxes))
             foreach (var tax in taxes.EnumerateObject()) _powerPerExtraUnit[tax.Name] = tax.Value.GetInt32();
         var destinations = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var group in requirements.EnumerateArray().GroupBy(item => item.GetProperty("sourceObjectId").GetString()!))
         {
-            _origins[group.Key] = group.First().GetProperty("origin").GetString() ?? string.Empty;
             var allowed = new HashSet<string>(StringComparer.Ordinal);
             foreach (var requirement in group)
                 foreach (var choice in requirement.GetProperty("destinationChoices").EnumerateArray())
@@ -97,7 +101,7 @@ public partial class MovementOverlay : Control
             if (allowed.Count == 0) continue;
             var card = cardView(group.Key);
             var name = card is not null && card.TryGetValue("cardName", out var cardName) ? cardName.AsString() : "单位";
-            _sources.Add((group.Key, name, allowed.ToArray()));
+            _sources.Add((group.Key, name, allowed.ToArray(), group.Any(r => r.TryGetProperty("mode", out var mode) && mode.GetString() == "ROAM")));
         }
         foreach (var destination in destinations) { _destinations.Add(destination.Key); _destination.AddItem(destination.Value); }
         if (_destinations.Count == 0) return false;
@@ -136,7 +140,7 @@ public partial class MovementOverlay : Control
         foreach (var source in valid)
         {
             var row = MatchTableLayout.Row(_units);
-            var check = new CheckBox { Text = source.Name, SizeFlagsHorizontal = SizeFlags.ExpandFill, ButtonPressed = _selected.Contains(source.Id) };
+            var check = new CheckBox { Text = source.Name + (source.Roam ? "\n游走 · 可跨战场" : ""), SizeFlagsHorizontal = SizeFlags.ExpandFill, ButtonPressed = _selected.Contains(source.Id) };
             if (_cardView?.Invoke(source.Id) is { } card)
             {
                 var preview = GD.Load<PackedScene>("res://scenes/components/OfficialCardView.tscn").Instantiate<OfficialCardView>();
@@ -157,7 +161,8 @@ public partial class MovementOverlay : Control
         _summary.Text = _submitting ? "正在等待对局确认。" : _selected.Count == 0 ? "请选择要移动的单位。" : $"已选 {_selected.Count} 名单位\n移动后进入休眠。";
         if (_powerPerExtraUnit.TryGetValue(TableDestination, out var tax) && tax > 0)
             _summary.Text += $"\n每多移动一名单位，额外支付 {tax} 符能。";
-        if (_feedback.Length > 0) _summary.Text += "\n" + _feedback;
+        if (_feedback.Length > 0) _summary.Text = "移动未完成：" + _feedback + "\n已保留你的选择，可以调整后重试。";
+        _summary.Modulate = _feedback.Length > 0 ? MinimalTheme.Hostile : Colors.White;
         TableSelectionChanged?.Invoke();
     }
 }

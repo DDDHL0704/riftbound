@@ -1,0 +1,75 @@
+{
+  "trx": "tests/Riftbound.ConformanceTests/TestResults/effect-recast-context-final.trx",
+  "sha256": "e03d839a24c4b0d5e79336caa57ce0b1d82a119c6029e13e92c400e5b6319e73",
+  "count": 17,
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.NoEligibleSpellsDoNotOpenAnEmptyComposer",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.KaisaEchoRocketRecyclesBeforeJhinEvenAfterFourManaPaid",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.KaisaConquestOffersCurrentScoreThresholdAfterResponse(card: \"OGN·112/298\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.RecastEchoPaysAdditionalManaAndOnlyRecyclesOnce",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.FizzLetsPlayerChooseSecondSpellOrDeclineAfterResponding(accept: False)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.CounteredRecastStillRecyclesEvenWhenCounterReturnsToHand(counterCard: \"OGN·064/298\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.InvalidSourceAndForgedRecoveryCannotBroadenRecastPermission",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.RecastObeysSpellLockAndStillAllowsDeclining",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.KaisaConquestOffersCurrentScoreThresholdAfterResponse(card: \"OGN·112a/298\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.CounteredRecastStillRecyclesEvenWhenCounterReturnsToHand(counterCard: \"UNL-131/219\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.RecastCannotTargetProtectedEnemy(protectedCard: \"UNL-147/219\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.RecastCannotTargetProtectedEnemy(protectedCard: \"UNL-059/219\")",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.SuspendedRecastParentCannotForgeItsEffectKindGenerationOrActor",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.FizzLetsPlayerChooseSecondSpellOrDeclineAfterResponding(accept: True)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.FreeManaDoesNotWaivePrintedPowerAndPlayerChoosesAmongMultipleTargets",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.PrivateInsightFinishesBeforeRecyclingAndSurvivesSourceDeath",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.OfficialGraveyardRecastTests.MultipleConquestTriggersRetainSeparateChoices",
+      "outcome": "Passed"
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "date": "2026-10-08",
+  "scope": "Native confirmation payload and recovery validation for undefended contests",
+  "rootCause": "Main imposed the first coarse origin BATTLEFIELD on simultaneous movement, overriding authoritative precise origins. Previous proof bypassed Main with a hand-built empty origin.",
+  "fix": "Composer emits the full unit-list/destination payload. Main forwards it unchanged except prompt identity. Server resolves each origin. Visible failure feedback, disconnected submission recovery, battle declaration receipts. Recovery validator distinguishes single-side contests from battles.",
+  "oldPayloadReproducedRejection": true,
+  "native": {
+    "buildErrors": 0,
+    "buildWarnings": 0,
+    "productionComposerPayloadVerified": true,
+    "tableInteractionResolutions": [
+      "1280x720",
+      "1440x900",
+      "1920x1080"
+    ]
+  },
+  "liveAcceptance": {
+    "roomId": "RB-KAISA-DUEL-389802",
+    "beforeTick": 46,
+    "afterTick": 47,
+    "acceptedCommand": {
+      "PlayerId": "试玩玩家二",
+      "ClientIntentId": "prompt-move_units-16dbf0184c9048f8a8a70b1ce5924417",
+      "CommandType": "MOVE_UNIT",
+      "RawCommand": {
+        "cmdType": "MOVE_UNIT",
+        "promptId": "RB-KAISA-DUEL-389802:46:试玩玩家二:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "destination": "BATTLEFIELD:试玩玩家二-BATTLEFIELD-OGN-298-298-01",
+        "snapshotTick": 46,
+        "sourceObjectId": "试玩玩家二-MAIN-SFD-069-221-12",
+        "sourceObjectIds": [
+          "试玩玩家二-MAIN-SFD-069-221-12"
+        ]
+      },
+      "StartedTick": 46,
+      "CompletedTick": 47,
+      "StartedEventSequence": 181,
+      "CompletedEventSequence": 184,
+      "Accepted": true,
+      "ErrorMessage": null
+    },
+    "unitLocation": {
+      "PlayerId": "试玩玩家二",
+      "Zone": "BATTLEFIELD",
+      "BattlefieldObjectId": "试玩玩家二-BATTLEFIELD-OGN-298-298-01"
+    },
+    "unitExhausted": true,
+    "spellDuel": {
+      "IsActive": true,
+      "IsClosed": false,
+      "SpellDuelId": "spell-duel:试玩玩家二-BATTLEFIELD-OGN-298-298-01",
+      "BattlefieldObjectId": "试玩玩家二-BATTLEFIELD-OGN-298-298-01",
+      "FocusPlayerId": "试玩玩家二",
+      "PassedFocusPlayerIds": [],
+      "StackItemIds": [],
+      "StackControllerIds": []
+    },
+    "bothNativeWindowsVisuallyVerified": true,
+    "apiRestartAndBothClientsReconnectVerified": true,
+    "restartPreservedStateHash": "9F09A86E6297D3CB5C0BEF6C3C3E51FF00BE2B6271017D6ED077527D3DF3FE45",
+    "recoveryErrors": [],
+    "replayErrors": [],
+    "additionalGameplayAfterMove": false
+  },
+  "tests": {
+    "initialFocusedPassed": 42,
+    "recoveryAndGroupMovementPassed": 10,
+    "finalFullSuite": {
+      "total": "9450",
+      "executed": "9450",
+      "passed": "9450",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  "evidence": [
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-build.log",
+      "sha256": "68b59201eac3098ca1769b14353aaa0b061d4e5569af8baa69aaf36334591793",
+      "bytes": 617
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-native.log",
+      "sha256": "3a8272cc8f0c7f0199741feba23f161f4ad1345faef60e1d4b8a43ea5c271525",
+      "bytes": 231
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-table.log",
+      "sha256": "b54571ec43e3493a36c2102c7e4a148ee2d32bbddd138b21db8aaa256930b51c",
+      "bytes": 1469
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-engine.log",
+      "sha256": "a476758c75cfa7f52e9017cf3c3996b75c3fe80fbc5ef17e6e0a37ebebaa2aed",
+      "bytes": 6024
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-focused.trx",
+      "sha256": "c609743121e45db540793724c1b470f4e938579602097e12467384cf8ec689ca",
+      "bytes": 66476
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-recovery-tests.log",
+      "sha256": "238b8b837b6662ba5806041f9330b6abe58e871fb2b25e00ede9fb7954838a4a",
+      "bytes": 1146
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-final-recovery.log",
+      "sha256": "3fc9b4240573b5796761a9ead8669c7c80237facb1b0dc1b39aecdc5fc7667f2",
+      "bytes": 302
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-restarted-recovery.log",
+      "sha256": "3fc9b4240573b5796761a9ead8669c7c80237facb1b0dc1b39aecdc5fc7667f2",
+      "bytes": 302
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-selected.png",
+      "sha256": "e18bc04232b9ee59906b23c6da08c775ba0d7be7603f3799e826f9e798758912",
+      "bytes": 266652
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-player2-result.png",
+      "sha256": "3a823f9860b35abb18b7bbb61eaceaa190b46c6b8e4475646bf26847dae27ed7",
+      "bytes": 291786
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-player1-result.png",
+      "sha256": "7547993251d81c908c7cca28437f73f3b886f1de247f5e30fc222f41e37cb479",
+      "bytes": 265259
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-player2-reconnected.png",
+      "sha256": "7f33f44da91efae4b0b1582c466971867bbb76a1c098c9f0446e8c460f96f878",
+      "bytes": 1502615
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-player1-reconnected.png",
+      "sha256": "f735fd1897a71c6372e75bbf92d2871d026a86adb050fa55e47226a08966699b",
+      "bytes": 1268076
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-full.trx",
+      "sha256": "78e9074db16c17b60290ecb076cc2dfc5af90daaa53d1117080967071bc83c5d",
+      "bytes": 14714805
+    },
+    {
+      "path": "var/qa/battlefield-aura-2026-10-08/move-confirm-full.log",
+      "sha256": "5d7fd8b43162d54ba2d7fc4b4060ba18f1e6b97d4a821156c9c9b4faf8eb42fe",
+      "bytes": 473
+    }
+  ],
+  "packages": [
+    {
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-move-confirmation/Riftbound-macos.zip",
+      "sha256": "a97754d8a4d9d993487e4805cc10719c800d0cef1fe20bb96ca20e6469592dea",
+      "bytes": 142013244
+    },
+    {
+      "path": "/Users/dinghaolin/.local/share/riftbound-releases/20261008-move-confirmation/Riftbound-windows-x64.zip",
+      "sha256": "df5a6b5aa0637cbd2e91e15b9c61ebb7b2ced431fceb38fff5e1c6975a72fada",
+      "bytes": 88815946
+    }
+  ],
+  "windowsRuntimeVerified": false,
+  "remainingRulesAudit": "docs/BATTLEFIELD_SCOPE_AUDIT_2026-10-08.md"
+}

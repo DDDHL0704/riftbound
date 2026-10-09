@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ghost-matron-graveyard-unit-base",
-  "description": "Ghost Matron optionally plays a friendly low-cost graveyard unit to base while entering as a Spirit unit.",
+  "description": "Official graveyard replay through the shared PLAY_CARD continuation; base costs waived, normal dormant entry.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -10,33 +10,16 @@
   "seed": 2603302781,
   "rulesEvidence": [
     {
-      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
-      "locator": "CN 124.1 / 143.4; UNL-065/219",
-      "note": "2026-10-04: 被打出的普通单位休眠入场并恢复印刷属性。旧 fixture 将四费大力仙灵伪设为两费，现使用真实两费的冰谷弓箭手；嵌套打出完整费用/触发流程仍待验证。"
-    },
-    {
-      "source": "data/official/card-catalog.zh-CN.json",
-      "locator": "OGN·226/298 幽灵主母",
-      "note": "官方卡面：费用 4；单位；战力 4；灵体；当控制者打出自身时，可以选择从控制者废牌堆中打出一名费用不高于 3 且不高于 A 的单位，无需支付打出费用。当前 fixture 覆盖选择己方废牌堆 2 费单位后，幽灵主母自身进入基地，并由服务端打出该废牌堆单位到基地。"
-    },
-    {
-      "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录属性标签；打出卡牌需要支付费用、目标合法、加入结算链并在双方让过后结算；废牌堆是玩家区域，效果可将其中单位打出到场上。"
-    },
-    {
-      "source": "data/official/upstream/2026-10-04/rules-manifest.json",
-      "locator": "CN core 143.4 / 143.4.a, p17",
-      "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
-    },
-    {
-      "source": "data/official/upstream/2026-10-05/rules-manifest.json",
-      "locator": "CN 359.2 / 383.4.a.2",
-      "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+      "source": "data/official/upstream/2026-10-08/rules-manifest.json",
+      "locator": "CN core 355.10, 356, 419.3; QA 残酷复活 / 冷血贵族; official card text",
+      "note": "2026-10-09 重审：公开废牌目标在付费前选择；法力和符能分别比较；免除基础费用仍需支付额外费用；子单位通过独立 PLAY_CARD 正常入场与触发。费用门槛不是当前资源池。动物减费及拒绝路径见 OfficialUnitRevivalTests。"
     }
   ],
   "roomId": "p2-preflight-ogn-226-ghost-matron-revive-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302781,
     "turnNumber": 781,
@@ -44,7 +27,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 4,
@@ -60,36 +46,63 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-GHOST-MATRON"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-GHOST-MATRON"
+        ],
         "base": [],
         "battlefields": [],
-        "graveyard": ["P1-GHOST-MATRON-GRAVE-UNIT-001", "P1-GRAVE-OTHER-001"],
+        "graveyard": [
+          "P1-GHOST-MATRON-GRAVE-UNIT-001",
+          "P1-GRAVE-OTHER-001"
+        ],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-GHOST-MATRON-GRAVE-UNIT-001": {
-        "cardNo": "UNL-065/219",
+        "cardNo": "OGN·096/298",
         "damage": 1,
-        "power": 2,
+        "power": 1,
         "manaCost": 2,
-        "tags": ["CARD_TYPE:UNIT"],
-        "untilEndOfTurnEffects": ["TEMP"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "untilEndOfTurnEffects": [
+          "TEMP"
+        ],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": true,
         "ownerId": "P1",
@@ -105,14 +118,38 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-GHOST-MATRON",
         "cardNo": "OGN·226/298",
-        "targetObjectIds": ["P1-GHOST-MATRON-GRAVE-UNIT-001"]
+        "targetObjectIds": [
+          "P1-GHOST-MATRON-GRAVE-UNIT-001"
+        ]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ogn-226-ghost-matron-revive-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ogn-226-ghost-matron-revive-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-ogn-226-ghost-matron-revive-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-ogn-226-ghost-matron-revive-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "revive-child-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-GHOST-MATRON-GRAVE-UNIT-001",
+        "cardNo": "OGN·096/298",
+        "targetObjectIds": []
+      }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -121,8 +158,12 @@
       "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "EFFECT_PLAY_REQUESTED",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BASE",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
       {
@@ -170,37 +211,80 @@
         "kind": "PRIORITY_PASSED"
       },
       {
-        "kind": "STACK_ITEM_RESOLVED"
+        "kind": "EFFECT_PLAY_REQUESTED"
+      },
+      {
+        "kind": "CARD_PLAYED",
+        "payload": {
+          "sourceObjectId": "P1-GHOST-MATRON-GRAVE-UNIT-001"
+        }
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "mana": 0
+        }
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED",
+        "payload": {
+          "sourceObjectId": "P1-GHOST-MATRON-GRAVE-UNIT-001"
+        }
       },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
-          "sourceObjectId": "P1-UNIT-GHOST-MATRON",
-          "targetObjectId": "P1-GHOST-MATRON-GRAVE-UNIT-001",
-          "ownerPlayerId": "P1",
-          "sourceZone": "GRAVEYARD",
-          "destinationZone": "BASE"
+          "sourceObjectId": "P1-GHOST-MATRON-GRAVE-UNIT-001",
+          "unitObjectId": "P1-GHOST-MATRON-GRAVE-UNIT-001",
+          "destinationZone": "BASE",
+          "power": 1
         }
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 781,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 2 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 2
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-GHOST-MATRON", "P1-GHOST-MATRON-GRAVE-UNIT-001"],
-          "graveyard": ["P1-GRAVE-OTHER-001"],
+          "base": [
+            "P1-UNIT-GHOST-MATRON",
+            "P1-GHOST-MATRON-GRAVE-UNIT-001"
+          ],
+          "graveyard": [
+            "P1-GRAVE-OTHER-001"
+          ],
           "banished": []
         }
       },
@@ -208,15 +292,22 @@
       "cardObjects": {
         "P1-UNIT-GHOST-MATRON": {
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "灵体"],
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "灵体"
+          ],
           "isExhausted": true
         },
         "P1-GHOST-MATRON-GRAVE-UNIT-001": {
-          "cardNo": "UNL-065/219",
+          "cardNo": "OGN·096/298",
           "damage": 0,
-          "power": 2,
+          "power": 1,
           "manaCost": 2,
-          "tags": ["CARD_CATEGORY:单位", "CARD_TYPE:UNIT", "COLOR:blue"],
+          "tags": [
+            "CARD_CATEGORY:单位",
+            "CARD_TYPE:UNIT",
+            "COLOR:blue"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": true,
@@ -226,8 +317,18 @@
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

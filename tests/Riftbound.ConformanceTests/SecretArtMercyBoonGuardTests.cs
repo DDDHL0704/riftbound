@@ -25,7 +25,7 @@ public sealed class SecretArtMercyBoonGuardTests
         Assert.Equal("P1", costEvent.Payload["playerId"]);
         Assert.Equal(3, Assert.IsType<int>(costEvent.Payload["mana"]));
         Assert.Equal(3, Assert.IsType<int>(costEvent.Payload["baseMana"]));
-        Assert.Equal(0, Assert.IsType<int>(costEvent.Payload["spellshieldTaxMana"]));
+        Assert.Equal(0, Assert.IsType<int>(costEvent.Payload["spellshieldTaxPower"]));
         Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
 
         Assert.Contains(played.Events, gameEvent =>
