@@ -1,0 +1,43 @@
+{
+  "authority": "Chinese official PDFs and official card catalog; existing locally verified corpus, not a fresh full-site sync",
+  "sources": [
+    {
+      "file": "var/official/2026-10-08/01.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "locators": [
+        "185.1 / 185.3 / 186.1 / 187 (PDF pp25–26)",
+        "477.1.b (PDF p93)",
+        "346 / 808 death-trigger response"
+      ]
+    },
+    {
+      "file": "var/official/2026-10-08/06.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "locators": [
+        "PDF p7: Image copied Watchful Sentinel Last Breath; copied cost",
+        "PDF p21: copying a stunned unit does not copy stun"
+      ]
+    },
+    {
+      "file": "var/official/2026-10-08/07.pdf",
+      "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f",
+      "locators": [
+        "LeBlanc and Mirror Image errata: create Image, then reflexive copy instruction"
+      ]
+    }
+  ],
+  "cards": [
+    "UNL-199/219",
+    "UNL-200/219",
+    "UNL·T06",
+    "OGN·096/298",
+    "UNL-077/219",
+    "SFD·068/221"
+  ],
+  "open": [
+    "Reflexive copy timing from errata, target response/removal before copy",
+    "Zilean token replacement multiplicity",
+    "Vex token entry stun/movement prohibition",
+    "General arbitrary partial-characteristic copy layers"
+  ]
+}

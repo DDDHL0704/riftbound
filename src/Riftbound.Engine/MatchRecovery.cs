@@ -29063,6 +29063,17 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            if (cardObject.TokenFactoryCardNo is { } tokenFactory)
+            {
+                if (!P6TokenFactoryCatalog.IsTokenFactory(tokenFactory))
+                    errors.Add($"card object {objectId} has invalid token factory identity");
+                if (authoritativeState.PlayerZones.Values.Any(zones => zones.Hand.Contains(objectId)
+                    || zones.Graveyard.Contains(objectId) || zones.Banished.Contains(objectId)
+                    || zones.MainDeck.Contains(objectId) || zones.RuneDeck.Contains(objectId)
+                    || zones.ChampionZone.Contains(objectId)))
+                    errors.Add($"card object {objectId} token cannot persist outside field or stack");
+            }
+
             ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"card object {objectId} attached object",
                 cardObject.AttachedToObjectId,
@@ -29258,11 +29269,17 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
-                $"stack item {stackItem.StackItemId} source object",
-                stackItem.SourceObjectId,
-                knownObjectIds,
-                errors);
+            // A destroyed token no longer has a live object. Its queued/stacked
+            // ability still has the official source face and matching death effect.
+            if (!UnitDestroyedTriggerSpecRules.TryGetTrigger(stackItem.CardNo,
+                trigger => trigger.Timing == TriggerTimings.UnitDestroyed && trigger.Kind == stackItem.EffectKind, out _))
+            {
+                ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+                    $"stack item {stackItem.StackItemId} source object",
+                    stackItem.SourceObjectId,
+                    knownObjectIds,
+                    errors);
+            }
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
                 && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell)
@@ -29355,11 +29372,16 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
-                $"trigger queue item {trigger.TriggerId} source object",
-                trigger.SourceObjectId,
-                knownObjectIds,
-                errors);
+            if (!(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
+                && UnitDestroyedTriggerSpecRules.TryGetTrigger(trigger.SourceCardNo,
+                    spec => spec.Timing == TriggerTimings.UnitDestroyed && spec.Kind == trigger.EffectKind, out _)))
+            {
+                ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+                    $"trigger queue item {trigger.TriggerId} source object",
+                    trigger.SourceObjectId,
+                    knownObjectIds,
+                    errors);
+            }
         }
     }
 

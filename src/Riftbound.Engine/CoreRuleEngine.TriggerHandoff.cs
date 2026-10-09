@@ -10,6 +10,21 @@ public sealed partial class CoreRuleEngine
         !IsJhinMovementResourceTrigger(trigger)
         && !string.Equals(trigger.EffectKind, P4ActivatedAbilityCatalog.BlueSentinelResourceAbilityEffectKind, StringComparison.Ordinal);
 
+    private static ResolutionResult CaptureDeathTriggerSources(MatchState before, ResolutionResult result)
+    {
+        if (!result.Accepted) return result;
+        var triggers = result.State.TriggerQueue.Select(trigger => CaptureDeathTriggerSource(
+            trigger, before.CardObjects, result.State.CardObjects)).ToArray();
+        return result with { State = result.State with { TriggerQueue = triggers } };
+    }
+
+    private static TriggerQueueItemState CaptureDeathTriggerSource(TriggerQueueItemState trigger,
+        IReadOnlyDictionary<string, CardObjectState> before, IReadOnlyDictionary<string, CardObjectState> after)
+        => trigger.TriggeredByEventKind == "UNIT_DESTROYED" && trigger.SourceCardNo is null
+            ? trigger with { SourceCardNo = before.GetValueOrDefault(trigger.SourceObjectId)?.CardNo
+                ?? after.GetValueOrDefault(trigger.SourceObjectId)?.CardNo }
+            : trigger;
+
     private static ResolutionResult PublishPendingTriggers(ResolutionResult result)
     {
         var state = result.State;

@@ -172,7 +172,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
-                PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(collected))))));
+                PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state, collected)))))));
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
@@ -4374,7 +4374,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -19483,6 +19483,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.Hand.Count == 0
             || !cardObjects.TryGetValue(copySourceObjectId, out var copySourceState)
+            || !CopyCharacteristics.HasFace(copySourceState.CardNo)
             || !copySourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, copySourceObjectId))
         {
@@ -19503,22 +19504,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         discardedObjectIds = [discardedObjectId];
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, legendObjectId, 1);
-        var tokenTags = copySourceState.Tags
-            .Concat([CardObjectTags.UnitCard, CardObjectTags.Ephemeral, "映像"])
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(tag => tag, StringComparer.Ordinal)
-            .ToArray();
-        cardObjects[legendObjectId] = legendState with
-        {
-            IsExhausted = true
-        };
-        cardObjects[tokenObjectId] = new CardObjectState(
-            tokenObjectId,
-            power: copySourceState.Power,
-            tags: tokenTags,
-            cardNo: copySourceState.CardNo,
-            ownerId: playerId,
-            controllerId: playerId);
+        var token = CopyCharacteristics.CreateImage(tokenObjectId, playerId, copySourceState);
+        var tokenTags = token.Tags;
+        cardObjects[legendObjectId] = legendState with { IsExhausted = true };
+        cardObjects[tokenObjectId] = token;
         var updatedZones = playerZones[playerId];
         playerZones[playerId] = updatedZones with
         {
@@ -19582,7 +19571,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["tokenObjectId"] = tokenObjectId,
                     ["tokenName"] = "映像",
                     ["tokenCardNo"] = copySourceState.CardNo,
-                    ["power"] = copySourceState.Power,
+                    ["power"] = token.Power,
                     ["destinationZone"] = "BATTLEFIELD",
                     ["battlefieldId"] = battlefieldId,
                     ["copiedTargetObjectId"] = copySourceObjectId,
@@ -24647,6 +24636,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 queuedTriggers = queuedTriggers.Select(trigger => IsImmediateTrigger(trigger)
                     && string.IsNullOrWhiteSpace(trigger.TimingContext)
                         ? trigger with { TimingContext = resolvedItem.TimingContext } : trigger).ToArray();
+            queuedTriggers = queuedTriggers.Select(trigger => CaptureDeathTriggerSource(
+                trigger, state.CardObjects, resolvedCardObjects)).ToArray();
             if (queuedTriggers.Length == 1)
             {
                 var singleTriggerStackItem = BuildStackItemForOrderedTrigger(
@@ -28363,7 +28354,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var targetObjectId = targetObjectIds.FirstOrDefault() ?? string.Empty;
         return !string.IsNullOrWhiteSpace(targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
-            && !string.IsNullOrWhiteSpace(targetState.CardNo)
+            && CopyCharacteristics.HasFace(targetState.CardNo)
             && !targetState.IsFaceDown
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
@@ -33460,101 +33451,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         }
 
-        var triggerQueue = Array.Empty<TriggerQueueItemState>();
-        if (officialLastBreathTriggers.Count == 1
-            && ShouldResolveSingleOfficialTriggerImmediately(officialLastBreathTriggers[0]))
-        {
-            var trigger = officialLastBreathTriggers[0];
-            events.Add(BuildTriggerResolvedEvent(trigger));
-            if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDrawOne, StringComparison.Ordinal))
-            {
-                var drawApplication = ApplyDrawToPlayer(
-                    state,
-                    playerZones,
-                    playerScores,
-                    trigger.ControllerId,
-                    1,
-                    rngCursor,
-                    events);
-                playerScores = drawApplication.PlayerScores;
-                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-                rngCursor = drawApplication.RngCursor;
-            }
-            else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitFirstFriendlyDestroyedDrawOne, StringComparison.Ordinal))
-            {
-                var drawApplication = ApplyDrawToPlayer(
-                    state,
-                    playerZones,
-                    playerScores,
-                    trigger.ControllerId,
-                    UnitFirstFriendlyDestroyedDrawCount(cardObjects, trigger.SourceObjectId),
-                    rngCursor,
-                    events);
-                playerScores = drawApplication.PlayerScores;
-                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-                rngCursor = drawApplication.RngCursor;
-            }
-            else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathPowerfulDraw, StringComparison.Ordinal))
-            {
-                var powerfulDrawCount = cardObjects.TryGetValue(trigger.SourceObjectId, out var sourceState)
-                    && UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                        sourceState.CardNo,
-                        UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger,
-                        out var triggerSpec)
-                        ? triggerSpec.DrawCount.GetValueOrDefault(2)
-                        : 2;
-                var drawApplication = ApplyDrawToPlayer(
-                    state,
-                    playerZones,
-                    playerScores,
-                    trigger.ControllerId,
-                    powerfulDrawCount,
-                    rngCursor,
-                    events);
-                playerScores = drawApplication.PlayerScores;
-                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
-                rngCursor = drawApplication.RngCursor;
-            }
-            else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathCreateDormantGold, StringComparison.Ordinal))
-            {
-                var cardNo = cardObjects.TryGetValue(trigger.SourceObjectId, out var sourceState)
-                    ? sourceState.CardNo ?? string.Empty
-                    : string.Empty;
-                var triggerStackItem = BuildStackItemForLastBreathTrigger(trigger, cardNo);
-                if (TryGetLastBreathCreateDormantGoldTrigger(triggerStackItem, out var triggerSpec))
-                {
-                    CreateBaseEquipmentTokensFromTrigger(
-                        playerZones,
-                        cardObjects,
-                        triggerStackItem,
-                        triggerSpec,
-                        events);
-                }
-            }
-            else if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathCallRuneOne, StringComparison.Ordinal))
-            {
-                var runeCallResult = CallRunes(
-                    playerZones,
-                    cardObjects,
-                    trigger.ControllerId,
-                    UnitLastBreathCallRuneCount(cardObjects, trigger.SourceObjectId));
-                events.Add(new GameEvent(
-                    "RUNES_CALLED",
-                    $"{trigger.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张休眠符文",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = trigger.ControllerId,
-                        ["sourceObjectId"] = trigger.SourceObjectId,
-                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
-                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
-                        ["reason"] = TriggerKinds.UnitLastBreathCallRuneOne
-                    }));
-            }
-        }
-        else if (officialLastBreathTriggers.Count > 0)
-        {
-            triggerQueue = officialLastBreathTriggers.ToArray();
-        }
+        // All death triggers use the same response/ordering pipeline, including
+        // a single trigger and a token whose source no longer exists (CN 346/808).
+        var triggerQueue = officialLastBreathTriggers.ToArray();
 
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, events).ToList();
         ReturnSourceStolenEquipmentForMissingSources(playerZones, cardObjects, events);
@@ -34886,29 +34785,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             Base = zones.Base.Concat(tokenObjectIds).ToArray()
         };
-    }
-
-    private static bool ShouldResolveSingleOfficialTriggerImmediately(TriggerQueueItemState trigger)
-    {
-        return !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFirstFriendlyDestroyedDrawOne, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal)
-            && !UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitEffectKind(trigger.EffectKind)
-            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
-            && !string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal);
-    }
-
-    private static StackItemState BuildStackItemForLastBreathTrigger(
-        TriggerQueueItemState trigger,
-        string cardNo)
-    {
-        return new StackItemState(
-            stackItemId: trigger.TriggerId,
-            controllerId: trigger.ControllerId,
-            sourceObjectId: trigger.SourceObjectId,
-            effectKind: trigger.EffectKind,
-            cardNo: cardNo);
     }
 
     private static bool TryGetLastBreathCreateDormantGoldTrigger(StackItemState stackItem, out TriggerSpec trigger)
@@ -36299,9 +36175,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var isImageCopyToken = behavior.CreatedBaseUnitTokenCopiesFirstTarget
             && string.Equals(behavior.CreatedBaseUnitTokenName, "映像", StringComparison.Ordinal);
-        var tokenPower = copiedTargetState is not null
-            ? copiedTargetState.Power
-            : behavior.CreatedBaseUnitTokenPower;
+        var copiedForm = copiedTargetState is null ? null
+            : CopyCharacteristics.CreateImage("", stackItem.ControllerId, copiedTargetState);
+        var tokenPower = copiedForm?.Power ?? behavior.CreatedBaseUnitTokenPower;
         if (!behavior.CreatedBaseUnitTokenCopiesFirstTarget
             && tokenPower <= 0)
         {
@@ -36309,13 +36185,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var tokenCount = behavior.CreatedBaseUnitTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
-        var tokenTags = copiedTargetState is not null
-            ? copiedTargetState.Tags
-                .Concat(ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags))
-                .Concat(isImageCopyToken ? ["映像"] : Array.Empty<string>())
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(tag => tag, StringComparer.Ordinal)
-                .ToArray()
+        var tokenTags = copiedForm is not null
+            ? copiedForm.Tags.Concat(ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags))
+                .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
             : ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags);
         tokenTags = ApplyAzirSandSoldierTemperedTags(
             playerZones,
@@ -36335,7 +36207,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem.SourceObjectId,
                 tokenIndex + 1);
             createdTokenObjectIds.Add(tokenObjectId);
-            var tokenState = hasTokenDefinition
+            var tokenState = copiedForm is not null
+                ? copiedForm with { ObjectId = tokenObjectId }
+                : hasTokenDefinition
                 ? tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId)
                 : new CardObjectState(
                 tokenObjectId,

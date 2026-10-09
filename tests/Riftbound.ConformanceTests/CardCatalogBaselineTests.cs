@@ -494,7 +494,7 @@ public sealed class CardCatalogBaselineTests
         var source = File.ReadAllText(staticAuraSpecRulesPath);
 
         Assert.DoesNotContain("IsUnitTokenCardNo", source, StringComparison.Ordinal);
-        Assert.Contains("P6TokenFactoryCatalog.IsUnitTokenFactory", source, StringComparison.Ordinal);
+        Assert.Contains("TokenObjectRules.IsToken", source, StringComparison.Ordinal);
     }
 
     [Fact]

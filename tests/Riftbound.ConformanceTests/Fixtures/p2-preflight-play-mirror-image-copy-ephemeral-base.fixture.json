@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-mirror-image-copy-ephemeral-base",
-  "description": "Mirror Image copies a target unit's current modeled power and tags into an active ephemeral Image token at the controller's base.",
+  "description": "Mirror Image copies the official face, excluding changed power and granted tags, into an active ephemeral Image token.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-200/219 镜花水月; UNL·T06 映像",
-      "note": "官方卡面：费用 3；选择一名单位，将一名活跃状态的“映像”打出到你的基地；该映像变为所选单位的复制体并获得瞬息。当前 fixture 在最小对象模型中复制目标当前 CardNo、战力与标签，并追加映像 / 瞬息；完整 LayerEngine 语义暂缓。"
+      "note": "官方卡面：费用 3；选择一名单位，将一名活跃状态的“映像”打出到你的基地；该映像变为所选单位的复制体并获得瞬息。CN 477.1.b 重审：复制机械迷的印刷战力 3、费用 5、急速，不继承其被改为 4 的战力或额外机械标签；指示物身份独立保存。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -147,11 +147,11 @@
           "tokenName": "映像",
           "tokenCardNo": "SFD·068/221",
           "tokenFactoryCardNo": "UNL·T06",
-          "power": 4,
+          "power": 3,
           "destinationZone": "BASE",
           "copiedTargetObjectId": "P2-MIRROR-TARGET-001",
           "copiedCardNo": "SFD·068/221",
-          "tokenTags": ["CARD_TYPE:UNIT", "映像", "机械", "瞬息"]
+          "tokenTags": ["CARD_CATEGORY:单位", "CARD_TYPE:UNIT", "COLOR:blue", "急速", "瞬息"]
         }
       }
     ],
@@ -187,9 +187,10 @@
         "P2-MIRROR-TARGET-001": { "cardNo": "SFD·068/221", "power": 4, "tags": ["CARD_TYPE:UNIT", "机械"] },
         "P1-SPELL-MIRROR-IMAGE-TOKEN-001": {
           "cardNo": "SFD·068/221",
-          "power": 4,
+          "power": 3,
+          "manaCost": 5,
           "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT", "映像", "机械", "瞬息"]
+          "tags": ["CARD_CATEGORY:单位", "CARD_TYPE:UNIT", "COLOR:blue", "急速", "瞬息"]
         }
       },
       "stackItems": []

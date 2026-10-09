@@ -13,10 +13,17 @@ internal static class PrintedCardFactory
     internal static bool TryRestoreOutsidePlay(CardObjectState previous, string owner, out CardObjectState restored)
     {
         restored = previous;
-        if (string.IsNullOrWhiteSpace(previous.CardNo) || P6TokenFactoryCatalog.IsTokenFactory(previous.CardNo)
-            || previous.Tags.Contains("映像", StringComparer.Ordinal)
+        if (string.IsNullOrWhiteSpace(previous.CardNo) || TokenObjectRules.IsToken(previous)
             || !Cards.Value.TryGetValue(previous.CardNo, out var card)) return false;
         restored = Create(previous.ObjectId, owner, card);
+        return true;
+    }
+
+    internal static bool TryCreate(string objectId, string playerId, string? cardNo, out CardObjectState card)
+    {
+        card = new();
+        if (cardNo is null || !Cards.Value.TryGetValue(cardNo, out var definition)) return false;
+        card = Create(objectId, playerId, definition);
         return true;
     }
 

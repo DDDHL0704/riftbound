@@ -23,7 +23,7 @@ public sealed record P6TokenFactoryDefinition(
             tags: Tags,
             cardNo: CardNo,
             ownerId: ownerId,
-            controllerId: controllerId);
+            controllerId: controllerId) { TokenFactoryCardNo = CardNo };
     }
 }
 

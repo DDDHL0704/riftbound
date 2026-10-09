@@ -364,7 +364,7 @@ public sealed class SourceUnitPlayedTriggerTests
         Assert.Equal("SFD·140/221", tokenEvent.Payload["tokenCardNo"]);
         var tokenTags = Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]);
         Assert.Contains(CardObjectTags.Ephemeral, tokenTags);
-        Assert.Contains("映像", tokenTags);
+        Assert.DoesNotContain("映像", tokenTags);
         Assert.Contains("约德尔人", tokenTags);
 
         var recycleEvent = Assert.Single(p2Pass.Events, gameEvent =>
@@ -377,7 +377,7 @@ public sealed class SourceUnitPlayedTriggerTests
         Assert.Equal("SFD·140/221", p2Pass.State.CardObjects[tokenObjectId].CardNo);
         Assert.Equal(3, p2Pass.State.CardObjects[tokenObjectId].Power);
         Assert.Contains(CardObjectTags.Ephemeral, p2Pass.State.CardObjects[tokenObjectId].Tags);
-        Assert.Contains("映像", p2Pass.State.CardObjects[tokenObjectId].Tags);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, p2Pass.State.CardObjects[tokenObjectId].TokenFactoryCardNo);
         Assert.Contains("约德尔人", p2Pass.State.CardObjects[tokenObjectId].Tags);
         Assert.DoesNotContain(FizzCopyTokenSpellObjectId, p2Pass.State.PlayerZones["P1"].Graveyard);
         Assert.Equal([FizzCopyTokenSpellObjectId], p2Pass.State.PlayerZones["P1"].MainDeck);

@@ -16211,10 +16211,20 @@ public sealed class GameHubJoinTests
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
-
-        var snapshot = SnapshotFor(passP2Clients, "P2");
+        Assert.DoesNotContain(resolveEvents, e => e.Kind == "CARD_DRAWN");
+        Assert.Single(SnapshotFor(passP2Clients, "P2").Stack);
+        var deathPassP2 = new RecordingHubClients();
+        await CreateHub(deathPassP2, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "last-breath-response-p2", passPriority);
+        Assert.Empty(deathPassP2.CallerClient.Errors);
+        Assert.DoesNotContain(EventsFor(deathPassP2), e => e.Kind == "CARD_DRAWN");
+        var deathPassP1 = new RecordingHubClients();
+        await CreateHub(deathPassP1, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "last-breath-response-p1", passPriority);
+        Assert.Empty(deathPassP1.CallerClient.Errors);
+        Assert.Contains(EventsFor(deathPassP1), e => e.Kind == "TRIGGER_RESOLVED");
+        Assert.Contains(EventsFor(deathPassP1), e => e.Kind == "CARD_DRAWN");
+        var snapshot = SnapshotFor(deathPassP1, "P2");
         Assert.Empty(snapshot.Stack);
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);

@@ -26098,10 +26098,12 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-SPELL-MIRROR-IMAGE-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
-        Assert.Equal(4, result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].Power);
         Assert.Equal("SFD·068/221", result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].CardNo);
         Assert.False(result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].IsExhausted);
-        Assert.Equal([CardObjectTags.UnitCard, "映像", "机械", CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].Tags);
+        Assert.Contains(CardObjectTags.Ephemeral, result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].Tags);
+        Assert.DoesNotContain("机械", result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].Tags);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, result.FinalState.CardObjects["P1-SPELL-MIRROR-IMAGE-TOKEN-001"].TokenFactoryCardNo);
         var tokenEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.Equal("P2-MIRROR-TARGET-001", tokenEvent.Payload["copiedTargetObjectId"]);
         Assert.Equal("SFD·068/221", tokenEvent.Payload["copiedCardNo"]);
@@ -36841,12 +36843,12 @@ public sealed class ConformanceFixtureRunnerTests
             objectId.StartsWith("P1-LEGEND-LEBLANC-TOKEN-", StringComparison.Ordinal));
         var tokenState = result.State.CardObjects[tokenObjectId];
         Assert.False(tokenState.IsExhausted);
-        Assert.Equal(4, tokenState.Power);
+        Assert.Equal(3, tokenState.Power);
         Assert.Equal("UNL-021/219", tokenState.CardNo);
         Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
         Assert.Contains(CardObjectTags.Ephemeral, tokenState.Tags);
-        Assert.Contains("映像", tokenState.Tags);
-        Assert.Contains("潜伏", tokenState.Tags);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenState.TokenFactoryCardNo);
+        Assert.DoesNotContain("潜伏", tokenState.Tags);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
@@ -41378,11 +41380,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(sourceObjectId, triggerQueued.Payload["sourceObjectId"]);
         Assert.Equal("P1", triggerQueued.Payload["controllerId"]);
         Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
-        Assert.Contains(p2Pass.Events, gameEvent =>
+        Assert.Single(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.Events, e => e.Kind == "RUNES_CALLED");
+        var resolved = await OfficialGraveyardRecastTests.Top(p2Pass.State);
+        Assert.Contains(resolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1", StringComparison.Ordinal));
 
-        var runeEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        var runeEvent = Assert.Single(resolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
         Assert.Equal("P1", runeEvent.Payload["playerId"]);
         Assert.Equal(sourceObjectId, runeEvent.Payload["sourceObjectId"]);
@@ -41391,11 +41396,11 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             [runeObjectId],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(runeEvent.Payload["runeObjectIds"]));
-        Assert.Empty(p2Pass.State.PlayerZones["P1"].RuneDeck);
-        Assert.Equal([runeObjectId], p2Pass.State.PlayerZones["P1"].Base);
-        Assert.True(p2Pass.State.CardObjects[runeObjectId].IsExhausted);
-        Assert.Equal([sourceObjectId, "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, sourceObjectId, "GRAVEYARD");
+        Assert.Empty(resolved.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal([runeObjectId], resolved.State.PlayerZones["P1"].Base);
+        Assert.True(resolved.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal([sourceObjectId, "P1-SPELL-VENGEANCE"], resolved.State.PlayerZones["P1"].Graveyard);
+        CardZoneTestAssertions.RetainedOutsidePlay(resolved.State, sourceObjectId, "GRAVEYARD");
     }
 
     [Fact]
@@ -41664,11 +41669,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-HONEST-BROKER", triggerQueued.Payload["sourceObjectId"]);
         Assert.Equal("P1", triggerQueued.Payload["controllerId"]);
         Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
-        Assert.Contains(p2Pass.Events, gameEvent =>
+        Assert.Single(p2Pass.State.StackItems);
+        Assert.DoesNotContain(p2Pass.Events, e => e.Kind == "EQUIPMENT_TOKEN_CREATED");
+        var resolved = await OfficialGraveyardRecastTests.Top(p2Pass.State);
+        Assert.Contains(resolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "HONEST_BROKER_LAST_BREATH_CREATE_GOLD", StringComparison.Ordinal));
 
-        var tokenEvent = Assert.Single(p2Pass.Events, gameEvent =>
+        var tokenEvent = Assert.Single(resolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.Equal("P1", tokenEvent.Payload["playerId"]);
         Assert.Equal("P1-HONEST-BROKER", tokenEvent.Payload["sourceObjectId"]);
@@ -41678,12 +41686,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(true, tokenEvent.Payload["isExhausted"]);
         Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], Assert.IsAssignableFrom<IReadOnlyList<string>>(tokenEvent.Payload["tokenTags"]));
 
-        Assert.Equal(["P1-HONEST-BROKER-TOKEN-001"], p2Pass.State.PlayerZones["P1"].Base);
-        var goldToken = p2Pass.State.CardObjects["P1-HONEST-BROKER-TOKEN-001"];
+        Assert.Equal(["P1-HONEST-BROKER-TOKEN-001"], resolved.State.PlayerZones["P1"].Base);
+        var goldToken = resolved.State.CardObjects["P1-HONEST-BROKER-TOKEN-001"];
         Assert.True(goldToken.IsExhausted);
         Assert.Equal([CardObjectTags.EquipmentCard, "反应", "金币"], goldToken.Tags);
-        Assert.Equal(["P1-HONEST-BROKER", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-HONEST-BROKER", "GRAVEYARD");
+        Assert.Equal(["P1-HONEST-BROKER", "P1-SPELL-VENGEANCE"], resolved.State.PlayerZones["P1"].Graveyard);
+        CardZoneTestAssertions.RetainedOutsidePlay(resolved.State, "P1-HONEST-BROKER", "GRAVEYARD");
     }
 
     [Fact]

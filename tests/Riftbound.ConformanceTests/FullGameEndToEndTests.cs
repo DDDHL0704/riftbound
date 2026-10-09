@@ -6135,7 +6135,7 @@ public sealed class FullGameEndToEndTests
         var tokenTags = Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]);
         Assert.Contains(CardObjectTags.Ephemeral, tokenTags);
         Assert.Contains(CardObjectTags.UnitCard, tokenTags);
-        Assert.Contains("映像", tokenTags);
+        Assert.DoesNotContain("映像", tokenTags);
 
         Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Base);
         var tokenState = result.State.CardObjects[tokenObjectId];
@@ -6144,7 +6144,7 @@ public sealed class FullGameEndToEndTests
         Assert.False(tokenState.IsExhausted);
         Assert.Contains(CardObjectTags.Ephemeral, tokenState.Tags);
         Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
-        Assert.Contains("映像", tokenState.Tags);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, tokenState.TokenFactoryCardNo);
         Assert.Contains(spellObjectId, result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal(TriggerZones.Graveyard, result.State.ObjectLocations[spellObjectId].Zone);
         AssertNoHiddenZoneLeak(result);

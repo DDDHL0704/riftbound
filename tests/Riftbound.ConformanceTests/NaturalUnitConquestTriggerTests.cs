@@ -397,7 +397,7 @@ public sealed class NaturalUnitConquestTriggerTests
         Assert.Equal("OGN·112/298", tokenEvent.Payload["tokenCardNo"]);
         var tokenTags = Assert.IsType<string[]>(tokenEvent.Payload["tokenTags"]);
         Assert.Contains(CardObjectTags.Ephemeral, tokenTags);
-        Assert.Contains("映像", tokenTags);
+        Assert.DoesNotContain("映像", tokenTags);
 
         var recycleEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
@@ -409,7 +409,7 @@ public sealed class NaturalUnitConquestTriggerTests
         Assert.Equal("OGN·112/298", result.State.CardObjects[tokenObjectId].CardNo);
         Assert.Equal(6, result.State.CardObjects[tokenObjectId].Power);
         Assert.Contains(CardObjectTags.Ephemeral, result.State.CardObjects[tokenObjectId].Tags);
-        Assert.Contains("映像", result.State.CardObjects[tokenObjectId].Tags);
+        Assert.Equal(P6TokenFactoryCatalog.ImageTokenCardNo, result.State.CardObjects[tokenObjectId].TokenFactoryCardNo);
         Assert.DoesNotContain(KaisaCopyTokenSpellObjectId, result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal([KaisaCopyTokenSpellObjectId], result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(TriggerZones.Base, result.State.ObjectLocations[tokenObjectId].Zone);

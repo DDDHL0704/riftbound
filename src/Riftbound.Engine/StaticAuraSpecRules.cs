@@ -460,12 +460,12 @@ internal static class StaticAuraSpecRules
     {
         if (string.Equals(targetFilter, StaticAuraTargetFilters.Token, StringComparison.Ordinal))
         {
-            return P6TokenFactoryCatalog.IsTokenFactory(target.CardNo);
+            return TokenObjectRules.IsToken(target);
         }
 
         if (string.Equals(targetFilter, StaticAuraTargetFilters.UnitToken, StringComparison.Ordinal))
         {
-            return P6TokenFactoryCatalog.IsUnitTokenFactory(target.CardNo);
+            return TokenObjectRules.IsToken(target) && target.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
         }
 
         if (targetFilter.StartsWith(StaticAuraTargetFilters.TagPrefix, StringComparison.Ordinal))

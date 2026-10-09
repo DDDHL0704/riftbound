@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static bool IsTokenObject(CardObjectState card) =>
-        P6TokenFactoryCatalog.IsTokenFactory(card.CardNo) || card.Tags.Contains("映像", StringComparer.Ordinal);
+        TokenObjectRules.IsToken(card);
 
     private static ResolutionResult FinalizeTokenDepartures(MatchState before, ResolutionResult result)
     {

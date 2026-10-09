@@ -456,6 +456,10 @@ public sealed record PowerModifierLedgerEntry
 
 public sealed record CardObjectState
 {
+    // Intrinsic token identity survives copying and changes to tags/card face (CN 185.1).
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TokenFactoryCardNo { get; init; }
+
     [JsonConstructor]
     public CardObjectState(
         string? objectId = null,
@@ -692,6 +696,9 @@ public sealed record StackItemState
 
 public sealed record TriggerQueueItemState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceCardNo { get; init; }
+
     public RecastTriggerContext? RecastContext { get; init; }
     public SpellTriggerContext? SpellContext { get; init; }
     [JsonConstructor]
@@ -4177,7 +4184,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration);
+            state.ObjectGeneration) { TokenFactoryCardNo = state.TokenFactoryCardNo };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -4213,7 +4220,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, FieldContext = item.FieldContext, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
