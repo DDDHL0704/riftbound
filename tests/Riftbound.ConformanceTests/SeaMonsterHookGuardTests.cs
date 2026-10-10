@@ -923,7 +923,8 @@ public sealed class SeaMonsterHookGuardTests
             {
                 [SeaMonsterHookBaseObjectId] = SeaMonsterHook(SeaMonsterHookBaseObjectId),
                 ["P1-TARGET-UNIT"] = Unit("P1-TARGET-UNIT", "SFD·125/221", power: 3),
-                ["P1-OTHER-EQUIPMENT"] = Equipment("P1-OTHER-EQUIPMENT", "OGN·077/298"),
+                // A neutral equipment keeps these look/choice fixtures independent of destruction replacement.
+                ["P1-OTHER-EQUIPMENT"] = Equipment("P1-OTHER-EQUIPMENT", "OGN·021/298"),
                 ["P1-ELIGIBLE-UNIT"] = Unit("P1-ELIGIBLE-UNIT", "SFD·020/221", power: 4),
                 ["P1-INELIGIBLE-UNIT"] = Unit("P1-INELIGIBLE-UNIT", "SFD·148/221", power: 5),
                 ["P1-TOP-SPELL"] = Spell("P1-TOP-SPELL", "SFD·087/221"),

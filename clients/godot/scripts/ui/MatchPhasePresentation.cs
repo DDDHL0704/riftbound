@@ -77,7 +77,7 @@ internal static class MatchPhasePresentation
             title = firstDeath ? "首次死亡 · 选择事件" : "摧毁替换 · 等待选择";
             actorLine = $"{Side(Text(replacement, "playerId"))}完成选择";
             detail = firstDeath ? "选择同时被摧毁的一名单位，作为本回合首次死亡技能的触发事件。"
-                : "可先发动资源技能，再选择保护单位与支付方式；也可放弃替换。";
+                : "选择先执行的替换及对象；可选费用可先产费，强制替换不能放弃。";
             hint = "确认后继续原结算；选择期间不能插入其他行动。";
             activeWindow = true;
         }

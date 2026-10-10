@@ -1,0 +1,200 @@
+{
+  "profiles": {
+    "focus5": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 22.22,
+      "total": 95,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 95,
+          "passed": 95,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 7.77
+        }
+      ]
+    },
+    "focus6": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 21.46,
+      "total": 55,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 55,
+          "passed": 55,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 6.51
+        }
+      ]
+    },
+    "native-final": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 16.16,
+      "total": 6,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 6,
+          "passed": 6,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 9.58
+        }
+      ]
+    },
+    "full-final": {
+      "status": "PASSED",
+      "profile": "full",
+      "seconds": 436.3,
+      "total": 9442,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "games-4",
+          "total": 45,
+          "passed": 45,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 233.65
+        },
+        {
+          "shard": "games-3",
+          "total": 45,
+          "passed": 45,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 244.84
+        },
+        {
+          "shard": "games-2",
+          "total": 44,
+          "passed": 44,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 247.7
+        },
+        {
+          "shard": "rules",
+          "total": 9307,
+          "passed": 9307,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 89.55
+        },
+        {
+          "shard": "games-1",
+          "total": 1,
+          "passed": 1,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 431.21
+        }
+      ]
+    }
+  },
+  "fullMethodCoverage": {
+    "discovered": 6389,
+    "scheduledUnique": 6389,
+    "planPath": "var/qa/destruction-order/full-final/plan.json",
+    "planSha256": "14bc2cfe63354a4eca468048a18410b5fa1e202525b3ffdae3037cfbd40585dd",
+    "testAssemblySha256": "caa6a3513d38b3c38ff37b1c5cd368d33cbf6db7b7d57c8a6d226912812e1363"
+  },
+  "native": {
+    "altar-pay": {
+      "replay": {
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "92f802cab4f7bde129cc7074453cc58f859b9d6108f2d7245177c6fa63312920",
+          "expectedStateHash": "92f802cab4f7bde129cc7074453cc58f859b9d6108f2d7245177c6fa63312920",
+          "errors": []
+        },
+        "commands": 1
+      },
+      "commandSha256": "82fcc6f390761a84515eb4a66260ffe14c334bf4b2dcdaa40325b78293eaa0c4"
+    },
+    "altar-decline": {
+      "replay": {
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "ea54387aa973d2c6bfb8f63c1f398be69b34c659a08161017062beba58477a5e",
+          "expectedStateHash": "ea54387aa973d2c6bfb8f63c1f398be69b34c659a08161017062beba58477a5e",
+          "errors": []
+        },
+        "commands": 1
+      },
+      "commandSha256": "5ee30902812a0eb0bda6e6273a2e7f419197275bd4b13e802bfef8b01352716a"
+    },
+    "mandatory": {
+      "replay": {
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "e9afbacb6e43153e459c9b0e87958d474088202955f9fc8966333ca116beb2d7",
+          "expectedStateHash": "e9afbacb6e43153e459c9b0e87958d474088202955f9fc8966333ca116beb2d7",
+          "errors": []
+        },
+        "commands": 1
+      },
+      "commandSha256": "0d046546d2f22ebb4cb640b18d3fee1c998ac9e5be27bdafc5beb143d320b114"
+    },
+    "gear": {
+      "replay": {
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "addd9336624932fecc9e97167e13972d9405dbb4f713bd25647e62600d871e87",
+          "expectedStateHash": "addd9336624932fecc9e97167e13972d9405dbb4f713bd25647e62600d871e87",
+          "errors": []
+        },
+        "commands": 1
+      },
+      "commandSha256": "a41a11853b831b236331253e773e71d12aeb198d051f8edeace66a15aed4d874"
+    },
+    "sett": {
+      "replay": {
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "12e348fe5e5e6d5c5a39daefdf0629570f87f894490d0ea44c97b9fd5067c948",
+          "expectedStateHash": "12e348fe5e5e6d5c5a39daefdf0629570f87f894490d0ea44c97b9fd5067c948",
+          "errors": []
+        },
+        "commands": 1
+      },
+      "commandSha256": "e261f231c3e6c44921d35eefe7c4b502846f8b3fabfcbec03f05e1f3c4c471ee"
+    },
+    "banish": {
+      "replay": {
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "07c0c3bb0f460de41df37799847f6f738fe65c4fda26c27c830ac469c06e42bb",
+          "expectedStateHash": "07c0c3bb0f460de41df37799847f6f738fe65c4fda26c27c830ac469c06e42bb",
+          "errors": []
+        },
+        "commands": 1
+      },
+      "commandSha256": "c67f196caf02e35d07d887638c6dc5aba8a033b60632eb7e067063e3d8de8675"
+    }
+  },
+  "independentAltarFullGame": {
+    "passed": 1,
+    "trxPath": "var/qa/destruction-order/altar-game-run/results.trx",
+    "trxSha256": "63ed17fd8b438922eef2bbadb7738ed8f23d1e87396fa2fffd7c75693b042d5e"
+  },
+  "boundaries": [
+    "Headless production controls and MatchSession recovery/replay only.",
+    "No service restart, deployment, packaging, two-window visual acceptance, or Windows device acceptance."
+  ]
+}

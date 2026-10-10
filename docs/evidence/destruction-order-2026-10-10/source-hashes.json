@@ -1,0 +1,7 @@
+{
+  "src/Riftbound.Engine/CoreRuleEngine.cs": "7aa09ac787c7861ebdea67f4fbabf41ac6bfa635cc7c25fb07938dee64c54880",
+  "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs": "8c48f778590d77c5c70613ac70ae44db1d908c3c9efd3709b4139c4de0c623f1",
+  "src/Riftbound.Engine/CoreRuleEngine.ReplacementResources.cs": "e46c613612a95ce7c57371526428f74fe146127fe4aa9711e00a84a712ead4b6",
+  "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs": "b17f691747652b5af9da077e1882b7267c9f311159f335b23961e65ff8005e3c",
+  "clients/godot/scripts/ui/MatchPhasePresentation.cs": "60fa67c9e4cddd318c8fb2b6d25a1b865dff29eb3986e9131a647e031422583d"
+}

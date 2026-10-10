@@ -12505,11 +12505,20 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-battle-destroyed-recall", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
+        var payment = PromptFor(battleClients, "P2").Candidates!.Single(c => c.Action == "PAY_COST");
+        var metadata = JsonSerializer.SerializeToElement(payment.Metadata);
+        var pay = JsonSerializer.SerializeToElement(new {
+            cmdType = "PAY_COST", paymentId = metadata.GetProperty("paymentId").GetString(), paymentWindow = "RULE_REPLACEMENT",
+            paymentChoiceIds = new[] { "ALTAR:P2-BATTLEFIELD-BLOOD-DEFENDER:P2-BATTLEFIELD-BLOOD-ALTAR" }
+        });
+        battleClients = new RecordingHubClients();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "accept-altar", pay);
+        Assert.Empty(battleClients.CallerClient.Errors);
         var battleEvents = EventsFor(battleClients);
         Assert.Contains(battleEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P2-BATTLEFIELD-BLOOD-ALTAR", StringComparison.Ordinal));
+            gameEvent.Kind == "UNIT_RECALLED_TO_BASE"
+            && gameEvent.Payload.GetValueOrDefault("sourceObjectId") as string == "P2-BATTLEFIELD-BLOOD-ALTAR");
         Assert.Contains(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)

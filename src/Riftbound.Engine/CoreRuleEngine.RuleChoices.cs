@@ -21,11 +21,12 @@ public sealed partial class CoreRuleEngine
         public MatchState Origin { get; } = origin;
         public HashSet<string> DestructionCandidates { get; set; } = new(StringComparer.Ordinal);
         public HashSet<string> CurrentDestructions { get; set; } = [];
+        public HashSet<string> AppliedDestructionReplacements { get; set; } = new(StringComparer.Ordinal);
         public int DeathSequence { get; set; }
         public int DestructionBatchSequence { get; set; }
         public int? CurrentDestructionBatch { get; set; }
-        public List<TriggerQueueItemState> ResourceTriggers { get; } = [];
-        public HashSet<string> ResourceDestroyedOwners { get; } = [];
+        public List<TriggerQueueItemState> NestedTriggers { get; } = [];
+        public HashSet<string> NestedDestroyedOwners { get; } = [];
         private int cursor;
         public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT")
         {

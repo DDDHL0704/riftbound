@@ -1,0 +1,43 @@
+{
+  "passed": 9298,
+  "failed": 9,
+  "skipped": 0,
+  "failures": [
+    {
+      "name": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithNoEligibleTopFiveUnitsRecyclesAllLookedCardsPrivatelyWithoutChoice",
+      "message": "Assert.Equal() Failure: Collections differ\n                                                   ↓ (pos 1)\nExpected: <generated> [\"P1-BASE-SEA-MONSTER-HOOK\", \"P1-OTHER-EQUIPMENT\"]\nActual:   string[]    [\"P1-BASE-SEA-MONSTER-HOOK\", \"P1-TARGET-UNIT\"]\n                                                   ↑ (pos 1)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityTopFiveChoiceCanDeclineAndRecycleAllLookedCardsPrivately",
+      "message": "Assert.Equal() Failure: Collections differ\n                                                   ↓ (pos 1)\nExpected: <generated> [\"P1-BASE-SEA-MONSTER-HOOK\", \"P1-OTHER-EQUIPMENT\"]\nActual:   string[]    [\"P1-BASE-SEA-MONSTER-HOOK\", \"P1-TARGET-UNIT\"]\n                                                   ↑ (pos 1)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEngineBanishesPunishmentTargetDestroyedLaterThisTurn",
+      "message": "System.Collections.Generic.KeyNotFoundException : The given key 'P2-UNIT-001' was not present in the dictionary."
+    },
+    {
+      "name": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityDestroysFriendlyUnitPlaysUniqueEligibleTopFiveUnitAndRecyclesRest",
+      "message": "Assert.Equal() Failure: Collections differ\n                                                   ↓ (pos 1)\nExpected: <generated> [\"P1-BASE-SEA-MONSTER-HOOK\", \"P1-OTHER-EQUIPMENT\", \"P1-ELIGIBLE-UNIT\"]\nActual:   string[]    [\"P1-BASE-SEA-MONSTER-HOOK\", \"P1-TARGET-UNIT\", \"P1-ELIGIBLE-UNIT\"]\n                                                   ↑ (pos 1)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithMultipleEligibleTopFiveUnitsPromptsControllerToChoosePrivately",
+      "message": "Assert.Equal() Failure: Collections differ\n                       ↓ (pos 0)\nExpected: <generated> [\"P1-TARGET-UNIT\"]\nActual:   string[]    [\"P1-OTHER-EQUIPMENT\"]\n                       ↑ (pos 0)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEngineRecallsHighlanderBloodlineTargetWhenDestroyed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"events[13].payload.sourceObjectId: expected \\\"P1-S\"···, \"events[13].payload.ownerPlayerId: expected \\\"P1\\\",\"···]"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEngineBanishesUnitWhenPunishmentDamageWouldDestroyIt",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"events[8].payload.sourceObjectId: expected \\\"P1-SP\"···, \"events[8].payload.destroyedByPlayerId: expected \\\"\"···, \"events[8].payload.reason: expected \\\"LETHAL_DAMAGE\"···]"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEngineRecallsTacticalRetreatTargetWhenDestroyed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"events[13].payload.sourceObjectId: expected \\\"P1-S\"···, \"events[13].payload.ownerPlayerId: expected \\\"P1\\\",\"···]"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassReplacementDestroysSourceAndRecallsFriendlyUnitInsteadOfDestroyingIt",
+      "message": "System.Collections.Generic.KeyNotFoundException : The given key 'replacementTargetObjectId' was not present in the dictionary."
+    }
+  ]
+}

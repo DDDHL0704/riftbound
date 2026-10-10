@@ -65,8 +65,8 @@ public sealed partial class CoreRuleEngine
         Replace(zones, result.State.PlayerZones); Replace(cards, result.State.CardObjects); Replace(pools, result.State.RunePools);
         events.AddRange(result.Events);
         var frame = RuleChoices.Value!;
-        frame.ResourceTriggers.AddRange(result.State.TriggerQueue.Where(t => !context.TriggerQueue.Any(old => old.TriggerId == t.TriggerId)));
-        frame.ResourceDestroyedOwners.UnionWith(result.State.DestroyedUnitOwnerIdsThisTurn.Except(context.DestroyedUnitOwnerIdsThisTurn));
+        frame.NestedTriggers.AddRange(result.State.TriggerQueue.Where(t => !context.TriggerQueue.Any(old => old.TriggerId == t.TriggerId)));
+        frame.NestedDestroyedOwners.UnionWith(result.State.DestroyedUnitOwnerIdsThisTurn.Except(context.DestroyedUnitOwnerIdsThisTurn));
         static void Replace<T>(Dictionary<string,T> target, IReadOnlyDictionary<string,T> source)
         {
             if (ReferenceEquals(target, source)) return;
@@ -74,13 +74,13 @@ public sealed partial class CoreRuleEngine
         }
     }
 
-    private static ResolutionResult ApplyReplacementResourceContinuations(ResolutionResult result)
+    private static ResolutionResult ApplyNestedDestructionContinuations(ResolutionResult result)
     {
         var frame = RuleChoices.Value;
-        if (!result.Accepted || frame is null || frame.ResourceTriggers.Count + frame.ResourceDestroyedOwners.Count == 0) return result;
-        var next = result.State with { TriggerQueue = result.State.TriggerQueue.Concat(result.State.Status == MatchStatuses.InProgress ? frame.ResourceTriggers : []).DistinctBy(t=>t.TriggerId).ToArray(),
-            DestroyedUnitOwnerIdsThisTurn = result.State.DestroyedUnitOwnerIdsThisTurn.Concat(frame.ResourceDestroyedOwners).Distinct().ToArray() };
-        frame.ResourceTriggers.Clear(); frame.ResourceDestroyedOwners.Clear();
+        if (!result.Accepted || frame is null || frame.NestedTriggers.Count + frame.NestedDestroyedOwners.Count == 0) return result;
+        var next = result.State with { TriggerQueue = result.State.TriggerQueue.Concat(result.State.Status == MatchStatuses.InProgress ? frame.NestedTriggers : []).DistinctBy(t=>t.TriggerId).ToArray(),
+            DestroyedUnitOwnerIdsThisTurn = result.State.DestroyedUnitOwnerIdsThisTurn.Concat(frame.NestedDestroyedOwners).Distinct().ToArray() };
+        frame.NestedTriggers.Clear(); frame.NestedDestroyedOwners.Clear();
         return result with { State = next };
     }
 }

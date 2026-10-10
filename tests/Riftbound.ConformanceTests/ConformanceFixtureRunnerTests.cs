@@ -45919,14 +45919,16 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.NotNull(result.State.PendingRuleChoice);
+        result = await DestructionOrderTests.Select(result.State, "ALTAR:P2-BATTLEFIELD-BLOOD-DEFENDER:P2-BATTLEFIELD-BLOOD-ALTAR");
+        Assert.True(result.Accepted);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P2"]);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BLOOD-DEFENDER", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P2-BATTLEFIELD-BLOOD-ALTAR", StringComparison.Ordinal));
+            gameEvent.Kind == "UNIT_RECALLED_TO_BASE"
+            && gameEvent.Payload.GetValueOrDefault("sourceObjectId") as string == "P2-BATTLEFIELD-BLOOD-ALTAR");
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)

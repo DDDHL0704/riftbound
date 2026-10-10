@@ -1,0 +1,10 @@
+{
+  "scope": "First full run stopped on games-4 failure; no complete-suite success claimed.",
+  "failures": [
+    {
+      "shard": "games-4",
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesBloodAltarBattleDestroyedRecallAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "message": "请由替换效果的控制者确认当前选择。"
+    }
+  ]
+}

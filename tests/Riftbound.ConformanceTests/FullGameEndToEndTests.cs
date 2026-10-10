@@ -2193,6 +2193,7 @@ public sealed class FullGameEndToEndTests
             "P1",
             "b0-blood-altar-battle-destroyed-recall");
         AssertBattlefieldBattleDestroyedRecallResolved(current, recalled);
+        Assert.Contains(journal.Entries, entry => entry.CommandType == CommandTypes.PayCost && entry.PlayerId == "P2" && entry.Accepted);
         var result = await DriveBattleCloseToScoreVictoryAsync(
             session,
             recalled,
@@ -8448,17 +8449,8 @@ public sealed class FullGameEndToEndTests
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, defenderObjectId, StringComparison.Ordinal));
 
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(
-                gameEvent.Payload["trigger"] as string,
-                StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement,
-                StringComparison.Ordinal));
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(BloodAltarBattlefieldDestroyedRecallCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(defenderObjectId, triggerEvent.Payload["targetObjectId"]);
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+            && gameEvent.Payload.GetValueOrDefault("trigger") as string == StaticAbilityKinds.BattlefieldDestroyedInBattlePayRecallReplacement);
 
         var costPaid = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
@@ -15729,7 +15721,7 @@ public sealed class FullGameEndToEndTests
         var result = current;
         for (var index = 0; index < 8; index++)
         {
-            if (!result.State.BattleState.IsActive || string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
+            if (result.State.PendingRuleChoice is not null || !result.State.BattleState.IsActive || string.IsNullOrWhiteSpace(result.State.PriorityPlayerId))
             {
                 return result;
             }
@@ -17982,6 +17974,14 @@ public sealed class FullGameEndToEndTests
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        var choice = Assert.IsType<RuleChoiceContinuation>(result.State.PendingRuleChoice).Request;
+        Assert.Equal(defendingPlayerId, choice.PlayerId);
+        var selection = $"ALTAR:{defenderObjectId}:{battlefieldId}";
+        Assert.Contains(choice.Options, option => option.Id == selection);
+        var payment = new PayCostCommand(choice.Id, "RULE_REPLACEMENT", [selection]);
+        result = await session.SubmitAsync(defendingPlayerId, $"{intentId}-accept-altar", payment, RawCommand(payment), CancellationToken.None);
+        AssertAccepted(result);
+        Assert.Null(result.State.PendingRuleChoice);
         Assert.Null(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
         return result;
