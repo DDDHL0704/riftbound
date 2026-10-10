@@ -1,0 +1,26 @@
+[
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "419cae44ea03abfc58ae39cbd17213a1d4e7ea62ea532156c66b4517b7e2d533"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "6dafaa1349a821d8c7a42e9665dd5213ff81c64acf1209f4f6a2cf0e1808dfa5"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/CurrentPowerTargetTests.cs",
+    "sha256": "0fc9c85513d53cd2d12578df957c781ae83aa39f9164d50e951fd4521faebe41"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/CurrentPowerTargetNativeTests.cs",
+    "sha256": "b8eadd2ee445c6b222b25922b14dee908422281131d21ba2ed6e09808b4aa0d9"
+  },
+  {
+    "path": "clients/godot/scripts/debug/CurrentPowerTargetInteractionProof.cs",
+    "sha256": "7180c0f6e5ac29e808fc266b973cbf361d95a60020ec43803f08db5786991497"
+  },
+  {
+    "path": "clients/godot/scenes/debug/CurrentPowerTargetInteractionProof.tscn",
+    "sha256": "9342614f5ee05757d3b4ae25eda670acfd2c73a9979afbda7ed93081e52198ad"
+  }
+]

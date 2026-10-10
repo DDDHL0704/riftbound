@@ -3134,7 +3134,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId)
         => ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _);
 
-    private static int ResolveAssignmentBattleCombatPower(
+    internal static int ResolveAssignmentBattleCombatPower(
         MatchState state,
         BattleState battle,
         string objectId,
@@ -15653,7 +15653,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + ResolveBattlefieldPowerStaticAuraBonus(state, zones, battlefieldId, card)
             + ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(state, zones, id, card);
 
-    private static int ResolveCurrentFieldUnitPower(MatchState state, CardObjectState card)
+    internal static int ResolveCurrentFieldUnitPower(MatchState state, CardObjectState card)
     {
         var battle = state.BattleState;
         if (battle.IsActive && (battle.AttackerObjectIds.Contains(card.ObjectId) || battle.DefenderObjectIds.Contains(card.ObjectId)))
@@ -25502,11 +25502,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return behavior.MaxTargetPower <= 0
             || (state.CardObjects.TryGetValue(objectId, out var targetState)
-                && targetState.Power > 0
-                && targetState.Power <= behavior.MaxTargetPower);
+                && ResolveCurrentFieldUnitPower(state, targetState) <= behavior.MaxTargetPower);
     }
 
-    private static bool HasValidTotalTargetPower(
+    internal static bool HasValidTotalTargetPower(
         MatchState state,
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> targetObjectIds)
@@ -25519,13 +25518,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var totalPower = 0;
         foreach (var targetObjectId in targetObjectIds)
         {
-            if (!state.CardObjects.TryGetValue(targetObjectId, out var targetState)
-                || targetState.Power <= 0)
+            if (!state.CardObjects.TryGetValue(targetObjectId, out var targetState))
             {
                 return false;
             }
 
-            totalPower += targetState.Power;
+            totalPower += ResolveCurrentFieldUnitPower(state, targetState);
             if (totalPower > behavior.MaxTotalTargetPower)
             {
                 return false;

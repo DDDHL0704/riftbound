@@ -1,0 +1,15 @@
+{
+  "baseline": 6194,
+  "current": 6202,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.CurrentPowerTargetNativeTests.NativeUnitSelectionPaymentAndResolutionReplay",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.AuraAtAnotherLocationDoesNotChangeTargetThreshold",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.BattleProjectionIncludesRolePowerButStunOnlySuppressesDamage",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.BothPlayersSeeTheSameLocalAuraInBaseOrBattlefield",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.ResolutionRechecksPowerAfterAResponseChangesAuraLocation",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.SingleCapUsesAuraAtPreviewAndSubmission",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.TotalCapSumsCurrentPowerIncludingZero",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.ZeroAndNegativePowerRemainLegalTargets"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "baseline": 9269,
+  "current": 9290,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.CurrentPowerTargetNativeTests.NativeUnitSelectionPaymentAndResolutionReplay(branch: \"aura\", spell: \"OGN·169/298\")",
+    "Riftbound.ConformanceTests.CurrentPowerTargetNativeTests.NativeUnitSelectionPaymentAndResolutionReplay(branch: \"zero\", spell: \"OGN·169/298\")",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.AuraAtAnotherLocationDoesNotChangeTargetThreshold",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.BattleProjectionIncludesRolePowerButStunOnlySuppressesDamage(defenderBonus: False, stunned: False)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.BattleProjectionIncludesRolePowerButStunOnlySuppressesDamage(defenderBonus: True, stunned: False)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.BattleProjectionIncludesRolePowerButStunOnlySuppressesDamage(defenderBonus: True, stunned: True)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.BothPlayersSeeTheSameLocalAuraInBaseOrBattlefield(inBase: False)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.BothPlayersSeeTheSameLocalAuraInBaseOrBattlefield(inBase: True)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.ResolutionRechecksPowerAfterAResponseChangesAuraLocation",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.SingleCapUsesAuraAtPreviewAndSubmission(spell: \"OGN·169/298\", power: 3, aura: True, legal: False)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.SingleCapUsesAuraAtPreviewAndSubmission(spell: \"SFD·162/221\", power: 2, aura: True, legal: False)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.SingleCapUsesAuraAtPreviewAndSubmission(spell: \"UNL-159/219\", power: 2, aura: True, legal: True)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.SingleCapUsesAuraAtPreviewAndSubmission(spell: \"UNL-159/219\", power: 3, aura: False, legal: True)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.SingleCapUsesAuraAtPreviewAndSubmission(spell: \"UNL-159/219\", power: 3, aura: True, legal: False)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.TotalCapSumsCurrentPowerIncludingZero(power: -2, aura: False, legal: True)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.TotalCapSumsCurrentPowerIncludingZero(power: 0, aura: False, legal: True)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.TotalCapSumsCurrentPowerIncludingZero(power: 1, aura: True, legal: True)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.TotalCapSumsCurrentPowerIncludingZero(power: 2, aura: False, legal: True)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.TotalCapSumsCurrentPowerIncludingZero(power: 2, aura: True, legal: False)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.ZeroAndNegativePowerRemainLegalTargets(power: -2)",
+    "Riftbound.ConformanceTests.CurrentPowerTargetTests.ZeroAndNegativePowerRemainLegalTargets(power: 0)"
+  ],
+  "allPassed": true
+}

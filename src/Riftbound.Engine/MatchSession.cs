@@ -4868,51 +4868,7 @@ public sealed record ResolutionResult(
     }
 
     private static int BattleEffectivePowerFor(MatchState state, BattleState battle, string objectId)
-    {
-        if (!state.CardObjects.TryGetValue(objectId, out var cardObject))
-        {
-            return 0;
-        }
-
-        var keyword = battle.AttackerObjectIds.Contains(objectId, StringComparer.Ordinal)
-            ? CardCombatKeywordNames.Assault
-            : battle.DefenderObjectIds.Contains(objectId, StringComparer.Ordinal)
-                ? CardCombatKeywordNames.Steadfast
-                : string.Empty;
-        var keywordBonus = string.IsNullOrWhiteSpace(keyword)
-            ? 0
-            : Math.Max(
-                CardCombatKeywordRules.KeywordAmount(cardObject.Tags, keyword),
-                BattleContinuousKeywordBonusFor(state, objectId, keyword));
-        var staticPowerBonus = state.ContinuousEffects
-            .Where(effect => string.Equals(effect.TargetObjectId, objectId, StringComparison.Ordinal)
-                && string.Equals(effect.Layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
-            .Sum(ProjectedStaticPowerAdjustment);
-        return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
-    }
-
-    private static int BattleContinuousKeywordBonusFor(
-        MatchState state,
-        string objectId,
-        string keyword)
-    {
-        return state.ContinuousEffects
-            .Where(effect => string.Equals(effect.Layer, ContinuousEffectLayers.RuleText, StringComparison.Ordinal)
-                && string.Equals(effect.TargetObjectId, objectId, StringComparison.Ordinal))
-            .Select(effect => ContinuousEffectKeywordAmount(effect, keyword))
-            .DefaultIfEmpty(0)
-            .Max();
-    }
-
-    private static int ContinuousEffectKeywordAmount(
-        ContinuousEffectState effect,
-        string keyword)
-    {
-        var token = effect.EffectId
-            .Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .LastOrDefault() ?? string.Empty;
-        return CardCombatKeywordRules.KeywordAmount([token], keyword);
-    }
+        => CoreRuleEngine.ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false);
 
     private static bool IsStunnedForBattle(CardObjectState cardObject)
     {
@@ -6409,21 +6365,7 @@ public sealed record ResolutionResult(
     {
         if (card.IsFaceDown || !card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || location?.Zone is not ("BASE" or "BATTLEFIELD")) return card.Power;
-        if (state.BattleState.IsActive && BattleParticipantObjectIds(state.BattleState).Contains(card.ObjectId, StringComparer.Ordinal))
-            return BattleEffectivePowerFor(state, card.ObjectId);
-        // Power modifiers already materialized on the object must not be counted
-        // twice. Add only the engine's currently applicable static aura layer.
-        return Math.Max(0, card.Power + state.ContinuousEffects
-            .Where(effect => effect.Layer == ContinuousEffectLayers.StaticAura && effect.TargetObjectId == card.ObjectId)
-            .Sum(ProjectedStaticPowerAdjustment));
-    }
-
-    private static int ProjectedStaticPowerAdjustment(ContinuousEffectState effect)
-    {
-        // This family is recomputed directly into CardObjectState.Power. Its
-        // static-aura record explains that value; adding it again would double it.
-        return effect.EffectKind == StaticAuraKinds.FriendlyFieldEquipmentCountToSourceUnitPower
-            ? 0 : effect.PowerDelta;
+        return CoreRuleEngine.ResolveCurrentFieldUnitPower(state, card);
     }
 
     private static Dictionary<string, object?> BuildObjectLocationSnapshotView(
@@ -12782,7 +12724,7 @@ internal static class ActionPromptBuilder
         }
 
         if (behavior.MaxTotalTargetPower > 0
-            && !HasValidPromptTotalTargetPower(state, behavior, targetObjectIds))
+            && !CoreRuleEngine.HasValidTotalTargetPower(state, behavior, targetObjectIds))
         {
             return false;
         }
@@ -12800,30 +12742,6 @@ internal static class ActionPromptBuilder
         var ward = targetObjectIds.Sum(target => SpellshieldTaxPowerForTarget(state, playerId, target));
         return runePool.Mana + PromptLuxSpellOnlyGeneratedMana(state, playerId, behavior, null, manaRequired) >= manaRequired
             && CanPayPlayPowerCosts(runePool, PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior), behavior, ward, "");
-    }
-
-    private static bool HasValidPromptTotalTargetPower(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        IReadOnlyList<string> targetObjectIds)
-    {
-        var totalPower = 0;
-        foreach (var targetObjectId in targetObjectIds)
-        {
-            if (!state.CardObjects.TryGetValue(targetObjectId, out var targetState)
-                || targetState.Power <= 0)
-            {
-                return false;
-            }
-
-            totalPower += targetState.Power;
-            if (totalPower > behavior.MaxTotalTargetPower)
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private static bool PromptHasRequiredAnyTargetTag(
@@ -13099,8 +13017,7 @@ internal static class ActionPromptBuilder
             : behavior.MaxTotalTargetPower;
         return maxTargetPower <= 0
             || (state.CardObjects.TryGetValue(objectId, out var targetState)
-                && targetState.Power > 0
-                && targetState.Power <= maxTargetPower);
+                && CoreRuleEngine.ResolveCurrentFieldUnitPower(state, targetState) <= maxTargetPower);
     }
 
     private static bool IsPromptControlledFieldObject(MatchState state, string playerId, string objectId)
