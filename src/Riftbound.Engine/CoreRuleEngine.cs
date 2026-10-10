@@ -166,6 +166,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
+            result = ApplyReplacementResourceContinuations(result);
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
@@ -4948,12 +4949,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             events.Add(exhaustedEvent);
         }
 
-        using (var costReplacements = PrepareDestructionReplacements(playerZones, cardObjects, runePools, plan.DestroyedAdditionalCostTargetObjectIds))
+        using (var costReplacements = PrepareDestructionReplacements(state with { PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, plan.DestroyedAdditionalCostTargetObjectIds))
         {
             events.AddRange(costReplacements.Events);
             foreach (var additionalCostTargetObjectId in plan.DestroyedAdditionalCostTargetObjectIds.Where(id => !costReplacements.Replaced.Contains(id)))
             {
-                if (!TryDestroyTarget(playerZones, cardObjects, runePools, additionalCostTargetObjectId, out var removalResult))
+                if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, additionalCostTargetObjectId, out var removalResult))
                 {
                     continue;
                 }
@@ -5445,12 +5446,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 assembleProfile.CardNo,
                 [command.TargetObjectId],
                 optionalCosts: optionalCosts);
-            using (var costReplacements = PrepareDestructionReplacements(playerZones, cardObjects, runePools, destroyedAdditionalCostTargetObjectIds))
+            using (var costReplacements = PrepareDestructionReplacements(state with { PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, destroyedAdditionalCostTargetObjectIds))
             {
                 assembleRemovalEvents.AddRange(costReplacements.Events);
                 foreach (var additionalCostTargetObjectId in destroyedAdditionalCostTargetObjectIds.Where(id => !costReplacements.Replaced.Contains(id)))
                 {
-                    if (!TryDestroyTarget(playerZones, cardObjects, runePools, additionalCostTargetObjectId, out var removalResult))
+                    if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, additionalCostTargetObjectId, out var removalResult))
                     {
                         return RejectWithCorePrompts(
                             state,
@@ -7104,24 +7105,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveMalzaharResourceSkill(state, intent, command, ability);
         }
 
-        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId, StringComparison.Ordinal))
-        {
-            return ResolveImmediateResourceSkill(state, intent, command, ability);
-        }
-
-
-
-        if (P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(ability.AbilityId))
-        {
-            return ResolveImmediateResourceSkill(state, intent, command, ability);
-        }
-
-        if (P4ActivatedAbilityCatalog.IsSigilTypedResourceAbility(ability.AbilityId))
-        {
-            return ResolveImmediateResourceSkill(state, intent, command, ability);
-        }
-
-        if (P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(ability.AbilityId))
+        if (IsImmediatePoolResourceAbility(ability.AbilityId))
         {
             return ResolveImmediateResourceSkill(state, intent, command, ability);
         }
@@ -7377,7 +7361,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destructionTriggers = new List<TriggerQueueItemState>();
         if (ability.AbilityId == P4ActivatedAbilityCatalog.ScryingBlossomAbilityId)
         {
-            var destroyed = ResolveFieldDestructions(playerZones, cardObjects, stackItem, new HashSet<string>(),
+            var destroyed = ResolveFieldDestructions(state, playerZones, cardObjects, stackItem, new HashSet<string>(),
                 state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), runePools,
                 objectLocations: state.ObjectLocations, explicitDestroyObjectIds: new HashSet<string> { command.SourceObjectId });
             if (destroyed.Events.Count == 0)
@@ -14016,7 +14000,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceState.CardNo,
             [command.SourceObjectId],
             optionalCosts: optionalCosts);
-        var lethalCleanup = RunStateBasedCleanupLoop(
+        var lethalCleanup = RunStateBasedCleanupLoop(state,
             playerZones,
             cardObjects,
             cleanupStackItem,
@@ -14322,7 +14306,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceState.CardNo,
             [command.SourceObjectId],
             optionalCosts: optionalCosts);
-        var lethalCleanup = RunStateBasedCleanupLoop(
+        var lethalCleanup = RunStateBasedCleanupLoop(state,
             playerZones,
             cardObjects,
             cleanupStackItem,
@@ -14529,7 +14513,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceState.CardNo,
             [command.SourceObjectId],
             optionalCosts: optionalCosts);
-        var lethalCleanup = RunStateBasedCleanupLoop(
+        var lethalCleanup = RunStateBasedCleanupLoop(state,
             playerZones,
             cardObjects,
             cleanupStackItem,
@@ -14782,7 +14766,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceState.CardNo,
             [command.SourceObjectId],
             optionalCosts: optionalCosts);
-        var lethalCleanup = RunStateBasedCleanupLoop(
+        var lethalCleanup = RunStateBasedCleanupLoop(state,
             playerZones,
             cardObjects,
             cleanupStackItem,
@@ -15419,7 +15403,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PendingHandChoiceState? pendingHandChoice = null;
         IReadOnlyList<TriggerQueueItemState> conquestTriggers = state.TriggerQueue;
         var conquestObjectLocations = state.ObjectLocations;
-        var lethalCleanup = RunStateBasedCleanupLoop(
+        var lethalCleanup = RunStateBasedCleanupLoop(state,
             playerZones,
             cardObjects,
             combatStackItem,
@@ -17965,7 +17949,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
     }
 
-    private static bool TryApplyFriendlyUnitDestroyedEquipmentRecallReplacement(
+    private static bool TryApplyFriendlyUnitDestroyedEquipmentRecallReplacement(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         Dictionary<string, RunePool> runePools,
@@ -18000,7 +17984,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var ownerId = string.IsNullOrWhiteSpace(targetState.OwnerId)
             ? location.Value.PlayerId
             : targetState.OwnerId;
-        if (!TryDestroyTarget(playerZones, cardObjects, runePools, sourceObjectId, out var sourceRemovalResult))
+        if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, sourceObjectId, out var sourceRemovalResult))
         {
             return false;
         }
@@ -19085,7 +19069,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 unitConquestDestroyEquipmentTrigger.Kind,
                 unitState.CardNo,
                 [equipmentObjectId]);
-            if (TryDestroyTarget(playerZones, cardObjects, runePools, equipmentObjectId, out var removalResult))
+            if (TryDestroyTarget(state, playerZones, cardObjects, runePools, equipmentObjectId, out var removalResult))
             {
                 events.AddRange(BuildFieldRemovalEvents(
                     "单位征服效果",
@@ -23318,7 +23302,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (stackResolution.WinnerPlayerId is null && stackResolution.PendingCardChoice is null
                 && stackResolution.PendingEffectPlay is null && stackResolution.PendingPayment?.ResolvingStackItemId is null)
             {
-                var postStackCleanup = RunStateBasedCleanupLoop(
+                var postStackCleanup = RunStateBasedCleanupLoop(state with { PlayerScores = stackResolution.PlayerScores, PlayerExperience = stackResolution.PlayerExperience },
                     resolvedPlayerZones,
                     resolvedCardObjects,
                     resolvedItem,
@@ -23971,7 +23955,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state.ActivePlayerId,
             "SPELL_DUEL_CLEANUP",
             "SPELL_DUEL_CLEANUP");
-        var cleanup = RunStateBasedCleanupLoop(
+        var cleanup = RunStateBasedCleanupLoop(state,
             playerZones,
             cardObjects,
             cleanupStackItem,
@@ -24177,7 +24161,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var turnEndPlayerZones = controlReturnResult.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var turnEndCardObjects = cleanupResult.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, turnEndPlayerZones);
-        var stateBasedCleanup = RunStateBasedCleanupLoop(
+        var stateBasedCleanup = RunStateBasedCleanupLoop(cleanupState,
             turnEndPlayerZones,
             turnEndCardObjects,
             new StackItemState(
@@ -25348,7 +25332,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
 
 
-    private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(
+    private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         Dictionary<string, RunePool> runePools,
@@ -25394,7 +25378,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 string.Empty,
                 [],
                 0);
-            if (!TryDestroyTarget(playerZones, cardObjects, runePools, objectId, out var removalResult))
+            if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, objectId, out var removalResult))
             {
                 continue;
             }
@@ -29218,7 +29202,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ? Math.Max(0, targetState.Power)
             : 0;
 
-        if (!TryDestroyTarget(playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
+        if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
         {
             return NoopStackResolutionResult(state);
         }
@@ -30301,7 +30285,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var allUnitTargetObjectIds = GetFieldUnitObjectIds(playerZones, cardObjects).ToArray();
             var allUnitTargetObjectIdSet = allUnitTargetObjectIds.ToHashSet(StringComparer.Ordinal);
-            using var replacements = PrepareDestructionReplacements(playerZones, cardObjects, runePools, allUnitTargetObjectIds);
+            using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, allUnitTargetObjectIds);
             events.AddRange(replacements.Events);
             foreach (var targetObjectId in allUnitTargetObjectIds.Where(id => !replacements.Replaced.Contains(id)))
             {
@@ -30312,7 +30296,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     playerZones,
                     targetObjectId,
                     targetStateBeforeDestroy);
-                if (!TryDestroyTarget(playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
+                if (!TryDestroyTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                 {
                     continue;
                 }
@@ -30354,7 +30338,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in GetFieldEquipmentObjectIds(playerZones, cardObjects))
             {
-                if (!TryDestroyTarget(playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
+                if (!TryDestroyTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                 {
                     continue;
                 }
@@ -31138,7 +31122,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 destroyedTargetObjectId,
                 destroyedTargetStateBeforeRemoval);
 
-            if (TryDestroyControlledFieldTarget(playerZones, cardObjects, runePools, destroyedTargetObjectId, out var removalResult))
+            if (TryDestroyControlledFieldTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, destroyedTargetObjectId, out var removalResult))
             {
                 events.AddRange(BuildFieldRemovalEvents(
                     behavior.DisplayName,
@@ -31272,7 +31256,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                using var replacements = PrepareDestructionReplacements(playerZones, cardObjects, runePools,
+                using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools,
                     behavior.DestroysTarget ? stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)).ToArray() : []);
                 events.AddRange(replacements.Events);
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
@@ -31375,7 +31359,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             targetState);
                         if (behavior.DestroysTargetIfAlreadyHasStatusEffect
                             && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
-                            && TryDestroyControlledFieldTarget(playerZones, cardObjects, runePools, targetObjectId, out var statusRemovalResult))
+                            && TryDestroyControlledFieldTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var statusRemovalResult))
                         {
                             events.AddRange(BuildFieldRemovalEvents(
                                 behavior.DisplayName,
@@ -31526,7 +31510,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         state.ObjectLocations,
                         targetObjectId);
                     if (behavior.DestroysTarget
-                        && TryDestroyControlledFieldTarget(playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
+                        && TryDestroyControlledFieldTarget(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
                     {
                         events.AddRange(BuildFieldRemovalEvents(
                             behavior.DisplayName,
@@ -32049,7 +32033,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!deferCompletion)
         {
             var lethalCleanupObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-            var lethalCleanup = RunStateBasedCleanupLoop(
+            var lethalCleanup = RunStateBasedCleanupLoop(state with { PlayerScores = playerScores, PlayerExperience = playerExperience },
                 playerZones,
                 cardObjects,
                 stackItem,
@@ -33827,7 +33811,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "泽拉斯的技能造成 3 点伤害",
                 BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
 
-            var lethalCleanup = RunStateBasedCleanupLoop(
+            var lethalCleanup = RunStateBasedCleanupLoop(state,
                 playerZones,
                 cardObjects,
                 stackItem,
@@ -38097,13 +38081,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects.Remove(objectId); // Legacy identity-less fixtures and token lifecycle.
     }
 
-    private static bool TryDestroyTarget(Dictionary<string, PlayerZones> zones,
+    private static bool TryDestroyTarget(MatchState state, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> runePools, string id, out FieldRemovalResult removal)
     {
         var before = cards.GetValueOrDefault(id);
         var controller = before is null ? "" : EffectiveFieldControllerId(zones, id, before);
-        if (TryReplaceDestruction(zones, cards, runePools, id, out removal)) return true;
+        if (TryReplaceDestruction(state, zones, cards, runePools, id, out removal)) return true;
+        var beforeRemovalEvents = removal.BeforeRemovalEvents;
         var removed = TryDestroyTargetCore(zones, cards, id, out removal);
+        removal = removal with { BeforeRemovalEvents = beforeRemovalEvents };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false }
             && IsInsightSource(before.CardNo, "LAST_BREATH"))
             removal = removal with { InsightContext = new(before.CardNo!, controller, 2, before.ObjectGeneration, "LAST_BREATH") };
@@ -38196,7 +38182,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryDestroyControlledFieldTarget(
+    private static bool TryDestroyControlledFieldTarget(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         Dictionary<string, RunePool> runePools,
@@ -38211,7 +38197,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        return TryDestroyTarget(playerZones, cardObjects, runePools, targetObjectId, out removalResult);
+        return TryDestroyTarget(state, playerZones, cardObjects, runePools, targetObjectId, out removalResult);
     }
 
     private static IReadOnlyList<string> DetachEquipmentFromRemovedHost(
@@ -38240,7 +38226,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static IReadOnlyList<GameEvent> BuildFieldRemovalEvents(string displayName, StackItemState stackItem,
         string targetObjectId, FieldRemovalResult removalResult, string? reason = null)
-        => removalResult.ReplacementEvents ?? [BuildFieldRemovalEvent(displayName, stackItem, targetObjectId, removalResult, reason)];
+        => (removalResult.BeforeRemovalEvents ?? []).Concat(removalResult.ReplacementEvents
+            ?? [BuildFieldRemovalEvent(displayName, stackItem, targetObjectId, removalResult, reason)]).ToArray();
 
     private static GameEvent BuildFieldRemovalEvent(
         string displayName,
@@ -38287,7 +38274,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return new GameEvent("UNIT_BANISHED", $"{displayName}改为放逐单位", payload);
         }
 
-        return removalResult.WasEquipment
+        return removalResult.WasEquipment && !removalResult.WasUnit
             ? new GameEvent("EQUIPMENT_DESTROYED", $"{displayName}摧毁装备", payload)
             : new GameEvent("UNIT_DESTROYED", $"{displayName}摧毁单位", payload);
     }
@@ -39337,7 +39324,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && cardObject.Power >= minimumPower);
     }
 
-    private static StateBasedCleanupResult RunStateBasedCleanupLoop(
+    private static StateBasedCleanupResult RunStateBasedCleanupLoop(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem,
@@ -39360,7 +39347,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         for (var pass = 0; pass < 32; pass++)
         {
-            var cleanup = ResolveFieldDestructions(
+            var cleanup = ResolveFieldDestructions(state,
                 playerZones,
                 cardObjects,
                 stackItem,
@@ -39659,7 +39646,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return battlefieldObjectIds.Length == 1 ? battlefieldObjectIds[0] : null;
     }
 
-    private static LethalDamageCleanupResult ResolveFieldDestructions(
+    private static LethalDamageCleanupResult ResolveFieldDestructions(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem,
@@ -39693,7 +39680,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
         var stateBasedRemovalObjectIdSet = stateBasedRemovalObjectIds.ToHashSet(StringComparer.Ordinal);
 
-        using var replacements = PrepareDestructionReplacements(playerZones, cardObjects, nextRunePools, stateBasedRemovalObjectIds);
+        using var replacements = PrepareDestructionReplacements(state, playerZones, cardObjects, nextRunePools, stateBasedRemovalObjectIds);
         events.AddRange(replacements.Events);
         foreach (var objectId in stateBasedRemovalObjectIds.Where(id => !replacements.Replaced.Contains(id)))
         {
@@ -39701,7 +39688,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : damageTriggeredDestroyTargetObjectIds.Contains(objectId)
                 ? "DAMAGE_TRIGGERED_DESTROY"
                 : "LETHAL_DAMAGE";
-            if (TryApplyFriendlyUnitDestroyedEquipmentRecallReplacement(
+            if (TryApplyFriendlyUnitDestroyedEquipmentRecallReplacement(state,
                     playerZones,
                     cardObjects,
                     nextRunePools,
@@ -39766,7 +39753,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cleanupObjectLocations, objectId, loyalPoroLastBreathDrawPlayerId))
                 loyalPoroLastBreathDrawPlayerId = null;
 
-            if (!TryDestroyTarget(playerZones, cardObjects, nextRunePools, objectId, out var removalResult))
+            if (!TryDestroyTarget(state, playerZones, cardObjects, nextRunePools, objectId, out var removalResult))
             {
                 continue;
             }
@@ -40539,7 +40526,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static BattlefieldStartDamageResult ApplyBattlefieldTurnStartDamageAllUnits(
+    private static BattlefieldStartDamageResult ApplyBattlefieldTurnStartDamageAllUnits(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
@@ -40660,7 +40647,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             string.Empty,
             [],
             0);
-        var lethalCleanup = RunStateBasedCleanupLoop(
+        var lethalCleanup = RunStateBasedCleanupLoop(state,
             playerZones,
             cardObjects,
             pseudoStackItem,
@@ -40777,7 +40764,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             string.Empty,
             [],
             0);
-        if (!TryDestroyTarget(playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
+        if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
         {
             return new BattlefieldStartDrawResult(events, [], playerScores, null, rngCursor);
         }
@@ -41836,6 +41823,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> DetachedEquipmentObjectIds)
     {
         public IReadOnlyList<GameEvent>? ReplacementEvents { get; init; }
+        public IReadOnlyList<GameEvent>? BeforeRemovalEvents { get; init; }
         public InsightTriggerContext? InsightContext { get; init; }
         public DeathRevealContext? DeathRevealContext { get; init; }
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;

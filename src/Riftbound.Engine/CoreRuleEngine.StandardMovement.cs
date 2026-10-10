@@ -92,7 +92,7 @@ public sealed partial class CoreRuleEngine
             var trigger = BuildJhinMovementResourceTrigger(relocated, intent.PlayerId, move.Id, cards[move.Id], move.Origin, destination);
             if (trigger is not null) { queued.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger)); }
         }
-        var cleanup = RunStateBasedCleanupLoop(zones, cards,
+        var cleanup = RunStateBasedCleanupLoop(state, zones, cards,
             new StackItemState($"move-group-{state.Tick + 1}", intent.PlayerId, ids[0], "MOVE_UNIT", targetObjectIds: ids),
             pools, objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
         events.AddRange(cleanup.Events);

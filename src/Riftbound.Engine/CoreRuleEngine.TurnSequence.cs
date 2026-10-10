@@ -44,8 +44,8 @@ public sealed partial class CoreRuleEngine
                     break;
                 case "START":
                     var startPools = state.RunePools.ToDictionary(e => e.Key, e => e.Value);
-                    var ephemeral = DestroyEphemeralObjectsAtTurnStart(zones, cards, startPools, state.ObjectLocations, player, state.Tick);
-                    var damage = ApplyBattlefieldTurnStartDamageAllUnits(zones, cards, state.ObjectLocations, player, state.Tick, startPools);
+                    var ephemeral = DestroyEphemeralObjectsAtTurnStart(state, zones, cards, startPools, state.ObjectLocations, player, state.Tick);
+                    var damage = ApplyBattlefieldTurnStartDamageAllUnits(state, zones, cards, state.ObjectLocations, player, state.Tick, startPools);
                     foreach (var entry in damage.RunePools) startPools[entry.Key] = entry.Value;
                     var startDraw = ApplyBattlefieldTurnStartDestroyUnitDraw(state with { PlayerZones = zones, CardObjects = cards },
                         zones, cards, startPools, player, state.RngCursor);

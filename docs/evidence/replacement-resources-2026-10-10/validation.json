@@ -1,0 +1,275 @@
+{
+  "baselineCommit": "57960015c6a7d2bf0b24ea5d252bc75be3504c57",
+  "caseCounts": {
+    "ReplacementResourceTests": 27,
+    "ReplacementResourceNativeTests": 4
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 351.21,
+    "total": 9394,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 199.78
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 203.64
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 208.92
+      },
+      {
+        "shard": "rules",
+        "total": 9259,
+        "passed": 9259,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 81.32
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 347.13
+      }
+    ]
+  },
+  "finalFocus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 23.14,
+    "total": 290,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 290,
+        "passed": 290,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.35
+      }
+    ]
+  },
+  "finalFocusScope": "After full passed, extracted the equivalent shared resource-family predicate and clarified payment labels; revalidated resource, replacement and native session tests, without repeating long-game matrices.",
+  "nativeBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.38\n",
+  "nativeProof": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nREPLACEMENT_RESOURCE_INTERACTION_PASS: eight production resource and replacement decisions\n",
+  "nativeFinalCommandsByteIdenticalToAcceptedCommands": true,
+  "native": {
+    "resource-gold-step1-accept": {
+      "command": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "RESOURCE:RESOURCE:GOLD_TOKEN_UNL_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER:"
+        ],
+        "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+        "snapshotTick": 3
+      },
+      "commandSha256": "3b7690701d8e43b0cf63db30e7f98e1e08ed777ee10012f5e996ada7a02facab",
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "64728ddc878c9790d5ac17fdb2cdd91213ac838e06a1a5630938d93ca1b0f41c",
+          "expectedStateHash": "64728ddc878c9790d5ac17fdb2cdd91213ac838e06a1a5630938d93ca1b0f41c",
+          "errors": []
+        }
+      }
+    },
+    "resource-gold-step1-decline": {
+      "command": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "RESOURCE:RESOURCE:GOLD_TOKEN_UNL_REACTION_DESTROY_EXHAUST_GAIN_GENERIC_POWER:"
+        ],
+        "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+        "snapshotTick": 3
+      },
+      "commandSha256": "3b7690701d8e43b0cf63db30e7f98e1e08ed777ee10012f5e996ada7a02facab",
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "64728ddc878c9790d5ac17fdb2cdd91213ac838e06a1a5630938d93ca1b0f41c",
+          "expectedStateHash": "64728ddc878c9790d5ac17fdb2cdd91213ac838e06a1a5630938d93ca1b0f41c",
+          "errors": []
+        }
+      }
+    },
+    "resource-gold-step2-accept": {
+      "command": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:1",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "SETT:D2:LEGEND:ANY"
+        ],
+        "promptId": "death-duel:4:P2:PAY_COST,SURRENDER",
+        "snapshotTick": 4
+      },
+      "commandSha256": "295dc9fbdc21ba961bbe0f16480c6fe7dc33409d1ee6679e7b601f54074860ab",
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "83b6705cb22a621936a884aeb3f9fdbe71fdc44d01453f4c9d4487cae1df0aae",
+          "expectedStateHash": "83b6705cb22a621936a884aeb3f9fdbe71fdc44d01453f4c9d4487cae1df0aae",
+          "errors": []
+        }
+      }
+    },
+    "resource-gold-step2-decline": {
+      "command": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:1",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "DECLINE"
+        ],
+        "promptId": "death-duel:4:P2:PAY_COST,SURRENDER",
+        "snapshotTick": 4
+      },
+      "commandSha256": "565f0d4a67fbb463ede9f3c4213face1e13dc2fa993910997084845d285a69cc",
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "7e27f17588899be7a28e9d474d74b83c449f6374f50a2119725095935ed87f90",
+          "expectedStateHash": "7e27f17588899be7a28e9d474d74b83c449f6374f50a2119725095935ed87f90",
+          "errors": []
+        }
+      }
+    },
+    "resource-sigil-step1-accept": {
+      "command": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "RESOURCE:RESOURCE:RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER:"
+        ],
+        "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+        "snapshotTick": 3
+      },
+      "commandSha256": "deddf35fbe9579812de2e1b06ed98a51c3fe92381b2e26e185f8e5cc782d2c08",
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "02abb4cdfc946659d724f01eb2d0cc8ef25b9486eb19695893b86d7e222276c7",
+          "expectedStateHash": "02abb4cdfc946659d724f01eb2d0cc8ef25b9486eb19695893b86d7e222276c7",
+          "errors": []
+        }
+      }
+    },
+    "resource-sigil-step1-decline": {
+      "command": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "RESOURCE:RESOURCE:RAGE_SIGIL_REACTION_EXHAUST_GAIN_1_RED_POWER:"
+        ],
+        "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+        "snapshotTick": 3
+      },
+      "commandSha256": "deddf35fbe9579812de2e1b06ed98a51c3fe92381b2e26e185f8e5cc782d2c08",
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "02abb4cdfc946659d724f01eb2d0cc8ef25b9486eb19695893b86d7e222276c7",
+          "expectedStateHash": "02abb4cdfc946659d724f01eb2d0cc8ef25b9486eb19695893b86d7e222276c7",
+          "errors": []
+        }
+      }
+    },
+    "resource-sigil-step2-accept": {
+      "command": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:1",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "SETT:D2:LEGEND:TRAIT:red"
+        ],
+        "promptId": "death-duel:4:P2:PAY_COST,SURRENDER",
+        "snapshotTick": 4
+      },
+      "commandSha256": "5b378896c4bd8b1ba6489b19681e7d6930e8d478d7c82334235265a33d998185",
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "953c52a270c4f0acdd2303e970918b4f1c699db94aff3d556be568f371c91593",
+          "expectedStateHash": "953c52a270c4f0acdd2303e970918b4f1c699db94aff3d556be568f371c91593",
+          "errors": []
+        }
+      }
+    },
+    "resource-sigil-step2-decline": {
+      "command": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:1",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "DECLINE"
+        ],
+        "promptId": "death-duel:4:P2:PAY_COST,SURRENDER",
+        "snapshotTick": 4
+      },
+      "commandSha256": "565f0d4a67fbb463ede9f3c4213face1e13dc2fa993910997084845d285a69cc",
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "4b05dfb64dc7d76e91398b3c3ed761ecf5f565d3f862523bd694b44303554c8b",
+          "expectedStateHash": "4b05dfb64dc7d76e91398b3c3ed761ecf5f565d3f862523bd694b44303554c8b",
+          "errors": []
+        }
+      }
+    }
+  },
+  "baselineCi": {
+    "runId": 38027170431,
+    "status": "in_progress",
+    "conclusion": "",
+    "verifiedThisBatch": true
+  },
+  "boundaries": [
+    "No user service or match restart",
+    "No full interactive two-client visual acceptance",
+    "No packaging or Windows device acceptance",
+    "Multi-family replacement order and nested death observers remain open"
+  ]
+}

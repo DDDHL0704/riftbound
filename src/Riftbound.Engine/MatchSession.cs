@@ -5570,6 +5570,7 @@ public sealed record ResolutionResult(
         MatchState state,
         PendingPaymentState payment)
     {
+        if (payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow) return [];
         if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
         {
             return [];
@@ -15931,7 +15932,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<ActionPromptChoiceDto> PendingPaymentChoiceDtos(MatchState state, PendingPaymentState payment)
     {
         return PendingPaymentSpendChoiceIds(payment)
-            .Select(choiceId => new ActionPromptChoiceDto(choiceId, state.PendingRuleChoice?.Request.Options.FirstOrDefault(o => o.Id == choiceId)?.Label ?? PaymentChoiceLabel(choiceId), "服务端支付候选"))
+            .Select(choiceId => new ActionPromptChoiceDto(choiceId, state.PendingRuleChoice?.Request.Options.FirstOrDefault(o => o.Id == choiceId)?.Label ?? PaymentChoiceLabel(choiceId), "服务端支付候选", state.PendingRuleChoice?.Request.Options.FirstOrDefault(o => o.Id == choiceId)?.ObjectIds))
             .ToArray();
     }
 
@@ -15973,6 +15974,7 @@ internal static class ActionPromptBuilder
         MatchState state,
         PendingPaymentState payment)
     {
+        if (payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow) return [];
         if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
         {
             return [];

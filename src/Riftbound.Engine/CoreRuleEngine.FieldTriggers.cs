@@ -184,7 +184,7 @@ public sealed partial class CoreRuleEngine
             if (!cards.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration != item.FieldContext.SourceGeneration
                 || source.ControllerId != item.ControllerId || !IsObjectOnField(zones, item.SourceObjectId))
                 return RejectWithCorePrompts(state, "狂热粉丝已无法支付摧毁费用。", ErrorCodes.InvalidTarget);
-            var removal = ResolveFieldDestructions(zones, cards, item, new HashSet<string>(), state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(),
+            var removal = ResolveFieldDestructions(state, zones, cards, item, new HashSet<string>(), state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(),
                 next.RunePools, objectLocations: state.ObjectLocations, explicitDestroyObjectIds: new HashSet<string> { item.SourceObjectId });
             if (removal.Events.Count == 0) return RejectWithCorePrompts(state, "无法支付摧毁费用。", ErrorCodes.InvalidTarget);
             next = next with { PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),

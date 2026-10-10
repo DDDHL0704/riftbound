@@ -14,10 +14,11 @@ public partial class TriggerCostInteractionProof : Control
         {
             var root = OS.GetCmdlineUserArgs().Single(a => a.StartsWith("--evidence="))[11..];
             var battlefield = OS.GetCmdlineUserArgs().Contains("--battlefield-replacement");
-            var sett = OS.GetCmdlineUserArgs().Contains("--sett-replacement");
+            var resource = OS.GetCmdlineUserArgs().Contains("--replacement-resource");
+            var sett = resource || OS.GetCmdlineUserArgs().Contains("--sett-replacement");
             var deck = OS.GetCmdlineUserArgs().Contains("--legend-deck");
             var conquest = OS.GetCmdlineUserArgs().Contains("--legend-conquest");
-            foreach (var source in sett ? new[] { "sett", "sett-rune" } : deck ? new[] { "cost" } : conquest ? new[] { "irelia", "vi" } : battlefield ? new[] { "ivern", "return" } : new[] { "vex", "renata", "hub" })
+            foreach (var source in resource ? new[] { "resource-gold-step1", "resource-gold-step2", "resource-sigil-step1", "resource-sigil-step2" } : sett ? new[] { "sett", "sett-rune" } : deck ? new[] { "cost" } : conquest ? new[] { "irelia", "vi" } : battlefield ? new[] { "ivern", "return" } : new[] { "vex", "renata", "hub" })
             foreach (var accept in new[] { true, false })
             {
                 var dir = Path.Combine(root, source + (accept ? "-accept" : "-decline"));
@@ -30,7 +31,9 @@ public partial class TriggerCostInteractionProof : Control
                 var label = controller.Actions.Single(a => a.Name == action).Label;
                 if (!sett && source is not ("hub" or "irelia")) Check(label == (source is "return" or "vi" ? "确认触发技能" : "确认触发费用"), "Cost confirmation has a specific label");
                 bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b => b.Text == label).EmitSignal(BaseButton.SignalName.Pressed);
-                var selected = sett ? new[] { accept ? $"SETT:D2:LEGEND:{(source == "sett-rune" ? "RUNE:RUNE" : "ANY")}" : "DECLINE" } : source is "hub" or "irelia" ? new[] { accept ? "PAY" : "DECLINE" } : accept ? [source == "vi" ? "TARGET" : source == "return" ? "BF" : "LEGEND"] : Array.Empty<string>();
+                var selected = resource ? new[] { source.EndsWith("step1")
+                    ? controller.CurrentChoices.Single(c=>c.Id.StartsWith("RESOURCE:")).Id
+                    : accept ? $"SETT:D2:LEGEND:{(source.Contains("sigil") ? "TRAIT:red" : "ANY")}" : "DECLINE" } : sett ? new[] { accept ? $"SETT:D2:LEGEND:{(source == "sett-rune" ? "RUNE:RUNE" : "ANY")}" : "DECLINE" } : source is "hub" or "irelia" ? new[] { accept ? "PAY" : "DECLINE" } : accept ? [source == "vi" ? "TARGET" : source == "return" ? "BF" : "LEGEND"] : Array.Empty<string>();
                 foreach (var id in selected)
                 {
                     if (controller.Current!.TargetIds.Contains(id)) continue;
@@ -57,7 +60,7 @@ public partial class TriggerCostInteractionProof : Control
                 Check(command is not null, "Production submit creates the intent");
                 File.WriteAllText(Path.Combine(dir, deck ? "native-command.json" : "command.json"), JsonSerializer.Serialize(command)); bar.Free();
             }
-            GD.Print(sett ? "SETT_REPLACEMENT_INTERACTION_PASS: four production replacement decisions" : deck ? "LEGEND_DECK_COST_PASS: production exhaust and decline commands" : conquest ? "LEGEND_CONQUEST_INTERACTION_PASS: four production payment and target decisions" : battlefield ? "BATTLEFIELD_REPLACEMENT_INTERACTION_PASS: four production create and return decisions" : "TRIGGER_COST_INTERACTION_PASS: six production cost and decline commands"); GetTree().Quit();
+            GD.Print(resource ? "REPLACEMENT_RESOURCE_INTERACTION_PASS: eight production resource and replacement decisions" : sett ? "SETT_REPLACEMENT_INTERACTION_PASS: four production replacement decisions" : deck ? "LEGEND_DECK_COST_PASS: production exhaust and decline commands" : conquest ? "LEGEND_CONQUEST_INTERACTION_PASS: four production payment and target decisions" : battlefield ? "BATTLEFIELD_REPLACEMENT_INTERACTION_PASS: four production create and return decisions" : "TRIGGER_COST_INTERACTION_PASS: six production cost and decline commands"); GetTree().Quit();
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
     }

@@ -13644,6 +13644,7 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         PendingPaymentState payment)
     {
+        if (payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow) return [];
         if (payment.PowerCost <= 0 && payment.PowerCostByTrait.Count == 0)
         {
             return [];

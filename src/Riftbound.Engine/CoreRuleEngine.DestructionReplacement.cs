@@ -15,7 +15,7 @@ public sealed partial class CoreRuleEngine
         public void Dispose() { if (frame is not null) frame.DestructionCandidates = previous; }
     }
 
-    private static DestructionReplacementScope PrepareDestructionReplacements(
+    private static DestructionReplacementScope PrepareDestructionReplacements(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         Dictionary<string, RunePool> pools, IReadOnlyList<string> candidates)
     {
@@ -37,11 +37,13 @@ public sealed partial class CoreRuleEngine
                         && !source.IsFaceDown && !source.IsExhausted && LegendCardHasIdentity(source.CardNo, SettLegendIdentityId)
                         && (string.IsNullOrWhiteSpace(source.ControllerId) ? string.IsNullOrWhiteSpace(source.OwnerId) ? entry.ZonePlayer : source.OwnerId : source.ControllerId) == player)
                         .Select(entry => entry.Id).Order(StringComparer.Ordinal).ToArray();
+                    var eligibleTarget = false;
                     foreach (var target in remaining.Order(StringComparer.Ordinal))
                     {
                         if (!cards.TryGetValue(target, out var unit) || unit.IsFaceDown || !IsObjectOnField(zones, target)
                             || !unit.Tags.Contains(CardObjectTags.UnitCard) || !unit.Tags.Contains(CardObjectTags.Boon)
                             || EffectiveFieldControllerId(zones, target, unit) != player) continue;
+                        eligibleTarget = sources.Length > 0;
                         foreach (var source in sources)
                         {
                             var pool = pools.GetValueOrDefault(player) ?? RunePool.Empty;
@@ -52,13 +54,20 @@ public sealed partial class CoreRuleEngine
                                 && c.Tags.Contains(CardObjectTags.RuneCard) && !c.IsFaceDown && SourceObjectControlledByPlayerOrLegacyOwned(c, player) && TryGetRuneTrait(c, out _)).Order(StringComparer.Ordinal))
                                 Add("RUNE:" + rune, $"回收符文 {rune} 支付");
                             void Add(string payment, string label) => options.Add((new($"SETT:{target}:{source}:{payment}",
-                                $"腕豪召回 {(CardBehaviorRegistry.TryGetByCardNo(unit.CardNo ?? "", out var behavior) ? behavior.DisplayName : unit.CardNo ?? target)}（{target}）：{label}，休眠腕豪并消耗增益"), target, source, payment));
+                                $"腕豪召回 {(CardBehaviorRegistry.TryGetByCardNo(unit.CardNo ?? "", out var behavior) ? behavior.DisplayName : unit.CardNo ?? target)}（{target}）：{label}，休眠腕豪并消耗增益", [target, source]), target, source, payment));
                         }
                     }
-                    if (options.Count == 0) break;
-                    var selected = frame.Choose(player, "这些单位即将被摧毁。可支付 1 点任意符能并休眠腕豪，消耗一名单位的增益，改为休眠召回；也可不替换。",
-                        options.Select(o => o.Choice).Append(new("DECLINE", "不使用腕豪替换，继续摧毁结算")).ToArray(), powerCost: 1);
+                    var context = ReplacementResourceContext(state, zones, cards, pools, player);
+                    var resources = eligibleTarget ? ReplacementResourceActions(context, player) : [];
+                    if (options.Count + resources.Count == 0) break;
+                    var selected = frame.Choose(player, $"当前支付可用 {pools.GetValueOrDefault(player, RunePool.Empty).Mana} 法力、{pools.GetValueOrDefault(player, RunePool.Empty).TotalPower} 符能。可先发动资源技能。\n这些单位即将被摧毁。可支付 1 点任意符能并休眠腕豪，消耗一名单位的增益，改为休眠召回；也可不替换。",
+                        options.Select(o => o.Choice).Concat(resources.Select(r => r.Choice)).Append(new("DECLINE", "不使用腕豪替换，继续摧毁结算")).ToArray(), powerCost: 1);
                     if (selected == "DECLINE") break;
+                    if (resources.FirstOrDefault(r => r.Choice.Id == selected) is { } resource)
+                    {
+                        ApplyReplacementResourceAction(context, zones, cards, pools, player, resource, scope.Events);
+                        continue;
+                    }
                     var option = options.Single(o => o.Choice.Id == selected);
                     var unitState = cards[option.Target];
                     if (option.Payment.StartsWith("RUNE:", StringComparison.Ordinal))
@@ -101,13 +110,13 @@ public sealed partial class CoreRuleEngine
         catch { scope.Dispose(); throw; }
     }
 
-    private static bool TryReplaceDestruction(Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
+    private static bool TryReplaceDestruction(MatchState state, Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         Dictionary<string, RunePool> pools, string target, out FieldRemovalResult removal)
     {
         removal = FieldRemovalResult.Empty;
         if (RuleChoices.Value?.DestructionCandidates.Contains(target) == true) return false;
-        using var scope = PrepareDestructionReplacements(zones, cards, pools, [target]);
-        if (!scope.Replaced.Contains(target)) return false;
+        using var scope = PrepareDestructionReplacements(state, zones, cards, pools, [target]);
+        if (!scope.Replaced.Contains(target)) { removal = removal with { BeforeRemovalEvents = scope.Events }; return false; }
         var card = cards[target];
         removal = new(card.OwnerId ?? EffectiveFieldControllerId(zones, target, card), "BASE", false, true, card.Tags.Contains(CardObjectTags.EquipmentCard), true, [])
             { ReplacementEvents = scope.Events };

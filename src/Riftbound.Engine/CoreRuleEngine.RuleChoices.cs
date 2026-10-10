@@ -3,7 +3,7 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record RuleChoiceOption(string Id, string Label);
+public sealed record RuleChoiceOption(string Id, string Label, IReadOnlyList<string>? ObjectIds = null);
 public sealed record RuleChoiceRequest(string Id, string PlayerId, string Reason, IReadOnlyList<RuleChoiceOption> Options, int PowerCost = 0);
 public sealed record RuleChoiceAnswer(string RequestHash, string OptionId);
 // Deterministic command checkpoint for synchronous decisions.
@@ -20,6 +20,8 @@ public sealed partial class CoreRuleEngine
     {
         public MatchState Origin { get; } = origin;
         public HashSet<string> DestructionCandidates { get; set; } = new(StringComparer.Ordinal);
+        public List<TriggerQueueItemState> ResourceTriggers { get; } = [];
+        public HashSet<string> ResourceDestroyedOwners { get; } = [];
         private int cursor;
         public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0)
         {

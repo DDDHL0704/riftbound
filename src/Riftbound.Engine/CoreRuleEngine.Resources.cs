@@ -32,7 +32,7 @@ public sealed partial class CoreRuleEngine
         cards[command.SourceObjectId] = source with { IsExhausted = true };
         var cost = new StackItemState($"cost-{state.Tick + 1}-{command.SourceObjectId}", intent.PlayerId,
             command.SourceObjectId, ability.EffectKind, source.CardNo, [costId]);
-        var destroyed = ResolveFieldDestructions(zones, cards, cost, new HashSet<string>(),
+        var destroyed = ResolveFieldDestructions(state, zones, cards, cost, new HashSet<string>(),
             state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), state.RunePools,
             objectLocations: state.ObjectLocations, explicitDestroyObjectIds: new HashSet<string> { costId });
         if (destroyed.Events.Count == 0)
@@ -83,24 +83,33 @@ public sealed partial class CoreRuleEngine
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
+    private static bool IsImmediatePoolResourceAbility(string id)
+        => id == P4ActivatedAbilityCatalog.DragonSoulSageResourceAbilityId
+            || P4ActivatedAbilityCatalog.IsHoneyfruitResourceAbility(id)
+            || P4ActivatedAbilityCatalog.IsSigilTypedResourceAbility(id)
+            || P4ActivatedAbilityCatalog.IsResourceConversionEquipmentAbility(id);
+
+    private static bool IsImmediateResourceSource(MatchState state, string player, string id, P4ActivatedAbilityDefinition ability)
+    {
+        var location = FindFieldObjectLocation(state.PlayerZones, id);
+        return location is not null && location.Value.PlayerId == player
+            && state.CardObjects.TryGetValue(id, out var source) && source.ObjectId == id
+            && state.ObjectLocations.TryGetValue(id, out var precise) && precise.PlayerId == player && precise.Zone == location.Value.Zone
+            && source.ControllerId == player && !source.IsFaceDown && !source.IsExhausted && !source.Tags.Contains(CardObjectTags.Standby)
+            && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
+            && source.Tags.Contains(ability.RequiresBaseEquipmentSource ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard);
+    }
+
     private static ResolutionResult ResolveImmediateResourceSkill(MatchState state, PlayerIntent intent,
         ActivateAbilityCommand command, P4ActivatedAbilityDefinition ability)
     {
         if (!CanActivateReactionResourceSkill(state, intent.PlayerId))
             return RejectWithCorePrompts(state, "当前没有使用资源技能的行动权。", ErrorCodes.PhaseNotAllowed);
-        var location = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
-        if (location is null || location.Value.PlayerId != intent.PlayerId
-            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
-            || source.ObjectId != command.SourceObjectId
-            || !state.ObjectLocations.TryGetValue(command.SourceObjectId, out var precise)
-            || precise.PlayerId != intent.PlayerId || precise.Zone != location.Value.Zone
-            || source.ControllerId != intent.PlayerId || source.IsFaceDown || source.IsExhausted
-            || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
-            || !source.Tags.Contains(ability.RequiresBaseEquipmentSource ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard, StringComparer.Ordinal)
+        if (!IsImmediateResourceSource(state, intent.PlayerId, command.SourceObjectId, ability)
             || command.TargetObjectIds.Count != 0)
             return RejectWithCorePrompts(state, "请选择你控制的、具有此技能的活跃场上物体。", ErrorCodes.InvalidTarget);
 
+        var source = state.CardObjects[command.SourceObjectId];
         var choices = command.OptionalCosts ?? [];
         var pool = state.RunePools.TryGetValue(intent.PlayerId, out var available) ? available : RunePool.Empty;
         var mana = ability.GeneratedMana;
@@ -179,24 +188,16 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "当前没有使用资源技能的行动权。", ErrorCodes.PhaseNotAllowed);
         if (command.TargetObjectIds.Count != 0 || (command.OptionalCosts?.Count ?? 0) != 0)
             return RejectWithCorePrompts(state, "金币技能不需要目标或额外选项。", ErrorCodes.InvalidTarget);
-        var location = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
-        if (location is null || location.Value.PlayerId != intent.PlayerId
-            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var source)
-            || source.ObjectId != command.SourceObjectId
-            || !state.ObjectLocations.TryGetValue(command.SourceObjectId, out var precise)
-            || precise.PlayerId != intent.PlayerId || precise.Zone != location.Value.Zone
-            || source.ControllerId != intent.PlayerId || source.IsFaceDown || source.IsExhausted
-            || source.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
-            || !source.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal))
+        if (!IsImmediateResourceSource(state, intent.PlayerId, command.SourceObjectId, ability))
             return RejectWithCorePrompts(state, "请选择你控制的活跃金币。休眠金币不能支付横置费用。", ErrorCodes.InvalidTarget);
 
+        var source = state.CardObjects[command.SourceObjectId];
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         cards[command.SourceObjectId] = source with { IsExhausted = true };
         var cost = new StackItemState($"gold-cost-{state.Tick + 1}-{command.SourceObjectId}", intent.PlayerId,
             command.SourceObjectId, ability.EffectKind, source.CardNo, []);
-        var destroyed = ResolveFieldDestructions(zones, cards, cost, new HashSet<string>(),
+        var destroyed = ResolveFieldDestructions(state, zones, cards, cost, new HashSet<string>(),
             state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), state.RunePools,
             objectLocations: state.ObjectLocations, explicitDestroyObjectIds: new HashSet<string> { command.SourceObjectId });
         if (destroyed.Events.Count == 0)
@@ -207,7 +208,8 @@ public sealed partial class CoreRuleEngine
         pools[intent.PlayerId] = pool with { Power = pool.Power + 1, Mana = pool.Mana + bonusMana };
         var next = state with { Tick = state.Tick + 1, PlayerZones = zones, CardObjects = cards,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), RunePools = pools,
-            TriggerQueue = state.TriggerQueue.Concat(destroyed.TriggerQueue).ToArray() };
+            TriggerQueue = state.TriggerQueue.Concat(destroyed.TriggerQueue).ToArray(),
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, destroyed.DestroyedUnitOwnerIds) };
         var payload = new Dictionary<string, object?>
         {
             ["playerId"] = intent.PlayerId, ["sourceObjectId"] = command.SourceObjectId,

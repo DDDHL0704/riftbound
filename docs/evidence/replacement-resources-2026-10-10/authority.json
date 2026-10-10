@@ -1,0 +1,34 @@
+{
+  "authority": "Chinese official cached rules and card catalog; official PDF web open unavailable in this batch; no whole-site freshness claim",
+  "sources": [
+    {
+      "file": "var/official/2026-10-08/01.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "locators": [
+        "203.2",
+        "357.2.a",
+        "370.1",
+        "370.2",
+        "372",
+        "429.3",
+        "429.3.a",
+        "444.2",
+        "444.2.c"
+      ]
+    },
+    {
+      "file": "data/official/card-catalog.zh-CN.json",
+      "sha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+      "locators": [
+        "UNL·T05",
+        "SFD·T03",
+        "UNL-049/219",
+        "UNL-093/219",
+        "OGN·098/298",
+        "SFD·117/221",
+        "SFD·083/221",
+        "OGN·269/298"
+      ]
+    }
+  ]
+}

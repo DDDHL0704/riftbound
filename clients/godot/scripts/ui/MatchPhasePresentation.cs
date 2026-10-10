@@ -75,7 +75,7 @@ internal static class MatchPhasePresentation
         {
             title = "摧毁替换 · 等待选择";
             actorLine = $"{Side(Text(replacement, "playerId"))}选择是否替换";
-            detail = "选择要保护的单位和支付方式，或放弃替换。";
+            detail = "可先发动资源技能，再选择保护单位与支付方式；也可放弃替换。";
             hint = "确认后继续原结算；替换选择期间不能插入其他行动。";
             activeWindow = true;
         }
