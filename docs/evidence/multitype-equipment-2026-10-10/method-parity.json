@@ -1,0 +1,18 @@
+{
+  "baseline": 6161,
+  "current": 6172,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.MultitypeEquipmentNativeTests.NativeUnitSelectionPaymentAndResolutionReplay",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BothTypesCanDestroyAndRecordExactlyOneUnitDeath",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.DeathUsesControllerButDestinationUsesOwner",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.EnemyOnlySpellStillRejectsFriendlyEquipmentUnit",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.EquipmentUnitCanMoveAndRemainsOnBattlefield",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.HiddenEquipmentUnitsRemainUnavailableAsUnitTargets",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.OrdinaryEquipmentCannotBeChosenAsAUnit",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.RealUnitTargetStartsTheOfficialTwoHourglassReplacementChain",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitAreaEffectsLeaveOrdinaryEquipmentUntouched",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitSpellCanTargetEitherController"
+  ]
+}

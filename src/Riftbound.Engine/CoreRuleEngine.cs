@@ -24694,20 +24694,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool IsVisibleFieldUnitObject(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string objectId)
-    {
-        if (!cardObjects.TryGetValue(objectId, out var cardObject)
-            || cardObject.IsFaceDown
-            || !HasVisibleUnitCardIdentity(cardObject)
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        return true;
-    }
+        => cardObjects.TryGetValue(objectId, out var card) && FieldObjectTypeRules.IsVisibleUnit(card);
 
     private static bool IsControlledBattlefieldObject(MatchState state, string playerId, string objectId)
     {
@@ -24982,10 +24969,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (!cardObjects.TryGetValue(objectId, out var targetState)
             || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal))
+            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
         {
             return false;
         }
@@ -25469,8 +25453,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return IsFieldObject(state.PlayerZones, objectId)
             && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
-            && IsVisibleFieldUnitObject(state.CardObjects, objectId)
-            && !CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
+            && IsVisibleFieldUnitObject(state.CardObjects, objectId);
     }
 
     private static bool IsSacredJudgmentKeepCandidate(MatchState state, string objectId)
@@ -27178,10 +27161,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return cardObjects.TryGetValue(objectId, out var cardObject)
             && !cardObject.IsFaceDown
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal);
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
     }
 
     private static bool OpponentWithinWinningScoreDistance(MatchState state, string playerId, int distance)
@@ -32162,7 +32142,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
-            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
+            .Where(objectId => IsFieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -32208,7 +32188,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Concat(zones.Battlefields)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
-            .Where(objectId => !CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
+            .Where(objectId => IsVisibleFieldUnitObject(cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -32324,8 +32304,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
-            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
-            .Where(objectId => !CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
+            .Where(objectId => IsFieldUnitObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -32373,39 +32352,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId)
     {
         var location = FindFieldObjectLocation(playerZones, objectId);
-        if (location is null
-            || !cardObjects.TryGetValue(objectId, out var objectState)
-            || objectState.IsFaceDown
-            || !HasVisibleUnitCardIdentity(objectState)
-            || objectState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || objectState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || objectState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || objectState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, location.Value.PlayerId, objectId))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    private static bool HasVisibleUnitCardIdentity(CardObjectState cardObject)
-    {
-        if (cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
-        {
-            return true;
-        }
-
-        return !HasExplicitNonUnitCardType(cardObject.Tags);
-    }
-
-    private static bool HasExplicitNonUnitCardType(IReadOnlyList<string> tags)
-    {
-        return tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-            || tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal)
-            || tags.Contains("CARD_TYPE:LEGEND", StringComparer.Ordinal);
+        return location is not null
+            && IsVisibleFieldUnitObject(cardObjects, objectId)
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, location.Value.PlayerId, objectId);
     }
 
     private static bool IsBattlefieldUnitObjectControlledByZonePlayer(
@@ -37548,7 +37497,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations)
     {
         return cardObjects
-            .Where(entry => IsUnattachedBattlefieldEquipmentCleanupCandidate(entry.Value)
+            .Where(entry => FieldObjectTypeRules.IsUnattachedNonUnitEquipment(entry.Value)
                 && TryFindBattlefieldZonePlayerId(playerZones, entry.Key, out _)
                 && IsEquipmentObjectLocationOnBattlefieldOrUnknown(objectLocations, entry.Key))
             .Select(entry => new BattlefieldEquipmentCleanupCandidate(
@@ -37851,14 +37800,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !cardObject.IsFaceDown
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && HasOwnerOrControllerIdentity(cardObject);
-    }
-
-    private static bool IsUnattachedBattlefieldEquipmentCleanupCandidate(CardObjectState cardObject)
-    {
-        return cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && string.IsNullOrWhiteSpace(cardObject.AttachedToObjectId)
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
     }
 
     private static bool IsObjectOnField(

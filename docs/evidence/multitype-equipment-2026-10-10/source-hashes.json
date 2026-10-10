@@ -1,0 +1,30 @@
+[
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "27eed5ad2f992bcca5c042dd1453f7df6ee7a068aa11441e2d18b065535b3ef4"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "020fe5f4593423b545d40d574d7f671b567686e66891cabdffe45c59c50f3ae6"
+  },
+  {
+    "path": "src/Riftbound.Engine/FieldObjectTypeRules.cs",
+    "sha256": "fb51d6e1af62e348e5b5e21da8ecadc48362b2108df8e9abe3386f76684a636f"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MultitypeEquipmentTests.cs",
+    "sha256": "2952fadad3fbb6a7e01ddffa1a624900f7593e746d54e4078d36aed14ff1ebc7"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MultitypeEquipmentNativeTests.cs",
+    "sha256": "c0329229e7568ff01238dd03518500f753d38ad0615d60abbcfa1554ad1d6b55"
+  },
+  {
+    "path": "clients/godot/scripts/debug/MultitypeEquipmentInteractionProof.cs",
+    "sha256": "418e7cb308c83821f60bb7bdb8323735ca60cb226a4030c6237d0b1322887918"
+  },
+  {
+    "path": "clients/godot/scenes/debug/MultitypeEquipmentInteractionProof.tscn",
+    "sha256": "b2bc1d0ca36a9f16c3a39d44a801ea1b1a05fa171e639b91cf45ec6e6c557272"
+  }
+]

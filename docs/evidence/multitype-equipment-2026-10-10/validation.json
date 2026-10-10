@@ -1,0 +1,159 @@
+{
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 32.45,
+    "total": 57,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 57,
+        "passed": 57,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.94
+      }
+    ]
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 134.39,
+    "total": 9085,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9085,
+        "passed": 9085,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 111.24
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 582.5,
+    "total": 9218,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 322.82
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 340.51
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 345.99
+      },
+      {
+        "shard": "rules",
+        "total": 9083,
+        "passed": 9083,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 111.2
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 565.16
+      }
+    ]
+  },
+  "native": {
+    "productionCommands": 3,
+    "scenarios": 3,
+    "journalCommands": 9,
+    "allNative": true,
+    "allReplayMatch": true,
+    "mode": "Godot headless PlayCardOverlay; not two-window visual or Windows acceptance"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:01.87\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nMULTITYPE_EQUIPMENT_PASS: three production play commands\n",
+  "notes": [
+    "Full includes three negative cases added after focus3 and strengthened cross-zone reset assertions added after check compilation.",
+    "No old methods/cases removed, renamed, skipped or weakened."
+  ],
+  "artifacts": {
+    "focus3": [
+      {
+        "path": "var/qa/multitype-equipment/focus3/focus/results.trx",
+        "sha256": "aa9a611bf2bad4c9e5e8c8474ee070f534b3af1688568b2e1dd88e488ba51138"
+      },
+      {
+        "path": "var/qa/multitype-equipment/focus3/plan.json",
+        "sha256": "dbf1667602b53489168fc4b165e4be269eb7cdb34def18c0e38b0ebcd9707f08"
+      },
+      {
+        "path": "var/qa/multitype-equipment/focus3/summary.json",
+        "sha256": "887364ef8e58c0a02389b0da69df2a7116452ae498588fca2c182e5f0e59e00d"
+      }
+    ],
+    "check": [
+      {
+        "path": "var/qa/multitype-equipment/check/check/results.trx",
+        "sha256": "df52510ebef460dacdd261aad0468a22420adb9ccedd6434527239d89dc29391"
+      },
+      {
+        "path": "var/qa/multitype-equipment/check/plan.json",
+        "sha256": "9ae16ea10c681deae02170aec2c4cf79f8596cd97562045823630477206492be"
+      },
+      {
+        "path": "var/qa/multitype-equipment/check/summary.json",
+        "sha256": "152f90e33a57538160ca859e70e234a935992ff75383d0192f798b343fd7c68f"
+      }
+    ],
+    "full": [
+      {
+        "path": "var/qa/multitype-equipment/full/games-1/results.trx",
+        "sha256": "16e2861e47c700c1513520faa8ac2da14e3eb6d7edc04c9a18952e4cc801dbfa"
+      },
+      {
+        "path": "var/qa/multitype-equipment/full/games-2/results.trx",
+        "sha256": "d0b0a9acfd518d2abc92fa3bfeed04316f3c06585a8a8922308112f8926da5c7"
+      },
+      {
+        "path": "var/qa/multitype-equipment/full/games-3/results.trx",
+        "sha256": "5904ee250095a675cdd409d169a16d4e280e5ef41642ecfc06f0849f5f2e0c6e"
+      },
+      {
+        "path": "var/qa/multitype-equipment/full/games-4/results.trx",
+        "sha256": "9742e7fd59390a281eb7a39daed9eb7e87aee205dfcfce884312ba65832d45a2"
+      },
+      {
+        "path": "var/qa/multitype-equipment/full/plan.json",
+        "sha256": "90c294bf38398cb6d440ca6c3d7af2992e7d71ff654b1ef89319ca62653bbed1"
+      },
+      {
+        "path": "var/qa/multitype-equipment/full/rules/results.trx",
+        "sha256": "0f374e0f59be4f388ca718bb018ea6eab182c3d1a722c3594f9080fad759e857"
+      },
+      {
+        "path": "var/qa/multitype-equipment/full/summary.json",
+        "sha256": "d64cb022f4d07f0f0f01bf74d52d84630f8495a89b22eb42346e0e4c44c15f52"
+      }
+    ]
+  }
+}

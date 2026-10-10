@@ -1,0 +1,38 @@
+[
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BothTypesCanDestroyAndRecordExactlyOneUnitDeath(spell: \"UNL-180/219\")",
+    "message": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   2"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P1\", power: 5)",
+    "message": "等待服务端处理任务队列：装备清理"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitSpellCanTargetEitherController(player: \"P2\")",
+    "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"bcb3b7bc43b9678b6ac699e01689bfbd1bfebbada\"···\nActual:   \"c3542701b22af39836adcbd4aa3ad9f9c53b4c488\"···\n           ↑ (pos 0)"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P2\", power: 5)",
+    "message": "等待服务端处理任务队列：装备清理"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitSpellCanTargetEitherController(player: \"P1\")",
+    "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"66de686ff6913a85a31c202eb2bab1af901772ab5\"···\nActual:   \"5641e3b8d310c9df32300dd7f7aab0d3fa3d78e4d\"···\n           ↑ (pos 0)"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P2\", power: 1)",
+    "message": "等待服务端处理任务队列：装备清理"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.EquipmentUnitCanMoveAndRemainsOnBattlefield",
+    "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"18291bd71adc1d3101fe19e0a84e5bfff1ba0eaf7\"···\nActual:   \"93602433b030443e04df6dc05d163843a6fec8aa3\"···\n           ↑ (pos 0)"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.RealUnitTargetStartsTheOfficialTwoHourglassReplacementChain",
+    "message": "Assert.Contains() Failure: Item not found in collection\nCollection: []\nNot found:  \"G1\""
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P1\", power: 1)",
+    "message": "等待服务端处理任务队列：装备清理"
+  }
+]

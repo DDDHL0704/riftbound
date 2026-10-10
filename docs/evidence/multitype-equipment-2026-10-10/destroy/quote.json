@@ -1,0 +1,29 @@
+{
+  "requestId": "e274dca75893409da69e6459244d8227",
+  "promptId": "death-duel:0:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+  "snapshotTick": 0,
+  "isValid": true,
+  "canPay": true,
+  "message": "\u8D39\u7528\u5DF2\u6838\u5BF9\uFF0C\u53EF\u4EE5\u786E\u8BA4\u6253\u51FA\u3002",
+  "errorCode": null,
+  "cost": {
+    "printedMana": 4,
+    "printedPower": 2,
+    "mana": 4,
+    "genericPower": 0,
+    "powerByTrait": {
+      "yellow": 2
+    },
+    "experience": 0,
+    "availableMana": 20,
+    "availableRainbowPower": 20,
+    "availablePowerByTrait": {},
+    "missingMana": 0,
+    "missingPower": 0,
+    "missingExperience": 0,
+    "remainingMana": 16,
+    "remainingRainbowPower": 18,
+    "remainingPowerByTrait": {},
+    "adjustments": []
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "sources": [
+    {
+      "path": "var/official/2026-10-08/01.txt",
+      "sha256": "c7c1424b7d3313e80f10b8855c8847ca2e91028e33c861d614bd6cef675c6fc5"
+    },
+    {
+      "path": "data/official/card-catalog.zh-CN.json",
+      "sha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7"
+    }
+  ],
+  "rules": [
+    "178.1.a.1",
+    "178.1.a.1.a",
+    "178.2",
+    "178.3",
+    "323.7",
+    "370.2"
+  ],
+  "cards": [
+    "OGN·229/298",
+    "UNL-180/219",
+    "OGN·022/298",
+    "OGN·133/298",
+    "OGN·095/298",
+    "UNL-073/219",
+    "OGN·077/298"
+  ],
+  "scope": "Cached official CN rules and catalog. No current catalog animation spell; dual-type starting states exercise real card actions. No online refresh."
+}

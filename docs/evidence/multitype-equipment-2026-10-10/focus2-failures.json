@@ -1,0 +1,10 @@
+[
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P1\", power: 5)",
+    "message": "等待服务端处理任务队列：战场控制检查"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P1\", power: 1)",
+    "message": "等待服务端处理任务队列：战场控制检查"
+  }
+]

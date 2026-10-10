@@ -1,0 +1,30 @@
+{
+  "baseline": 9196,
+  "current": 9218,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.MultitypeEquipmentNativeTests.NativeUnitSelectionPaymentAndResolutionReplay(branch: \"damage\", spell: \"UNL-073/219\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentNativeTests.NativeUnitSelectionPaymentAndResolutionReplay(branch: \"destroy\", spell: \"OGN·229/298\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentNativeTests.NativeUnitSelectionPaymentAndResolutionReplay(branch: \"power\", spell: \"OGN·095/298\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P1\", power: 1)",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P1\", power: 5)",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P2\", power: 1)",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P2\", power: 5)",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BothTypesCanDestroyAndRecordExactlyOneUnitDeath(spell: \"OGN·022/298\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BothTypesCanDestroyAndRecordExactlyOneUnitDeath(spell: \"OGN·229/298\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.BothTypesCanDestroyAndRecordExactlyOneUnitDeath(spell: \"UNL-180/219\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.DeathUsesControllerButDestinationUsesOwner",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.EnemyOnlySpellStillRejectsFriendlyEquipmentUnit",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.EquipmentUnitCanMoveAndRemainsOnBattlefield",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.HiddenEquipmentUnitsRemainUnavailableAsUnitTargets(faceDown: False)",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.HiddenEquipmentUnitsRemainUnavailableAsUnitTargets(faceDown: True)",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.OrdinaryEquipmentCannotBeChosenAsAUnit(spell: \"OGN·095/298\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.OrdinaryEquipmentCannotBeChosenAsAUnit(spell: \"OGN·229/298\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.RealUnitTargetStartsTheOfficialTwoHourglassReplacementChain",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitAreaEffectsLeaveOrdinaryEquipmentUntouched(spell: \"OGN·133/298\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitAreaEffectsLeaveOrdinaryEquipmentUntouched(spell: \"UNL-180/219\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitSpellCanTargetEitherController(player: \"P1\")",
+    "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitSpellCanTargetEitherController(player: \"P2\")"
+  ],
+  "allPassed": true
+}

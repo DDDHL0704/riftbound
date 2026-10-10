@@ -1499,14 +1499,11 @@ public sealed record MatchState
         foreach (var (objectId, cardObject) in state.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
-            if (cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-                && string.IsNullOrWhiteSpace(cardObject.AttachedToObjectId)
+            if (FieldObjectTypeRules.IsUnattachedNonUnitEquipment(cardObject)
                 && state.ObjectLocations.TryGetValue(objectId, out var equipmentLocation)
                 && string.Equals(equipmentLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                 && !string.IsNullOrWhiteSpace(equipmentLocation.BattlefieldObjectId)
-                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _)
-                && !cardObject.IsFaceDown
-                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _))
             {
                 tasks.Add(new CleanupTaskState(
                     $"cleanup:unattached-equipment:{equipmentLocation.BattlefieldObjectId}:{objectId}",
@@ -12992,31 +12989,7 @@ internal static class ActionPromptBuilder
     {
         return (IsPromptBaseObject(state, objectId) || IsPromptBattlefieldObject(state, objectId))
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && !cardObject.IsFaceDown
-            && HasPromptVisibleUnitCardIdentity(cardObject)
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal);
-    }
-
-    private static bool HasPromptVisibleUnitCardIdentity(CardObjectState cardObject)
-    {
-        if (cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
-        {
-            return true;
-        }
-
-        return !HasPromptExplicitNonUnitCardType(cardObject.Tags);
-    }
-
-    private static bool HasPromptExplicitNonUnitCardType(IReadOnlyList<string> tags)
-    {
-        return tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-            || tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal)
-            || tags.Contains("CARD_TYPE:LEGEND", StringComparer.Ordinal);
+            && FieldObjectTypeRules.IsVisibleUnit(cardObject);
     }
 
     private static bool IsPromptFieldObjectControlledByZonePlayer(MatchState state, string objectId)

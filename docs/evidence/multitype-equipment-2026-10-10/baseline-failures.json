@@ -1,0 +1,50 @@
+[
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitAreaEffectsLeaveOrdinaryEquipmentUntouched(spell: \"UNL-180/219\")",
+    "message": "Assert.Contains() Failure: Item not found in collection\nCollection: []\nNot found:  \"G1\""
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P1\", power: 5)",
+    "message": "等待服务端处理任务队列：装备清理"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P2\", power: 5)",
+    "message": "等待服务端处理任务队列：装备清理"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitSpellCanTargetEitherController(player: \"P2\")",
+    "message": "“敲”诈 requires 1 unit target(s)."
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P1\", power: 1)",
+    "message": "等待服务端处理任务队列：装备清理"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.EquipmentUnitCanMoveAndRemainsOnBattlefield",
+    "message": "Assert.Contains() Failure: Item not found in collection\nCollection: []\nNot found:  \"G1\""
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BothTypesCanDestroyAndRecordExactlyOneUnitDeath(spell: \"OGN·229/298\")",
+    "message": "复仇 requires 1 unit target(s)."
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BothTypesCanDestroyAndRecordExactlyOneUnitDeath(spell: \"UNL-180/219\")",
+    "message": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   2"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(player: \"P2\", power: 1)",
+    "message": "等待服务端处理任务队列：装备清理"
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.RealUnitTargetStartsTheOfficialTwoHourglassReplacementChain",
+    "message": "复仇 requires 1 unit target(s)."
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.UnitSpellCanTargetEitherController(player: \"P1\")",
+    "message": "“敲”诈 requires 1 unit target(s)."
+  },
+  {
+    "test": "Riftbound.ConformanceTests.MultitypeEquipmentTests.DeathUsesControllerButDestinationUsesOwner",
+    "message": "复仇 requires 1 unit target(s)."
+  }
+]
