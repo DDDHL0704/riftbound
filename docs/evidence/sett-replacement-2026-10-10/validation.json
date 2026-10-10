@@ -1,0 +1,156 @@
+{
+  "baselineCommit": "56d3f45fd72d66726e6bf284bbe112e8b12c6acd",
+  "caseCounts": {
+    "OfficialSettReplacementTests": 21,
+    "SettReplacementNativeTests": 4,
+    "SettLegendActionDomainGuardTests": 7
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 354.36,
+    "total": 9362,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 191.34
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 201.74
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 202.35
+      },
+      {
+        "shard": "rules",
+        "total": 9227,
+        "passed": 9227,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 76.3
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 336.25
+      }
+    ]
+  },
+  "finalRecoveryFocus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 28.7,
+    "total": 2643,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2643,
+        "passed": 2643,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 14.11
+      }
+    ]
+  },
+  "validationOrder": "Full rule and game suite passed. A spectator recovery projection validation and one test were then added; final recovery focus covered all recovery tests plus destruction, native continuation and death/duel tests. No repeated full-game run for that projection-only change.",
+  "nativeBuild": {
+    "passed": true,
+    "warnings": 0,
+    "errors": 0,
+    "file": "var/qa/sett-replacement/native-build.log"
+  },
+  "nativeControls": {
+    "commands": 4,
+    "file": "var/qa/sett-replacement/native-controls-final.log"
+  },
+  "sessionRecoveryAndReplay": [
+    {
+      "file": "var/qa/sett-replacement/native/sett-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "file": "var/qa/sett-replacement/native/sett-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "file": "var/qa/sett-replacement/native/sett-rune-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "file": "var/qa/sett-replacement/native/sett-rune-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    }
+  ],
+  "baselineCI": {
+    "run": 38025320070,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "limits": [
+    "Replacement-time Gold/other resource skill activation and temporary resources remain open",
+    "Cross-family replacement ordering and arbitrary nested replacements remain open",
+    "Headless production controls are not visual or complete two-client game acceptance",
+    "No user service or match restart; no local package export or Windows device acceptance"
+  ],
+  "evidenceHashes": [
+    {
+      "file": "var/qa/sett-replacement/full/summary.json",
+      "sha256": "f114bdd87f0e0421f03a25c89691f9988e5bec8608fcd6cae2c47616658af948"
+    },
+    {
+      "file": "var/qa/sett-replacement/final-recovery/focus/results.trx",
+      "sha256": "82277afcb74e057980fdb483b25107006133abbfaf4dc6b8303842262ae8ccc9"
+    },
+    {
+      "file": "var/qa/sett-replacement/native-build.log",
+      "sha256": "c4b264462745c321a59d3a41ab503ec3c8be3a0f4f502fe167eddbed81e4e666"
+    },
+    {
+      "file": "var/qa/sett-replacement/native-controls-final.log",
+      "sha256": "267892949b0fd99078ea3f9e3b571e05a52e93423485b063a26aa297f5f4ba5b"
+    },
+    {
+      "file": "var/qa/sett-replacement/native/sett-accept/command.json",
+      "sha256": "b5dbc520ca3281a41267d3686d36b2b8f5d3f276eef446079b4cacda9f2a7323"
+    },
+    {
+      "file": "var/qa/sett-replacement/native/sett-decline/command.json",
+      "sha256": "6f65939921ccda72f9a6d489b8b4aadf7ee5b8e3c0795f28612c14768a73790a"
+    },
+    {
+      "file": "var/qa/sett-replacement/native/sett-rune-accept/command.json",
+      "sha256": "9be0ed3786884a00c958adb7d5eef41c24bef29fbb07d216438e4d2ce66f340e"
+    },
+    {
+      "file": "var/qa/sett-replacement/native/sett-rune-decline/command.json",
+      "sha256": "6f65939921ccda72f9a6d489b8b4aadf7ee5b8e3c0795f28612c14768a73790a"
+    }
+  ]
+}

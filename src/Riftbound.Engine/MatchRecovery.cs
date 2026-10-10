@@ -13300,7 +13300,7 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
-        var authoritativePayment = authoritativeState.PendingPayment;
+        var authoritativePayment = CoreRuleEngine.VisiblePendingPayment(authoritativeState);
         if (!timing.TryGetValue("pendingPayment", out var paymentPayload))
         {
             errors.Add("spectator replay frame timing pending payment is required");
@@ -25917,6 +25917,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.LegendConquest is { } context ? !CoreRuleEngine.ValidLegendConquest(context, trigger.EffectKind)
                 || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
@@ -30424,7 +30425,7 @@ public static class MatchRecoveryValidator
                 spectatorReplayFrame.SpectatorSnapshot.Timing,
                 "priorityPlayerId",
                 out var spectatorPriorityPlayerId)
-            || !string.Equals(spectatorPriorityPlayerId, authoritativeState.PriorityPlayerId, StringComparison.Ordinal))
+            || !string.Equals(spectatorPriorityPlayerId, authoritativeState.PendingRuleChoice is null ? authoritativeState.PriorityPlayerId : null, StringComparison.Ordinal))
         {
             errors.Add("spectator replay frame timing priority player does not match authoritative state priority player");
         }
@@ -30433,7 +30434,7 @@ public static class MatchRecoveryValidator
                 spectatorReplayFrame.SpectatorSnapshot.Timing,
                 "focusPlayerId",
                 out var spectatorFocusPlayerId)
-            || !string.Equals(spectatorFocusPlayerId, authoritativeState.FocusPlayerId, StringComparison.Ordinal))
+            || !string.Equals(spectatorFocusPlayerId, authoritativeState.PendingRuleChoice is null ? authoritativeState.FocusPlayerId : null, StringComparison.Ordinal))
         {
             errors.Add("spectator replay frame timing focus player does not match authoritative state focus player");
         }

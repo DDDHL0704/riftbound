@@ -70,6 +70,15 @@ internal static class MatchPhasePresentation
                 hint = "完成后继续开始阶段，尚未进入行动阶段。";
             }
         }
+        var replacement = Object(timing, "pendingPayment");
+        if (Text(replacement, "paymentWindow") == "RULE_REPLACEMENT")
+        {
+            title = "摧毁替换 · 等待选择";
+            actorLine = $"{Side(Text(replacement, "playerId"))}选择是否替换";
+            detail = "选择要保护的单位和支付方式，或放弃替换。";
+            hint = "确认后继续原结算；替换选择期间不能插入其他行动。";
+            activeWindow = true;
+        }
         return new Godot.Collections.Dictionary {
             ["title"] = title, ["actor"] = actorLine, ["detail"] = detail, ["hint"] = hint,
             ["battlefield"] = field.Length > 0 ? name(field) : "",

@@ -96,6 +96,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var scores = state.PlayerScores;
+        var pools = state.RunePools.ToDictionary(e => e.Key, e => e.Value);
         var experience = NormalizeExperienceForSeats(state);
         var effects = state.UntilEndOfTurnEffects;
         var player = item.ControllerId;
@@ -127,7 +128,7 @@ public sealed partial class CoreRuleEngine
                 }
                 break;
             case "CONQUEST_UNIT":
-                TryResolveNaturalUnitConquestTriggerSpecs(state, zones, cards, scores, effects, player, field,
+                TryResolveNaturalUnitConquestTriggerSpecs(state, zones, cards, pools, scores, effects, player, field,
                     [item.SourceObjectId], 0, rng, events, out var conquestDraw, out var conquestEffects, out payment);
                 scores = conquestDraw.PlayerScores; winner = conquestDraw.WinnerPlayerId; rng = conquestDraw.RngCursor;
                 effects = conquestEffects;
@@ -234,7 +235,7 @@ public sealed partial class CoreRuleEngine
                     locations[tokenId] = new(player, destination, destination == "BATTLEFIELD" ? field : null);
             return locations;
         }
-        StackResolutionResult Result() => new(zones, cards, scores, experience, state.RunePools, effects, winner,
+        StackResolutionResult Result() => new(zones, cards, scores, experience, pools, effects, winner,
             events, [], null, [], null, triggers, rng, PendingPayment: payment,
             ObjectLocations: HoldResultLocations());
     }

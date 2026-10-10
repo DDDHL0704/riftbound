@@ -20,7 +20,7 @@ public sealed partial class CoreRuleEngine
         var originalObjectIds = cardObjects.Keys.ToHashSet(StringComparer.Ordinal);
         var playerScores = state.PlayerScores;
         var playerExperience = state.PlayerExperience;
-        var runePools = state.RunePools;
+        var runePools = state.RunePools.ToDictionary(e => e.Key, e => e.Value);
         var untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
         var rngCursor = state.RngCursor;
         var winnerPlayerId = state.WinnerPlayerId;
@@ -62,6 +62,7 @@ public sealed partial class CoreRuleEngine
                 state,
                 playerZones,
                 cardObjects,
+                runePools,
                 playerScores,
                 untilEndOfTurnEffects,
                 playerId,

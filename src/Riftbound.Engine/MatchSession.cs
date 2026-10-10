@@ -1030,6 +1030,8 @@ public sealed record PendingCardChoiceState
 
 public sealed record MatchState
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public RuleChoiceContinuation? PendingRuleChoice { get; init; }
     public IReadOnlyList<FaceDownLookPermission> FaceDownLookPermissions { get; init; } = [];
     public IReadOnlyList<LinkedExileGroup> LinkedExiles { get; init; } = [];
     public TurnDrawLedger DrawLedger { get; init; } = new(0, new Dictionary<string, int>());
@@ -5132,9 +5134,9 @@ public sealed record ResolutionResult(
                 ["turnStartStep"] = state.TurnStartStep,
                 ["timingState"] = state.TimingState,
                 ["turnPlayerId"] = state.TurnPlayerId,
-                ["priorityPlayerId"] = state.PriorityPlayerId,
+                ["priorityPlayerId"] = state.PendingRuleChoice is null ? state.PriorityPlayerId : null,
                 ["passedPriorityPlayerIds"] = state.PassedPriorityPlayerIds,
-                ["focusPlayerId"] = state.FocusPlayerId,
+                ["focusPlayerId"] = state.PendingRuleChoice is null ? state.FocusPlayerId : null,
                 ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
                 ["winnerPlayerId"] = state.WinnerPlayerId,
                 ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
@@ -5151,7 +5153,7 @@ public sealed record ResolutionResult(
                     .Select(resolution => BuildBattlefieldResolutionSnapshotView(state, resolution, viewerPlayerId))
                     .ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state, state.PendingTaskQueue, viewerPlayerId),
-                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, state.PendingPayment),
+                ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, CoreRuleEngine.VisiblePendingPayment(state)),
                 ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state.PendingHandChoice, viewerPlayerId),
                 ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state.PendingCardChoice, viewerPlayerId),
@@ -6679,6 +6681,7 @@ public sealed record ResolutionResult(
 
     public static IReadOnlyDictionary<string, ActionPromptDto> BuildPrompts(MatchState state)
     {
+        if (state.PendingRuleChoice is not null) return CoreRuleEngine.BuildRuleChoicePrompts(state);
         if (state.Status != MatchStatuses.InProgress)
         {
             var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
@@ -8751,7 +8754,7 @@ internal static class ActionPromptBuilder
                 ["paymentId"] = payment.PaymentId,
                 ["paymentWindow"] = payment.PaymentWindow,
                 ["cost"] = PendingPaymentCostView(payment),
-                ["paymentChoices"] = PendingPaymentChoiceDtos(payment),
+                ["paymentChoices"] = PendingPaymentChoiceDtos(state, payment),
                 ["paymentResourceChoices"] = PendingPaymentResourceChoiceDtos(state, payment),
                 ["paymentResourcePowerByChoice"] = PendingPaymentResourcePowerByChoice(state, payment)
             };
@@ -8942,11 +8945,11 @@ internal static class ActionPromptBuilder
             selectionSteps = steps;
         }
         if (action == CommandTypes.PayCost && state.PendingPayment is { } payment && payment.PlayerId == playerId
-            && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"]))
+            && (payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
         {
             var steps = new List<ActionPromptSelectionStepDto>();
-            AddSelectionStep(steps, "target", "支付或放弃此效果", true,
-                [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
+            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? "选择替换对象与支付方式，或不替换" : "支付或放弃此效果", true,
+                payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
             selectionSteps = steps;
             commandTemplate = CommandTemplate(CommandTypes.PayCost,
                 CandidateMetadataBinding("paymentId", required: true, metadataKeys: ["paymentId"]),
@@ -8955,7 +8958,7 @@ internal static class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? "选择摧毁替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -15778,7 +15781,7 @@ internal static class ActionPromptBuilder
             ["paymentId"] = payment.PaymentId,
             ["paymentWindow"] = payment.PaymentWindow,
             ["cost"] = PendingPaymentCostView(payment),
-            ["paymentChoices"] = PendingPaymentChoiceDtos(payment),
+            ["paymentChoices"] = PendingPaymentChoiceDtos(state, payment),
             ["paymentResourceChoices"] = PendingPaymentResourceChoiceDtos(state, payment),
             ["paymentResourcePowerByChoice"] = PendingPaymentResourcePowerByChoice(state, payment),
             ["paymentResourceActionIds"] = PendingPaymentResourceActionIds(state, payment),
@@ -15925,10 +15928,10 @@ internal static class ActionPromptBuilder
         };
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto> PendingPaymentChoiceDtos(PendingPaymentState payment)
+    private static IReadOnlyList<ActionPromptChoiceDto> PendingPaymentChoiceDtos(MatchState state, PendingPaymentState payment)
     {
         return PendingPaymentSpendChoiceIds(payment)
-            .Select(choiceId => new ActionPromptChoiceDto(choiceId, PaymentChoiceLabel(choiceId), "服务端支付候选"))
+            .Select(choiceId => new ActionPromptChoiceDto(choiceId, state.PendingRuleChoice?.Request.Options.FirstOrDefault(o => o.Id == choiceId)?.Label ?? PaymentChoiceLabel(choiceId), "服务端支付候选"))
             .ToArray();
     }
 

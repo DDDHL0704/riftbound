@@ -43,12 +43,14 @@ public sealed partial class CoreRuleEngine
                     state = state with { CardObjects = cards, TurnStartStep = "START" };
                     break;
                 case "START":
-                    var ephemeral = DestroyEphemeralObjectsAtTurnStart(zones, cards, state.ObjectLocations, player, state.Tick);
-                    var damage = ApplyBattlefieldTurnStartDamageAllUnits(zones, cards, state.ObjectLocations, player, state.Tick, state.RunePools);
+                    var startPools = state.RunePools.ToDictionary(e => e.Key, e => e.Value);
+                    var ephemeral = DestroyEphemeralObjectsAtTurnStart(zones, cards, startPools, state.ObjectLocations, player, state.Tick);
+                    var damage = ApplyBattlefieldTurnStartDamageAllUnits(zones, cards, state.ObjectLocations, player, state.Tick, startPools);
+                    foreach (var entry in damage.RunePools) startPools[entry.Key] = entry.Value;
                     var startDraw = ApplyBattlefieldTurnStartDestroyUnitDraw(state with { PlayerZones = zones, CardObjects = cards },
-                        zones, cards, player, state.RngCursor);
+                        zones, cards, startPools, player, state.RngCursor);
                     events.AddRange(ephemeral.Events); events.AddRange(damage.Events); events.AddRange(startDraw.Events);
-                    state = state with { PlayerZones = zones, CardObjects = cards, RunePools = damage.RunePools.Count == 0 ? state.RunePools : damage.RunePools,
+                    state = state with { PlayerZones = zones, CardObjects = cards, RunePools = startPools,
                         PlayerScores = startDraw.PlayerScores, WinnerPlayerId = startDraw.WinnerPlayerId,
                         Status = startDraw.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
                         RngCursor = startDraw.RngCursor, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),

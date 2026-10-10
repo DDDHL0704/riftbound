@@ -343,6 +343,9 @@ internal sealed class PromptInteractionController
                 && paymentWindow.GetString() is "TRIGGER_COST_CONFIRMATION" or "TRIGGER_TARGET_COST")
                 summary += selected.Any(entry => entry.Choice.Id == "PAY")
                     ? " · 先支付费用，双方响应后结算" : " · 移除触发技能，不支付费用";
+            else if (paymentCandidate.RootElement.TryGetProperty("metadata", out var replacementMetadata)
+                && replacementMetadata.TryGetProperty("paymentWindow", out var replacementWindow) && replacementWindow.GetString() == "RULE_REPLACEMENT")
+                summary += " · 确认后立即继续原结算";
         }
 
         if (action.Option.Name == "CHOOSE_CARDS")

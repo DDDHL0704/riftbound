@@ -37017,107 +37017,29 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendTriggerSettConsumesBoonAndRecallsDestroyedUnit()
     {
-        var state = SettDestroyReplacementState("OGN·269/298", "P1-LEGEND-SETT", mana: 1, legendExhausted: false);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-sett-recall-boon-unit", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-SETT-BOON-ATTACKER"],
-                ["P2-SETT-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.True(result.State.CardObjects["P1-LEGEND-SETT"].IsExhausted);
-        Assert.Equal(0, result.State.RunePools["P1"].Mana);
-        Assert.Equal(["P1-SETT-BOON-ATTACKER"], result.State.PlayerZones["P1"].Base);
-        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
-        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
-        var recalledUnit = result.State.CardObjects["P1-SETT-BOON-ATTACKER"];
-        Assert.True(recalledUnit.IsExhausted);
-        Assert.Equal(1, recalledUnit.Power);
-        Assert.DoesNotContain(CardObjectTags.Boon, recalledUnit.Tags);
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BOON_UNIT_DESTROYED_PAY_1_RECALL_EXHAUSTED", StringComparison.Ordinal));
-        Assert.Equal("P1-SETT-BOON-ATTACKER", triggerEvent.Payload["targetObjectId"]);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["replacementEffectId"] as string, "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-SETT-BOON-ATTACKER", StringComparison.Ordinal));
+        var opened = await OfficialSettReplacementTests.Open();
+        Assert.NotNull(opened.State.PendingRuleChoice);
+        var done = await OfficialSettReplacementTests.Choose(opened.State);
+        Assert.Contains("D", done.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain(CardObjectTags.Boon, done.State.CardObjects["D"].Tags);
+        Assert.Equal(7, done.State.RunePools["P2"].Mana); Assert.Equal(0, done.State.RunePools["P2"].Power);
     }
 
     [Fact]
-    public async Task P79LegendTriggerSettReplacementDebitsManaAfterXerathSkillCleanup()
+    public async Task P79LegendTriggerSettReplacementDebitsPowerAfterXerathSkillCleanup()
     {
-        var baseState = SettDestroyReplacementState("OGN·269/298", "P1-LEGEND-SETT", mana: 1, legendExhausted: false);
-        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        playerZones["P2"] = playerZones["P2"] with
-        {
-            Battlefields = playerZones["P2"].Battlefields
-                .Concat(["P2-UNIT-XERATH"])
-                .ToArray()
-        };
-        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects["P2-UNIT-XERATH"] = new(
-            "P2-UNIT-XERATH",
-            cardNo: P4ActivatedAbilityCatalog.XerathCardNo,
-            power: 5,
-            tags: [CardObjectTags.UnitCard],
-            ownerId: "P2",
-            controllerId: "P2");
-        var state = baseState with
-        {
-            ActivePlayerId = "P2",
-            TimingState = TimingStates.NeutralClosed,
-            PriorityPlayerId = "P2",
-            PassedPriorityPlayerIds = ["P1"],
-            PlayerZones = playerZones,
-            CardObjects = cardObjects,
-            StackItems =
-            [
-                new StackItemState(
-                    "STACK-XERATH-SETT-CLEANUP",
-                    "P2",
-                    "P2-UNIT-XERATH",
-                    P4ActivatedAbilityCatalog.XerathDamageAbilityEffectKind,
-                    P4ActivatedAbilityCatalog.XerathCardNo,
-                    ["P1-SETT-BOON-ATTACKER"],
-                    damageAmount: P4ActivatedAbilityCatalog.XerathDamageAbilityDamageAmount)
-            ]
-        };
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-sett-xerath-cleanup-pass-priority", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.Empty(result.State.StackItems);
-        Assert.True(result.State.CardObjects["P1-LEGEND-SETT"].IsExhausted);
-        Assert.Equal(0, result.State.RunePools["P1"].Mana);
-        Assert.Equal(["P1-SETT-BOON-ATTACKER"], result.State.PlayerZones["P1"].Base);
-        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
-        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
-        var recalledUnit = result.State.CardObjects["P1-SETT-BOON-ATTACKER"];
-        Assert.True(recalledUnit.IsExhausted);
-        Assert.Equal(1, recalledUnit.Power);
-        Assert.DoesNotContain(CardObjectTags.Boon, recalledUnit.Tags);
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-SETT-BOON-ATTACKER", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BOON_UNIT_DESTROYED_PAY_1_RECALL_EXHAUSTED", StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-SETT-BOON-ATTACKER", StringComparison.Ordinal));
+        var state = OfficialSettReplacementTests.Position();
+        state = state with { TimingState = TimingStates.NeutralClosed, PriorityPlayerId = "P1", PassedPriorityPlayerIds = ["P2"],
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+                ["A"] = state.CardObjects["A"] with { CardNo = P4ActivatedAbilityCatalog.XerathCardNo } },
+            StackItems = [new StackItemState("xerath", "P1", "A", P4ActivatedAbilityCatalog.XerathDamageAbilityEffectKind,
+                P4ActivatedAbilityCatalog.XerathCardNo, ["D"], damageAmount: P4ActivatedAbilityCatalog.XerathDamageAbilityDamageAmount)] };
+        var opened = await OfficialGraveyardRecastTests.Act(state, "P1", new PassPriorityCommand());
+        var done = await OfficialSettReplacementTests.Choose(opened.State);
+        Assert.Contains("D", done.State.PlayerZones["P2"].Base);
+        Assert.Equal(7, done.State.RunePools["P2"].Mana); Assert.Equal(0, done.State.RunePools["P2"].Power);
+        Assert.Contains(done.Events, e => e.Kind == "DAMAGE_APPLIED");
+        Assert.DoesNotContain(done.Events, e => e.Kind == "UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string == "D");
     }
 
     [Fact]
@@ -37131,27 +37053,11 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P79LegendTriggerSettReplacementRequiresManaAndActiveLegend()
+    public async Task P79LegendTriggerSettReplacementRequiresPowerAndActiveLegend()
     {
-        var state = SettDestroyReplacementState("OGN·310*/298", "P1-LEGEND-SETT-ALT", mana: 0, legendExhausted: false);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-sett-recall-boon-unit-no-mana", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-SETT-BOON-ATTACKER"],
-                ["P2-SETT-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.False(result.State.CardObjects["P1-LEGEND-SETT-ALT"].IsExhausted);
-        Assert.Empty(result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-SETT-BOON-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BOON_UNIT_DESTROYED_PAY_1_RECALL_EXHAUSTED", StringComparison.Ordinal));
+        var done = await OfficialSettReplacementTests.Open(OfficialSettReplacementTests.Position(power: 0));
+        Assert.Null(done.State.PendingRuleChoice); Assert.Contains("D", done.State.PlayerZones["P2"].Graveyard);
+        Assert.False(done.State.CardObjects["LEGEND"].IsExhausted); Assert.Equal(7, done.State.RunePools["P2"].Mana);
     }
 
     [Fact]
@@ -65587,53 +65493,6 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
     }
-
-    private static MatchState SettDestroyReplacementState(
-        string sourceCardNo,
-        string sourceObjectId,
-        int mana,
-        bool legendExhausted)
-    {
-        return PunishmentState(mana: mana) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P1-SETT-BOON-ATTACKER"],
-                    LegendZone = [sourceObjectId]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P2-SETT-DEFENDER"]
-                }
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-SETT-BOON-ATTACKER"] = new(
-                    "P1-SETT-BOON-ATTACKER",
-                    cardNo: "SFD·125/221",
-                    power: 2,
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                [sourceObjectId] = new(
-                    sourceObjectId,
-                    cardNo: sourceCardNo,
-                    isExhausted: legendExhausted,
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P2-SETT-DEFENDER"] = new(
-                    "P2-SETT-DEFENDER",
-                    cardNo: "SFD·125/221",
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
-            }
-        };
-    }
-
 
     private static MatchState BattlefieldHeldDrawState()
     {
