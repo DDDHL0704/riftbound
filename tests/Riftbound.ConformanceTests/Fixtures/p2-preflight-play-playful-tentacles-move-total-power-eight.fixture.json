@@ -12,12 +12,12 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-054/219 顽皮触手",
-      "note": "官方卡面：费用 4；移动任意数量敌方单位到同一位置，这些单位控制者必须相同且总计战力不超过 8。当前 P2 preflight 以 2P 单战场区域模型锁定两个 P2 敌方战场单位，总战力 8，代表性移动到其所属基地。"
+      "note": "官方卡面：费用 4；移动任意数量敌方单位到同一位置，这些单位控制者必须相同且总计战力不超过 8。本 fixture 以精确战场 BF 的两个 P2 单位、总战力 8，验证明确选择 BASE:P2 后的移动及状态保留。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "基地和战场均为公开区域；单位对象可位于战场；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。完整同一位置目的地选择、多控制者和多战场位置模型暂缓。"
+      "note": "基地和战场均为公开区域；单位对象可位于战场；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。同一目的地由打出命令指定；基地来源、跨战场、同控制者和当前总战力另有 ChosenMovementTests 回归，移动观察者仍待独立审计。"
     }
   ],
   "roomId": "p2-preflight-playful-tentacles-room",
@@ -64,6 +64,7 @@
         "hand": [],
         "base": ["P2-BASE-UNIT-001"],
         "battlefields": [
+          "BF",
           "P2-PLAYFUL-TENTACLES-UNIT-001",
           "P2-PLAYFUL-TENTACLES-UNIT-002",
           "P2-PLAYFUL-TENTACLES-KEEPER-001"
@@ -74,26 +75,53 @@
         "championZone": ["P2-CHAMPION-001"]
       }
     },
+    "objectLocations": {
+      "BF": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-PLAYFUL-TENTACLES-UNIT-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-PLAYFUL-TENTACLES-UNIT-002": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-PLAYFUL-TENTACLES-KEEPER-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      }
+    },
     "cardObjects": {
+      "BF": { "cardNo": "OGN·296/298", "ownerId": "P2", "controllerId": "P2", "tags": ["CARD_TYPE:BATTLEFIELD"] },
       "P2-BASE-UNIT-001": {
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 0,
         "power": 2,
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       },
       "P2-PLAYFUL-TENTACLES-UNIT-001": {
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 1,
         "power": 3,
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       },
       "P2-PLAYFUL-TENTACLES-UNIT-002": {
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 0,
         "power": 5,
         "untilEndOfTurnEffects": ["STUNNED"],
         "untilEndOfTurnPowerModifier": 0
       },
       "P2-PLAYFUL-TENTACLES-KEEPER-001": {
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 0,
         "power": 6,
         "untilEndOfTurnEffects": [],
@@ -109,6 +137,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-PLAYFUL-TENTACLES",
         "cardNo": "UNL-054/219",
+        "destination": "BASE:P2",
         "targetObjectIds": [
           "P2-PLAYFUL-TENTACLES-UNIT-001",
           "P2-PLAYFUL-TENTACLES-UNIT-002"
@@ -162,7 +191,7 @@
             "P2-PLAYFUL-TENTACLES-UNIT-001",
             "P2-PLAYFUL-TENTACLES-UNIT-002"
           ],
-          "effectKind": "PLAYFUL_TENTACLES_MOVE_ENEMY_BATTLEFIELD_UNITS_TOTAL_POWER_8_TO_BASE"
+          "effectKind": "PLAYFUL_TENTACLES_MOVE_ENEMY_UNITS_TO_CHOSEN_LOCATION"
         }
       },
       { "kind": "PRIORITY_PASSED" },
@@ -214,23 +243,26 @@
             "P2-PLAYFUL-TENTACLES-UNIT-001",
             "P2-PLAYFUL-TENTACLES-UNIT-002"
           ],
-          "battlefields": ["P2-PLAYFUL-TENTACLES-KEEPER-001"]
+          "battlefields": ["BF", "P2-PLAYFUL-TENTACLES-KEEPER-001"]
         }
       },
       "cardObjects": {
         "P2-PLAYFUL-TENTACLES-UNIT-001": {
+          "tags": ["CARD_TYPE:UNIT"],
           "damage": 1,
           "power": 3,
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0
         },
         "P2-PLAYFUL-TENTACLES-UNIT-002": {
+          "tags": ["CARD_TYPE:UNIT"],
           "damage": 0,
           "power": 5,
           "untilEndOfTurnEffects": ["STUNNED"],
           "untilEndOfTurnPowerModifier": 0
         },
         "P2-PLAYFUL-TENTACLES-KEEPER-001": {
+          "tags": ["CARD_TYPE:UNIT"],
           "damage": 0,
           "power": 6,
           "untilEndOfTurnEffects": [],

@@ -1,0 +1,62 @@
+[
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "3de7901d85c43abc829834e172549d71e87aac020ed55cae3d2616eb41e9134f"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.AreaMovement.cs",
+    "sha256": "58775f0b3c47464df3ea136f23b274697f2785e5f60af84a651130355af0d7b4"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+    "sha256": "0ee2b73d1e63cc1c6ddd7581fa8711d8edabb187a83d3a27b2a83dd8f57e7395"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.TargetGroups.cs",
+    "sha256": "dd59dfe6da9d0d68065e91eb80907353de28927d85a6b5f3909311b8e8174b1f"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+    "sha256": "7434da51161d556c3fed0fa70fe35c146c0738091bccc0c91cbc06865772828f"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "a4cde3bd48be731ec111d0637861c7d8f5b818e637212f183e129c4432dd093a"
+  },
+  {
+    "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+    "sha256": "0768610e02413d84729087bc308d9bd197f8b9d87deb8359e4ac19d96c16fb24"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ChosenMovementTests.cs",
+    "sha256": "987888510edfacf6f45fc2a284fec5260b8ca983bfb4888124fe6942880c2d11"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ChosenMovementNativeTests.cs",
+    "sha256": "bcc0e6eb24b73d2419fb96021f386d3b2f56dd858424ba9fd15216c8e9c4d580"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "0c8c2024970b1e58adcc5102429cca4af2fbc860e86c897789a5081d5605aa90"
+  },
+  {
+    "path": "clients/godot/scripts/ui/PlayCardOverlay.cs",
+    "sha256": "ca871a52cef56a3dd50e1954ae2de68126d73119556673e16a00717bfcd39617"
+  },
+  {
+    "path": "clients/godot/scripts/debug/ChosenMovementInteractionProof.cs",
+    "sha256": "31095c58f5c5041290b1d45cdc8cb505fe33707f741fe5da641d7109360701b2"
+  },
+  {
+    "path": "clients/godot/scenes/debug/ChosenMovementInteractionProof.tscn",
+    "sha256": "0db4e3b2fc7d0d0ecf2455f10620fe1806a59c2262cc6410d3b37418f82f48de"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-playful-tentacles-move-total-power-eight.fixture.json",
+    "sha256": "a27fa5a97fa704ab2961061d5b5aa3bbb3d34c0546bae36e5659f1ba80486f60"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-playful-tentacles-total-power-too-high-rejected.fixture.json",
+    "sha256": "e43187a34b62b02cb6df20df56cb3c8a0014ebbf505d3fb4f0e62e48a95b7409"
+  }
+]

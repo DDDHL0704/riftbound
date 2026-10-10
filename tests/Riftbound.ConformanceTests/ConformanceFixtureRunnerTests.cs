@@ -25434,7 +25434,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P2-PLAYFUL-TENTACLES-UNIT-002"
             ],
             result.FinalState.PlayerZones["P2"].Base);
-        Assert.Equal(["P2-PLAYFUL-TENTACLES-KEEPER-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["BF", "P2-PLAYFUL-TENTACLES-KEEPER-001"], result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(1, result.FinalState.CardObjects["P2-PLAYFUL-TENTACLES-UNIT-001"].Damage);
         Assert.Contains(
             "STUNNED",
@@ -28961,8 +28961,8 @@ public sealed class ConformanceFixtureRunnerTests
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["P2-PLAYFUL-TENTACLES-UNIT-001"] = new("P2-PLAYFUL-TENTACLES-UNIT-001", power: 4),
-                ["P2-PLAYFUL-TENTACLES-UNIT-002"] = new("P2-PLAYFUL-TENTACLES-UNIT-002", power: 5)
+                ["P2-PLAYFUL-TENTACLES-UNIT-001"] = new("P2-PLAYFUL-TENTACLES-UNIT-001", power: 4, tags: [CardObjectTags.UnitCard]),
+                ["P2-PLAYFUL-TENTACLES-UNIT-002"] = new("P2-PLAYFUL-TENTACLES-UNIT-002", power: 5, tags: [CardObjectTags.UnitCard])
             }
         };
 
@@ -28972,7 +28972,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-PLAYFUL-TENTACLES",
                 "UNL-054/219",
-                ["P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"]),
+                ["P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"], Destination: "BASE:P2"),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
@@ -29000,7 +29000,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(4, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-PLAYFUL-TENTACLES"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(
-            ["P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"],
+            ["BF", "P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"],
             result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.FinalState.StackItems);
     }

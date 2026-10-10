@@ -21122,19 +21122,25 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
             ? string.Empty : command.Destination?.Trim() ?? string.Empty;
-        if (state.PendingEffectPlay is not null && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
+        if (state.PendingEffectPlay is not null && !behavior.MovesTargetsToChosenLocation && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
         {
             rejection = Reject(state, "效果不允许打出到该位置。", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!string.IsNullOrWhiteSpace(destination)
+        if (behavior.MovesTargetsToChosenLocation
+            && !IsChosenMovementDestinationAllowed(state, intent.PlayerId, destination, NormalizeTargetObjectIds(command.TargetObjectIds)))
+        {
+            rejection = Reject(state, "请选择所有目标均可移动至的同一个位置。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (!behavior.MovesTargetsToChosenLocation && !string.IsNullOrWhiteSpace(destination)
             && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)))
         {
             rejection = Reject(state, $"{behavior.DisplayName} has unsupported play destination.", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!string.IsNullOrWhiteSpace(destination)
+        if (!behavior.MovesTargetsToChosenLocation && !string.IsNullOrWhiteSpace(destination)
             && HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
         {
             rejection = Reject(state, "战场效果禁止将单位打出到该战场。", ErrorCodes.InvalidTarget);
@@ -30280,10 +30286,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
         }
 
+        if (behavior.MovesTargetsToChosenLocation)
+        {
+            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations,
+                stackItem, stackItem.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
+            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
+        }
+
         if (behavior.MovesWeakerEnemiesAtSelectedBattlefieldToBase)
         {
-            MoveWeakerEnemiesAtSelectedBattlefieldToBase(state, playerZones, cardObjects, stackItem, events);
-            resolvedObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            MoveWeakerEnemiesAtSelectedBattlefieldToBase(state, playerZones, cardObjects, movementLocations, stackItem, events);
+            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.GainExperienceAfterEffect > 0)

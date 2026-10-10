@@ -9,7 +9,11 @@ public sealed partial class CoreRuleEngine
     internal static bool HasValidTargetGroup(MatchState state, CardBehaviorDefinition behavior, IReadOnlyList<string> targets)
     {
         if (!HasValidTotalTargetPower(state, behavior, targets)) return false;
-        if (!behavior.TargetsShareBattlefield || targets.Count < 2) return true;
+        if (targets.Count < 2) return true;
+        if (behavior.TargetsShareController && targets.Select(id =>
+            FindFieldObjectLocation(state.PlayerZones, id)?.PlayerId).Distinct(StringComparer.Ordinal).Count() != 1)
+            return false;
+        if (!behavior.TargetsShareBattlefield) return true;
         var field = state.ObjectLocations.GetValueOrDefault(targets[0])?.BattlefieldObjectId;
         return !string.IsNullOrWhiteSpace(field) && targets.All(id =>
             state.ObjectLocations.TryGetValue(id, out var location) && location.Zone == "BATTLEFIELD"
@@ -18,7 +22,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackItemState ResolveTargetGroup(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
     {
-        if (!behavior.TargetsShareBattlefield) return item;
+        if (!behavior.TargetsShareBattlefield && !behavior.TargetsShareController) return item;
         var remaining = item.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToList();
         if (HasValidTargetGroup(state, behavior, remaining)) return item;
         var frame = RuleChoices.Value ?? throw new InvalidOperationException("Target selection requires a rule command context.");

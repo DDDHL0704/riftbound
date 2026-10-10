@@ -1,0 +1,22 @@
+{
+  "baseline": 6226,
+  "current": 6241,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.ChosenMovementNativeTests.NativeUnitSelectionPaymentAndResolutionReplay",
+    "Riftbound.ConformanceTests.ChosenMovementTests.AnyNumberIncludesZeroAndMoreThanEightZeroPowerTargets",
+    "Riftbound.ConformanceTests.ChosenMovementTests.BattlefieldPreventsReturnToBaseButAllowsAnotherBattlefield",
+    "Riftbound.ConformanceTests.ChosenMovementTests.EffectRecastKeepsMovementDestinationSeparateFromCardPlayLocation",
+    "Riftbound.ConformanceTests.ChosenMovementTests.EmptySelectionNeedsNoDestination",
+    "Riftbound.ConformanceTests.ChosenMovementTests.EnteringOpposingBattlefieldUsesTheNormalContestWindow",
+    "Riftbound.ConformanceTests.ChosenMovementTests.EquipmentFollowsTheExactBattlefieldAndKeepsItsState",
+    "Riftbound.ConformanceTests.ChosenMovementTests.GroupRequiresOneControllerEvenWhenBothAreOpponents",
+    "Riftbound.ConformanceTests.ChosenMovementTests.MovesAllSelectedUnitsToTheChosenLocationWithoutChangingState",
+    "Riftbound.ConformanceTests.ChosenMovementTests.RealResponseIncreasingPowerLetsCasterChooseALegalSubset",
+    "Riftbound.ConformanceTests.ChosenMovementTests.RejectsMissingForgedOrUnchangedDestinationBeforePayment",
+    "Riftbound.ConformanceTests.ChosenMovementTests.ResolutionHonorsMovementRestrictionsCurrentLocationAndObjectIdentity",
+    "Riftbound.ConformanceTests.ChosenMovementTests.SourcesCanComeFromBaseAndDifferentBattlefields",
+    "Riftbound.ConformanceTests.ChosenMovementTests.TotalPowerUsesTheOfficialEightLimit",
+    "Riftbound.ConformanceTests.ChosenMovementTests.WardStillChargesForEveryChosenEnemy"
+  ]
+}

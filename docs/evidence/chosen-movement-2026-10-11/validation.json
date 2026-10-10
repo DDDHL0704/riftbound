@@ -1,0 +1,205 @@
+{
+  "focus5": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.33,
+    "total": 82,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 82,
+        "passed": 82,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.89
+      }
+    ]
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 84.56,
+    "total": 9224,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9224,
+        "passed": 9224,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 81.01
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 387.3,
+    "total": 9357,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 200.83
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 202.7
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 206.83
+      },
+      {
+        "shard": "rules",
+        "total": 9222,
+        "passed": 9222,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 84.69
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 383.6
+      }
+    ]
+  },
+  "native": {
+    "productionCommands": 3,
+    "scenarios": 3,
+    "allNative": true,
+    "allReplayMatch": true,
+    "journalCommands": 9,
+    "mode": "Godot headless PlayCardOverlay; not two-window visual or Windows acceptance"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.87\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nCHOSEN_MOVEMENT_PASS: three production destination and target commands\n",
+  "artifacts": {
+    "red": [
+      {
+        "path": "var/qa/chosen-movement/red/focus/results.trx",
+        "sha256": "cbe4b5531e9bf7156f52867eb758ad2b04094340decfd3863aa8a634b869bdd3"
+      },
+      {
+        "path": "var/qa/chosen-movement/red/plan.json",
+        "sha256": "77683d444ef57fd6ad156f9f465d9746b734cd882763d13b49c2236ee87dd512"
+      }
+    ],
+    "focus": [
+      {
+        "path": "var/qa/chosen-movement/focus/focus/results.trx",
+        "sha256": "1614b35a09ebfeca711cc7d008e0dc0df81af6ca65d98e6c00c77477e29c9175"
+      },
+      {
+        "path": "var/qa/chosen-movement/focus/plan.json",
+        "sha256": "bacdabc020f1e5c23b38c2ad7abe6d34a0a5291d5110f426402055eab061ce81"
+      }
+    ],
+    "focus2": [
+      {
+        "path": "var/qa/chosen-movement/focus2/focus/results.trx",
+        "sha256": "1c9620d89f6c65eec12910aaa546a3d1359b4077192603e34fe9ed202cff3ada"
+      },
+      {
+        "path": "var/qa/chosen-movement/focus2/plan.json",
+        "sha256": "d0897eea9ff86543252cc8c74053af2e53a805fdc3d8e88b597823b037148ab8"
+      }
+    ],
+    "focus3": [
+      {
+        "path": "var/qa/chosen-movement/focus3/focus/results.trx",
+        "sha256": "ccd8241a626533b092acfa8bc41f4ba4469aba27bf1b735852a17156c85f3100"
+      },
+      {
+        "path": "var/qa/chosen-movement/focus3/plan.json",
+        "sha256": "280fde9a08fd3ae9f8370e82ce709b3eb8a8427fb6ca80fb585f95c1559a0204"
+      }
+    ],
+    "focus4": [
+      {
+        "path": "var/qa/chosen-movement/focus4/focus/results.trx",
+        "sha256": "f52c7590bfe66ed7757f28d9e223c935ed17d03087e68ff64fc5033437c7989d"
+      },
+      {
+        "path": "var/qa/chosen-movement/focus4/plan.json",
+        "sha256": "11ecf461320e4597ccb88c9c3a9d43736eb00851afab61bb2627837e97526477"
+      }
+    ],
+    "focus5": [
+      {
+        "path": "var/qa/chosen-movement/focus5/focus/results.trx",
+        "sha256": "1e9d9ca3895f84c673d8fb245def7b9e047b5ae2155cd431823704aa4798dbfd"
+      },
+      {
+        "path": "var/qa/chosen-movement/focus5/plan.json",
+        "sha256": "b966faee0da64cdc7542c8bf4e8c6d29e5d0757eae2c78425b8f844766015e3a"
+      },
+      {
+        "path": "var/qa/chosen-movement/focus5/summary.json",
+        "sha256": "8689c35cf3176208cc3068189804248d80553aba0bb6c29cf9b9344d0dbbdc37"
+      }
+    ],
+    "check": [
+      {
+        "path": "var/qa/chosen-movement/check/check/results.trx",
+        "sha256": "7f6255d7d62a62b82eb9765889017ff62867a7b5977aecf98cd5c958394bdd51"
+      },
+      {
+        "path": "var/qa/chosen-movement/check/plan.json",
+        "sha256": "817360592bcd1314f795a070b76682ab835228b47fae73458f3aab22006f5957"
+      },
+      {
+        "path": "var/qa/chosen-movement/check/summary.json",
+        "sha256": "e8ce123b32f97fe2b387738c55be3beada2edb8353f2e4798fbc50f5722c3541"
+      }
+    ],
+    "full": [
+      {
+        "path": "var/qa/chosen-movement/full/games-1/results.trx",
+        "sha256": "8a8d03b67d5f9eb5e38b27cd259440b8bd35c919ddc328bfe1750222a78ffd16"
+      },
+      {
+        "path": "var/qa/chosen-movement/full/games-2/results.trx",
+        "sha256": "e0aa35924f509879b883bc58b9b2238c0f31e67c3f8470ea97ba5321b61db0ed"
+      },
+      {
+        "path": "var/qa/chosen-movement/full/games-3/results.trx",
+        "sha256": "7cc0eec89b6a14b46669a5842c34bdf7e7e4048c3e9fb7966445a8e757f281e5"
+      },
+      {
+        "path": "var/qa/chosen-movement/full/games-4/results.trx",
+        "sha256": "cef5d170ddfec7838b82ab429b9d848aea6309a02345ab49db3321202473109e"
+      },
+      {
+        "path": "var/qa/chosen-movement/full/plan.json",
+        "sha256": "937761892d78ebb6c3ffed133675af979733e5b5fbde85e41463f220050e0f80"
+      },
+      {
+        "path": "var/qa/chosen-movement/full/rules/results.trx",
+        "sha256": "edafb23080d6f5d9326a3c62aa256503f9ab47addf5e02c1b348a59ce14d402a"
+      },
+      {
+        "path": "var/qa/chosen-movement/full/summary.json",
+        "sha256": "a610c18263eea78cd9afc1d5bedcedfb4c4e9446068f88bd7053b900802b167a"
+      }
+    ]
+  }
+}

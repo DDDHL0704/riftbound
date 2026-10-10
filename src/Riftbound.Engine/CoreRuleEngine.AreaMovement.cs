@@ -8,6 +8,7 @@ public sealed partial class CoreRuleEngine
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> locations,
         StackItemState stackItem,
         List<GameEvent> events)
     {
@@ -27,34 +28,8 @@ public sealed partial class CoreRuleEngine
                 && BattlefieldLocalRules.AtUnit(current, card.ObjectId)?.ObjectId == battlefield.ObjectId
                 && ResolveCurrentFieldUnitPower(current, card) < threshold)
             .Select(card => card.ObjectId).OrderBy(id => id, StringComparer.Ordinal).ToArray();
-        foreach (var id in affected)
-            MoveFieldUnitToControllerBase(current, playerZones, cardObjects, stackItem, id, events);
-    }
-
-    private static void MoveFieldUnitToControllerBase(
-        MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        StackItemState stackItem,
-        string unitId,
-        List<GameEvent> events)
-    {
-        if (BattlefieldLocalRules.PreventsMoveToBase(state, unitId)
-            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, unitId, out var controllerId))
-            return;
-
-        events.Add(new GameEvent("UNIT_MOVED_TO_BASE", "单位移动到其控制者的基地",
-            new Dictionary<string, object?> {
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["targetObjectId"] = unitId,
-                ["unitObjectId"] = unitId,
-                ["playerId"] = controllerId,
-                ["ownerPlayerId"] = controllerId,
-                ["originZone"] = "BATTLEFIELD",
-                ["originBattlefieldObjectId"] = state.ObjectLocations.GetValueOrDefault(unitId)?.BattlefieldObjectId,
-                ["destinationZone"] = "BASE"
-            }));
-        events.AddRange(MoveAttachedEquipmentWithHost(playerZones,
-            AttachedEquipmentObjectIds(cardObjects, unitId), controllerId, unitId, "BASE"));
+        foreach (var group in affected.GroupBy(id => FindFieldObjectLocation(playerZones, id)!.Value.PlayerId))
+            MoveFieldUnitsToChosenLocation(current, playerZones, cardObjects, locations,
+                stackItem, group.ToArray(), "BASE:" + group.Key, events);
     }
 }

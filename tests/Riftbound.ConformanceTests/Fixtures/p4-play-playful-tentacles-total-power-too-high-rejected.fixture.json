@@ -54,21 +54,41 @@
         "runeDeck": ["P2-RUNE-001"],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"],
+        "battlefields": ["BF", "P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
       }
     },
-    "cardObjects": {
+    "objectLocations": {
+      "BF": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
       "P2-PLAYFUL-TENTACLES-UNIT-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-PLAYFUL-TENTACLES-UNIT-002": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      }
+    },
+    "cardObjects": {
+      "BF": { "cardNo": "OGN·296/298", "ownerId": "P2", "controllerId": "P2", "tags": ["CARD_TYPE:BATTLEFIELD"] },
+      "P2-PLAYFUL-TENTACLES-UNIT-001": {
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 0,
         "power": 4,
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       },
       "P2-PLAYFUL-TENTACLES-UNIT-002": {
+        "tags": ["CARD_TYPE:UNIT"],
         "damage": 0,
         "power": 5,
         "untilEndOfTurnEffects": [],
@@ -84,6 +104,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-PLAYFUL-TENTACLES",
         "cardNo": "UNL-054/219",
+        "destination": "BASE:P2",
         "targetObjectIds": ["P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"]
       }
     }
@@ -119,18 +140,20 @@
         "P2": {
           "hand": [],
           "base": [],
-          "battlefields": ["P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"],
+          "battlefields": ["BF", "P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"],
           "graveyard": []
         }
       },
       "cardObjects": {
         "P2-PLAYFUL-TENTACLES-UNIT-001": {
+          "tags": ["CARD_TYPE:UNIT"],
           "damage": 0,
           "power": 4,
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0
         },
         "P2-PLAYFUL-TENTACLES-UNIT-002": {
+          "tags": ["CARD_TYPE:UNIT"],
           "damage": 0,
           "power": 5,
           "untilEndOfTurnEffects": [],

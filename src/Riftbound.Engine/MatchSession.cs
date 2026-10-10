@@ -16081,6 +16081,7 @@ internal static class ActionPromptBuilder
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
+            ["destinationLabel"] = behavior.MovesTargetsToChosenLocation ? "移动目的地" : "入场位置",
             ["optionalCostChoices"] = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) ? Array.Empty<ActionPromptChoiceDto>() : PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
@@ -16171,6 +16172,8 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
+        if (behavior.MovesTargetsToChosenLocation)
+            return CoreRuleEngine.ChosenMovementDestinations(state, playerId);
         if (state.PendingEffectPlay is not null && behavior.PlaysSourceToBaseAsUnit)
             return CoreRuleEngine.EffectPlayDestinations(state, playerId).Select(id => new ActionPromptChoiceDto(id, id == "BASE" ? "基地" : state.PendingEffectPlay.RevealedHand is not null ? "效果指定战场" : "受控战场")).ToArray();
 

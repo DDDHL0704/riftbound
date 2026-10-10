@@ -1,0 +1,10 @@
+{
+  "native": true,
+  "replay": {
+    "isMatch": true,
+    "replayedStateHash": "2b858bb67b256675d7ed076adacea03075ea86a8bdc0d3d1f679f1b1b2fb8914",
+    "expectedStateHash": "2b858bb67b256675d7ed076adacea03075ea86a8bdc0d3d1f679f1b1b2fb8914",
+    "errors": []
+  },
+  "commands": 3
+}

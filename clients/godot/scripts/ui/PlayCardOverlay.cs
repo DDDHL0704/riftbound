@@ -116,7 +116,7 @@ public partial class PlayCardOverlay : Control
             ? legal.EnumerateArray().Select(selection => selection.EnumerateArray().Select(id => id.GetString() ?? "").ToArray()).ToArray() : [];
         if (Choices(requirement, "destinationChoices") is { Length: > 0 } destinations)
         {
-            _destination = Picker("入场位置", destinations, false); _destinations = destinations.Select(x => x.Id).ToArray();
+            _destination = Picker(Text(requirement, "destinationLabel") is { Length: > 0 } label ? label : "入场位置", destinations, false); _destinations = destinations.Select(x => x.Id).ToArray();
         }
         if (Choices(requirement, "printedPowerChoices") is { Length: > 0 } printed)
         {

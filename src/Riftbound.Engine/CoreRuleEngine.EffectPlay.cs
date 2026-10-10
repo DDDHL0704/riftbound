@@ -249,7 +249,8 @@ public sealed partial class CoreRuleEngine
         if (command is PlayCardCommand play)
         {
             if (!EffectPlaySources(state, intent.PlayerId).Contains(play.SourceObjectId)
-                || !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrWhiteSpace(play.Destination) ? "BASE" : play.Destination)
+                || (!(CardBehaviorRegistry.TryGetByCardNo(play.CardNo, out var playedBehavior) && playedBehavior.MovesTargetsToChosenLocation)
+                    && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrWhiteSpace(play.Destination) ? "BASE" : play.Destination))
                 || IsAmbushPlayMode(play.Mode))
                 return RejectWithCorePrompts(state, "再次打出的来源或位置已失效。", ErrorCodes.InvalidTarget);
             var result = ResolvePlayCard(state, intent, play);
