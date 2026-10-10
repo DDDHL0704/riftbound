@@ -239,16 +239,6 @@ public sealed partial class CoreRuleEngine
             assignedOverkillDamageToEnemyUnits,
             events);
 
-        var reksaiConquerTrigger = ResolveReksaiLegendConquerRevealTrigger(
-            state,
-            playerZones,
-            cardObjects,
-            playerId,
-            battlefieldId,
-            sourceObjectId,
-            rngCursor);
-        rngCursor = reksaiConquerTrigger.RngCursor;
-        events.AddRange(reksaiConquerTrigger.Events);
         if (winnerPlayerId is null
             && CountControlledBattlefieldUnits(playerZones, cardObjects, playerId) >= 4
             && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, playerId, out var garenLegendCardNo))

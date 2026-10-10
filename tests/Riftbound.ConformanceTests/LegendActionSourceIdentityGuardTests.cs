@@ -92,7 +92,7 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.Contains("ViLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("VexLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("RenataLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("ReksaiLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("ReksaiLegendIdentityId", File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.LegendConquest.cs")), StringComparison.Ordinal);
         Assert.Contains("IvernLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LeblancLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LegendCardHasIdentity", coreRuleEngineSource, StringComparison.Ordinal);

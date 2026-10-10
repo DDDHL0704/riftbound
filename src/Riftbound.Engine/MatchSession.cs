@@ -5355,7 +5355,7 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.HeldContext is { } held && (held.Kind switch {
             "LEBLANC_DISCARD" => "映像创建", "VEX" => "据守抽牌", "RENATA" => "据守创建金币",
             "PAY_POWER_SCORE" => "据守额外得分", "BOON" => "据守增益", "MOVE_BASE" => "据守移回基地", "RETURN_PERMANENT" => "据守返回手牌", "RETURN_HERO" => "据守返回选定英雄", "CHANNEL_OPTIONAL" => "据守召出符文", "IVERN" => "替换为草丛", "BRUSH_RETURN" => "换回原战场", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
-        if (!hiddenSource && item.LegendConquest is { } conquest) view["abilityLabel"] = conquest.Kind == "EXHAUST_READY_UNIT" ? "征服活跃单位" : "征服活跃传奇";
+        if (!hiddenSource && item.LegendConquest is { } conquest) view["abilityLabel"] = conquest.Kind == "EXHAUST_DECK_PLAY" ? "征服展示并打出" : conquest.Kind == "EXHAUST_READY_UNIT" ? "征服活跃单位" : "征服活跃传奇";
         if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
         if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;
@@ -6441,7 +6441,7 @@ public sealed record ResolutionResult(
             return false;
         }
 
-        if (CoreRuleEngine.IsPubliclyRevealedHandCard(state, objectId)) return false;
+        if (CoreRuleEngine.IsPubliclyRevealedHandCard(state, objectId) || CoreRuleEngine.IsPubliclyRevealedDeckCard(state, objectId)) return false;
         if (IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId))
         {
             return true;
@@ -6498,6 +6498,7 @@ public sealed record ResolutionResult(
         }
 
         if (!ownView) ids.AddRange(zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(state, id)).Order(StringComparer.Ordinal));
+        ids.AddRange(zones.MainDeck.Where(id => CoreRuleEngine.IsPubliclyRevealedDeckCard(state, id)));
         ids.AddRange(zones.Base);
         ids.AddRange(zones.Battlefields.Where(objectId =>
             !IsHiddenBattlefieldStandbyForViewer(state, objectId, viewerPlayerId)));

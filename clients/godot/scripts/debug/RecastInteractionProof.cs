@@ -16,12 +16,13 @@ public partial class RecastInteractionProof : Control
             var root=OS.GetCmdlineUserArgs().First(a=>a.StartsWith("--evidence="))[11..];
             var json=new JsonSerializerOptions(JsonSerializerDefaults.Web);
             var executed=0;
-            foreach(var branch in new[]{"pick-second","pay-power","decline","unit-play","unit-decline","hand-pick","hand-play","hand-decline","hand-recycle","hand-investigator","hand-investigator-decline","hand-scout-continue"})
+            foreach(var branch in new[]{"pick-second","pay-power","decline","unit-play","unit-decline","hand-pick","hand-play","hand-decline","hand-recycle","hand-investigator","hand-investigator-decline","hand-scout-continue","deck-unit","deck-equipment","deck-spell","deck-decline"})
             {
                 var dir=Path.Combine(root,branch);
                 if(!Directory.Exists(dir)) continue;
                 var unit=branch.StartsWith("unit-");
                 var revealed=branch.StartsWith("hand-");
+                var deck=branch.StartsWith("deck-");
                 executed++;
                 using var prompt=JsonDocument.Parse(File.ReadAllText(Path.Combine(dir,"prompt.json")));
                 Dictionary<string,object?>? command=null;Control component;
@@ -62,12 +63,16 @@ public partial class RecastInteractionProof : Control
                 else
                 {
                     using var candidate=JsonDocument.Parse(File.ReadAllText(Path.Combine(dir,"candidate.json")));
+                    if(deck) {
+                        var view=(Godot.Collections.Dictionary)typeof(Main).GetMethod("BuildPromptView",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[prompt.RootElement])!;
+                        Check(view["message"].AsString().Contains("已公开展示") && !view["message"].AsString().Contains("仅你可见"),"Deck reveal is public");
+                    }
                     var quote=JsonSerializer.Deserialize<PlayCostQuoteDto>(File.ReadAllText(Path.Combine(dir,"quote.json")),json)!;
                     var overlay=new PlayCardOverlay{TableMode=true};AddChild(overlay);component=overlay;
                     PlayCostPreviewRequestDto? request=null;overlay.PreviewRequested+=value=>request=value;overlay.Confirmed+=value=>command=value;
                     Check(overlay.Open(candidate.RootElement,quote.PromptId,quote.SnapshotTick,id=>new Godot.Collections.Dictionary {
-                        ["visible"]=true,["objectId"]=id,["cardName"]=id=="F"?"菲兹":revealed?"冷血贵族":unit?"警觉的哨兵":branch=="pay-power"?"镜花水月":"冥想",["cardNo"]=id=="F"?"SFD·140/221":revealed?"OGN·208/298":unit?"OGN·096/298":branch=="pay-power"?"UNL-200/219":"OGN·048/298",["imagePath"]="",["zone"]=id=="F"?"BASE":"GRAVEYARD",["owner"]="self"}),"Authoritative graveyard candidate opens");
-                    var expectedSource=revealed?"U":unit?"G":branch=="pay-power"?"C":"OTHER";
+                        ["visible"]=true,["objectId"]=id,["cardName"]=id=="F"?"菲兹":revealed?"冷血贵族":unit?"警觉的哨兵":branch=="pay-power"?"镜花水月":"冥想",["cardNo"]=id=="F"?"SFD·140/221":revealed?"OGN·208/298":unit?"OGN·096/298":branch=="pay-power"?"UNL-200/219":"OGN·048/298",["imagePath"]="",["zone"]=deck?"MAIN_DECK":id=="F"?"BASE":"GRAVEYARD",["owner"]="self"}),"Authoritative graveyard candidate opens");
+                    var expectedSource=deck?"DECK1":revealed?"U":unit?"G":branch=="pay-power"?"C":"OTHER";
                     var requirements=candidate.RootElement.GetProperty("metadata").GetProperty("sourceRequirements").EnumerateArray().ToArray();
                     var index=Array.FindIndex(requirements,r=>r.GetProperty("sourceObjectId").GetString()==expectedSource);
                     Check(index>=0,"Server offers chosen card");if(branch=="pick-second")Check(index>0,"Selects a different card from the default");
@@ -78,7 +83,7 @@ public partial class RecastInteractionProof : Control
                     var submit=(Button)overlay.FindChild("ConfirmPlayCardButton",true,false);Check(submit.Disabled,"No quote cannot authorize play");
                     overlay.ApplyQuote(quote with {RequestId=request!.RequestId});Check(!submit.Disabled,"Current quote authorizes play");
                     var origin=(Label)typeof(PlayCardOverlay).GetField("_origin",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(overlay)!;
-                    Check(revealed ? origin.Text.Contains("忽略一切费用") && origin.Text.Contains("不能支付额外费用")
+                    Check(deck ? origin.Text.Contains("正常支付法力、符能及额外费用") : revealed ? origin.Text.Contains("忽略一切费用") && origin.Text.Contains("不能支付额外费用")
                         : origin.Text.Contains("忽略基础法力") && origin.Text.Contains("符能"),"Origin explains cost exception");
                     if(revealed)Check(request.Command.Destination=="BATTLEFIELD:BF","Owner must use the specified battlefield");
                     if(unit)Check(origin.Text.Contains("额外费用仍需支付"),"Base waiver preserves additional costs");

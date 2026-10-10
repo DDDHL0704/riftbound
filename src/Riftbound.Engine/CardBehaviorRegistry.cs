@@ -242,6 +242,8 @@ public sealed record CardBehaviorDefinition(
     int EffectPlayManaReduction = 0,
     string EffectPlayDestination = "ANY",
     bool EffectPlayOptional = false,
+    bool EffectPlayAllowsAnyCard = false,
+    bool EffectPlayRevealsCards = false,
     bool IgnorePrintedPowerCost = false,
     string TargetTraitsManaReductionTags = "",
     string EffectPlayedUnitStatus = "",

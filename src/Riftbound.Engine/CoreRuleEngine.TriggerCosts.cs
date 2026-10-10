@@ -14,7 +14,7 @@ public sealed partial class CoreRuleEngine
     // before responses. A paid receipt follows the captured stack item, not its live source.
     private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.LegendConquest?.Kind switch {
         "PAY_READY_SELF" => new(Mana: LegendConquestDefinition(item.LegendConquest.CardNo)?.Spec.ManaCost ?? 0),
-        "EXHAUST_READY_UNIT" => new(Exhaust: true),
+        "EXHAUST_READY_UNIT" or "EXHAUST_DECK_PLAY" => new(Exhaust: true),
         _ => item.HeldContext?.Kind switch {
         "LEBLANC_DISCARD" => new(Exhaust: true, Discard: true),
         "VEX" or "RENATA" or "IVERN" => new(Exhaust: true),
@@ -41,7 +41,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidLeadingCostContext(item) || item.TriggerCost is not null || LeadingTriggerCost(item) is not { Exhaust: true } cost
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)
             || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
-            || source.ObjectGeneration != item.HeldContext!.SourceGeneration || source.ControllerId != item.ControllerId
+            || source.ObjectGeneration != TriggerCostSourceGeneration(item) || source.ControllerId != item.ControllerId
             || source.IsExhausted || source.IsFaceDown || !zones.LegendZone.Contains(source.ObjectId)) return [];
         return cost.Discard ? zones.Hand.Where(id => state.CardObjects.TryGetValue(id, out var card)
             && card.ControllerId == item.ControllerId).ToArray() : [source.ObjectId];
@@ -49,8 +49,8 @@ public sealed partial class CoreRuleEngine
 
     private static PendingCardChoiceState TriggerCostChoice(MatchState state, StackItemState item)
         => new("TRIGGER-COST:" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0 } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, 1,
-            TriggerCostChoices(state, item), [item.HeldContext!.BattlefieldObjectId],
-            item.HeldContext!.Kind == "CHANNEL_OPTIONAL" ? "确认召出一枚休眠符文；不选则放弃。确认后双方可以响应，结算时才召出符文。" : item.HeldContext.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
+            TriggerCostChoices(state, item), [item.LegendConquest?.BattlefieldId ?? item.HeldContext!.BattlefieldObjectId],
+            item.HeldContext?.Kind == "CHANNEL_OPTIONAL" ? "确认召出一枚休眠符文；不选则放弃。确认后双方可以响应，结算时才召出符文。" : item.HeldContext?.Kind == "BRUSH_RETURN" ? "选择此草丛以确认换回原战场的技能；不选则保留草丛。确认后双方可以响应。" : LeadingTriggerCost(item)!.Discard
                 ? "选择弃置一张手牌并横置乐芙兰以确认技能；不选则放弃。确认后双方响应，结算时在此战场打出活跃映像，再选择复制对象。"
                 : "选择横置此传奇以确认触发技能；不选则放弃。费用支付后双方可以响应，效果随后结算。",
             item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
@@ -78,7 +78,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTriggerCostChoice(MatchState state, PendingCardChoiceState choice)
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId);
-        if (item is null || item.HeldContext is null || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0, Mana: 0 }) return false;
+        if (item is null || item.HeldContext is null && item.LegendConquest?.Kind != "EXHAUST_DECK_PLAY" || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { Power: 0, Mana: 0 }) return false;
         var expected = TriggerCostChoice(state, item);
         return choice.ChoiceId == expected.ChoiceId && choice.ChoiceWindow == expected.ChoiceWindow
             && choice.PlayerId == expected.PlayerId && choice.SourceObjectId == expected.SourceObjectId
@@ -133,7 +133,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
         if (selected.Count == 0) return CompleteTriggerCost(state, item, null, []);
         if (LeadingTriggerCost(item) is { Exhaust: false })
-            return CompleteTriggerCost(state, item, new(new(item.SourceObjectId, item.HeldContext!.SourceGeneration)), []);
+            return CompleteTriggerCost(state, item, new(new(item.SourceObjectId, TriggerCostSourceGeneration(item))), []);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
         var source = cards[item.SourceObjectId];

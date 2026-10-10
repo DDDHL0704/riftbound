@@ -36932,91 +36932,28 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendTriggerReksaiRevealsTopTwoPlaysUnitAndRecyclesRestOnConquer()
     {
-        var state = ReksaiConquerState("SFD·187/221", "P1-LEGEND-REKSAI", legendExhausted: false, topUnit: true);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-reksai-battlefield-conquer", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-REKSAI-ATTACKER"],
-                ["P2-REKSAI-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.True(result.State.CardObjects["P1-LEGEND-REKSAI"].IsExhausted);
-        Assert.Equal(["P1-REKSAI-PLAY-UNIT"], result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-REKSAI-KEEP", "P1-REKSAI-RECYCLE"], result.State.PlayerZones["P1"].MainDeck);
-        Assert.False(result.State.CardObjects["P1-REKSAI-PLAY-UNIT"].IsExhausted);
-        Assert.Equal("P1", result.State.CardObjects["P1-REKSAI-PLAY-UNIT"].ControllerId);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_PLAY_ONE_RECYCLE_REST", StringComparison.Ordinal));
-        Assert.Equal("SFD·187/221", triggerEvent.Payload["legendCardNo"]);
-        Assert.Equal("P1-REKSAI-PLAY-UNIT", triggerEvent.Payload["playedObjectId"]);
-        Assert.Equal(["P1-REKSAI-PLAY-UNIT", "P1-REKSAI-RECYCLE"], (string[])triggerEvent.Payload["revealedObjectIds"]!);
-        var revealEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
-        Assert.Equal(2, revealEvent.Payload["count"]);
-        var playEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
-        Assert.Equal("P1-REKSAI-PLAY-UNIT", playEvent.Payload["targetObjectId"]);
-        var recycleEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
-        Assert.Equal(["P1-REKSAI-RECYCLE"], (IReadOnlyList<string>)recycleEvent.Payload["cardIds"]!);
+        var opened = await OfficialLegendDeckPlayTests.Open(OfficialLegendDeckPlayTests.Position());
+        var done = await OfficialGraveyardRecastTests.Act(opened.State, "P1", new PlayCardCommand("DECK0", "SFD·125/221", []));
+        Assert.True(done.State.CardObjects["DECK0"].IsExhausted); Assert.Equal(16, done.State.RunePools["P1"].Mana);
+        Assert.Equal(["TAIL", "DECK1"], done.State.PlayerZones["P1"].MainDeck);
     }
 
     [Fact]
-    public async Task P79LegendTriggerReksaiRecyclesBothRevealedCardsWhenNoTopUnit()
+    public async Task P79LegendTriggerReksaiMayDeclineAndRecycleBothNonUnitCards()
     {
-        var state = ReksaiConquerState("SFD·243/221", "P1-LEGEND-REKSAI-REPRINT", legendExhausted: false, topUnit: false);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-reksai-battlefield-conquer-no-unit", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-REKSAI-ATTACKER"],
-                ["P2-REKSAI-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.True(result.State.CardObjects["P1-LEGEND-REKSAI-REPRINT"].IsExhausted);
-        Assert.Empty(result.State.PlayerZones["P1"].Base);
-        Assert.Equal("P1-REKSAI-KEEP", result.State.PlayerZones["P1"].MainDeck[0]);
-        Assert.Contains("P1-REKSAI-RECYCLE", result.State.PlayerZones["P1"].MainDeck);
-        Assert.Contains("P1-REKSAI-SECOND-RECYCLE", result.State.PlayerZones["P1"].MainDeck);
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_PLAY_ONE_RECYCLE_REST", StringComparison.Ordinal));
-        Assert.Equal(string.Empty, triggerEvent.Payload["playedObjectId"]);
-        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
-        var recycleEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
-        Assert.Equal(2, recycleEvent.Payload["count"]);
+        var opened = await OfficialLegendDeckPlayTests.Open(OfficialLegendDeckPlayTests.Position("SFD·243/221", top: ["OGN·048/298", "SFD·022/221"]));
+        Assert.Equal(2, opened.State.PendingEffectPlay!.Sources.Count);
+        var done = await OfficialGraveyardRecastTests.Act(opened.State, "P1", new ChooseCardsCommand(opened.State.PendingEffectPlay.ChoiceId, "EFFECT_PLAY", []));
+        Assert.Equal("TAIL", done.State.PlayerZones["P1"].MainDeck[0]); Assert.Equal(3, done.State.PlayerZones["P1"].MainDeck.Count);
+        Assert.Equal(2, Assert.Single(done.Events, e => e.Kind == "CARDS_RECYCLED").Payload["count"]);
     }
 
     [Fact]
-    public async Task P79LegendTriggerReksaiRequiresActiveLegend()
+    public async Task P79LegendTriggerReksaiExhaustedSourceCannotConfirm()
     {
-        var state = ReksaiConquerState("SFD·187/221", "P1-LEGEND-REKSAI", legendExhausted: true, topUnit: true);
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-reksai-battlefield-conquer-exhausted", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-REKSAI-ATTACKER"],
-                ["P2-REKSAI-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        Assert.True(result.State.CardObjects["P1-LEGEND-REKSAI"].IsExhausted);
-        Assert.Empty(result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-REKSAI-PLAY-UNIT", "P1-REKSAI-RECYCLE", "P1-REKSAI-KEEP"], result.State.PlayerZones["P1"].MainDeck);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_PLAY_ONE_RECYCLE_REST", StringComparison.Ordinal));
+        var done = await ConquestLifecycleRegressionTests.Conquer(OfficialLegendDeckPlayTests.Position(exhausted: true));
+        Assert.Contains(done.Events, e => e.Kind == "TRIGGER_QUEUED"); Assert.Empty(done.State.StackItems);
+        Assert.Null(done.State.PendingEffectPlay); Assert.Equal(["DECK0", "DECK1", "TAIL"], done.State.PlayerZones["P1"].MainDeck);
     }
 
     [Fact]
@@ -65599,75 +65536,6 @@ public sealed class ConformanceFixtureRunnerTests
                     isExhausted: legendExhausted,
                     ownerId: "P2",
                     controllerId: "P2")
-            }
-        };
-    }
-
-    private static MatchState ReksaiConquerState(
-        string sourceCardNo,
-        string sourceObjectId,
-        bool legendExhausted,
-        bool topUnit)
-    {
-        var firstRevealedCardObjectId = topUnit ? "P1-REKSAI-PLAY-UNIT" : "P1-REKSAI-RECYCLE";
-        var secondRevealedCardObjectId = topUnit ? "P1-REKSAI-RECYCLE" : "P1-REKSAI-SECOND-RECYCLE";
-        return PunishmentState(mana: 0) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P1-REKSAI-ATTACKER"],
-                    LegendZone = [sourceObjectId],
-                    MainDeck = [firstRevealedCardObjectId, secondRevealedCardObjectId, "P1-REKSAI-KEEP"]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P2-REKSAI-DEFENDER"]
-                }
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-REKSAI-ATTACKER"] = new(
-                    "P1-REKSAI-ATTACKER",
-                    cardNo: "SFD·125/221",
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                [sourceObjectId] = new(
-                    sourceObjectId,
-                    cardNo: sourceCardNo,
-                    isExhausted: legendExhausted,
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P2-REKSAI-DEFENDER"] = new(
-                    "P2-REKSAI-DEFENDER",
-                    cardNo: "SFD·125/221",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P1-REKSAI-PLAY-UNIT"] = new(
-                    "P1-REKSAI-PLAY-UNIT",
-                    cardNo: "SFD·029/221",
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard, "强攻"],
-                    ownerId: "P1"),
-                ["P1-REKSAI-RECYCLE"] = new(
-                    "P1-REKSAI-RECYCLE",
-                    cardNo: "UNL-159/219",
-                    tags: [CardObjectTags.SpellCard],
-                    ownerId: "P1"),
-                ["P1-REKSAI-SECOND-RECYCLE"] = new(
-                    "P1-REKSAI-SECOND-RECYCLE",
-                    cardNo: "UNL-160/219",
-                    tags: [CardObjectTags.EquipmentCard],
-                    ownerId: "P1"),
-                ["P1-REKSAI-KEEP"] = new(
-                    "P1-REKSAI-KEEP",
-                    cardNo: "UNL-001/219",
-                    ownerId: "P1")
             }
         };
     }

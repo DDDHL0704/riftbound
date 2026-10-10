@@ -1,0 +1,33 @@
+{
+  "authority": "Chinese official cached PDF and card catalog; web open timed out or was inaccessible in this batch; no whole-site freshness claim",
+  "sources": [
+    {
+      "file": "var/official/2026-10-08/01.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "locators": [
+        "204.3.a",
+        "404.2",
+        "414.4",
+        "419.3.b",
+        "424.3",
+        "424.4",
+        "431.1.c"
+      ]
+    },
+    {
+      "file": "var/official/2026-10-08/06.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "locators": [
+        "雷克塞休眠状态的征服触发与确认 QA"
+      ]
+    },
+    {
+      "file": "data/official/card-catalog.zh-CN.json",
+      "sha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+      "locators": [
+        "SFD·187/221",
+        "SFD·243/221"
+      ]
+    }
+  ]
+}

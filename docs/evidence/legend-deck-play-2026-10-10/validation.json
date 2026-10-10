@@ -1,0 +1,130 @@
+{
+  "baselineCommit": "b335f11096db71de6212bf5a7a95b7d4ca365983",
+  "addedCases": 23,
+  "rewrittenLegacyCases": 7,
+  "red": {
+    "total": 3,
+    "failed": 3,
+    "evidence": "var/qa/legend-deck-play-2026-10-10/red/focus/results.trx"
+  },
+  "focused": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 22.45,
+    "total": 112,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 112,
+        "passed": 112,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.07
+      }
+    ]
+  },
+  "batchCheck": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 78.46,
+    "total": 9205,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9205,
+        "passed": 9205,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 74.8
+      }
+    ]
+  },
+  "validationOrder": "Batch check passed; then a display-name fallback and its assertion were added for existing recast prompts. Final focus covered those and all changed rule domains without repeating the batch.",
+  "nativeBuild": {
+    "passed": true,
+    "warnings": 0,
+    "errors": 0,
+    "evidence": "var/qa/legend-deck-play-2026-10-10/native-build.log"
+  },
+  "nativeControls": {
+    "commands": 6,
+    "evidence": [
+      "var/qa/legend-deck-play-2026-10-10/native-cost.log",
+      "var/qa/legend-deck-play-2026-10-10/native-play.log"
+    ]
+  },
+  "sessionRecoveryAndReplay": [
+    {
+      "evidence": "var/qa/legend-deck-play-2026-10-10/native/cost-accept/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/legend-deck-play-2026-10-10/native/cost-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/legend-deck-play-2026-10-10/native/deck-decline/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/legend-deck-play-2026-10-10/native/deck-equipment/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/legend-deck-play-2026-10-10/native/deck-spell/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    },
+    {
+      "evidence": "var/qa/legend-deck-play-2026-10-10/native/deck-unit/replay.json",
+      "usedNative": true,
+      "isMatch": true,
+      "errors": []
+    }
+  ],
+  "baselineCI": {
+    "run": 37962238120,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "limits": [
+    "Full long-game suite and cross-platform packaging remain in CI",
+    "Headless controls do not prove visual or two-client full-match acceptance",
+    "No local package export or Windows device acceptance",
+    "User API and current matches not restarted",
+    "Sett destruction replacement and other listed rule surfaces remain open"
+  ],
+  "evidenceHashes": [
+    {
+      "file": "var/qa/legend-deck-play-2026-10-10/focus-verified-2/focus/results.trx",
+      "sha256": "bf525d7428febcc1dbe19555265ffe20915954dbcb24be19f21549ecd171f492"
+    },
+    {
+      "file": "var/qa/legend-deck-play-2026-10-10/check/check/results.trx",
+      "sha256": "a81ab781b39e995d667768bbe4c8639622096f3436a678467445cf09e83354e2"
+    },
+    {
+      "file": "var/qa/legend-deck-play-2026-10-10/native-build.log",
+      "sha256": "40b58a7b77b7ddd3ff91c4ad916200ab6cb9e7451df7d9aa7f89cf9feef93a95"
+    },
+    {
+      "file": "var/qa/legend-deck-play-2026-10-10/native-cost.log",
+      "sha256": "ecb7b883b273e5db4fed405845f6d748099252bc65fc9efad8141d455405e92e"
+    },
+    {
+      "file": "var/qa/legend-deck-play-2026-10-10/native-play.log",
+      "sha256": "a57769437aaa40d4be68a164aa30112612c0efee6eb39f087ad0a8e7d1527053"
+    }
+  ]
+}

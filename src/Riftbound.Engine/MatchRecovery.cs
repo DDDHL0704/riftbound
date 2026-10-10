@@ -29189,18 +29189,8 @@ public static class MatchRecoveryValidator
                 errors.Add("pending effect play has an invalid actor, source zone or generation");
             if (effectPlay.SourceZone == "MAIN_DECK")
             {
-                if (!CardBehaviorRegistry.TryGetByEffectKind(effectPlay.Parent.EffectKind, out var definition)
-                    || definition.EffectPlaySourceZone != "MAIN_DECK" || effectPlay.ViewedCardIds is null
-                    || !authoritativeState.PlayerZones.TryGetValue(effectPlay.PlayerId, out var zones)
-                    || !zones.MainDeck.Take(definition.MainDeckLookCount).SequenceEqual(effectPlay.ViewedCardIds)
-                    || effectPlay.ManaReduction != definition.EffectPlayManaReduction
-                    || effectPlay.IgnoreBaseMana != definition.EffectPlayIgnoreBaseMana
-                    || effectPlay.IgnoreBasePower != definition.EffectPlayIgnoreBasePower
-                    || effectPlay.Optional != definition.EffectPlayOptional || effectPlay.DestinationPolicy != definition.EffectPlayDestination
-                    || effectPlay.Sources.Any(source => !effectPlay.ViewedCardIds.Contains(source.Key)
-                        || !authoritativeState.CardObjects.TryGetValue(source.Key, out var card)
-                        || source.Value != card.ObjectGeneration || !card.Tags.Contains(CardObjectTags.UnitCard)))
-                    errors.Add("invalid private deck effect-play continuation");
+                if (!CoreRuleEngine.ValidDeckEffectPlay(authoritativeState, effectPlay))
+                    errors.Add("invalid deck effect-play continuation");
             }
             else if (effectPlay.ViewedCardIds is not null) errors.Add("viewed deck cards outside deck effect play");
         }

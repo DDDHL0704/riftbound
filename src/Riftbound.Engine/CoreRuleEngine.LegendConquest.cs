@@ -11,6 +11,9 @@ public sealed partial class CoreRuleEngine
 
     private static (string Kind, TriggerSpec Spec)? LegendConquestDefinition(string? no)
     {
+        if (LegendCardHasIdentity(no, LegendIdentityCatalog.ReksaiLegendIdentityId))
+            return ("EXHAUST_DECK_PLAY", new("LEGEND_CONQUEST_REVEAL_PLAY", TriggerTimings.BattlefieldConquered,
+                "横置以展示主牌堆顶两张，可打出一张并回收其余", ExhaustsSource: true, RevealCount: 2));
         if (!LegendConquestTriggerSpecRules.TryGetTrigger(no, t =>
             LegendConquestTriggerSpecRules.IsLegendConquestPayReadySelfTrigger(t)
             || LegendConquestTriggerSpecRules.IsLegendConquestReadySelfTrigger(t)
@@ -82,6 +85,8 @@ public sealed partial class CoreRuleEngine
     {
         var context = item.LegendConquest!;
         if (context.Kind != "READY_SELF" && item.TriggerCost is null) return NoopStackResolutionResult(state);
+        if (context.Kind == "EXHAUST_DECK_PLAY" && !item.EffectPlayCompleted
+            && TryGetEffectPlayDefinition(item, out var definition)) return BeginEffectPlay(state, item, definition);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var events = new List<GameEvent>();
         if (HasLegendConquestTarget(item))
@@ -95,7 +100,7 @@ public sealed partial class CoreRuleEngine
                     ["reason"] = item.EffectKind }));
             }
         }
-        else if (cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.SourceGeneration
+        else if (context.Kind != "EXHAUST_DECK_PLAY" && cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.SourceGeneration
             && state.PlayerZones.Values.Any(z => z.LegendZone.Contains(source.ObjectId)) && source.IsExhausted)
         {
             cards[source.ObjectId] = source with { IsExhausted = false };

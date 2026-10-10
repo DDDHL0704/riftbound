@@ -11,6 +11,43 @@ public sealed record PendingEffectPlayState(
 
 public sealed partial class CoreRuleEngine
 {
+    internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
+    {
+        if (parent.LegendConquest is { Kind: "EXHAUST_DECK_PLAY" } context
+            && ValidLegendConquest(context, parent.EffectKind, parent.CardNo)) {
+            definition = new(parent.CardNo, "虚空遁地兽", 0, parent.EffectKind, 0, 0,
+                MainDeckLookCount: LegendConquestDefinition(parent.CardNo)!.Value.Spec.RevealCount!.Value,
+                EffectPlaySourceZone: "MAIN_DECK", EffectPlayOptional: true,
+                EffectPlayAllowsAnyCard: true, EffectPlayRevealsCards: true);
+            return true;
+        }
+        return CardBehaviorRegistry.TryGetByEffectKind(parent.EffectKind, out definition!);
+    }
+
+    private static bool EffectPlaySourceMatches(CardObjectState card, CardBehaviorDefinition definition)
+        => CardBehaviorRegistry.GetAll().Any(b => b.CardNo == card.CardNo && (definition.EffectPlayAllowsAnyCard
+            ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(b)
+            : b.PlaysSourceToBaseAsUnit));
+
+    internal static bool IsPubliclyRevealedDeckCard(MatchState state, string id)
+        => state.PendingEffectPlay is { SourceZone: "MAIN_DECK", ViewedCardIds: { } viewed } pending
+            && TryGetEffectPlayDefinition(pending.Parent, out var definition) && definition.EffectPlayRevealsCards
+            && viewed.Contains(id) && state.PlayerZones[pending.PlayerId].MainDeck.Contains(id);
+
+    internal static bool ValidDeckEffectPlay(MatchState state, PendingEffectPlayState pending)
+        => TryGetEffectPlayDefinition(pending.Parent, out var definition) && definition.CardNo == pending.Parent.CardNo
+            && definition.EffectPlaySourceZone == "MAIN_DECK" && pending.SourceZone == "MAIN_DECK"
+            && pending.PlayerId == pending.Parent.ControllerId && !pending.Parent.EffectPlayCompleted
+            && (pending.Parent.LegendConquest is null || pending.Parent.TriggerCost is not null && ValidTriggerCostReceipt(state, pending.Parent))
+            && state.PlayerZones.TryGetValue(pending.PlayerId, out var zones) && pending.ViewedCardIds is { } viewed
+            && zones.MainDeck.Take(definition.MainDeckLookCount).SequenceEqual(viewed)
+            && pending.ManaReduction == definition.EffectPlayManaReduction
+            && pending.IgnoreBaseMana == definition.EffectPlayIgnoreBaseMana && pending.IgnoreBasePower == definition.EffectPlayIgnoreBasePower
+            && pending.Optional == definition.EffectPlayOptional && pending.DestinationPolicy == definition.EffectPlayDestination
+            && !pending.IgnoreAllCosts && pending.RevealedHand is null
+            && pending.Sources.Keys.Order().SequenceEqual(viewed.Where(id => state.CardObjects.TryGetValue(id, out var c) && EffectPlaySourceMatches(c, definition)).Order())
+            && pending.Sources.All(s => state.CardObjects[s.Key].ObjectGeneration == s.Value);
+
     internal static IReadOnlyList<string> EffectPlaySources(MatchState state, string playerId)
     {
         if (state.PendingEffectPlay is not { } pending)
@@ -77,7 +114,9 @@ public sealed partial class CoreRuleEngine
             ["choiceId"] = p.ChoiceId, ["playerId"] = p.PlayerId,
             ["sourceObjectId"] = p.Parent.SourceObjectId, ["sourceCardNo"] = p.Parent.CardNo,
             ["optional"] = p.Optional, ["step"] = p.RevealedHand is { Choosing: true } ? "REVEALED_HAND_CHOICE" : "PLAY_CARD",
-            ["reason"] = "效果要求再次打出：选择卡牌、目标与费用后确认。" };
+            ["reason"] = EffectPlayReason(p),
+            ["revealedCards"] = p.ViewedCardIds?.Where(id => IsPubliclyRevealedDeckCard(state, id))
+                .Select(id => new { objectId = id, cardNo = state.CardObjects[id].CardNo }).ToArray() };
 
     internal static IReadOnlyDictionary<string, ActionPromptDto> BuildEffectPlayPrompts(MatchState state)
     {
@@ -89,7 +128,8 @@ public sealed partial class CoreRuleEngine
         if (p.ViewedCardIds is not null)
             own = own with { Candidates = own.Candidates!.Select(candidate => candidate.Action != CommandTypes.PlayCard ? candidate
                 : candidate with { Metadata = new Dictionary<string, object?>(candidate.Metadata!)
-                    { ["viewedCards"] = p.ViewedCardIds.Select(id => new ActionPromptChoiceDto(id, DeckChoiceLabel(state, id), "仅你可见" )).ToArray(),
+                    { ["viewedCardsPublic"] = TryGetEffectPlayDefinition(p.Parent, out var definition) && definition.EffectPlayRevealsCards,
+                      ["viewedCards"] = p.ViewedCardIds.Select(id => new ActionPromptChoiceDto(id, DeckChoiceLabel(state, id), IsPubliclyRevealedDeckCard(state, id) ? "已公开展示" : "仅你可见")).ToArray(),
                       ["reason"] = EffectPlayReason(p) } }).ToArray() };
         // A decline is a zero-card choice, using the existing native card-choice composer.
         if (CanFinishWithoutEffectPlay(state))
@@ -106,15 +146,16 @@ public sealed partial class CoreRuleEngine
                 Candidates = own.Candidates!.Concat([decline]).ToArray() };
         }
         return state.Seats.Keys.ToDictionary(id => id, id => id == p.PlayerId ? own
-            : ActionPromptBuilder.Build(state, id, false, "等待对手完成效果要求的再次打出", ["WAIT", CommandTypes.Surrender]));
+            : ActionPromptBuilder.Build(state, id, false, "等待对手完成效果要求的再次打出" + (p.ViewedCardIds is { } shown && shown.Any(id => IsPubliclyRevealedDeckCard(state, id))
+                ? "；已公开展示：" + string.Join("、", shown.Select(id => DeckChoiceLabel(state, id))) : ""), ["WAIT", CommandTypes.Surrender]));
     }
 
     internal static string EffectPlayReason(PendingEffectPlayState pending)
     {
-        var name = CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out var card) ? card.DisplayName : "卡牌效果";
+        var name = TryGetEffectPlayDefinition(pending.Parent, out var card) || CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out card) ? card.DisplayName : "卡牌效果";
         var cost = pending.IgnoreAllCosts ? "忽略一切费用；不能支付额外费用；必须打到指定战场"
             : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
-            : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : $"费用减少 {pending.ManaReduction}，仍需支付符能";
+            : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : pending.ManaReduction > 0 ? $"费用减少 {pending.ManaReduction}，仍需支付符能" : "正常支付法力、符能及额外费用";
         return $"《{name}》要求再次打出 · {cost}";
     }
 
@@ -162,6 +203,7 @@ public sealed partial class CoreRuleEngine
         var actor = parent.ControllerId;
         var sourceZone = behavior.EffectPlaySourceZone;
         var viewed = sourceZone == "MAIN_DECK" ? zones[actor].MainDeck.Take(behavior.MainDeckLookCount).ToArray() : null;
+        if (viewed is { Length: 0 }) return ResolveStackItemEffect(state, parent with { EffectPlayCompleted = true });
         IReadOnlyList<string> sources = viewed ?? (sourceZone == "HAND" ? zones[actor].Hand : parent.TargetObjectIds.Where(id => !string.IsNullOrEmpty(id)).ToArray());
         if (sourceZone == "BANISHED")
         {
@@ -180,8 +222,11 @@ public sealed partial class CoreRuleEngine
                     ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = actor, ["destinationZone"] = "BANISHED" }));
             }
         }
-        sources = sources.Where(id => cards.TryGetValue(id, out var card) && card.Tags.Contains(CardObjectTags.UnitCard)
-            && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var unit) && unit.PlaysSourceToBaseAsUnit).ToArray();
+        sources = sources.Where(id => cards.TryGetValue(id, out var card) && EffectPlaySourceMatches(card, behavior)).ToArray();
+        if (viewed is { Length: > 0 } && behavior.EffectPlayRevealsCards)
+            events.Add(new("CARDS_REVEALED", "展示主牌堆顶的卡牌，等待选择打出或放弃", new Dictionary<string, object?> {
+                ["playerId"] = actor, ["sourceObjectId"] = parent.SourceObjectId, ["count"] = viewed.Length,
+                ["cards"] = viewed.Select(id => new { objectId = id, cardNo = cards[id].CardNo }).ToArray() }));
         if (sources.Count == 0 && events.Count == 0 && viewed is null)
             return ResolveStackItemEffect(state, parent with { EffectPlayCompleted = true });
         var pending = new PendingEffectPlayState($"EFFECT-PLAY:{state.Tick + 1}:{parent.StackItemId}", actor, parent,

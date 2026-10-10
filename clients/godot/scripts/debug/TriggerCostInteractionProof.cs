@@ -14,8 +14,9 @@ public partial class TriggerCostInteractionProof : Control
         {
             var root = OS.GetCmdlineUserArgs().Single(a => a.StartsWith("--evidence="))[11..];
             var battlefield = OS.GetCmdlineUserArgs().Contains("--battlefield-replacement");
+            var deck = OS.GetCmdlineUserArgs().Contains("--legend-deck");
             var conquest = OS.GetCmdlineUserArgs().Contains("--legend-conquest");
-            foreach (var source in conquest ? new[] { "irelia", "vi" } : battlefield ? new[] { "ivern", "return" } : new[] { "vex", "renata", "hub" })
+            foreach (var source in deck ? new[] { "cost" } : conquest ? new[] { "irelia", "vi" } : battlefield ? new[] { "ivern", "return" } : new[] { "vex", "renata", "hub" })
             foreach (var accept in new[] { true, false })
             {
                 var dir = Path.Combine(root, source + (accept ? "-accept" : "-decline"));
@@ -47,9 +48,9 @@ public partial class TriggerCostInteractionProof : Control
                 };
                 var submit = bar.GetNode<Button>("%SubmitButton"); Check(!submit.Disabled, "Both payment and decline submit"); submit.EmitSignal(BaseButton.SignalName.Pressed);
                 Check(command is not null, "Production submit creates the intent");
-                File.WriteAllText(Path.Combine(dir, "command.json"), JsonSerializer.Serialize(command)); bar.Free();
+                File.WriteAllText(Path.Combine(dir, deck ? "native-command.json" : "command.json"), JsonSerializer.Serialize(command)); bar.Free();
             }
-            GD.Print(conquest ? "LEGEND_CONQUEST_INTERACTION_PASS: four production payment and target decisions" : battlefield ? "BATTLEFIELD_REPLACEMENT_INTERACTION_PASS: four production create and return decisions" : "TRIGGER_COST_INTERACTION_PASS: six production cost and decline commands"); GetTree().Quit();
+            GD.Print(deck ? "LEGEND_DECK_COST_PASS: production exhaust and decline commands" : conquest ? "LEGEND_CONQUEST_INTERACTION_PASS: four production payment and target decisions" : battlefield ? "BATTLEFIELD_REPLACEMENT_INTERACTION_PASS: four production create and return decisions" : "TRIGGER_COST_INTERACTION_PASS: six production cost and decline commands"); GetTree().Quit();
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
     }

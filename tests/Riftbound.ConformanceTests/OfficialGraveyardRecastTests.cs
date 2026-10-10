@@ -66,6 +66,7 @@ public sealed class OfficialGraveyardRecastTests
         Restore(conquest.State);
         var opened = await Top(conquest.State);
         Assert.Equal(new[] { "C" }, opened.State.PendingEffectPlay!.Sources.Keys);
+        Assert.Contains("卡莎", opened.Prompts["P1"].Reason);
         Restore(opened.State);
         var noCost = await Act(opened.State, "P1", new PlayCardCommand("C", "OGN·048/298", []));
         Assert.Equal(0, noCost.State.StackItems.Single().PlayCost!.PaidMana);

@@ -29,7 +29,9 @@ public sealed partial class CoreRuleEngine
 
     internal static bool EffectPlayAllowsBehavior(MatchState state, string player, CardBehaviorDefinition behavior)
         => state.PendingEffectPlay is { } p && p.PlayerId == player
-            && (p.DestinationPolicy == "STACK" ? IsSpellPlayBehavior(behavior) : behavior.PlaysSourceToBaseAsUnit);
+            && (TryGetEffectPlayDefinition(p.Parent, out var definition) && definition.EffectPlayAllowsAnyCard
+                ? behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(behavior)
+                : p.DestinationPolicy == "STACK" ? IsSpellPlayBehavior(behavior) : behavior.PlaysSourceToBaseAsUnit);
 
     private static bool RecastSourceAllowed(MatchState state, string player, CardObjectState card, TriggerSpec spec)
         => spec.Kind == TriggerKinds.UnitConquestRecycleFriendlyPlayGraveyardMechanicalUnit
