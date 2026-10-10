@@ -1,0 +1,493 @@
+{
+  "playerId": "P2",
+  "actionable": true,
+  "reason": "\u8BF7\u63D0\u4EA4\u89E6\u53D1\u80FD\u529B\u7684\u7ED3\u7B97\u987A\u5E8F",
+  "actions": [
+    "ORDER_TRIGGERS",
+    "SURRENDER"
+  ],
+  "promptId": "death-duel:3:P2:ORDER_TRIGGERS,SURRENDER",
+  "snapshotTick": 3,
+  "candidates": [
+    {
+      "action": "ORDER_TRIGGERS",
+      "label": "\u6392\u5E8F\u89E6\u53D1",
+      "enabled": true,
+      "reason": "\u8BF7\u63D0\u4EA4\u89E6\u53D1\u80FD\u529B\u7684\u7ED3\u7B97\u987A\u5E8F",
+      "metadata": {
+        "orderingPlayerId": "P2",
+        "orderedTriggerIds": [
+          "death-2-0-OBSERVER",
+          "death-2-1-OBSERVER"
+        ],
+        "triggerIds": [
+          "death-2-0-OBSERVER",
+          "death-2-1-OBSERVER"
+        ],
+        "triggers": [
+          {
+            "triggerId": "death-2-0-OBSERVER",
+            "sourceObjectId": "OBSERVER",
+            "sourceVisibility": "VISIBLE",
+            "controllerId": "P2",
+            "effectKind": "FRIENDLY_UNIT_DEATH_OBSERVER",
+            "triggeredByEventKind": "UNIT_DESTROYED",
+            "summary": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09",
+            "visibleText": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09\uFF1B\u8BB0\u5F55\u6B7B\u4EA1\u65F6\u7684\u63A7\u5236\u8005\uFF0C\u53CC\u65B9\u54CD\u5E94\u540E\u7ED3\u7B97\u3002"
+          },
+          {
+            "triggerId": "death-2-1-OBSERVER",
+            "sourceObjectId": "OBSERVER",
+            "sourceVisibility": "VISIBLE",
+            "controllerId": "P2",
+            "effectKind": "FRIENDLY_UNIT_DEATH_OBSERVER",
+            "triggeredByEventKind": "UNIT_DESTROYED",
+            "summary": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09",
+            "visibleText": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09\uFF1B\u8BB0\u5F55\u6B7B\u4EA1\u65F6\u7684\u63A7\u5236\u8005\uFF0C\u53CC\u65B9\u54CD\u5E94\u540E\u7ED3\u7B97\u3002"
+          }
+        ],
+        "triggerChoices": [
+          {
+            "id": "death-2-0-OBSERVER",
+            "label": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09",
+            "reason": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09\uFF1B\u8BB0\u5F55\u6B7B\u4EA1\u65F6\u7684\u63A7\u5236\u8005\uFF0C\u53CC\u65B9\u54CD\u5E94\u540E\u7ED3\u7B97\u3002"
+          },
+          {
+            "id": "death-2-1-OBSERVER",
+            "label": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09",
+            "reason": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09\uFF1B\u8BB0\u5F55\u6B7B\u4EA1\u65F6\u7684\u63A7\u5236\u8005\uFF0C\u53CC\u65B9\u54CD\u5E94\u540E\u7ED3\u7B97\u3002"
+          }
+        ],
+        "legalOrderingConstraints": {
+          "orderingPolicy": "APNAP_CONTROLLER_BLOCKS_CONSERVATIVE",
+          "orderedTriggerIdsSemantics": "STACK_RESOLUTION_ORDER_TOP_FIRST",
+          "mustContainExactly": [
+            "death-2-0-OBSERVER",
+            "death-2-1-OBSERVER"
+          ],
+          "noDuplicates": true,
+          "unknownTriggerIdsRejected": true,
+          "crossControllerReorderingAllowed": false,
+          "withinControllerReorderingAllowed": true,
+          "preserveControllerBlocks": true,
+          "controllerBlockOrder": [
+            {
+              "controllerId": "P2",
+              "triggerIds": [
+                "death-2-0-OBSERVER",
+                "death-2-1-OBSERVER"
+              ]
+            }
+          ],
+          "legalResolutionControllerBlockOrder": [
+            {
+              "controllerId": "P2",
+              "triggerIds": [
+                "death-2-0-OBSERVER",
+                "death-2-1-OBSERVER"
+              ]
+            }
+          ],
+          "activePlayerId": "P1",
+          "turnPlayerId": "P1",
+          "orderingPlayerId": "P2"
+        },
+        "triggeredByEventKind": "UNIT_DESTROYED",
+        "orderingState": "PENDING_ORDER"
+      },
+      "presentation": {
+        "category": "choice",
+        "intent": "order-triggers",
+        "uiHint": "choice",
+        "priority": 60
+      }
+    },
+    {
+      "action": "SURRENDER",
+      "label": "\u6295\u964D",
+      "enabled": true,
+      "reason": "\u8BF7\u63D0\u4EA4\u89E6\u53D1\u80FD\u529B\u7684\u7ED3\u7B97\u987A\u5E8F",
+      "commandTemplate": {
+        "cmdType": "SURRENDER",
+        "bindings": []
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [],
+        "requiredSelectionRoles": [],
+        "commandFields": []
+      },
+      "presentation": {
+        "category": "concede",
+        "intent": "surrender",
+        "uiHint": "danger",
+        "priority": 900
+      }
+    }
+  ],
+  "view": {
+    "type": "ORDER_TRIGGERS",
+    "title": "\u89E6\u53D1\u6392\u5E8F",
+    "message": "\u8BF7\u63D0\u4EA4\u89E6\u53D1\u80FD\u529B\u7684\u7ED3\u7B97\u987A\u5E8F",
+    "metadata": {
+      "orderingPlayerId": "P2",
+      "orderedTriggerIds": [
+        "death-2-0-OBSERVER",
+        "death-2-1-OBSERVER"
+      ],
+      "triggerIds": [
+        "death-2-0-OBSERVER",
+        "death-2-1-OBSERVER"
+      ],
+      "triggers": [
+        {
+          "triggerId": "death-2-0-OBSERVER",
+          "sourceObjectId": "OBSERVER",
+          "sourceVisibility": "VISIBLE",
+          "controllerId": "P2",
+          "effectKind": "FRIENDLY_UNIT_DEATH_OBSERVER",
+          "triggeredByEventKind": "UNIT_DESTROYED",
+          "summary": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09",
+          "visibleText": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09\uFF1B\u8BB0\u5F55\u6B7B\u4EA1\u65F6\u7684\u63A7\u5236\u8005\uFF0C\u53CC\u65B9\u54CD\u5E94\u540E\u7ED3\u7B97\u3002"
+        },
+        {
+          "triggerId": "death-2-1-OBSERVER",
+          "sourceObjectId": "OBSERVER",
+          "sourceVisibility": "VISIBLE",
+          "controllerId": "P2",
+          "effectKind": "FRIENDLY_UNIT_DEATH_OBSERVER",
+          "triggeredByEventKind": "UNIT_DESTROYED",
+          "summary": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09",
+          "visibleText": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09\uFF1B\u8BB0\u5F55\u6B7B\u4EA1\u65F6\u7684\u63A7\u5236\u8005\uFF0C\u53CC\u65B9\u54CD\u5E94\u540E\u7ED3\u7B97\u3002"
+        }
+      ],
+      "triggerChoices": [
+        {
+          "id": "death-2-0-OBSERVER",
+          "label": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09",
+          "reason": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09\uFF1B\u8BB0\u5F55\u6B7B\u4EA1\u65F6\u7684\u63A7\u5236\u8005\uFF0C\u53CC\u65B9\u54CD\u5E94\u540E\u7ED3\u7B97\u3002"
+        },
+        {
+          "id": "death-2-1-OBSERVER",
+          "label": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09",
+          "reason": "\u51F6\u6B8B\u989A\u9C7C\uFF1A\u83B7\u5F97\u7ECF\u9A8C\uFF08\u83BD\u6797\u5DE8\u8C61\u88AB\u6467\u6BC1\uFF09\uFF1B\u8BB0\u5F55\u6B7B\u4EA1\u65F6\u7684\u63A7\u5236\u8005\uFF0C\u53CC\u65B9\u54CD\u5E94\u540E\u7ED3\u7B97\u3002"
+        }
+      ],
+      "legalOrderingConstraints": {
+        "orderingPolicy": "APNAP_CONTROLLER_BLOCKS_CONSERVATIVE",
+        "orderedTriggerIdsSemantics": "STACK_RESOLUTION_ORDER_TOP_FIRST",
+        "mustContainExactly": [
+          "death-2-0-OBSERVER",
+          "death-2-1-OBSERVER"
+        ],
+        "noDuplicates": true,
+        "unknownTriggerIdsRejected": true,
+        "crossControllerReorderingAllowed": false,
+        "withinControllerReorderingAllowed": true,
+        "preserveControllerBlocks": true,
+        "controllerBlockOrder": [
+          {
+            "controllerId": "P2",
+            "triggerIds": [
+              "death-2-0-OBSERVER",
+              "death-2-1-OBSERVER"
+            ]
+          }
+        ],
+        "legalResolutionControllerBlockOrder": [
+          {
+            "controllerId": "P2",
+            "triggerIds": [
+              "death-2-0-OBSERVER",
+              "death-2-1-OBSERVER"
+            ]
+          }
+        ],
+        "activePlayerId": "P1",
+        "turnPlayerId": "P1",
+        "orderingPlayerId": "P2"
+      },
+      "triggeredByEventKind": "UNIT_DESTROYED",
+      "orderingState": "PENDING_ORDER"
+    },
+    "responsibility": {
+      "promptType": "ORDER_TRIGGERS",
+      "promptPlayerId": "P2",
+      "responsiblePlayerId": "P2",
+      "isResponsiblePlayer": true,
+      "actionableForPromptPlayer": true,
+      "state": "PLAYER_ACTION",
+      "nextStep": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u89E6\u53D1\u6392\u5E8F\u3002",
+      "queueCounts": {
+        "stack": 0,
+        "pendingTasks": 0,
+        "triggerQueue": 2,
+        "pendingPayment": 0,
+        "pendingHandChoice": 0,
+        "pendingCardChoice": 0,
+        "activeBattle": 0
+      },
+      "relatedObjectIds": [
+        "OBSERVER"
+      ]
+    }
+  },
+  "contract": {
+    "promptKind": "ORDER_TRIGGERS",
+    "candidateAction": "ORDER_TRIGGERS",
+    "requiredPayload": [
+      "orderedTriggerIds"
+    ],
+    "legalChoices": [
+      "candidate.metadata.triggerChoices",
+      "candidate.metadata.orderedTriggerIds"
+    ],
+    "validationErrors": [
+      "INVALID_PAYLOAD",
+      "PHASE_NOT_ALLOWED",
+      "INVALID_TARGET"
+    ],
+    "visibleMetadata": [
+      "orderingPlayerId",
+      "triggerIds",
+      "triggers",
+      "triggerChoices",
+      "legalOrderingConstraints",
+      "triggeredByEventKind"
+    ],
+    "hiddenMetadata": [
+      "triggerQueue"
+    ]
+  },
+  "inspection": {
+    "source": "server-action-prompt",
+    "boundary": "\u670D\u52A1\u7AEF\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u7A97\u53E3\u7684\u7C7B\u578B\u3001\u5019\u9009\u3001\u547D\u4EE4\u5951\u7EA6\u548C\u5BF9\u8C61\u7D22\u5F15\u6458\u8981\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u63D0\u793A\u68C0\u67E5\u3002",
+    "summaryRows": [
+      {
+        "key": "kind",
+        "label": "\u63D0\u793A\u7C7B\u578B",
+        "value": "ORDER_TRIGGERS"
+      },
+      {
+        "key": "state",
+        "label": "\u7A97\u53E3",
+        "value": "\u53EF\u884C\u52A8",
+        "tone": "good"
+      },
+      {
+        "key": "candidate",
+        "label": "\u5019\u9009",
+        "value": "2 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+      },
+      {
+        "key": "objects",
+        "label": "\u5BF9\u8C61\u7D22\u5F15",
+        "value": "0 \u4E2A\u5BF9\u8C61"
+      }
+    ],
+    "groups": [
+      {
+        "key": "candidate",
+        "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+        "rows": [
+          {
+            "key": "candidate-0",
+            "label": "\u53EF\u63D0\u4EA4",
+            "value": "ORDER_TRIGGERS / \u6765\u6E90 0 / \u7EC4\u5408 \u672A\u516C\u5F00",
+            "tone": "good"
+          },
+          {
+            "key": "candidate-1",
+            "label": "\u53EF\u63D0\u4EA4",
+            "value": "SURRENDER / \u6765\u6E90 0 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+            "tone": "good"
+          }
+        ],
+        "emptyLabel": "\u5F53\u524D\u7A97\u53E3\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+      },
+      {
+        "key": "contract",
+        "title": "\u63D0\u4EA4\u5951\u7EA6",
+        "rows": [
+          {
+            "key": "candidate-action",
+            "label": "\u547D\u4EE4",
+            "value": "ORDER_TRIGGERS",
+            "tone": "info"
+          },
+          {
+            "key": "required",
+            "label": "\u5FC5\u586B",
+            "value": "1 \u9879",
+            "tone": "warn"
+          },
+          {
+            "key": "legal",
+            "label": "\u5408\u6CD5\u9009\u62E9",
+            "value": "2 \u7EC4",
+            "tone": "info"
+          },
+          {
+            "key": "visible",
+            "label": "\u516C\u5F00 metadata",
+            "value": "6 \u9879",
+            "tone": "info"
+          },
+          {
+            "key": "hidden",
+            "label": "\u9690\u85CF metadata",
+            "value": "1 \u9879",
+            "tone": "warn"
+          }
+        ],
+        "emptyLabel": "\u5F53\u524D\u7A97\u53E3\u6CA1\u6709\u4E13\u7528\u63D0\u4EA4\u5951\u7EA6\u3002"
+      },
+      {
+        "key": "object-index",
+        "title": "\u5BF9\u8C61\u7D22\u5F15",
+        "rows": [
+          {
+            "key": "count",
+            "label": "\u7D22\u5F15",
+            "value": "0 \u4E2A\u5BF9\u8C61",
+            "tone": "neutral"
+          },
+          {
+            "key": "source",
+            "label": "\u6765\u6E90",
+            "value": "\u670D\u52A1\u7AEF\u9009\u62E9\u6B65\u9AA4\u4E0E\u547D\u4EE4\u6A21\u677F",
+            "tone": "info"
+          }
+        ]
+      },
+      {
+        "key": "safe-boundary",
+        "title": "\u4FE1\u606F\u8FB9\u754C",
+        "rows": [
+          {
+            "key": "candidate-source",
+            "label": "\u5408\u6CD5\u6027",
+            "value": "\u4EC5\u4EE5\u670D\u52A1\u7AEF\u5019\u9009\u548C\u63D0\u4EA4\u6821\u9A8C\u4E3A\u51C6",
+            "tone": "neutral"
+          },
+          {
+            "key": "hidden-metadata",
+            "label": "\u9690\u85CF\u5B57\u6BB5",
+            "value": "\u53EA\u516C\u5F00\u8BA1\u6570\u6216\u5B89\u5168\u6807\u7B7E\uFF0C\u4E0D\u5C55\u5F00\u9690\u85CF metadata",
+            "tone": "neutral"
+          },
+          {
+            "key": "frontend",
+            "label": "\u524D\u7AEF\u804C\u8D23",
+            "value": "\u5C55\u793A\u4E0E\u63D0\u4EA4\uFF0C\u4E0D\u91CD\u7B97\u89C4\u5219",
+            "tone": "neutral"
+          }
+        ]
+      }
+    ]
+  },
+  "serverFlow": {
+    "state": "ready",
+    "stateLabel": "\u53EF\u63D0\u4EA4",
+    "tone": "good",
+    "primaryLabel": "\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF",
+    "summary": "\u89E6\u53D1\u6392\u5E8F / \u53EF\u63D0\u4EA4 / \u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u89E6\u53D1\u6392\u5E8F\u3002",
+    "nextStep": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u89E6\u53D1\u6392\u5E8F\u3002",
+    "reason": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u89E6\u53D1\u6392\u5E8F\u3002",
+    "promptType": "ORDER_TRIGGERS",
+    "promptPlayerId": "P2",
+    "responsiblePlayerId": "P2",
+    "isResponsiblePlayer": true,
+    "actionableForPromptPlayer": true,
+    "candidateCount": 2,
+    "enabledCandidateCount": 2,
+    "disabledCandidateCount": 0,
+    "queueCounts": {
+      "stack": 0,
+      "pendingTasks": 0,
+      "triggerQueue": 2,
+      "pendingPayment": 0,
+      "pendingHandChoice": 0,
+      "pendingCardChoice": 0,
+      "activeBattle": 0
+    },
+    "lanes": [
+      {
+        "key": "stack",
+        "label": "\u7ED3\u7B97\u94FE",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u9879\u76EE"
+      },
+      {
+        "key": "task",
+        "label": "\u4EFB\u52A1",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u4EFB\u52A1"
+      },
+      {
+        "key": "trigger",
+        "label": "\u89E6\u53D1",
+        "count": 2,
+        "state": "active",
+        "headline": "\u89E6\u53D1\u7B49\u5F85\u7ED3\u7B97"
+      },
+      {
+        "key": "resolution",
+        "label": "\u7ED3\u7B97",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u7ED3\u7B97\u8BB0\u5F55"
+      }
+    ],
+    "steps": [
+      {
+        "key": "prompt",
+        "label": "\u884C\u52A8\u7A97\u53E3",
+        "state": "ready",
+        "stateLabel": "\u53EF\u884C\u52A8",
+        "value": "\u89E6\u53D1\u6392\u5E8F",
+        "detail": "\u8BF7\u63D0\u4EA4\u89E6\u53D1\u80FD\u529B\u7684\u7ED3\u7B97\u987A\u5E8F",
+        "role": "window"
+      },
+      {
+        "key": "responsibility",
+        "label": "\u8D23\u4EFB\u65B9",
+        "state": "ready",
+        "stateLabel": "PLAYER_ACTION",
+        "value": "P2",
+        "detail": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u89E6\u53D1\u6392\u5E8F\u3002",
+        "role": "responsibility"
+      },
+      {
+        "key": "trigger",
+        "label": "\u89E6\u53D1\u961F\u5217",
+        "state": "server",
+        "stateLabel": "\u670D\u52A1\u7AEF",
+        "value": "2 \u9879",
+        "detail": "\u89E6\u53D1\u7B49\u5F85\u7ED3\u7B97",
+        "role": "trigger"
+      },
+      {
+        "key": "candidate",
+        "label": "\u5019\u9009",
+        "state": "ready",
+        "stateLabel": "2 \u53EF\u63D0\u4EA4",
+        "value": "ORDER_TRIGGERS / SURRENDER",
+        "detail": "\u524D\u7AEF\u53EA\u63D0\u4EA4\u670D\u52A1\u7AEF\u5019\u9009\uFF0C\u4E0D\u91CD\u7B97\u5408\u6CD5\u6027\u3002",
+        "role": "candidate"
+      }
+    ],
+    "relatedObjectIds": [
+      "OBSERVER"
+    ],
+    "relatedObjects": [
+      {
+        "objectId": "OBSERVER",
+        "role": "\u89E6\u53D1\u6765\u6E90"
+      }
+    ]
+  }
+}

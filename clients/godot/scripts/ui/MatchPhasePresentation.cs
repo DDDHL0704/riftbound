@@ -73,10 +73,12 @@ internal static class MatchPhasePresentation
         var replacement = Object(timing, "pendingPayment");
         if (Text(replacement, "paymentWindow") == "RULE_REPLACEMENT")
         {
-            title = "摧毁替换 · 等待选择";
-            actorLine = $"{Side(Text(replacement, "playerId"))}选择是否替换";
-            detail = "可先发动资源技能，再选择保护单位与支付方式；也可放弃替换。";
-            hint = "确认后继续原结算；替换选择期间不能插入其他行动。";
+            var firstDeath = Text(replacement, "choiceKind") == "FIRST_DEATH_OCCURRENCE";
+            title = firstDeath ? "首次死亡 · 选择事件" : "摧毁替换 · 等待选择";
+            actorLine = $"{Side(Text(replacement, "playerId"))}完成选择";
+            detail = firstDeath ? "选择同时被摧毁的一名单位，作为本回合首次死亡技能的触发事件。"
+                : "可先发动资源技能，再选择保护单位与支付方式；也可放弃替换。";
+            hint = "确认后继续原结算；选择期间不能插入其他行动。";
             activeWindow = true;
         }
         return new Godot.Collections.Dictionary {

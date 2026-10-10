@@ -1,0 +1,192 @@
+{
+  "focused": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 35.91,
+    "total": 80,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 80,
+        "passed": 80,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 10.47
+      }
+    ]
+  },
+  "newTests": {
+    "rulesAndRecovery": 22,
+    "nativeSessions": 4
+  },
+  "native": {
+    "forward": {
+      "native": true,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "f7a3ad10a07457a25cc46fbfb2392cac011b8e67e51ccf69b50ae0e716790d4c",
+        "expectedStateHash": "f7a3ad10a07457a25cc46fbfb2392cac011b8e67e51ccf69b50ae0e716790d4c",
+        "errors": []
+      },
+      "commands": 5,
+      "commandSha256": "5b07788cbeb36e9306a7d11d0fefa5cc2ab748d6215c17d13d910f5167281b1c"
+    },
+    "reverse": {
+      "native": true,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "f7a3ad10a07457a25cc46fbfb2392cac011b8e67e51ccf69b50ae0e716790d4c",
+        "expectedStateHash": "f7a3ad10a07457a25cc46fbfb2392cac011b8e67e51ccf69b50ae0e716790d4c",
+        "errors": []
+      },
+      "commands": 5,
+      "commandSha256": "6c8269d93268f76b65ef4fa18d5fee828ba1947c2b785d3878db96d30dcb1e1b"
+    },
+    "first-D": {
+      "native": true,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "6e448ecd23df727494d919c24edf9b2c2b04abb81e9f50fb3f1d0abc296f058d",
+        "expectedStateHash": "6e448ecd23df727494d919c24edf9b2c2b04abb81e9f50fb3f1d0abc296f058d",
+        "errors": []
+      },
+      "commands": 3,
+      "commandSha256": "cfd34ffae6250bd9105aedc53125c1175218141b71b9187565c66b51c62bd67d"
+    },
+    "first-D2": {
+      "native": true,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "6e448ecd23df727494d919c24edf9b2c2b04abb81e9f50fb3f1d0abc296f058d",
+        "expectedStateHash": "6e448ecd23df727494d919c24edf9b2c2b04abb81e9f50fb3f1d0abc296f058d",
+        "errors": []
+      },
+      "commands": 3,
+      "commandSha256": "17b3b87be777356a871fec179b3e1eefcf70c966db9c7e93eaafe88695b1633f"
+    }
+  },
+  "baselineCI": {
+    "sha": "354fab78771f13c80b2e7c026789f7f38f3c3f6d",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38028708589"
+  },
+  "boundaries": [
+    "No user service or match restart",
+    "No full dual-window natural match or visual acceptance",
+    "No packaging or Windows hardware acceptance"
+  ],
+  "recoveryAndCatalog": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 68.95,
+    "total": 2382,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2382,
+        "passed": 2382,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 53.1
+      }
+    ]
+  },
+  "finalNativeAndRules": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 21.72,
+    "total": 26,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 26,
+        "passed": 26,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.14
+      }
+    ]
+  },
+  "finalProductionCommandsIdentical": true,
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 454.96,
+    "total": 9420,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 250.99
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 261.56
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 265.04
+      },
+      {
+        "shard": "rules",
+        "total": 9285,
+        "passed": 9285,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 95.3
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 450.9
+      }
+    ]
+  },
+  "fullPlan": {
+    "file": "var/qa/death-observers/final-full/plan.json",
+    "sha256": "2aa3b25a3db0d9361493d23b0ce2c0d9cb31ef3e1a640caf1404f6647e07e28c",
+    "discoveredMethods": 6376,
+    "testAssemblySha256": "940aa9660b2d4d48845b2e1a58ad708164009a2c78e9bffb3d793084739e3335",
+    "shards": [
+      {
+        "name": "games-1",
+        "methodCount": 1
+      },
+      {
+        "name": "games-3",
+        "methodCount": 45
+      },
+      {
+        "name": "games-2",
+        "methodCount": 44
+      },
+      {
+        "name": "games-4",
+        "methodCount": 45
+      },
+      {
+        "name": "rules",
+        "methodCount": 6241
+      }
+    ]
+  }
+}

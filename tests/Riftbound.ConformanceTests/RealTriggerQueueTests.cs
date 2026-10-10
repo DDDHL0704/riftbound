@@ -169,7 +169,7 @@ public sealed class RealTriggerQueueTests
             string.Equals(trigger["triggerId"] as string, p1Trigger.TriggerId, StringComparison.Ordinal));
         Assert.Equal("P1-CLEANUP-WATCHFUL-SENTINEL", Assert.IsType<string>(p1TriggerView["sourceObjectId"]));
         Assert.Equal("WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1", Assert.IsType<string>(p1TriggerView["effectKind"]));
-        Assert.Contains("UNIT_DESTROYED", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
+        Assert.Contains(p1Trigger.DeathObserver is null ? "UNIT_DESTROYED" : "被摧毁", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
 
         var illegalReorder = await engine.ResolveAsync(
             p2Pass.State,
@@ -231,7 +231,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
         Assert.Equal(["P2-CLEANUP-DRAW-001"], p1ResolvesP2Trigger.State.PlayerZones["P2"].Hand);
         Assert.Single(p1ResolvesP2Trigger.State.StackItems);
         Assert.Equal("P1", p1ResolvesP2Trigger.State.PriorityPlayerId);
@@ -697,7 +697,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         var triggerQueued = Assert.Single(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
         Assert.Equal("P1-KOGMAW", triggerQueued.Payload["sourceObjectId"]);
         Assert.Equal("P1-BATTLEFIELD-KOGMAW", triggerQueued.Payload["battlefieldObjectId"]);
         Assert.Empty(p2Pass.State.TriggerQueue);
@@ -782,7 +782,7 @@ public sealed class RealTriggerQueueTests
         Assert.Empty(p2Pass.State.StackItems);
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && ((gameEvent.Payload["sourceObjectId"] as string) ?? string.Empty).Contains("KOGMAW", StringComparison.Ordinal));
@@ -812,7 +812,7 @@ public sealed class RealTriggerQueueTests
         Assert.Empty(p2Pass.State.StackItems);
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
         Assert.Equal(0, p2Pass.State.CardObjects["P1-KOGMAW-SAME-BATTLEFIELD-ALLY"].Damage);
         Assert.Equal(0, p2Pass.State.CardObjects["P2-KOGMAW-SAME-BATTLEFIELD-VICTIM"].Damage);
     }
@@ -912,7 +912,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "HONEST_BROKER_LAST_BREATH_CREATE_GOLD", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "HONEST_BROKER_LAST_BREATH_CREATE_GOLD", StringComparison.Ordinal));
         var p2TokenEvent = Assert.Single(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.Equal("P2", p2TokenEvent.Payload["playerId"]);
@@ -1074,7 +1074,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1", StringComparison.Ordinal));
         var p2RuneEvent = Assert.Single(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
         Assert.Equal("P2", p2RuneEvent.Payload["playerId"]);
@@ -1388,7 +1388,7 @@ public sealed class RealTriggerQueueTests
         Assert.Equal(2, cleanup.State.TriggerQueue.Count);
         Assert.All(cleanup.State.TriggerQueue, trigger =>
         {
-            Assert.Equal("GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", trigger.EffectKind);
+            Assert.Equal("GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", trigger.DeathObserver?.Kind ?? trigger.EffectKind);
             Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind);
         });
         Assert.DoesNotContain(cleanup.Events, gameEvent =>
@@ -1460,7 +1460,7 @@ public sealed class RealTriggerQueueTests
         Assert.Equal(2, cleanup.State.TriggerQueue.Count);
         Assert.All(cleanup.State.TriggerQueue, trigger =>
         {
-            Assert.Equal("RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1", trigger.EffectKind);
+            Assert.Equal("RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1", trigger.DeathObserver?.Kind ?? trigger.EffectKind);
             Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind);
         });
         Assert.Empty(cleanup.State.PlayerZones["P1"].Hand);
@@ -1489,7 +1489,7 @@ public sealed class RealTriggerQueueTests
         var engine = new CoreRuleEngine();
         var state = BuildStarfallDestroyingResonantSoulFriendlyUnitsState() with
         {
-            DestroyedUnitOwnerIdsThisTurn = ["P1", "P2"]
+            DeathLedger = new(BuildStarfallDestroyingResonantSoulFriendlyUnitsState().TurnNumber,new Dictionary<string,int> { ["P1"]=1,["P2"]=1 })
         };
         var cleanup = await ResolveStarfallCleanupAsync(
             engine,
@@ -1557,7 +1557,7 @@ public sealed class RealTriggerQueueTests
         Assert.Equal(2, cleanup.State.TriggerQueue.Count);
         Assert.All(cleanup.State.TriggerQueue, trigger =>
         {
-            Assert.Equal("SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", trigger.EffectKind);
+            Assert.Equal("SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", trigger.DeathObserver?.Kind ?? trigger.EffectKind);
             Assert.Equal("UNIT_DESTROYED", trigger.TriggeredByEventKind);
         });
         Assert.DoesNotContain(cleanup.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
@@ -1762,10 +1762,10 @@ public sealed class RealTriggerQueueTests
         Assert.Empty(p2Pass.State.TriggerQueue);
         var triggerStackItem = Assert.Single(p2Pass.State.StackItems);
         Assert.Equal("P1-REAL-ARC-VIKTOR", triggerStackItem.SourceObjectId);
-        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.EffectKind);
+        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.DeathObserver?.Kind ?? triggerStackItem.EffectKind);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", StringComparison.Ordinal));
         Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TRIGGERS_MOVED_TO_STACK", StringComparison.Ordinal));
         Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.Contains("P1-REAL-ARC-VIKTOR", p2Pass.State.PlayerZones["P1"].Base);
@@ -1809,7 +1809,7 @@ public sealed class RealTriggerQueueTests
         Assert.Empty(p2Pass.State.TriggerQueue);
         var triggerStackItem = Assert.Single(p2Pass.State.StackItems);
         Assert.Equal("P1-CLEANUP-OGN-VIKTOR", triggerStackItem.SourceObjectId);
-        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.EffectKind);
+        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.DeathObserver?.Kind ?? triggerStackItem.EffectKind);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-CLEANUP-VIKTOR-TARGET", StringComparison.Ordinal)
@@ -1967,7 +1967,7 @@ public sealed class RealTriggerQueueTests
             string.Equals(trigger["triggerId"] as string, p1Trigger.TriggerId, StringComparison.Ordinal));
         Assert.Equal("P1-WATCHFUL-SENTINEL", Assert.IsType<string>(p1TriggerView["sourceObjectId"]));
         Assert.Equal("WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1", Assert.IsType<string>(p1TriggerView["effectKind"]));
-        Assert.Contains("UNIT_DESTROYED", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
+        Assert.Contains(p1Trigger.DeathObserver is null ? "UNIT_DESTROYED" : "被摧毁", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
 
         var illegalReorder = await engine.ResolveAsync(
             p2Pass.State,
@@ -2010,7 +2010,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
@@ -2130,7 +2130,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", StringComparison.Ordinal));
         var p2TokenEvents = p1ResolvesP2Trigger.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal))
             .ToArray();
@@ -2312,7 +2312,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS", StringComparison.Ordinal));
         var p2TokenEvents = p1ResolvesP2Trigger.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal))
             .ToArray();
@@ -2486,7 +2486,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "HONEST_BROKER_LAST_BREATH_CREATE_GOLD", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "HONEST_BROKER_LAST_BREATH_CREATE_GOLD", StringComparison.Ordinal));
         var p2TokenEvent = Assert.Single(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.Equal("P2", p2TokenEvent.Payload["playerId"]);
@@ -2618,7 +2618,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1", StringComparison.Ordinal));
         var p2RuneEvent = Assert.Single(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
         Assert.Equal("P2", p2RuneEvent.Payload["playerId"]);
@@ -2774,7 +2774,7 @@ public sealed class RealTriggerQueueTests
     {
         var triggerStackItem = Assert.Single(state.StackItems);
         Assert.Equal(sourceObjectId, triggerStackItem.SourceObjectId);
-        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.EffectKind);
+        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", triggerStackItem.DeathObserver?.Kind ?? triggerStackItem.EffectKind);
         Assert.Equal("P1", state.PriorityPlayerId);
 
         var p1TriggerPass = await engine.ResolveAsync(
@@ -2792,7 +2792,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p2ResolvesTrigger.Accepted, p2ResolvesTrigger.ErrorMessage);
         Assert.Contains(p2ResolvesTrigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", StringComparison.Ordinal));
         var tokenEvent = Assert.Single(p2ResolvesTrigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
         Assert.Equal("P1", tokenEvent.Payload["playerId"]);
@@ -2800,7 +2800,7 @@ public sealed class RealTriggerQueueTests
         Assert.Equal("OGN·273/298", tokenEvent.Payload["tokenCardNo"]);
         Assert.Equal("随从", tokenEvent.Payload["tokenName"]);
         Assert.Equal(1, tokenEvent.Payload["power"]);
-        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", tokenEvent.Payload["reason"]);
+        Assert.Equal("VIKTOR_DESTROYED_NON_MINION_CREATE_MINION", tokenEvent.Payload["abilityId"]);
         Assert.Contains(
             CardObjectTags.MinionTokenFamily,
             Assert.IsAssignableFrom<IReadOnlyList<string>>(tokenEvent.Payload["tokenTags"]));
@@ -2834,7 +2834,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p2ResolvesTrigger.Accepted, p2ResolvesTrigger.ErrorMessage);
         Assert.Contains(p2ResolvesTrigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT", StringComparison.Ordinal));
         var kogmawDamageEvents = p2ResolvesTrigger.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
                 && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-KOGMAW", StringComparison.Ordinal))
@@ -2893,8 +2893,8 @@ public sealed class RealTriggerQueueTests
             string.Equals(trigger.ControllerId, "P2", StringComparison.Ordinal));
         Assert.Equal(p1SourceObjectId, p1Trigger.SourceObjectId);
         Assert.Equal(p2SourceObjectId, p2Trigger.SourceObjectId);
-        Assert.Equal(effectKind, p1Trigger.EffectKind);
-        Assert.Equal(effectKind, p2Trigger.EffectKind);
+        Assert.Equal(effectKind, p1Trigger.DeathObserver?.Kind ?? p1Trigger.EffectKind);
+        Assert.Equal(effectKind, p2Trigger.DeathObserver?.Kind ?? p2Trigger.EffectKind);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         Assert.True(prompt.Actionable);
@@ -2909,8 +2909,8 @@ public sealed class RealTriggerQueueTests
         var p1TriggerView = Assert.Single(triggerViews, trigger =>
             string.Equals(trigger["triggerId"] as string, p1Trigger.TriggerId, StringComparison.Ordinal));
         Assert.Equal(p1SourceObjectId, Assert.IsType<string>(p1TriggerView["sourceObjectId"]));
-        Assert.Equal(effectKind, Assert.IsType<string>(p1TriggerView["effectKind"]));
-        Assert.Contains("UNIT_DESTROYED", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
+        Assert.Equal(p1Trigger.EffectKind, Assert.IsType<string>(p1TriggerView["effectKind"]));
+        Assert.Contains(p1Trigger.DeathObserver is null ? "UNIT_DESTROYED" : "被摧毁", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
 
         var illegalReorder = await engine.ResolveAsync(
             state,
@@ -2954,7 +2954,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, effectKind, StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, effectKind, StringComparison.Ordinal));
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
@@ -3076,8 +3076,8 @@ public sealed class RealTriggerQueueTests
             string.Equals(trigger.ControllerId, "P2", StringComparison.Ordinal));
         Assert.Equal(p1SourceObjectId, p1Trigger.SourceObjectId);
         Assert.Equal(p2SourceObjectId, p2Trigger.SourceObjectId);
-        Assert.Equal(effectKind, p1Trigger.EffectKind);
-        Assert.Equal(effectKind, p2Trigger.EffectKind);
+        Assert.Equal(effectKind, p1Trigger.DeathObserver?.Kind ?? p1Trigger.EffectKind);
+        Assert.Equal(effectKind, p2Trigger.DeathObserver?.Kind ?? p2Trigger.EffectKind);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         Assert.True(prompt.Actionable);
@@ -3092,8 +3092,8 @@ public sealed class RealTriggerQueueTests
         var p1TriggerView = Assert.Single(triggerViews, trigger =>
             string.Equals(trigger["triggerId"] as string, p1Trigger.TriggerId, StringComparison.Ordinal));
         Assert.Equal(p1SourceObjectId, Assert.IsType<string>(p1TriggerView["sourceObjectId"]));
-        Assert.Equal(effectKind, Assert.IsType<string>(p1TriggerView["effectKind"]));
-        Assert.Contains("UNIT_DESTROYED", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
+        Assert.Equal(p1Trigger.EffectKind, Assert.IsType<string>(p1TriggerView["effectKind"]));
+        Assert.Contains(p1Trigger.DeathObserver is null ? "UNIT_DESTROYED" : "被摧毁", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
 
         var illegalReorder = await engine.ResolveAsync(
             state,
@@ -3137,7 +3137,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, effectKind, StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, effectKind, StringComparison.Ordinal));
         var p2TokenEvents = p1ResolvesP2Trigger.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal))
             .ToArray();
@@ -3219,8 +3219,8 @@ public sealed class RealTriggerQueueTests
             string.Equals(trigger.ControllerId, "P2", StringComparison.Ordinal));
         Assert.Equal(p1SourceObjectId, p1Trigger.SourceObjectId);
         Assert.Equal(p2SourceObjectId, p2Trigger.SourceObjectId);
-        Assert.Equal("GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", p1Trigger.EffectKind);
-        Assert.Equal("GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", p2Trigger.EffectKind);
+        Assert.Equal("GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", p1Trigger.DeathObserver?.Kind ?? p1Trigger.EffectKind);
+        Assert.Equal("GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", p2Trigger.DeathObserver?.Kind ?? p2Trigger.EffectKind);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         Assert.True(prompt.Actionable);
@@ -3235,8 +3235,8 @@ public sealed class RealTriggerQueueTests
         var p1TriggerView = Assert.Single(triggerViews, trigger =>
             string.Equals(trigger["triggerId"] as string, p1Trigger.TriggerId, StringComparison.Ordinal));
         Assert.Equal(p1SourceObjectId, Assert.IsType<string>(p1TriggerView["sourceObjectId"]));
-        Assert.Equal("GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", Assert.IsType<string>(p1TriggerView["effectKind"]));
-        Assert.Contains("UNIT_DESTROYED", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
+        Assert.Equal("FRIENDLY_UNIT_DEATH_OBSERVER", Assert.IsType<string>(p1TriggerView["effectKind"]));
+        Assert.Contains(p1Trigger.DeathObserver is null ? "UNIT_DESTROYED" : "被摧毁", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
 
         var illegalReorder = await engine.ResolveAsync(
             state,
@@ -3282,7 +3282,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2", StringComparison.Ordinal));
         var p2PowerEvent = Assert.Single(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
         Assert.Equal(p2SourceObjectId, p2PowerEvent.Payload["sourceObjectId"]);
@@ -3326,8 +3326,8 @@ public sealed class RealTriggerQueueTests
             string.Equals(trigger.ControllerId, "P2", StringComparison.Ordinal));
         Assert.Equal(p1SourceObjectId, p1Trigger.SourceObjectId);
         Assert.Equal(p2SourceObjectId, p2Trigger.SourceObjectId);
-        Assert.Equal("SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", p1Trigger.EffectKind);
-        Assert.Equal("SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", p2Trigger.EffectKind);
+        Assert.Equal("SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", p1Trigger.DeathObserver?.Kind ?? p1Trigger.EffectKind);
+        Assert.Equal("SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", p2Trigger.DeathObserver?.Kind ?? p2Trigger.EffectKind);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         Assert.True(prompt.Actionable);
@@ -3342,8 +3342,8 @@ public sealed class RealTriggerQueueTests
         var p1TriggerView = Assert.Single(triggerViews, trigger =>
             string.Equals(trigger["triggerId"] as string, p1Trigger.TriggerId, StringComparison.Ordinal));
         Assert.Equal(p1SourceObjectId, Assert.IsType<string>(p1TriggerView["sourceObjectId"]));
-        Assert.Equal("SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", Assert.IsType<string>(p1TriggerView["effectKind"]));
-        Assert.Contains("UNIT_DESTROYED", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
+        Assert.Equal("FRIENDLY_UNIT_DEATH_OBSERVER", Assert.IsType<string>(p1TriggerView["effectKind"]));
+        Assert.Contains(p1Trigger.DeathObserver is null ? "UNIT_DESTROYED" : "被摧毁", Assert.IsType<string>(p1TriggerView["visibleText"]), StringComparison.Ordinal);
 
         var illegalReorder = await engine.ResolveAsync(
             state,
@@ -3389,7 +3389,7 @@ public sealed class RealTriggerQueueTests
         Assert.True(p1ResolvesP2Trigger.Accepted, p1ResolvesP2Trigger.ErrorMessage);
         Assert.Contains(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", StringComparison.Ordinal));
+            && string.Equals((gameEvent.Payload.GetValueOrDefault("observerKind") ?? gameEvent.Payload.GetValueOrDefault("effectKind")) as string, "SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1", StringComparison.Ordinal));
         var p2ExperienceEvent = Assert.Single(p1ResolvesP2Trigger.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
         Assert.Equal("P2", p2ExperienceEvent.Payload["playerId"]);
@@ -3667,12 +3667,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-REAL-GHOSTLY-TARGET"] = new(
                     "P1-REAL-GHOSTLY-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-REAL-GHOSTLY-TARGET"] = new(
                     "P2-REAL-GHOSTLY-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -3758,12 +3760,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-REAL-RESONANT-TARGET"] = new(
                     "P1-REAL-RESONANT-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-REAL-RESONANT-TARGET"] = new(
                     "P2-REAL-RESONANT-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -3847,12 +3851,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-REAL-SAVAGE-TARGET"] = new(
                     "P1-REAL-SAVAGE-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-REAL-SAVAGE-TARGET"] = new(
                     "P2-REAL-SAVAGE-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -3888,7 +3894,7 @@ public sealed class RealTriggerQueueTests
             "P1-REAL-ARC-VIKTOR",
             "ARC-006/006",
             "P1-REAL-VIKTOR-TARGET",
-            null,
+            "UNL-008/219",
             [CardObjectTags.UnitCard]);
     }
 
@@ -4619,12 +4625,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-CLEANUP-GHOSTLY-TARGET"] = new(
                     "P1-CLEANUP-GHOSTLY-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-CLEANUP-GHOSTLY-TARGET"] = new(
                     "P2-CLEANUP-GHOSTLY-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -4722,12 +4730,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-CLEANUP-GHOSTLY-HIDDEN-TARGET-1"] = new(
                     "P1-CLEANUP-GHOSTLY-HIDDEN-TARGET-1",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-CLEANUP-GHOSTLY-HIDDEN-TARGET-2"] = new(
                     "P1-CLEANUP-GHOSTLY-HIDDEN-TARGET-2",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -4801,6 +4811,7 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P1"),
                 ["P1-DYING-GHOSTLY-FRIEND"] = new(
                     "P1-DYING-GHOSTLY-FRIEND",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -4886,12 +4897,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-CLEANUP-RESONANT-TARGET"] = new(
                     "P1-CLEANUP-RESONANT-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-CLEANUP-RESONANT-TARGET"] = new(
                     "P2-CLEANUP-RESONANT-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -4990,12 +5003,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-CLEANUP-RESONANT-HIDDEN-TARGET-1"] = new(
                     "P1-CLEANUP-RESONANT-HIDDEN-TARGET-1",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-CLEANUP-RESONANT-HIDDEN-TARGET-2"] = new(
                     "P1-CLEANUP-RESONANT-HIDDEN-TARGET-2",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -5070,6 +5085,7 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P1"),
                 ["P1-DYING-RESONANT-FRIEND"] = new(
                     "P1-DYING-RESONANT-FRIEND",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -5153,12 +5169,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-CLEANUP-SAVAGE-TARGET"] = new(
                     "P1-CLEANUP-SAVAGE-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-CLEANUP-SAVAGE-TARGET"] = new(
                     "P2-CLEANUP-SAVAGE-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -5256,12 +5274,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-CLEANUP-SAVAGE-HIDDEN-TARGET-1"] = new(
                     "P1-CLEANUP-SAVAGE-HIDDEN-TARGET-1",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-CLEANUP-SAVAGE-HIDDEN-TARGET-2"] = new(
                     "P1-CLEANUP-SAVAGE-HIDDEN-TARGET-2",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -5335,6 +5355,7 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P1"),
                 ["P1-DYING-SAVAGE-FRIEND"] = new(
                     "P1-DYING-SAVAGE-FRIEND",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -5411,12 +5432,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P1"),
                 ["P1-CLEANUP-VIKTOR-TARGET"] = new(
                     "P1-CLEANUP-VIKTOR-TARGET",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-CLEANUP-VIKTOR-DUMMY"] = new(
                     "P2-CLEANUP-VIKTOR-DUMMY",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -5514,12 +5537,14 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P2"),
                 ["P1-CLEANUP-VIKTOR-HIDDEN-TARGET-1"] = new(
                     "P1-CLEANUP-VIKTOR-HIDDEN-TARGET-1",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-CLEANUP-VIKTOR-HIDDEN-TARGET-2"] = new(
                     "P1-CLEANUP-VIKTOR-HIDDEN-TARGET-2",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -5593,6 +5618,7 @@ public sealed class RealTriggerQueueTests
                     controllerId: "P1"),
                 ["P1-DYING-VIKTOR-FRIEND"] = new(
                     "P1-DYING-VIKTOR-FRIEND",
+                    cardNo: "UNL-008/219",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",

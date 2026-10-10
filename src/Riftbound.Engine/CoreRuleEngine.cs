@@ -109,7 +109,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
-    private const string GhostlyCentaurDisplayName = "幽魂半人马";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
     private const string AhriLegendIdentityId = LegendIdentityCatalog.AhriLegendIdentityId;
     private const string LucianLegendIdentityId = LegendIdentityCatalog.LucianLegendIdentityId;
@@ -166,7 +165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
-            result = ApplyReplacementResourceContinuations(result);
+            result = RecordDeathObservers(state, ApplyReplacementResourceContinuations(result));
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
@@ -4211,7 +4210,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT") return ResolveRevealedHandChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "DECK_EFFECT") return ResolveDeckChoice(state, pendingChoice, submittedObjectIds);
 
-
         if (string.Equals(pendingChoice.ChoiceWindow, SeaMonsterHookTopFiveChoiceWindow, StringComparison.Ordinal)
             && string.Equals(
                 pendingChoice.EffectKind,
@@ -4374,7 +4372,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -4385,7 +4383,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { LegendConquest = trigger.LegendConquest, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -6726,185 +6724,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(battlefieldObjectId);
     }
 
-    private static IReadOnlyList<TriggerQueueItemState> BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlySet<string> stateBasedRemovalObjectIds,
-        IReadOnlySet<string> alreadyQueuedSourceObjectIds,
-        StackItemState stackItem,
-        string destroyedObjectId,
-        string destroyedOwnerPlayerId)
-    {
-        var triggers = new List<TriggerQueueItemState>();
-        foreach (var sourceObjectId in playerZones
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
-            .Where(sourceObjectId => !stateBasedRemovalObjectIds.Contains(sourceObjectId))
-            .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal))
-        {
-            if (!TryGetFriendlyDestroyedTriggerSource(
-                playerZones,
-                cardObjects,
-                sourceObjectId,
-                destroyedOwnerPlayerId,
-                UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger,
-                out _,
-                out var triggerSpec))
-            {
-                continue;
-            }
-
-            triggers.Add(new TriggerQueueItemState(
-                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{triggerSpec.Kind}",
-                destroyedOwnerPlayerId,
-                sourceObjectId,
-                triggerSpec.Kind,
-                TriggerTimings.UnitDestroyed));
-        }
-
-        return triggers;
-    }
-
-    private static IReadOnlyList<TriggerQueueItemState> BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlySet<string> stateBasedRemovalObjectIds,
-        IReadOnlySet<string> destroyedUnitOwnerIdsAlreadyThisTurn,
-        IReadOnlySet<string> alreadyQueuedOwnerIds,
-        StackItemState stackItem,
-        string destroyedObjectId,
-        string destroyedOwnerPlayerId)
-    {
-        if (destroyedUnitOwnerIdsAlreadyThisTurn.Contains(destroyedOwnerPlayerId)
-            || alreadyQueuedOwnerIds.Contains(destroyedOwnerPlayerId))
-        {
-            return [];
-        }
-
-        var triggers = new List<TriggerQueueItemState>();
-        foreach (var sourceObjectId in playerZones
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
-            .Where(sourceObjectId => !stateBasedRemovalObjectIds.Contains(sourceObjectId))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal))
-        {
-            if (!TryGetFriendlyDestroyedTriggerSource(
-                playerZones,
-                cardObjects,
-                sourceObjectId,
-                destroyedOwnerPlayerId,
-                UnitDestroyedTriggerSpecRules.IsFirstFriendlyDestroyedDrawTrigger,
-                out _,
-                out var triggerSpec))
-            {
-                continue;
-            }
-
-            triggers.Add(new TriggerQueueItemState(
-                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{triggerSpec.Kind}",
-                destroyedOwnerPlayerId,
-                sourceObjectId,
-                triggerSpec.Kind,
-                TriggerTimings.UnitDestroyed));
-        }
-
-        return triggers;
-    }
-
-    private static IReadOnlyList<TriggerQueueItemState> BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlySet<string> stateBasedRemovalObjectIds,
-        IReadOnlySet<string> alreadyQueuedSourceObjectIds,
-        StackItemState stackItem,
-        string destroyedObjectId,
-        string destroyedOwnerPlayerId)
-    {
-        var triggers = new List<TriggerQueueItemState>();
-        foreach (var sourceObjectId in playerZones
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
-            .Where(sourceObjectId => !stateBasedRemovalObjectIds.Contains(sourceObjectId))
-            .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal))
-        {
-            if (!TryGetFriendlyDestroyedTriggerSource(
-                playerZones,
-                cardObjects,
-                sourceObjectId,
-                destroyedOwnerPlayerId,
-                UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedGainExperienceTrigger,
-                out _,
-                out var triggerSpec))
-            {
-                continue;
-            }
-
-            triggers.Add(new TriggerQueueItemState(
-                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{triggerSpec.Kind}",
-                destroyedOwnerPlayerId,
-                sourceObjectId,
-                triggerSpec.Kind,
-                TriggerTimings.UnitDestroyed));
-        }
-
-        return triggers;
-    }
-
-    private static bool TryGetFriendlyDestroyedTriggerSource(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string sourceObjectId,
-        string controllerId,
-        Func<TriggerSpec, bool> triggerPredicate,
-        out CardObjectState sourceState,
-        out TriggerSpec triggerSpec)
-    {
-        sourceState = default!;
-        triggerSpec = default!;
-        if (!cardObjects.TryGetValue(sourceObjectId, out var candidateSourceState)
-            || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                candidateSourceState.CardNo,
-                triggerPredicate,
-                out var candidateTriggerSpec)
-            || !candidateSourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || candidateSourceState.IsFaceDown
-            || candidateSourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !IsObjectOnField(playerZones, sourceObjectId))
-        {
-            return false;
-        }
-
-        if (!string.Equals(
-            EffectiveFieldControllerId(playerZones, sourceObjectId, candidateSourceState),
-            controllerId,
-            StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        sourceState = candidateSourceState;
-        triggerSpec = candidateTriggerSpec;
-        return true;
-    }
-
-    private static int UnitFirstFriendlyDestroyedDrawCount(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string sourceObjectId)
-    {
-        return cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            && UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                sourceState.CardNo,
-                UnitDestroyedTriggerSpecRules.IsFirstFriendlyDestroyedDrawTrigger,
-                out var trigger)
-                ? trigger.DrawCount.GetValueOrDefault(1)
-                : 1;
-    }
-
     private static int UnitLastBreathDrawIfAloneDrawCount(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string sourceObjectId)
@@ -6994,58 +6813,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : 2;
     }
 
-    private static IReadOnlyList<TriggerQueueItemState> BuildViktorDestroyedNonMinionTriggerQueueItems(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlySet<string> pendingRemovalObjectIds,
-        IReadOnlySet<string> alreadyQueuedSourceObjectIds,
-        StackItemState stackItem,
-        string destroyedObjectId,
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult,
-        string destroyedControllerId)
-    {
-        if (string.IsNullOrWhiteSpace(destroyedControllerId)
-            || !removalResult.WasDestroyed
-            || !removalResult.WasUnit
-            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
-        {
-            return [];
-        }
-
-        var triggers = new List<TriggerQueueItemState>();
-        foreach (var sourceObjectId in playerZones
-            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
-            .Distinct(StringComparer.Ordinal)
-            .Where(sourceObjectId => !string.Equals(sourceObjectId, destroyedObjectId, StringComparison.Ordinal))
-            .Where(sourceObjectId => !pendingRemovalObjectIds.Contains(sourceObjectId))
-            .Where(sourceObjectId => !alreadyQueuedSourceObjectIds.Contains(sourceObjectId))
-            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal))
-        {
-            if (!TryGetFriendlyDestroyedTriggerSource(
-                playerZones,
-                cardObjects,
-                sourceObjectId,
-                destroyedControllerId,
-                UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger,
-                out _,
-                out var triggerSpec)
-                || !IsUnitDestroyedNonMinionCreateMinionTriggerTarget(destroyedState, removalResult, triggerSpec))
-            {
-                continue;
-            }
-
-            triggers.Add(new TriggerQueueItemState(
-                $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{destroyedObjectId}-{triggerSpec.Kind}",
-                destroyedControllerId,
-                sourceObjectId,
-                triggerSpec.Kind,
-                TriggerTimings.UnitDestroyed));
-        }
-
-        return triggers;
-    }
-
     private static GameEvent BuildTriggerQueuedEvent(TriggerQueueItemState trigger)
     {
         var payload = new Dictionary<string, object?>
@@ -7054,6 +6821,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["controllerId"] = trigger.ControllerId,
             ["sourceObjectId"] = trigger.SourceObjectId,
             ["effectKind"] = trigger.EffectKind,
+            ["observerKind"] = trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
@@ -7078,7 +6846,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["triggerId"] = trigger.TriggerId,
                 ["controllerId"] = trigger.ControllerId,
                 ["sourceObjectId"] = trigger.SourceObjectId,
-                ["effectKind"] = trigger.EffectKind
+                ["effectKind"] = trigger.EffectKind,
+                ["observerKind"] = trigger.DeathObserver?.Kind
             });
     }
 
@@ -11067,7 +10836,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             $"{sourceObjectId} 打出装备指示物",
             payload));
     }
-
 
     private static ResolutionResult ResolveXerathDamageAbility(
         MatchState state,
@@ -18217,7 +17985,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-
     private static bool TryGetFirstExhaustedLegend(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -18248,8 +18015,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return false;
     }
-
-
 
     private static bool TryGetActiveVexLegend(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -18320,18 +18085,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardStaticAbilitySpecRules.IsSameBattlefieldEphemeralTurnStartSuppressionAbility,
             out _);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     private static bool TryResolveBattlefieldUnitReturnedCallRuneTrigger(
         Dictionary<string, PlayerZones> playerZones,
@@ -18447,12 +18200,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-
-
-
-
-
-
     private static bool TriggerZoneIsEmpty(PlayerZones zones, string? zone)
     {
         return TriggerZoneObjectIds(zones, zone).Count == 0;
@@ -18483,16 +18230,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return false;
     }
-
-
-
-
-
-
-
-
-
-
 
     private static bool IsBattlefieldHeldActivateUnitConquestTargetInScope(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -19179,16 +18916,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload));
     }
 
-
-
-
-
     private static int EffectiveCardManaCost(CardObjectState cardState, CardBehaviorDefinition behavior)
     {
         return cardState.ManaCost > 0 ? cardState.ManaCost : behavior.ManaCost;
     }
-
-
 
     private static void ReplaceDictionaryContents<TValue>(
         Dictionary<string, TValue> target,
@@ -21787,18 +21518,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 StringComparison.Ordinal));
     }
 
-    private static bool IsUnitDestroyedNonMinionCreateMinionTriggerTarget(
-        CardObjectState destroyedState,
-        FieldRemovalResult removalResult,
-        TriggerSpec trigger)
-    {
-        return removalResult.WasDestroyed
-            && removalResult.WasUnit
-            && destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && (!trigger.ExcludesTokens.GetValueOrDefault()
-                || !destroyedState.Tags.Contains(CardObjectTags.MinionTokenFamily, StringComparer.Ordinal));
-    }
-
     private static int CombatKeywordAmount(
         IReadOnlyList<string> tags,
         string keyword)
@@ -24239,6 +23958,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = trigger.SourceObjectId,
                 ["controllerId"] = trigger.ControllerId,
                 ["effectKind"] = trigger.EffectKind,
+            ["observerKind"] = trigger.DeathObserver?.Kind,
                 ["triggeredByEventKind"] = trigger.TriggeredByEventKind,
                 ["resourceSkill"] = true,
                 ["movementTriggered"] = true,
@@ -24513,8 +24233,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return false;
     }
-
-
 
     private static IReadOnlyList<GameEvent> ReadyRunesForAnnieAtTurnEnd(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -25157,143 +24875,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return events;
     }
 
-    private static IReadOnlyList<TriggerQueueItemState> BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        StackItemState stackItem,
-        List<GameEvent> events)
-    {
-        var triggerQueue = new List<TriggerQueueItemState>();
-        var queuedSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
-        var destroyedUnits = events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
-                && TryGetPayloadString(gameEvent, "targetObjectId", out _)
-                && TryGetPayloadString(gameEvent, "ownerPlayerId", out _)
-                && !IsStateBasedCleanupDestroyedEvent(gameEvent))
-            .Select(gameEvent =>
-            {
-                _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
-                _ = TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId);
-                return (DestroyedObjectId: destroyedObjectId, OwnerPlayerId: ownerPlayerId);
-            })
-            .ToArray();
-        if (destroyedUnits.Length == 0)
-        {
-            return [];
-        }
-
-        foreach (var destroyedUnit in destroyedUnits)
-        {
-            foreach (var trigger in BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
-                playerZones,
-                cardObjects,
-                new HashSet<string>(StringComparer.Ordinal),
-                queuedSourceObjectIds,
-                stackItem,
-                destroyedUnit.DestroyedObjectId,
-                destroyedUnit.OwnerPlayerId))
-            {
-                triggerQueue.Add(trigger);
-                queuedSourceObjectIds.Add(trigger.SourceObjectId);
-            }
-        }
-
-        return triggerQueue;
-    }
-
-    private static IReadOnlyList<TriggerQueueItemState> BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        StackItemState stackItem,
-        List<GameEvent> events)
-    {
-        var triggerQueue = new List<TriggerQueueItemState>();
-        var queuedSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
-        var destroyedUnits = events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
-                && TryGetPayloadString(gameEvent, "targetObjectId", out _)
-                && TryGetPayloadString(gameEvent, "ownerPlayerId", out _)
-                && !IsStateBasedCleanupDestroyedEvent(gameEvent))
-            .Select(gameEvent =>
-            {
-                _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
-                _ = TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId);
-                return (DestroyedObjectId: destroyedObjectId, OwnerPlayerId: ownerPlayerId);
-            })
-            .ToArray();
-        if (destroyedUnits.Length == 0)
-        {
-            return [];
-        }
-
-        foreach (var destroyedUnit in destroyedUnits)
-        {
-            foreach (var trigger in BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
-                playerZones,
-                cardObjects,
-                new HashSet<string>(StringComparer.Ordinal),
-                queuedSourceObjectIds,
-                stackItem,
-                destroyedUnit.DestroyedObjectId,
-                destroyedUnit.OwnerPlayerId))
-            {
-                triggerQueue.Add(trigger);
-                queuedSourceObjectIds.Add(trigger.SourceObjectId);
-            }
-        }
-
-        return triggerQueue;
-    }
-
     private static bool IsStateBasedCleanupDestroyedEvent(GameEvent gameEvent)
     {
         return TryGetPayloadString(gameEvent, "reason", out var reason)
             && (string.Equals(reason, "LETHAL_DAMAGE", StringComparison.Ordinal)
                 || string.Equals(reason, "DAMAGE_TRIGGERED_DESTROY", StringComparison.Ordinal));
-    }
-
-    private static IReadOnlyList<TriggerQueueItemState> BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        StackItemState stackItem,
-        List<GameEvent> events)
-    {
-        var triggerQueue = new List<TriggerQueueItemState>();
-        var triggeredPlayerIds = new HashSet<string>(StringComparer.Ordinal);
-        var destroyedUnitOwnerIds = events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
-                && TryGetPayloadString(gameEvent, "targetObjectId", out _)
-                && TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId)
-                && !state.DestroyedUnitOwnerIdsThisTurn.Contains(ownerPlayerId, StringComparer.Ordinal)
-                && !IsStateBasedCleanupDestroyedEvent(gameEvent))
-            .Select(gameEvent =>
-            {
-                _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
-                _ = TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId);
-                return (DestroyedObjectId: destroyedObjectId, OwnerPlayerId: ownerPlayerId);
-            })
-            .ToArray();
-        foreach (var destroyedUnit in destroyedUnitOwnerIds)
-        {
-            if (triggeredPlayerIds.Contains(destroyedUnit.OwnerPlayerId))
-            {
-                continue;
-            }
-
-            triggerQueue.AddRange(BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems(
-                playerZones,
-                cardObjects,
-                new HashSet<string>(StringComparer.Ordinal),
-                state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal),
-                triggeredPlayerIds,
-                stackItem,
-                destroyedUnit.DestroyedObjectId,
-                destroyedUnit.OwnerPlayerId));
-            triggeredPlayerIds.Add(destroyedUnit.OwnerPlayerId);
-        }
-
-        return triggerQueue;
     }
 
     private static bool StackEventsRecycledControllerRune(
@@ -25327,10 +24913,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return [];
     }
-
-
-
-
 
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -28146,7 +27728,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : 0;
     }
 
-
     private static IEnumerable<CardBehaviorDefinition> StaticUnitCostReductionSourceBehaviors(
         MatchState state,
         string playerId)
@@ -28186,8 +27767,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior.SourceUnitTags,
                 sourceBehavior.StaticUnitCostReductionRequiredUnitTag);
     }
-
-
 
     private static IEnumerable<CardBehaviorDefinition> StaticSpellCostReductionSourceBehaviors(
         MatchState state,
@@ -28232,8 +27811,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return manaDelta;
     }
 
-
-
     private static bool IsFriendlyUnitAtBattlefieldTriggerSource(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -28261,12 +27838,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
     }
-
-
-
-
-
-
 
     private static void ResolveSourceReadyOnEquipmentPlayedTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -29418,6 +28989,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
         if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
+        if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
         if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
@@ -29426,16 +28998,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawOne, StringComparison.Ordinal))
         {
             return ResolveUnitLastBreathDrawOneStackItem(state, stackItem);
-        }
-
-        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitFirstFriendlyDestroyedDrawOne, StringComparison.Ordinal))
-        {
-            return ResolveUnitFirstFriendlyDestroyedDrawStackItem(state, stackItem);
-        }
-
-        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitFriendlyDestroyedGainExperience, StringComparison.Ordinal))
-        {
-            return ResolveSavageJawfishFriendlyDestroyedExperienceStackItem(state, stackItem);
         }
 
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDrawIfAlone, StringComparison.Ordinal) ||
@@ -29477,16 +29039,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && string.Equals(stackItem.TimingContext, "ORDERED_TRIGGER", StringComparison.Ordinal))
         {
             return ResolveUndercoverAgentLastBreathStackItem(state, stackItem);
-        }
-
-        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitFriendlyDestroyedPowerUntilEndOfTurn, StringComparison.Ordinal))
-        {
-            return ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(state, stackItem);
-        }
-
-        if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitDestroyedNonMinionCreateMinion, StringComparison.Ordinal))
-        {
-            return ResolveViktorDestroyedNonMinionStackItem(state, stackItem);
         }
 
         if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
@@ -29620,7 +29172,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var counteredStackItemIds = new List<string>();
         var targetControllerDrawRecipientIds = new List<string>();
         var damageTriggeredDestroyTargetObjectIds = repeatDamageDestroyTargets ?? new HashSet<string>(StringComparer.Ordinal);
-        var queuedViktorSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var rngCursor = state.RngCursor;
         var playerScores = state.PlayerScores;
         var playerExperience = NormalizeExperienceForSeats(state);
@@ -30317,21 +29868,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
                 }
 
-                foreach (var trigger in BuildViktorDestroyedNonMinionTriggerQueueItems(
-                    playerZones,
-                    cardObjects,
-                    allUnitTargetObjectIdSet,
-                    queuedViktorSourceObjectIds,
-                    stackItem,
-                    targetObjectId,
-                    targetStateBeforeDestroy,
-                    removalResult,
-                    targetControllerId))
-                {
-                    events.Add(BuildTriggerQueuedEvent(trigger));
-                    officialLastBreathTriggers.Add(trigger);
-                    queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
-                }
             }
         }
         else if (behavior.DestroysAllEquipment)
@@ -31137,21 +30673,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
                     }
 
-                    foreach (var trigger in BuildViktorDestroyedNonMinionTriggerQueueItems(
-                        playerZones,
-                        cardObjects,
-                        new HashSet<string>([destroyedTargetObjectId], StringComparer.Ordinal),
-                        queuedViktorSourceObjectIds,
-                        stackItem,
-                        destroyedTargetObjectId,
-                        destroyedTargetStateBeforeRemoval,
-                        removalResult,
-                        destroyedTargetControllerId))
-                    {
-                        events.Add(BuildTriggerQueuedEvent(trigger));
-                        officialLastBreathTriggers.Add(trigger);
-                        queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
-                    }
                 }
             }
 
@@ -31376,21 +30897,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                     destroyedUnitOwnerIds.Add(statusRemovalResult.OwnerPlayerId);
                                 }
 
-                                foreach (var trigger in BuildViktorDestroyedNonMinionTriggerQueueItems(
-                                    playerZones,
-                                    cardObjects,
-                                    stackItem.TargetObjectIds.ToHashSet(StringComparer.Ordinal),
-                                    queuedViktorSourceObjectIds,
-                                    stackItem,
-                                    targetObjectId,
-                                    targetState,
-                                    statusRemovalResult,
-                                    statusTargetControllerId))
-                                {
-                                    events.Add(BuildTriggerQueuedEvent(trigger));
-                                    officialLastBreathTriggers.Add(trigger);
-                                    queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
-                                }
                             }
 
                             continue;
@@ -31524,22 +31030,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             if (removalResult.WasUnit)
                             {
                                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
-                            }
-
-                            foreach (var trigger in BuildViktorDestroyedNonMinionTriggerQueueItems(
-                                playerZones,
-                                cardObjects,
-                                stackItem.TargetObjectIds.ToHashSet(StringComparer.Ordinal),
-                                queuedViktorSourceObjectIds,
-                                stackItem,
-                                targetObjectId,
-                                targetState,
-                                removalResult,
-                                targetControllerIdBeforeRemoval))
-                            {
-                                events.Add(BuildTriggerQueuedEvent(trigger));
-                                officialLastBreathTriggers.Add(trigger);
-                                queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
                             }
 
                             var lastBreathDrawPlayerId = ResolveWatchfulSentinelLastBreathDrawPlayerId(
@@ -32107,37 +31597,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects,
             destroyedUnitOwnerIds));
 
-        foreach (var trigger in BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
-            playerZones,
-            cardObjects,
-            stackItem,
-            events))
-        {
-            events.Add(BuildTriggerQueuedEvent(trigger));
-            officialLastBreathTriggers.Add(trigger);
-        }
-
-        foreach (var trigger in BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
-            playerZones,
-            cardObjects,
-            stackItem,
-            events))
-        {
-            events.Add(BuildTriggerQueuedEvent(trigger));
-            officialLastBreathTriggers.Add(trigger);
-        }
-
-        foreach (var trigger in BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems(
-            state,
-            playerZones,
-            cardObjects,
-            stackItem,
-            events))
-        {
-            events.Add(BuildTriggerQueuedEvent(trigger));
-            officialLastBreathTriggers.Add(trigger);
-        }
-
         if (!deferCompletion || winnerPlayerId is not null)
         {
             CompleteSpellSource(playerZones, cardObjects, stackItem, behavior);
@@ -32183,16 +31642,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state,
             stackItem,
             UnitLastBreathDrawOneDrawCount(state.CardObjects, stackItem.SourceObjectId));
-    }
-
-    private static StackResolutionResult ResolveUnitFirstFriendlyDestroyedDrawStackItem(
-        MatchState state,
-        StackItemState stackItem)
-    {
-        return ResolveLastBreathDrawStackItem(
-            state,
-            stackItem,
-            UnitFirstFriendlyDestroyedDrawCount(state.CardObjects, stackItem.SourceObjectId));
     }
 
     private static StackResolutionResult ResolveUnitLastBreathDrawIfAloneStackItem(
@@ -33130,243 +32579,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string BuildSeaMonsterHookTopFiveChoiceId(StackItemState stackItem)
     {
         return $"CARD-CHOICE-{stackItem.StackItemId}";
-    }
-
-    private static StackResolutionResult ResolveGhostlyCentaurFriendlyDestroyedPowerStackItem(
-        MatchState state,
-        StackItemState stackItem)
-    {
-        var playerZones = NormalizeZonesForSeats(state);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var events = new List<GameEvent>
-        {
-            BuildTriggerResolvedEvent(new TriggerQueueItemState(
-                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
-                    ? stackItem.StackItemId["ordered-".Length..]
-                    : stackItem.StackItemId,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                stackItem.EffectKind,
-                "UNIT_DESTROYED"))
-        };
-
-        if (TryGetFriendlyDestroyedTriggerSource(
-                playerZones,
-                cardObjects,
-                stackItem.SourceObjectId,
-                stackItem.ControllerId,
-                UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger,
-                out var sourceState,
-                out var triggerSpec)
-            && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal)
-            && UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger(triggerSpec))
-        {
-            var powerBehavior = new CardBehaviorDefinition(
-                sourceState.CardNo ?? string.Empty,
-                GhostlyCentaurDisplayName,
-                0,
-                triggerSpec.Kind,
-                0,
-                0,
-                PowerModifierAmount: triggerSpec.PowerDelta.GetValueOrDefault());
-            cardObjects[stackItem.SourceObjectId] = ApplyPowerModifier(
-                sourceState,
-                powerBehavior,
-                stackItem,
-                stackItem.SourceObjectId,
-                powerBehavior.PowerModifierAmount,
-                out var powerEvent);
-            events.Add(powerEvent);
-        }
-
-        return new StackResolutionResult(
-            playerZones,
-            cardObjects,
-            state.PlayerScores,
-            NormalizeExperienceForSeats(state),
-            state.RunePools,
-            state.UntilEndOfTurnEffects,
-            null,
-            events,
-            [],
-            null,
-            [],
-            null,
-            [],
-            state.RngCursor);
-    }
-
-    private static StackResolutionResult ResolveSavageJawfishFriendlyDestroyedExperienceStackItem(
-        MatchState state,
-        StackItemState stackItem)
-    {
-        var playerZones = NormalizeZonesForSeats(state);
-        var playerExperience = NormalizeExperienceForSeats(state);
-        var events = new List<GameEvent>
-        {
-            BuildTriggerResolvedEvent(new TriggerQueueItemState(
-                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
-                    ? stackItem.StackItemId["ordered-".Length..]
-                    : stackItem.StackItemId,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                stackItem.EffectKind,
-                "UNIT_DESTROYED"))
-        };
-
-        if (TryGetFriendlyDestroyedTriggerSource(
-                playerZones,
-                state.CardObjects,
-                stackItem.SourceObjectId,
-                stackItem.ControllerId,
-                UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedGainExperienceTrigger,
-                out var sourceState,
-                out var triggerSpec)
-            && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal))
-        {
-            playerExperience = GainExperience(
-                playerExperience,
-                stackItem.ControllerId,
-                triggerSpec.ExperienceCount.GetValueOrDefault(1),
-                stackItem,
-                events,
-                stackItem.SourceObjectId,
-                sourceState.CardNo);
-        }
-
-        return new StackResolutionResult(
-            playerZones,
-            state.CardObjects,
-            state.PlayerScores,
-            playerExperience,
-            state.RunePools,
-            state.UntilEndOfTurnEffects,
-            null,
-            events,
-            [],
-            null,
-            [],
-            null,
-            [],
-            state.RngCursor);
-    }
-
-    private static StackResolutionResult ResolveViktorDestroyedNonMinionStackItem(
-        MatchState state,
-        StackItemState stackItem)
-    {
-        var playerZones = NormalizeZonesForSeats(state);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var events = new List<GameEvent>
-        {
-            BuildTriggerResolvedEvent(new TriggerQueueItemState(
-                stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal)
-                    ? stackItem.StackItemId["ordered-".Length..]
-                    : stackItem.StackItemId,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                stackItem.EffectKind,
-                "UNIT_DESTROYED"))
-        };
-
-        if (TryGetFriendlyDestroyedTriggerSource(
-                playerZones,
-                cardObjects,
-                stackItem.SourceObjectId,
-                stackItem.ControllerId,
-                UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger,
-                out _,
-                out var triggerSpec)
-            && string.Equals(stackItem.EffectKind, triggerSpec.Kind, StringComparison.Ordinal)
-            && UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger(triggerSpec))
-        {
-            CreateViktorDestroyedNonMinionMinionToken(
-                playerZones,
-                cardObjects,
-                stackItem,
-                triggerSpec,
-                events);
-        }
-
-        return new StackResolutionResult(
-            playerZones,
-            cardObjects,
-            state.PlayerScores,
-            NormalizeExperienceForSeats(state),
-            state.RunePools,
-            state.UntilEndOfTurnEffects,
-            null,
-            events,
-            [],
-            null,
-            [],
-            null,
-            [],
-            state.RngCursor);
-    }
-
-    private static void CreateViktorDestroyedNonMinionMinionToken(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        StackItemState stackItem,
-        TriggerSpec trigger,
-        List<GameEvent> events)
-    {
-        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones)
-            || !P6TokenFactoryCatalog.TryGetByCardNo(P6TokenFactoryCatalog.ZaunMinionTokenCardNo, out var tokenDefinition))
-        {
-            return;
-        }
-
-        var tokenObjectIds = new List<string>();
-        var tokenCount = Math.Max(1, trigger.CreatedTokenCount.GetValueOrDefault(1));
-        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
-        {
-            var tokenObjectId = NextTokenObjectId(
-                playerZones,
-                cardObjects,
-                stackItem.SourceObjectId,
-                tokenIndex + 1);
-            tokenObjectIds.Add(tokenObjectId);
-            var tokenState = tokenDefinition.CreateObject(tokenObjectId, stackItem.ControllerId, stackItem.ControllerId);
-            tokenState = ApplyUnitTokenEntryStaticAbility(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                tokenObjectId,
-                tokenState,
-                out var entersReadyFromStaticAbility,
-                out var entryStaticAbilitySourceObjectId,
-                out var entryStaticAbilitySourceState,
-                out var entryStaticAbility);
-            cardObjects[tokenObjectId] = tokenState;
-            var payload = new Dictionary<string, object?>
-            {
-                ["playerId"] = stackItem.ControllerId,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["tokenObjectId"] = tokenObjectId,
-                ["tokenCardNo"] = tokenDefinition.CardNo,
-                ["tokenName"] = tokenDefinition.TokenFamilyName,
-                ["power"] = tokenState.Power,
-                ["destinationZone"] = "BASE",
-                ["tokenTags"] = tokenState.Tags.ToArray(),
-                ["reason"] = trigger.Kind
-            };
-            AddEntryStaticAbilityPayload(
-                payload,
-                entersReadyFromStaticAbility ? entryStaticAbility : null,
-                entryStaticAbilitySourceObjectId,
-                entryStaticAbilitySourceState.CardNo);
-            events.Add(CaptureUnitEntry(new GameEvent(
-                "UNIT_TOKEN_CREATED",
-                $"{stackItem.SourceObjectId} 打出随从",
-                payload), playerZones, cardObjects));
-        }
-
-        playerZones[stackItem.ControllerId] = zones with
-        {
-            Base = zones.Base.Concat(tokenObjectIds).ToArray()
-        };
     }
 
     private static void CreateBaseUnitTokensFromTrigger(
@@ -38086,10 +37298,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var before = cards.GetValueOrDefault(id);
         var controller = before is null ? "" : EffectiveFieldControllerId(zones, id, before);
-        if (TryReplaceDestruction(state, zones, cards, runePools, id, out removal)) return true;
-        var beforeRemovalEvents = removal.BeforeRemovalEvents;
+        // Keep the nested destruction batch active through capture and removal.
+        using var scope = RuleChoices.Value!.DestructionCandidates.Contains(id)
+            ? null : PrepareDestructionReplacements(state, zones, cards, runePools, [id]);
+        if (scope?.Replaced.Contains(id) == true)
+        {
+            var card = cards[id];
+            removal = new(card.OwnerId ?? controller, "BASE", false, true,
+                card.Tags.Contains(CardObjectTags.EquipmentCard), true, []) { ReplacementEvents = scope.Events };
+            return true;
+        }
+        var beforeRemovalEvents = scope?.Events;
+        var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
         var removed = TryDestroyTargetCore(zones, cards, id, out removal);
-        removal = removal with { BeforeRemovalEvents = beforeRemovalEvents };
+        removal = removal with { BeforeRemovalEvents = beforeRemovalEvents, Death = removed && removal.WasDestroyed && removal.WasUnit ? death : null };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false }
             && IsInsightSource(before.CardNo, "LAST_BREATH"))
             removal = removal with { InsightContext = new(before.CardNo!, controller, 2, before.ObjectGeneration, "LAST_BREATH") };
@@ -38244,6 +37466,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["destroyedByPlayerId"] = stackItem.ControllerId,
             ["destinationZone"] = removalResult.DestinationZone
         };
+        if (removalResult.Death is not null) payload["capturedUnitDeath"] = removalResult.Death;
         if (removalResult.DeathRevealContext is not null)
             payload["deathRevealContext"] = removalResult.DeathRevealContext;
         if (removalResult.InsightContext is not null)
@@ -39661,10 +38884,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
         var triggerQueue = new List<TriggerQueueItemState>();
-        var queuedGhostlyCentaurSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
-        var queuedResonantSoulOwnerIds = new HashSet<string>(StringComparer.Ordinal);
-        var queuedSavageJawfishSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
-        var queuedViktorSourceObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var nextRunePools = (runePools ?? new Dictionary<string, RunePool>()).ToDictionary(e => e.Key, e => e.Value);
         var stateBasedRemovalObjectIds = cardObjects
             .Where(entry => (explicitDestroyObjectIds is not null
@@ -39910,80 +39129,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 triggerQueue.Add(trigger);
             }
 
-            var ghostlyCentaurTriggers = removalResult.WasUnit
-                ? BuildGhostlyCentaurFriendlyDestroyedTriggerQueueItems(
-                    playerZones,
-                    cardObjects,
-                    stateBasedRemovalObjectIdSet,
-                    queuedGhostlyCentaurSourceObjectIds,
-                    stackItem,
-                    objectId,
-                    removalResult.OwnerPlayerId)
-                : Array.Empty<TriggerQueueItemState>();
-            foreach (var trigger in ghostlyCentaurTriggers)
-            {
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-                queuedGhostlyCentaurSourceObjectIds.Add(trigger.SourceObjectId);
-            }
-
-            var resonantSoulTriggers = removalResult.WasUnit
-                ? BuildResonantSoulFirstFriendlyDestroyedTriggerQueueItems(
-                    playerZones,
-                    cardObjects,
-                    stateBasedRemovalObjectIdSet,
-                    destroyedUnitOwnerIdsAlreadyThisTurn,
-                    queuedResonantSoulOwnerIds,
-                    stackItem,
-                    objectId,
-                    removalResult.OwnerPlayerId)
-                : Array.Empty<TriggerQueueItemState>();
-            if (removalResult.WasUnit)
-            {
-                queuedResonantSoulOwnerIds.Add(removalResult.OwnerPlayerId);
-            }
-
-            foreach (var trigger in resonantSoulTriggers)
-            {
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-            }
-
-            var savageJawfishTriggers = removalResult.WasUnit
-                ? BuildSavageJawfishFriendlyDestroyedTriggerQueueItems(
-                    playerZones,
-                    cardObjects,
-                    stateBasedRemovalObjectIdSet,
-                    queuedSavageJawfishSourceObjectIds,
-                    stackItem,
-                    objectId,
-                    removalResult.OwnerPlayerId)
-                : Array.Empty<TriggerQueueItemState>();
-            foreach (var trigger in savageJawfishTriggers)
-            {
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-                queuedSavageJawfishSourceObjectIds.Add(trigger.SourceObjectId);
-            }
-
-            var viktorTriggers = removalResult.WasUnit
-                ? BuildViktorDestroyedNonMinionTriggerQueueItems(
-                    playerZones,
-                    cardObjects,
-                    stateBasedRemovalObjectIdSet,
-                    queuedViktorSourceObjectIds,
-                    stackItem,
-                    objectId,
-                    destroyedState,
-                    removalResult,
-                    destroyedControllerId)
-                : Array.Empty<TriggerQueueItemState>();
-            foreach (var trigger in viktorTriggers)
-            {
-                events.Add(BuildTriggerQueuedEvent(trigger));
-                triggerQueue.Add(trigger);
-                queuedViktorSourceObjectIds.Add(trigger.SourceObjectId);
-            }
         }
 
         return new LethalDamageCleanupResult(
@@ -41808,11 +40953,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private sealed record RuneCallResult(
         IReadOnlyList<string> CalledRuneObjectIds);
 
-    private sealed record ResonantSoulTriggerResult(
-        IReadOnlyDictionary<string, int> PlayerScores,
-        string? WinnerPlayerId,
-        long RngCursor);
-
     private sealed record FieldRemovalResult(
         string OwnerPlayerId,
         string DestinationZone,
@@ -41824,6 +40964,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         public IReadOnlyList<GameEvent>? ReplacementEvents { get; init; }
         public IReadOnlyList<GameEvent>? BeforeRemovalEvents { get; init; }
+        public CapturedUnitDeath? Death { get; init; }
         public InsightTriggerContext? InsightContext { get; init; }
         public DeathRevealContext? DeathRevealContext { get; init; }
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;

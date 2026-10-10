@@ -5896,7 +5896,7 @@ public sealed class CardCatalogBaselineTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs");
+            "CoreRuleEngine.DeathObservers.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
         var matchRecoveryPath = Path.Combine(
             RepositoryRoot(),
@@ -5908,8 +5908,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("SavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsSavageJawfishCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("SavageJawfishCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedGainExperienceTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.ValidDeathObserver", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5919,7 +5919,7 @@ public sealed class CardCatalogBaselineTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs");
+            "CoreRuleEngine.DeathObservers.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
         var matchRecoveryPath = Path.Combine(
             RepositoryRoot(),
@@ -5930,8 +5930,8 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("GhostlyCentaurCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("GhostlyCentaurCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.IsFriendlyDestroyedPowerUntilEndTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.ValidDeathObserver", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5941,7 +5941,7 @@ public sealed class CardCatalogBaselineTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs");
+            "CoreRuleEngine.DeathObservers.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
         var matchRecoveryPath = Path.Combine(
             RepositoryRoot(),
@@ -5952,8 +5952,8 @@ public sealed class CardCatalogBaselineTests
 
         Assert.DoesNotContain("ResonantSoulCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("ResonantSoulCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.IsFirstFriendlyDestroyedDrawTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.ValidDeathObserver", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -5963,7 +5963,7 @@ public sealed class CardCatalogBaselineTests
             RepositoryRoot(),
             "src",
             "Riftbound.Engine",
-            "CoreRuleEngine.cs");
+            "CoreRuleEngine.DeathObservers.cs");
         var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
         var matchRecoveryPath = Path.Combine(
             RepositoryRoot(),
@@ -5979,8 +5979,8 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ViktorDestroyedNonMinionArcCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnCardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
         Assert.DoesNotContain("ViktorDestroyedNonMinionOgnAltACardNoForRecovery", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", matchRecoverySource, StringComparison.Ordinal);
-        Assert.Contains("UnitDestroyedTriggerSpecRules.IsDestroyedNonMinionCreateMinionTrigger", matchRecoverySource, StringComparison.Ordinal);
+        Assert.Contains("UnitDestroyedTriggerSpecRules.TryGetTrigger", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.ValidDeathObserver", matchRecoverySource, StringComparison.Ordinal);
     }
 
     [Fact]

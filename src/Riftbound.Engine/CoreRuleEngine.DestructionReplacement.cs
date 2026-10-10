@@ -8,11 +8,11 @@ public sealed partial class CoreRuleEngine
 
     // One instruction may destroy several units at once (CN 370.1, 373). Make all
     // replacement decisions before removing any of those units; never choose by ID.
-    private sealed class DestructionReplacementScope(RuleChoiceFrame? frame, HashSet<string> previous) : IDisposable
+    private sealed class DestructionReplacementScope(RuleChoiceFrame? frame, HashSet<string> previous, HashSet<string> previousDeaths, int? previousBatch) : IDisposable
     {
         public HashSet<string> Replaced { get; } = new(StringComparer.Ordinal);
         public List<GameEvent> Events { get; } = [];
-        public void Dispose() { if (frame is not null) frame.DestructionCandidates = previous; }
+        public void Dispose() { if (frame is not null) { frame.DestructionCandidates = previous; frame.CurrentDestructions = previousDeaths; frame.CurrentDestructionBatch = previousBatch; } }
     }
 
     private static DestructionReplacementScope PrepareDestructionReplacements(MatchState state,
@@ -21,10 +21,12 @@ public sealed partial class CoreRuleEngine
     {
         var frame = RuleChoices.Value;
         var previous = frame?.DestructionCandidates ?? [];
-        var scope = new DestructionReplacementScope(frame, previous);
+        var scope = new DestructionReplacementScope(frame, previous, frame?.CurrentDestructions ?? [], frame?.CurrentDestructionBatch);
         if (frame is null) throw new InvalidOperationException("Destruction requires a rule command context.");
         var remaining = candidates.Where(id => !previous.Contains(id)).Distinct().ToHashSet(StringComparer.Ordinal);
         frame.DestructionCandidates = previous.Concat(candidates).ToHashSet(StringComparer.Ordinal);
+        frame.CurrentDestructions = candidates.ToHashSet(StringComparer.Ordinal);
+        frame.CurrentDestructionBatch = frame.DestructionBatchSequence++;
         try
         {
             foreach (var player in zones.Keys.OrderBy(p => p == frame.Origin.TurnPlayerId ? 0 : 1).ThenBy(p => p, StringComparer.Ordinal))
@@ -102,7 +104,7 @@ public sealed partial class CoreRuleEngine
                         ["playerId"] = player, ["sourceObjectId"] = option.Source, ["targetObjectId"] = option.Target,
                         ["ownerPlayerId"] = unitState.OwnerId, ["controllerId"] = player, ["destinationZone"] = "BASE",
                         ["replacementEffectId"] = SettRecallEffect, ["isExhausted"] = true }));
-                    scope.Replaced.Add(option.Target); remaining.Remove(option.Target);
+                    scope.Replaced.Add(option.Target); remaining.Remove(option.Target); frame.CurrentDestructions.Remove(option.Target);
                 }
             }
             return scope;
@@ -110,16 +112,4 @@ public sealed partial class CoreRuleEngine
         catch { scope.Dispose(); throw; }
     }
 
-    private static bool TryReplaceDestruction(MatchState state, Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
-        Dictionary<string, RunePool> pools, string target, out FieldRemovalResult removal)
-    {
-        removal = FieldRemovalResult.Empty;
-        if (RuleChoices.Value?.DestructionCandidates.Contains(target) == true) return false;
-        using var scope = PrepareDestructionReplacements(state, zones, cards, pools, [target]);
-        if (!scope.Replaced.Contains(target)) { removal = removal with { BeforeRemovalEvents = scope.Events }; return false; }
-        var card = cards[target];
-        removal = new(card.OwnerId ?? EffectiveFieldControllerId(zones, target, card), "BASE", false, true, card.Tags.Contains(CardObjectTags.EquipmentCard), true, [])
-            { ReplacementEvents = scope.Events };
-        return true;
-    }
 }

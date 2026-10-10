@@ -29,6 +29,7 @@ public sealed partial class CoreRuleEngine
             ? parent with { EffectKind = executions[parent.CompletedRepeatExecutions].EffectKind, EffectRepeatCount = 1, RepeatExecutions = null }
             : parent;
         if (TryGetLegendUnitToken(item.EffectKind, out _)) return 1;
+        if (item.DeathObserver?.Kind == TriggerKinds.UnitDestroyedNonMinionCreateMinion) return 1;
         if (item.HeldContext is { Kind: "LEBLANC_DISCARD" } image && item.TriggerCost is not null)
             return BattlefieldLocalRules.PreventsUnitPlay(state, "BATTLEFIELD:" + image.BattlefieldObjectId) ? 0 : 1;
         if (item.HeldContext is { Kind: "MINION" or "ROBOT" } held) return held.Amount;

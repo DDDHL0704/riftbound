@@ -1,0 +1,11 @@
+{
+  "source": "var/qa/death-observers/red/focus/results.trx",
+  "failedTests": [
+    "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"UNL-129/219\")",
+    "Riftbound.ConformanceTests.DeathObserverAuditTests.DeathBelongsToControllerNotOwner",
+    "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"ARC-006/006\")",
+    "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"UNL-068/219\")",
+    "Riftbound.ConformanceTests.DeathObserverAuditTests.AnimatedGoldAndFollowingDeathKeepFirstDeathAndRecovery"
+  ],
+  "note": "Evidence retained from the interrupted original work, not rerun as the current baseline."
+}

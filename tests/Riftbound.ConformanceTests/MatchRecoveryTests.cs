@@ -10808,8 +10808,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -10857,26 +10858,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2; expected GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedSourceObjectIdContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedSourceObjectIdContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-2-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -10946,16 +10934,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id; expected <trigger id source object before destroyed object id> but got source-1",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectIdContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectIdContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-404-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11025,16 +11010,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-404 is missing from objects; expected [source-1] but got destroyed-404",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11119,16 +11101,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 must not be an equipment card in objects; expected <non-equipment card> but got CARD_TYPE:EQUIPMENT",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11213,16 +11192,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in object locations; expected GRAVEYARD but got BASE",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11307,16 +11283,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id alice must include destroyed object in player zones graveyard",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11418,16 +11391,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in object locations; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11512,16 +11482,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 must not be a minion token family card in objects",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11606,16 +11573,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 must be a unit card in objects; expected CARD_TYPE:UNIT but got [CARD_TYPE:SPELL]",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11700,16 +11664,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedSourceCardContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedSourceCardContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11758,21 +11719,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit friendly-destroyed power until-end trigger in objects; expected BehaviorSpec unit friendly-destroyed power until-end trigger but got WRONG-CARD",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be a unit card in objects; expected CARD_TYPE:UNIT but got []",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedSourceControllerContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedSourceControllerContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11823,16 +11776,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in objects; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedSourceVisibilityStateContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedSourceVisibilityStateContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11883,21 +11833,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be face down in objects; expected false but got true",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedSourceVisibilityPayloadContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedSourceVisibilityPayloadContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -11967,16 +11909,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedSourceLocationContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedSourceLocationContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -12032,21 +11971,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in object locations; expected BASE or BATTLEFIELD but got HAND",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in object locations; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedSourceFieldZoneContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedSourceFieldZoneContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -12116,16 +12047,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in player zones; expected contains source-1 but got []",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueFriendlyDestroyedStackContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueFriendlyDestroyedStackContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER--source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -12173,16 +12101,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ghostly centaur friendly-destroyed power trigger id stack item id is required before source object id source-1",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -12230,26 +12155,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1; expected RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueSavageJawfishFriendlyDestroyedExperienceContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueSavageJawfishFriendlyDestroyedExperienceContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -12297,26 +12209,13 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1; expected SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSnapshotTimingTriggerQueueViktorDestroyedNonMinionCreateMinionContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSnapshotTimingTriggerQueueViktorDestroyedNonMinionCreateMinionContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         var alice = PlayerView("alice", 0, 0);
         var players = alice.Snapshot.Players.ToDictionary(
@@ -12364,21 +12263,7 @@ public sealed class MatchRecoveryTests
 
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION; expected VIKTOR_DESTROYED_NON_MINION_CREATE_MINION but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
@@ -33218,8 +33103,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var authoritativeState = new MatchState(
             "room-a",
@@ -33259,21 +33145,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2; expected GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedStackContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedStackContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER--source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var authoritativeState = new MatchState(
             "room-a",
@@ -33313,16 +33191,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER--source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power trigger id stack item id is required before source object id source-1",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedSourceObjectIdContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedSourceObjectIdContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-2-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -33376,16 +33251,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-2-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id; expected <trigger id source object before destroyed object id> but got source-1",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectIdContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectIdContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-404-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -33439,16 +33311,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-404-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-404 is missing from object registry",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -33511,16 +33380,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 must not be an equipment card in authoritative state object registry; expected <non-equipment card> but got CARD_TYPE:EQUIPMENT",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -33583,16 +33449,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -33654,16 +33517,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id alice must include destroyed object in authoritative state player zones graveyard",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -33728,16 +33588,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -33800,16 +33657,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion destroyed object id destroyed-1 must not be a minion token family card in authoritative state object registry",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -33872,16 +33726,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion destroyed object id destroyed-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got [CARD_TYPE:SPELL]",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -33944,16 +33795,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedSourceCardContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedSourceCardContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var authoritativeState = new MatchState(
             "room-a",
@@ -33997,21 +33845,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit friendly-destroyed power until-end trigger in authoritative state object registry; expected BehaviorSpec unit friendly-destroyed power until-end trigger but got WRONG-CARD",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got []",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedSourceControllerContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedSourceControllerContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var authoritativeState = new MatchState(
             "room-a",
@@ -34056,16 +33896,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedSourceVisibilityStateContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedSourceVisibilityStateContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var authoritativeState = new MatchState(
             "room-a",
@@ -34111,21 +33948,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedSourceLocationContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedSourceLocationContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var authoritativeState = new MatchState(
             "room-a",
@@ -34178,21 +34007,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got HAND",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueFriendlyDestroyedSourceFieldZoneContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueFriendlyDestroyedSourceFieldZoneContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         var authoritativeState = new MatchState(
             "room-a",
@@ -34242,16 +34063,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
         var authoritativeState = new MatchState(
             "room-a",
@@ -34291,21 +34109,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1; expected RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueSavageJawfishFriendlyDestroyedExperienceContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueSavageJawfishFriendlyDestroyedExperienceContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
         var authoritativeState = new MatchState(
             "room-a",
@@ -34345,21 +34155,13 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1; expected SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsAuthoritativeStateTriggerQueueViktorDestroyedNonMinionCreateMinionContextDrift()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInAuthoritativeStateTriggerQueueViktorDestroyedNonMinionCreateMinionContextDrift()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         var authoritativeState = new MatchState(
             "room-a",
@@ -34399,16 +34201,7 @@ public sealed class MatchRecoveryTests
             authoritativeState,
             currentTick: 0);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION; expected VIKTOR_DESTROYED_NON_MINION_CREATE_MINION but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
     }
 
     [Fact]
@@ -152141,8 +151934,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -152226,21 +152020,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2; expected GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -152249,8 +152029,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueGhostlyCentaurFriendlyDestroyedPowerContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -152343,21 +152124,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power effect kind WRONG_EFFECT must be GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2; expected GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -152371,8 +152138,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedStackContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedStackContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string forgedTriggerId = "TRIGGER--source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
@@ -152455,11 +152223,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power trigger id stack item id is required before source object id source-1",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -152468,8 +152232,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedStackContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedStackContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string forgedTriggerId = "TRIGGER--source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
@@ -152561,11 +152326,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power trigger id stack item id is required before source object id source-1",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -152579,8 +152340,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceCardContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceCardContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -152648,16 +152410,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit friendly-destroyed power until-end trigger in authoritative state object registry; expected BehaviorSpec unit friendly-destroyed power until-end trigger but got WRONG-CARD",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got []",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -152666,8 +152419,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceCardContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceCardContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -152758,16 +152512,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 card no WRONG-CARD must reference BehaviorSpec unit friendly-destroyed power until-end trigger in authoritative state object registry; expected BehaviorSpec unit friendly-destroyed power until-end trigger but got WRONG-CARD",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got []",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -152781,8 +152526,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceControllerContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceControllerContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -152851,11 +152597,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -152864,8 +152606,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceControllerContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceControllerContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -152957,11 +152700,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -152975,8 +152714,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceVisibilityStateContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceVisibilityStateContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153065,16 +152805,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -153083,8 +152814,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceVisibilityStateContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceVisibilityStateContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153182,16 +152914,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -153205,8 +152928,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceVisibilityPayloadContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceVisibilityPayloadContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153295,11 +153019,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -153308,8 +153028,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceVisibilityPayloadContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceVisibilityPayloadContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153407,11 +153128,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -153425,8 +153142,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceLocationContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceLocationContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153514,16 +153232,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got HAND",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -153532,8 +153241,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceLocationContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceLocationContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153630,16 +153340,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location zone HAND must be BASE or BATTLEFIELD in authoritative state object locations; expected BASE or BATTLEFIELD but got HAND",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -153653,8 +153354,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceFieldZoneContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceFieldZoneContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153739,11 +153441,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -153752,8 +153450,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceFieldZoneContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceFieldZoneContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153847,11 +153546,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must be in trigger controller field zone in authoritative state player zones; expected contains source-1 but got []",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -153865,8 +153560,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceObjectIdContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceObjectIdContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-2-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -153935,11 +153631,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id; expected <trigger id source object before destroyed object id> but got source-1",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -153948,8 +153640,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceObjectIdContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedSourceObjectIdContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-2-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -154041,11 +153734,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power source object id source-1 must match trigger id source object id before destroyed object id; expected <trigger id source object before destroyed object id> but got source-1",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -154059,8 +153748,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectIdContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectIdContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-404-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -154129,11 +153819,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-404 is missing from object registry",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -154142,8 +153828,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectIdContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectIdContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-404-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -154235,11 +153922,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-404 is missing from object registry",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -154253,8 +153936,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -154332,11 +154016,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 must not be an equipment card in authoritative state object registry; expected <non-equipment card> but got CARD_TYPE:EQUIPMENT",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -154345,8 +154025,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectCardContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -154447,11 +154128,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 must not be an equipment card in authoritative state object registry; expected <non-equipment card> but got CARD_TYPE:EQUIPMENT",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -154465,8 +154142,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -154544,11 +154222,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -154557,8 +154231,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardLocationContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -154659,11 +154334,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location zone BASE must be GRAVEYARD in authoritative state object locations; expected GRAVEYARD but got BASE",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -154677,8 +154348,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -154755,11 +154427,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id alice must include destroyed object in authoritative state player zones graveyard",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -154768,8 +154436,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardMembershipContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -154869,11 +154538,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id alice must include destroyed object in authoritative state player zones graveyard",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -154887,8 +154552,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -154968,11 +154634,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -154981,8 +154643,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueFriendlyDestroyedDestroyedObjectGraveyardPlayerContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -155085,11 +154748,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ghostly centaur friendly-destroyed power destroyed object id destroyed-1 location player id bob must match trigger controller id alice in authoritative state object locations; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -155103,8 +154762,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -155182,11 +154842,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 must not be a minion token family card in authoritative state object registry",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -155195,8 +154851,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectMinionFamilyContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -155297,11 +154954,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 must not be a minion token family card in authoritative state object registry",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -155315,8 +154968,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -155394,11 +155048,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got [CARD_TYPE:SPELL]",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -155407,8 +155057,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectUnitCardContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -155509,11 +155160,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got [CARD_TYPE:SPELL]",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -155527,8 +155174,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -155606,11 +155254,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -155619,8 +155263,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionDestroyedObjectControllerContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         const string destroyedObjectId = "destroyed-1";
@@ -155721,11 +155366,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion destroyed object id destroyed-1 controller id bob must match trigger controller id alice in authoritative state object registry; expected alice but got bob",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -155739,8 +155380,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -155824,21 +155466,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1; expected RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -155847,8 +155475,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueResonantSoulFirstFriendlyDestroyedDrawContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -155941,21 +155570,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw effect kind WRONG_EFFECT must be RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1; expected RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item resonant soul first friendly-destroyed draw triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -155969,8 +155584,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueSavageJawfishFriendlyDestroyedExperienceContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueSavageJawfishFriendlyDestroyedExperienceContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -156054,21 +155670,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1; expected SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -156077,8 +155679,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueSavageJawfishFriendlyDestroyedExperienceContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueSavageJawfishFriendlyDestroyedExperienceContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -156171,21 +155774,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience effect kind WRONG_EFFECT must be SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1; expected SAVAGE_JAWFISH_FRIENDLY_DESTROYED_EXPERIENCE_1 but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item savage jawfish friendly-destroyed experience triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -156199,8 +155788,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionCreateMinionContextDriftWithoutCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionCreateMinionContextDriftWithoutCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -156284,21 +155874,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION; expected VIKTOR_DESTROYED_NON_MINION_CREATE_MINION but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -156307,8 +155883,9 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
-    public void RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionCreateMinionContextDriftWithCountMismatch()
+    public void RecoveryValidatorRejectsRetiredDeathRecordInSpectatorReplayTimingTriggerQueueViktorDestroyedNonMinionCreateMinionContextDriftWithCountMismatch()
     {
+        // The retired uncaptured format is rejected before legacy field diagnostics.
         const string triggerId = "TRIGGER-stack-1-source-1-destroyed-1-VIKTOR_DESTROYED_NON_MINION_CREATE_MINION";
         const string sourceObjectId = "source-1";
         var authoritativeState = new MatchState(
@@ -156401,21 +155978,7 @@ public sealed class MatchRecoveryTests
             currentTick: 3,
             spectatorReplayFrame: spectatorReplayFrame);
 
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion source visibility must be VISIBLE; expected VISIBLE but got HIDDEN",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion effect kind WRONG_EFFECT must be VIKTOR_DESTROYED_NON_MINION_CREATE_MINION; expected VIKTOR_DESTROYED_NON_MINION_CREATE_MINION but got WRONG_EFFECT",
-                StringComparison.Ordinal));
-        Assert.Contains(
-            errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item viktor destroyed non-minion create minion triggered event kind CARD_PLAYED must be UNIT_DESTROYED; expected UNIT_DESTROYED but got CARD_PLAYED",
-                StringComparison.Ordinal));
+        Assert.Contains("obsolete uncaptured death observer", errors);
         Assert.Contains(
             errors,
             error => error.Contains(

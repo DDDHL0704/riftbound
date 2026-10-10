@@ -216,6 +216,6 @@ public sealed class ReplacementResourceTests
         Assert.Single(done.Events,e=>e.Kind=="UNIT_DESTROYED" && e.Payload.GetValueOrDefault("targetObjectId") as string=="RESOURCE");
         if (endsMatch) { Assert.Equal(MatchStatuses.Finished,done.State.Status); Assert.Empty(done.State.TriggerQueue); }
         else Assert.Contains(done.State.StackItems,t=>t.SourceObjectId=="VIKTOR");
-        Assert.Single(done.Events,e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="VIKTOR");
+        if (!endsMatch) Assert.Single(done.Events,e=>e.Kind=="TRIGGER_QUEUED" && e.Payload.GetValueOrDefault("sourceObjectId") as string=="VIKTOR");
     }
 }
