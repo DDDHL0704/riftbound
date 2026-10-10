@@ -43,10 +43,7 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
             extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 [PurpleRuneObjectId] = RuneCard(PurpleRuneObjectId, RuneTrait.Purple)
-            }) with
-        {
-            TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-MADULI")]
-        };
+            });
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
 
@@ -81,45 +78,16 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
 
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["paymentResourceChoices"]).ToArray();
-        Assert.Equal([$"RECYCLE_RUNE:{PurpleRuneObjectId}", PaymentCostRules.TemporaryPaymentResourceActionId(state.TemporaryPaymentResources.Single().ResourceId)], paymentResourceChoices.Select(choice => choice.Id).ToArray());
-        Assert.Contains(
+        Assert.Equal([$"RECYCLE_RUNE:{PurpleRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.DoesNotContain(
             paymentResourceChoices,
-            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+            choice => choice.Id.StartsWith("TEMP_PAYMENT_RESOURCE:", StringComparison.Ordinal));
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             requirement["paymentResourcePowerByChoice"]);
         Assert.Equal(RuneTrait.Purple, paymentResourcePowerByChoice[$"RECYCLE_RUNE:{PurpleRuneObjectId}"]["trait"]);
         var availablePowerByTraitWithResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             requirement["availablePowerByTraitWithPaymentResources"]);
         Assert.Equal(1, availablePowerByTraitWithResources[RuneTrait.Purple]);
-    }
-
-    [Fact]
-    public void MaduliOpenMainPromptTreatsRainbowTemporaryResourceAsPurplePayment()
-    {
-        var state = BuildMaduliState(RunePool.Empty) with
-        {
-            TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-MADULI-GENERIC-ONLY")]
-        };
-
-        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-
-        var activateCandidates = (prompt.Candidates ?? [])
-            .Where(candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal))
-            .ToArray();
-        var activateCandidate = Assert.Single(activateCandidates);
-        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
-        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]).ToArray();
-
-        Assert.Contains(
-            requirements,
-            entry => string.Equals(
-                entry["abilityId"] as string,
-                P4ActivatedAbilityCatalog.GatekeeperMaduliMoveAbilityId,
-                StringComparison.Ordinal));
-        Assert.Contains(
-            requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
-            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -441,7 +409,7 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
             "dirty-target" => MaduliCommand(targetObjectIds: ["P2-BF-DIRTY"]),
             "stale-target" => MaduliCommand(targetObjectIds: ["P2-BF-STALE"]),
             "wrong-trait-recycle" => MaduliCommand(optionalCosts: [$"RECYCLE_RUNE:{GreenRuneObjectId}"]),
-            "generic-temporary-resource" => MaduliCommand(optionalCosts: [PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-MADULI")]),
+            "generic-temporary-resource" => MaduliCommand(optionalCosts: [RetiredPaymentLedgerTests.ForgedActionId("MALZAHAR:TEMP-MADULI")]),
             "duplicate-recycle" => MaduliCommand(optionalCosts: [$"RECYCLE_RUNE:{PurpleRuneObjectId}", $"RECYCLE_RUNE:{PurpleRuneObjectId}"]),
             "invalid-recycle" => MaduliCommand(optionalCosts: ["RECYCLE_RUNE:P1-RUNE-MISSING"]),
             "unnecessary-recycle" => MaduliCommand(optionalCosts: [$"RECYCLE_RUNE:{PurpleRuneObjectId}"]),
@@ -536,10 +504,7 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
                 {
                     [GreenRuneObjectId] = RuneCard(GreenRuneObjectId, RuneTrait.Green)
                 }),
-            "generic-temporary-resource" => BuildMaduliState(RunePool.Empty) with
-            {
-                TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-MADULI")]
-            },
+            "generic-temporary-resource" => BuildMaduliState(RunePool.Empty),
             "duplicate-recycle" => BuildMaduliState(
                 RunePool.Empty,
                 baseObjectIds: [PurpleRuneObjectId],
@@ -776,20 +741,6 @@ public sealed class GatekeeperMaduliActivatedAbilityTests
             cardNo: $"RUNE-{trait}",
             ownerId: "P1",
             controllerId: "P1");
-    }
-
-    private static TemporaryPaymentResourceState GenericTemporaryResource(string resourceId)
-    {
-        return new TemporaryPaymentResourceState(
-            resourceId,
-            "P1",
-            "P1-MALZAHAR",
-            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
-            "ACTIVATE_ABILITY",
-            2,
-            2,
-            [PaymentCostRules.RuneCostPaymentKind],
-            1);
     }
 
     private static IReadOnlyDictionary<string, CardObjectState> ReplaceCardObject(

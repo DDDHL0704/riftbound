@@ -1,0 +1,23 @@
+{
+  "reason": "Typed ledger no longer exists; old nested diagnostics are superseded by raw JSON unmapped-field rejection. All unrelated assertions in these mixed tests remain.",
+  "assertions": [
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\n                \"authoritative state temporary payment resource temp-1 source object missing-temp-source is missing from object registry; expected [] but got missing-temp-source\",\n                StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\n                \"authoritative state temporary payment resource temp-1 owner player eve is missing from seats; expected [alice, bob] but got eve\",\n                StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 source object missing-temp-source is missing from object registry; expected [known-1] but got missing-temp-source\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 generated power trait must not be redacted\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 remaining power trait must not be redacted\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 generated power -1 cannot be negative\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 source object source-1 has surrounding whitespace\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 ability id value is required\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 payment window is blank\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 remaining power -2 cannot be negative\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 created tick 3 is after authoritative state tick 2\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 generated power trait red value 0 must be positive\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 generated power trait red is duplicated\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 remaining power trait green value -1 must be positive\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 remaining power trait green is duplicated\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 allowed payment kind power is duplicated\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            errors,\n            error => error.Contains(\"authoritative state temporary payment resource temp-1 allowed payment kind is required\", StringComparison.Ordinal));",
+    "Assert.Contains(\n            \"action-log replay initial state temporary payment resources must be empty\",\n            error.Message,\n            StringComparison.Ordinal);"
+  ]
+}

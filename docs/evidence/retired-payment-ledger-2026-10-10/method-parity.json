@@ -1,0 +1,8 @@
+{
+  "baselineMethods": 6389,
+  "retiredMethods": 233,
+  "renamedRetainedMethods": 10,
+  "newMethods": 5,
+  "currentMethods": 6161,
+  "exactMethodSetAfterDocumentedChanges": true
+}

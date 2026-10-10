@@ -136,25 +136,6 @@ public sealed class OfficialPrintedPowerCostTests
         Assert.Equal(RunePool.Empty, accepted.State.RunePools["P1"]);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task SelectedTemporaryResourceCanPayPrintedCost(bool rainbow)
-    {
-        var state = Position("SFD·190/221", new(4, 0)) with
-        {
-            TemporaryPaymentResources = [new("TEMP", "P1", "SOURCE", "TEST_RESOURCE", "PLAY_CARD",
-                generatedPower: rainbow ? 2 : 0, remainingPower: rainbow ? 2 : 0,
-                remainingPowerByTrait: rainbow ? null : new Dictionary<string, int> { ["green"] = 2 },
-                allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind])]
-        };
-        var result = await Play(state, [PaymentCostRules.TemporaryPaymentResourceActionId("TEMP")]);
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
-        Assert.All(result.State.TemporaryPaymentResources, resource =>
-            Assert.Equal(0, resource.RemainingPower + resource.RemainingPowerByTrait.Values.Sum()));
-    }
-
     private static ValueTask<ResolutionResult> Play(MatchState state, string[]? costs = null)
         => new CoreRuleEngine().ResolveAsync(state, new("play", "P1", CommandTypes.PlayCard),
             new PlayCardCommand("CARD", state.CardObjects["CARD"].CardNo!, [], OptionalCosts: costs), default);

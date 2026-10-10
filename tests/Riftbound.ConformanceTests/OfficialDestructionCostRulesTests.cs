@@ -19,7 +19,7 @@ public sealed class OfficialDestructionCostRulesTests
             [target == "SELF" ? "MALZ" : target]));
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(2, result.State.RunePools["P1"].Power);
-        Assert.Empty(result.State.TemporaryPaymentResources);
+        RetiredPaymentLedgerTests.AssertNoLedger(result.State);
         var id = target == "SELF" ? "MALZ" : target;
         Assert.DoesNotContain(id, result.State.PlayerZones["P1"].Base);
         if (target == "GOLD")

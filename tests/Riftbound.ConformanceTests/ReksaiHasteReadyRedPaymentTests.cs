@@ -83,7 +83,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         Assert.Equal([$"RECYCLE_RUNE:{RedRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
         Assert.DoesNotContain(
             paymentResourceChoices,
-            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+            choice => choice.Id.StartsWith("TEMP_PAYMENT_RESOURCE:", StringComparison.Ordinal));
 
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             sourceRequirement["paymentResourcePowerByChoice"]);
@@ -95,58 +95,6 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             sourceRequirement["availablePowerByTraitWithPaymentResources"]);
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
-    }
-
-    [Fact]
-    public void PromptExposesRainbowTemporaryResourceForTypedRedHasteReadyPayment()
-    {
-        const string genericTempResourceId = "MALZAHAR:TEMP-REKSAI-PROMPT";
-        var genericTempAction = PaymentCostRules.TemporaryPaymentResourceActionId(genericTempResourceId);
-        var redRecycleAction = $"RECYCLE_RUNE:{RedRuneObjectId}";
-        var state = BuildReksaiState(
-            ReksaiCardNo,
-            new RunePool(4, 0),
-            baseObjectIds: [RedRuneObjectId, GreenRuneObjectId],
-            extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                [RedRuneObjectId] = RuneCard(RedRuneObjectId, RuneTrait.Red),
-                [GreenRuneObjectId] = RuneCard(GreenRuneObjectId, RuneTrait.Green)
-            }) with
-            {
-                TemporaryPaymentResources =
-                [
-                    new TemporaryPaymentResourceState(
-                        genericTempResourceId,
-                        "P1",
-                        "P1-MALZAHAR",
-                        "TEST_GENERIC_TEMP",
-                        "PLAY_CARD",
-                        generatedPower: 1,
-                        remainingPower: 1,
-                        allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind])
-                ]
-            };
-
-        var sourceRequirement = PlayCardSourceRequirement(state, ReksaiCardNo);
-
-        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
-                sourceRequirement["paymentResourceChoices"])
-            .ToArray();
-        Assert.Equal([redRecycleAction, genericTempAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
-        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, genericTempAction, StringComparison.Ordinal));
-
-        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
-            sourceRequirement["paymentResourcePowerByChoice"]);
-        Assert.Contains(genericTempAction, paymentResourcePowerByChoice.Keys);
-        var redChoicePower = Assert.Single(paymentResourcePowerByChoice, x => x.Key == redRecycleAction);
-        Assert.Equal(redRecycleAction, redChoicePower.Key);
-        Assert.Equal(RuneTrait.Red, redChoicePower.Value["trait"]);
-
-        var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
-            sourceRequirement["availablePowerByTraitWithPaymentResources"]);
-        var availableTrait = Assert.Single(availablePowerByTraitWithPaymentResources);
-        Assert.Equal(RuneTrait.Red, availableTrait.Key);
-        Assert.Equal(1, availableTrait.Value);
     }
 
     [Fact]
@@ -485,7 +433,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
     [InlineData("unnecessary-recycle")]
     [InlineData("unsupported-optional-cost")]
     [InlineData("submitted-target")]
-    public async Task HasteReadyPaymentAcceptsRainbowAndRejectsInvalidCommandsWithoutMutation(string scenario)
+    public async Task HasteReadyPaymentRejectsInvalidCommandsWithoutMutation(string scenario)
     {
         var state = InvalidScenarioState(scenario);
         var command = scenario switch
@@ -495,7 +443,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
                 optionalCosts:
                 [
                     HasteOptionalCostNames.HasteReady,
-                    PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-REKSAI")
+                    RetiredPaymentLedgerTests.ForgedActionId("MALZAHAR:TEMP-REKSAI")
                 ]),
             "wrong-trait-recycle" => ReksaiCommand(
                 ReksaiCardNo,
@@ -519,14 +467,6 @@ public sealed class ReksaiHasteReadyRedPaymentTests
             _ => ReksaiCommand(ReksaiCardNo)
         };
 
-        if (scenario == "generic-temporary-resource")
-        {
-            var accepted = await new CoreRuleEngine().ResolveAsync(state,
-                new("reksai-rainbow", "P1", CommandTypes.PlayCard), command, default);
-            Assert.True(accepted.Accepted, accepted.ErrorMessage);
-            Assert.Equal(RunePool.Empty, accepted.State.RunePools["P1"]);
-            return;
-        }
         await AssertRejectedNoMutationAsync(state, command);
     }
 
@@ -691,21 +631,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
                 {
                     [RuneTrait.Green] = 1
                 })),
-            "generic-temporary-resource" => BuildReksaiState(ReksaiCardNo, new RunePool(4, 0)) with
-            {
-                TemporaryPaymentResources =
-                [
-                    new TemporaryPaymentResourceState(
-                        "MALZAHAR:TEMP-REKSAI",
-                        "P1",
-                        "P1-MALZAHAR",
-                        "TEST_GENERIC_TEMP",
-                        "PLAY_CARD",
-                        generatedPower: 1,
-                        remainingPower: 1,
-                        allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind])
-                ]
-            },
+            "generic-temporary-resource" => BuildReksaiState(ReksaiCardNo, new RunePool(4, 0)),
             "wrong-trait-recycle" => BuildReksaiState(
                 ReksaiCardNo,
                 new RunePool(4, 0),

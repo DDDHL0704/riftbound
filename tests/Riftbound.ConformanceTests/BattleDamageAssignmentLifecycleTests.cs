@@ -3383,315 +3383,10 @@ public sealed class BattleDamageAssignmentLifecycleTests
     }
 
     [Fact]
-    public async Task NaturalBattleResponsePreservesHeldScoreTemporaryPaymentResourceContextAfterPassWithoutFalseDefensiveHold()
+    public async Task NaturalBattleResponseActivationAdvancesNextContestedBattlefieldTaskWithoutFalseDefensiveHold()
     {
-        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(HeldScoreTemporaryResourceId);
-        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", temporaryAction };
-        var state = BuildHeldScoreTemporaryPaymentResourceNaturalStartBattleState();
-        var engine = new CoreRuleEngine();
-
-        var openedResponse = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-natural-temp-payment-context-declare-battle", "P1", CommandTypes.DeclareBattle),
-            new DeclareBattleCommand(
-                BattlefieldObjectId,
-                [AttackerObjectId],
-                [BulwarkDefenderObjectId, ShadowObjectId],
-                OptionalCosts: optionalCosts),
-            CancellationToken.None);
-
-        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.True(openedResponse.State.BattleState.IsActive);
-        var openedDeclaration = Assert.Single(
-            openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
-        var openedPriority = Assert.Single(
-            openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
-        Assert.Contains(
-            openedResponse.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
-
-        var responseSession = new MatchSession(openedResponse.State, new CoreRuleEngine(), NoopMatchJournal.Instance);
-        var p1Snapshot = responseSession.SnapshotFor("P1");
-        var p2Snapshot = responseSession.SnapshotFor("P2");
-        var spectatorSnapshot = ResolutionResult.BuildSpectatorSnapshot(openedResponse.State);
-        var p2Prompt = responseSession.PromptFor("P2");
-        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p1Snapshot));
-        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Snapshot));
-        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(spectatorSnapshot));
-        Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Prompt));
-        Assert.Equal(PromptTypes.StackPriority, p2Prompt.View?.Type);
-        Assert.Equal($"battle:{BattlefieldObjectId}", p2Prompt.View?.RelatedBattleId);
-        Assert.Equal(BattlefieldObjectId, p2Prompt.View?.RelatedBattlefieldId);
-
-        var p2Pass = await engine.ResolveAsync(
-            openedResponse.State,
-            new PlayerIntent("intent-natural-temp-payment-context-response-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-temp-payment-context-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-        var closedPriority = Assert.Single(
-            p1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
-        var resumedDeclaration = p1Pass.Events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
-            .Last();
-        Assert.Equal(optionalCosts, StringList(resumedDeclaration.Payload["optionalCosts"]));
-
-        Assert.DoesNotContain(p1Pass.Events, e => e.Kind == "BATTLEFIELD_HELD");
-        Assert.DoesNotContain(p1Pass.Events, e => e.Kind == "SCORE_GAINED");
-        Assert.Null(p1Pass.State.PendingPayment);
-        Assert.Contains(p1Pass.Events, e => e.Kind == "BATTLE_CLOSED");
-    }
-
-    [Fact]
-    public async Task NaturalBattleResponseHeldScoreConsumesTwoTemporaryResourcesWhenScoreCostNeedsBothWithoutFalseDefensiveHold()
-    {
-        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(HeldScoreTemporaryResourceId);
-        var secondTemporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(SecondHeldScoreTemporaryResourceId);
-        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", temporaryAction, secondTemporaryAction };
-        var baseState = BuildHeldScoreTemporaryPaymentResourceNaturalStartBattleState();
-        var secondTemporaryResource = new TemporaryPaymentResourceState(
-            SecondHeldScoreTemporaryResourceId,
-            ownerPlayerId: "P2",
-            sourceObjectId: "P2-TEMP-RESOURCE-SOURCE-SECOND",
-            abilityId: P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
-            paymentWindow: "ACTIVATE_ABILITY",
-            generatedPower: 1,
-            remainingPower: 1,
-            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
-            createdTick: 20);
-        var state = baseState with
-        {
-            RunePools = new Dictionary<string, RunePool>(baseState.RunePools, StringComparer.Ordinal)
-            {
-                ["P2"] = new(1, 2)
-            },
-            TemporaryPaymentResources = baseState.TemporaryPaymentResources
-                .Concat([secondTemporaryResource])
-                .ToArray()
-        };
-        var engine = new CoreRuleEngine();
-
-        var openedResponse = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-natural-two-temp-payment-context-declare-battle", "P1", CommandTypes.DeclareBattle),
-            new DeclareBattleCommand(
-                BattlefieldObjectId,
-                [AttackerObjectId],
-                [BulwarkDefenderObjectId, ShadowObjectId],
-                OptionalCosts: optionalCosts),
-            CancellationToken.None);
-
-        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.True(openedResponse.State.BattleState.IsActive);
-        var openedDeclaration = Assert.Single(
-            openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
-        var openedPriority = Assert.Single(
-            openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
-        Assert.Contains(
-            openedResponse.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
-        AssertBattleResponseContextNotLeaked(openedResponse.State, "P2");
-
-        var p2Pass = await engine.ResolveAsync(
-            openedResponse.State,
-            new PlayerIntent("intent-natural-two-temp-payment-context-response-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Contains(
-            p2Pass.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
-        Assert.Equal(2, p2Pass.State.TemporaryPaymentResources.Count);
-
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-two-temp-payment-context-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-        var closedPriority = Assert.Single(
-            p1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
-        var resumedDeclaration = p1Pass.Events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
-            .Last();
-        Assert.Equal(optionalCosts, StringList(resumedDeclaration.Payload["optionalCosts"]));
-
-        Assert.DoesNotContain(p1Pass.Events, e => e.Kind == "BATTLEFIELD_HELD");
-        Assert.DoesNotContain(p1Pass.Events, e => e.Kind == "SCORE_GAINED");
-        Assert.Null(p1Pass.State.PendingPayment);
-        Assert.Contains(p1Pass.Events, e => e.Kind == "BATTLE_CLOSED");
-    }
-
-    [Fact]
-    public async Task NaturalBattleResponseActivationPreservesHeldScoreTemporaryPaymentResourceContextAfterStackResolutionWithoutFalseDefensiveHold()
-    {
-        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(HeldScoreTemporaryResourceId);
-        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", temporaryAction };
-        var baseState = BuildHeldScoreTemporaryPaymentResourceNaturalStartBattleState();
-        var state = baseState with
-        {
-            RunePools = new Dictionary<string, RunePool>(baseState.RunePools, StringComparer.Ordinal)
-            {
-                ["P2"] = new(1, 4)
-            }
-        };
-        var engine = new CoreRuleEngine();
-
-        var openedResponse = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-natural-temp-payment-activation-context-declare-battle", "P1", CommandTypes.DeclareBattle),
-            new DeclareBattleCommand(
-                BattlefieldObjectId,
-                [AttackerObjectId],
-                [BulwarkDefenderObjectId],
-                OptionalCosts: optionalCosts),
-            CancellationToken.None);
-
-        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.True(openedResponse.State.BattleState.IsActive);
-        var openedDeclaration = Assert.Single(
-            openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
-        var openedPriority = Assert.Single(
-            openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
-        Assert.Contains(
-            openedResponse.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
-        AssertBattleResponseContextNotLeaked(openedResponse.State, "P2");
-
-        var responseCandidate = Assert.Single(
-            openedResponse.Prompts["P2"].Candidates ?? [],
-            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
-        Assert.Contains(responseCandidate.Sources ?? [], source => string.Equals(source.Id, ShadowObjectId, StringComparison.Ordinal));
-
-        var activated = await engine.ResolveAsync(
-            openedResponse.State,
-            new PlayerIntent("intent-natural-temp-payment-activation-context-shadow", "P2", CommandTypes.ActivateAbility),
-            new ActivateAbilityCommand(
-                ShadowObjectId,
-                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
-                [AttackerObjectId]),
-            CancellationToken.None);
-
-        Assert.True(activated.Accepted, activated.ErrorMessage);
-        Assert.Equal(
-            ["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"],
-            activated.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.True(activated.State.CardObjects[ShadowObjectId].IsExhausted);
-        Assert.Single(activated.State.StackItems);
-        Assert.Equal(new RunePool(0, 3), activated.State.RunePools["P2"]);
-        Assert.Contains(
-            activated.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
-        AssertBattleResponseContextNotLeaked(activated.State, "P2");
-
-        var stackP2Pass = await engine.ResolveAsync(
-            activated.State,
-            new PlayerIntent("intent-natural-temp-payment-activation-context-stack-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
-
-        var stackP1Pass = await engine.ResolveAsync(
-            stackP2Pass.State,
-            new PlayerIntent("intent-natural-temp-payment-activation-context-stack-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
-        Assert.Empty(stackP1Pass.State.StackItems);
-        Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
-        Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
-        Assert.Contains(stackP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
-        Assert.Contains(
-            stackP1Pass.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
-        AssertBattleResponseContextNotLeaked(stackP1Pass.State, "P2");
-
-        var responseP2Pass = await engine.ResolveAsync(
-            stackP1Pass.State,
-            new PlayerIntent("intent-natural-temp-payment-activation-context-response-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
-
-        var responseP1Pass = await engine.ResolveAsync(
-            responseP2Pass.State,
-            new PlayerIntent("intent-natural-temp-payment-activation-context-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
-        var closedPriority = Assert.Single(
-            responseP1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
-        var resumedDeclaration = responseP1Pass.Events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
-            .Last();
-        Assert.Equal(optionalCosts, StringList(resumedDeclaration.Payload["optionalCosts"]));
-
-        Assert.DoesNotContain(responseP1Pass.Events, e => e.Kind == "BATTLEFIELD_HELD");
-        Assert.DoesNotContain(responseP1Pass.Events, e => e.Kind == "SCORE_GAINED");
-        Assert.Null(responseP1Pass.State.PendingPayment);
-        Assert.Contains(responseP1Pass.Events, e => e.Kind == "BATTLE_CLOSED");
-    }
-
-    [Fact]
-    public async Task NaturalBattleResponseActivationHeldScoreTemporaryPaymentAdvancesNextContestedBattlefieldTaskWithoutFalseDefensiveHold()
-    {
-        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(HeldScoreTemporaryResourceId);
-        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", temporaryAction };
-        var baseState = BuildHeldScoreTemporaryPaymentResourceNextContestNaturalStartBattleState();
+        var optionalCosts = new[] { "COMBAT_ASSIGNMENT" };
+        var baseState = BuildHeldScoreNextContestNaturalStartBattleState();
         var state = baseState with
         {
             RunePools = new Dictionary<string, RunePool>(baseState.RunePools, StringComparer.Ordinal)
@@ -3795,6 +3490,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
             .Last();
         Assert.Equal(optionalCosts, StringList(resumedDeclaration.Payload["optionalCosts"]));
 
+        Assert.Contains(responseP1Pass.Events, e => e.Kind == "BATTLE_DAMAGE_ASSIGNMENT_OPENED");
+        responseP1Pass = await AssignCombatDamageInTwoStepsAsync(engine, responseP1Pass.State, []);
+
         Assert.DoesNotContain(responseP1Pass.Events, e => e.Kind == "BATTLEFIELD_HELD");
         Assert.DoesNotContain(responseP1Pass.Events, e => e.Kind == "SCORE_GAINED");
         Assert.Null(responseP1Pass.State.PendingPayment);
@@ -3803,84 +3501,6 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var next = EventIndex(responseP1Pass.Events, e => e.Kind == "BATTLEFIELD_CONTESTED"
             && Equals(e.Payload.GetValueOrDefault("battlefieldObjectId"), NextBattlefieldObjectId));
         Assert.True(closed < next);
-    }
-
-    [Fact]
-    public async Task NaturalBattleResponseDropsUnnecessaryHeldScoreTemporaryResourceContextWhenNoResponseConsumesResourcesWithoutFalseDefensiveHold()
-    {
-        var temporaryAction = PaymentCostRules.TemporaryPaymentResourceActionId(HeldScoreTemporaryResourceId);
-        var optionalCosts = new[] { "COMBAT_ASSIGNMENT", temporaryAction };
-        var baseState = BuildHeldScoreTemporaryPaymentResourceNaturalStartBattleState();
-        var state = baseState with
-        {
-            RunePools = new Dictionary<string, RunePool>(baseState.RunePools, StringComparer.Ordinal)
-            {
-                ["P2"] = new(1, 4)
-            }
-        };
-        var engine = new CoreRuleEngine();
-
-        var openedResponse = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-natural-temp-payment-unnecessary-declare-battle", "P1", CommandTypes.DeclareBattle),
-            new DeclareBattleCommand(
-                BattlefieldObjectId,
-                [AttackerObjectId],
-                [BulwarkDefenderObjectId],
-                OptionalCosts: optionalCosts),
-            CancellationToken.None);
-
-        Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        var openedDeclaration = Assert.Single(
-            openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
-        var openedPriority = Assert.Single(
-            openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
-        Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
-        Assert.Contains(
-            openedResponse.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
-        AssertBattleResponseContextNotLeaked(openedResponse.State, "P2");
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
-        Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
-
-        var p2Pass = await engine.ResolveAsync(
-            openedResponse.State,
-            new PlayerIntent("intent-natural-temp-payment-unnecessary-response-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Contains(
-            p2Pass.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
-
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-temp-payment-unnecessary-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-        p1Pass = await CombatTestDriver.FinishAsync(p1Pass, engine);
-        var closedPriority = Assert.Single(
-            p1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
-        Assert.Equal(["COMBAT_ASSIGNMENT"], StringList(closedPriority.Payload["optionalCosts"]));
-        var resumedDeclaration = p1Pass.Events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
-            .Last();
-        Assert.Equal(["COMBAT_ASSIGNMENT"], StringList(resumedDeclaration.Payload["optionalCosts"]));
-        Assert.DoesNotContain(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.DoesNotContain(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
-
-        Assert.DoesNotContain(p1Pass.Events, e => e.Kind == "BATTLEFIELD_HELD");
-        Assert.DoesNotContain(p1Pass.Events, e => e.Kind == "SCORE_GAINED");
-        Assert.Null(p1Pass.State.PendingPayment);
-        Assert.Contains(p1Pass.Events, e => e.Kind == "BATTLE_CLOSED");
     }
 
     [Fact]
@@ -6056,7 +5676,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         };
     }
 
-    private static MatchState BuildHeldScoreTemporaryPaymentResourceNaturalStartBattleState()
+    private static MatchState BuildHeldScoreNaturalStartBattleState()
     {
         var state = BuildNaturalStartBattleState(
             includeShadowResponse: true,
@@ -6094,16 +5714,6 @@ public sealed class BattleDamageAssignmentLifecycleTests
             [BulwarkDefenderObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
             [ShadowObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId)
         };
-        var temporaryResource = new TemporaryPaymentResourceState(
-            HeldScoreTemporaryResourceId,
-            ownerPlayerId: "P2",
-            sourceObjectId: "P2-TEMP-RESOURCE-SOURCE",
-            abilityId: P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
-            paymentWindow: "ACTIVATE_ABILITY",
-            generatedPower: 1,
-            remainingPower: 1,
-            allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
-            createdTick: 19);
         return state with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
@@ -6113,14 +5723,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
             },
             PlayerZones = playerZones,
             CardObjects = cardObjects,
-            ObjectLocations = objectLocations,
-            TemporaryPaymentResources = [temporaryResource]
+            ObjectLocations = objectLocations
         };
     }
 
-    private static MatchState BuildHeldScoreTemporaryPaymentResourceNextContestNaturalStartBattleState()
+    private static MatchState BuildHeldScoreNextContestNaturalStartBattleState()
     {
-        var state = BuildHeldScoreTemporaryPaymentResourceNaturalStartBattleState();
+        var state = BuildHeldScoreNaturalStartBattleState();
         var playerZones = new Dictionary<string, PlayerZones>(state.PlayerZones, StringComparer.Ordinal)
         {
             ["P1"] = state.PlayerZones["P1"] with
@@ -6521,9 +6130,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(BattlefieldObjectId, costPaid.Payload["sourceObjectId"]);
         Assert.Equal([recycleAction], Assert.IsType<string[]>(costPaid.Payload["paymentResourceActions"]));
         Assert.Equal([HeldScoreRecycleRuneObjectId], Assert.IsType<string[]>(costPaid.Payload["recycledRuneObjectIds"]));
-        Assert.Empty(Assert.IsType<string[]>(costPaid.Payload["temporaryPaymentResourceIds"]));
-        Assert.Equal(0, costPaid.Payload["temporaryPaymentResourcePower"]);
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaid.Payload["temporaryPaymentResourcePowerByTrait"]));
+        Assert.False(costPaid.Payload.ContainsKey("temporaryPaymentResourceIds"));
+        Assert.False(costPaid.Payload.ContainsKey("temporaryPaymentResourcePower"));
+        Assert.False(costPaid.Payload.ContainsKey("temporaryPaymentResourcePowerByTrait"));
         Assert.Equal(4, costPaid.Payload["genericPower"]);
         Assert.Equal(4, costPaid.Payload["totalPowerCost"]);
         Assert.Equal(0, costPaid.Payload["remainingPower"]);
@@ -6576,9 +6185,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(BattlefieldObjectId, costPaid.Payload["sourceObjectId"]);
         Assert.Empty(Assert.IsType<string[]>(costPaid.Payload["paymentResourceActions"]));
         Assert.Empty(Assert.IsType<string[]>(costPaid.Payload["recycledRuneObjectIds"]));
-        Assert.Empty(Assert.IsType<string[]>(costPaid.Payload["temporaryPaymentResourceIds"]));
-        Assert.Equal(0, costPaid.Payload["temporaryPaymentResourcePower"]);
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costPaid.Payload["temporaryPaymentResourcePowerByTrait"]));
+        Assert.False(costPaid.Payload.ContainsKey("temporaryPaymentResourceIds"));
+        Assert.False(costPaid.Payload.ContainsKey("temporaryPaymentResourcePower"));
+        Assert.False(costPaid.Payload.ContainsKey("temporaryPaymentResourcePowerByTrait"));
         Assert.Equal(4, costPaid.Payload["genericPower"]);
         Assert.Equal(4, costPaid.Payload["totalPowerCost"]);
         Assert.Equal(0, costPaid.Payload["remainingPower"]);

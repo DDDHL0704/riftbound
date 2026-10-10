@@ -71,38 +71,6 @@ public sealed class ShadowActivatedAbilityTests
     }
 
     [Fact]
-    public void ShadowBattleResponsePromptQuotesTemporaryGenericPowerWhenShortOnePower()
-    {
-        var resourceAction = PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-SHADOW-PROMPT");
-        var state = BuildShadowState(
-            mana: 1,
-            power: 0,
-            temporaryPaymentResources: [TemporaryResource("MALZAHAR:TEMP-SHADOW-PROMPT")]);
-
-        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-
-        var activateCandidate = Assert.Single(
-            prompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
-        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
-        var requirement = Assert.Single(
-            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]),
-            entry => string.Equals(
-                entry["abilityId"] as string,
-                P4ActivatedAbilityCatalog.ShadowStunAbilityId,
-                StringComparison.Ordinal));
-
-        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
-            requirement["paymentResourceChoices"]);
-        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, resourceAction, StringComparison.Ordinal));
-        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
-            requirement["paymentResourcePowerByChoice"]);
-        Assert.Equal(2, paymentResourcePowerByChoice[resourceAction]["power"]);
-        Assert.Equal(true, paymentResourcePowerByChoice[resourceAction]["paymentOnly"]);
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(paymentResourcePowerByChoice[resourceAction]["powerByTrait"]));
-    }
-
-    [Fact]
     public async Task NaturalStartBattleOpensBattleResponsePriorityAndExposesShadowPrompt()
     {
         var opened = await OpenNaturalShadowBattleResponseAsync(mana: 1, power: 1);
@@ -765,7 +733,7 @@ public sealed class ShadowActivatedAbilityTests
             "unnecessary-recycle" => ShadowCommand(optionalCosts: [$"RECYCLE_RUNE:{BlueRuneObjectId}"]),
             "duplicate-recycle" => ShadowCommand(optionalCosts: [$"RECYCLE_RUNE:{BlueRuneObjectId}", $"RECYCLE_RUNE:{BlueRuneObjectId}"]),
             "invalid-recycle" => ShadowCommand(optionalCosts: ["RECYCLE_RUNE:P1-RUNE-MISSING"]),
-            "temporary-resource" => ShadowCommand(optionalCosts: [PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-SHADOW")]),
+            "temporary-resource" => ShadowCommand(optionalCosts: [RetiredPaymentLedgerTests.ForgedActionId("MALZAHAR:TEMP-SHADOW")]),
             _ => ShadowCommand()
         };
 
@@ -930,7 +898,7 @@ public sealed class ShadowActivatedAbilityTests
             "insufficient-tax-mana" => BuildShadowState(mana: 1, power: 1, p1BaseObjectIds: [BlueRuneObjectId], extraCardObjects: extraCardObjects),
             "unnecessary-recycle" => BuildShadowState(mana: 1, power: 1, p1BaseObjectIds: [BlueRuneObjectId], extraCardObjects: extraCardObjects),
             "duplicate-recycle" => BuildShadowState(mana: 1, power: 0, p1BaseObjectIds: [BlueRuneObjectId], extraCardObjects: extraCardObjects),
-            "temporary-resource" => BuildShadowState(mana: 1, power: 1, temporaryPaymentResources: [TemporaryResource("MALZAHAR:TEMP-SHADOW")], extraCardObjects: extraCardObjects),
+            "temporary-resource" => BuildShadowState(mana: 1, power: 1, extraCardObjects: extraCardObjects),
             _ => BuildShadowState(mana: 1, power: 1, p1BaseObjectIds: [BlueRuneObjectId], extraCardObjects: extraCardObjects)
         };
 
@@ -1040,8 +1008,7 @@ public sealed class ShadowActivatedAbilityTests
         int power,
         IReadOnlyList<string>? p1BaseObjectIds = null,
         IReadOnlyList<string>? runeDeckObjectIds = null,
-        IReadOnlyDictionary<string, CardObjectState>? extraCardObjects = null,
-        IReadOnlyList<TemporaryPaymentResourceState>? temporaryPaymentResources = null)
+        IReadOnlyDictionary<string, CardObjectState>? extraCardObjects = null)
     {
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
@@ -1125,8 +1092,7 @@ public sealed class ShadowActivatedAbilityTests
                 [EnemyNonAttackerObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
                 [EnemyWrongBattlefieldAttackerObjectId] = new("P2", "BATTLEFIELD", OtherBattlefieldObjectId),
                 [EnemyBaseUnitObjectId] = new("P2", "BASE")
-            },
-            temporaryPaymentResources: temporaryPaymentResources);
+            });
     }
 
     private static CardObjectState Battlefield(string objectId, string playerId)
@@ -1170,20 +1136,6 @@ public sealed class ShadowActivatedAbilityTests
             cardNo: $"RUNE-{trait}",
             ownerId: "P1",
             controllerId: "P1");
-    }
-
-    private static TemporaryPaymentResourceState TemporaryResource(string resourceId)
-    {
-        return new TemporaryPaymentResourceState(
-            resourceId,
-            "P1",
-            "P1-MALZAHAR",
-            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
-            "ACTIVATE_ABILITY",
-            2,
-            2,
-            [PaymentCostRules.RuneCostPaymentKind],
-            1);
     }
 
     private static IReadOnlyDictionary<string, CardObjectState> ReplaceCardObject(

@@ -177,11 +177,7 @@ public sealed partial class CoreRuleEngine
                 if (!rune.IsExhausted) mana++;
                 if (TryGetRuneTrait(rune, out var trait)) traits[trait] = traits.GetValueOrDefault(trait) + 1;
             }
-        // Temporary resources can have restrictions. Counting all is deliberately
-        // generous: this proof must never declare a payable play impossible.
-        var temporary = state.TemporaryPaymentResources.Where(x => x.OwnerPlayerId == p.PlayerId).ToArray();
-        var available = pool with { Mana = mana, Power = pool.Power + temporary.Sum(x => x.RemainingPower),
-            PowerByTrait = temporary.Aggregate((IReadOnlyDictionary<string, int>)traits, (a, x) => PrintedPowerCostRules.Combine(a, x.RemainingPowerByTrait)) };
+        var available = pool with { Mana = mana, PowerByTrait = traits };
         return EffectPlaySources(state, p.PlayerId).All(id => {
             var card = state.CardObjects[id];
             return !CardBehaviorRegistry.GetAll().Where(b => b.CardNo == card.CardNo && EffectPlayAllowsBehavior(state, p.PlayerId, b)).Any(b => {

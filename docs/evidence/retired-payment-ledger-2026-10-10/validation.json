@@ -1,0 +1,215 @@
+{
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 676.95,
+    "total": 9196,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 396.61
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 422.31
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 424.35
+      },
+      {
+        "shard": "rules",
+        "total": 9061,
+        "passed": 9061,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 132.13
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 671.94
+      }
+    ]
+  },
+  "targeted": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 28.47,
+    "total": 33,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 33,
+        "passed": 33,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.51
+      }
+    ]
+  },
+  "nativeReplay": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 32.69,
+    "total": 4,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 14.06
+      }
+    ]
+  },
+  "methodParity": {
+    "baselineMethods": 6389,
+    "retiredMethods": 233,
+    "renamedRetainedMethods": 10,
+    "newMethods": 5,
+    "currentMethods": 6161,
+    "exactMethodSetAfterDocumentedChanges": true
+  },
+  "caseParity": {
+    "baselineCases": 9442,
+    "retiredCases": 262,
+    "newCases": 16,
+    "currentCases": 9196,
+    "exactCaseSetAfterDocumentedChanges": true
+  },
+  "plan": {
+    "path": "var/qa/retired-payment-ledger/full/plan.json",
+    "sha256": "c836b5336c67daadd2edcdc35052b341d1f3fcbf30d9069c967ee2db756677b2",
+    "testAssemblySha256": "3bb3a0839a40ddb09912623e1447e6b5fd2a440e8dda2696e297c3fb1572f596"
+  },
+  "native": {
+    "resource-sigil-step2-accept": {
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "d1be6ce8e322f68d8db503c27fc4e46867708f41d9e77b9ef7b95b8db5edbb72",
+          "expectedStateHash": "d1be6ce8e322f68d8db503c27fc4e46867708f41d9e77b9ef7b95b8db5edbb72",
+          "errors": []
+        }
+      },
+      "commandSha256": "5b378896c4bd8b1ba6489b19681e7d6930e8d478d7c82334235265a33d998185"
+    },
+    "resource-gold-step2-accept": {
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "03f0076d266c087d28a4b93e2d44e96b90a24138d3c1caf727c6ff360ffb0ed5",
+          "expectedStateHash": "03f0076d266c087d28a4b93e2d44e96b90a24138d3c1caf727c6ff360ffb0ed5",
+          "errors": []
+        }
+      },
+      "commandSha256": "295dc9fbdc21ba961bbe0f16480c6fe7dc33409d1ee6679e7b601f54074860ab"
+    },
+    "resource-sigil-step2-decline": {
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "6c5d4b05215585f4401776bc0dbf4e2aa808540e722e4804b38ff6e806a853f6",
+          "expectedStateHash": "6c5d4b05215585f4401776bc0dbf4e2aa808540e722e4804b38ff6e806a853f6",
+          "errors": []
+        }
+      },
+      "commandSha256": "565f0d4a67fbb463ede9f3c4213face1e13dc2fa993910997084845d285a69cc"
+    },
+    "resource-gold-step1-decline": {
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "9bdb46fe6b65bbd776da51e675a059af0652c6735742223bb62ee219b1d1f384",
+          "expectedStateHash": "9bdb46fe6b65bbd776da51e675a059af0652c6735742223bb62ee219b1d1f384",
+          "errors": []
+        }
+      },
+      "commandSha256": "3b7690701d8e43b0cf63db30e7f98e1e08ed777ee10012f5e996ada7a02facab"
+    },
+    "resource-sigil-step1-accept": {
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "2e30de59d6fa93ca832a0c68978735135a69cc98ea60b22d252b2f7075a08eeb",
+          "expectedStateHash": "2e30de59d6fa93ca832a0c68978735135a69cc98ea60b22d252b2f7075a08eeb",
+          "errors": []
+        }
+      },
+      "commandSha256": "deddf35fbe9579812de2e1b06ed98a51c3fe92381b2e26e185f8e5cc782d2c08"
+    },
+    "resource-sigil-step1-decline": {
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "2e30de59d6fa93ca832a0c68978735135a69cc98ea60b22d252b2f7075a08eeb",
+          "expectedStateHash": "2e30de59d6fa93ca832a0c68978735135a69cc98ea60b22d252b2f7075a08eeb",
+          "errors": []
+        }
+      },
+      "commandSha256": "deddf35fbe9579812de2e1b06ed98a51c3fe92381b2e26e185f8e5cc782d2c08"
+    },
+    "resource-gold-step1-accept": {
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "9bdb46fe6b65bbd776da51e675a059af0652c6735742223bb62ee219b1d1f384",
+          "expectedStateHash": "9bdb46fe6b65bbd776da51e675a059af0652c6735742223bb62ee219b1d1f384",
+          "errors": []
+        }
+      },
+      "commandSha256": "3b7690701d8e43b0cf63db30e7f98e1e08ed777ee10012f5e996ada7a02facab"
+    },
+    "resource-gold-step2-decline": {
+      "replay": {
+        "usedNative": true,
+        "nativeCount": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "cd3199fd1a325cf5532a20e970270be66d941fe0ea7cbd149457d2bee302d6e4",
+          "expectedStateHash": "cd3199fd1a325cf5532a20e970270be66d941fe0ea7cbd149457d2bee302d6e4",
+          "errors": []
+        }
+      },
+      "commandSha256": "565f0d4a67fbb463ede9f3c4213face1e13dc2fa993910997084845d285a69cc"
+    }
+  },
+  "boundaries": [
+    "No deployment or existing service/game restart.",
+    "Headless production controls and MatchSession replay; no two-window visual/package/Windows acceptance."
+  ]
+}

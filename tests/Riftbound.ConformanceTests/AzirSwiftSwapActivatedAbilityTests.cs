@@ -51,10 +51,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             extraCardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 [GreenRuneObjectId] = RuneCard(GreenRuneObjectId, RuneTrait.Green)
-            }) with
-        {
-            TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-AZIR-PROMPT")]
-        };
+            });
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
 
@@ -97,44 +94,16 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
 
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["paymentResourceChoices"]).ToArray();
-        Assert.Equal([$"RECYCLE_RUNE:{GreenRuneObjectId}", PaymentCostRules.TemporaryPaymentResourceActionId(state.TemporaryPaymentResources.Single().ResourceId)], paymentResourceChoices.Select(choice => choice.Id).ToArray());
-        Assert.Contains(
+        Assert.Equal([$"RECYCLE_RUNE:{GreenRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        Assert.DoesNotContain(
             paymentResourceChoices,
-            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
+            choice => choice.Id.StartsWith("TEMP_PAYMENT_RESOURCE:", StringComparison.Ordinal));
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             requirement["paymentResourcePowerByChoice"]);
         Assert.Equal(RuneTrait.Green, paymentResourcePowerByChoice[$"RECYCLE_RUNE:{GreenRuneObjectId}"]["trait"]);
         var availablePowerByTraitWithResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             requirement["availablePowerByTraitWithPaymentResources"]);
         Assert.Equal(1, availablePowerByTraitWithResources[RuneTrait.Green]);
-    }
-
-    [Fact]
-    public void PromptTreatsRainbowTemporaryResourceAsAzirGreenPayment()
-    {
-        var state = BuildAzirState(P4ActivatedAbilityCatalog.AzirCardNo, RunePool.Empty) with
-        {
-            TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-AZIR-GENERIC-ONLY")]
-        };
-
-        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-
-        var activateCandidate = Assert.Single(
-            prompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
-        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(activateCandidate.Metadata);
-        var requirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]).ToArray();
-
-        Assert.Contains(
-            requirements,
-            entry => string.Equals(
-                entry["abilityId"] as string,
-                P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
-                StringComparison.Ordinal));
-        Assert.Contains(
-            requirements.SelectMany(entry => Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(entry["paymentResourceChoices"])),
-            choice => choice.Id.StartsWith(PaymentCostRules.TemporaryPaymentResourceActionPrefix, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -524,7 +493,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
     [InlineData("unnecessary-recycle")]
     [InlineData("unsupported-optional-cost")]
     [InlineData("insufficient-green")]
-    public async Task AzirAcceptsRainbowAndRejectsInvalidCommandsWithoutMutation(string scenario)
+    public async Task AzirRejectsInvalidCommandsWithoutMutation(string scenario)
     {
         var state = BuildInvalidScenarioState(scenario);
         var command = scenario switch
@@ -539,7 +508,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             "source-self" => AzirCommand(targetObjectIds: [AzirObjectId]),
             "dirty-controller-target" => AzirCommand(targetObjectIds: ["P1-DIRTY-P2-CONTROLLED"]),
             "wrong-trait-recycle" => AzirCommand(optionalCosts: [$"RECYCLE_RUNE:{RedRuneObjectId}"]),
-            "generic-temporary-resource" => AzirCommand(optionalCosts: [PaymentCostRules.TemporaryPaymentResourceActionId("MALZAHAR:TEMP-AZIR")]),
+            "generic-temporary-resource" => AzirCommand(optionalCosts: [RetiredPaymentLedgerTests.ForgedActionId("MALZAHAR:TEMP-AZIR")]),
             "duplicate-recycle" => AzirCommand(optionalCosts: [$"RECYCLE_RUNE:{GreenRuneObjectId}", $"RECYCLE_RUNE:{GreenRuneObjectId}"]),
             "invalid-recycle" => AzirCommand(optionalCosts: ["RECYCLE_RUNE:P1-RUNE-MISSING"]),
             "unnecessary-recycle" => AzirCommand(optionalCosts: [$"RECYCLE_RUNE:{GreenRuneObjectId}"]),
@@ -547,14 +516,6 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             _ => AzirCommand()
         };
 
-        if (scenario == "generic-temporary-resource")
-        {
-            var accepted = await new CoreRuleEngine().ResolveAsync(state,
-                new("azir-rainbow", "P1", CommandTypes.ActivateAbility), command, default);
-            Assert.True(accepted.Accepted, accepted.ErrorMessage);
-            Assert.Equal(RunePool.Empty, accepted.State.RunePools["P1"]);
-            return;
-        }
         await AssertRejectedNoMutationAsync(state, command);
     }
 
@@ -748,10 +709,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
                 {
                     [RedRuneObjectId] = RuneCard(RedRuneObjectId, RuneTrait.Red)
                 }),
-            "generic-temporary-resource" => BuildAzirState(P4ActivatedAbilityCatalog.AzirCardNo, new RunePool(0, 0)) with
-            {
-                TemporaryPaymentResources = [GenericTemporaryResource("MALZAHAR:TEMP-AZIR")]
-            },
+            "generic-temporary-resource" => BuildAzirState(P4ActivatedAbilityCatalog.AzirCardNo, new RunePool(0, 0)),
             "duplicate-recycle" => BuildAzirState(
                 P4ActivatedAbilityCatalog.AzirCardNo,
                 new RunePool(0, 0),
@@ -1000,20 +958,6 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             cardNo: $"RUNE-{trait}",
             ownerId: "P1",
             controllerId: "P1");
-    }
-
-    private static TemporaryPaymentResourceState GenericTemporaryResource(string resourceId)
-    {
-        return new TemporaryPaymentResourceState(
-            resourceId,
-            "P1",
-            "P1-MALZAHAR",
-            P4ActivatedAbilityCatalog.MalzaharResourceAbilityId,
-            "ACTIVATE_ABILITY",
-            2,
-            2,
-            [PaymentCostRules.RuneCostPaymentKind],
-            1);
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

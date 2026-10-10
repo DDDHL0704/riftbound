@@ -123,7 +123,7 @@ public sealed partial class CoreRuleEngine
                             ["generatedPower"] = delayed.Power, ["power"] = delayed.Power, ["resourceLifecycle"] = "rune-pool" }));
                     }
                     state = state with { RunePools = pools, DelayedResourceGains = state.DelayedResourceGains.Except(due).ToArray(),
-                        TemporaryPaymentResources = [], TurnStartStep = null, Phase = MatchPhases.Main,
+TurnStartStep = null, Phase = MatchPhases.Main,
                         TimingState = TimingStates.NeutralOpen, ActivePlayerId = player, PriorityPlayerId = null,
                         PassedPriorityPlayerIds = [], FocusPlayerId = null };
                     var advance = AdvancePendingBattlefieldTasksAfterStateChange(state, player, result.State);

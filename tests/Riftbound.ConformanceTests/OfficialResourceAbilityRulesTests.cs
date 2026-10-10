@@ -63,7 +63,7 @@ public sealed class OfficialResourceAbilityRulesTests
         Assert.Equal(power, result.State.RunePools["P1"].Power);
         Assert.Equal(trait.Length == 0 ? 0 : 1, result.State.RunePools["P1"].PowerByTrait.Values.Sum());
         if (trait.Length > 0) Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[trait]);
-        Assert.Empty(result.State.TemporaryPaymentResources);
+        RetiredPaymentLedgerTests.AssertNoLedger(result.State);
         Assert.Equal(state.FocusPlayerId, result.State.FocusPlayerId);
         Assert.Equal(state.PriorityPlayerId, result.State.PriorityPlayerId);
         Assert.Equal(state.PassedPriorityPlayerIds, result.State.PassedPriorityPlayerIds);
@@ -222,7 +222,7 @@ public sealed class OfficialResourceAbilityRulesTests
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(amount, result.State.RunePools["P1"].Mana);
         Assert.Equal(2 - amount, result.State.RunePools["P1"].TotalPower);
-        Assert.Empty(result.State.TemporaryPaymentResources);
+        RetiredPaymentLedgerTests.AssertNoLedger(result.State);
     }
 
     [Fact]

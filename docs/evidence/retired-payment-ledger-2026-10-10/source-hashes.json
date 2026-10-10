@@ -1,0 +1,8 @@
+{
+  "src/Riftbound.Engine/CoreRuleEngine.cs": "843b319f755a3714b1cf0050a09ee6c2210870d7ed4c0601c42d72ffa491c443",
+  "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs": "87f55dba2853d46ead4c28d3fb4c0bf3b7b40b128d11157f428bdbd221df295b",
+  "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs": "f24851953e1e750ded3a8812bd08bf16c57c45f1b6c4fa23261f1411732c981b",
+  "src/Riftbound.Engine/MatchSession.cs": "cdedbb330dacd3a2f3ae99cb760774ad8bb01512f6622497e922bfce21037454",
+  "src/Riftbound.Engine/MatchRecovery.cs": "2260ea02bb0ce3a190735cc9ace119b585df8f843561bf14eb03f6ffd4cb2c6e",
+  "src/Riftbound.Engine/PaymentCostRules.cs": "58be3dd56566ef25949b709e4bb8fb667137773ae81c38f2798aae3ce4b6a498"
+}

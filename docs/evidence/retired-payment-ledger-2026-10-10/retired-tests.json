@@ -1,0 +1,1400 @@
+[
+  {
+    "file": "tests/Riftbound.ConformanceTests/OfficialPrintedPowerCostTests.cs",
+    "method": "SelectedTemporaryResourceCanPayPrintedCost",
+    "bodySha256": "a1158f75144ab3e7c367d0f39c015cdb3e30f6af70eb4d5b677854a3ff5b0353",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/RenataActivatedAbilityTests.cs",
+    "method": "RenataOpenMainPromptQuotesTypedBlueTemporaryResourceForDrawShortfall",
+    "bodySha256": "f91f28860a191084d0e6ff6c128b968df5c521b813c6b2129c1629a33751b16c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/RenataActivatedAbilityTests.cs",
+    "method": "RenataOpenMainPromptTreatsRainbowTemporaryResourceAsBluePayment",
+    "bodySha256": "04146d29aed1a44fa56fac0db09ce996d280c67b7ae4f3926566113b520a07ad",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/RenataActivatedAbilityTests.cs",
+    "method": "RenataDrawCanSpendTypedBlueTemporaryResourceForTypedBlueShortfall",
+    "bodySha256": "e2f84ac2f8438271fa2b40e31eaa2b5e4d82504874604ce3bf35df799dee3310",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/RenataActivatedAbilityTests.cs",
+    "method": "RenataScoreCanSpendTypedBlueTemporaryResourceForTypedBlueShortfall",
+    "bodySha256": "5c9258c305bd1f54f9d3d2e78907b6b2bbc6c71e346d470d5424a3a273a5cf98",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ReksaiHasteReadyRedPaymentTests.cs",
+    "method": "PromptExposesRainbowTemporaryResourceForTypedRedHasteReadyPayment",
+    "bodySha256": "56ca027261ed8c645adc25064ee8b5d73b225b58629640e03d603038571f21b2",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "method": "P79BattlefieldHeldScorePromptQuotesTemporaryPaymentResource",
+    "bodySha256": "f2b30b75ecafdcb2240afdeca95c0ecbe3389910dcd29095e1123f8b62915f2a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "method": "P79BattlefieldHeldScorePromptQuotesRecycleAndTemporaryPaymentResourcesTogether",
+    "bodySha256": "b4fb1e06a8346bf9250ca1278e1924c38814160854312788864d037b7c929aa0",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "method": "P79BattlefieldHeldPaysPowerToGainScoreWithTemporaryPaymentResourceDoesNotTriggerOnDefensiveVictory",
+    "bodySha256": "393327e4f40094a87c3ed6b1f393cb232f6242fb0eb95304f9e02805d9a37c84",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "method": "P79BattlefieldHeldPaysGenericScoreCostWithTypedTemporaryPaymentResourceDoesNotTriggerOnDefensiveVictory",
+    "bodySha256": "0f2f51a86947f4e0b64ed06137f45a1e092aee2bb736dd6fce8c8eca7bc1770d",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "method": "P79BattlefieldHeldPaysPowerToGainScoreWithRecycleAndTemporaryPaymentResourcesDoesNotTriggerOnDefensiveVictory",
+    "bodySha256": "c2ba1f1892d50eaed21db5fa11f89afee5a1bfba20e45c16a4c83c4fe2c8edf9",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "method": "P79BattlefieldHeldRejectsInvalidTemporaryPaymentResourceWithoutMutation",
+    "bodySha256": "a571e098394cf267ac57d40b3cc4c7a4bec565521d9a6c830cdb7776550fc48d",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "method": "P79BattlefieldHeldAlreadyScoredDoesNotConsumeTemporaryPaymentResource",
+    "bodySha256": "2e4e749e9d13fcae337fab5be28110002aae43c66f70be08fbe32d95ae90ff9c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "method": "P79OtherBattlefieldScoreDelayAllowsSelectedTemporaryPaymentResourceDoesNotTriggerOnDefensiveVictory",
+    "bodySha256": "9f3929d27404dfa6aca966eb048dabdf814148e602b27d7558e1f91927fca34e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/AzirSwiftSwapActivatedAbilityTests.cs",
+    "method": "PromptTreatsRainbowTemporaryResourceAsAzirGreenPayment",
+    "bodySha256": "731fe10a37682940c18c9b6bf4d75c527428d22e1b04fe4fff207504b7bea8c1",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourceAllowedPaymentKindListPayloadShapeDrift",
+    "bodySha256": "dc10c38d9190ad7cd569fe4e23069ffcd68296577b132c84944941d9aa42546c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourceAllowedPaymentKindListValueDrift",
+    "bodySha256": "7e8cec6f7a2f8e470120feddf86182a5562b1a6718296ba5d3e7e6cb5ebd2adc",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourceDuplicateIds",
+    "bodySha256": "800bd60681caac9b68f6ee4abbbe971a9e06659b53dfe80717ff043e72f64f55",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourceValueDrift",
+    "bodySha256": "bdf78156550f1fccdf2915a501a7624b6adb13afe765bbe1cca0ce55307b4e77",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourcePowerBudgetDrift",
+    "bodySha256": "db6d5907fb97c9f6201a2e93e1dae792110f1f7004024ebf1de428dd35435b6a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSnapshotTimingTemporaryPaymentResourcePowerTraitKeyDrift",
+    "bodySha256": "b81f1e3a11e5b0cf782f753f7d5730b584d56b4b7dbf2edb963542783ca52abb",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsAuthoritativeStateTemporaryPaymentResourceRedactionSentinelDrift",
+    "bodySha256": "b2abe1298d1559e238d7f27f66b2a29cd6462106b5d5fdc0071f176621bc0fb5",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsAuthoritativeStateTemporaryPaymentResourcePowerBudgetDrift",
+    "bodySha256": "d71bbc2b3a6a8dfcd45b8804902c6954080b884d91daa6d4512b41b5c6a99f42",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsAuthoritativeStateTemporaryPaymentResourcePowerTraitKeyDrift",
+    "bodySha256": "26a461190bab5b0ffb3fd700edf28f9c66f0b30d1b4dd81732a43383f0b4689e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesMissingPayloadWithoutCountMismatch",
+    "bodySha256": "8adca1ba67778e00908f8525d7f562cac41cd6501e1759eb99e2da9fac1e135a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesMissingPayloadWithCountMismatch",
+    "bodySha256": "8285c576201fa90eee62a03f85492471aab81004a00d4522f730149d3f7d8889",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesNullPayloadWithoutCountMismatch",
+    "bodySha256": "0f3bc6df51b975c3f185d4c36cddbb3385eed8289c01a75ad067dd4b36b0a8cd",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesNullPayloadWithCountMismatch",
+    "bodySha256": "4c50ef324e1ae11cf83cb6974528fc67724f43030aae3de4ccfbd12c09e56e2a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesPayloadShape",
+    "bodySha256": "d438bea2be6befa76fb6e8ca16539b83da9683931743c6c49f269770a0f60197",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceOwnerPlayerIdNullPayload",
+    "bodySha256": "c53ec525651e8de74ad303052e209800b6a13a0c9368109f5a86a7fdf3d39f3a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceOwnerPlayerIdShapePayload",
+    "bodySha256": "bab1f5baa9c9e5967b75c33508d08ecb38da8bef04ef289faa19741dbfeaf9a6",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceSourceObjectIdNullPayload",
+    "bodySha256": "9b722df9c2c974cc08421e4cd906c7e4e2f70fe24dc5538d1f3b79799e2cb658",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceSourceObjectIdShapePayload",
+    "bodySha256": "d0a5ef4a086c6fe3d9e83d8a3f093bd00d0d9928914c622686329cad76d667f5",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceAbilityIdNullPayload",
+    "bodySha256": "1eee314b4fccc8dde4b70d0a0f818c3b9c54aabb0b16f72f18d1d0a809873d88",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceAbilityIdShapePayload",
+    "bodySha256": "fd488f62529388b1512cbaafcf1d209736b9d90df0c0a9dd6d7d0db59e939fde",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePaymentWindowNullPayload",
+    "bodySha256": "7f47778b202055ddc9e9042c9b80979e382abcb615a42def6f55f452efa7aa6f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePaymentWindowShapePayload",
+    "bodySha256": "80eb349ac32d7a17b592aefac257a632c8b01561465c85bafcc010aa7b775f0a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceGeneratedPowerNullPayload",
+    "bodySha256": "3a3682ba4548c13ee7132c9ec5877afd47c044766fef4df8f9a171e6b3cfac01",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceGeneratedPowerShapePayload",
+    "bodySha256": "06b21bafbb88a4c77a5b535799d41c75317c1a52b274bd17dba0f59382f2af4b",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceRemainingPowerNullPayload",
+    "bodySha256": "f89b6f47fce423be67213be41d3fd7f1e3cfb0d6e575ab66fa72c9ab91bf5761",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceRemainingPowerShapePayload",
+    "bodySha256": "b8e60df6589b65b3189dbcefaac053756e619b2d0a07d7e689a91b4dfd3f713f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceGeneratedPowerTraitMapNullPayload",
+    "bodySha256": "f00d4ebfed1823c9d4317d5d53e99d580df3b834ae68bc8cde69cd35b58c758c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceGeneratedPowerTraitMapShapePayload",
+    "bodySha256": "36ba8f136468549b99babb32e78fbbaa4f8732b6d5e746554a74704b254bb039",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceRemainingPowerTraitMapNullPayload",
+    "bodySha256": "fd19b1fb0baad444fc70a67aed75e5c9e6bfe12137d28a89752768b3fa61311e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceRemainingPowerTraitMapShapePayload",
+    "bodySha256": "6c83fdd65a7a4c95d93cba5a8c340a388468f83d59d83ff26a8fac3ed6924944",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceAllowedPaymentKindListNullPayload",
+    "bodySha256": "f906a3584b7729b3136a4441db544e387f957c6da67186d5feb7b71507db2d52",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceAllowedPaymentKindListShapePayload",
+    "bodySha256": "a7d0d7cb5741c006b144ec68fdb373c9096b03163afe244061e24d44494cadfe",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceAllowedPaymentKindListElementShapePayload",
+    "bodySha256": "4b392c309b9ed7f89b7af915c93cfd072eb9b38fa0dd5840152dc156dd42d2d0",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceAllowedPaymentKindListValuePayload",
+    "bodySha256": "190d1dc88f281e71b4f1e91a8822c9c1973d7263e1f6da8c0113c1067946d3d3",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceCreatedTickNullPayload",
+    "bodySha256": "451b252247cde77689850b89fba8600a6382fb9b65a20a39a10a971e1d03a9cf",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceCreatedTickShapePayload",
+    "bodySha256": "d8c5bc98f73d2e2402b3968285e3ccc25ca2696c801697ca95f453b58db8d922",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceCreatedTickValuePayload",
+    "bodySha256": "cf8c16160d81bc959e962ed7726009b84b9d18ebae2e5c6a1293a45d61602c43",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePaymentOnlyNullPayload",
+    "bodySha256": "3a5b8b49d4ff4b64f04865881476972e0e757e449362ead2d5817208094718a6",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePaymentOnlyShapePayload",
+    "bodySha256": "56ba101aa7cf7c06b644fb36b0c91309806873c7204b936040b74be46c5cf395",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceRestrictionNullPayload",
+    "bodySha256": "17bf8fe7343501889b420050c598ef9defa089c0dde6f8fdb7f87579aeb6cab1",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceRestrictionShapePayload",
+    "bodySha256": "7b717cd8775e4580769e0cbed386c7234cda7623db181c94502de21dbf88ad03",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceResourceIdNullPayload",
+    "bodySha256": "2107b6d3341ea6c09b3039027a16b989db9cc0216cf6b151a933a1d6170c0ab8",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePayloadShapeWithoutCountMismatch",
+    "bodySha256": "acba7dafc2aaca04b9df01bf036a6fe134359ce1f74aa911953305a7a6a15364",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePayloadShapeWithCountMismatch",
+    "bodySha256": "3868973f490c6b726778c7bd4ebec5e7d05cd01cccf38e6b3eb717cebff54f0c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeySetWithCountMismatch",
+    "bodySha256": "aaf91c3630aa5cebd03ab4d3ad310e44e9f0150f199a2743c0c4a0d0352e466a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceResourceIdShapeWithCountMismatch",
+    "bodySha256": "bd9f42893ebd76c165686101c658e50853a0938cd8070b300ece2df5f8bc829e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceResourceIdEmptyValueWithCountMismatch",
+    "bodySha256": "7d3b2389168e13f276e10dd7f1736ff1ff95340ba6565e79954d749443b5fd00",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceResourceIdNullValueWithCountMismatch",
+    "bodySha256": "d95cbc4556872e4c65901e337f74415330acaf5a58a7cb2d3dbf2b83606b8322",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceResourceIdMissingFieldWithCountMismatch",
+    "bodySha256": "890624a0a86dc8dbae31d631eeb7063cdc8ce1462e16751d0fb692ca150bdb39",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceResourceIdWhitespaceValueWithCountMismatch",
+    "bodySha256": "73933aa4798e0f1727dafe9aea89d63f5717b1b6fd59227cd07e49e7815e0808",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedValuesWithoutCountMismatch",
+    "bodySha256": "c729f012d63b91f12e3b3fca14fba803c0332531dd68f3cbfe21dfd2dd35d748",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedValuesWithCountMismatch",
+    "bodySha256": "7052d45c8b1d7aceff6b552beccb322cdcca6f2e4b36240691c46254928752b0",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedScalarCanonicalityWithoutCountMismatch",
+    "bodySha256": "e0fb466663ef7b0f2757f5043080df659a03da387770d4d03e492c051b8df2ab",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedScalarCanonicalityWithCountMismatch",
+    "bodySha256": "d8272e9ca85ff4c71d6633767305d8a0a1e0def6698349dc8393075baff401eb",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedOwnerPlayerIdWhitespaceValueWithoutCountMismatch",
+    "bodySha256": "58c07fb2ac2d1676c75c383e4b2a9f5ada0f14234d82427ee9069f1e9aa65a09",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedOwnerPlayerIdWhitespaceValueWithCountMismatch",
+    "bodySha256": "a46394f4f6db34ed81fbb1ef3ba74d919fae48728d4d8e0cd08ce1b51a028b5a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedOwnerPlayerIdEmptyValueWithCountMismatch",
+    "bodySha256": "d8c2a2cfc73bd60c52738393e7e0444e8699f7dd649dc2fdf184b15a411ebc3a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedOwnerPlayerIdNullValueWithCountMismatch",
+    "bodySha256": "9bb1ed19a2e7b5348eb0474fd5c5ca562cb49a3f3178276dbead324c7d648281",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedOwnerPlayerIdMissingFieldWithoutCountMismatch",
+    "bodySha256": "50bcf2e0609abbbe0a574e238ba9bd151c1ff873665afb6f04099cea96b403c9",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedOwnerPlayerIdMissingFieldWithCountMismatch",
+    "bodySha256": "a9567bf953997e9a931eef17068a26e3b2c704a825e93b1e242c2728b5005ea6",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedOwnerPlayerIdShapeWithCountMismatch",
+    "bodySha256": "b65c2e7f2a4682aadad495e3da0b74ae3d8cdc7b9c5fdc8960ed6998327a21cb",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdWhitespaceValueWithoutCountMismatch",
+    "bodySha256": "df57e0b22c34cab61122732fb71198737da9aeee425d8842c021fa97a0de50ad",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdWhitespaceValueWithCountMismatch",
+    "bodySha256": "9092f4fe1b6139937b615cce10a606a3ac8e00dd9c0c807e8cc7a872cfcfd90e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdEmptyValueWithCountMismatch",
+    "bodySha256": "3c70f151c0a653bed40f6c6ce88a1076cec126f8b9831857bc14c76ddda12d06",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdEmptyValueWithoutCountMismatch",
+    "bodySha256": "f40892992b6f81a67c1f4db7d3c9bb9d2e5f7f51467be14fc03aa5b1d0c6aad3",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdNullValueWithoutCountMismatch",
+    "bodySha256": "92e37c51c6cb3efe3fbe97eb31bd97160de50e2ea0e35e830eaefef7c37ebdea",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdNullValueWithCountMismatch",
+    "bodySha256": "8756ebb33bf156a17ee509d46ded6f7a7de0fc239ba3d0ce2e5a65d0f0d80793",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdMissingFieldWithoutCountMismatch",
+    "bodySha256": "0ab73c2b117418cef158a7c915ef2d73f3750b26d4f0059745ffa21bf1032638",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdMissingFieldWithCountMismatch",
+    "bodySha256": "e28f8b0a6223762059b0c01d2d5b84f77ae4ddbbddeeabc12fd437c20dca293e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdShapeWithoutCountMismatch",
+    "bodySha256": "9ca741ea021beb60494236b62a1fb544640773949d035f41159db1f401693acc",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedSourceObjectIdShapeWithCountMismatch",
+    "bodySha256": "23862ed63d881b567710ee415c2262fa8ca38c6c09800e66a42be07460c331bd",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdWhitespaceValueWithoutCountMismatch",
+    "bodySha256": "d599f01922aa666e81dac0648f9af916d67f56a779dfa8b30f2169e866f92f94",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdWhitespaceValueWithCountMismatch",
+    "bodySha256": "fd0d9bc3194204b87bce6101b1c5319c1b8f6796a328315805b262ee68a908fb",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdEmptyValueWithCountMismatch",
+    "bodySha256": "797fda2123f3cefa06da7947e3e318622d22675bf9d0c3bbfdf2eff6935aca05",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdEmptyValueWithoutCountMismatch",
+    "bodySha256": "6b4ad9534c201c25d3d4e55eb0e63c7e83457228711d5de741c8747d4a4e21ca",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdNullValueWithCountMismatch",
+    "bodySha256": "fa8f98eb8c941576c340f02b7423859cb4b3ac49db7c8ab9e7b2048736379e9e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdNullValueWithoutCountMismatch",
+    "bodySha256": "d35f54b3cb6059e1025816e63b586ab42aa288376393ebb7970981e75ca6569f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdMissingFieldWithCountMismatch",
+    "bodySha256": "95f8a9432c44a4ba887d496c3753ce265d663201f6d3ee5bf5209c8de1c9ef92",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdMissingFieldWithoutCountMismatch",
+    "bodySha256": "1b0bc14a90c4bd42cc1cdea06a70bbc5fc81003204aba4a6cf0d2b8801624a2c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdShapeWithCountMismatch",
+    "bodySha256": "05f94585be1cc4c66df921f53c2fc8abc1cc292265114eb90d412886f88f399a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAbilityIdShapeWithoutCountMismatch",
+    "bodySha256": "d61e1116ed9ebd02cff8b40b66df781e859066cb5f18c2781ba2f5bc44e147d0",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentWindowEmptyValueWithCountMismatch",
+    "bodySha256": "f4e7e3fb564c17d47d1f9a6f6d4b99a5c6ad1e81e2cfcc08cedd4a34c27bd1c3",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentWindowEmptyValueWithoutCountMismatch",
+    "bodySha256": "8b7c304da6cbe56bffc321c19d0358f576cba6253e1f1f1cbd4721b4168176db",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentWindowNullValueWithCountMismatch",
+    "bodySha256": "66df14419eb3f8baa348e3e4b45e992b2142c5c35fc096353fe53ed0600b867f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentWindowNullValueWithoutCountMismatch",
+    "bodySha256": "1c6924af7fca4d6002634550fabc8af4020524a956fef731789b0cc5eedd1d87",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentWindowMissingFieldWithCountMismatch",
+    "bodySha256": "84e1fe34c92c48c90c59db9942aaa718a18587d1d49900d83a85cfa055737196",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentWindowMissingFieldWithoutCountMismatch",
+    "bodySha256": "93cf99609e327ff179cfba9051169e13156e3434987b1b44d79e68bef47ba4dc",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentWindowShapeWithCountMismatch",
+    "bodySha256": "3270340af4b746f6af65f9c58adc546c4968579841325f249981390ea1abc404",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentWindowShapeWithoutCountMismatch",
+    "bodySha256": "d2ae98779c81c118dd64e72289efc5b8e6cb58ef59cd1c6cd8e63ee434390db9",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerNullValueWithCountMismatch",
+    "bodySha256": "90635d07a412901a9b154d3649360ed04acb2b0edcef8f16700caf6e72bd449a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerNullValueWithoutCountMismatch",
+    "bodySha256": "b068bbe0ed42a7957c0ba66ad979bc750856a3c35ec6ab51d430721c12c9d524",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerMissingFieldWithCountMismatch",
+    "bodySha256": "3ad332dfff2eb396c89a50c56de3d7249cfc145e2e7c6243b4c2a7f4df922aa3",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerMissingFieldWithoutCountMismatch",
+    "bodySha256": "e8c0ac7071771373a21777dea84ef3c5fe257a8cc9c598660e6838ac831a9718",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerShapeWithCountMismatch",
+    "bodySha256": "e3aa2c133f5e0ebcbed3ad3b50a27a831bd3dacaa2263a4df1aaf655a074355d",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerValueWithCountMismatch",
+    "bodySha256": "57ae58eafb44665732365e2d465e529d3ee50087898878fdabb70cef29cc3666",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerValueWithoutCountMismatch",
+    "bodySha256": "ed6e4a9adfa4d1707347e657c64d3ff0e9adf4e83db2fc0e334c94864ddc8170",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerNegativeValueWithCountMismatch",
+    "bodySha256": "ca5e8b7ff118f3832c1880714e97384707eebc368baaf74e60369eb15a2ac91f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerNegativeValueWithoutCountMismatch",
+    "bodySha256": "86ad2b20a81f159cb760cc12170c1f871cf76e0c0d99cc3bd2207d21cded8c19",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerNullValueWithCountMismatch",
+    "bodySha256": "0dcf24c47fcd85113e63ecd48d1ddc8643962871f547405e01f25a19148ade6b",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerNullValueWithoutCountMismatch",
+    "bodySha256": "58436a4857e4632833157fae1c5457b9771c5be3353f400d9f1120939b9a0099",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerMissingFieldWithCountMismatch",
+    "bodySha256": "e5fe008c6c70f38b354747839ba643c8707d813bba0e5e8e0c87aaeaf39a517f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerMissingFieldWithoutCountMismatch",
+    "bodySha256": "b24d7c1c1b76506d1ffb8bc7acc131525a2f13a7be0a38bcdf2b5d25c87fa09b",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerShapeWithCountMismatch",
+    "bodySha256": "64beafe6ee0c512fa0d4982f2a79f2c92a9e646fa13b619c8d55f2a51aefe8df",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerShapeWithoutCountMismatch",
+    "bodySha256": "14e114f8d3485408ba4fd2b8f44f0f728f84888f8e6d307c1a2827dca2bfb88c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerValueWithCountMismatch",
+    "bodySha256": "9e77ede15b8ba4770d947a173842c6facabd6e1e52cdd229d69d388919e57a4e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerValueWithoutCountMismatch",
+    "bodySha256": "05e75e3c33cd7cf8dea423a0a8d744389049d2bbde75659747cb3c45570f947d",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerNegativeValueWithCountMismatch",
+    "bodySha256": "73fb97deb842893964e9100df853eb021c5847b36ecc2a7427993eaf69b5a145",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerNegativeValueWithoutCountMismatch",
+    "bodySha256": "3307d01801736c2329c843001453d0bb04df0db4424158b0e2999b8b17e09132",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerTraitMapNullValueWithCountMismatch",
+    "bodySha256": "35606c5abc1919ebc8e90408c53cb03b9e35b6fe6d0ecd602bba8103018990cc",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerTraitMapNullValueWithoutCountMismatch",
+    "bodySha256": "3431798ae6af8e347774d05b14691b472bb734d2f949b13827e6fbb65c490bad",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerTraitMapMissingFieldWithoutCountMismatch",
+    "bodySha256": "5289b488fe75c17eb2bafed30d34aa4784553b2d7f54d1aa8244cd76ea30e861",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerTraitMapShapeWithoutCountMismatch",
+    "bodySha256": "81788172af3a9fdd156f1502182ac3654543dd001f2bca9ae398233f872f9939",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerTraitMapValueWithoutCountMismatch",
+    "bodySha256": "ace7543d52301a006d363f3367b738923a6e5d05b61890c9d721da0436278b67",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerTraitMapMissingFieldWithCountMismatch",
+    "bodySha256": "5a8a8bea8b649cf63b343654389b5a7456f710ea20a17dd54f5acde4355964d8",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerTraitMapShapeWithCountMismatch",
+    "bodySha256": "9acefb289223d68579ad863ebf4fb4d0b4c93fef3da96ee7474d1932aea9eb75",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedGeneratedPowerTraitMapValueWithCountMismatch",
+    "bodySha256": "a3ca9e4787dfb61665907451aa41bbf2717aa094feeed64f00ec729487ba9bab",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerTraitMapNullValueWithCountMismatch",
+    "bodySha256": "58b30beea1e9b5fa024605ea1e3c9604963ebc7602f7678e0ec0d30c6ad68134",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerTraitMapNullValueWithoutCountMismatch",
+    "bodySha256": "54db111a83179b8beb881b617731f3998723867917b4f64db3d391fa99a1c022",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerTraitMapMissingFieldWithoutCountMismatch",
+    "bodySha256": "7cbe08a9fb6e8a605b0d46e50d8c2c621e607e4b1f5d2640ac767a028e470b79",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerTraitMapShapeWithoutCountMismatch",
+    "bodySha256": "d20503a07e1076dbe8424a94031c2bca01ce45b0cf31dad315d5e1e785597a43",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerTraitMapValueWithoutCountMismatch",
+    "bodySha256": "689198af44a7e12ff491a1e783c07ea2c3835a9ffb9683f5f3075c717349442c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerTraitMapMissingFieldWithCountMismatch",
+    "bodySha256": "1885b81a1968d718ca42106773dd18a679ed1b2b7ed0abcd6df3a5503351018c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerTraitMapShapeWithCountMismatch",
+    "bodySha256": "245ce8d852e583bf37d9be2472f07845947ffe97f2106b3e08e25adbb515bfdb",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRemainingPowerTraitMapValueWithCountMismatch",
+    "bodySha256": "6843e659c3f8fd2a4280370e855797c37f2e9fcd1c5f2766127c22a3f6d5c1d8",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListMissingFieldWithoutCountMismatch",
+    "bodySha256": "614c47c6db106259d3999d2893e33f40894a6a2eeaf6aa1d8c360a936f9275ae",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListNullValueWithoutCountMismatch",
+    "bodySha256": "3618a39d08388b8149525c2b5a373c04ea31543e6fbb8eb5d2cf87616e317149",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListEmptyValueWithoutCountMismatch",
+    "bodySha256": "9b85f0326ffc9b56db6636afed368fbffcc0bf6f3ed2cdc42e3a697a6a22f99b",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListValueWithoutCountMismatch",
+    "bodySha256": "6fac1086aaa4992c2bad55877444798641441ebc9ad8daf3e96c3f4c2ab7c937",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListElementShapeWithoutCountMismatch",
+    "bodySha256": "01d21206caaea524cbcc1b0e98f6519d063f2d08eb70dddfa94192fc299bde2f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListPayloadShapeWithoutCountMismatch",
+    "bodySha256": "2244f7176bd032a6fd2238ba5624aff7c4433ad40f843f7e5a969ab555749add",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentOnlyFalseValueWithoutCountMismatch",
+    "bodySha256": "383684e54f46e9321f2180e965887bb914e8dc77039bbfdb88bb0e03352a8ff7",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentOnlyNullValueWithoutCountMismatch",
+    "bodySha256": "9ec790697741d95d6b6032fe230927b4b2b175340b99f3402370b62de02dda49",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentOnlyMissingFieldWithoutCountMismatch",
+    "bodySha256": "22ffe822acbef309f2cc3f364799213c979266b6a0c53db3990896997d2b5679",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentOnlyShapeWithoutCountMismatch",
+    "bodySha256": "402b5672741d9a1f21e76d256de89830d85b9544dbdf92194ced8fe4f08faef0",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionMissingFieldWithoutCountMismatch",
+    "bodySha256": "df77ffcfe4a6e7faeebeb9a1795d9079b4d03ae167ea76f7150c68b5080fdef4",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionNullValueWithoutCountMismatch",
+    "bodySha256": "41505f26bd0f058b8eeaef1ddb72db07903f29b5c5a429d067eea568f0078dd0",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionShapeWithoutCountMismatch",
+    "bodySha256": "d3bdc6d586b67bef55d150e02191cbf2b19cfbe693dae50f30ea4dd5f6350b0f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionValueWithoutCountMismatch",
+    "bodySha256": "da2ae2c3e8fd7f908b8c40a22d425b69e03d8b1289bc2d3867e4d86a2e4f084e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionWhitespaceValueWithoutCountMismatch",
+    "bodySha256": "37983259b9fe25324c0d39384fb42565e3f1507ada3b3cc5ed00edb7297272f5",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionEmptyValueWithoutCountMismatch",
+    "bodySha256": "162e96b4a5eba547372fca0bfa008140a9ba4eac4b1cfc3a203b41b7e669ad18",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickMissingFieldWithoutCountMismatch",
+    "bodySha256": "639fef256703e60d2320c31ca4db069da2f1a813a034ea87db50f5231fe5588f",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickNullValueWithoutCountMismatch",
+    "bodySha256": "ae4ff0422bf80c930ccdc36693b56d5f139229e6fc1a0e837b92bc1928383d6a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickShapeWithoutCountMismatch",
+    "bodySha256": "7e98cc2e4e4de37d68421434c0df276dfda7b2fba3248fc3e5ff5a1519ca99da",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickValueWithoutCountMismatch",
+    "bodySha256": "39582a4b2ecdf5226e9dd0f16ab63b7ec2095be3fa654e9f07f4c674ef601576",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickNegativeValueWithoutCountMismatch",
+    "bodySha256": "cc4f8f18c2fd41b4b1ea94caea3ab64b8ccd1cf6284c1391d187b43aff063cba",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPropertyNameWithoutCountMismatch",
+    "bodySha256": "41e37cdc615b7fd2abdb0b9d8749a00d7263b9ac835d0d0a2d695ef50d074866",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPowerTraitMapPropertyNameWithoutCountMismatch",
+    "bodySha256": "9f69959068b44c4469e6a4df4401179829b68ae5b7fc4809e94f581f7eafc062",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRequiredFieldAbsenceWithCountMismatch",
+    "bodySha256": "b3c90173d72444e3e656f1399bcd7e7a1c1a35fa13170709de5c1f3999879182",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedRequiredFieldShapeWithCountMismatch",
+    "bodySha256": "3180d26f8916c8504a8a119ceee1c85de60b786b8bccfc2df47b14d04cc16341",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedDuplicateIdWithCountMismatch",
+    "bodySha256": "7a7ca680fbdbe7e83e441e73523a1da2269605257a28370a36ee9704774eb7a8",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPowerBudgetWithCountMismatch",
+    "bodySha256": "cee809c00f367e2438a2f734145b7078307ab3efd7eaea1b614e2bb1ef1800db",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPowerTraitKeyWithCountMismatch",
+    "bodySha256": "893bc224a5f7afe102c72b7848c3a5bd9a27d621dcc2db6ed0248589b0cd10b5",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListMissingFieldWithCountMismatch",
+    "bodySha256": "810f48df91759a9daaddea1cf763a8fca242f88d700e68eec613bb8e075f2714",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListNullValueWithCountMismatch",
+    "bodySha256": "ba18c8e5a8350a20c84c4bb36559ced75b1cfc91425c39f20a8ae3e63dcac997",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListEmptyValueWithCountMismatch",
+    "bodySha256": "38846084c1f27f3beb14f1953bb5ce4cb1c9445ecdad7aa84b1e5d0fa83078b3",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListValueWithCountMismatch",
+    "bodySha256": "02b9c8f5dbc6f087a16e9a6319a4f3df13f34a43433f1ab472494eb95b785bee",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListElementShapeWithCountMismatch",
+    "bodySha256": "3f1c7cf0daa0e32c267e5dc2418bf53db8aac0c7d701f4955bdc9cb0b7ca42ef",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedAllowedPaymentKindListPayloadShapeWithCountMismatch",
+    "bodySha256": "f03b7a8231fe5ec216ae4ac1efa403fde0252e3ed342ddfa70f31a9e6ef52881",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentOnlyFalseValueWithCountMismatch",
+    "bodySha256": "5929098da4053bfa5600ede4dd3f4e08fbc590a2d05faf7c9bd32578e20569da",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentOnlyNullValueWithCountMismatch",
+    "bodySha256": "dda0a3c9fadc98d3694fd981432c1e42884da347a13544f7aa6be42fcf60a09b",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentOnlyMissingFieldWithCountMismatch",
+    "bodySha256": "8d28be8b01c19adf728313416acfee7a1591e9b5ce51b0cad91d1763d4f6886e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPaymentOnlyShapeWithCountMismatch",
+    "bodySha256": "c737c84aa6ae22a5d386d217456b2c1bfc851eae5156ea390624251a71ac958a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionMissingFieldWithCountMismatch",
+    "bodySha256": "5d445ac2ae9ee65eba4bf2631d4bc84b82ca3a2d167991247d51fccde4a23eb3",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionNullValueWithCountMismatch",
+    "bodySha256": "837fb2d048fe80e567b992b3006adea6baa87bcefced3fdcaa56bb0a13e1c66a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionShapeWithCountMismatch",
+    "bodySha256": "3d374c2cee1e4ed29f5d0096ec27fd92068b7d8c6d8eab8c46a793e5a61c61ff",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionValueWithCountMismatch",
+    "bodySha256": "7537ece2c16789a677c544ba869daf20f3f6d372d7911ca57ff5f3df2b9c6329",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionWhitespaceValueWithCountMismatch",
+    "bodySha256": "14c75e7aa20004652c7d4d7ff00bb25ad85cfac1ea5013b7d0a552e41ed913c6",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedResourceRestrictionEmptyValueWithCountMismatch",
+    "bodySha256": "8b331d9bb811f2c580282d4706f5d7167d581cd6e1f1540b065dd9568efc718d",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickMissingFieldWithCountMismatch",
+    "bodySha256": "6dce184afbc641a9561cb19ddec6b08ac14d37eedcd27e99201737c6e2bc1627",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickNullValueWithCountMismatch",
+    "bodySha256": "bedd8a508c79a44998f1931c7d9328586c0f644dc54997c9043d4cc1b05ac4b0",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickShapeWithCountMismatch",
+    "bodySha256": "0678431d16e14a3ec7d66529051d45dbe08093d3f1e3313fa94e65a12af25550",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickValueWithCountMismatch",
+    "bodySha256": "dcf9c9f54e777f76aaddb8e1c3c00a2a1dabeeb2ddff3649a0259496332701f1",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedCreatedTickNegativeValueWithCountMismatch",
+    "bodySha256": "59793b9d833cdc51febfcfd24bb7f41f3902b2592d5396890fbdd6c63fac4a0b",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPropertyNameWithCountMismatch",
+    "bodySha256": "ed299948403b37587cdaaeb380eac1956921bb9de55ef9c34b5ffff14d32be67",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceKeyedPowerTraitMapPropertyNameWithCountMismatch",
+    "bodySha256": "e23d6e0deb76992984f7daae36442e5ef76899743d9ba38b48913c77a6150ac5",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcesMismatch",
+    "bodySha256": "811bc80fe22e23261afa1af509357d06ff57ec8c2468b54c187dd22bedcc52fb",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceDuplicateIds",
+    "bodySha256": "602f5b01860437996f941e1fee2da6b0fc5e90c4471a7296ca31f636dd5cc1ab",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePropertyNameDrift",
+    "bodySha256": "20ee983a4eb11953e7629df6f0d7c2e42c032f6360554176ad274b249f1eda74",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceValueDrift",
+    "bodySha256": "3678e33dc1cfb8abb30642f289231457119e12695c46b199183378f14f204a1a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePowerBudgetDrift",
+    "bodySha256": "6cf12e8eea20ef712e2196532f0a763ada96cae4247d6f5dfd7b6318a3b88c99",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourcePowerTraitKeyDrift",
+    "bodySha256": "5566d8976b28a97c511fdb0abc71166fad5955cf712d17a6ed87a38612b0ad38",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "method": "RecoveryValidatorRejectsSpectatorReplayTimingTemporaryPaymentResourceAllowedPaymentKindListPayloadShapeDrift",
+    "bodySha256": "1f97cff916a5e478e80dacccb96de625efd69993568c7e752f08620c8fe63f5b",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
+    "method": "NaturalBattleResponsePreservesHeldScoreTemporaryPaymentResourceContextAfterPassWithoutFalseDefensiveHold",
+    "bodySha256": "817cf3f69238846740ba15eeec411df8624458d885647ae5e8f1ae2f9702727d",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
+    "method": "NaturalBattleResponseHeldScoreConsumesTwoTemporaryResourcesWhenScoreCostNeedsBothWithoutFalseDefensiveHold",
+    "bodySha256": "1321578a0026f17a9c6de275ec52a1e7b8be6083fed25245c1a4b3e7e2304f3c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
+    "method": "NaturalBattleResponseActivationPreservesHeldScoreTemporaryPaymentResourceContextAfterStackResolutionWithoutFalseDefensiveHold",
+    "bodySha256": "4fe7b64a3e3632d2c16cd7f6c3847d5f7e67415b7151d7473ca549089d62de04",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
+    "method": "NaturalBattleResponseDropsUnnecessaryHeldScoreTemporaryResourceContextWhenNoResponseConsumesResourcesWithoutFalseDefensiveHold",
+    "bodySha256": "a7c897b019af7eff80b9808982d88a77d55bee14b87c9bb7b6ac5b5a5f4793a0",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PlayCostPreviewTests.cs",
+    "method": "PreviewDoesNotRecycleResourcesOrConsumeTemporaryResource",
+    "bodySha256": "496a19204d487bf1c103c3461ffa62b133f1c685cb1638641e3f76b8b843f82c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/CrimsonRoseActivatedAbilityTests.cs",
+    "method": "CrimsonRoseExperienceOnlyReadyUnitPromptHidesUnrelatedTemporaryPaymentResource",
+    "bodySha256": "bffda11b0bd14b041aadfa240f3f83cc7b42177d1f9112464f36857e085907e7",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/ShadowActivatedAbilityTests.cs",
+    "method": "ShadowBattleResponsePromptQuotesTemporaryGenericPowerWhenShortOnePower",
+    "bodySha256": "81c243dc00b90660677f2ee8ee4098240481e41abac45cf499fce484fc62e24e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/EzrealBlueSwiftMoveToBaseActivatedAbilityTests.cs",
+    "method": "PromptExposesEzrealSwiftMoveRequirementWithOnlyRainbowTemporaryResource",
+    "bodySha256": "f780f619bf2f8c0b1a9a5f23253c024134613261dce43c939a653f1f9cd647e7",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "method": "SfdFioraTriggerPaymentPromptQuotesTypedYellowTemporaryPaymentResource",
+    "bodySha256": "2d659b40b471a34b98f9c17454ba1e76bba994a2e04fa113b881714fc3c99b5c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "method": "SfdFioraTriggerPaymentPromptDoesNotQuoteWrongTraitTemporaryPaymentResource",
+    "bodySha256": "76a5a1b849eee730ac1bdbdd9d60bcdb0bd5889ee3912273b1819457097b134e",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "method": "SfdFioraTriggerPaymentPromptQuotesRainbowTemporaryPaymentResource",
+    "bodySha256": "c373cce25aeb634db119bfc870a4a4194c0f17a2f1233c6d6f2635d99faee5c5",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "method": "SfdFioraTriggerPaymentPromptCountsMixedRecycleAndTemporaryResourcesOnce",
+    "bodySha256": "6a4e6f5e14d5c0e34b4e20f8dee0ec14a2b474de0026da0414d28b7caeb22353",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "method": "SfdFioraPaymentConsumesTypedYellowTemporaryPaymentResource",
+    "bodySha256": "6c55788ddf26a6c8fc8d65ccd9ddb8f63dd70b7fef6e8d15e2310799cf86d33a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "method": "SfdFioraPaymentRejectsInvalidTemporaryResourcesWithoutMutation",
+    "bodySha256": "1be42c4207a5ab01ba14e10a3e4759f6e801981a9e0775d29280ef38c76e4f01",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PlayCardGenericPowerShortfallQuotesAndCommitsTemporaryPaymentResource",
+    "bodySha256": "f5addabeac32a6c62679edb53fd542c732d6cc6cbd183690ad23bb4c07887e76",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PlayCardGenericPowerShortfallQuotesAndCommitsTwoTemporaryPaymentResourcesWhenNeitherAlonePaysCost",
+    "bodySha256": "37b34a48a52e53cd9166ef32a89f0ff8817ceffe48d8ba7ea0b69a25a8dbbe59",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PlayCardRejectsInsufficientTemporaryPaymentResourceWithoutMutation",
+    "bodySha256": "ae0ed52561ff91fb9fd590332d16b8f4f1e5783f2b795f09d39dd9f379bd50b2",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PlayCardTemporaryPaymentResourceRaisesGenericOptionalPowerCeiling",
+    "bodySha256": "6007141d9903a567cd12445b0a64df5dd713d9966cb0faba5e1fce87a878fe7b",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PlayCardTypedOptionalPowerPromptQuotesMatchingTemporaryPaymentResource",
+    "bodySha256": "da742ca82ebe1dc9171252123ec74376e6e230ac3a8b32396c7d6fd255628004",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PlayCardTypedOptionalPowerCommitsMatchingTemporaryPaymentResource",
+    "bodySha256": "9b1b094afcab634c7393ec9df23faf8310e99c6771a2462ab0a7623cad27b931",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PlayCardTypedOptionalPowerRejectsWrongTraitTemporaryPaymentResourceWithoutMutation",
+    "bodySha256": "40f35c2877df1a28a4658f016c0f4ca1cc7d05a59b642095de4b3565c114e8db",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "AssembleEquipmentAnyPowerShortfallQuotesAndCommitsTemporaryPaymentResource",
+    "bodySha256": "638681d7b6cb9c4c791e2de125a044a341cfd810fe21bcfee1c4a97ef62f5ba3",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "AssembleEquipmentAcceptsRainbowTemporaryResourceForTypedPower",
+    "bodySha256": "3ad17b12bf46dda861e7fe42e81697a0cd9c5235036de6202bff67372473364a",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "ActivateAbilityViQuotesMixedResourcesAndCommitsTemporaryPaymentResource",
+    "bodySha256": "32edafc47d9ac40c36d4cb0c636668e9a597fc8512ebbf7650de9be99874e1e1",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "ActivateAbilityRejectsInvalidTemporaryPaymentResourceActionsWithoutMutation",
+    "bodySha256": "c80ddd04e02a4faeb10c3bce1f26190af3ccc6649368847b912ee8ebba8bd9aa",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PendingPayCostPromptQuotesGenericTemporaryPaymentResourceOnce",
+    "bodySha256": "6936298f9bdeb303b7e927c38e226282c4d14d0b0223279952425d403cb4a629",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PendingPayCostManaOnlyPromptDoesNotExposeGenericTemporaryPaymentResource",
+    "bodySha256": "02913d7f5d5defa5db4ee8025f11ed74592cb3de8825311a90112528685811ad",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PendingPayCostCommitsGenericTemporaryPaymentResourceThroughPaymentPlan",
+    "bodySha256": "3ceb13de6ea142a44c45a7a7c9ebf574d9f8c6e529d8048b0c9b262bfccaab86",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PendingPayCostRejectsWrongPlayerOrWindowTemporaryPaymentResourceWithoutMutation",
+    "bodySha256": "2d27da650502e7558f9556c1d596a7e65d11e074376f8e0f06638a1dbd217120",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PendingPayCostRejectsInvalidTemporaryPaymentResourceActiveWindowWithoutMutation",
+    "bodySha256": "d6866417d5e7b8d54212023c56f661b7fb37031b1bea492972e1e806c055117c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PendingPayCostAcceptsRainbowTemporaryResourceForTypedCost",
+    "bodySha256": "ae9bcd4a54f50c6298b49dc7807ac1e952c160bb29b13e2978653522a06379a9",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "PendingPayCostCommitsTypedTemporaryPaymentResourceThroughPaymentPlan",
+    "bodySha256": "f5a4b0a6b11a51372e9d99936acd3ccdee5279e502178cded7bb6c38b4a96a15",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+    "method": "ActivateAbilityXerathRejectsTemporaryPaymentResourceWhenSpellshieldTaxPowerIsMissingWithoutMutation",
+    "bodySha256": "579fd6e8c8e828839226ddbcd8955b31463ab5b0f18bb8d300491e1f09933fe7",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/AkshanGuardTests.cs",
+    "method": "AkshanOrangeStealPromptQuotesRainbowTemporaryResourceInPlayCardWindow",
+    "bodySha256": "dbcabcb3e83056a5738010c9541882186238aa5ff8835693e4e490cbe3da4277",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/GatekeeperMaduliActivatedAbilityTests.cs",
+    "method": "MaduliOpenMainPromptTreatsRainbowTemporaryResourceAsPurplePayment",
+    "bodySha256": "876aeee4977490edc5a07c52cc37f399b9f66f2d09f31ebb87c8bbee16205c64",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/FluftPoroActivatedAbilityTests.cs",
+    "method": "FluftPoroOpenMainPromptDoesNotExposeUnrelatedTemporaryPaymentResources",
+    "bodySha256": "cf7dd66a8fb77ee51ca0ac948e8f78648fcb9a3de3052cd763d050520b51df6c",
+    "reason": "Dedicated obsolete injected-ledger behavior; replaced by current schema/action rejection tests. No live card producer exists."
+  }
+]

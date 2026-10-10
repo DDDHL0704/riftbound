@@ -65,7 +65,7 @@ public sealed class OfficialHoldSequenceTests
         var result = await Drain(captured);
         Assert.Equal(7, result.State.PlayerZones["P1"].Hand.Count); // (1 + 2) * 2, then normal draw
         Assert.Equal(2, result.State.RunePools["P1"].Power); // after clearing the initial 9, not while paying a later card
-        Assert.Empty(result.State.TemporaryPaymentResources);
+        RetiredPaymentLedgerTests.AssertNoLedger(result.State);
         Assert.Empty(result.State.DelayedResourceGains);
     }
 

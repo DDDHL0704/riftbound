@@ -114,7 +114,7 @@ public sealed class PromptResponsibilityTests
     [Fact]
     public void ServerFlowRelatedObjectIdsExposeVisibleRuleQueueObjects()
     {
-        var tempResourceActionId = PaymentCostRules.TemporaryPaymentResourceActionId("temp-1");
+        var tempResourceActionId = "RECYCLE_RUNE:temp-source";
         var state = new MatchState(
             "prompt-related-objects-room",
             12,
@@ -172,19 +172,6 @@ public sealed class PromptResponsibilityTests
                 powerCost: 1,
                 legalPaymentChoiceIds: ["RECYCLE_RUNE:payment-rune"],
                 paymentResourceActionIds: [tempResourceActionId]),
-            temporaryPaymentResources:
-            [
-                new TemporaryPaymentResourceState(
-                    "temp-1",
-                    "P1",
-                    "temp-source",
-                    "ability-1",
-                    "PAY_CARD",
-                    generatedPower: 1,
-                    remainingPower: 1,
-                    allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind],
-                    createdTick: 12)
-            ],
             triggerQueue:
             [
                 new TriggerQueueItemState("visible-trigger", "P1", "trigger-source", "VISIBLE_TRIGGER", "UNIT_ENTERED"),

@@ -1,0 +1,7 @@
+[
+  {
+    "name": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalBattleResponseActivationAdvancesNextContestedBattlefieldTaskWithoutFalseDefensiveHold",
+    "message": "Assert.Contains() Failure: Filter not matched in collection\nCollection: [GameEvent { Kind = PRIORITY_PASSED, Description = P1 让过优先行动权, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLE_RESPONSE_PRIORITY_CLOSED, Description = 双方让过战斗响应优先权，开始结算战斗, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLE_DECLARED, Description = P1 声明战斗, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLE_DAMAGE_ASSIGNMENT_OPENED, Description = 战斗伤害分配窗口开启, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }]",
+    "stack": "   at Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalBattleResponseActivationAdvancesNextContestedBattlefieldTaskWithoutFalseDefensiveHold() in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs:line 3496\n--- End of stack trace from previous location ---"
+  }
+]

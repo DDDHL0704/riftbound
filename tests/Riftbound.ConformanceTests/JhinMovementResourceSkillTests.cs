@@ -34,7 +34,7 @@ public sealed class JhinMovementResourceSkillTests
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(1, result.State.RunePools["P1"].Mana);
         Assert.Equal(1, result.State.RunePools["P1"].Power);
-        Assert.Empty(result.State.TemporaryPaymentResources);
+        RetiredPaymentLedgerTests.AssertNoLedger(result.State);
         Assert.DoesNotContain(result.State.TriggerQueue, t => t.EffectKind == P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind);
         Assert.Empty(result.State.StackItems);
         Assert.Null(result.State.PriorityPlayerId);

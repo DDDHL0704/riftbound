@@ -108,28 +108,6 @@ public sealed class PlayCostPreviewTests
     }
 
     [Fact]
-    public async Task PreviewDoesNotRecycleResourcesOrConsumeTemporaryResource()
-    {
-        var state = Position(new(4, 0), "SFD·190/221");
-        state = state with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones> { ["P1"] = state.PlayerZones["P1"] with { Base = ["RUNE"] }, ["P2"] = PlayerZones.Empty },
-            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { ["RUNE"] = new("RUNE", cardNo: "UNL-R03", tags: [CardObjectTags.RuneCard, "COLOR:blue"], ownerId: "P1", controllerId: "P1") },
-            TemporaryPaymentResources = [new("TEMP", "P1", "SOURCE", "TEST_RESOURCE", "PLAY_CARD", 1, 1, allowedPaymentKinds: [PaymentCostRules.RuneCostPaymentKind])]
-        };
-        var command = Command(["RECYCLE_RUNE:RUNE", "TEMP_PAYMENT_RESOURCE:TEMP", "PRINTED_POWER:blue:1,green:1"]) with { CardNo = "SFD·190/221" };
-        var before = MatchStateHasher.Hash(state);
-        var quote = new CoreRuleEngine().PreviewPlayCard(state, "P1", Request(state, command));
-        Assert.True(quote.CanPay, quote.Message);
-        Assert.Equal(before, MatchStateHasher.Hash(state));
-        var result = await new CoreRuleEngine().ResolveAsync(state, new("payment", "P1", CommandTypes.PlayCard), command, default);
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
-        Assert.Single(result.State.PlayerZones["P1"].RuneDeck);
-        Assert.Empty(result.State.TemporaryPaymentResources);
-    }
-
-    [Fact]
     public async Task SessionPreviewIsReadOnlyAndCannotAuthorizeAStaleSubmission()
     {
         var state = Position(new(5, 2));

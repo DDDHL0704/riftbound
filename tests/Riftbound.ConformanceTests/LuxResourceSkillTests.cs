@@ -181,7 +181,7 @@ public sealed class LuxResourceSkillTests
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.True(result.State.CardObjects[LuxObjectId].IsExhausted);
         Assert.True(result.State.CardObjects[SecondLuxObjectId].IsExhausted);
-        Assert.Empty(result.State.TemporaryPaymentResources);
+        RetiredPaymentLedgerTests.AssertNoLedger(result.State);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
         var stackItem = Assert.Single(result.State.StackItems);
         Assert.Equal(SpellObjectId, stackItem.SourceObjectId);
@@ -606,7 +606,7 @@ public sealed class LuxResourceSkillTests
     {
         Assert.True(result.State.CardObjects[LuxObjectId].IsExhausted);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
-        Assert.Empty(result.State.TemporaryPaymentResources);
+        RetiredPaymentLedgerTests.AssertNoLedger(result.State);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
 
         var stackItem = Assert.Single(result.State.StackItems);
