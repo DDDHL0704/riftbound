@@ -44,6 +44,10 @@ internal static class CardReplacementSpecRules
             && string.Equals(replacement.AppliesTo, "friendly-unit-destroyed", StringComparison.Ordinal);
     }
 
+    public static bool IsOtherFriendlyLowerPowerUnitHereDestroyedRecallExhaustedReplacement(ReplacementSpec replacement)
+        => replacement.Kind == ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
+            && replacement.AppliesTo == "friendly-unit-destroyed";
+
     private static IReadOnlyDictionary<string, IReadOnlyList<ReplacementSpec>> BuildReplacementMap()
     {
         var catalog = OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult();

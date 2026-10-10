@@ -15638,27 +15638,28 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObject,
             isAttacking,
             defendingUnitCount);
-        staticPowerBonus += ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, playerZones, objectId, cardObject);
-        staticPowerBonus += ResolveSourceParticipantCountPowerStaticAuraBonus(
-            state,
-            playerZones,
-            objectId,
-            cardObject);
-        staticPowerBonus += ResolveSourceObjectPowerStaticAuraBonus(state, cardObject);
+        staticPowerBonus += ResolveFieldPowerStaticAuraBonus(state, playerZones, objectId, cardObject, battlefieldId);
         staticPowerBonus += ResolveSourceBattleStatePowerStaticAuraBonus(
-            cardObject,
-            isAttacking,
-            attackingUnitCount,
-            defendingUnitCount,
-            readyEnemyUnitCount);
-        staticPowerBonus += ResolveBattlefieldPowerStaticAuraBonus(state, playerZones, battlefieldId, cardObject);
-        staticPowerBonus += ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(
-            state,
-            playerZones,
-            objectId,
-            cardObject);
+            cardObject, isAttacking, attackingUnitCount, defendingUnitCount, readyEnemyUnitCount);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
+    }
+
+    private static int ResolveFieldPowerStaticAuraBonus(MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> zones, string id, CardObjectState card, string battlefieldId)
+        => ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, zones, id, card)
+            + ResolveSourceParticipantCountPowerStaticAuraBonus(state, zones, id, card)
+            + ResolveSourceObjectPowerStaticAuraBonus(state, card)
+            + ResolveBattlefieldPowerStaticAuraBonus(state, zones, battlefieldId, card)
+            + ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(state, zones, id, card);
+
+    private static int ResolveCurrentFieldUnitPower(MatchState state, CardObjectState card)
+    {
+        var battle = state.BattleState;
+        if (battle.IsActive && (battle.AttackerObjectIds.Contains(card.ObjectId) || battle.DefenderObjectIds.Contains(card.ObjectId)))
+            return ResolveAssignmentBattleCombatPower(state, battle, card.ObjectId, out _, out _, damageContribution: false);
+        var field = state.ObjectLocations.GetValueOrDefault(card.ObjectId)?.BattlefieldObjectId ?? "";
+        return Math.Max(0, card.Power + ResolveFieldPowerStaticAuraBonus(state, state.PlayerZones, card.ObjectId, card, field));
     }
 
     private static int ResolveSourceBattleStatePowerStaticAuraBonus(
@@ -15915,9 +15916,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
             || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
-            || !string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId)
             || !IsObjectOnField(playerZones, objectId))
         {
             return 0;
@@ -15929,14 +15927,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        var battlefieldObjectId = objectLocation.BattlefieldObjectId;
+        // These parsed scopes describe "here", which includes a shared base.
         var bonus = 0;
         foreach (var entry in state.ObjectLocations.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
             var sourceObjectId = entry.Key;
             if (string.Equals(sourceObjectId, objectId, StringComparison.Ordinal)
-                || !string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-                || !string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                || !IsSameFieldLocation(playerZones, state.ObjectLocations, objectId, sourceObjectId)
                 || !IsObjectOnField(playerZones, sourceObjectId)
                 || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown

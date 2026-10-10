@@ -2128,6 +2128,15 @@ public static class ReplacementParser
 
     private static string DetermineKind(string segment)
     {
+        if (segment.Contains("你在此处控制的另一名单位被摧毁", StringComparison.Ordinal)
+            && segment.Contains("战力低于我", StringComparison.Ordinal)
+            && segment.Contains("改为移除其所受伤害", StringComparison.Ordinal)
+            && segment.Contains("休眠状态", StringComparison.Ordinal)
+            && segment.Contains("召回", StringComparison.Ordinal))
+        {
+            return ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted;
+        }
+
         if (segment.Contains("下一次当友方单位被摧毁时", StringComparison.Ordinal)
             && segment.Contains("将此牌摧毁", StringComparison.Ordinal)
             && segment.Contains("休眠状态", StringComparison.Ordinal)
@@ -2147,7 +2156,8 @@ public static class ReplacementParser
 
     private static string DetermineAppliesTo(string segment)
     {
-        if (segment.Contains("友方单位被摧毁", StringComparison.Ordinal))
+        if (DetermineKind(segment) == ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
+            || segment.Contains("友方单位被摧毁", StringComparison.Ordinal))
         {
             return "friendly-unit-destroyed";
         }

@@ -1,0 +1,33 @@
+{
+  "sources": [
+    {
+      "path": "var/official/2026-10-08/01.txt",
+      "sha256": "c7c1424b7d3313e80f10b8855c8847ca2e91028e33c861d614bd6cef675c6fc5"
+    },
+    {
+      "path": "data/official/card-catalog.zh-CN.json",
+      "sha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7"
+    }
+  ],
+  "rules": [
+    "370.2",
+    "370.3",
+    "370.4",
+    "371.2",
+    "372",
+    "373",
+    "455",
+    "456",
+    "719.3",
+    "719.4",
+    "807.1",
+    "814.1"
+  ],
+  "cards": [
+    "SFD·173/221",
+    "SFD·239/221",
+    "SFD·239*/221",
+    "OGS·013/024"
+  ],
+  "scope": "Cached official CN rules and catalog; no online refresh. Local lower-power destruction recall and attached group relocation; combat last-damage ordering is not covered as a completed rule."
+}

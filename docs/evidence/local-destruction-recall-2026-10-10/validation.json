@@ -1,0 +1,251 @@
+{
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 32.62,
+    "total": 95,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 95,
+        "passed": 95,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 15.26
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 565.28,
+    "total": 9269,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 308.53
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 330.1
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 331.32
+      },
+      {
+        "shard": "rules",
+        "total": 9134,
+        "passed": 9134,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 117.55
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 561.16
+      }
+    ]
+  },
+  "check": {
+    "passed": 9120,
+    "failed": 2,
+    "total": 9122,
+    "reason": "New follow-up spell fixture decked out on its preceding draw. Fixed and covered by final focus and full."
+  },
+  "native": {
+    "productionCommands": 4,
+    "scenarios": 4,
+    "allNative": true,
+    "allReplayMatch": true,
+    "mode": "Godot headless ActionBar; not two-window visual or Windows acceptance"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:01.29\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nLOCAL_DESTRUCTION_RECALL_PASS: four production replacement commands\n",
+  "artifacts": {
+    "baseline": [
+      {
+        "path": "var/qa/local-destruction-recall/baseline/focus/results.trx",
+        "sha256": "670bcd50e53127a899be7a288e5c9e76553e61801df88e45b36067a8b919ba96"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/baseline/plan.json",
+        "sha256": "2d042c4ff719f67b401629672ef9d6b58167907e1ed3c43f0a9e4889d300956b"
+      }
+    ],
+    "focus1": [
+      {
+        "path": "var/qa/local-destruction-recall/focus1/focus/results.trx",
+        "sha256": "d037a0cd0475dba5aa4a070ef339f8562c9da028de4fa8529fe03281a9053b86"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/focus1/plan.json",
+        "sha256": "5a15d37c9697de020b0f6ba7b645013fb30eec7ccbc16dd0c775021f494fbcd1"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/focus1/summary.json",
+        "sha256": "6314faca639c8cc49af93bb63ed5fd6d837ffc89727ca3af5f003b2ed017d9c2"
+      }
+    ],
+    "focus2": [
+      {
+        "path": "var/qa/local-destruction-recall/focus2/focus/results.trx",
+        "sha256": "91a54e60a45cc80d99a59fe8fc6f935dee228c881478adbff0d125a42af1b8a8"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/focus2/plan.json",
+        "sha256": "5582de00786c42349d06ea77962662f20d8e34a2ebde582dbec524314746bd48"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/focus2/summary.json",
+        "sha256": "c9f7f257fdf5446f38a9be97d4cff2e54642441c2b1838b06839ff5f9c3a5678"
+      }
+    ],
+    "attachment-baseline": [
+      {
+        "path": "var/qa/local-destruction-recall/attachment-baseline/focus/results.trx",
+        "sha256": "0b3060d88e6ab46fdb3d7d0e177bf8f9adf28b5818673046749d45ec5ad4d165"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/attachment-baseline/plan.json",
+        "sha256": "b7f16ecd37d66eb16f35c0f64dcb706b10b874a4fc4ad66759b56dd1c72a42b2"
+      }
+    ],
+    "check": [
+      {
+        "path": "var/qa/local-destruction-recall/check/check/results.trx",
+        "sha256": "a38b2da03448a2dc54eeddb8ef90129660e1bc56554474c3d4e5efbd3bf811ad"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/check/plan.json",
+        "sha256": "b86f8003f7432a6ac61059610e57d863d7b089ba94403abdc891120a6683681c"
+      }
+    ],
+    "focus3": [
+      {
+        "path": "var/qa/local-destruction-recall/focus3/focus/results.trx",
+        "sha256": "e26fe72befac60ce52f0ebd5b60324c4cb7ab9016ccaf4ac0f80b01cd363bdb6"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/focus3/plan.json",
+        "sha256": "00bb704debaaeced7a836a9dd2284ffa38274e86c3daae067b233216847f595b"
+      }
+    ],
+    "focus4": [
+      {
+        "path": "var/qa/local-destruction-recall/focus4/focus/results.trx",
+        "sha256": "9b993c0f382e5ea46a1b7151eff9d886a1c92f9964e11626e50ccdff208c259f"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/focus4/plan.json",
+        "sha256": "23952d41255a1b51bf02a065a4d6decae0e7a71846fc2d3230d9289c6bde4b4b"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/focus4/summary.json",
+        "sha256": "0f554b33a639d727014e667583d6dbc8f852b12859e6b3e1fd8599ee5cf5cbc7"
+      }
+    ],
+    "combat-power-baseline": [
+      {
+        "path": "var/qa/local-destruction-recall/combat-power-baseline/focus/results.trx",
+        "sha256": "1341c67caf1a617188f72f761a012883e635c968e2ca90cbfbbaa678c68039de"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/combat-power-baseline/plan.json",
+        "sha256": "7734bd17f84b29cbd13d7ca534ce28ece357b0c8e5d62711d001c70fd8c9e540"
+      }
+    ],
+    "power-focus": [
+      {
+        "path": "var/qa/local-destruction-recall/power-focus/focus/results.trx",
+        "sha256": "eefb1f82b892fd0ace3021ea17a3f0304ac642e8efbc2452c01be4e301ad53d1"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/power-focus/plan.json",
+        "sha256": "93bfd693609a29fc93ecbd60c98341b4acb9f362d6cb390fb4e1347f6fbd2148"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/power-focus/summary.json",
+        "sha256": "eb93e649efb9fd603b5dcc2473d82ef024817ded5ca6f47fa00848547759dd36"
+      }
+    ],
+    "full": [
+      {
+        "path": "var/qa/local-destruction-recall/full/games-1/results.trx",
+        "sha256": "ddf8a80f586cacd46e9440da5d699dbc05e0cbfe9174ff668ef82eeecc6de4d1"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full/games-2/results.trx",
+        "sha256": "db09a8a483ea50042f4f1129dc2234956b58445d9ec200b94ef341934213ae3d"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full/games-3/results.trx",
+        "sha256": "24c2b3a1a0ad69b4521000ba288357ec9b588459d65a2ea46b337bf8898777fe"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full/games-4/results.trx",
+        "sha256": "ef81d9f85316dcb2b56fe8e2287d9ef787e6563042337b3ffc6737e89e099ffe"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full/plan.json",
+        "sha256": "99d973d7eb30ab8b327a5c26ee0ae913439dae759d82116ba9325bff6b0ae67b"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full/rules/results.trx",
+        "sha256": "8a79cdaefb5bb79c0358dad1d440535da2cc933df95816d36dd1287467bc3e09"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full/summary.json",
+        "sha256": "10ab13f77c31dbd3a8ecda9f61bcb5d8ea0e24a9591ff956523767ef8388c221"
+      }
+    ],
+    "full-final": [
+      {
+        "path": "var/qa/local-destruction-recall/full-final/games-1/results.trx",
+        "sha256": "60f87f4639f6e3c1da077759069c9afd8fd7af459a0070ce0a4b43e1f005b268"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full-final/games-2/results.trx",
+        "sha256": "11383c8b865ec37c63aed821d553075412e221c915c587486279174f4c36a46c"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full-final/games-3/results.trx",
+        "sha256": "11ea671f6f14143ecff6cf81acf624157057da5edbc1973947413b4db7c0e30a"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full-final/games-4/results.trx",
+        "sha256": "c08289015acbffa8e1aa776dcc037ecce7837c0cb1fdcc17f257ab218e36c752"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full-final/plan.json",
+        "sha256": "f53bc91fa4a3dfdbcfa5c57b79d9c469742ba1944cb3b01471d9bfb593a7a2e3"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full-final/rules/results.trx",
+        "sha256": "56d0827ceae9250830b129be12989de92b37729a7adbdca8d0be91fc4dc03f2a"
+      },
+      {
+        "path": "var/qa/local-destruction-recall/full-final/summary.json",
+        "sha256": "49fce11dfb20a94ccf25565f5c27cb72af2d7e02fd9b8dda798b68e20d644a54"
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "e0ea6f63eff8763b0ef700676c1a6b74f7b4b0d9b14a9b039da357f0e64dd956"
+  },
+  {
+    "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+    "sha256": "77d03f4aea255ac6eb7b41aba2da6caf5224d34b0fe885c8ea68d5c8b9807fe5"
+  },
+  {
+    "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+    "sha256": "ddca9055795c320c686e942ff6bcaf5e38374432b8dce5e8a5795ad2cee69c8c"
+  },
+  {
+    "path": "src/Riftbound.Engine/CardReplacementSpecRules.cs",
+    "sha256": "34f1d713c206c49285a7ab0522c7be00411af69acaf5c09bc789f63c4dd200f5"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs",
+    "sha256": "e0b8003745391bb7363a222a0ef6b23e4d5d82574f90f3ec2a18a9190598703d"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/LocalDestructionRecallTests.cs",
+    "sha256": "9f9ffe612ec9277f56a346e466d4ecadd69fa37e9041c4b504bddd8c4e8a9879"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/LocalDestructionRecallNativeTests.cs",
+    "sha256": "9409583599bdf171db96afe20b470335b47549c938d1d5e3601e98d9384059ad"
+  },
+  {
+    "path": "clients/godot/scripts/debug/LocalDestructionRecallInteractionProof.cs",
+    "sha256": "e1cc661ae3ceffac361a7ab081a56644d4f766c181378eb725fb34fc6539b8d9"
+  },
+  {
+    "path": "clients/godot/scenes/debug/LocalDestructionRecallInteractionProof.tscn",
+    "sha256": "74a454843ee6412ca91638acce731466755d651241578da012fb8173ac5eb1bd"
+  }
+]

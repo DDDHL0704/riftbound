@@ -6,7 +6,7 @@ public sealed partial class CoreRuleEngine
 {
     private const string SettRecallEffect = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED";
     private sealed record DestructionOption(RuleChoiceOption Choice, string Target, string Source, string Kind,
-        string EffectKey, bool Optional = false, string Payment = "", int Mana = 0);
+        string EffectKey, string SourceCardNo, bool Optional = false, string Payment = "", int Mana = 0);
 
     // Replacement instructions happen before the unreplaced simultaneous deaths (CN 373).
     private sealed class DestructionReplacementScope(RuleChoiceFrame frame) : IDisposable
@@ -34,6 +34,7 @@ public sealed partial class CoreRuleEngine
         var frame = RuleChoices.Value ?? throw new InvalidOperationException("Destruction requires a rule command context.");
         var scope = new DestructionReplacementScope(frame);
         var remaining = candidates.Where(id => IsObjectOnField(zones, id)).ToHashSet(StringComparer.Ordinal);
+        var localRecalls = CaptureLocalDestructionRecalls(state, zones, cards, locations ?? state.ObjectLocations, remaining);
         frame.DestructionCandidates = frame.DestructionCandidates.Concat(candidates).ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructions = remaining.ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructionBatch = frame.DestructionBatchSequence++;
@@ -48,7 +49,8 @@ public sealed partial class CoreRuleEngine
                         if (!cards.TryGetValue(target, out var unit) || EffectiveFieldControllerId(zones, target, unit) != player) continue;
                         var candidatesForTarget = DestructionOptions(state, zones, cards, pools, target, player,
                             cause, battlefieldId, locations ?? state.ObjectLocations, declinedOptional, out var optionalAvailable);
-                        foreach (var candidate in candidatesForTarget)
+                        foreach (var candidate in candidatesForTarget.Concat(localRecalls
+                            .Where(c => c.Option.Target == target && c.TargetGeneration == unit.ObjectGeneration).Select(c => c.Option)))
                             if (!frame.AppliedDestructionReplacements.Contains(candidate.EffectKey)) options.Add(candidate);
                         canPayOptional |= optionalAvailable;
                     }
@@ -86,6 +88,49 @@ public sealed partial class CoreRuleEngine
         } catch { scope.Dispose(); throw; }
     }
 
+    private sealed record CapturedDestructionOption(DestructionOption Option, long TargetGeneration);
+
+    // CN 370.3–370.4: capture applicability for this simultaneous event, before
+    // replacements can remove or recall a source. Nested events capture afresh.
+    private static IReadOnlyList<CapturedDestructionOption> CaptureLocalDestructionRecalls(
+        MatchState state, IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
+        IReadOnlyDictionary<string, ObjectLocationState> locations, IEnumerable<string> targets)
+    {
+        var result = new List<CapturedDestructionOption>();
+        var context = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+        foreach (var id in targets.Order(StringComparer.Ordinal)) {
+            if (!cards.TryGetValue(id, out var target)) continue;
+            if (!target.Tags.Contains(CardObjectTags.UnitCard) || !FieldObjectTypeRules.IsVisibleUnit(target)) continue;
+            var controller = EffectiveFieldControllerId(zones, id, target);
+            foreach (var source in cards.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal)) {
+                if (source.ObjectId == id || !source.Tags.Contains(CardObjectTags.UnitCard)
+                    || !FieldObjectTypeRules.IsVisibleUnit(source)
+                    || EffectiveFieldControllerId(zones, source.ObjectId, source) != controller
+                    || !IsSameFieldLocation(zones, locations, id, source.ObjectId)
+                    || !CardReplacementSpecRules.TryGetReplacement(source.CardNo,
+                        CardReplacementSpecRules.IsOtherFriendlyLowerPowerUnitHereDestroyedRecallExhaustedReplacement, out _)
+                    || ResolveCurrentFieldUnitPower(context, source) <= ResolveCurrentFieldUnitPower(context, target)) continue;
+                var sourceName = CardBehaviorRegistry.TryGetByCardNo(source.CardNo!, out var card) ? card.DisplayName : source.CardNo;
+                result.Add(new(new(new($"LOCAL_RECALL:{id}:{source.ObjectId}",
+                    $"{sourceName}（{source.ObjectId}）：移除 {id} 的伤害并休眠召回", [id, source.ObjectId]),
+                    id, source.ObjectId, "LOCAL_RECALL", $"LOCAL_RECALL:{source.ObjectId}:{source.ObjectGeneration}", source.CardNo!), target.ObjectGeneration));
+            }
+        }
+        return result;
+    }
+
+    private static bool IsSameFieldLocation(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, ObjectLocationState> locations, string target, string source)
+    {
+        var a = FindFieldObjectLocation(zones, target); var b = FindFieldObjectLocation(zones, source);
+        if (a is null || b is null || a.Value.Zone != b.Value.Zone) return false;
+        if (a.Value.Zone == MoveUnitBaseZone) return a.Value.PlayerId == b.Value.PlayerId;
+        return a.Value.Zone == MoveUnitBattlefieldZone
+            && locations.TryGetValue(target, out var x) && locations.TryGetValue(source, out var y)
+            && x.Zone == MoveUnitBattlefieldZone && y.Zone == MoveUnitBattlefieldZone
+            && !string.IsNullOrWhiteSpace(x.BattlefieldObjectId) && x.BattlefieldObjectId == y.BattlefieldObjectId;
+    }
+
     private static IReadOnlyList<DestructionOption> DestructionOptions(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, Dictionary<string, RunePool> pools,
         string target, string player, StackItemState? cause, string? battlefieldId,
@@ -98,7 +143,7 @@ public sealed partial class CoreRuleEngine
         void Add(string kind, string source, string text, bool optional = false, string payment = "", int mana = 0)
             => options.Add(new(new($"{kind}:{target}" + (source == target && kind is "BANISH" or "RECALL" ? "" : $":{source}")
                 + (payment.Length > 0 ? ":" + payment : ""), $"{label}（{target}）：{text}", [target, source]),
-                target, source, kind, Key(kind, source), optional, payment, mana));
+                target, source, kind, Key(kind, source), cards[source].CardNo ?? "", optional, payment, mana));
         if (unit.UntilEndOfTurnEffects.Contains(RecallToBaseExhaustedIfDestroyedThisTurnEffectId))
             Add("RECALL", target, "应用本回合效果，移除伤害并休眠召回");
         if (unit.UntilEndOfTurnEffects.Contains(BanishIfDestroyedThisTurnEffectId))
@@ -147,7 +192,7 @@ public sealed partial class CoreRuleEngine
         if (option.Kind == "SETT") { ApplySettDestructionOption(zones, cards, pools, player, option, events); return; }
         var target = cards[option.Target];
         var stack = new StackItemState($"replacement-{state.Tick}-{option.Source}", player, option.Source,
-            "DESTRUCTION_REPLACEMENT", cards[option.Source].CardNo ?? "", [], 0, 0, []);
+            "DESTRUCTION_REPLACEMENT", option.SourceCardNo, [], 0, 0, []);
         if (option.Kind == "GEAR") {
             // A replacement-generated destruction is a new event in the same replacement chain (CN 370.2).
             var nested = ResolveFieldDestructions(state, zones, cards, stack, new HashSet<string>(),
@@ -175,9 +220,7 @@ public sealed partial class CoreRuleEngine
             events.AddRange(BuildFieldRemovalEvents("替换为放逐", cause ?? stack, option.Target, removal, destructionReason));
             return;
         }
-        foreach (var (owner, zone) in zones.ToArray())
-            zones[owner] = zone with { Base = RemoveFromZone(zone.Base, option.Target), Battlefields = RemoveFromZone(zone.Battlefields, option.Target) };
-        zones[player] = zones[player] with { Base = zones[player].Base.Append(option.Target).ToArray() };
+        RecallAttachedGroupToBase(zones, cards, option.Target, player);
         cards[option.Target] = current with { Damage = 0, IsExhausted = true, IsAttacking = false, IsDefending = false, ControllerId = player,
             UntilEndOfTurnEffects = option.Kind == "RECALL" ? current.UntilEndOfTurnEffects.Where(e => e != RecallToBaseExhaustedIfDestroyedThisTurnEffectId).ToArray() : current.UntilEndOfTurnEffects };
         events.Add(new("UNIT_RECALLED_TO_BASE", "移除伤害并休眠召回", new Dictionary<string, object?> {
@@ -186,7 +229,26 @@ public sealed partial class CoreRuleEngine
             ["controllerId"] = player, ["destinationZone"] = "BASE", ["isExhausted"] = true, ["damage"] = 0,
             ["destroyReason"] = destructionReason,
             ["replacementEffectId"] = option.Kind == "GEAR" ? FriendlyUnitDestroyedEquipmentRecallEffectId
-                : option.Kind == "ALTAR" ? BattlefieldDestroyedInBattleRecallEffectId : RecallToBaseExhaustedIfDestroyedThisTurnEffectId }));
+                : option.Kind == "ALTAR" ? BattlefieldDestroyedInBattleRecallEffectId
+                : option.Kind == "LOCAL_RECALL" ? ReplacementKinds.OtherFriendlyLowerPowerUnitHereDestroyedRecallExhausted
+                : RecallToBaseExhaustedIfDestroyedThisTurnEffectId }));
+    }
+
+    private static void RecallAttachedGroupToBase(Dictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, string target, string controller)
+    {
+        // CN 456 / 719.3–719.4: recall changes the whole attached group's location,
+        // without a move action, detaching cards, or changing their other states.
+        var group = new List<string> { target };
+        var seen = new HashSet<string>(group, StringComparer.Ordinal);
+        for (var i = 0; i < group.Count; i++)
+            foreach (var attached in cards.Values.Where(c => c.AttachedToObjectId == group[i]
+                && IsObjectOnField(zones, c.ObjectId)).OrderBy(c => c.ObjectId, StringComparer.Ordinal))
+                if (seen.Add(attached.ObjectId)) group.Add(attached.ObjectId);
+        foreach (var (player, zone) in zones.ToArray())
+            zones[player] = zone with { Base = zone.Base.Where(id => !seen.Contains(id)).ToArray(),
+                Battlefields = zone.Battlefields.Where(id => !seen.Contains(id)).ToArray() };
+        zones[controller] = zones[controller] with { Base = zones[controller].Base.Concat(group).ToArray() };
     }
 
     private static void ApplySettDestructionOption(Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
@@ -207,9 +269,7 @@ public sealed partial class CoreRuleEngine
         var paymentTraits = traitToSpend is null ? new Dictionary<string, int>() : new Dictionary<string, int> { [traitToSpend] = 1 };
         var paidPower = PayPowerCost(current, traitToSpend is null ? 1 : 0, paymentTraits);
         pools[player] = current with { Power = paidPower.AnyPower, PowerByTrait = paidPower.PowerByTrait };
-        foreach (var (owner, zone) in zones.ToArray())
-            zones[owner] = zone with { Base = RemoveFromZone(zone.Base, option.Target), Battlefields = RemoveFromZone(zone.Battlefields, option.Target) };
-        zones[player] = zones[player] with { Base = zones[player].Base.Append(option.Target).ToArray() };
+        RecallAttachedGroupToBase(zones, cards, option.Target, player);
         cards[option.Target] = unitState with { Damage = 0, Power = unitState.Power - 1, IsExhausted = true,
             IsAttacking = false, IsDefending = false, ControllerId = player,
             Tags = unitState.Tags.Where(t => t != CardObjectTags.Boon).ToArray() };

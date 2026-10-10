@@ -1,0 +1,29 @@
+{
+  "baseline": 6172,
+  "current": 6194,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.LocalDestructionRecallNativeTests.ProductionLocalRecallChoicesRestoreAndReplay",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.ActualCombatDeathRecallsLowerPowerDefenderBeforeControlIsAwarded",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.AffectedControllerChoosesBetweenRecallAndBanish",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.CombatRolePowerBonusesParticipateInTheComparison",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.ComparisonUsesCurrentPowerAndIsStrict",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.CurrentPowerIncludesSameLocationAuraOutsideCombat",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.DecliningOptionalSettStillAppliesMandatoryLocalRecall",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.IneligibleSourceCannotProtect",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.LaterIndependentEventCannotUseTheRecalledSourcesOldLocation",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.LethalSpellDamageUsesTheSameRecall",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.LocalRecallAndHourglassShareTheExistingChoice",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.MandatoryRecallRejectsDeclineForgedOptionsAndForeignPlayer",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.OpposingSorakaAtTheSameBattlefieldCannotSaveDefender",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.PowerChangedByARealSpellIsUsedForComparison",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.RealSorakaPlayEnablesRecallForControllerRatherThanOwner",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.RecallKeepsAttachedArmamentWithHostWithoutMovingOrChangingItsState",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.RecalledSourceRetainsItsReplacementForTheSameBatchAtItsOldLocation",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.SameLocationLowerPowerIsMandatoryForAllPrints",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.SameSourceCanProtectAgainOnALaterDestructionEvent",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.SimultaneouslyDyingSourceSavesBothOtherUnitsBeforeItsDeath",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.SourceCannotReplaceItsOwnDeath",
+    "Riftbound.ConformanceTests.LocalDestructionRecallTests.SteadfastDoesNotAddPowerOutsideItsCombatRole"
+  ]
+}
