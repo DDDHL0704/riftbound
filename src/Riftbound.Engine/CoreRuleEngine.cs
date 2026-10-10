@@ -21167,7 +21167,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !PlayCardTargetsExposeKnownCardNumbers(state, targetObjectIds)
             || !CreatedBaseUnitCopyTargetAllowed(state, behavior, targetObjectIds)
             || !HasValidTargetGroup(state, behavior, targetObjectIds)
-            || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
             || !HasValidSwapTargetLocations(state, behavior, targetObjectIds)
             || !AreAttachDetachTargetsAllowed(state, behavior, targetObjectIds)
@@ -24428,6 +24427,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.AnyUnit => IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId) && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard),
             CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
+                ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
+                : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
@@ -25525,34 +25527,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             totalPower += ResolveCurrentFieldUnitPower(state, targetState);
             if (totalPower > behavior.MaxTotalTargetPower)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static bool AreTargetsAfterFirstPowerLessThanFirstTarget(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        IReadOnlyList<string> targetObjectIds)
-    {
-        if (!behavior.RequiresTargetsAfterFirstPowerLessThanFirstTarget)
-        {
-            return true;
-        }
-
-        if (targetObjectIds.Count < 2
-            || !state.CardObjects.TryGetValue(targetObjectIds[0], out var firstTargetState))
-        {
-            return false;
-        }
-
-        for (var targetIndex = 1; targetIndex < targetObjectIds.Count; targetIndex++)
-        {
-            if (!state.CardObjects.TryGetValue(targetObjectIds[targetIndex], out var targetState)
-                || targetState.Power >= firstTargetState.Power)
             {
                 return false;
             }
@@ -27432,6 +27406,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ? "battlefield unit or equipment"
             : string.Equals(targetScope, CardTargetScopes.FriendlyUnit, StringComparison.Ordinal)
                 ? "friendly unit"
+                : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenBattlefield, StringComparison.Ordinal)
+                    ? "friendly unit then battlefield"
                 : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenFriendlyUnit, StringComparison.Ordinal)
                     ? "friendly unit then another friendly unit"
                     : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyUnits, StringComparison.Ordinal)
@@ -30150,7 +30126,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.MovesTargetToBase
-                        && targetIndex >= behavior.MoveToBaseTargetStartIndex
                         && TryMoveTargetToOwnerBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId, out var movedOwnerPlayerId))
                     {
                         events.Add(new GameEvent(
@@ -30303,6 +30278,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     break;
                 }
             }
+        }
+
+        if (behavior.MovesWeakerEnemiesAtSelectedBattlefieldToBase)
+        {
+            MoveWeakerEnemiesAtSelectedBattlefieldToBase(state, playerZones, cardObjects, stackItem, events);
+            resolvedObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        }
+
+        if (behavior.GainExperienceAfterEffect > 0)
+        {
+            playerExperience = GainExperience(playerExperience, stackItem.ControllerId,
+                behavior.GainExperienceAfterEffect, stackItem, events);
         }
 
         if (behavior.SchedulesExtraTurnForController)

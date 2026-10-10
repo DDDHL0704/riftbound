@@ -1,0 +1,21 @@
+{
+  "baseline": 6212,
+  "current": 6226,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.FaceOffNativeTests.NativeUnitSelectionPaymentAndResolutionReplay",
+    "Riftbound.ConformanceTests.FaceOffTests.AffectedGroupIsCollectedAtResolutionInsteadOfDeclaration",
+    "Riftbound.ConformanceTests.FaceOffTests.AffectedWardUnitsAreNotTargetsOrAdditionalCosts",
+    "Riftbound.ConformanceTests.FaceOffTests.BattlefieldProhibitionPreventsMovesButNotExperience",
+    "Riftbound.ConformanceTests.FaceOffTests.ComparisonIncludesCurrentLocalAuraAndSnapshotsWholeGroup",
+    "Riftbound.ConformanceTests.FaceOffTests.EmptyBattlefieldStillGrantsExperience",
+    "Riftbound.ConformanceTests.FaceOffTests.ExactBattlefieldExcludesOtherLocationAndFriendlyUnits",
+    "Riftbound.ConformanceTests.FaceOffTests.InvalidatedSelectedTargetSkipsMovementButIndependentExperienceResolves",
+    "Riftbound.ConformanceTests.FaceOffTests.MoveUsesControllerBaseAndPreservesHostAndEquipmentState",
+    "Riftbound.ConformanceTests.FaceOffTests.NegativeMightIsReferencedAsZero",
+    "Riftbound.ConformanceTests.FaceOffTests.PerPlayerMovementRestrictionIsRespected",
+    "Riftbound.ConformanceTests.FaceOffTests.RealPowerBindResponseChangesAffectedGroupAtResolution",
+    "Riftbound.ConformanceTests.FaceOffTests.RejectsForgedTargetShapeWithoutMutation",
+    "Riftbound.ConformanceTests.FaceOffTests.SelectsUnitAndBattlefieldThenMovesEveryStrictlyWeakerEnemy"
+  ]
+}

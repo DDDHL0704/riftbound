@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-face-off-move-weaker-enemy-units",
-  "description": "Face Off chooses a friendly unit and moves weaker enemy battlefield units to their owner's base.",
+  "description": "Face Off chooses a friendly unit and an exact battlefield, moves all weaker enemy units there to their controller bases, then gains one experience.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-107/219 对峙",
-      "note": "官方卡面：费用 2；选择一名友方单位和一处战场，将该战场上所有战力低于所选单位的敌方单位移动到其基地，并获得 1 经验。当前 fixture 用单战场区域模型覆盖友方单位战力阈值与两个较低战力敌方战场单位移动；战场选择和经验获得暂缓。"
+      "note": "官方卡面：费用 2；选择一名友方单位和一处战场，将该战场上所有战力低于所选单位的敌方单位移动到其基地，并获得 1 经验。友方参照单位位于另一战场，目标为友方单位和战场；敌方单位不是目标，最后获得 1 经验。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -43,7 +43,7 @@
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": ["P1-SPELL-FACE-OFF"],
         "base": [],
-        "battlefields": ["P1-FACE-OFF-FRIENDLY-001"],
+        "battlefields": ["BF2", "P1-FACE-OFF-FRIENDLY-001"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P1-LEGEND-001"],
@@ -55,6 +55,7 @@
         "hand": [],
         "base": ["P2-BASE-UNIT-001"],
         "battlefields": [
+          "BF",
           "P2-FACE-OFF-ENEMY-001",
           "P2-FACE-OFF-ENEMY-002",
           "P2-FACE-OFF-ENEMY-003"
@@ -65,7 +66,41 @@
         "championZone": ["P2-CHAMPION-001"]
       }
     },
+    "objectLocations": {
+      "BF2": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF2"
+      },
+      "P1-FACE-OFF-FRIENDLY-001": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF2"
+      },
+      "BF": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-FACE-OFF-ENEMY-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-FACE-OFF-ENEMY-002": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-FACE-OFF-ENEMY-003": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      }
+    },
     "cardObjects": {
+      "BF": { "cardNo": "OGN·296/298", "ownerId": "P2", "controllerId": "P2", "tags": ["CARD_TYPE:BATTLEFIELD"] },
+      "BF2": { "cardNo": "OGN·296/298", "ownerId": "P1", "controllerId": "P1", "tags": ["CARD_TYPE:BATTLEFIELD"] },
       "P1-FACE-OFF-FRIENDLY-001": {
         "damage": 0,
         "power": 4,
@@ -103,8 +138,7 @@
         "cardNo": "UNL-107/219",
         "targetObjectIds": [
           "P1-FACE-OFF-FRIENDLY-001",
-          "P2-FACE-OFF-ENEMY-001",
-          "P2-FACE-OFF-ENEMY-002"
+          "BF"
         ]
       }
     },
@@ -133,7 +167,8 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "UNIT_MOVED_TO_BASE",
-      "UNIT_MOVED_TO_BASE"
+      "UNIT_MOVED_TO_BASE",
+      "EXPERIENCE_GAINED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -153,8 +188,7 @@
           "cardNo": "UNL-107/219",
           "targetObjectIds": [
             "P1-FACE-OFF-FRIENDLY-001",
-            "P2-FACE-OFF-ENEMY-001",
-            "P2-FACE-OFF-ENEMY-002"
+            "BF"
           ],
           "effectKind": "FACE_OFF_MOVE_WEAKER_ENEMY_BATTLEFIELD_UNITS_TO_BASE"
         }
@@ -177,13 +211,15 @@
           "targetObjectId": "P2-FACE-OFF-ENEMY-002",
           "ownerPlayerId": "P2"
         }
-      }
+      },
+      { "kind": "EXPERIENCE_GAINED", "payload": { "playerId": "P1", "amount": 1, "totalExperience": 1 } }
     ],
     "promptActions": {
       "P1": ["END_TURN"],
       "P2": ["WAIT"]
     },
     "finalState": {
+      "playerExperience": { "P1": 1, "P2": 0 },
       "turnNumber": 815,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
@@ -201,7 +237,7 @@
         "P1": {
           "hand": [],
           "base": [],
-          "battlefields": ["P1-FACE-OFF-FRIENDLY-001"],
+          "battlefields": ["BF2", "P1-FACE-OFF-FRIENDLY-001"],
           "graveyard": ["P1-SPELL-FACE-OFF"],
           "banished": []
         },
@@ -211,7 +247,7 @@
             "P2-FACE-OFF-ENEMY-001",
             "P2-FACE-OFF-ENEMY-002"
           ],
-          "battlefields": ["P2-FACE-OFF-ENEMY-003"],
+          "battlefields": ["BF", "P2-FACE-OFF-ENEMY-003"],
           "graveyard": [],
           "banished": []
         }

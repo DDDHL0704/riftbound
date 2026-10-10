@@ -1,0 +1,42 @@
+[
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "039f12e475a9cdb71d60c76024c9f749ecff6d2b2d63818435dac530347b7295"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.AreaMovement.cs",
+    "sha256": "0cbb96c50170e77eb36c218547e09fa46d62fbc48abde87417156e79b3bd7e88"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "0fd93d86691884c2844ee2b4b04f707bbaf00a65e5eb554a37a013993364c671"
+  },
+  {
+    "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+    "sha256": "60a4a236c78b59954002fbb931355aeb59c8692f68e7f16ae4d20b5a789a6e99"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/FaceOffTests.cs",
+    "sha256": "65a361d6b42e7d9842f869252c05f5f490490ba589cadb85bff7051f5e0e41cc"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/FaceOffNativeTests.cs",
+    "sha256": "d4b25dc6d78fdf696378b7977876e3c20a25bdf3d25316395dda8863f6c8b703"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "f99fb6ce790df53d72fee8166a48456bf96db5e46f858e469b95a7ffb8f79d18"
+  },
+  {
+    "path": "clients/godot/scripts/debug/FaceOffInteractionProof.cs",
+    "sha256": "ce0fb80402fd35d6602c1d948f52fe9ee8d7e2769f6b3a06bdb4538b0ffa2d7c"
+  },
+  {
+    "path": "clients/godot/scenes/debug/FaceOffInteractionProof.tscn",
+    "sha256": "0b77abc3abaac70e46f8cc6362c8465d4c84b44a5eb31cb803b7e3de33a73cc7"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-face-off-move-weaker-enemy-units.fixture.json",
+    "sha256": "e3508ec89b7cb14897fcaa87817c7fbc041985ba426850ba5170487522e537be"
+  }
+]

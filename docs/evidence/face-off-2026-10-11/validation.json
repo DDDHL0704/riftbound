@@ -1,0 +1,216 @@
+{
+  "focus3": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.92,
+    "total": 57,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 57,
+        "passed": 57,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.74
+      }
+    ]
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 86.33,
+    "total": 9196,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9196,
+        "passed": 9196,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 82.48
+      }
+    ]
+  },
+  "native-verified": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.37,
+    "total": 27,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 27,
+        "passed": 27,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 5.32
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 390.09,
+    "total": 9329,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 204.46
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 207.14
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 212.94
+      },
+      {
+        "shard": "rules",
+        "total": 9194,
+        "passed": 9194,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 83.13
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 386.52
+      }
+    ]
+  },
+  "native": {
+    "productionCommands": 2,
+    "scenarios": 2,
+    "allNative": true,
+    "allReplayMatch": true,
+    "journalCommands": 6,
+    "mode": "Godot headless PlayCardOverlay; not two-window visual or Windows acceptance"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.93\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nFACE_OFF_PASS: two production play commands\n",
+  "artifacts": {
+    "red": [
+      {
+        "path": "var/qa/face-off/red/focus/results.trx",
+        "sha256": "439a5c738f382005dcd5f3fe588c0ff6da8d5b3cd01e0832bbe606fd3c08fb8e"
+      },
+      {
+        "path": "var/qa/face-off/red/plan.json",
+        "sha256": "f3fd120ff3193920ec660b5db598cb25c11b222a7c161a1516c37a66a820b661"
+      }
+    ],
+    "focus": [
+      {
+        "path": "var/qa/face-off/focus/focus/results.trx",
+        "sha256": "ec338467c195be659c6b0747518129ae850e5ce921448b11374b194174eeb70d"
+      },
+      {
+        "path": "var/qa/face-off/focus/plan.json",
+        "sha256": "d80c2f8f051b1839b431cb5b2d63d63192a812c8d9b67db797a915fc8abfc5fb"
+      }
+    ],
+    "focus2": [
+      {
+        "path": "var/qa/face-off/focus2/focus/results.trx",
+        "sha256": "eb3717f556f680b0ca14f1cdbc09efdd26c3aaefaad4cae0b5b072e00919dc85"
+      },
+      {
+        "path": "var/qa/face-off/focus2/plan.json",
+        "sha256": "6b07ecb31e2d234ee21398defb0701ea05f0c420df4c1195f77108956bd6cb53"
+      }
+    ],
+    "focus3": [
+      {
+        "path": "var/qa/face-off/focus3/focus/results.trx",
+        "sha256": "47202ee871791b0c3da485bba7d2bf14d58d412511dd6353abb6495d08162d0b"
+      },
+      {
+        "path": "var/qa/face-off/focus3/plan.json",
+        "sha256": "af87ae3503c03da75fa666be86e7004b81369df4f8782f5bd4e7394cc73fa538"
+      },
+      {
+        "path": "var/qa/face-off/focus3/summary.json",
+        "sha256": "9d7ef099be456b68990da9ead06bda5110983a9f0c38c63d9bbed4ed44bed81f"
+      }
+    ],
+    "check": [
+      {
+        "path": "var/qa/face-off/check/check/results.trx",
+        "sha256": "0e6e9a2bdf7a8eb1ddf8599411554ec8b25f92a1e482262f534bf82427e12864"
+      },
+      {
+        "path": "var/qa/face-off/check/plan.json",
+        "sha256": "74e04199dfa99eb876c28c49922431a35f87894776a7c819a202591fe1438ae9"
+      },
+      {
+        "path": "var/qa/face-off/check/summary.json",
+        "sha256": "fa2f7de2e434a7d9144a2c3f47b0263897b49094a33052a08126310ad4116010"
+      }
+    ],
+    "native-verified": [
+      {
+        "path": "var/qa/face-off/native-verified/focus/results.trx",
+        "sha256": "3eac79bc355a2a6bd9d6ac7c704ce99e4623dbb34b83a9d08b63299f3971292d"
+      },
+      {
+        "path": "var/qa/face-off/native-verified/plan.json",
+        "sha256": "fbbe217257a7d79b180205c7f05e532dca54d6ec59ad8b40b5818287a14da3e1"
+      },
+      {
+        "path": "var/qa/face-off/native-verified/summary.json",
+        "sha256": "738ebd30f7d65a0c7c1c9973623b5ed17e621660fcdf787b5269832bd3a08f2b"
+      }
+    ],
+    "full": [
+      {
+        "path": "var/qa/face-off/full/games-1/results.trx",
+        "sha256": "fedc8b487937351f423bb0b50ef687743dede4190694373d528ece9eefa0f02b"
+      },
+      {
+        "path": "var/qa/face-off/full/games-2/results.trx",
+        "sha256": "ecd1f9f61a3f2d559a9c4e575809cc7f87e168561e6ac7da4af80b1d1dee47bb"
+      },
+      {
+        "path": "var/qa/face-off/full/games-3/results.trx",
+        "sha256": "3b6ac2304d9b467e66fb6556a541b153359692e52e9de866698b3f5485b0ba84"
+      },
+      {
+        "path": "var/qa/face-off/full/games-4/results.trx",
+        "sha256": "229ad394763fc4d74ed95952f657483c24af58164f9ecd645a1f9ef62358b3ca"
+      },
+      {
+        "path": "var/qa/face-off/full/plan.json",
+        "sha256": "ca56d28ed6a64ca30b25ebe4de42b6150a98bf2a569a152d766bbd923cbe99b7"
+      },
+      {
+        "path": "var/qa/face-off/full/rules/results.trx",
+        "sha256": "781b0c6eca87235e143605102eb0d7724897735c7145736607c4cec96f5dd67e"
+      },
+      {
+        "path": "var/qa/face-off/full/summary.json",
+        "sha256": "d7ad0dc8aee4ce59b549a81e5b7489c0c9e98d686938e1b7f5a6c2650ea372e2"
+      }
+    ]
+  }
+}

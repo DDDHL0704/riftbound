@@ -48,7 +48,7 @@ public sealed record CardBehaviorDefinition(
     int DrawCountIfRuneCallFails = 0,
     int RuneCallCountAfterTargetReturn = 0,
     bool MovesTargetToBase = false,
-    int MoveToBaseTargetStartIndex = 0,
+    bool MovesWeakerEnemiesAtSelectedBattlefieldToBase = false,
     bool RemovesDamageFromAllFriendlyBattlefieldUnits = false,
     int SecondaryPowerModifierAmount = 0,
     bool ReadiesTarget = false,
@@ -102,7 +102,6 @@ public sealed record CardBehaviorDefinition(
     int MaxTotalTargetPower = 0,
     bool AnyNumberOfTargets = false,
     bool TargetsShareBattlefield = false,
-    bool RequiresTargetsAfterFirstPowerLessThanFirstTarget = false,
     bool AppliesStatusEffectToAllUnits = false,
     bool MovesFirstTargetToSecondTargetLocation = false,
     string TargetRequiredTag = "",
@@ -164,6 +163,7 @@ public sealed record CardBehaviorDefinition(
     bool PlaysEachPlayerTopFiveUnitToBase = false,
     bool CanPlayDuringSpellDuel = false,
     int GainExperienceOnPlay = 0,
+    int GainExperienceAfterEffect = 0,
     int GainExperienceOnPlayPerFriendlyFieldUnit = 0,
     int OptionalExperienceCost = 0,
     int ManaReductionIfExperiencePaid = 0,
@@ -266,6 +266,7 @@ public static class CardTargetScopes
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
+    public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
     public const string FriendlyUnitThenFriendlyUnit = "FRIENDLY_UNIT_THEN_FRIENDLY_UNIT";
     public const string FriendlyThenEnemyUnits = "FRIENDLY_THEN_ENEMY_UNITS";
     public const string UnitThenItsControllersWeapon = "UNIT_THEN_ITS_CONTROLLERS_WEAPON";
@@ -7978,12 +7979,10 @@ public static class CardBehaviorRegistry
             2,
             "FACE_OFF_MOVE_WEAKER_ENEMY_BATTLEFIELD_UNITS_TO_BASE",
             0,
-            3,
-            TargetScope: CardTargetScopes.FriendlyThenEnemyBattlefieldUnits,
-            TargetRequiredTag: CardObjectTags.UnitCard,
-            MovesTargetToBase: true,
-            MoveToBaseTargetStartIndex: 1,
-            RequiresTargetsAfterFirstPowerLessThanFirstTarget: true),
+            2,
+            TargetScope: CardTargetScopes.FriendlyUnitThenBattlefield,
+            MovesWeakerEnemiesAtSelectedBattlefieldToBase: true,
+            GainExperienceAfterEffect: 1),
         new(
             "OGN·173/298",
             "驭风而行",

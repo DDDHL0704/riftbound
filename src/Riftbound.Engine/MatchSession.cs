@@ -12845,6 +12845,9 @@ internal static class ActionPromptBuilder
             CardTargetScopes.AnyUnit => IsPromptFieldUnitObjectControlledByZonePlayer(state, objectId),
             CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId) && state.CardObjects.TryGetValue(objectId, out var baseUnit) && baseUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal),
             CardTargetScopes.FriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId)
+                : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId)
@@ -16614,6 +16617,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.BaseUnit => "基地单位",
             CardTargetScopes.AnyUnit => "任意单位",
             CardTargetScopes.FriendlyUnit => "友方单位",
+            CardTargetScopes.FriendlyUnitThenBattlefield => "友方单位，然后战场",
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => "友方单位，然后另一个友方单位",
             CardTargetScopes.FriendlyThenEnemyUnits => "友方单位，然后敌方单位",
             CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",

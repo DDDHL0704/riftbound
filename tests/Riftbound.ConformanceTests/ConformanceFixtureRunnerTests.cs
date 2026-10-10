@@ -25112,11 +25112,12 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["P1-FACE-OFF-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["BF2", "P1-FACE-OFF-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(
             ["P2-BASE-UNIT-001", "P2-FACE-OFF-ENEMY-001", "P2-FACE-OFF-ENEMY-002"],
             result.FinalState.PlayerZones["P2"].Base);
-        Assert.Equal(["P2-FACE-OFF-ENEMY-003"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["BF", "P2-FACE-OFF-ENEMY-003"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(1, result.FinalState.PlayerExperience["P1"]);
         Assert.Equal(
             2,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
@@ -25125,6 +25126,9 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task CoreRuleEngineRejectsFaceOffWhenEnemyTargetIsNotWeakerThanFirstTarget()
     {
+        // Preserve the old malformed three-unit command regression. Official Face Off
+        // targets a friendly unit and a battlefield; equal-power affected units are legal
+        // and stay in place, covered by FaceOffTests.
         var state = PunishmentState(mana: 2) with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)

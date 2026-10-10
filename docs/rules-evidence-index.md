@@ -1,5 +1,7 @@
 # 规则证据索引
 
+2026-10-11 对峙重审：目标改为友方单位和精确战场，按结算时当前战力影响该处所有较弱敌方单位，随后获得经验。补控制者基地、装备随行、法盾边界、原生双类型目标与回放。范围及未闭合的移动观察者、顽皮触手见 [本批审计](FACE_OFF_AUDIT_2026-10-11.md)。
+
 2026-10-11 分组目标重审：妖异狐火按任意数量、同一战场和当前合计战力选择目标；组合在结算时失效，按 CN 355.11.b 由施法者从原目标中选择合法子集。共享预览／提交校验、决策恢复、原生选择与回放见 [本批审计](GROUPED_TARGET_AUDIT_2026-10-11.md)。其他组合目标及顽皮触手目的地仍待独立审计。
 
 2026-10-11 当前战力门槛与投影重审：法术单体／合计战力限制、单体结算复查和公开／战斗投影统一复用共享战力计算，纳入光环及战斗角色，零／负战力按规则允许引用。验证与明确未闭合的组合目标、其他战力引用路径见 [本批审计](CURRENT_POWER_TARGET_AUDIT_2026-10-11.md)。
@@ -2871,7 +2873,7 @@
 | `p5-stand-firm-prevents-xerath-skill-damage` | `RULE_AUDITED` | `CATALOG` OGN·145/298；`CATALOG` UNL-026/219；`CORE-260330` p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356 | 已验证《泽拉斯》激活技能入栈后，对手可在优先权窗口打出《坚毅不倒》；《坚毅不倒》先结算并施加 `PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN`，随后泽拉斯技能的 3 点技能伤害被替代为 0，事件记录 `preventedDamage: 3` 与 `preventionEffectId`，目标不记录伤害；多重替代排序、目标改选和通用 replacement queue 仍暂缓。 |
 | `p2-preflight-play-cruel-revival-destroy-unit-play-graveyard-unit` | `RULE_AUDITED` | `CATALOG` UNL-142/219、OGS·003/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《残酷复活》可在优先权窗口打出，摧毁友方单位作为强制额外费用，并从己方废牌堆打出一名法力费用不高于被摧毁单位的单位到基地；缺少额外费用和废牌堆目标费用过高由直接测试拒绝，符能费用维度和完整目的地选择暂缓。 |
 | `p2-preflight-play-janna-remove-damage-move-enemy-unit` | `RULE_AUDITED` | `CATALOG` SFD·053/221、OGS·003/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方英雄单位《迦娜》可在优先权窗口打出，结算后源单位进入控制者基地，移除己方战场单位伤害，并将一名敌方战场单位移动到其所属基地；友方目标由直接测试拒绝，战场目的地选择与精确同处位置暂缓。 |
-| `p2-preflight-play-face-off-move-weaker-enemy-units` | `RULE_AUDITED` | `CATALOG` UNL-107/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p24-p26 rules 187-189；p39-p42 rules 355-356 | 已验证官方法术《对峙》选择一名友方单位作为战力阈值，并将两个战力低于该单位的敌方战场单位移动到其所属基地；敌方目标战力不低于首个友方单位由直接测试拒绝，战场选择和经验获得暂缓。 |
+| `p2-preflight-play-face-off-move-weaker-enemy-units` | `RULE_AUDITED` | `CATALOG` UNL-107/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p24-p26 rules 187-189；p39-p42 rules 355-356 | 已按官方两目标模型选择友方单位与精确战场，结算时移动该处所有当前战力较低的敌方单位，随后获得 1 经验。等战力合法但不移动；受影响敌方单位不是目标。移动观察者家族仍待审计，见 FACE_OFF_AUDIT_2026-10-11.md。 |
 | `p2-preflight-play-roosting-dark-drake-dragon-static` | `RULE_AUDITED` | `CATALOG` SFD·015/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p24-p26 rules 187-189；p39-p42 rules 355-356 | 已验证官方单位《栖息的冥龙》从手牌普通打出时支付 4 点费用、0 目标加入结算链、双方让过后进入控制者基地成为 5 战力、带 `龙` 标签的 `CARD_TYPE:UNIT` 单位对象；带目标打出由直接测试拒绝，本回合征服战场追踪和合法目的地限制暂缓。 |
 | `p2-preflight-play-knockdown-friendly-power-damage` | `RULE_AUDITED` | `CATALOG` SFD·107/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方法术《击倒》选择一名友方单位和一名敌方单位，双方让过后按所选友方单位当前战力对敌方单位造成伤害；第二目标为友方单位由直接测试拒绝，配装判定、武装贴附与卸除暂缓。 |
 | `p2-preflight-play-alpha-strike-single-enemy-power-damage` | `RULE_AUDITED` | `CATALOG` UNL-192/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356 | 已验证官方专属法术《阿尔法突袭》选择一名友方单位和一名敌方战场单位，双方让过后按所选友方单位当前战力对单一敌方战场单位造成伤害；敌方基地单位作为伤害目标由直接测试拒绝，多目标伤害分摊和经验获得暂缓。 |

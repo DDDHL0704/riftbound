@@ -1,0 +1,33 @@
+{
+  "baseline": 9304,
+  "current": 9329,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.FaceOffNativeTests.NativeUnitSelectionPaymentAndResolutionReplay(branch: \"base\", spell: \"UNL-107/219\")",
+    "Riftbound.ConformanceTests.FaceOffNativeTests.NativeUnitSelectionPaymentAndResolutionReplay(branch: \"other-field\", spell: \"UNL-107/219\")",
+    "Riftbound.ConformanceTests.FaceOffTests.AffectedGroupIsCollectedAtResolutionInsteadOfDeclaration",
+    "Riftbound.ConformanceTests.FaceOffTests.AffectedWardUnitsAreNotTargetsOrAdditionalCosts",
+    "Riftbound.ConformanceTests.FaceOffTests.BattlefieldProhibitionPreventsMovesButNotExperience",
+    "Riftbound.ConformanceTests.FaceOffTests.ComparisonIncludesCurrentLocalAuraAndSnapshotsWholeGroup(friendlyAura: False)",
+    "Riftbound.ConformanceTests.FaceOffTests.ComparisonIncludesCurrentLocalAuraAndSnapshotsWholeGroup(friendlyAura: True)",
+    "Riftbound.ConformanceTests.FaceOffTests.EmptyBattlefieldStillGrantsExperience",
+    "Riftbound.ConformanceTests.FaceOffTests.ExactBattlefieldExcludesOtherLocationAndFriendlyUnits",
+    "Riftbound.ConformanceTests.FaceOffTests.InvalidatedSelectedTargetSkipsMovementButIndependentExperienceResolves(target: \"battlefield\")",
+    "Riftbound.ConformanceTests.FaceOffTests.InvalidatedSelectedTargetSkipsMovementButIndependentExperienceResolves(target: \"unit\")",
+    "Riftbound.ConformanceTests.FaceOffTests.MoveUsesControllerBaseAndPreservesHostAndEquipmentState",
+    "Riftbound.ConformanceTests.FaceOffTests.NegativeMightIsReferencedAsZero(reference: -2, enemy: 0)",
+    "Riftbound.ConformanceTests.FaceOffTests.NegativeMightIsReferencedAsZero(reference: 0, enemy: -2)",
+    "Riftbound.ConformanceTests.FaceOffTests.PerPlayerMovementRestrictionIsRespected",
+    "Riftbound.ConformanceTests.FaceOffTests.RealPowerBindResponseChangesAffectedGroupAtResolution",
+    "Riftbound.ConformanceTests.FaceOffTests.RejectsForgedTargetShapeWithoutMutation(branch: \"enemy\")",
+    "Riftbound.ConformanceTests.FaceOffTests.RejectsForgedTargetShapeWithoutMutation(branch: \"missing\")",
+    "Riftbound.ConformanceTests.FaceOffTests.RejectsForgedTargetShapeWithoutMutation(branch: \"reverse\")",
+    "Riftbound.ConformanceTests.FaceOffTests.RejectsForgedTargetShapeWithoutMutation(branch: \"three\")",
+    "Riftbound.ConformanceTests.FaceOffTests.SelectsUnitAndBattlefieldThenMovesEveryStrictlyWeakerEnemy(power: 0)",
+    "Riftbound.ConformanceTests.FaceOffTests.SelectsUnitAndBattlefieldThenMovesEveryStrictlyWeakerEnemy(power: 2)",
+    "Riftbound.ConformanceTests.FaceOffTests.SelectsUnitAndBattlefieldThenMovesEveryStrictlyWeakerEnemy(power: 3)",
+    "Riftbound.ConformanceTests.FaceOffTests.SelectsUnitAndBattlefieldThenMovesEveryStrictlyWeakerEnemy(power: 4)",
+    "Riftbound.ConformanceTests.FaceOffTests.SelectsUnitAndBattlefieldThenMovesEveryStrictlyWeakerEnemy(power: 5)"
+  ],
+  "allPassed": true
+}
