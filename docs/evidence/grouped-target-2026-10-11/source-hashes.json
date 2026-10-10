@@ -1,0 +1,78 @@
+[
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "a5375d00b6cc545ee65f3a24ad494b8ac5dbab9a5ad60ee8d19693566981a85b"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.TargetGroups.cs",
+    "sha256": "3219ad7d7a3cb6a1c9c3e0403fade0dbc1b8095f6977999b4921038e5142a746"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "4ec73727188dfc6196f4dc0e2c382dcc99da25badd3aa4c141629d4760b01240"
+  },
+  {
+    "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+    "sha256": "1908fa23d645b85c0b6bccd3b3d5c0dc67da3856f13aadd38ab3f5b52dfcb748"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/GroupedTargetTests.cs",
+    "sha256": "a8d335a4a8165deae4e8fdc6efb6224ea5fb1ffa940cdfe03d6c5b6ae59e380e"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/GroupedTargetNativeTests.cs",
+    "sha256": "1c3f35802e90dd10d6aa0bb3187ccaf1171d63e3084167a4af859933b15c9704"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/GroupedPlayNativeTests.cs",
+    "sha256": "673d491b193e374395910b4dabd4ac9c24f368e8f39ba3684629c1ed2bcf9d69"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/SpiritFireDestroyGuardTests.cs",
+    "sha256": "3a977e6a0058d6ae20816c82d3c8549cfdbd45eb0ede2f4bd2fbfc966e8a5edd"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "35ec45a93ec83b550e4586b4288ed945e7a3bf42cdf8b287e6f9aabba5f9bf66"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+    "sha256": "0c8be3ed3e5115f89c9ea6b45070347c1d98da8d01c3be66294dddfa3971a1ff"
+  },
+  {
+    "path": "clients/godot/scripts/debug/GroupedTargetInteractionProof.cs",
+    "sha256": "2eca235ce8f567a858f180677ed2a5dedad4f529a40db4d94cd2875869bfc135"
+  },
+  {
+    "path": "clients/godot/scripts/debug/GroupedPlayInteractionProof.cs",
+    "sha256": "39af37c515f0c656c4960bb85ffaed74d4ea675bfad6d4bd7cf6e4c8a685b676"
+  },
+  {
+    "path": "clients/godot/scenes/debug/GroupedTargetInteractionProof.tscn",
+    "sha256": "875cdd42764390f546cc65c03641f660f1707bc5d5d0385e339e195524a8aebf"
+  },
+  {
+    "path": "clients/godot/scenes/debug/GroupedPlayInteractionProof.tscn",
+    "sha256": "fcd86b201502ba3e5098f4c8e85a9c5b7c7b0983b16e104662cb5c8cfeb7dc50"
+  },
+  {
+    "path": "clients/godot/scripts/interaction/PromptInteractionController.cs",
+    "sha256": "5417f8c86bb44fc9ef16ba4029d2cdd91c18d2487d2562c408fe7d142afb12bb"
+  },
+  {
+    "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+    "sha256": "195570d455530ad9124df42587e491ab5066a7eaca6ee15353f4d9a9219e722e"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-spirit-fire-destroy-total-power-four.fixture.json",
+    "sha256": "63961a47d19346cb59da3ab846f25da50cb1d0c5ea79a69c9a17c0576ab586d2"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-spirit-fire-multiple-spellshield-tax.fixture.json",
+    "sha256": "62baeeb4aa2e2f55c3c70c1dc7a368e6c30782da966b2cb4b30ab170eb72ec51"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-spirit-fire-multiple-spellshield-tax-insufficient-rejected.fixture.json",
+    "sha256": "55975e967fdf5138277bd5437fcfe921a5f86dfce33907be975a32d4accea7c7"
+  }
+]

@@ -120,9 +120,9 @@ public sealed class SpiritFireDestroyGuardTests
                 selection.Contains(filteredTarget, StringComparer.Ordinal));
         }
 
-        Assert.Contains(legalTargetSelections, selection =>
-            selection.Count == legalTargets.Length
-            && legalTargets.All(target => selection.Contains(target, StringComparer.Ordinal)));
+        Assert.Empty(legalTargetSelections); // Arbitrary-sized groups use authoritative previews, not permutation lists.
+        Assert.True(Preview(state, legalTargets).IsValid);
+        foreach (var id in filteredTargets) Assert.False(Preview(state, [id]).IsValid);
     }
 
     [Fact]
@@ -353,9 +353,9 @@ public sealed class SpiritFireDestroyGuardTests
             requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-SPELL-SPIRIT-FIRE", StringComparison.Ordinal));
         var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             sourceRequirement["targetChoicesByIndex"]);
-        Assert.Equal(4, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
         Assert.Contains("0", choicesByIndex.Keys);
-        Assert.Equal(["0", "1", "2", "3"], choicesByIndex.Keys.OrderBy(index => index, StringComparer.Ordinal).ToArray());
+        Assert.Equal(["0", "1"], choicesByIndex.Keys.OrderBy(index => index, StringComparer.Ordinal).ToArray());
         var legalTargetSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
                 sourceRequirement["legalTargetSelections"])
             .ToArray();
@@ -389,8 +389,9 @@ public sealed class SpiritFireDestroyGuardTests
             }
         }
 
-        Assert.Contains(legalTargetSelections, selection =>
-            selection.SequenceEqual(["P2-SPIRIT-FIRE-UNIT-001", "P2-SPIRIT-FIRE-UNIT-002"]));
+        Assert.Empty(legalTargetSelections);
+        Assert.True(Preview(state, legalTargetIds).IsValid);
+        foreach (var id in invalidTargetIds) Assert.False(Preview(state, [id]).IsValid);
         Assert.DoesNotContain(legalTargetSelections, selection =>
             selection.Contains("P2-SPIRIT-FIRE-KEEPER-001", StringComparer.Ordinal));
         Assert.DoesNotContain(legalTargetSelections, selection =>
@@ -514,7 +515,8 @@ public sealed class SpiritFireDestroyGuardTests
                 "P2-BATTLEFIELD-SPELL",
                 "P2-BATTLEFIELD-RUNE",
                 "P2-FACE-DOWN-STANDBY",
-                "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"
+                "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+                "BF"
             ],
             result.State.PlayerZones["P2"].Battlefields);
         Assert.Null(result.State.PendingPayment);
@@ -603,12 +605,14 @@ public sealed class SpiritFireDestroyGuardTests
                         "P2-BATTLEFIELD-SPELL",
                         "P2-BATTLEFIELD-RUNE",
                         "P2-FACE-DOWN-STANDBY",
-                        "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"
+                        "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+                        "BF"
                     ]
                 }
             },
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["BF"] = new("BF", cardNo: "OGN·296/298", ownerId: "P2", controllerId: "P2", tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 ["P1-SPELL-SPIRIT-FIRE"] = SpiritFire(),
                 ["P1-HAND-UNIT"] = Unit("P1-HAND-UNIT"),
                 ["P2-BASE-UNIT"] = Unit("P2-BASE-UNIT", ownerId: "P2", controllerId: "P2"),
@@ -628,8 +632,17 @@ public sealed class SpiritFireDestroyGuardTests
                 ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"] = Unit(
                     "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"),
                 ["P2-STALE-UNIT"] = Unit("P2-STALE-UNIT", ownerId: "P2", controllerId: "P2")
+            }, objectLocations: new Dictionary<string, ObjectLocationState> {
+                ["BF"] = new("P2", "BATTLEFIELD", "BF"),
+                ["P2-SPIRIT-FIRE-UNIT-001"] = new("P2", "BATTLEFIELD", "BF"),
+                ["P2-SPIRIT-FIRE-UNIT-002"] = new("P2", "BATTLEFIELD", "BF"),
+                ["P2-SPIRIT-FIRE-KEEPER-001"] = new("P2", "BATTLEFIELD", "BF")
             });
     }
+
+    private static PlayCostQuoteDto Preview(MatchState state, IReadOnlyList<string> targets)
+        => new CoreRuleEngine().PreviewPlayCard(state, "P1", new("guard", ResolutionResult.BuildPrompts(state)["P1"].PromptId!, state.Tick,
+            new PlayCardCommand("P1-SPELL-SPIRIT-FIRE", "OGN·256/298", targets)));
 
     private static CardObjectState SpiritFire()
     {

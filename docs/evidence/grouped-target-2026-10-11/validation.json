@@ -1,0 +1,238 @@
+{
+  "focus4": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 22.17,
+    "total": 30,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 30,
+        "passed": 30,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.73
+      }
+    ]
+  },
+  "native-verified": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 28.78,
+    "total": 61,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 61,
+        "passed": 61,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.54
+      }
+    ]
+  },
+  "check-final": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 108.52,
+    "total": 9171,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9171,
+        "passed": 9171,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 103.84
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 519.19,
+    "total": 9304,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 288.68
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 293.57
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 296.04
+      },
+      {
+        "shard": "rules",
+        "total": 9169,
+        "passed": 9169,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 107.54
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 514.74
+      }
+    ]
+  },
+  "native": {
+    "productionCommands": 7,
+    "scenarios": 3,
+    "allNative": true,
+    "allReplayMatch": true,
+    "journalCommands": 9,
+    "mode": "Godot headless ActionBar / PlayCardOverlay; not two-window visual or Windows acceptance"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.57\n",
+  "godotSubsetRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nGROUPED_TARGET_PASS: six production subset commands\n",
+  "godotPlayRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nGROUPED_PLAY_PASS: five-target production play command\n",
+  "artifacts": {
+    "baseline": [
+      {
+        "path": "var/qa/grouped-target/baseline/focus/results.trx",
+        "sha256": "22e4d4f687072cf0fde2d215e0a59f40645223d339c5f08e742b08920c669344"
+      },
+      {
+        "path": "var/qa/grouped-target/baseline/plan.json",
+        "sha256": "de713eafebd38d8ecb1d626ebe4d7da20ba0853e43acf342ec231d91465c7e4b"
+      }
+    ],
+    "focus": [
+      {
+        "path": "var/qa/grouped-target/focus/focus/results.trx",
+        "sha256": "2db27313bb4984016fe075e8e47df0af5588dcb5b8163066719b07ff8ec30383"
+      },
+      {
+        "path": "var/qa/grouped-target/focus/plan.json",
+        "sha256": "5aa36dceb4972a5921bc46ccebcd048a24d87b24ce8822aaffd0ceeef7321912"
+      }
+    ],
+    "focus2": [],
+    "focus3": [
+      {
+        "path": "var/qa/grouped-target/focus3/focus/results.trx",
+        "sha256": "fe68428e171e90258f3c0dd253264a0b025ddf0d65822d7f8b036e710065f038"
+      },
+      {
+        "path": "var/qa/grouped-target/focus3/plan.json",
+        "sha256": "d2fe545e5d39600b40e3a052e16d099da444f8c9cba7bfd3ec451fcaf3328c97"
+      }
+    ],
+    "focus4": [
+      {
+        "path": "var/qa/grouped-target/focus4/focus/results.trx",
+        "sha256": "e87de36af4787c7927d1ffdfbb74a4a2fa4b61a602eefd11cd808b0c5fb8357b"
+      },
+      {
+        "path": "var/qa/grouped-target/focus4/plan.json",
+        "sha256": "3698fca05296ec909303ce6d15f51f2ab1ce761ce399b3b07d180b37ff7d7bcc"
+      },
+      {
+        "path": "var/qa/grouped-target/focus4/summary.json",
+        "sha256": "de0a38b0cedd897cc4a6b992fdafe603e62a695d454f01570686cd9d65fee27f"
+      }
+    ],
+    "check": [
+      {
+        "path": "var/qa/grouped-target/check/check/results.trx",
+        "sha256": "7362af9f3d568e83e39b62e2ccea4d31a463afb81432de6afb4e52eb7d874e8e"
+      },
+      {
+        "path": "var/qa/grouped-target/check/plan.json",
+        "sha256": "1fc1959deaa586bc2033e480eb7526d5b41875eaf6fbe5092b67f61d7e2b087d"
+      }
+    ],
+    "native-final": [
+      {
+        "path": "var/qa/grouped-target/native-final/focus/results.trx",
+        "sha256": "aa7ccc2bb3d05d127c9ef42a900376535f850dd8ed961598f1dc4f3d6f27f33b"
+      },
+      {
+        "path": "var/qa/grouped-target/native-final/plan.json",
+        "sha256": "0ddb4cbd391dfb0dff3d5bde97810bd2533a1e284bd28ef7c96b82c204a067d2"
+      }
+    ],
+    "native-verified": [
+      {
+        "path": "var/qa/grouped-target/native-verified/focus/results.trx",
+        "sha256": "bf3f339c2a2c3c97113153eef34c669df33fb21bc4cde2997f6c0d922029c086"
+      },
+      {
+        "path": "var/qa/grouped-target/native-verified/plan.json",
+        "sha256": "7fa94862055d3ff9bb83743e6a686eac78c975dce4156b5cc1fe61d6aeb443d8"
+      },
+      {
+        "path": "var/qa/grouped-target/native-verified/summary.json",
+        "sha256": "13d6d1c8405035b27a68e35f6e7dc9041906ddc1d8632b4c3063b6d8a82214cc"
+      }
+    ],
+    "check-final": [
+      {
+        "path": "var/qa/grouped-target/check-final/check/results.trx",
+        "sha256": "b060478b849418225f93382585ccaa1c58198b6be74720fbbb42d34048b08ec4"
+      },
+      {
+        "path": "var/qa/grouped-target/check-final/plan.json",
+        "sha256": "9de16d7d44ed16657abe4d6cc247703193aee0f3f0825d349702132e28b5ed73"
+      },
+      {
+        "path": "var/qa/grouped-target/check-final/summary.json",
+        "sha256": "02d86032b9b4c29435a3feaed498f1d066e279ed6973b012fcae99ac545dccd2"
+      }
+    ],
+    "full": [
+      {
+        "path": "var/qa/grouped-target/full/games-1/results.trx",
+        "sha256": "85d91f244653eb1348a2dc87afb84e18f9eab850eea2a56320e8909592d8f9fd"
+      },
+      {
+        "path": "var/qa/grouped-target/full/games-2/results.trx",
+        "sha256": "4952731ad8c05b10468b8d3a50f4fb3b5af81ef2c5159fff16c925ce65ee8215"
+      },
+      {
+        "path": "var/qa/grouped-target/full/games-3/results.trx",
+        "sha256": "c962701db615a1511c044695a151e62357840872e448c93f71c4eca11ba4f53c"
+      },
+      {
+        "path": "var/qa/grouped-target/full/games-4/results.trx",
+        "sha256": "69adfe2ad09f0f6a52ce2ed77945f45fe887b0f2c3b3e83cf7344015b02b990b"
+      },
+      {
+        "path": "var/qa/grouped-target/full/plan.json",
+        "sha256": "cf53f7726e5e0b270ea3ac6d7b0aad75ff57e15d7550a802bc937a3dc0257508"
+      },
+      {
+        "path": "var/qa/grouped-target/full/rules/results.trx",
+        "sha256": "c81efd91cffc0eb469070e3858ce9979d3d79c91055e6aa45d90cba7c03ea612"
+      },
+      {
+        "path": "var/qa/grouped-target/full/summary.json",
+        "sha256": "549539598abeb8d784ea6e8bfc2859f697c123a25440366a4757ef0bec950106"
+      }
+    ]
+  }
+}

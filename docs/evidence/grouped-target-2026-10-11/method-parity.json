@@ -1,0 +1,17 @@
+{
+  "baseline": 6202,
+  "current": 6212,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.GroupedPlayNativeTests.NativeUnitSelectionPaymentAndResolutionReplay",
+    "Riftbound.ConformanceTests.GroupedTargetNativeTests.NativeSubsetChoicesRestoreAndReplay",
+    "Riftbound.ConformanceTests.GroupedTargetTests.AllTargetsMovingTogetherRemainLegalWithoutReselection",
+    "Riftbound.ConformanceTests.GroupedTargetTests.AnyNumberIncludesZeroAndMoreThanFourZeroPowerUnits",
+    "Riftbound.ConformanceTests.GroupedTargetTests.CasterMayChooseEmptySubsetAndEffectDoesNotRetarget",
+    "Riftbound.ConformanceTests.GroupedTargetTests.IncreasedTotalLetsCasterChooseEitherOfficialExampleSubset",
+    "Riftbound.ConformanceTests.GroupedTargetTests.InitialTargetsMustShareAnExactBattlefield",
+    "Riftbound.ConformanceTests.GroupedTargetTests.OpponentForgedAdditionAndPrematureConfirmationAreRejected",
+    "Riftbound.ConformanceTests.GroupedTargetTests.RealPowerBindResponseOpensSubsetChoiceBeforeAnyDestruction",
+    "Riftbound.ConformanceTests.GroupedTargetTests.SplitGroupAllowsChoosingTheOtherBattlefield"
+  ]
+}

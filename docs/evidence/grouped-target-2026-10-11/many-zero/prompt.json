@@ -1,0 +1,4948 @@
+{
+  "playerId": "P1",
+  "actionable": true,
+  "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+  "actions": [
+    "PLAY_CARD",
+    "ACTIVATE_ABILITY",
+    "ASSEMBLE_EQUIPMENT",
+    "MOVE_UNIT",
+    "DECLARE_BATTLE",
+    "HIDE_CARD",
+    "REVEAL_CARD",
+    "TAP_RUNE",
+    "RECYCLE_RUNE",
+    "LEGEND_ACT",
+    "END_TURN",
+    "SURRENDER"
+  ],
+  "promptId": "death-duel:0:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+  "snapshotTick": 0,
+  "candidates": [
+    {
+      "action": "PLAY_CARD",
+      "label": "\u6253\u51FA\u5361\u724C",
+      "enabled": true,
+      "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+      "sources": [
+        {
+          "id": "AOE",
+          "label": "OGN\u00B7256/298",
+          "reason": "implemented payable PLAY_CARD source",
+          "objectIds": [
+            "AOE"
+          ]
+        }
+      ],
+      "targets": [
+        {
+          "id": "D",
+          "label": "UNL-008/219",
+          "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807",
+          "objectIds": [
+            "D"
+          ]
+        },
+        {
+          "id": "D2",
+          "label": "UNL-008/219",
+          "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807",
+          "objectIds": [
+            "D2"
+          ]
+        },
+        {
+          "id": "D3",
+          "label": "UNL-008/219",
+          "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807",
+          "objectIds": [
+            "D3"
+          ]
+        },
+        {
+          "id": "D4",
+          "label": "UNL-008/219",
+          "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807",
+          "objectIds": [
+            "D4"
+          ]
+        },
+        {
+          "id": "D5",
+          "label": "UNL-008/219",
+          "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807",
+          "objectIds": [
+            "D5"
+          ]
+        }
+      ],
+      "optionalCosts": [
+        {
+          "id": "PRINTED_POWER:",
+          "label": "\u5361\u9762\u8D39\u7528\uFF1A",
+          "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206",
+          "objectIds": [
+            "PRINTED_POWER:",
+            "PRINTED_POWER"
+          ]
+        }
+      ],
+      "metadata": {
+        "sourcePolicy": "implemented-card-behavior-only",
+        "targetPolicy": "source-specific-server-filtered-targets",
+        "modePolicy": "source-specific-server-filtered-modes",
+        "optionalCostPolicy": "source-specific-server-filtered-costs",
+        "destinationPolicy": "source-specific-server-filtered-destinations",
+        "sourceRequirements": [
+          {
+            "sourceObjectId": "AOE",
+            "cardNo": "OGN\u00B7256/298",
+            "displayName": "\u5996\u5F02\u72D0\u706B",
+            "sourceZone": "HAND",
+            "mode": null,
+            "modeLabel": "\u9ED8\u8BA4",
+            "manaCost": 3,
+            "minimumManaCost": 3,
+            "minimumPrintedPowerShortfall": 0,
+            "printedPowerCost": 0,
+            "effectPlayReason": null,
+            "printedPowerTraits": [
+              "blue",
+              "green"
+            ],
+            "printedPowerChoices": [
+              {
+                "id": "PRINTED_POWER:",
+                "label": "\u5361\u9762\u8D39\u7528\uFF1A",
+                "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+              }
+            ],
+            "availableRainbowPower": 20,
+            "battlefieldEquipmentCostReductionMana": 0,
+            "dragonUnitCostReductionMana": 0,
+            "nextSpellCostReductionMana": 0,
+            "battlefieldSpellCostReductionMana": 0,
+            "battlefieldHeldUnitCostIncreaseMana": 0,
+            "minTargetCount": 0,
+            "maxTargetCount": 5,
+            "targetCountLabel": "0-5",
+            "targetScope": "BATTLEFIELD_UNIT",
+            "targetScopeLabel": "\u6218\u573A\u5355\u4F4D",
+            "allowsRepeatedTargets": false,
+            "supportsSeparateExecutions": true,
+            "targetChoicesByIndex": {
+              "0": [
+                {
+                  "id": "D",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D2",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D3",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D4",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D5",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+                }
+              ],
+              "1": [
+                {
+                  "id": "D",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 2 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D2",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 2 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D3",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 2 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D4",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 2 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D5",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 2 \u4E2A\u76EE\u6807"
+                }
+              ],
+              "2": [
+                {
+                  "id": "D",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 3 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D2",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 3 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D3",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 3 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D4",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 3 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D5",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 3 \u4E2A\u76EE\u6807"
+                }
+              ],
+              "3": [
+                {
+                  "id": "D",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 4 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D2",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 4 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D3",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 4 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D4",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 4 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D5",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 4 \u4E2A\u76EE\u6807"
+                }
+              ],
+              "4": [
+                {
+                  "id": "D",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 5 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D2",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 5 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D3",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 5 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D4",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 5 \u4E2A\u76EE\u6807"
+                },
+                {
+                  "id": "D5",
+                  "label": "UNL-008/219",
+                  "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 5 \u4E2A\u76EE\u6807"
+                }
+              ]
+            },
+            "legalTargetSelections": [],
+            "destinationChoices": null,
+            "optionalCostChoices": [
+              {
+                "id": "PRINTED_POWER:",
+                "label": "\u5361\u9762\u8D39\u7528\uFF1A",
+                "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+              }
+            ],
+            "paymentResourceChoices": [],
+            "paymentResourcePowerByChoice": {},
+            "availableMana": 20,
+            "availableManaWithPaymentResources": 20,
+            "paymentResourceMana": 0,
+            "availablePower": 20,
+            "availablePowerByTrait": {},
+            "availablePowerWithPaymentResources": 20,
+            "availablePowerByTraitWithPaymentResources": {},
+            "hasteReadyPowerCost": 0,
+            "hasteReadyPowerTrait": "",
+            "composable": true,
+            "unsupportedReason": ""
+          }
+        ]
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": [
+            {
+              "id": "AOE",
+              "label": "OGN\u00B7256/298",
+              "objectIds": [
+                "AOE"
+              ],
+              "reason": "implemented payable PLAY_CARD source"
+            }
+          ]
+        },
+        {
+          "role": "target",
+          "label": "\u76EE\u6807",
+          "required": false,
+          "choices": [
+            {
+              "id": "D",
+              "label": "UNL-008/219",
+              "objectIds": [
+                "D"
+              ],
+              "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+            },
+            {
+              "id": "D2",
+              "label": "UNL-008/219",
+              "objectIds": [
+                "D2"
+              ],
+              "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+            },
+            {
+              "id": "D3",
+              "label": "UNL-008/219",
+              "objectIds": [
+                "D3"
+              ],
+              "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+            },
+            {
+              "id": "D4",
+              "label": "UNL-008/219",
+              "objectIds": [
+                "D4"
+              ],
+              "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+            },
+            {
+              "id": "D5",
+              "label": "UNL-008/219",
+              "objectIds": [
+                "D5"
+              ],
+              "reason": "\u6218\u573A\u5355\u4F4D / \u7B2C 1 \u4E2A\u76EE\u6807"
+            }
+          ]
+        },
+        {
+          "role": "optionalCost",
+          "label": "\u8D39\u7528",
+          "required": false,
+          "choices": [
+            {
+              "id": "PRINTED_POWER:",
+              "label": "\u5361\u9762\u8D39\u7528\uFF1A",
+              "objectIds": [
+                "PRINTED_POWER:",
+                "PRINTED_POWER"
+              ],
+              "reason": "\u9009\u62E9\u652F\u4ED8\u5361\u9762\u7B26\u80FD\u7684\u7279\u6027\uFF0C\u5F69\u8679\u7B26\u80FD\u53EF\u8865\u8DB3\u4E0D\u8DB3\u90E8\u5206"
+            }
+          ]
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "PLAY_CARD",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "cardNo",
+            "source": "requirementMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKeys": [
+              "cardNo",
+              "equipmentCardNo"
+            ],
+            "label": "\u670D\u52A1\u7AEF"
+          },
+          {
+            "field": "targetObjectIds",
+            "source": "selectedTargets",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": false,
+            "label": "\u76EE\u6807"
+          },
+          {
+            "field": "mode",
+            "source": "selectedMode",
+            "required": false,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6A21\u5F0F"
+          },
+          {
+            "field": "destination",
+            "source": "selectedDestination",
+            "required": false,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u4F4D\u7F6E"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "optionalCost",
+          "source",
+          "target"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "cardNo",
+          "destination",
+          "mode",
+          "optionalCosts",
+          "sourceObjectId",
+          "targetObjectIds"
+        ]
+      },
+      "presentation": {
+        "category": "play",
+        "intent": "play-card",
+        "uiHint": "card-action",
+        "priority": 100
+      }
+    },
+    {
+      "action": "ACTIVATE_ABILITY",
+      "label": "\u6FC0\u6D3B\u80FD\u529B",
+      "enabled": false,
+      "reason": "\u6FC0\u6D3B\u80FD\u529B \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "targets": [],
+      "metadata": {
+        "sourcePolicy": "implemented-activated-ability-only",
+        "abilityPolicy": "source-specific-server-filtered-abilities",
+        "targetPolicy": "source-specific-server-filtered-targets",
+        "optionalCostPolicy": "source-specific-server-filtered-costs",
+        "sourceRequirements": []
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "ACTIVATE_ABILITY",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "abilityId",
+            "source": "requirementMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKey": "abilityId",
+            "label": "\u670D\u52A1\u7AEF"
+          },
+          {
+            "field": "targetObjectIds",
+            "source": "selectedTargets",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": false,
+            "label": "\u76EE\u6807"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "abilityId",
+          "optionalCosts",
+          "sourceObjectId",
+          "targetObjectIds"
+        ]
+      },
+      "presentation": {
+        "category": "ability",
+        "intent": "activate-ability",
+        "uiHint": "card-action",
+        "priority": 160
+      }
+    },
+    {
+      "action": "ASSEMBLE_EQUIPMENT",
+      "label": "\u88C5\u914D\u88C5\u5907",
+      "enabled": false,
+      "reason": "\u88C5\u914D\u88C5\u5907 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "targets": [],
+      "metadata": {
+        "sourcePolicy": "implemented-unattached-controlled-base-equipment",
+        "targetPolicy": "source-specific-controlled-unit-hosts",
+        "optionalCostPolicy": "source-specific-required-assemble-costs",
+        "sourceRequirements": []
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        },
+        {
+          "role": "target",
+          "label": "\u76EE\u6807",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "ASSEMBLE_EQUIPMENT",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "targetObjectId",
+            "source": "selectedTarget",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u76EE\u6807"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source",
+          "target"
+        ],
+        "requiredSelectionRoles": [
+          "source",
+          "target"
+        ],
+        "commandFields": [
+          "optionalCosts",
+          "sourceObjectId",
+          "targetObjectId"
+        ]
+      },
+      "presentation": {
+        "category": "ability",
+        "intent": "assemble-equipment",
+        "uiHint": "card-action",
+        "priority": 150
+      }
+    },
+    {
+      "action": "MOVE_UNIT",
+      "label": "\u79FB\u52A8\u5355\u4F4D",
+      "enabled": true,
+      "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+      "sources": [
+        {
+          "id": "A",
+          "label": "OGN\u00B7012/298",
+          "reason": "face-up controlled non-combat unit with implemented move route",
+          "objectIds": [
+            "A"
+          ]
+        }
+      ],
+      "destinations": [
+        {
+          "id": "BATTLEFIELD:BF",
+          "label": "OGN\u00B7296/298",
+          "reason": "\u670D\u52A1\u7AEF\u5408\u6CD5\u6218\u573A\u76EE\u7684\u5730",
+          "objectIds": [
+            "BATTLEFIELD:BF",
+            "BF"
+          ]
+        }
+      ],
+      "metadata": {
+        "sourcePolicy": "implemented-ready-face-up-controlled-non-combat-unit",
+        "destinationPolicy": "source-specific-server-filtered-destinations",
+        "optionalCostPolicy": "source-specific-server-filtered-costs",
+        "supportsSimultaneousMovement": true,
+        "powerPerExtraUnitByDestination": {
+          "BATTLEFIELD:BF": 0
+        },
+        "sourceRequirements": [
+          {
+            "sourceObjectId": "A",
+            "origin": "BASE",
+            "originLabel": "\u57FA\u5730",
+            "mode": "BASE_TO_BATTLEFIELD",
+            "modeLabel": "\u57FA\u5730 -\u003E \u6218\u573A",
+            "destinationChoices": [
+              {
+                "id": "BATTLEFIELD:BF",
+                "label": "OGN\u00B7296/298",
+                "reason": "\u670D\u52A1\u7AEF\u5408\u6CD5\u6218\u573A\u76EE\u7684\u5730"
+              }
+            ],
+            "optionalCostChoices": [],
+            "requiredOptionalCosts": [],
+            "composable": true,
+            "unsupportedReason": null
+          }
+        ]
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": [
+            {
+              "id": "A",
+              "label": "OGN\u00B7012/298",
+              "objectIds": [
+                "A"
+              ],
+              "reason": "face-up controlled non-combat unit with implemented move route"
+            }
+          ]
+        },
+        {
+          "role": "destination",
+          "label": "\u4F4D\u7F6E",
+          "required": false,
+          "choices": [
+            {
+              "id": "BATTLEFIELD:BF",
+              "label": "OGN\u00B7296/298",
+              "objectIds": [
+                "BATTLEFIELD:BF",
+                "BF"
+              ],
+              "reason": "\u670D\u52A1\u7AEF\u5408\u6CD5\u6218\u573A\u76EE\u7684\u5730"
+            }
+          ]
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "MOVE_UNIT",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "origin",
+            "source": "requirementMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKey": "origin",
+            "label": "\u670D\u52A1\u7AEF"
+          },
+          {
+            "field": "destination",
+            "source": "selectedDestination",
+            "required": false,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u4F4D\u7F6E"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "destination",
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "destination",
+          "optionalCosts",
+          "origin",
+          "sourceObjectId"
+        ]
+      },
+      "presentation": {
+        "category": "movement",
+        "intent": "move-unit",
+        "uiHint": "card-action",
+        "priority": 140
+      }
+    },
+    {
+      "action": "DECLARE_BATTLE",
+      "label": "\u58F0\u660E\u6218\u6597",
+      "enabled": false,
+      "reason": "\u58F0\u660E\u6218\u6597 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "targets": [],
+      "destinations": [
+        {
+          "id": "BATTLEFIELD:P1-MAIN",
+          "label": "\u5DF1\u65B9\u4E3B\u6218\u573A",
+          "reason": "\u9ED8\u8BA4\u6218\u6597\u6218\u573A",
+          "objectIds": [
+            "BATTLEFIELD:P1-MAIN",
+            "P1-MAIN"
+          ]
+        },
+        {
+          "id": "BF",
+          "label": "OGN\u00B7296/298",
+          "reason": "\u516C\u5F00\u6218\u573A\u724C",
+          "objectIds": [
+            "BF"
+          ]
+        }
+      ],
+      "metadata": {
+        "sourcePolicy": "implemented-declare-battle-attacker-only",
+        "targetPolicy": "source-specific-server-filtered-defenders",
+        "battlefieldPolicy": "source-specific-server-filtered-battlefields",
+        "optionalCostPolicy": "source-specific-required-combat-assignment-plus-server-filtered-brush-score-replacement",
+        "attackerCount": 1,
+        "attackerCountMin": 1,
+        "attackerCountMax": 0,
+        "defenderCountMin": 1,
+        "defenderCountMax": 0,
+        "multiAttackerPolicy": "all-units-at-physical-battlefield",
+        "multiDefenderPolicy": "all-units-at-physical-battlefield",
+        "multiParticipantBattlePolicy": "server-includes-all-physical-battlefield-participants",
+        "samePriorityAssignmentPolicy": "preserve-player-submitted-object-order-within-same-priority",
+        "candidateFiltering": "battlefield-zone-controlled-face-up-units-not-already-in-combat",
+        "sourceRequirements": []
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        },
+        {
+          "role": "target",
+          "label": "\u76EE\u6807",
+          "required": true,
+          "choices": []
+        },
+        {
+          "role": "destination",
+          "label": "\u4F4D\u7F6E",
+          "required": true,
+          "choices": [
+            {
+              "id": "BATTLEFIELD:P1-MAIN",
+              "label": "\u5DF1\u65B9\u4E3B\u6218\u573A",
+              "objectIds": [
+                "BATTLEFIELD:P1-MAIN",
+                "P1-MAIN"
+              ],
+              "reason": "\u9ED8\u8BA4\u6218\u6597\u6218\u573A"
+            },
+            {
+              "id": "BF",
+              "label": "OGN\u00B7296/298",
+              "objectIds": [
+                "BF"
+              ],
+              "reason": "\u516C\u5F00\u6218\u573A\u724C"
+            }
+          ]
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "DECLARE_BATTLE",
+        "bindings": [
+          {
+            "field": "attackerObjectIds",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "battlefieldId",
+            "source": "selectedDestination",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u4F4D\u7F6E"
+          },
+          {
+            "field": "defenderObjectIds",
+            "source": "selectedTargets",
+            "required": true,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u76EE\u6807"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "destination",
+          "source",
+          "target"
+        ],
+        "requiredSelectionRoles": [
+          "destination",
+          "source",
+          "target"
+        ],
+        "commandFields": [
+          "attackerObjectIds",
+          "battlefieldId",
+          "defenderObjectIds",
+          "optionalCosts"
+        ]
+      },
+      "presentation": {
+        "category": "battle",
+        "intent": "declare-battle",
+        "uiHint": "battle",
+        "priority": 130
+      }
+    },
+    {
+      "action": "HIDE_CARD",
+      "label": "\u5E03\u7F6E\u5F85\u547D",
+      "enabled": false,
+      "reason": "\u5E03\u7F6E\u5F85\u547D \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "destinations": [],
+      "metadata": {
+        "sourcePolicy": "implemented-payable-standby-card-only",
+        "destinationPolicy": "source-specific-server-filtered-standby-destinations",
+        "optionalCostPolicy": "source-specific-server-filtered-standby-costs",
+        "sourceRequirements": []
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "HIDE_CARD",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "cardNo",
+            "source": "requirementMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKeys": [
+              "cardNo",
+              "equipmentCardNo"
+            ],
+            "label": "\u670D\u52A1\u7AEF"
+          },
+          {
+            "field": "destination",
+            "source": "selectedDestination",
+            "required": false,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u4F4D\u7F6E"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "cardNo",
+          "destination",
+          "optionalCosts",
+          "sourceObjectId"
+        ]
+      },
+      "presentation": {
+        "category": "play",
+        "intent": "hide-card",
+        "uiHint": "card-action",
+        "priority": 110
+      }
+    },
+    {
+      "action": "REVEAL_CARD",
+      "label": "\u7FFB\u5F00\u5F85\u547D",
+      "enabled": false,
+      "reason": "\u7FFB\u5F00\u5F85\u547D \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "targets": [],
+      "destinations": [],
+      "metadata": {
+        "sourcePolicy": "face-down-standby-card-only",
+        "modePolicy": "source-specific-server-filtered-standby-reveal-mode",
+        "destinationPolicy": "source-specific-server-filtered-standby-reveal-destination",
+        "optionalCostPolicy": "source-specific-required-standby-reveal-cost",
+        "sourceRequirements": []
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "REVEAL_CARD",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "cardNo",
+            "source": "requirementMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKeys": [
+              "cardNo",
+              "equipmentCardNo"
+            ],
+            "label": "\u670D\u52A1\u7AEF"
+          },
+          {
+            "field": "targetObjectIds",
+            "source": "selectedTargets",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": false,
+            "label": "\u76EE\u6807"
+          },
+          {
+            "field": "mode",
+            "source": "selectedMode",
+            "required": false,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6A21\u5F0F"
+          },
+          {
+            "field": "destination",
+            "source": "selectedDestination",
+            "required": false,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u4F4D\u7F6E"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "cardNo",
+          "destination",
+          "mode",
+          "optionalCosts",
+          "sourceObjectId",
+          "targetObjectIds"
+        ]
+      },
+      "presentation": {
+        "category": "play",
+        "intent": "reveal-card",
+        "uiHint": "card-action",
+        "priority": 120
+      }
+    },
+    {
+      "action": "TAP_RUNE",
+      "label": "\u6A2A\u7F6E\u7B26\u6587",
+      "enabled": false,
+      "reason": "\u6A2A\u7F6E\u7B26\u6587 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "metadata": {
+        "sourcePolicy": "ready-controlled-base-rune",
+        "maxBatchSize": 12,
+        "resourceGain": "1-mana"
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "TAP_RUNE",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "sourceObjectId"
+        ]
+      },
+      "presentation": {
+        "category": "resource",
+        "intent": "tap-rune",
+        "uiHint": "resource",
+        "priority": 180
+      }
+    },
+    {
+      "action": "RECYCLE_RUNE",
+      "label": "\u56DE\u6536\u7B26\u6587",
+      "enabled": false,
+      "reason": "\u56DE\u6536\u7B26\u6587 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "metadata": {
+        "sourcePolicy": "controlled-trait-base-rune",
+        "maxBatchSize": 12,
+        "resourceGain": "1-matching-trait-power",
+        "destination": "rune-deck-bottom"
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "RECYCLE_RUNE",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "sourceObjectId"
+        ]
+      },
+      "presentation": {
+        "category": "resource",
+        "intent": "recycle-rune",
+        "uiHint": "resource",
+        "priority": 190
+      }
+    },
+    {
+      "action": "LEGEND_ACT",
+      "label": "\u4F20\u5947\u884C\u52A8",
+      "enabled": false,
+      "reason": "\u4F20\u5947\u884C\u52A8 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+      "sources": [],
+      "targets": [],
+      "metadata": {
+        "sourcePolicy": "implemented-legend-action-only",
+        "abilityPolicy": "source-specific-server-filtered-legend-abilities",
+        "targetPolicy": "source-specific-server-filtered-targets",
+        "optionalCostPolicy": "source-specific-server-filtered-costs",
+        "sourceRequirements": []
+      },
+      "selectionSteps": [
+        {
+          "role": "source",
+          "label": "\u6765\u6E90",
+          "required": true,
+          "choices": []
+        }
+      ],
+      "commandTemplate": {
+        "cmdType": "LEGEND_ACT",
+        "bindings": [
+          {
+            "field": "sourceObjectId",
+            "source": "selectedSource",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "label": "\u6765\u6E90"
+          },
+          {
+            "field": "abilityId",
+            "source": "requirementMetadata",
+            "required": true,
+            "asArray": false,
+            "omitEmpty": true,
+            "metadataKey": "abilityId",
+            "label": "\u670D\u52A1\u7AEF"
+          },
+          {
+            "field": "targetObjectIds",
+            "source": "selectedTargets",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": false,
+            "label": "\u76EE\u6807"
+          },
+          {
+            "field": "optionalCosts",
+            "source": "selectedOptionalCosts",
+            "required": false,
+            "asArray": true,
+            "omitEmpty": true,
+            "label": "\u8D39\u7528"
+          }
+        ]
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [
+          "source"
+        ],
+        "requiredSelectionRoles": [
+          "source"
+        ],
+        "commandFields": [
+          "abilityId",
+          "optionalCosts",
+          "sourceObjectId",
+          "targetObjectIds"
+        ]
+      },
+      "presentation": {
+        "category": "ability",
+        "intent": "legend-act",
+        "uiHint": "card-action",
+        "priority": 170
+      }
+    },
+    {
+      "action": "END_TURN",
+      "label": "\u7ED3\u675F\u56DE\u5408",
+      "enabled": true,
+      "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+      "commandTemplate": {
+        "cmdType": "END_TURN",
+        "bindings": []
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [],
+        "requiredSelectionRoles": [],
+        "commandFields": []
+      },
+      "presentation": {
+        "category": "tempo",
+        "intent": "end-turn",
+        "uiHint": "secondary",
+        "priority": 530
+      }
+    },
+    {
+      "action": "SURRENDER",
+      "label": "\u6295\u964D",
+      "enabled": true,
+      "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+      "commandTemplate": {
+        "cmdType": "SURRENDER",
+        "bindings": []
+      },
+      "composer": {
+        "supported": true,
+        "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+        "selectionRoles": [],
+        "requiredSelectionRoles": [],
+        "commandFields": []
+      },
+      "presentation": {
+        "category": "concede",
+        "intent": "surrender",
+        "uiHint": "danger",
+        "priority": 900
+      }
+    }
+  ],
+  "view": {
+    "type": "MAIN_ACTION",
+    "title": "\u4E3B\u884C\u52A8",
+    "message": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+    "responsibility": {
+      "promptType": "MAIN_ACTION",
+      "promptPlayerId": "P1",
+      "responsiblePlayerId": "P1",
+      "isResponsiblePlayer": true,
+      "actionableForPromptPlayer": true,
+      "state": "PLAYER_ACTION",
+      "nextStep": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u4E3B\u884C\u52A8\u3002",
+      "queueCounts": {
+        "stack": 0,
+        "pendingTasks": 0,
+        "triggerQueue": 0,
+        "pendingPayment": 0,
+        "pendingHandChoice": 0,
+        "pendingCardChoice": 0,
+        "activeBattle": 0
+      },
+      "relatedObjectIds": []
+    }
+  },
+  "objectContexts": [
+    {
+      "objectId": "A",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "MOVE_UNIT",
+          "label": "\u79FB\u52A8\u5355\u4F4D",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u6765\u6E90"
+          ],
+          "commandType": "MOVE_UNIT",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "destination",
+              "source"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "destination",
+              "optionalCosts",
+              "origin",
+              "sourceObjectId"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 1,
+              "index": 0
+            },
+            {
+              "role": "destination",
+              "label": "\u4F4D\u7F6E",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 1
+            }
+          ],
+          "presentation": {
+            "category": "movement",
+            "intent": "move-unit",
+            "uiHint": "card-action",
+            "priority": 140
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "A"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "MOVE_UNIT"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 4 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "MOVE_UNIT / \u6765\u6E90 / \u6B65\u9AA4 \u6765\u6E90* 1/1 / \u4F4D\u7F6E 0/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u79FB\u52A8\u5355\u4F4D / \u6765\u6E90 / 1/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u79FB\u52A8\u5355\u4F4D / \u4F4D\u7F6E / 0/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "AOE",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "PLAY_CARD",
+          "label": "\u6253\u51FA\u5361\u724C",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u6765\u6E90"
+          ],
+          "commandType": "PLAY_CARD",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u76EE\u6807:targetObjectIds",
+            "\u6A21\u5F0F:mode",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "optionalCost",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "cardNo",
+              "destination",
+              "mode",
+              "optionalCosts",
+              "sourceObjectId",
+              "targetObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 1,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": false,
+              "choiceCount": 5,
+              "objectChoiceCount": 0,
+              "index": 1
+            },
+            {
+              "role": "optionalCost",
+              "label": "\u8D39\u7528",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "play",
+            "intent": "play-card",
+            "uiHint": "card-action",
+            "priority": 100
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "AOE"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "PLAY_CARD"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 6 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "PLAY_CARD / \u6765\u6E90 / \u6B65\u9AA4 \u6765\u6E90* 1/1 / \u76EE\u6807 0/5 / \u8D39\u7528 0/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u6765\u6E90 / 1/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u76EE\u6807 / 0/5",
+                "tone": "info"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u8D39\u7528 / 0/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u6A21\u5F0F:mode",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-2",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:targetObjectIds",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-3",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "BATTLEFIELD:BF",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "MOVE_UNIT",
+          "label": "\u79FB\u52A8\u5355\u4F4D",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u4F4D\u7F6E"
+          ],
+          "commandType": "MOVE_UNIT",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "destination",
+              "source"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "destination",
+              "optionalCosts",
+              "origin",
+              "sourceObjectId"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "destination",
+              "label": "\u4F4D\u7F6E",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 1,
+              "index": 1
+            }
+          ],
+          "presentation": {
+            "category": "movement",
+            "intent": "move-unit",
+            "uiHint": "card-action",
+            "priority": 140
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "BATTLEFIELD:BF"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "MOVE_UNIT"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 4 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "MOVE_UNIT / \u4F4D\u7F6E / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u4F4D\u7F6E 1/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u79FB\u52A8\u5355\u4F4D / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u79FB\u52A8\u5355\u4F4D / \u4F4D\u7F6E / 1/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "BATTLEFIELD:P1-MAIN",
+      "enabledCandidateCount": 0,
+      "disabledCandidateCount": 1,
+      "candidates": [
+        {
+          "action": "DECLARE_BATTLE",
+          "label": "\u58F0\u660E\u6218\u6597",
+          "enabled": false,
+          "reason": "\u58F0\u660E\u6218\u6597 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+          "roles": [
+            "\u4F4D\u7F6E"
+          ],
+          "commandType": "DECLARE_BATTLE",
+          "requiredCommandFields": [
+            "\u6765\u6E90:attackerObjectIds*",
+            "\u4F4D\u7F6E:battlefieldId*",
+            "\u76EE\u6807:defenderObjectIds*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:attackerObjectIds*",
+            "\u4F4D\u7F6E:battlefieldId*",
+            "\u76EE\u6807:defenderObjectIds*",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "destination",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "destination",
+              "source",
+              "target"
+            ],
+            "commandFields": [
+              "attackerObjectIds",
+              "battlefieldId",
+              "defenderObjectIds",
+              "optionalCosts"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 0,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": true,
+              "choiceCount": 0,
+              "objectChoiceCount": 0,
+              "index": 1
+            },
+            {
+              "role": "destination",
+              "label": "\u4F4D\u7F6E",
+              "required": true,
+              "choiceCount": 2,
+              "objectChoiceCount": 1,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "battle",
+            "intent": "declare-battle",
+            "uiHint": "battle",
+            "priority": 130
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "BATTLEFIELD:P1-MAIN"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "0 \u53EF\u63D0\u4EA4 / 1 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "DECLARE_BATTLE"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "3 \u5FC5\u586B / 4 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u963B\u65AD",
+                "value": "DECLARE_BATTLE / \u4F4D\u7F6E / \u6B65\u9AA4 \u6765\u6E90* 0/0 / \u76EE\u6807* 0/0 / \u4F4D\u7F6E* 1/2 / \u9700 \u6765\u6E90:attackerObjectIds*/\u4F4D\u7F6E:battlefieldId*/\u76EE\u6807:defenderObjectIds* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u58F0\u660E\u6218\u6597 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+                "tone": "warn"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u6765\u6E90 / 0/0",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u76EE\u6807 / 0/0",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u4F4D\u7F6E / 1/2",
+                "tone": "warn"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u4F4D\u7F6E:battlefieldId*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:attackerObjectIds*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-2",
+                "label": "\u5FC5\u586B",
+                "value": "\u76EE\u6807:defenderObjectIds*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "BF",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 1,
+      "candidates": [
+        {
+          "action": "MOVE_UNIT",
+          "label": "\u79FB\u52A8\u5355\u4F4D",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u4F4D\u7F6E"
+          ],
+          "commandType": "MOVE_UNIT",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "destination",
+              "source"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "destination",
+              "optionalCosts",
+              "origin",
+              "sourceObjectId"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "destination",
+              "label": "\u4F4D\u7F6E",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 1,
+              "index": 1
+            }
+          ],
+          "presentation": {
+            "category": "movement",
+            "intent": "move-unit",
+            "uiHint": "card-action",
+            "priority": 140
+          }
+        },
+        {
+          "action": "DECLARE_BATTLE",
+          "label": "\u58F0\u660E\u6218\u6597",
+          "enabled": false,
+          "reason": "\u58F0\u660E\u6218\u6597 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+          "roles": [
+            "\u4F4D\u7F6E"
+          ],
+          "commandType": "DECLARE_BATTLE",
+          "requiredCommandFields": [
+            "\u6765\u6E90:attackerObjectIds*",
+            "\u4F4D\u7F6E:battlefieldId*",
+            "\u76EE\u6807:defenderObjectIds*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:attackerObjectIds*",
+            "\u4F4D\u7F6E:battlefieldId*",
+            "\u76EE\u6807:defenderObjectIds*",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "destination",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "destination",
+              "source",
+              "target"
+            ],
+            "commandFields": [
+              "attackerObjectIds",
+              "battlefieldId",
+              "defenderObjectIds",
+              "optionalCosts"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 0,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": true,
+              "choiceCount": 0,
+              "objectChoiceCount": 0,
+              "index": 1
+            },
+            {
+              "role": "destination",
+              "label": "\u4F4D\u7F6E",
+              "required": true,
+              "choiceCount": 2,
+              "objectChoiceCount": 1,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "battle",
+            "intent": "declare-battle",
+            "uiHint": "battle",
+            "priority": 130
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "BF"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 1 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "DECLARE_BATTLE / MOVE_UNIT"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "5 \u5FC5\u586B / 7 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "MOVE_UNIT / \u4F4D\u7F6E / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u4F4D\u7F6E 1/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              },
+              {
+                "key": "candidate-1",
+                "label": "\u963B\u65AD",
+                "value": "DECLARE_BATTLE / \u4F4D\u7F6E / \u6B65\u9AA4 \u6765\u6E90* 0/0 / \u76EE\u6807* 0/0 / \u4F4D\u7F6E* 1/2 / \u9700 \u6765\u6E90:attackerObjectIds*/\u4F4D\u7F6E:battlefieldId*/\u76EE\u6807:defenderObjectIds* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u58F0\u660E\u6218\u6597 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+                "tone": "warn"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u79FB\u52A8\u5355\u4F4D / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u79FB\u52A8\u5355\u4F4D / \u4F4D\u7F6E / 1/1",
+                "tone": "info"
+              },
+              {
+                "key": "step-1-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u6765\u6E90 / 0/0",
+                "tone": "warn"
+              },
+              {
+                "key": "step-1-1",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u76EE\u6807 / 0/0",
+                "tone": "warn"
+              },
+              {
+                "key": "step-1-2",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u4F4D\u7F6E / 1/2",
+                "tone": "warn"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u4F4D\u7F6E:battlefieldId*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-2",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:attackerObjectIds*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-3",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-4",
+                "label": "\u5FC5\u586B",
+                "value": "\u76EE\u6807:defenderObjectIds*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "D",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "PLAY_CARD",
+          "label": "\u6253\u51FA\u5361\u724C",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u76EE\u6807"
+          ],
+          "commandType": "PLAY_CARD",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u76EE\u6807:targetObjectIds",
+            "\u6A21\u5F0F:mode",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "optionalCost",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "cardNo",
+              "destination",
+              "mode",
+              "optionalCosts",
+              "sourceObjectId",
+              "targetObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": false,
+              "choiceCount": 5,
+              "objectChoiceCount": 1,
+              "index": 1
+            },
+            {
+              "role": "optionalCost",
+              "label": "\u8D39\u7528",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "play",
+            "intent": "play-card",
+            "uiHint": "card-action",
+            "priority": 100
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "D"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "PLAY_CARD"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 6 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "PLAY_CARD / \u76EE\u6807 / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u76EE\u6807 1/5 / \u8D39\u7528 0/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u76EE\u6807 / 1/5",
+                "tone": "info"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u8D39\u7528 / 0/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u6A21\u5F0F:mode",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-2",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:targetObjectIds",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-3",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "D2",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "PLAY_CARD",
+          "label": "\u6253\u51FA\u5361\u724C",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u76EE\u6807"
+          ],
+          "commandType": "PLAY_CARD",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u76EE\u6807:targetObjectIds",
+            "\u6A21\u5F0F:mode",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "optionalCost",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "cardNo",
+              "destination",
+              "mode",
+              "optionalCosts",
+              "sourceObjectId",
+              "targetObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": false,
+              "choiceCount": 5,
+              "objectChoiceCount": 1,
+              "index": 1
+            },
+            {
+              "role": "optionalCost",
+              "label": "\u8D39\u7528",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "play",
+            "intent": "play-card",
+            "uiHint": "card-action",
+            "priority": 100
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "D2"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "PLAY_CARD"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 6 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "PLAY_CARD / \u76EE\u6807 / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u76EE\u6807 1/5 / \u8D39\u7528 0/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u76EE\u6807 / 1/5",
+                "tone": "info"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u8D39\u7528 / 0/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u6A21\u5F0F:mode",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-2",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:targetObjectIds",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-3",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "D3",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "PLAY_CARD",
+          "label": "\u6253\u51FA\u5361\u724C",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u76EE\u6807"
+          ],
+          "commandType": "PLAY_CARD",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u76EE\u6807:targetObjectIds",
+            "\u6A21\u5F0F:mode",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "optionalCost",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "cardNo",
+              "destination",
+              "mode",
+              "optionalCosts",
+              "sourceObjectId",
+              "targetObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": false,
+              "choiceCount": 5,
+              "objectChoiceCount": 1,
+              "index": 1
+            },
+            {
+              "role": "optionalCost",
+              "label": "\u8D39\u7528",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "play",
+            "intent": "play-card",
+            "uiHint": "card-action",
+            "priority": 100
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "D3"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "PLAY_CARD"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 6 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "PLAY_CARD / \u76EE\u6807 / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u76EE\u6807 1/5 / \u8D39\u7528 0/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u76EE\u6807 / 1/5",
+                "tone": "info"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u8D39\u7528 / 0/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u6A21\u5F0F:mode",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-2",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:targetObjectIds",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-3",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "D4",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "PLAY_CARD",
+          "label": "\u6253\u51FA\u5361\u724C",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u76EE\u6807"
+          ],
+          "commandType": "PLAY_CARD",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u76EE\u6807:targetObjectIds",
+            "\u6A21\u5F0F:mode",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "optionalCost",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "cardNo",
+              "destination",
+              "mode",
+              "optionalCosts",
+              "sourceObjectId",
+              "targetObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": false,
+              "choiceCount": 5,
+              "objectChoiceCount": 1,
+              "index": 1
+            },
+            {
+              "role": "optionalCost",
+              "label": "\u8D39\u7528",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "play",
+            "intent": "play-card",
+            "uiHint": "card-action",
+            "priority": 100
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "D4"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "PLAY_CARD"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 6 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "PLAY_CARD / \u76EE\u6807 / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u76EE\u6807 1/5 / \u8D39\u7528 0/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u76EE\u6807 / 1/5",
+                "tone": "info"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u8D39\u7528 / 0/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u6A21\u5F0F:mode",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-2",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:targetObjectIds",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-3",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "D5",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "PLAY_CARD",
+          "label": "\u6253\u51FA\u5361\u724C",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u76EE\u6807"
+          ],
+          "commandType": "PLAY_CARD",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u76EE\u6807:targetObjectIds",
+            "\u6A21\u5F0F:mode",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "optionalCost",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "cardNo",
+              "destination",
+              "mode",
+              "optionalCosts",
+              "sourceObjectId",
+              "targetObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": false,
+              "choiceCount": 5,
+              "objectChoiceCount": 1,
+              "index": 1
+            },
+            {
+              "role": "optionalCost",
+              "label": "\u8D39\u7528",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "play",
+            "intent": "play-card",
+            "uiHint": "card-action",
+            "priority": 100
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "D5"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "PLAY_CARD"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 6 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "PLAY_CARD / \u76EE\u6807 / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u76EE\u6807 1/5 / \u8D39\u7528 0/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u76EE\u6807 / 1/5",
+                "tone": "info"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u8D39\u7528 / 0/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u6A21\u5F0F:mode",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-2",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:targetObjectIds",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-3",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "P1-MAIN",
+      "enabledCandidateCount": 0,
+      "disabledCandidateCount": 1,
+      "candidates": [
+        {
+          "action": "DECLARE_BATTLE",
+          "label": "\u58F0\u660E\u6218\u6597",
+          "enabled": false,
+          "reason": "\u58F0\u660E\u6218\u6597 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+          "roles": [
+            "\u4F4D\u7F6E"
+          ],
+          "commandType": "DECLARE_BATTLE",
+          "requiredCommandFields": [
+            "\u6765\u6E90:attackerObjectIds*",
+            "\u4F4D\u7F6E:battlefieldId*",
+            "\u76EE\u6807:defenderObjectIds*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:attackerObjectIds*",
+            "\u4F4D\u7F6E:battlefieldId*",
+            "\u76EE\u6807:defenderObjectIds*",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "destination",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "destination",
+              "source",
+              "target"
+            ],
+            "commandFields": [
+              "attackerObjectIds",
+              "battlefieldId",
+              "defenderObjectIds",
+              "optionalCosts"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 0,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": true,
+              "choiceCount": 0,
+              "objectChoiceCount": 0,
+              "index": 1
+            },
+            {
+              "role": "destination",
+              "label": "\u4F4D\u7F6E",
+              "required": true,
+              "choiceCount": 2,
+              "objectChoiceCount": 1,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "battle",
+            "intent": "declare-battle",
+            "uiHint": "battle",
+            "priority": 130
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "P1-MAIN"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "0 \u53EF\u63D0\u4EA4 / 1 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "DECLARE_BATTLE"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "3 \u5FC5\u586B / 4 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u963B\u65AD",
+                "value": "DECLARE_BATTLE / \u4F4D\u7F6E / \u6B65\u9AA4 \u6765\u6E90* 0/0 / \u76EE\u6807* 0/0 / \u4F4D\u7F6E* 1/2 / \u9700 \u6765\u6E90:attackerObjectIds*/\u4F4D\u7F6E:battlefieldId*/\u76EE\u6807:defenderObjectIds* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u58F0\u660E\u6218\u6597 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+                "tone": "warn"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u6765\u6E90 / 0/0",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u76EE\u6807 / 0/0",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u5FC5\u9009",
+                "value": "\u58F0\u660E\u6218\u6597 / \u4F4D\u7F6E / 1/2",
+                "tone": "warn"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u4F4D\u7F6E:battlefieldId*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:attackerObjectIds*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-2",
+                "label": "\u5FC5\u586B",
+                "value": "\u76EE\u6807:defenderObjectIds*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "PRINTED_POWER",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "PLAY_CARD",
+          "label": "\u6253\u51FA\u5361\u724C",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u8D39\u7528"
+          ],
+          "commandType": "PLAY_CARD",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u76EE\u6807:targetObjectIds",
+            "\u6A21\u5F0F:mode",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "optionalCost",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "cardNo",
+              "destination",
+              "mode",
+              "optionalCosts",
+              "sourceObjectId",
+              "targetObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": false,
+              "choiceCount": 5,
+              "objectChoiceCount": 0,
+              "index": 1
+            },
+            {
+              "role": "optionalCost",
+              "label": "\u8D39\u7528",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 1,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "play",
+            "intent": "play-card",
+            "uiHint": "card-action",
+            "priority": 100
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "PRINTED_POWER"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "PLAY_CARD"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 6 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "PLAY_CARD / \u8D39\u7528 / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u76EE\u6807 0/5 / \u8D39\u7528 1/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u76EE\u6807 / 0/5",
+                "tone": "info"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u8D39\u7528 / 1/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u6A21\u5F0F:mode",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-2",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:targetObjectIds",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-3",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    },
+    {
+      "objectId": "PRINTED_POWER:",
+      "enabledCandidateCount": 1,
+      "disabledCandidateCount": 0,
+      "candidates": [
+        {
+          "action": "PLAY_CARD",
+          "label": "\u6253\u51FA\u5361\u724C",
+          "enabled": true,
+          "reason": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+          "roles": [
+            "\u8D39\u7528"
+          ],
+          "commandType": "PLAY_CARD",
+          "requiredCommandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*"
+          ],
+          "commandFields": [
+            "\u6765\u6E90:sourceObjectId*",
+            "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+            "\u76EE\u6807:targetObjectIds",
+            "\u6A21\u5F0F:mode",
+            "\u4F4D\u7F6E:destination",
+            "\u8D39\u7528:optionalCosts"
+          ],
+          "composer": {
+            "supported": true,
+            "reason": "\u670D\u52A1\u7AEF\u5DF2\u516C\u5F00\u547D\u4EE4\u6A21\u677F\uFF1B\u524D\u7AEF\u53EA\u8D1F\u8D23\u7EC4\u88C5\u5019\u9009\u9009\u62E9\u5E76\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF\u89C4\u5219\u6821\u9A8C\u3002",
+            "selectionRoles": [
+              "optionalCost",
+              "source",
+              "target"
+            ],
+            "requiredSelectionRoles": [
+              "source"
+            ],
+            "commandFields": [
+              "cardNo",
+              "destination",
+              "mode",
+              "optionalCosts",
+              "sourceObjectId",
+              "targetObjectIds"
+            ]
+          },
+          "selectionSteps": [
+            {
+              "role": "source",
+              "label": "\u6765\u6E90",
+              "required": true,
+              "choiceCount": 1,
+              "objectChoiceCount": 0,
+              "index": 0
+            },
+            {
+              "role": "target",
+              "label": "\u76EE\u6807",
+              "required": false,
+              "choiceCount": 5,
+              "objectChoiceCount": 0,
+              "index": 1
+            },
+            {
+              "role": "optionalCost",
+              "label": "\u8D39\u7528",
+              "required": false,
+              "choiceCount": 1,
+              "objectChoiceCount": 1,
+              "index": 2
+            }
+          ],
+          "presentation": {
+            "category": "play",
+            "intent": "play-card",
+            "uiHint": "card-action",
+            "priority": 100
+          }
+        }
+      ],
+      "inspection": {
+        "source": "server-action-prompt",
+        "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "summaryRows": [
+          {
+            "key": "object",
+            "label": "\u5BF9\u8C61",
+            "value": "PRINTED_POWER:"
+          },
+          {
+            "key": "candidate",
+            "label": "\u5019\u9009",
+            "value": "1 \u53EF\u63D0\u4EA4 / 0 \u963B\u65AD"
+          },
+          {
+            "key": "commands",
+            "label": "\u547D\u4EE4",
+            "value": "PLAY_CARD"
+          },
+          {
+            "key": "fields",
+            "label": "\u5B57\u6BB5",
+            "value": "2 \u5FC5\u586B / 6 \u516C\u5F00"
+          }
+        ],
+        "groups": [
+          {
+            "key": "candidate",
+            "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+            "rows": [
+              {
+                "key": "candidate-0",
+                "label": "\u53EF\u63D0\u4EA4",
+                "value": "PLAY_CARD / \u8D39\u7528 / \u6B65\u9AA4 \u6765\u6E90* 0/1 / \u76EE\u6807 0/5 / \u8D39\u7528 1/1 / \u9700 \u6765\u6E90:sourceObjectId*/\u670D\u52A1\u7AEF\u5B57\u6BB5* / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+                "tone": "good"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u884C\u52A8\u63D0\u793A\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+          },
+          {
+            "key": "selection-steps",
+            "title": "\u9009\u62E9\u6B65\u9AA4",
+            "rows": [
+              {
+                "key": "step-0-0",
+                "label": "\u5FC5\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u6765\u6E90 / 0/1",
+                "tone": "warn"
+              },
+              {
+                "key": "step-0-1",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u76EE\u6807 / 0/5",
+                "tone": "info"
+              },
+              {
+                "key": "step-0-2",
+                "label": "\u53EF\u9009",
+                "value": "\u6253\u51FA\u5361\u724C / \u8D39\u7528 / 1/1",
+                "tone": "info"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u9009\u62E9\u6B65\u9AA4\u3002"
+          },
+          {
+            "key": "command-fields",
+            "title": "\u547D\u4EE4\u5B57\u6BB5",
+            "rows": [
+              {
+                "key": "required-0",
+                "label": "\u5FC5\u586B",
+                "value": "\u670D\u52A1\u7AEF\u5B57\u6BB5*",
+                "tone": "warn"
+              },
+              {
+                "key": "required-1",
+                "label": "\u5FC5\u586B",
+                "value": "\u6765\u6E90:sourceObjectId*",
+                "tone": "warn"
+              },
+              {
+                "key": "optional-0",
+                "label": "\u516C\u5F00",
+                "value": "\u4F4D\u7F6E:destination",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-1",
+                "label": "\u516C\u5F00",
+                "value": "\u6A21\u5F0F:mode",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-2",
+                "label": "\u516C\u5F00",
+                "value": "\u76EE\u6807:targetObjectIds",
+                "tone": "neutral"
+              },
+              {
+                "key": "optional-3",
+                "label": "\u516C\u5F00",
+                "value": "\u8D39\u7528:optionalCosts",
+                "tone": "neutral"
+              }
+            ],
+            "emptyLabel": "\u5F53\u524D\u5019\u9009\u6CA1\u6709\u516C\u5F00\u547D\u4EE4\u5B57\u6BB5\u3002"
+          },
+          {
+            "key": "safe-boundary",
+            "title": "\u4FE1\u606F\u8FB9\u754C",
+            "rows": [
+              {
+                "key": "source",
+                "label": "\u6765\u6E90",
+                "value": "\u670D\u52A1\u7AEF\u884C\u52A8\u63D0\u793A",
+                "tone": "info"
+              },
+              {
+                "key": "hidden-metadata",
+                "label": "\u9690\u85CF\u5B57\u6BB5",
+                "value": "\u4E0D\u516C\u5F00\u5177\u4F53 metadata key/value",
+                "tone": "neutral"
+              },
+              {
+                "key": "rules",
+                "label": "\u89C4\u5219\u5224\u65AD",
+                "value": "\u7531\u670D\u52A1\u7AEF\u5019\u9009\u4E0E\u540E\u7EED\u6821\u9A8C\u88C1\u5B9A\uFF0C\u524D\u7AEF\u4E0D\u91CD\u7B97",
+                "tone": "neutral"
+              }
+            ]
+          }
+        ]
+      },
+      "source": "server-action-prompt",
+      "boundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002"
+    }
+  ],
+  "inspection": {
+    "source": "server-action-prompt",
+    "boundary": "\u670D\u52A1\u7AEF\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u7A97\u53E3\u7684\u7C7B\u578B\u3001\u5019\u9009\u3001\u547D\u4EE4\u5951\u7EA6\u548C\u5BF9\u8C61\u7D22\u5F15\u6458\u8981\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u63D0\u793A\u68C0\u67E5\u3002",
+    "summaryRows": [
+      {
+        "key": "kind",
+        "label": "\u63D0\u793A\u7C7B\u578B",
+        "value": "MAIN_ACTION"
+      },
+      {
+        "key": "state",
+        "label": "\u7A97\u53E3",
+        "value": "\u53EF\u884C\u52A8",
+        "tone": "good"
+      },
+      {
+        "key": "candidate",
+        "label": "\u5019\u9009",
+        "value": "4 \u53EF\u63D0\u4EA4 / 8 \u963B\u65AD"
+      },
+      {
+        "key": "objects",
+        "label": "\u5BF9\u8C61\u7D22\u5F15",
+        "value": "13 \u4E2A\u5BF9\u8C61"
+      }
+    ],
+    "groups": [
+      {
+        "key": "candidate",
+        "title": "\u670D\u52A1\u7AEF\u5019\u9009",
+        "rows": [
+          {
+            "key": "candidate-0",
+            "label": "\u53EF\u63D0\u4EA4",
+            "value": "PLAY_CARD / \u6765\u6E90 1 / \u76EE\u6807 5 / \u8D39\u7528 1 / \u6B65\u9AA4 3 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+            "tone": "good"
+          },
+          {
+            "key": "candidate-1",
+            "label": "\u963B\u65AD",
+            "value": "ACTIVATE_ABILITY / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u6FC0\u6D3B\u80FD\u529B \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-2",
+            "label": "\u963B\u65AD",
+            "value": "ASSEMBLE_EQUIPMENT / \u6765\u6E90 0 / \u6B65\u9AA4 2 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u88C5\u914D\u88C5\u5907 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-3",
+            "label": "\u53EF\u63D0\u4EA4",
+            "value": "MOVE_UNIT / \u6765\u6E90 1 / \u4F4D\u7F6E 1 / \u6B65\u9AA4 2 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+            "tone": "good"
+          },
+          {
+            "key": "candidate-4",
+            "label": "\u963B\u65AD",
+            "value": "DECLARE_BATTLE / \u6765\u6E90 0 / \u4F4D\u7F6E 2 / \u6B65\u9AA4 3 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u58F0\u660E\u6218\u6597 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-5",
+            "label": "\u963B\u65AD",
+            "value": "HIDE_CARD / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u5E03\u7F6E\u5F85\u547D \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-6",
+            "label": "\u963B\u65AD",
+            "value": "REVEAL_CARD / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u7FFB\u5F00\u5F85\u547D \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-7",
+            "label": "\u963B\u65AD",
+            "value": "TAP_RUNE / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u6A2A\u7F6E\u7B26\u6587 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-8",
+            "label": "\u963B\u65AD",
+            "value": "RECYCLE_RUNE / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u56DE\u6536\u7B26\u6587 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-9",
+            "label": "\u963B\u65AD",
+            "value": "LEGEND_ACT / \u6765\u6E90 0 / \u6B65\u9AA4 1 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E / \u4F20\u5947\u884C\u52A8 \u5F53\u524D\u6CA1\u6709\u670D\u52A1\u7AEF\u53EF\u6267\u884C\u5019\u9009",
+            "tone": "warn"
+          },
+          {
+            "key": "candidate-10",
+            "label": "\u53EF\u63D0\u4EA4",
+            "value": "END_TURN / \u6765\u6E90 0 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+            "tone": "good"
+          },
+          {
+            "key": "candidate-11",
+            "label": "\u53EF\u63D0\u4EA4",
+            "value": "SURRENDER / \u6765\u6E90 0 / \u7EC4\u5408 \u670D\u52A1\u7AEF\u58F0\u660E",
+            "tone": "good"
+          }
+        ],
+        "emptyLabel": "\u5F53\u524D\u7A97\u53E3\u6CA1\u6709\u516C\u5F00\u5019\u9009\u3002"
+      },
+      {
+        "key": "contract",
+        "title": "\u63D0\u4EA4\u5951\u7EA6",
+        "rows": [
+          {
+            "key": "actions",
+            "label": "\u884C\u52A8",
+            "value": "PLAY_CARD / ACTIVATE_ABILITY / ASSEMBLE_EQUIPMENT / MOVE_UNIT / DECLARE_BATTLE / HIDE_CARD / REVEAL_CARD / TAP_RUNE / RECYCLE_RUNE / LEGEND_ACT / END_TURN / SURRENDER",
+            "tone": "neutral"
+          },
+          {
+            "key": "contract",
+            "label": "\u5951\u7EA6",
+            "value": "\u65E0\u4E13\u7528\u5951\u7EA6\uFF0C\u4ECD\u7531\u670D\u52A1\u7AEF\u547D\u4EE4\u6821\u9A8C\u88C1\u5B9A",
+            "tone": "neutral"
+          }
+        ],
+        "emptyLabel": "\u5F53\u524D\u7A97\u53E3\u6CA1\u6709\u4E13\u7528\u63D0\u4EA4\u5951\u7EA6\u3002"
+      },
+      {
+        "key": "object-index",
+        "title": "\u5BF9\u8C61\u7D22\u5F15",
+        "rows": [
+          {
+            "key": "count",
+            "label": "\u7D22\u5F15",
+            "value": "13 \u4E2A\u5BF9\u8C61",
+            "tone": "info"
+          },
+          {
+            "key": "source",
+            "label": "\u6765\u6E90",
+            "value": "\u670D\u52A1\u7AEF\u9009\u62E9\u6B65\u9AA4\u4E0E\u547D\u4EE4\u6A21\u677F",
+            "tone": "info"
+          }
+        ]
+      },
+      {
+        "key": "safe-boundary",
+        "title": "\u4FE1\u606F\u8FB9\u754C",
+        "rows": [
+          {
+            "key": "candidate-source",
+            "label": "\u5408\u6CD5\u6027",
+            "value": "\u4EC5\u4EE5\u670D\u52A1\u7AEF\u5019\u9009\u548C\u63D0\u4EA4\u6821\u9A8C\u4E3A\u51C6",
+            "tone": "neutral"
+          },
+          {
+            "key": "hidden-metadata",
+            "label": "\u9690\u85CF\u5B57\u6BB5",
+            "value": "\u53EA\u516C\u5F00\u8BA1\u6570\u6216\u5B89\u5168\u6807\u7B7E\uFF0C\u4E0D\u5C55\u5F00\u9690\u85CF metadata",
+            "tone": "neutral"
+          },
+          {
+            "key": "frontend",
+            "label": "\u524D\u7AEF\u804C\u8D23",
+            "value": "\u5C55\u793A\u4E0E\u63D0\u4EA4\uFF0C\u4E0D\u91CD\u7B97\u89C4\u5219",
+            "tone": "neutral"
+          }
+        ]
+      }
+    ]
+  },
+  "serverFlow": {
+    "state": "ready",
+    "stateLabel": "\u53EF\u63D0\u4EA4",
+    "tone": "good",
+    "primaryLabel": "\u63D0\u4EA4\u7ED9\u670D\u52A1\u7AEF",
+    "summary": "\u4E3B\u884C\u52A8 / \u53EF\u63D0\u4EA4 / \u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u4E3B\u884C\u52A8\u3002",
+    "nextStep": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u4E3B\u884C\u52A8\u3002",
+    "reason": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u4E3B\u884C\u52A8\u3002",
+    "promptType": "MAIN_ACTION",
+    "promptPlayerId": "P1",
+    "responsiblePlayerId": "P1",
+    "isResponsiblePlayer": true,
+    "actionableForPromptPlayer": true,
+    "candidateCount": 12,
+    "enabledCandidateCount": 4,
+    "disabledCandidateCount": 8,
+    "queueCounts": {
+      "stack": 0,
+      "pendingTasks": 0,
+      "triggerQueue": 0,
+      "pendingPayment": 0,
+      "pendingHandChoice": 0,
+      "pendingCardChoice": 0,
+      "activeBattle": 0
+    },
+    "lanes": [
+      {
+        "key": "stack",
+        "label": "\u7ED3\u7B97\u94FE",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u9879\u76EE"
+      },
+      {
+        "key": "task",
+        "label": "\u4EFB\u52A1",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u4EFB\u52A1"
+      },
+      {
+        "key": "trigger",
+        "label": "\u89E6\u53D1",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u89E6\u53D1"
+      },
+      {
+        "key": "resolution",
+        "label": "\u7ED3\u7B97",
+        "count": 0,
+        "state": "empty",
+        "headline": "\u65E0\u7ED3\u7B97\u8BB0\u5F55"
+      }
+    ],
+    "steps": [
+      {
+        "key": "prompt",
+        "label": "\u884C\u52A8\u7A97\u53E3",
+        "state": "ready",
+        "stateLabel": "\u53EF\u884C\u52A8",
+        "value": "\u4E3B\u884C\u52A8",
+        "detail": "\u5F53\u524D\u73A9\u5BB6\u666E\u901A\u5F00\u73AF\u884C\u52A8",
+        "role": "window"
+      },
+      {
+        "key": "responsibility",
+        "label": "\u8D23\u4EFB\u65B9",
+        "state": "ready",
+        "stateLabel": "PLAYER_ACTION",
+        "value": "P1",
+        "detail": "\u6839\u636E\u670D\u52A1\u7AEF\u5019\u9009\u5904\u7406\u4E3B\u884C\u52A8\u3002",
+        "role": "responsibility"
+      },
+      {
+        "key": "candidate",
+        "label": "\u5019\u9009",
+        "state": "ready",
+        "stateLabel": "4 \u53EF\u63D0\u4EA4",
+        "value": "PLAY_CARD / ACTIVATE_ABILITY / ASSEMBLE_EQUIPMENT / MOVE_UNIT / DECLARE_BATTLE / HIDE_CARD / REVEAL_CARD / TAP_RUNE / RECYCLE_RUNE / LEGEND_ACT / END_TURN / SURRENDER",
+        "detail": "\u524D\u7AEF\u53EA\u63D0\u4EA4\u670D\u52A1\u7AEF\u5019\u9009\uFF0C\u4E0D\u91CD\u7B97\u5408\u6CD5\u6027\u3002",
+        "role": "candidate"
+      }
+    ],
+    "relatedObjectIds": [
+      "A",
+      "AOE",
+      "BATTLEFIELD:BF",
+      "BATTLEFIELD:P1-MAIN",
+      "BF",
+      "D",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "P1-MAIN",
+      "PRINTED_POWER",
+      "PRINTED_POWER:"
+    ],
+    "relatedObjects": [
+      {
+        "objectId": "A",
+        "role": "\u5019\u9009\u6765\u6E90",
+        "candidateRoles": [
+          "\u6765\u6E90"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 1,
+            "index": 0
+          },
+          {
+            "role": "destination",
+            "label": "\u4F4D\u7F6E",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 1
+          }
+        ],
+        "candidateActions": [
+          "MOVE_UNIT"
+        ]
+      },
+      {
+        "objectId": "AOE",
+        "role": "\u5019\u9009\u6765\u6E90",
+        "candidateRoles": [
+          "\u6765\u6E90"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 1,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": false,
+            "choiceCount": 5,
+            "objectChoiceCount": 0,
+            "index": 1
+          },
+          {
+            "role": "optionalCost",
+            "label": "\u8D39\u7528",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "PLAY_CARD"
+        ]
+      },
+      {
+        "objectId": "BATTLEFIELD:BF",
+        "role": "\u5019\u9009\u4F4D\u7F6E",
+        "candidateRoles": [
+          "\u4F4D\u7F6E"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "destination",
+            "label": "\u4F4D\u7F6E",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 1,
+            "index": 1
+          }
+        ],
+        "candidateActions": [
+          "MOVE_UNIT"
+        ]
+      },
+      {
+        "objectId": "BATTLEFIELD:P1-MAIN",
+        "role": "\u5019\u9009\u4F4D\u7F6E",
+        "candidateRoles": [
+          "\u4F4D\u7F6E"
+        ],
+        "enabledCandidateCount": 0,
+        "disabledCandidateCount": 1,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 0,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": true,
+            "choiceCount": 0,
+            "objectChoiceCount": 0,
+            "index": 1
+          },
+          {
+            "role": "destination",
+            "label": "\u4F4D\u7F6E",
+            "required": true,
+            "choiceCount": 2,
+            "objectChoiceCount": 1,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "DECLARE_BATTLE"
+        ]
+      },
+      {
+        "objectId": "BF",
+        "role": "\u5019\u9009\u4F4D\u7F6E",
+        "candidateRoles": [
+          "\u4F4D\u7F6E"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 1,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "destination",
+            "label": "\u4F4D\u7F6E",
+            "required": true,
+            "choiceCount": 2,
+            "objectChoiceCount": 1,
+            "index": 1
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": true,
+            "choiceCount": 0,
+            "objectChoiceCount": 0,
+            "index": 1
+          }
+        ],
+        "candidateActions": [
+          "DECLARE_BATTLE",
+          "MOVE_UNIT"
+        ]
+      },
+      {
+        "objectId": "D",
+        "role": "\u5019\u9009\u76EE\u6807",
+        "candidateRoles": [
+          "\u76EE\u6807"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": false,
+            "choiceCount": 5,
+            "objectChoiceCount": 1,
+            "index": 1
+          },
+          {
+            "role": "optionalCost",
+            "label": "\u8D39\u7528",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "PLAY_CARD"
+        ]
+      },
+      {
+        "objectId": "D2",
+        "role": "\u5019\u9009\u76EE\u6807",
+        "candidateRoles": [
+          "\u76EE\u6807"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": false,
+            "choiceCount": 5,
+            "objectChoiceCount": 1,
+            "index": 1
+          },
+          {
+            "role": "optionalCost",
+            "label": "\u8D39\u7528",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "PLAY_CARD"
+        ]
+      },
+      {
+        "objectId": "D3",
+        "role": "\u5019\u9009\u76EE\u6807",
+        "candidateRoles": [
+          "\u76EE\u6807"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": false,
+            "choiceCount": 5,
+            "objectChoiceCount": 1,
+            "index": 1
+          },
+          {
+            "role": "optionalCost",
+            "label": "\u8D39\u7528",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "PLAY_CARD"
+        ]
+      },
+      {
+        "objectId": "D4",
+        "role": "\u5019\u9009\u76EE\u6807",
+        "candidateRoles": [
+          "\u76EE\u6807"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": false,
+            "choiceCount": 5,
+            "objectChoiceCount": 1,
+            "index": 1
+          },
+          {
+            "role": "optionalCost",
+            "label": "\u8D39\u7528",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "PLAY_CARD"
+        ]
+      },
+      {
+        "objectId": "D5",
+        "role": "\u5019\u9009\u76EE\u6807",
+        "candidateRoles": [
+          "\u76EE\u6807"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": false,
+            "choiceCount": 5,
+            "objectChoiceCount": 1,
+            "index": 1
+          },
+          {
+            "role": "optionalCost",
+            "label": "\u8D39\u7528",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "PLAY_CARD"
+        ]
+      },
+      {
+        "objectId": "P1-MAIN",
+        "role": "\u5019\u9009\u4F4D\u7F6E",
+        "candidateRoles": [
+          "\u4F4D\u7F6E"
+        ],
+        "enabledCandidateCount": 0,
+        "disabledCandidateCount": 1,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 0,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": true,
+            "choiceCount": 0,
+            "objectChoiceCount": 0,
+            "index": 1
+          },
+          {
+            "role": "destination",
+            "label": "\u4F4D\u7F6E",
+            "required": true,
+            "choiceCount": 2,
+            "objectChoiceCount": 1,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "DECLARE_BATTLE"
+        ]
+      },
+      {
+        "objectId": "PRINTED_POWER",
+        "role": "\u5019\u9009\u8D39\u7528",
+        "candidateRoles": [
+          "\u8D39\u7528"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": false,
+            "choiceCount": 5,
+            "objectChoiceCount": 0,
+            "index": 1
+          },
+          {
+            "role": "optionalCost",
+            "label": "\u8D39\u7528",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 1,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "PLAY_CARD"
+        ]
+      },
+      {
+        "objectId": "PRINTED_POWER:",
+        "role": "\u5019\u9009\u8D39\u7528",
+        "candidateRoles": [
+          "\u8D39\u7528"
+        ],
+        "enabledCandidateCount": 1,
+        "disabledCandidateCount": 0,
+        "candidateSource": "server-action-prompt",
+        "candidateBoundary": "\u670D\u52A1\u7AEF\u5BF9\u8C61\u4E0A\u4E0B\u6587\u53EA\u516C\u5F00\u5F53\u524D\u884C\u52A8\u63D0\u793A\u4E2D\u7684\u5BF9\u8C61\u5019\u9009\u3001\u9009\u62E9\u6B65\u9AA4\u548C\u547D\u4EE4\u5B57\u6BB5\uFF1B\u9690\u85CF metadata\u3001\u9690\u85CF\u533A\u5185\u5BB9\u548C\u672A\u516C\u5F00\u5361\u724C\u8EAB\u4EFD\u4E0D\u8FDB\u5165\u5BF9\u8C61\u4E0A\u4E0B\u6587\u3002",
+        "candidateSteps": [
+          {
+            "role": "source",
+            "label": "\u6765\u6E90",
+            "required": true,
+            "choiceCount": 1,
+            "objectChoiceCount": 0,
+            "index": 0
+          },
+          {
+            "role": "target",
+            "label": "\u76EE\u6807",
+            "required": false,
+            "choiceCount": 5,
+            "objectChoiceCount": 0,
+            "index": 1
+          },
+          {
+            "role": "optionalCost",
+            "label": "\u8D39\u7528",
+            "required": false,
+            "choiceCount": 1,
+            "objectChoiceCount": 1,
+            "index": 2
+          }
+        ],
+        "candidateActions": [
+          "PLAY_CARD"
+        ]
+      }
+    ]
+  }
+}

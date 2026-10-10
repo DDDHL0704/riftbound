@@ -83,6 +83,7 @@
         "hand": [],
         "base": [],
         "battlefields": [
+          "BF",
           "P2-SPIRIT-FIRE-SPELLSHIELD-001",
           "P2-SPIRIT-FIRE-SPELLSHIELD2-001",
           "P2-SPIRIT-FIRE-KEEPER-001"
@@ -97,7 +98,14 @@
         ]
       }
     },
+    "objectLocations": {
+      "BF": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
+      "P2-SPIRIT-FIRE-SPELLSHIELD-001": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
+      "P2-SPIRIT-FIRE-SPELLSHIELD2-001": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
+      "P2-SPIRIT-FIRE-KEEPER-001": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" }
+    },
     "cardObjects": {
+      "BF": { "cardNo": "OGN·296/298", "ownerId": "P2", "controllerId": "P2", "tags": ["CARD_TYPE:BATTLEFIELD"] },
       "P2-SPIRIT-FIRE-SPELLSHIELD-001": {
         "damage": 0,
         "power": 2,
@@ -273,6 +281,7 @@
         },
         "P2": {
           "battlefields": [
+            "BF",
             "P2-SPIRIT-FIRE-KEEPER-001"
           ],
           "graveyard": [

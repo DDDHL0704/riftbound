@@ -21166,7 +21166,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
             || !PlayCardTargetsExposeKnownCardNumbers(state, targetObjectIds)
             || !CreatedBaseUnitCopyTargetAllowed(state, behavior, targetObjectIds)
-            || !HasValidTotalTargetPower(state, behavior, targetObjectIds)
+            || !HasValidTargetGroup(state, behavior, targetObjectIds)
             || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
             || !HasValidSwapTargetLocations(state, behavior, targetObjectIds)
@@ -25605,6 +25605,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return 1;
         }
 
+        if (behavior.AnyNumberOfTargets) return stackItem.TargetObjectIds.Count;
         if (IsStandbyReactionStackItem(behavior, stackItem))
         {
             return Math.Max(0, behavior.StandbyReactionMaxTargetCount);
@@ -27202,6 +27203,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return 1;
         }
 
+        if (behavior.AnyNumberOfTargets) return AnyNumberTargetCount(state, playerId, behavior);
+
         if (!behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
             return behavior.RequiredTargetCount;
@@ -27891,7 +27894,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return BeginRevealedHandChoice(state, stackItem, behavior.HandChoice);
         if (!confirmPermanent && IsDeferredDeckChoice(behavior) && !stackItem.DeckChoiceCompleted)
             return BeginDeckChoice(state, stackItem, behavior);
-        stackItem = MaskTargetsNoLongerLegal(state, stackItem, behavior);
+        stackItem = ResolveTargetGroup(state, MaskTargetsNoLongerLegal(state, stackItem, behavior), behavior);
         if (stackItem.SourceConfirmed && !stackItem.EffectPlayCompleted && RecastSpec(stackItem) is not null)
             return BeginRecastPlay(state, stackItem);
         if (!stackItem.EffectPlayCompleted && !string.IsNullOrEmpty(behavior.EffectPlaySourceZone)

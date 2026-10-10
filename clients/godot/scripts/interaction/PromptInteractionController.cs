@@ -345,7 +345,8 @@ internal sealed class PromptInteractionController
                     ? " · 先支付费用，双方响应后结算" : " · 移除触发技能，不支付费用";
             else if (paymentCandidate.RootElement.TryGetProperty("metadata", out var replacementMetadata)
                 && replacementMetadata.TryGetProperty("paymentWindow", out var replacementWindow) && replacementWindow.GetString() == "RULE_REPLACEMENT")
-                summary += " · 确认后立即继续原结算";
+                summary += selected.Any(entry => entry.Choice.Id.StartsWith("REMOVE:", StringComparison.Ordinal))
+                    ? " · 移除后继续选择，最后确认结算" : " · 确认后立即继续原结算";
         }
 
         if (action.Option.Name == "CHOOSE_CARDS")

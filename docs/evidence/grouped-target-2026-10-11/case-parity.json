@@ -1,0 +1,22 @@
+{
+  "baseline": 9290,
+  "current": 9304,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.GroupedPlayNativeTests.NativeUnitSelectionPaymentAndResolutionReplay(branch: \"many-zero\", spell: \"OGN·256/298\")",
+    "Riftbound.ConformanceTests.GroupedTargetNativeTests.NativeSubsetChoicesRestoreAndReplay(branch: \"power\")",
+    "Riftbound.ConformanceTests.GroupedTargetNativeTests.NativeSubsetChoicesRestoreAndReplay(branch: \"split\")",
+    "Riftbound.ConformanceTests.GroupedTargetTests.AllTargetsMovingTogetherRemainLegalWithoutReselection",
+    "Riftbound.ConformanceTests.GroupedTargetTests.AnyNumberIncludesZeroAndMoreThanFourZeroPowerUnits(count: 0)",
+    "Riftbound.ConformanceTests.GroupedTargetTests.AnyNumberIncludesZeroAndMoreThanFourZeroPowerUnits(count: 12)",
+    "Riftbound.ConformanceTests.GroupedTargetTests.AnyNumberIncludesZeroAndMoreThanFourZeroPowerUnits(count: 5)",
+    "Riftbound.ConformanceTests.GroupedTargetTests.CasterMayChooseEmptySubsetAndEffectDoesNotRetarget",
+    "Riftbound.ConformanceTests.GroupedTargetTests.IncreasedTotalLetsCasterChooseEitherOfficialExampleSubset(twoLarge: False)",
+    "Riftbound.ConformanceTests.GroupedTargetTests.IncreasedTotalLetsCasterChooseEitherOfficialExampleSubset(twoLarge: True)",
+    "Riftbound.ConformanceTests.GroupedTargetTests.InitialTargetsMustShareAnExactBattlefield",
+    "Riftbound.ConformanceTests.GroupedTargetTests.OpponentForgedAdditionAndPrematureConfirmationAreRejected",
+    "Riftbound.ConformanceTests.GroupedTargetTests.RealPowerBindResponseOpensSubsetChoiceBeforeAnyDestruction",
+    "Riftbound.ConformanceTests.GroupedTargetTests.SplitGroupAllowsChoosingTheOtherBattlefield"
+  ],
+  "allPassed": true
+}

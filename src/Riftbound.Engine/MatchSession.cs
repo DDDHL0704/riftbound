@@ -8710,7 +8710,7 @@ internal static class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind == "FIRST_DEATH_OCCURRENCE" ? "选择首次死亡事件" : "选择摧毁替换") : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -12542,6 +12542,8 @@ internal static class ActionPromptBuilder
             return 1;
         }
 
+        if (behavior.AnyNumberOfTargets) return CoreRuleEngine.AnyNumberTargetCount(state, playerId, behavior);
+
         if (!behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
             return behavior.RequiredTargetCount;
@@ -12601,6 +12603,9 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
+        // Unbounded grouped targets use the server quote for each submitted set;
+        // enumerating every permutation here grows factorially with zero-power units.
+        if (behavior.AnyNumberOfTargets) return [];
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
         var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
@@ -12678,6 +12683,7 @@ internal static class ActionPromptBuilder
         CardBehaviorDefinition behavior,
         IReadOnlyList<IReadOnlyList<string>> choicesByIndex)
     {
+        if (behavior.AnyNumberOfTargets) return false;
         return behavior.MaxTotalTargetPower > 0
             || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || behavior.SwapsTargetLocations
@@ -12723,8 +12729,7 @@ internal static class ActionPromptBuilder
             }
         }
 
-        if (behavior.MaxTotalTargetPower > 0
-            && !CoreRuleEngine.HasValidTotalTargetPower(state, behavior, targetObjectIds))
+        if (!CoreRuleEngine.HasValidTargetGroup(state, behavior, targetObjectIds))
         {
             return false;
         }
@@ -19343,7 +19348,7 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState BuildSpellshieldMultipleTaxScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603304159,
@@ -19366,6 +19371,7 @@ public sealed class MatchSession : IMatchSession
                     runeDeck: ["P2-RUNE-001"],
                     battlefields:
                     [
+                        "BF",
                         "P2-SPIRIT-FIRE-SPELLSHIELD-001",
                         "P2-SPIRIT-FIRE-SPELLSHIELD2-001",
                         "P2-SPIRIT-FIRE-KEEPER-001"
@@ -19375,6 +19381,7 @@ public sealed class MatchSession : IMatchSession
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["BF"] = new("BF", cardNo: "OGN·296/298", ownerId: seed.P2, controllerId: seed.P2, tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 ["P1-SPELL-SPIRIT-FIRE"] = new(
                     "P1-SPELL-SPIRIT-FIRE",
                     cardNo: "OGN·256/298",
@@ -19393,6 +19400,7 @@ public sealed class MatchSession : IMatchSession
                     "P2-SPIRIT-FIRE-SPELLSHIELD2-001",
                     cardNo: "SFD·085/221",
                     power: 2,
+                    untilEndOfTurnPowerModifier: -2,
                     tags: [CardObjectTags.UnitCard, "法盾2"],
                     ownerId: seed.P2,
                     controllerId: seed.P2),
@@ -19404,6 +19412,9 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        var locations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations);
+        foreach (var id in state.PlayerZones[seed.P2].Battlefields) locations[id] = new(seed.P2, "BATTLEFIELD", "BF");
+        return state with { ObjectLocations = locations };
     }
 
     private static MatchState BuildSpellshieldTaxInsufficientPromptScenario(MatchState current, DevScenarioSeed seed)

@@ -6398,12 +6398,14 @@ public sealed class GameHubJoinTests
         Assert.Equal("OGN·256/298", Assert.IsType<string>(sourceRequirement["cardNo"]));
         Assert.Equal(3, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
         Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(4, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
         var legalTargetSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
                 sourceRequirement["legalTargetSelections"])
             .Select(selection => selection.ToArray())
             .ToArray();
-        Assert.Contains(legalTargetSelections, selection => selection.SequenceEqual([firstShieldTarget, secondShieldTarget]));
+        Assert.Empty(legalTargetSelections); // Dynamic groups are validated by the server on preview/submission.
+        var targetIds = (playCandidate.Targets ?? []).Select(choice => choice.Id).ToArray();
+        Assert.Contains(firstShieldTarget, targetIds); Assert.Contains(secondShieldTarget, targetIds); Assert.DoesNotContain(keeperTarget, targetIds);
         Assert.DoesNotContain(legalTargetSelections, selection => selection.Contains(keeperTarget, StringComparer.Ordinal));
 
         var playClients = new RecordingHubClients();
@@ -6457,7 +6459,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(0, Assert.IsType<int>(p1RunePool["mana"]));
         var p2 = Assert.IsType<Dictionary<string, object?>>(finalSnapshot.Players["P2"]);
         var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
-        Assert.Equal([keeperTarget], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(["BF", keeperTarget], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
         Assert.Equal(
             [firstShieldTarget, secondShieldTarget],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));

@@ -64059,7 +64059,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-SPIRIT-FIRE"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(
-            ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
+            ["BF", "P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
             result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.StackItems);
     }
@@ -64081,7 +64081,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(5, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-SPIRIT-FIRE"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(
-            ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001", "P2-SPIRIT-FIRE-KEEPER-001"],
+            ["BF", "P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001", "P2-SPIRIT-FIRE-KEEPER-001"],
             result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.FinalState.StackItems);
     }
@@ -70316,13 +70316,19 @@ public sealed class ConformanceFixtureRunnerTests
                 {
                     Battlefields =
                     [
+                        "BF",
                         "P2-SPIRIT-FIRE-SPELLSHIELD-001",
                         "P2-SPIRIT-FIRE-SPELLSHIELD2-001"
                     ]
                 }
             },
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["BF"] = new("P2", "BATTLEFIELD", "BF"),
+                ["P2-SPIRIT-FIRE-SPELLSHIELD-001"] = new("P2", "BATTLEFIELD", "BF"),
+                ["P2-SPIRIT-FIRE-SPELLSHIELD2-001"] = new("P2", "BATTLEFIELD", "BF") },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["BF"] = new("BF", cardNo: "OGN·296/298", ownerId: "P2", controllerId: "P2", tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 ["P2-SPIRIT-FIRE-SPELLSHIELD-001"] = new(
                     "P2-SPIRIT-FIRE-SPELLSHIELD-001",
                     power: 2,
