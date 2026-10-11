@@ -1,0 +1,8 @@
+{
+  "sourceObjectId": "RESPONSE",
+  "targetObjectIds": [
+    "FRIEND",
+    "STACK-2-U"
+  ],
+  "ability": true
+}

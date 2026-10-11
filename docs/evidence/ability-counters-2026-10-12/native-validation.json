@@ -1,0 +1,284 @@
+{
+  "status": "PASSED",
+  "productionComponent": "ActionBar/PromptInteractionController/Main.CommandFromTemplate",
+  "commands": 15,
+  "scenarios": [
+    {
+      "scenario": "azir",
+      "commands": 3,
+      "nativeCommands": 3,
+      "replayMatched": true
+    },
+    {
+      "scenario": "copied",
+      "commands": 3,
+      "nativeCommands": 3,
+      "replayMatched": true
+    },
+    {
+      "scenario": "laurent-base",
+      "commands": 3,
+      "nativeCommands": 3,
+      "replayMatched": true
+    },
+    {
+      "scenario": "play-trigger",
+      "commands": 3,
+      "nativeCommands": 3,
+      "replayMatched": true
+    },
+    {
+      "scenario": "source-gone",
+      "commands": 3,
+      "nativeCommands": 3,
+      "replayMatched": true
+    }
+  ],
+  "rawFiles": [
+    {
+      "path": "azir/counter-command.json",
+      "sha256": "993ccce87ff8623072059ce9b1941ce791adf1e7c6e4d50354982cf1e6bf19cb"
+    },
+    {
+      "path": "azir/counter-prompt.json",
+      "sha256": "e417072065fa44f5f462863533f21ac54530df44b04ee4390401e8475ace0821"
+    },
+    {
+      "path": "azir/counter-snapshot.json",
+      "sha256": "6c646769307b4dbc5adb3ed892949ef973a7888e8dd0edc9437a609bd469d92f"
+    },
+    {
+      "path": "azir/pass-1-command.json",
+      "sha256": "4af628b9dce93e8df6942353d0417248803d164ed82e542f211cc7dc5f052184"
+    },
+    {
+      "path": "azir/pass-1-prompt.json",
+      "sha256": "5c3717453f8ba592a4b7b974a22c554bcb59e0ae6df465817920c35768411eee"
+    },
+    {
+      "path": "azir/pass-1-snapshot.json",
+      "sha256": "7eda85b8a60165488a345ca6d9f224160b806b81ed14a0299396e417fad22198"
+    },
+    {
+      "path": "azir/pass-2-command.json",
+      "sha256": "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80"
+    },
+    {
+      "path": "azir/pass-2-prompt.json",
+      "sha256": "6e2bfa9c8b0414927c4980b7596b09977bcc34012a7c907cd86c0c60b921dcb8"
+    },
+    {
+      "path": "azir/pass-2-snapshot.json",
+      "sha256": "04eee26eebead0acf6137be70f61d6fcf1abb1b513849d1657f19ea820d9719b"
+    },
+    {
+      "path": "azir/replay.json",
+      "sha256": "7807c7757655abe253cd61caabeda59e2459daeaa5697193a53d1a73839b756e"
+    },
+    {
+      "path": "azir/result-snapshot.json",
+      "sha256": "df5e0ea13b37813296568eb468b3be01226d8eac47274fdfa58381a0afeea10b"
+    },
+    {
+      "path": "azir/selection.json",
+      "sha256": "a5df148d01afb0d67becb1c3cd49ad3a266391950c33d552ecb2fb310f94b092"
+    },
+    {
+      "path": "copied/counter-command.json",
+      "sha256": "3783340b8bb81b84e7ea1c4778e37ef5eb966a6576e843ef8a19511ece5e405b"
+    },
+    {
+      "path": "copied/counter-prompt.json",
+      "sha256": "ff71237e38c33dda61816cfb65b9e88de41aca948a77f388bbf65b608ea15beb"
+    },
+    {
+      "path": "copied/counter-snapshot.json",
+      "sha256": "7cdca6d56a16cd8febed407d2a2a2080924ad3510d9cf42aa6a950e3d0f3ee22"
+    },
+    {
+      "path": "copied/pass-1-command.json",
+      "sha256": "f699c61820c15e619d60cc2d1132d5d80df77b0970a8ce7e3f04c673eb6e2e25"
+    },
+    {
+      "path": "copied/pass-1-prompt.json",
+      "sha256": "5cb29dd982653c17771cb837b4f01443d75035ca4b88bd840cbc9aae1c069813"
+    },
+    {
+      "path": "copied/pass-1-snapshot.json",
+      "sha256": "52ebf65ee370382c968e78f72c03556349cbd0b714bd2471947ac07b67fd8ab2"
+    },
+    {
+      "path": "copied/pass-2-command.json",
+      "sha256": "b135a2eae0fc4245fa3313e591996c3eca1f1adc39bd4c8014743a686e7b86f8"
+    },
+    {
+      "path": "copied/pass-2-prompt.json",
+      "sha256": "ca276c4da0919bfa2a904b040681d0aad4276122e88f8843afaf0d5eeb1eeaa1"
+    },
+    {
+      "path": "copied/pass-2-snapshot.json",
+      "sha256": "13e3454b8814892dd3bcf9d455641c7b26f6850cc8502863177d143d9288a05e"
+    },
+    {
+      "path": "copied/replay.json",
+      "sha256": "76d14508eb99c7bd46c5a2b471594a413f31445a26c7c7ba50778a7bbfbfed52"
+    },
+    {
+      "path": "copied/result-snapshot.json",
+      "sha256": "9d11a18060c805ae9c65399d18707d834226a039663c74f0db9e3d391993ec0a"
+    },
+    {
+      "path": "copied/selection.json",
+      "sha256": "ebc6db526f8c902e66f53c058c34139478bff9cd895a4b5f4abe4b8746f16d9e"
+    },
+    {
+      "path": "laurent-base/counter-command.json",
+      "sha256": "d501428c0e9618d7242674bb2978b55ea0a24377071ea04dedaa79178058ca69"
+    },
+    {
+      "path": "laurent-base/counter-prompt.json",
+      "sha256": "b15637ad3211f2efed865ee741306a2833be7ce80ffb51289d8c08d6630af56a"
+    },
+    {
+      "path": "laurent-base/counter-snapshot.json",
+      "sha256": "2e6a27d7900f2c0094d9984423717e30081970cea58c71dff45da3e8fa4bd546"
+    },
+    {
+      "path": "laurent-base/pass-1-command.json",
+      "sha256": "337acd4a6739c8aea941655e5908508299bf913efe9c8a2c5915a7ed04db35d8"
+    },
+    {
+      "path": "laurent-base/pass-1-prompt.json",
+      "sha256": "07d6659c93a034395af5aa709f1484198a201235ed97f0d5a9c283c3ba9ca1c9"
+    },
+    {
+      "path": "laurent-base/pass-1-snapshot.json",
+      "sha256": "5a9d345aab6400b04149ef94db516f03f89771c0f68ec32abd84a9aff16a33d2"
+    },
+    {
+      "path": "laurent-base/pass-2-command.json",
+      "sha256": "20540fff4130d30cf00a0a7cfd8fb2de4c69176da4ecdd9de3e632ad30ea0e00"
+    },
+    {
+      "path": "laurent-base/pass-2-prompt.json",
+      "sha256": "9a1ae6cb054f08035459159750bdaef4604fb14eb53f61ad162d73f45a4b5da4"
+    },
+    {
+      "path": "laurent-base/pass-2-snapshot.json",
+      "sha256": "3ca82a0a7fef9e3cb8f758e830392234a82e01a41713986a35a7b52c01961b81"
+    },
+    {
+      "path": "laurent-base/replay.json",
+      "sha256": "a4066743213e63db44b565bc37f23c7e074f50ec3635fa363f83d0b62d75ce86"
+    },
+    {
+      "path": "laurent-base/result-snapshot.json",
+      "sha256": "6d308c834f9e31b7b04204ae4d85497365ec540547a04eb4b63be8dd62211f46"
+    },
+    {
+      "path": "laurent-base/selection.json",
+      "sha256": "6af09a152a582f3f2e801e1a9684ff52de80db03e131a7cd3ffb49db78c5d2fa"
+    },
+    {
+      "path": "play-trigger/counter-command.json",
+      "sha256": "126537aa2e14231235b7fca0cefe79b78c5bff1d1c09e2f1e4a468cdd365010f"
+    },
+    {
+      "path": "play-trigger/counter-prompt.json",
+      "sha256": "f4ce2aeb61d7403ef8b8e4be4a5525a372ceec09bccd96e855787c59b2fb85c3"
+    },
+    {
+      "path": "play-trigger/counter-snapshot.json",
+      "sha256": "8b1282a4d4ea91944845674bc6286ab9d0cad124a4923745d91fbe214c25f310"
+    },
+    {
+      "path": "play-trigger/pass-1-command.json",
+      "sha256": "339de28c1421396598915468811ede9c1a29d8be506ea4080bd9648abfc35aaf"
+    },
+    {
+      "path": "play-trigger/pass-1-prompt.json",
+      "sha256": "9682e4d55036b7df97cccd3c4d9921bd283378d30fbe4e65231dd1043b7cebc6"
+    },
+    {
+      "path": "play-trigger/pass-1-snapshot.json",
+      "sha256": "4cb1fd9311af9ab7547fb6290fca6c13655aa4f6928f6eecaeb0b81299ea184a"
+    },
+    {
+      "path": "play-trigger/pass-2-command.json",
+      "sha256": "e8e92dccb475d2a2707896a16e3934a3ff52f181d6ef26b62407ab85a8245767"
+    },
+    {
+      "path": "play-trigger/pass-2-prompt.json",
+      "sha256": "967c7dfe0261f0a000451cb4a3a594458977df01d73e130138ece99fb270cc23"
+    },
+    {
+      "path": "play-trigger/pass-2-snapshot.json",
+      "sha256": "13c85f134e034f17a12d4b54c485548de7095ce43dc61c1949bd88db46809389"
+    },
+    {
+      "path": "play-trigger/replay.json",
+      "sha256": "7a90578a77fe927abe6fb5b59b6e74b43ef9c0f28d69f3160ca8733e57efb449"
+    },
+    {
+      "path": "play-trigger/result-snapshot.json",
+      "sha256": "bebd680af986c6e1e88a98690e7be712c70d661dbef9adde5d817b30b99014b5"
+    },
+    {
+      "path": "play-trigger/selection.json",
+      "sha256": "3e0ed456b6d29a3d50e907c91c46b367204922a556b94493e8787e8ce6727199"
+    },
+    {
+      "path": "source-gone/counter-command.json",
+      "sha256": "aa5bd5f4003abd2efb9ad03617ccaf119904110b6cf31e47b4f8daffab091e4e"
+    },
+    {
+      "path": "source-gone/counter-prompt.json",
+      "sha256": "cacf7925856140c5af385910e51145de1506906d4a1e7c0b4bf0d577edf86daa"
+    },
+    {
+      "path": "source-gone/counter-snapshot.json",
+      "sha256": "c0a618e29fd02087bc0a13e48af490b85c31310decedcb6f0af7eb9be4564068"
+    },
+    {
+      "path": "source-gone/pass-1-command.json",
+      "sha256": "f699c61820c15e619d60cc2d1132d5d80df77b0970a8ce7e3f04c673eb6e2e25"
+    },
+    {
+      "path": "source-gone/pass-1-prompt.json",
+      "sha256": "5cb29dd982653c17771cb837b4f01443d75035ca4b88bd840cbc9aae1c069813"
+    },
+    {
+      "path": "source-gone/pass-1-snapshot.json",
+      "sha256": "63f4cebbb32b3842d92b21f4a16e6b194b5a10814252b71a1c88762541b57cec"
+    },
+    {
+      "path": "source-gone/pass-2-command.json",
+      "sha256": "b135a2eae0fc4245fa3313e591996c3eca1f1adc39bd4c8014743a686e7b86f8"
+    },
+    {
+      "path": "source-gone/pass-2-prompt.json",
+      "sha256": "ca276c4da0919bfa2a904b040681d0aad4276122e88f8843afaf0d5eeb1eeaa1"
+    },
+    {
+      "path": "source-gone/pass-2-snapshot.json",
+      "sha256": "d46a3433a4c2b56ff291a5fd7012a3c5f16a2cc9044aa00866fb7aca9cbd8da5"
+    },
+    {
+      "path": "source-gone/replay.json",
+      "sha256": "49a3a359899c57a301f4c7e08229a9751933d74359b7784be5dd6cc1bd533c26"
+    },
+    {
+      "path": "source-gone/result-snapshot.json",
+      "sha256": "c491290a4036cb103e732ab3a582760580535c5eb904c0e84b1a55127ceb1e52"
+    },
+    {
+      "path": "source-gone/selection.json",
+      "sha256": "a5df148d01afb0d67becb1c3cd49ad3a266391950c33d552ecb2fb310f94b092"
+    }
+  ],
+  "perStepPrivateAndP1P2SpectatorRecovery": true,
+  "finalStateAndEventReplayMatched": true,
+  "headless": true,
+  "visiblePairedClients": false,
+  "windowsNetworkAcceptance": false
+}

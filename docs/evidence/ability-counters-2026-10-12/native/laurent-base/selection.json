@@ -1,0 +1,8 @@
+{
+  "sourceObjectId": "SPELL",
+  "targetObjectIds": [
+    "HOST",
+    "STACK-1-RESPONSE"
+  ],
+  "ability": false
+}

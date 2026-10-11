@@ -26405,7 +26405,7 @@ public static class MatchRecoveryValidator
             }
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
-                && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell)
+                && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell or CardTargetScopes.FriendlyUnitThenStackSpell)
             {
                 foreach (var live in stackItems) targetReferences.Add(live.StackItemId);
                 foreach (var binding in stackItem.TargetStackSources ?? new Dictionary<string,string>())
@@ -31152,15 +31152,25 @@ public static class MatchRecoveryValidator
                 knownObjectIds,
                 "object registry",
                 errors);
+            var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original)
+            {
+                if (VisibleObjectIdsForSpectator(authoritativeState, original.TargetObjectIds).Contains("HIDDEN"))
+                    targetReferences.Add("HIDDEN");
+                if (CardBehaviorRegistry.TryGetByEffectKind(original.EffectKind, out var behavior)
+                    && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell or CardTargetScopes.FriendlyUnitThenStackSpell)
+                    foreach (var targetId in original.TargetObjectIds)
+                        if (authoritativeState.StackItems.Any(item => item.StackItemId == targetId)
+                            || original.TargetStackSources?.ContainsKey(targetId) == true)
+                            targetReferences.Add(targetId);
+            }
             ValidateTimingObjectReferenceListWithExpectedDetails(
                 stackItem,
                 "targetObjectIds",
                 $"spectator replay frame snapshot stack item {stackItemLabel} target object id",
                 // A chosen target can leave the public field before its skill resolves.
                 // The keyed authoritative comparison below still requires exact redaction.
-                authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original
-                    && VisibleObjectIdsForSpectator(authoritativeState, original.TargetObjectIds).Contains("HIDDEN")
-                        ? knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal) : knownObjectIds,
+                targetReferences,
                 "object registry",
                 errors);
         }

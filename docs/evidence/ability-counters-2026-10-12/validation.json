@@ -1,0 +1,112 @@
+{
+  "status": "SCOPED_LOCAL_PASS_EXACT_HEAD_FULL_CI_PENDING",
+  "batchCheck": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 94.86,
+    "total": 9991,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9991,
+        "passed": 9991,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 90.95
+      }
+    ]
+  },
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 39.01,
+    "total": 47,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 47,
+        "passed": 47,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.45
+      }
+    ]
+  },
+  "native": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.22,
+    "total": 5,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.67
+      }
+    ]
+  },
+  "productionCommands": 15,
+  "selectedFullGames": {
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCounteredAzirContinuesToScoreVictoryAndReplays(copied: False)": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCounteredAzirContinuesToScoreVictoryAndReplays(copied: True)": "Passed"
+  },
+  "compositeDistinctPassed": 9993,
+  "parity": {
+    "priorLocalCases": 9975,
+    "currentLocalCases": 9991,
+    "missingCases": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.ActualCounterOnConfirmedEnemyArmamentReferenceLeavesAbilitySourceInPlay(copied: False)",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.ActualCounterOnConfirmedEnemyArmamentReferenceLeavesAbilitySourceInPlay(copied: True)",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.ActualRepulseCountersChosenPlayTriggerWithoutDestroyingItsSource",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.AutomaticallyReferencedEnteringUnitIsNotAChosenCounterTarget(counter: \"SFD·045/221\")",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.AutomaticallyReferencedEnteringUnitIsNotAChosenCounterTarget(counter: \"UNL-106/219\")",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.LaurentCanChooseAFriendlyBaseUnitAndGainsTheCounteredSpellsPrintedManaCost",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.RepulseCannotSubstituteFriendlyGearForItsRequiredUnit",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.SpectatorRecoveryRejectsForgedCounterReferences(change: \"source-object\")",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.SpectatorRecoveryRejectsForgedCounterReferences(change: \"unknown-stack\")",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.SpellOnlyCounterPromptDoesNotOfferAnAbility(kind: \"activated\")",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.SpellOnlyCounterPromptDoesNotOfferAnAbility(kind: \"triggered\")",
+      "Riftbound.ConformanceTests.AbilityCounterNativeTests.ProductionCounterSelectionsPreserveIndependentSourcesAndReplay(scenario: \"azir\")",
+      "Riftbound.ConformanceTests.AbilityCounterNativeTests.ProductionCounterSelectionsPreserveIndependentSourcesAndReplay(scenario: \"copied\")",
+      "Riftbound.ConformanceTests.AbilityCounterNativeTests.ProductionCounterSelectionsPreserveIndependentSourcesAndReplay(scenario: \"laurent-base\")",
+      "Riftbound.ConformanceTests.AbilityCounterNativeTests.ProductionCounterSelectionsPreserveIndependentSourcesAndReplay(scenario: \"play-trigger\")",
+      "Riftbound.ConformanceTests.AbilityCounterNativeTests.ProductionCounterSelectionsPreserveIndependentSourcesAndReplay(scenario: \"source-gone\")"
+    ],
+    "priorFullMethods": 6590,
+    "currentDiscoveredMethods": 6599,
+    "missingMethods": [],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.ActualCounterOnConfirmedEnemyArmamentReferenceLeavesAbilitySourceInPlay",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.ActualRepulseCountersChosenPlayTriggerWithoutDestroyingItsSource",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.AutomaticallyReferencedEnteringUnitIsNotAChosenCounterTarget",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.LaurentCanChooseAFriendlyBaseUnitAndGainsTheCounteredSpellsPrintedManaCost",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.RepulseCannotSubstituteFriendlyGearForItsRequiredUnit",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.SpectatorRecoveryRejectsForgedCounterReferences",
+      "Riftbound.ConformanceTests.AbilityCounterAuditTests.SpellOnlyCounterPromptDoesNotOfferAnAbility",
+      "Riftbound.ConformanceTests.AbilityCounterNativeTests.ProductionCounterSelectionsPreserveIndependentSourcesAndReplay",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCounteredAzirContinuesToScoreVictoryAndReplays"
+    ]
+  },
+  "redReproductions": {
+    "red1": "4 genuine failures plus one initially invalid Vex counter fixture; Vex rejection was preserved under 355.10.d",
+    "target-scope-red": "Repulse accepted friendly equipment as a unit; Riposte rejected a friendly base unit",
+    "native-export": "4 genuine spectator stack-reference failures and one initially invalid enemy Soul Strangle fixture; the source controller now casts Soul Strangle on its own unit"
+  },
+  "wholeCardCertification": false,
+  "visiblePairedClients": false,
+  "windowsNetworkAcceptance": false,
+  "currentFullCI": "Pending commit and exact SHA verification",
+  "remaining": [
+    "Untyped legacy ability and target-count consumers",
+    "Actual attack damage distribution and response flow for OGN-041/298 and alternate",
+    "All printed-rule copy consumers and remaining armament lower abilities",
+    "Full official corpus and visible paired clients/network acceptance"
+  ]
+}

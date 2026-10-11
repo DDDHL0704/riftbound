@@ -7800,7 +7800,7 @@
     },
     {
       "id": "AZIR-REFERENCE-CONFIRMATION-2026-10-12",
-      "status": "SCOPED_LOCAL_PASS_FULL_CI_PENDING",
+      "status": "SCOPED_LOCAL_AND_EXACT_HEAD_FULL_CI_PASS",
       "scope": "Mandatory conditional armament reference at confirmation, separate optional action after both movement instructions, exact continuous object identity and reference types, shared native/copied ability flow. Earlier optional-cost protocol and conditional-reference wording are superseded. Whole cards are not certified.",
       "subjects": [
         "SFD-050/221",
@@ -7830,7 +7830,40 @@
       "evidence": [
         "docs/AZIR_REFERENCE_CONFIRMATION_AUDIT_2026-10-12.md",
         "docs/evidence/azir-reference-confirmation-2026-10-12/validation.json",
-        "docs/evidence/azir-reference-confirmation-2026-10-12/native-validation.json"
+        "docs/evidence/azir-reference-confirmation-2026-10-12/native-validation.json",
+        "docs/evidence/azir-reference-confirmation-2026-10-12/ci-b81f8bae.json"
+      ],
+      "wholeCardCertification": false
+    },
+    {
+      "id": "ABILITY-COUNTERS-2026-10-12",
+      "status": "SCOPED_LOCAL_PASS_FULL_CI_PENDING",
+      "scope": "Current spell or ability counter classification for captured/registered abilities and confirmed permanent play triggers, independent source preservation, spell-only rejection, correct friendly-unit roles and precise spectator stack references. No whole-card certification.",
+      "subjects": [
+        "SFD-045/221",
+        "UNL-106/219",
+        "SFD-206/221"
+      ],
+      "rules": [
+        "DOC-04 355.9.a.2,355.9.c,355.10.d,377,425.1-425.3"
+      ],
+      "implementation": [
+        "StackObjectRules.cs",
+        "CardBehaviorRegistry.CanCounterAbilities",
+        "CoreRuleEngine.ObjectContinuity.cs",
+        "CoreRuleEngine.TryCounterStackItem",
+        "MatchSession",
+        "MatchRecovery.ValidateSpectatorSnapshotStackObjectReferences"
+      ],
+      "tests": [
+        "AbilityCounterAuditTests",
+        "AbilityCounterNativeTests",
+        "FullGameEndToEndTests.AuditedCounteredAzirContinuesToScoreVictoryAndReplays"
+      ],
+      "evidence": [
+        "docs/ABILITY_COUNTER_AUDIT_2026-10-12.md",
+        "docs/evidence/ability-counters-2026-10-12/validation.json",
+        "docs/evidence/ability-counters-2026-10-12/native-validation.json"
       ],
       "wholeCardCertification": false
     }

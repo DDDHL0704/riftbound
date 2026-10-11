@@ -12689,7 +12689,7 @@ internal static class ActionPromptBuilder
         }
 
         return PromptTargetCandidateIds(state, playerId, targetScope, targetIndex)
-            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex)
+            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex, behavior.CanCounterAbilities)
                 && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
@@ -12842,7 +12842,8 @@ internal static class ActionPromptBuilder
                     playerId,
                     targetObjectIds[targetIndex],
                     targetScope,
-                    targetIndex)
+                    targetIndex,
+                    behavior.CanCounterAbilities)
                 || !IsPromptPlayCardTargetAllowed(state, playerId, behavior, targetObjectIds[targetIndex], targetIndex))
             {
                 return false;
@@ -12908,7 +12909,7 @@ internal static class ActionPromptBuilder
         int targetIndex)
     {
         if (string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
-            || (string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
+            || (targetScope is CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell or CardTargetScopes.FriendlyUnitThenStackSpell
                 && targetIndex > 0))
         {
             return state.StackItems.Select(item => item.StackItemId);
@@ -12956,7 +12957,8 @@ internal static class ActionPromptBuilder
         string playerId,
         string objectId,
         string targetScope,
-        int targetIndex)
+        int targetIndex,
+        bool allowAbilities = false)
     {
         return targetScope switch
         {
@@ -12986,7 +12988,11 @@ internal static class ActionPromptBuilder
                 : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
                 ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
-                : IsPromptStackSpellItem(state, objectId),
+                    && IsPromptFieldUnitObject(state, objectId)
+                : StackObjectRules.CanChoose(state, objectId, allowAbilities),
+            CardTargetScopes.FriendlyUnitThenStackSpell => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId) && IsPromptFieldUnitObject(state, objectId)
+                : StackObjectRules.CanChoose(state, objectId, allowAbilities),
             CardTargetScopes.FriendlyBattlefieldUnit => IsPromptControlledBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
             CardTargetScopes.AnyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
@@ -13009,7 +13015,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.AnyMainDeckTopFiveCard => false,
             CardTargetScopes.Equipment => IsPromptEquipmentObject(state, objectId),
             CardTargetScopes.Legend => IsPromptLegendObject(state, objectId),
-            CardTargetScopes.StackSpell => IsPromptStackSpellItem(state, objectId),
+            CardTargetScopes.StackSpell => StackObjectRules.CanChoose(state, objectId, allowAbilities),
             CardTargetScopes.SacredJudgmentKeepCard => false,
             _ => IsPromptBattlefieldObject(state, objectId)
         };
@@ -16693,7 +16699,8 @@ internal static class ActionPromptBuilder
         if (index < 0) return new(stackItemId, "结算链项目", reason);
         var item = state.StackItems[index];
         var name = CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var card) ? card.DisplayName : item.CardNo;
-        return new(stackItemId, $"第 {index + 1} 项 · {name}（{item.ControllerId}）", "越靠后的项目越先结算");
+        var kind = StackObjectRules.IsAbility(item) ? "技能 · " : string.Empty;
+        return new(stackItemId, $"第 {index + 1} 项 · {kind}{name}（{item.ControllerId}）", "越靠后的项目越先结算");
     }
 
     private static string PromptTargetReasonForScope(string targetScope, int targetIndex)
@@ -16725,6 +16732,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "友方单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "友方战场单位，然后敌方战场单位",
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => "友方战场单位，然后结算链法术",
+            CardTargetScopes.FriendlyUnitThenStackSpell => "友方单位，然后结算链法术",
             CardTargetScopes.FriendlyBattlefieldUnit => "友方战场单位",
             CardTargetScopes.FriendlyHandCard => "己方手牌",
             CardTargetScopes.AnyHandCard => "手牌",

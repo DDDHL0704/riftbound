@@ -257,7 +257,8 @@ public sealed record CardBehaviorDefinition(
     bool IgnorePrintedPowerCost = false,
     string TargetTraitsManaReductionTags = "",
     string EffectPlayedUnitStatus = "",
-    int TargetTraitsManaReduction = 0);
+    int TargetTraitsManaReduction = 0,
+    bool CanCounterAbilities = false);
 
 public static class CardDamageConditionKinds
 {
@@ -282,6 +283,7 @@ public static class CardTargetScopes
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldThenEnemyBattlefieldUnits = "FRIENDLY_BATTLEFIELD_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldUnitThenStackSpell = "FRIENDLY_BATTLEFIELD_UNIT_THEN_STACK_SPELL";
+    public const string FriendlyUnitThenStackSpell = "FRIENDLY_UNIT_THEN_STACK_SPELL";
     public const string FriendlyBattlefieldUnit = "FRIENDLY_BATTLEFIELD_UNIT";
     public const string FriendlyHandCard = "FRIENDLY_HAND_CARD";
     public const string AnyHandCard = "ANY_HAND_CARD";
@@ -8236,7 +8238,8 @@ public static class CardBehaviorRegistry
             CountersTargetStackSpell: true,
             CanPlayDuringPriority: true,
             RequiresTargetStackItemControlledByEnemy: true,
-            RequiresTargetStackItemTargetsFriendlyUnitOrEquipment: true),
+            RequiresTargetStackItemTargetsFriendlyUnitOrEquipment: true,
+            CanCounterAbilities: true),
         new(
             "UNL-106/219",
             "击退",
@@ -8249,7 +8252,8 @@ public static class CardBehaviorRegistry
             CanPlayDuringPriority: true,
             RequiresTargetStackItemControlledByEnemy: true,
             RequiresTargetStackItemTargetsFirstTarget: true,
-            RequiresTargetStackItemTargetsNoOtherFriendlyUnits: true),
+            RequiresTargetStackItemTargetsNoOtherFriendlyUnits: true,
+            CanCounterAbilities: true),
         new(
             "SFD·206/221",
             "劳伦特心眼刀",
@@ -8257,7 +8261,7 @@ public static class CardBehaviorRegistry
             "LAURENT_DUELIST_COUNTER_SPELL_POWER_BY_SPELL_COST",
             0,
             2,
-            TargetScope: CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell,
+            TargetScope: CardTargetScopes.FriendlyUnitThenStackSpell,
             CountersTargetStackSpell: true,
             CanPlayDuringPriority: true,
             AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost: true),

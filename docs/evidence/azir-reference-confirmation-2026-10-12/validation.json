@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_LOCAL_PASS_EXACT_HEAD_FULL_CI_PENDING",
+  "status": "SCOPED_LOCAL_AND_EXACT_HEAD_FULL_CI_PASS",
   "batchCheck": {
     "status": "PASSED",
     "profile": "check",
@@ -108,7 +108,14 @@
   "wholeCardCertification": false,
   "visiblePairedClients": false,
   "windowsNetworkAcceptance": false,
-  "currentFullCI": "Pending commit and exact SHA verification",
+  "currentFullCI": {
+    "headSha": "b81f8bae0c869533c4dc0868daf438bf5eb80494",
+    "runId": 38183002128,
+    "passedDistinctCases": 10119,
+    "discoveredMethods": 6590,
+    "seconds": 1357.05,
+    "evidence": "ci-b81f8bae.json"
+  },
   "remaining": [
     "Shared spell-or-ability counters and current target counting policy",
     "All remaining printed-text copy consumers and armament lower abilities",

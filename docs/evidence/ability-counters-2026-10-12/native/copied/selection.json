@@ -1,0 +1,7 @@
+{
+  "sourceObjectId": "RESPONSE",
+  "targetObjectIds": [
+    "STACK-4-HOST-AZIR-SWAP"
+  ],
+  "ability": true
+}

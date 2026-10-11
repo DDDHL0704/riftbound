@@ -106,7 +106,7 @@ public sealed partial class CoreRuleEngine
     private static bool IsLegalChosenCardTarget(MatchState state, string playerId, string objectId, int index,
         IReadOnlyList<string> targets, string scope, CardBehaviorDefinition behavior)
         => !string.IsNullOrWhiteSpace(objectId)
-            && IsTargetObjectInScope(state, playerId, objectId, scope, index)
+            && IsTargetObjectInScope(state, playerId, objectId, scope, index, behavior.CanCounterAbilities)
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
             && IsVisibleFieldUnitPrimitiveTargetAllowed(state, behavior, objectId)
             && IsPublicUnitMainDeckPrimitiveTargetAllowed(state, behavior, objectId)

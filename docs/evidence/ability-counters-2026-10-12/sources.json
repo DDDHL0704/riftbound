@@ -1,0 +1,2218 @@
+{
+  "date": "2026-10-12",
+  "scope": "Shared spell or ability classification and removal, spell-only rejection, role-specific friendly-unit choices for Repulse/Riposte, precise spectator counter references. Untyped legacy ability handlers, full target-count family, all copied rules and the entire official corpus remain open.",
+  "currentRefresh": "docs/evidence/rules-reaudit-2026-10-12/live-readback.json",
+  "zhCN": [
+    {
+      "id": 31276,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·064/298",
+      "cardName": "风之障壁",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Max Grecke",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n无效化一个法术。",
+      "flavorText": "“面对疾风吧！”\n——亚索",
+      "energy": 3,
+      "returnEnergy": 2,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/a1e6b60280564d6e8b31e3f6e38b38c3.png",
+      "backImage": "",
+      "listSort": 429,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31457,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·219/298",
+      "cardName": "先锋中士",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "德玛西亚",
+      "tag": "精锐",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "他知道自己的命令：坚守阵线，否则功亏一篑。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4a035936d2624fd49991f2a9520fb018.png",
+      "backImage": "",
+      "listSort": 248,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33121,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "SFD·045/221",
+      "cardName": "极速反制",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n无效化一个将友方单位或友方装备选为目标的敌方法术或技能。",
+      "flavorText": "",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/45b2c331460b4e83b376c6a9a34229ad.png",
+      "backImage": "",
+      "listSort": 952,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33126,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·050/221",
+      "cardName": "阿兹尔",
+      "subTitle": "飞升者",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "阿兹尔",
+      "region": "恕瑞玛",
+      "tag": "鸟类",
+      "artist": "Six More Vodka",
+      "cardEffect": "支付{{绿色}}：{{迅捷}} — 选择一个受你控制的单位，将我移动到它的位置，再将它移动到我原来的位置。如果该单位已配有武装，则你可以选择将其中一件武装贴附到我身上。每回合仅可使用一次。",
+      "flavorText": "“挑战恕瑞玛，挑战命运。”",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/52f820dac30846909d5723912f6aadc8.png",
+      "backImage": "",
+      "listSort": 947,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33139,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "SFD·059/221",
+      "cardName": "斯弗尔尚歌",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "Envar Studio",
+      "cardEffect": "{{装配}}{{1}}{{绿色}}（支付{{1}}和{{绿色}}：将此牌贴附到你控制的一名单位上。）\n在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+      "flavorText": "\"只有最伟大的弗雷尔卓德英雄才拥有臻冰做的武器!\"——努努",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/3fb9c51990c64735b1d613e27e53f2a7.png",
+      "backImage": "",
+      "listSort": 934,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33305,
+      "cardCategoryList": [
+        "exclusive_spell"
+      ],
+      "cardCategoryNameList": [
+        "专属法术"
+      ],
+      "cardNo": "SFD·206/221",
+      "cardName": "劳伦特心眼刀",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange",
+        "yellow"
+      ],
+      "hero": "菲奥娜",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一名友方单位和一个法术。无效化该法术，并让该单位在本回合内获得等同于该法术法力费用的+{{s}}加成。",
+      "flavorText": "“动作真慢！”\n——菲奥娜",
+      "energy": 2,
+      "returnEnergy": 2,
+      "power": null,
+      "productCodeList": [
+        "SFD(英雄预组 菲奥娜)",
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 英雄预组 菲奥娜",
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/24351503751341d689fab3162f5ba387.png",
+      "backImage": "",
+      "listSort": 768,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34644,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "UNL-106/219",
+      "cardName": "击退",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择战场上的一名友方单位。无效化一个以该单位为目标且不以其他友方单位为目标的敌方法术或技能。",
+      "flavorText": "",
+      "energy": 1,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260328/ee395f0c72254b57a348406cfce9ee2f.webp",
+      "backImage": "",
+      "listSort": 1380,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34697,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-150/219",
+      "cardName": "薇古丝",
+      "subTitle": "冷眼旁观",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "薇古丝",
+      "region": "暗影岛",
+      "tag": "约德尔人",
+      "artist": "League Splash Team",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当对手打出一名单位时，如果我位于战场上，则{{眩晕}}该单位。该对手在本回合内无法移动该单位。（使其在本回合内无法造成战斗伤害。）",
+      "flavorText": "“我要让他们看看什么叫真的无所谓……或者算了。”",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)",
+        "UNL（英雄预组 薇古丝）"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包",
+        "破限系列 英雄预组 薇古丝"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260326/74452408b9914686bf76bad25f41caf5.webp",
+      "backImage": "",
+      "listSort": 1327,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31315,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·097/298",
+      "cardName": "爆裂球果仙灵",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "班德尔城",
+      "tag": "仙灵",
+      "artist": "Caravan Studio",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当你打出我时，让一名单位本回合内{{S}}-2，不得低于1{{S}}。",
+      "flavorText": "",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": 2,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/d63f8fe234f242c99c746ca913b6a2ba.png",
+      "backImage": "",
+      "listSort": 390,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33257,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "SFD·163/221",
+      "cardName": "断魂一扼",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Polar Engine Studio",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n摧毁一名友方单位，让另一名友方单位在本回合内获得等同于被摧毁单位战力的+{{S}}加成。抽一张牌。",
+      "flavorText": "“死亡是我的仁慈。”\n——莫德凯撒",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/aa4cd6bdb3e944b4a2811c2233623bfa.png",
+      "backImage": "",
+      "listSort": 816,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n摧毁一名友方单位。若如此做，则让另一名友方单位在本回合内获得等同于前者战力的+{{S}}加成。\n抽一张牌。",
+      "otherDesc": 0
+    }
+  ],
+  "enUS": [
+    {
+      "id": "sfd-050-221",
+      "collectorNumber": 50,
+      "name": "Azir",
+      "subtitle": "Ascendant",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "SFD-050/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "rare",
+          "label": "Rare",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+            "dimensions": {
+              "width": 429,
+              "height": 425,
+              "aspectRatio": 1.0094117647058825
+            },
+            "colors": {
+              "primary": "#B881A9",
+              "secondary": "#332932",
+              "label": "#804570"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "calm",
+            "label": "Calm",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#152311",
+                "secondary": "#E0FFD6",
+                "label": "#080808"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3c42c02f6ebd2e4d4a640c2c6ac081231439888e-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Azir, Ascendant. [C]: [Action] — Choose a unit you control. Move me to its location and it to my original location. If it's equipped, you may attach one of its Equipment to me. Use only once per turn.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#4C4326",
+          "secondary": "#F9F8DC",
+          "label": "#221C09"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "sixmorevodka",
+            "label": "Six More Vodka",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>:rb_rune_calm:: [Action] — Choose a unit you control. Move me to its location and it to my original location. If it's equipped, you may attach one of its Equipment to me. Use only once per turn.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 6,
+          "label": "6"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 6,
+          "label": "6",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Bird",
+          "Azir",
+          "Shurima"
+        ]
+      }
+    },
+    {
+      "id": "sfd-045-221",
+      "collectorNumber": 45,
+      "name": "Not So Fast",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "spell",
+            "label": "Spell",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "SFD-045/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "calm",
+            "label": "Calm",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#152311",
+                "secondary": "#E0FFD6",
+                "label": "#080808"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e576fefdce72ad862a7e374bf8c0fd509f359da9-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Spell: Not So Fast. [Reaction] (Play any time, even before spells and abilities resolve.)\nCounter an enemy spell or ability that chooses a friendly unit or gear.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#243447",
+          "secondary": "#F3DCF9",
+          "label": "#07111C"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "kudosproductions",
+            "label": "Kudos Productions",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Reaction] (Play any time, even before spells and abilities resolve.)<br />Counter an enemy spell or ability that chooses a friendly unit or gear.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      }
+    },
+    {
+      "id": "unl-106-219",
+      "collectorNumber": 106,
+      "name": "Repulse",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "UNL",
+          "label": "Unleashed"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "spell",
+            "label": "Spell",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "UNL-106/219",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "body",
+            "label": "Body",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#221A11",
+                "secondary": "#F9EADC",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ca56ad44ec24db67e10a4ee18f5c7f3756c83d94-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Spell: Repulse. [Reaction] (Play any time, even before spells and abilities resolve.)\nChoose a friendly unit at a battlefield. Counter an enemy spell or ability that chooses it and no other friendly unit.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#B8996D",
+          "secondary": "#2E3329",
+          "label": "#362C1D"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "kudosproductions",
+            "label": "Kudos Productions",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Reaction] (Play any time, even before spells and abilities resolve.)<br />Choose a friendly unit at a battlefield. Counter an enemy spell or ability that chooses it and no other friendly unit.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 1,
+          "label": "1"
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      }
+    },
+    {
+      "id": "sfd-206-221",
+      "collectorNumber": 206,
+      "name": "Riposte",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "spell",
+            "label": "Spell",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "signature",
+            "label": "Signature"
+          }
+        ]
+      },
+      "publicCode": "SFD-206/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "epic",
+          "label": "Epic",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+            "dimensions": {
+              "width": 455,
+              "height": 419,
+              "aspectRatio": 1.0859188544152745
+            },
+            "colors": {
+              "primary": "#B8794C",
+              "secondary": "#332F29",
+              "label": "#604634"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "body",
+            "label": "Body",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#221A11",
+                "secondary": "#F9EADC",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          },
+          {
+            "id": "order",
+            "label": "Order",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8bb1b193a8e1adc26ca28e1a21da8d1e2f5d2f72-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#14120A",
+                "secondary": "#FFF7D6",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/07af52eada661904b467ca118c2715435f0a3b00-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Spell: Riposte. [Reaction] (Play any time, even before spells and abilities resolve.)\nChoose a friendly unit and a spell. Counter that spell and give that unit +[S] equal to that spell's Energy cost this turn.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#563D2B",
+          "secondary": "#F9F4DC",
+          "label": "#2E1A0C"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "kudosproductions",
+            "label": "Kudos Productions",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Reaction] (Play any time, even before spells and abilities resolve.)<br />Choose a friendly unit and a spell. Counter that spell and give that unit +:rb_might: equal to that spell's Energy cost this turn.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Fiora"
+        ]
+      }
+    },
+    {
+      "id": "sfd-059-221",
+      "collectorNumber": 59,
+      "name": "Svellsongur",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "gear",
+            "label": "Gear",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ee2664a6dfe767b7e8b4b08ed04611e019d2c166-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "SFD-059/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "epic",
+          "label": "Epic",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+            "dimensions": {
+              "width": 455,
+              "height": 419,
+              "aspectRatio": 1.0859188544152745
+            },
+            "colors": {
+              "primary": "#B8794C",
+              "secondary": "#332F29",
+              "label": "#604634"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "calm",
+            "label": "Calm",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#152311",
+                "secondary": "#E0FFD6",
+                "label": "#080808"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bc254398dfb5db217327b56862011a2fd6020789-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Gear: Svellsongur. [Equip] [1][C] ([1][C]: Attach this to a unit you control.)\nAs this is attached to a unit, copy that unit's text to this Equipment's effect text for as long as this is attached to it.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#27274E",
+          "secondary": "#F9DCE6",
+          "label": "#090924"
+        },
+        "mimeType": "image/png"
+      },
+      "mightBonus": {
+        "label": "Might Bonus",
+        "value": {
+          "id": 0,
+          "label": "+0",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "envarstudio",
+            "label": "Envar Studio",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Equip] :rb_energy_1::rb_rune_calm: (:rb_energy_1::rb_rune_calm:: Attach this to a unit you control.)<br />As this is attached to a unit, copy that unit's text to this Equipment's effect text for as long as this is attached to it.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 3,
+          "label": "3"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 0,
+          "label": "0",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Equipment"
+        ]
+      }
+    },
+    {
+      "id": "ogn-219-298",
+      "collectorNumber": 219,
+      "name": "Vanguard Sergeant",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-219/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "common",
+          "label": "Common",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a088ae851d94b5c34aa4900e8ccb4cc103144dce-354x354.png?accountingTag=RB",
+            "dimensions": {
+              "width": 354,
+              "height": 354,
+              "aspectRatio": 1
+            },
+            "colors": {
+              "primary": "#A4B8AA",
+              "secondary": "#293333",
+              "label": "#3A6C49"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "order",
+            "label": "Order",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8bb1b193a8e1adc26ca28e1a21da8d1e2f5d2f72-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#14120A",
+                "secondary": "#FFF7D6",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6bcff5c718cfcff1c2466bf5e1a2a1ea9a9cf09b-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Vanguard Sergeant.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#413221",
+          "secondary": "#F9EDDC",
+          "label": "#150E05"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "sixmorevodka",
+            "label": "Six More Vodka",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 4,
+          "label": "4"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 4,
+          "label": "4",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Elite",
+          "Demacia"
+        ]
+      }
+    },
+    {
+      "id": "unl-150-219",
+      "collectorNumber": 150,
+      "name": "Vex",
+      "subtitle": "Apathetic",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "UNL",
+          "label": "Unleashed"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "UNL-150/219",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "epic",
+          "label": "Epic",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+            "dimensions": {
+              "width": 455,
+              "height": 419,
+              "aspectRatio": 1.0859188544152745
+            },
+            "colors": {
+              "primary": "#B8794C",
+              "secondary": "#332F29",
+              "label": "#604634"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "chaos",
+            "label": "Chaos",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#100B16",
+                "secondary": "#EDD6FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7f13b0216c5d805400bb64cf26cd119acfc6c5ca-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Vex, Apathetic. [Deflect] (Opponents must pay [A] to choose me with a spell or ability.)\nWhen an opponent plays a unit while I'm at a battlefield, [Stun] it. They can't move it this turn. (It doesn't deal combat damage this turn.)",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#171B2E",
+          "secondary": "#F9EEDC",
+          "label": "#000000"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "leaguesplashteam",
+            "label": "League Splash Team",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)<br />When an opponent plays a unit while I'm at a battlefield, [Stun] it. They can't move it this turn. (It doesn't deal combat damage this turn.)</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 4,
+          "label": "4"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 4,
+          "label": "4",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Yordle",
+          "Vex",
+          "Shadow Isles"
+        ]
+      }
+    },
+    {
+      "id": "ogn-064-298",
+      "collectorNumber": 64,
+      "name": "Wind Wall",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "spell",
+            "label": "Spell",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-064/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "calm",
+            "label": "Calm",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#152311",
+                "secondary": "#E0FFD6",
+                "label": "#080808"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/72c4dbe48d06916c847dab40340e5f05228fadfe-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Spell: Wind Wall. [Reaction] (Play any time, even before spells and abilities resolve.)\nCounter a spell.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#5E3C2F",
+          "secondary": "#F9DCDC",
+          "label": "#38190E"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "maxgrecke",
+            "label": "Max Grecke",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Reaction] (Play any time, even before spells and abilities resolve.)<br />Counter a spell.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 3,
+          "label": "3"
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      }
+    },
+    {
+      "id": "ogn-097-298",
+      "collectorNumber": 97,
+      "name": "Blastcone Fae",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-097/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fac53b2216490c99ad7ce11dc5e663a692d6c104-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Blastcone Fae. [Hidden] (Hide now for [A] to react with later for [0].)\nWhen you play me, give a unit -2 [S] this turn, to a minimum of 1 [S].",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#223443",
+          "secondary": "#DCF9F9",
+          "label": "#060F17"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "caravanstudio",
+            "label": "Caravan Studio",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)<br />When you play me, give a unit -2 :rb_might: this turn, to a minimum of 1 :rb_might:.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Fae",
+          "Bandle City"
+        ]
+      }
+    },
+    {
+      "id": "sfd-163-221",
+      "collectorNumber": 163,
+      "name": "Deathgrip",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "spell",
+            "label": "Spell",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "SFD-163/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "order",
+            "label": "Order",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8bb1b193a8e1adc26ca28e1a21da8d1e2f5d2f72-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#14120A",
+                "secondary": "#FFF7D6",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/695304200c6fd3b287bd319ac564d31936b23d66-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Spell: Deathgrip. [Reaction] (Play any time, even before spells and abilities resolve.)\nKill a friendly unit to give +[M] equal to its Might to another friendly unit this turn. Draw 1.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#263B4C",
+          "secondary": "#DCEFF9",
+          "label": "#091722"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "polarenginestudio",
+            "label": "Polar Engine Studio",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Reaction] (Play any time, even before spells and abilities resolve.)<br />Kill a friendly unit to give +:rb_might: equal to its Might to another friendly unit this turn. Draw 1.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "DOC-04-P043-B021",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.9.a.2"
+      ],
+      "text": "355.9.a.2.               除非另有说明,否则“法术”和“技能”均指代结算链上的物体。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P044-B004",
+      "document": "DOC-04",
+      "page": 44,
+      "clauseAnchors": [
+        "355.9.c"
+      ],
+      "text": "355.9.c.          其不是该法术或技能本身。\n                       举例:一个具有“无效化一个法术”效果的法术,不能以自身为目标。\n                       举例:一个常驻牌的技能可以将该常驻牌选取为目标,因为该技能与技能来源均被视为独立的\n                       物体。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P051-B004",
+      "document": "DOC-04",
+      "page": 51,
+      "clauseAnchors": [
+        "359.3.e.9.a"
+      ],
+      "text": "359.3.e.9.a.        如果其他法术或技能尝试引用某个已确认的结算链项目 指定为目标的游戏物体、玩家\n                    或区域的数量,则该数量会计入所有指定失效的目标,但不会计入已改变至非场地区\n                    域的目标。\n                         举例:当玩家将其“沃利贝尔 - 震怒天声”移动至敌方占据的战场并触发战斗\n                         时,沃利贝尔的进攻触发将加入结算链,并选取该战场上的三名单位为目\n                         标。作为反应,防守方玩家打出“闪现”,将三名单位中的两名移回基地。此\n                         时,该玩家不能使用“击退”指定该进攻触发为目标(“击退”的效果为:“选\n                         择战场上的一名友方单位。无效化一个选择了该单位、且没有选择其他友\n                         方单位为目标的敌方法术或技能。”)。如果防守方玩家改为打出“残酷复\n                         活”两次,摧毁了那两名单位,则“击退”可以合法指定该进攻触发为目标,\n                         因为其中两名目标已移至非场地区域。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P057-B015",
+      "document": "DOC-04",
+      "page": 57,
+      "clauseAnchors": [
+        "377"
+      ],
+      "text": "377.         主动技能 是一种可重复效果,带有一定费用。这类技能也要经过加入结算链、进行结算的过程,与打出卡牌 的过程类似。\n                    想获取更多有关信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B006",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.1"
+      ],
+      "text": "425.1.             无效化 指的是让玩家执行、激活或其他打出卡牌或技能的动作失去作用的行动。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B007",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.1.a"
+      ],
+      "text": "425.1.a.                被无效化的卡牌或技能不会产生任何效果,并会被移出结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B008",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.1.a.1"
+      ],
+      "text": "425.1.a.1.                   以这种方式从结算链中移出的卡牌会被放入弃牌堆。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B009",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.1.b"
+      ],
+      "text": "425.1.b.                被无效化的卡牌不视为已被打出,在“卡牌打出时”触发的技能也不视为被触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B010",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.1.c"
+      ],
+      "text": "425.1.c.                无效化 不会退还玩家为打出卡牌、激活技能或触发技能所支付的费用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B011",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.1.c.1"
+      ],
+      "text": "425.1.c.1.                   这也包括“额外费用”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B012",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.2"
+      ],
+      "text": "425.2.             无效化是一种限定行动。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B013",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.2.a"
+      ],
+      "text": "425.2.a.                玩家只能在游戏效果的指示下将卡牌和技能无效化。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P074-B014",
+      "document": "DOC-04",
+      "page": 74,
+      "clauseAnchors": [
+        "425.3"
+      ],
+      "text": "425.3.             该行动的格式为“无效化[结算链中的卡牌或技能]”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P045-B001",
+      "document": "DOC-04",
+      "page": 45,
+      "clauseAnchors": [
+        "355.10.d"
+      ],
+      "text": "355.10.d.         其为按照自身特性由流程自动选定,而不是由法术或技能的控制者选定。\n                         举例:“摧毁一处战场上的所有单位”以一处战场为目标,而不以任意单位为目标。\n                         举例:“摧毁所有战场上的单位”不视为目标选取。\n                         举例:“摧毁一名单位。让其控制者抽两张牌”只以该单位为目标,而不以其控制者为目标。\n                         举例:“让你的传奇变为活跃状态”不视为目标选取,因为你只能拥有一名传奇。\n                         举例:“让一名友方传奇变为活跃状态”以一名传奇为目标,因为在 2v2 游戏中存在两名友方传\n                         奇。\n                         举例:“回收你废牌堆中的所有卡牌”不视为目标选取,因为此效果会影响所有卡牌,且你只拥有\n                         一个废牌堆。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P045-B002",
+      "document": "DOC-04",
+      "page": 45,
+      "clauseAnchors": [
+        "355.10.d.1"
+      ],
+      "text": "355.10.d.1.              该例外情况仅适用于在任何情况下都无法进行选择的物体。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P045-B003",
+      "document": "DOC-04",
+      "page": 45,
+      "clauseAnchors": [
+        "355.10.d.2"
+      ],
+      "text": "355.10.d.2.              该例外情况不适用于以下对象:该物体在法术或技能被放置到结算链时是唯一的有效选择,但\n                         在其他情况下却需要进行选择。\n                             举例:“摧毁战场上的一名单位”始终会以一名单位为目标(即使该单位是当前战场上\n                              的唯一单位)。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "rawSourceHashes": {
+    "data/official/upstream/2026-10-12/card-catalog.zh-CN.json": "9784cd4d153b6fac6ae780bef2b95797c9030222fb69a778517c74c3b3318490",
+    "data/official/upstream/2026-10-12/card-gallery.en-US.json": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+  },
+  "correctedFixturePremise": "Vex automatically references the entering unit and does not choose it under 355.10.d. Preserve rejection; use a Blastcone Sprite chosen play trigger for the positive Repulse case."
+}

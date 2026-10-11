@@ -23655,7 +23655,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string objectId,
         string targetScope,
-        int targetIndex = 0)
+        int targetIndex = 0,
+        bool allowAbilities = false)
     {
         return targetScope switch
         {
@@ -23685,7 +23686,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : IsEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
                 ? IsPlayerControlledBattlefieldObject(state, playerId, objectId)
-                : IsStackSpellItem(state, objectId),
+                    && IsPlayerControlledFieldUnitObject(state, playerId, objectId)
+                : StackObjectRules.CanChoose(state, objectId, allowAbilities),
+            CardTargetScopes.FriendlyUnitThenStackSpell => targetIndex == 0
+                ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
+                : StackObjectRules.CanChoose(state, objectId, allowAbilities),
             CardTargetScopes.FriendlyBattlefieldUnit => IsPlayerControlledBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyHandCard => IsFriendlyHandCard(state, playerId, objectId),
             CardTargetScopes.AnyHandCard => IsAnyHandCard(state, objectId),
@@ -23708,7 +23713,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.AnyMainDeckTopFiveCard => IsAnyMainDeckTopCards(state, objectId, 5),
             CardTargetScopes.Equipment => IsEquipmentObject(state, objectId),
             CardTargetScopes.Legend => IsLegendObject(state, objectId),
-            CardTargetScopes.StackSpell => IsStackSpellItem(state, objectId),
+            CardTargetScopes.StackSpell => StackObjectRules.CanChoose(state, objectId, allowAbilities),
             CardTargetScopes.SacredJudgmentKeepCard => IsSacredJudgmentKeepCandidate(state, objectId),
             _ => IsBattlefieldObject(state, objectId)
         };
@@ -24333,7 +24338,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
             ? targetIndex == 0
-            : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
+            : targetScope is CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell or CardTargetScopes.FriendlyUnitThenStackSpell
                 && targetIndex == 1;
     }
 
@@ -24682,15 +24687,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return IsFieldObject(state.PlayerZones, objectId)
             && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
             && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
-    }
-
-    private static bool IsStackSpellItem(MatchState state, string stackItemId)
-    {
-        return state.StackItems.Any(stackItem =>
-            string.Equals(stackItem.StackItemId, stackItemId, StringComparison.Ordinal)
-            && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
-            && !behavior.PlaysSourceToBaseAsUnit
-            && !behavior.PlaysSourceToBaseAsEquipment);
     }
 
     private static bool IsFriendlyEquipmentObject(MatchState state, string playerId, string objectId)
@@ -26428,6 +26424,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ? "friendly unit then enemy battlefield unit"
                                 : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits, StringComparison.Ordinal)
                                     ? "friendly battlefield unit then enemy battlefield unit"
+                                    : string.Equals(targetScope, CardTargetScopes.FriendlyUnitThenStackSpell, StringComparison.Ordinal)
+                                        ? "friendly unit then spell on the stack"
                                     : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
                                         ? "friendly battlefield unit then spell on the stack"
                                         : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnit, StringComparison.Ordinal)
@@ -30678,12 +30676,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var targetStackItem = state.StackItems.FirstOrDefault(stackItem =>
             string.Equals(stackItem.StackItemId, targetStackItemId, StringComparison.Ordinal));
         if (targetStackItem is null
-            || !CardBehaviorRegistry.TryGetByEffectKind(targetStackItem.EffectKind, out var targetBehavior)
-            || targetBehavior.PlaysSourceToBaseAsUnit
-            || targetBehavior.PlaysSourceToBaseAsEquipment
+            || !StackObjectRules.CanChoose(state, targetStackItemId, counteringBehavior.CanCounterAbilities)
             || !playerZones.ContainsKey(targetStackItem.ControllerId))
         {
             return false;
+        }
+
+        if (StackObjectRules.IsAbility(targetStackItem))
+        {
+            counteredEvent = new GameEvent("STACK_ITEM_COUNTERED", $"{counteringStackItem.SourceObjectId}无效化技能",
+                new Dictionary<string, object?> {
+                    ["stackItemId"] = targetStackItem.StackItemId, ["counteredByStackItemId"] = counteringStackItem.StackItemId,
+                    ["sourceObjectId"] = targetStackItem.SourceObjectId, ["controllerId"] = targetStackItem.ControllerId,
+                    ["counteredByPlayerId"] = counteringStackItem.ControllerId, ["stackObjectKind"] = "ABILITY",
+                    ["abilitySourcePreserved"] = true });
+            return true;
         }
 
         var destinationZone = string.Equals(

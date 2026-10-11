@@ -13,3 +13,6 @@
 来源没有语义变化，因此保留 `docs/evidence/rules-reaudit-2026-10-11/` 的内容索引和逐项决策，不重复建立相同的 14,293 条规则块。本次刷新不是整张卡牌或完整规则语义认证，也不改变引擎可玩目录。
 
 证据：`data/official/upstream/2026-10-12/`、`docs/evidence/rules-reaudit-2026-10-12/live-readback.json`。原始响应及 PDF 在 `var/official/2026-10-12/` 保存，并在读回文件中记录路径与哈希。
+
+
+追加英文来源完整性核对：一次 limit=1500 的完整单页请求，以及全部 14 个 limit=100 的分页请求，均得到同一批 1,381 个身份；卡面全文与已保存快照一致。没有发现新增身份或内容变化。官网响应仍报告 totalItems=1389，八条差额已确认在来源元数据与返回数据之间存在，无法确定相应卡牌身份，继续保持未解决；不将其算作已经检查的卡牌。见 [追加核对](evidence/rules-reaudit-2026-10-12/gallery-gap-readback.json)。
