@@ -35,6 +35,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
         Assert.Equal(1, ability.RequiredTargetCount);
         Assert.False(ability.ExhaustsSourceAsCost);
         Assert.False(ability.ReactionSpeed);
+        Assert.True(ability.SwiftSpeed);
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
         Assert.Equal(1, powerCostByTrait[RuneTrait.Green]);
         Assert.True(P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, P4ActivatedAbilityCatalog.AzirCardNo));
@@ -126,13 +127,14 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
         Assert.Equal(
             [
                 P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(TargetArmamentObjectId),
-                P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(SecondTargetArmamentObjectId)
+                P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(SecondTargetArmamentObjectId),
+                P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(EnemyControlledArmamentObjectId)
             ],
             choicesByTarget[TargetObjectId].Select(choice => choice.Id).ToArray());
         Assert.Equal(
             [P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(OtherUnitArmamentObjectId)],
             choicesByTarget[BaseTargetObjectId].Select(choice => choice.Id).ToArray());
-        Assert.DoesNotContain(
+        Assert.Contains(
             choicesByTarget[TargetObjectId],
             choice => choice.Id.EndsWith(EnemyControlledArmamentObjectId, StringComparison.Ordinal));
     }
@@ -210,7 +212,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Equal(TargetObjectId, resolved.State.CardObjects[TargetArmamentObjectId].AttachedToObjectId);
-        Assert.DoesNotContain(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_REATTACHED", StringComparison.Ordinal));
+        Assert.DoesNotContain(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
         var swapEvent = Assert.Single(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_LOCATIONS_SWAPPED", StringComparison.Ordinal));
         Assert.False(Assert.IsType<bool>(swapEvent.Payload["armamentReattachApplied"]));
         Assert.Equal(P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy, swapEvent.Payload["armamentReattachPolicy"]);
@@ -239,7 +241,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
         Assert.True(Assert.IsType<bool>(swapEvent.Payload["armamentReattachApplied"]));
         Assert.Equal(TargetArmamentObjectId, swapEvent.Payload["selectedArmamentObjectId"]);
         Assert.Equal(P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy, swapEvent.Payload["armamentReattachPolicy"]);
-        var reattachEvent = Assert.Single(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_REATTACHED", StringComparison.Ordinal));
+        var reattachEvent = Assert.Single(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
         Assert.Equal(TargetObjectId, reattachEvent.Payload["previousAttachedToObjectId"]);
         Assert.Equal(AzirObjectId, reattachEvent.Payload["attachedToObjectId"]);
         Assert.Equal(TargetArmamentObjectId, reattachEvent.Payload["equipmentObjectId"]);
@@ -544,7 +546,21 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             _ => AzirCommand()
         };
 
-        await AssertRejectedNoMutationAsync(state, command);
+        if (scenario == "opponent-controlled")
+        {
+            // Printed text chooses the unit you control; the attached weapon has no control restriction.
+            var activated = await ActivateAzirAsync(state, command.OptionalCosts);
+            Assert.True(activated.Accepted, activated.ErrorMessage);
+            var resolved = await ResolveAzirStackAsync(new CoreRuleEngine(), activated.State);
+            Assert.True(resolved.Accepted, resolved.ErrorMessage);
+            var gear = resolved.State.CardObjects[EnemyControlledArmamentObjectId];
+            Assert.Equal(AzirObjectId, gear.AttachedToObjectId);
+            Assert.Equal("P2", gear.ControllerId); Assert.Equal("P2", gear.OwnerId);
+            Assert.Equal(TargetBattlefieldObjectId, resolved.State.ObjectLocations[gear.ObjectId].BattlefieldObjectId);
+            Assert.Contains(gear.ObjectId, resolved.State.PlayerZones["P2"].Battlefields);
+            Assert.Single(resolved.Events, e => e.Kind == "EQUIPMENT_ATTACHED");
+        }
+        else await AssertRejectedNoMutationAsync(state, command);
     }
 
     [Fact]
@@ -572,7 +588,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
         Assert.Equal(TargetBattlefieldObjectId, resolved.State.ObjectLocations[AzirObjectId].BattlefieldObjectId);
         Assert.Equal(AzirBattlefieldObjectId, resolved.State.ObjectLocations[TargetObjectId].BattlefieldObjectId);
         Assert.Equal(BaseTargetObjectId, resolved.State.CardObjects[TargetArmamentObjectId].AttachedToObjectId);
-        Assert.DoesNotContain(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_REATTACHED", StringComparison.Ordinal));
+        Assert.DoesNotContain(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
         var swapEvent = Assert.Single(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_LOCATIONS_SWAPPED", StringComparison.Ordinal));
         Assert.False(Assert.IsType<bool>(swapEvent.Payload["armamentReattachApplied"]));
         Assert.Equal(TargetArmamentObjectId, swapEvent.Payload["selectedArmamentObjectId"]);
@@ -762,7 +778,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
 
     private static MatchState BuildAzirStateWithArmaments()
     {
-        return BuildAzirState(
+        var state = BuildAzirState(
             P4ActivatedAbilityCatalog.AzirCardNo,
             new RunePool(0, 0, new Dictionary<string, int>(StringComparer.Ordinal)
             {
@@ -786,17 +802,17 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
                     attachedToObjectId: TargetObjectId),
                 [SecondTargetArmamentObjectId] = NonUnit(
                     SecondTargetArmamentObjectId,
-                    "SFD·023/221",
+                    "SFD·139/221",
                     CardObjectTags.EquipmentCard,
                     attachedToObjectId: TargetObjectId),
                 [OtherUnitArmamentObjectId] = NonUnit(
                     OtherUnitArmamentObjectId,
-                    "SFD·024/221",
+                    "SFD·178/221",
                     CardObjectTags.EquipmentCard,
                     attachedToObjectId: BaseTargetObjectId),
                 [UnattachedArmamentObjectId] = NonUnit(
                     UnattachedArmamentObjectId,
-                    "SFD·025/221",
+                    "SFD·022/221",
                     CardObjectTags.EquipmentCard),
                 [NonEquipmentAttachedObjectId] = new CardObjectState(
                     NonEquipmentAttachedObjectId,
@@ -808,12 +824,16 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
                     controllerId: "P1"),
                 [EnemyControlledArmamentObjectId] = NonUnit(
                     EnemyControlledArmamentObjectId,
-                    "SFD·026/221",
+                    "SFD·139/221",
                     CardObjectTags.EquipmentCard,
                     attachedToObjectId: TargetObjectId,
                     ownerId: "P2",
                     controllerId: "P2")
             });
+        // The old fixture placed attached gear in a different zone from its host.
+        foreach (var id in new[] { TargetArmamentObjectId, SecondTargetArmamentObjectId, NonEquipmentAttachedObjectId })
+            state = LocalDestructionRecallTests.At(state, id, "P1", "BATTLEFIELD", TargetBattlefieldObjectId);
+        return LocalDestructionRecallTests.At(state, EnemyControlledArmamentObjectId, "P2", "BATTLEFIELD", TargetBattlefieldObjectId);
     }
 
     private static MatchState BuildAzirState(
@@ -834,6 +854,8 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
         }.Concat(baseObjectIds ?? []).Distinct(StringComparer.Ordinal).ToArray();
         var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
         {
+            [AzirBattlefieldObjectId] = NonUnit(AzirBattlefieldObjectId, "OGN·278/298", P6TokenFactoryCatalog.BattlefieldCardTag),
+            [TargetBattlefieldObjectId] = NonUnit(TargetBattlefieldObjectId, "OGN·278/298", P6TokenFactoryCatalog.BattlefieldCardTag),
             [AzirObjectId] = Unit(AzirObjectId, cardNo, "P1", power: 6),
             [TargetObjectId] = Unit(TargetObjectId, "SFD·125/221", "P1", power: 2),
             [BaseTargetObjectId] = Unit(BaseTargetObjectId, "SFD·126/221", "P1", power: 2),
@@ -853,6 +875,8 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
 
         var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
         {
+            [AzirBattlefieldObjectId] = new("P1", "BATTLEFIELD", AzirBattlefieldObjectId),
+            [TargetBattlefieldObjectId] = new("P1", "BATTLEFIELD", TargetBattlefieldObjectId),
             [AzirObjectId] = new("P1", "BATTLEFIELD", AzirBattlefieldObjectId),
             [TargetObjectId] = new("P1", "BATTLEFIELD", TargetBattlefieldObjectId),
             [BaseTargetObjectId] = new("P1", "BASE"),
@@ -899,7 +923,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Base = allBaseObjectIds,
-                    Battlefields = [AzirObjectId, TargetObjectId],
+                    Battlefields = [AzirBattlefieldObjectId, TargetBattlefieldObjectId, AzirObjectId, TargetObjectId],
                     Hand = ["P1-HAND-UNIT"],
                     RuneDeck = runeDeckObjectIds ?? []
                 },

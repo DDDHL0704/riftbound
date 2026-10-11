@@ -1,5 +1,7 @@
 # 规则权威与重审协议
 
+2026-10-12 阿兹尔移动与改贴限定范围通过：check 9,842、两个中盘至得分胜利、18 条原生命令事件／状态重放一致；迅捷、连续身份、实际移动与随行装备、改贴选择已重建。复制及混合控制者基地物理位置仍待完成。见 [审计](AZIR_MOVEMENT_AUDIT_2026-10-12.md)。
+
 2026-10-12 传奇贴附限定范围通过：check 9,808、最终 focus 63、2 条官方整局和 15 条原生命令回放。见 [审计](LEGEND_ATTACHMENT_AUDIT_2026-10-12.md)。其他传奇、阿兹尔、完整百炼与复制仍待完成。
 
 2026-10-12 贴附事件与前置支付抽牌限定范围通过: check 9,784; 17 focused cases; 2 complete games; 6 native commands. [Audit](ATTACHMENT_OBSERVERS_AUDIT_2026-10-12.md). Legend attach, Azir swap, full Tempered and printed text copies remain open.

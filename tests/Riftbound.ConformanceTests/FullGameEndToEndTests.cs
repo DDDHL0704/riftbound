@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class FullGameEndToEndTests
+public sealed partial class FullGameEndToEndTests
 {
     private readonly ITestOutputHelper _output;
 

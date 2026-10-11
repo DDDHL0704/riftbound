@@ -456,6 +456,18 @@ internal sealed class PromptInteractionController
                 }).ToArray();
                 steps.Add(new(index, "optionalCost", "可选费用", false, choices));
             }
+            if (requirement.TryGetProperty("armamentReattachChoicesByTargetObjectId", out var reattach)
+                && steps.FirstOrDefault(step => step.Role == "target") is { } firstTarget
+                && _selectedChoiceByStep.TryGetValue(firstTarget.Index, out var targetId)
+                && reattach.TryGetProperty(targetId, out var armaments) && armaments.GetArrayLength() > 0)
+            {
+                var index = steps.Count;
+                var choices = armaments.EnumerateArray().Select(choice => {
+                    var id = choice.GetProperty("id").GetString()!;
+                    return new PromptChoice("optionalCost", id, choice.GetProperty("label").GetString() ?? id, [id], index);
+                }).ToArray();
+                steps.Add(new(index, "optionalCost", "改贴武装（可选）", false, choices));
+            }
             return action with { Steps = steps };
         }
         return action;

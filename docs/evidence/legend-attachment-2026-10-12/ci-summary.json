@@ -1,0 +1,57 @@
+{
+  "status": "PASSED",
+  "profile": "full",
+  "seconds": 1137.87,
+  "total": 9943,
+  "caseParityVerified": false,
+  "shards": [
+    {
+      "shard": "games-4",
+      "total": 46,
+      "passed": 46,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 683.37
+    },
+    {
+      "shard": "games-2",
+      "total": 44,
+      "passed": 44,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 702.4
+    },
+    {
+      "shard": "games-3",
+      "total": 44,
+      "passed": 44,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 761.31
+    },
+    {
+      "shard": "rules",
+      "total": 9808,
+      "passed": 9808,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 277.34
+    },
+    {
+      "shard": "games-1",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 1039.96
+    }
+  ],
+  "runId": 38161138845,
+  "headSha": "b69a200a91e3b8e8f30548982a595b6514b0da9b",
+  "uniqueCases": 9943,
+  "discoveredMethods": 6511,
+  "previousCasesRetained": 9918,
+  "previousCasesMissing": [],
+  "newCases": 25,
+  "artifact": "conformance-results"
+}

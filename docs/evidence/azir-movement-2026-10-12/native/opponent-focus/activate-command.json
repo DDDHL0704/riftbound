@@ -1,0 +1,1 @@
+{"cmdType":"ACTIVATE_ABILITY","sourceObjectId":"HOST","abilityId":"AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT","targetObjectIds":["TARGET"],"optionalCosts":["AZIR_REATTACH_ARMAMENT:GEAR"],"promptId":"HOLD-TEST:2:P1:ACTIVATE_ABILITY,PASS_FOCUS,SURRENDER","snapshotTick":2}

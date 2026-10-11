@@ -604,6 +604,7 @@ public sealed record StackItemState
 {
     public AttachmentObserverContext? AttachmentObserver { get; init; }
     public LegendAttachmentContext? LegendAttachment { get; init; }
+    public AzirMovementContext? AzirMovement { get; init; }
     public EquipContext? Equip { get; init; }
     public IReadOnlyList<string>? MovementDestinations { get; init; }
     public TriggerCostReceipt? TriggerCost { get; init; }
@@ -4178,7 +4179,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { AttachmentObserver = item.AttachmentObserver, LegendAttachment = item.LegendAttachment, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { AttachmentObserver = item.AttachmentObserver, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -10062,7 +10063,7 @@ internal static class ActionPromptBuilder
                 || ability.Kind == "TRIGGERED_RESOURCE"
                 || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
                     && state.UntilEndOfTurnEffects.Contains(
-                        P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(playerId, sourceObjectId),
+                        P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(playerId, sourceObjectId, cardObject.ObjectGeneration),
                         StringComparer.Ordinal))
                 || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal)
                     && !IsPromptEzrealBlueSwiftMoveSource(state, playerId, sourceObjectId, cardObject)))
@@ -11310,7 +11311,8 @@ internal static class ActionPromptBuilder
         return state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
             && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !equipmentState.IsFaceDown
-            && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId)
+            && OfficialArmamentCatalog.Find(equipmentState.CardNo) is not null
+            && state.PlayerZones.Values.Any(z => z.Base.Contains(equipmentObjectId) || z.Battlefields.Contains(equipmentObjectId))
             && string.Equals(equipmentState.AttachedToObjectId, targetObjectId, StringComparison.Ordinal);
     }
 
@@ -11673,6 +11675,7 @@ internal static class ActionPromptBuilder
         string playerId,
         P4ActivatedAbilityDefinition ability)
     {
+        if (ability.SwiftSpeed) return CoreRuleEngine.CanActivateSwiftAbility(state, playerId);
         if (ability.IsResourceSkill && ability.ReactionSpeed)
             return CoreRuleEngine.CanActivateReactionResourceSkill(state, playerId);
         if (state.PendingPayment is not null || state.PendingHandChoice is not null || state.PendingCardChoice is not null
@@ -15891,8 +15894,8 @@ internal static class ActionPromptBuilder
             view["swift"] = true;
             view["oncePerTurn"] = true;
             view["targetScope"] = "controlled-face-up-unit";
-            view["swapPolicy"] = "swap-source-and-target-precise-field-locations";
-            view["timingPolicy"] = "open-main-representative";
+            view["swapPolicy"] = "two-moves-using-original-precise-locations";
+            view["timingPolicy"] = "neutral-open-or-any-turn-duel-focus";
             view["stackPolicy"] = "ordinary-stack-item-before-swap";
             view["paymentPolicy"] = "payment-plan-typed-green";
             view["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy;

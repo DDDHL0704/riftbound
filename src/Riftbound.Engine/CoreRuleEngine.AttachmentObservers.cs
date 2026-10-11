@@ -89,7 +89,7 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult RecordAttachmentObservers(MatchState before, ResolutionResult result)
     {
-        if (!result.Accepted) return result;
+        if (!result.Accepted || !result.Events.Any(e => e.Kind == CapturedAttachmentEvent)) return result;
         var events = new List<GameEvent>(); var queue = result.State.TriggerQueue.ToList();
         for (var index = 0; index < result.Events.Count; index++)
         {

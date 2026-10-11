@@ -1,0 +1,32 @@
+{
+  "scope": "Skip empty attachment and movement collectors; death ledger unchanged",
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 48.3,
+    "total": 97,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 97,
+        "passed": 97,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 16.87
+      }
+    ]
+  },
+  "nativeLegendCommands": 15,
+  "nativeLegendEventAndReplayHashesUnchanged": true,
+  "pairedGameSecondsBefore": [
+    7.3383059,
+    8.0308887
+  ],
+  "pairedGameSecondsAfter": [
+    5.7624873,
+    9.1725399
+  ],
+  "performanceConclusion": "Mixed timings; no fixed or significant wall-time improvement claimed",
+  "evidence": "var/qa/observer-collector-speed/focus1"
+}

@@ -23407,7 +23407,10 @@ public static class MatchRecoveryValidator
                 || item.AttachmentObserver is not null && item.TriggeredByEventKind != "EQUIPMENT_ATTACHED")
                 errors.Add("invalid captured attachment trigger");
         foreach (var item in state.StackItems)
+        {
+            if (!CoreRuleEngine.ValidAzirMovement(state, item)) errors.Add("invalid captured Azir movement");
             if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
+        }
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidEquipContext(item)) errors.Add("invalid captured equip ability");
         foreach (var item in state.StackItems)
