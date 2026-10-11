@@ -1,0 +1,119 @@
+{
+  "status": "VERIFIED_SCOPED_LEGEND_ATTACHMENT",
+  "profiles": {
+    "focus": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 35.71,
+      "total": 63,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 63,
+          "passed": 63,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 6.41
+        }
+      ]
+    },
+    "check": {
+      "status": "PASSED",
+      "profile": "check",
+      "seconds": 96.26,
+      "total": 9808,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "check",
+          "total": 9808,
+          "passed": 9808,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 92.54
+        }
+      ]
+    },
+    "games": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 48.41,
+      "total": 2,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 2,
+          "passed": 2,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 17.28
+        }
+      ]
+    }
+  },
+  "nativeReplays": [
+    {
+      "scenario": "attach",
+      "nativeCommands": 6,
+      "commands": 6,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "5ffcfd927e0156c83be65c57c17734710eb2c356c1eee18bcb5ef429e5febd39",
+        "expectedStateHash": "5ffcfd927e0156c83be65c57c17734710eb2c356c1eee18bcb5ef429e5febd39",
+        "errors": []
+      }
+    },
+    {
+      "scenario": "same-host",
+      "nativeCommands": 3,
+      "commands": 3,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "19b8d6bec420e3de0f0a095d6c33eb4b9ddd1cebe888702a2110f33306cc341f",
+        "expectedStateHash": "19b8d6bec420e3de0f0a095d6c33eb4b9ddd1cebe888702a2110f33306cc341f",
+        "errors": []
+      }
+    },
+    {
+      "scenario": "forge",
+      "nativeCommands": 6,
+      "commands": 6,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "fab47416685150b65bb873e0e05c3a341bed0a80f6a5cd0f568d06aaeb7a7e87",
+        "expectedStateHash": "fab47416685150b65bb873e0e05c3a341bed0a80f6a5cd0f568d06aaeb7a7e87",
+        "errors": []
+      }
+    }
+  ],
+  "distinctExecutedCases": 9812,
+  "previousOrdinaryCasesRetained": 9783,
+  "addedCases": 25,
+  "discoveredMethods": 6511,
+  "addedMethods": 12,
+  "removedMethods": 0,
+  "ci": {
+    "scope": "Previous attachment batch",
+    "commit": "b2e03905eae81cca32db578ffa1e63f96ac4b5de",
+    "run": 38157753197,
+    "status": "success",
+    "total": 9918
+  },
+  "limits": [
+    "No repeated local full matrix; current uniform full suite is CI after push",
+    "Check executed before a narrow hidden-host prompt correction; final focus covers it",
+    "Native headless production controls are not paired native or Windows runtime acceptance",
+    "No whole card or whole rule certification"
+  ],
+  "failureClassification": {
+    "red1": "2 real reattachment/same-host failures; 2 erroneous test ability IDs excluded",
+    "focus1": "Nullable compile diagnostics",
+    "focus2": "Test used a computed property and nonexistent recovery API; no behavioral claim",
+    "focus3": "12 cases used incorrect activation ID; corrected",
+    "focus4": "2 real target generation-continuity failures",
+    "nativeRed": "Production controller overwrote the first target with the second",
+    "games1": "Test driver wrote default JSON casing for pass command; fixed to web wire format"
+  }
+}

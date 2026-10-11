@@ -23407,6 +23407,8 @@ public static class MatchRecoveryValidator
                 || item.AttachmentObserver is not null && item.TriggeredByEventKind != "EQUIPMENT_ATTACHED")
                 errors.Add("invalid captured attachment trigger");
         foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
+        foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidEquipContext(item)) errors.Add("invalid captured equip ability");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidBattlefieldStart(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)

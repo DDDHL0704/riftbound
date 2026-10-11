@@ -1,0 +1,593 @@
+{
+  "status": "VERIFIED_SCOPED_LEGEND_ATTACHMENT",
+  "documents": [
+    {
+      "id": "DOC-04",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "updated": "2026-07-17",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-14",
+      "title": "铸魂淬炼系列 裁判FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+      "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+      "updated": "2026-01-14",
+      "effectiveDate": null
+    }
+  ],
+  "rules": [
+    {
+      "id": "DOC-04-P057-B015",
+      "document": "DOC-04",
+      "page": 57,
+      "clauseAnchors": [
+        "377"
+      ],
+      "text": "377.         主动技能 是一种可重复效果,带有一定费用。这类技能也要经过加入结算链、进行结算的过程,与打出卡牌 的过程类似。\n                    想获取更多有关信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B001",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.1"
+      ],
+      "text": "377.1.           主动技能 的卡牌文本格式为:费用 + 冒号 + 具体效果。\n                      例如:“[2]:抽一张牌。”就是一个主动技能。其费用为 2 点法力。其效果为抽一张牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B002",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.2"
+      ],
+      "text": "377.2.           卡牌文本会以“使用”或“打出”字眼来指代主动技能的激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B003",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.2.a"
+      ],
+      "text": "377.2.a.              如果触发条件包含“使用”或“打出”主动技能,那么当该主动技能结算时即满足此条件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B004",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.2.b"
+      ],
+      "text": "377.2.b.              如果主动技能存在一定的“使用”或“打出”条件,则必须满足该条件才能激活此技能。\n                           举例:“绵绵魄罗”的描述为:“打出两个 1[M]的‘战鹰’单位指示物,它们拥有[法盾]。我必须位于\n                           战场上才能使用此技能。”绵绵魄罗必须位于战场上才能激活该技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B005",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3"
+      ],
+      "text": "377.3.           主动技能 会使用结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B006",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.a"
+      ],
+      "text": "377.3.a.              宣告激活技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B007",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.a.1"
+      ],
+      "text": "377.3.a.1.                 技能会进入结算链,但因为没有专门代表该技能的卡牌,所以需要玩家自行记录此时结算链为\n                           闭环状态 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B008",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.b"
+      ],
+      "text": "377.3.b.              继续执行结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B009",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.b.1"
+      ],
+      "text": "377.3.b.1.                 遵循规则 398. “打出或激活技能”中的步骤。此技能将变为待处理的结算链项目。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B010",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.b.2"
+      ],
+      "text": "377.3.b.2.                 对手可依规则进行响应,此过程如同有卡牌进入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B011",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.b.3"
+      ],
+      "text": "377.3.b.3.                 如果没有采取进一步行动,则开始执行该主动技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P079-B022",
+      "document": "DOC-04",
+      "page": 79,
+      "clauseAnchors": [
+        "434.1"
+      ],
+      "text": "434.1.            贴附 指的是将场上的两张卡牌连接在一起,从而以某种方式结合它们效果的行动。这将导致一张或多张卡牌变为已\n                  贴附 状态,并使至少一张卡牌成为顶部卡牌 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B002",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.a"
+      ],
+      "text": "434.1.a.               贴附 会同时影响两张卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B003",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.a.1"
+      ],
+      "text": "434.1.a.1.                  其中一张卡牌被指定贴附到其他卡牌上,从而变为已贴附状态。另一张卡牌则成为顶部卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B004",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.b"
+      ],
+      "text": "434.1.b.               实际操作形式为:将顶部卡牌放置在另一张或另外多张卡牌之上,露出已贴附卡牌的所有效果文本和战力\n                       加成 ,但遮挡住已贴附 卡牌的其余部分。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B005",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.b.1"
+      ],
+      "text": "434.1.b.1.                  如果顶部卡牌贴附了一张以上的卡牌,则在堆叠时,应保证所有效果文本框和战力加成均清晰\n                            可见。已贴附卡牌的顺序不影响效果的应用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B006",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.c"
+      ],
+      "text": "434.1.c.               所有已贴附卡牌的效果文本,都会被添加到顶部卡牌的规则文本中。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B007",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.d"
+      ],
+      "text": "434.1.d.               顶部卡牌 的战力,会按照其所有已贴附 卡牌的战力加成 进行调整。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B008",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.e"
+      ],
+      "text": "434.1.e.               贴附 一张或多张卡牌会导致这些卡牌卡面上印刷的规则文本 在其贴附 期间变为未激活 状态。\n                            想获取更多有关信息,请查阅规则 716.贴附。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B009",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.f"
+      ],
+      "text": "434.1.f.               将一张卡牌贴附到新的顶部卡牌会导致其从当前已贴附的任何卡牌上卸除。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B010",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.g"
+      ],
+      "text": "434.1.g.               将一张卡牌贴附到其当前的顶部卡牌不会产生任何效果。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B011",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.h"
+      ],
+      "text": "434.1.h.               如果游戏效果指示一名玩家将一张卡牌贴附到其当前的顶部卡牌,则不会发生任何其他事情。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B012",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.3"
+      ],
+      "text": "719.3.           顶部卡牌 和所有贴附于它的卡牌 均位于同一位置。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B013",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.3.a"
+      ],
+      "text": "719.3.a.              当顶部卡牌变更位置时,所有已贴附卡牌会随之变更位置。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P020-B001",
+      "document": "DOC-14",
+      "page": 20,
+      "clauseAnchors": [],
+      "text": "Q1:传奇【武器大师】的技能可以\n将一个单位和已经贴附给该单位的\n   武装选为目标吗?\n                   A1:可以,但不会产\n                    生任何效果。\nQ2:我方使用【武器大师】的技\n能,将已经贴附于【贾克斯 - 无\n                    A2:不可以。\n情攻势】的武装再次贴附给该单\n位,此时可以触发【贾克斯 - 无\n   情攻势】的技能吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P020-B002",
+      "document": "DOC-14",
+      "page": 20,
+      "clauseAnchors": [],
+      "text": "Q:对方打出【击倒】选择了只贴\n附有一件武装的单位。【击倒】结\n算前我<反应>打出【取放自如】,     A:不会。\n选择卸除该单位贴附的武装,【击\n  倒】还会造成伤害吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P020-B003",
+      "document": "DOC-14",
+      "page": 20,
+      "clauseAnchors": [],
+      "text": "Q:我方【无名英雄】在本回合内\n成为过<强力>单位,但他在被摧毁\n                   A:会触发,不会抽\n时并不是<强力>单位,他的<绝\n                      牌。\n念>会触发并让其我方抽两张牌\n      吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P020-B004",
+      "document": "DOC-14",
+      "page": 20,
+      "clauseAnchors": [],
+      "text": "Q:我将一名 4 战力单位打出到\n【崔法利兵营】,会触发传奇【无      A:不会。\n   双剑姬】的技能吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P032-B011",
+      "document": "DOC-04",
+      "page": 32,
+      "clauseAnchors": [
+        "308.1.a"
+      ],
+      "text": "308.1.a.               在法术对决状态下,仅有带有[迅捷]或[反应]关键词的卡牌或技能可以被玩家打出或激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P050-B006",
+      "document": "DOC-04",
+      "page": 50,
+      "clauseAnchors": [
+        "359.3.e.2"
+      ],
+      "text": "359.3.e.2.        如果目标不再符合法术的目标要求,或者所在区域在场地区域和非场地区域之间发生了变化,\n                  则该目标会在法术结算时被视为非法。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P050-B007",
+      "document": "DOC-04",
+      "page": 50,
+      "clauseAnchors": [
+        "359.3.e.3"
+      ],
+      "text": "359.3.e.3.        如果目标在法术位于结算链上时一度不再满足目标条件,之后又再度符合,则依旧被视为合法\n                  目标。\n                       举例:一张法术牌的目标为“战场上的一名单位”。一名玩家以法术进行应对,将该单\n                       位移动到基地,然后另一名玩家也以法术进行应对,将其移动回战场。随后,原先的\n                       法术进行结算。这种情况下,该单位仍然视为合法目标。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P050-B008",
+      "document": "DOC-04",
+      "page": 50,
+      "clauseAnchors": [
+        "359.3.e.4"
+      ],
+      "text": "359.3.e.4.        如果目标的所在区域在场地区域和非场地区域之间发生了变化,然后又回到了原来的区域,则\n                  不再是合法目标,因为不被视为同一个游戏物体。\n                       举例:\n                       如果“战场上的一名敌方单位”不再是敌人、不再是单位或不再位于战场上,则不再视\n                       为合法目标。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B015",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "381"
+      ],
+      "text": "381.         所有主动技能都只能在控制玩家的回合和开环状态下激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "cards": [
+    {
+      "id": "SFD-119/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33207,
+          "cardNo": "SFD·119/221",
+          "name": "贾克斯",
+          "sha256": "77c2abb39b4b29ae5fbb12a9c5fbec6b0cb7df5e9a2ebe93a6199db88c48e8c3"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-119-221",
+          "cardNo": "SFD-119/221",
+          "name": "Jax",
+          "sha256": "c773fc1ec2cb6de0ed58e72161a7d43f60ec12d2f3818fb5c3f344c08c2625c3"
+        }
+      ],
+      "activeCardNo": "SFD·119/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    },
+    {
+      "id": "SFD-119A/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33208,
+          "cardNo": "SFD·119a/221",
+          "name": "贾克斯",
+          "sha256": "2eb66d6fb707583f9b4008cf3b4f135b8ee17d1bdc60e945b5a1f5d41bde2339"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-119a-221",
+          "cardNo": "SFD-119a/221",
+          "name": "Jax",
+          "sha256": "8922467ee7faf84f4b4113cbbd8aaaf94550346233a634adcf5e8d2aadadee66"
+        }
+      ],
+      "activeCardNo": "SFD·119a/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    },
+    {
+      "id": "SFD-193/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33291,
+          "cardNo": "SFD·193/221",
+          "name": "武器大师",
+          "sha256": "7a3844c3f4d9e633b012fb0476eb373a05b4f2c4b18980cd5d783b75655eda65"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-193-221",
+          "cardNo": "SFD-193/221",
+          "name": "Grandmaster at Arms",
+          "sha256": "cb995333669778b919ce300e65465093ec45f3b655f26056860a17499d315a16"
+        }
+      ],
+      "activeCardNo": "SFD·193/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    },
+    {
+      "id": "SFD-208/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33307,
+          "cardNo": "SFD·208/221",
+          "name": "魄罗熔炉",
+          "sha256": "1ccd648822c0c491632fc30b7e34adcbf34ed42d757d866d3eef7b372c62f8df"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-208-221",
+          "cardNo": "SFD-208/221",
+          "name": "Forge of the Fluft",
+          "sha256": "465ca30b92cb8e652d356a8889d266b48925a9379fb6014eed64b2c2293f12a9"
+        }
+      ],
+      "activeCardNo": "SFD·208/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    },
+    {
+      "id": "SFD-245/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33356,
+          "cardNo": "SFD·245/221",
+          "name": "武器大师",
+          "sha256": "2f13b398c1223a7495e69fbc5ca28e1bd2bb2435cc9b5d89af9d6fee8bc72e9f"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-245-221",
+          "cardNo": "SFD-245/221",
+          "name": "Grandmaster at Arms",
+          "sha256": "7c8554877d74ac60bcb91285e138f8c6d102b293397d9d58e3357a58534b4bb4"
+        }
+      ],
+      "activeCardNo": "SFD·245/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    }
+  ],
+  "printedTexts": [
+    {
+      "id": 33207,
+      "cardNo": "SFD·119/221",
+      "cardName": "贾克斯",
+      "cardEffect": "{{百炼}}（当你打出我时，你可以选择为我{{装配}}你的一件武装，其装配费用减少{{A}}。可选择已贴附的武装。）\n当你为我贴附武装时，可以选择支付{{1}}，以此抽一张牌。"
+    },
+    {
+      "id": 33208,
+      "cardNo": "SFD·119a/221",
+      "cardName": "贾克斯",
+      "cardEffect": "{{百炼}}（当你打出我时，你可以选择为我{{装配}}你的一件武装，其装配费用减少{{A}}。可选择已贴附的武装。）\n当你为我贴附武装时，可以选择支付{{1}}，以此抽一张牌。"
+    },
+    {
+      "id": 33291,
+      "cardNo": "SFD·193/221",
+      "cardName": "武器大师",
+      "cardEffect": "支付{{1}}，{{横置}}：将你控制的一件未贴附的武装贴附到你控制的一名单位上。\n{{横置}}：将你控制的一件已贴附的武装贴附到你控制的一名单位上。"
+    },
+    {
+      "id": 33307,
+      "cardNo": "SFD·208/221",
+      "cardName": "魄罗熔炉",
+      "cardEffect": "如果此战场受你控制，则所有友方传奇获得“{{横置}}：将你控制的一件武装贴附到你控制的一名单位上。”"
+    },
+    {
+      "id": 33356,
+      "cardNo": "SFD·245/221",
+      "cardName": "武器大师",
+      "cardEffect": "支付{{1}}，{{横置}}：将你控制的一件未贴附的武装贴附到你控制的一名单位上。\n{{横置}}：将你控制的一件已贴附的武装贴附到你控制的一名单位上。"
+    }
+  ],
+  "visualChecks": [
+    {
+      "document": "DOC-04",
+      "page": 58,
+      "render": "var/official/2026-10-11/attachment/legend-activated58.png",
+      "observed": "activated ability uses chain and responses"
+    },
+    {
+      "document": "DOC-14",
+      "page": 20,
+      "render": "var/official/2026-10-11/attachment/jax-same-host.png",
+      "observed": "same host legal but no event and no Jax draw"
+    }
+  ],
+  "scope": "Legend activated attachment and controlled battlefield granted attachment; not all legends, Azir, copied abilities, mixed controller bases, or whole card certification.",
+  "wholeCardCertification": false
+}

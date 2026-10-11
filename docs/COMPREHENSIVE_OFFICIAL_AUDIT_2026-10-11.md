@@ -12,7 +12,7 @@
 - Origins FAQ 的 97 个折叠问答也已提取；仅提取普通正文会漏审，脚本已修正。
 - 中文 API 1,459 个 `cardQaList` 均为空。另存补充快照并逐字段确认除 QA 外与卡库快照一致；空字段不能替代 FAQ／裁判文档。同步脚本今后保留该字段，删除“不是规则权威”的无依据排除。
 
-国际官网 2026-10-09 发布的核心与赛事更新、中国官网 2026-10-10 上传的三份更新均指向 **2026-10-16 生效**。当前日期为 2026-10-11，必须区分当前生效版与最新已发布版。旧 FAQ 可能被后续规则覆盖，需要逐条判定，不能混合为一个无版本的事实集合。具体 Radiance 卡牌勘误与发行合法性也需独立确认，不能只按文档发布日期推断。
+国际官网 2026-10-09 发布的核心与赛事更新、中国官网 2026-10-10 上传的三份更新均指向 **2026-10-16 生效**。截至 2026-10-12 复核，仍必须区分当前生效版与最新已发布版。旧 FAQ 可能被后续规则覆盖，需要逐条判定，不能混合为一个无版本的事实集合。具体 Radiance 卡牌勘误与发行合法性也需独立确认，不能只按文档发布日期推断。
 
 权威入口：[中国官网规则](https://www.playloltcg.com/rules.html)、[国际 Rules Hub](https://playriftbound.com/en-us/rules-hub/)、[国际卡牌](https://playriftbound.com/en-us/card-gallery/)、[Radiance 生效日期与改动](https://playriftbound.com/en-us/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/)。
 

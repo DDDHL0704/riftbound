@@ -17910,7 +17910,9 @@ public sealed class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
-        return result;
+        Assert.False(Assert.IsType<bool>(sourceRequirement["resolvesImmediately"]));
+        Assert.Null(result.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        return await LegendAttachmentTestDriver.FinishAsync(result, session);
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldLegendAttachArmamentRejectedAsync(

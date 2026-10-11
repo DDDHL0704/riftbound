@@ -263,6 +263,7 @@ internal sealed class PromptInteractionController
             return;
         }
 
+        action = CurrentAction() ?? action;
         var firstInvalidStep = int.MaxValue;
         foreach (var (stepIndex, choiceId) in _selectedChoiceByStep.OrderBy(entry => entry.Key))
         {
@@ -405,7 +406,7 @@ internal sealed class PromptInteractionController
     {
         if (string.IsNullOrWhiteSpace(_selectedActionName)
             || !_actions.TryGetValue(_selectedActionName, out var action)) return null;
-        if (action.Option.Name != "ACTIVATE_ABILITY"
+        if (action.Option.Name is not ("ACTIVATE_ABILITY" or "LEGEND_ACT")
             || !_selectedChoiceByStep.TryGetValue(0, out var sourceId)) return action;
 
         // The server supplies source-specific costs and targets. The candidate's
@@ -414,10 +415,23 @@ internal sealed class PromptInteractionController
         if (!json.RootElement.TryGetProperty("metadata", out var metadata)
             || !metadata.TryGetProperty("sourceRequirements", out var requirements)
             || requirements.ValueKind != JsonValueKind.Array) return action;
+        var prefix = new List<PromptStep> { action.Steps.First(s => s.Role == "source") };
+        string? selectedMode = null;
+        if (action.Option.Name == "LEGEND_ACT")
+        {
+            var allowedModes = requirements.EnumerateArray().Where(r => r.GetProperty("sourceObjectId").GetString() == sourceId)
+                .Select(r => r.GetProperty("abilityId").GetString()).ToHashSet(StringComparer.Ordinal);
+            var mode = action.Steps.First(s => s.Role == "mode");
+            mode = mode with { Choices = mode.Choices.Where(c => allowedModes.Contains(c.Id)).ToArray() };
+            prefix.Add(mode);
+            if (!_selectedChoiceByStep.TryGetValue(mode.Index, out selectedMode) || !allowedModes.Contains(selectedMode))
+                return action with { Steps = prefix };
+        }
         foreach (var requirement in requirements.EnumerateArray())
         {
             if (requirement.GetProperty("sourceObjectId").GetString() != sourceId) continue;
-            var steps = new List<PromptStep> { action.Steps.First(s => s.Role == "source") };
+            if (selectedMode is not null && requirement.GetProperty("abilityId").GetString() != selectedMode) continue;
+            var steps = new List<PromptStep>(prefix);
             var minimum = requirement.GetProperty("minTargetCount").GetInt32();
             var maximum = requirement.GetProperty("maxTargetCount").GetInt32();
             for (var targetIndex = 0; targetIndex < maximum; targetIndex++)
@@ -489,6 +503,11 @@ internal sealed class PromptInteractionController
                 choices));
             stepIndex++;
         }
+
+        if (actionName == "LEGEND_ACT")
+            steps = steps.OrderBy(s => s.Role == "source" ? 0 : s.Role == "mode" ? 1 : 2)
+                .Select((s, index) => s with { Index = index, Required = s.Role == "mode" || s.Required,
+                    Choices = s.Choices.Select(c => c with { StepIndex = index }).ToArray() }).ToList();
 
         return new PromptActionModel(option, action.Duplicate(true), steps);
     }

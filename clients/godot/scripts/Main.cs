@@ -1708,7 +1708,7 @@ public partial class Main : Control
         {
             ["cmdType"] = cmdType
         };
-        var requirement = SourceRequirementFor(candidate, selection.SourceId);
+        var requirement = SourceRequirementFor(candidate, selection.SourceId, selection.Mode);
         foreach (var binding in bindings.EnumerateArray())
         {
             var field = ReadString(binding, "field");
@@ -1793,7 +1793,7 @@ public partial class Main : Control
             : null;
     }
 
-    private static JsonElement? SourceRequirementFor(JsonElement candidate, string? sourceObjectId)
+    private static JsonElement? SourceRequirementFor(JsonElement candidate, string? sourceObjectId, string? selectedMode)
     {
         if (string.IsNullOrWhiteSpace(sourceObjectId)
             || MetadataElement(candidate) is not { } metadata
@@ -1807,7 +1807,9 @@ public partial class Main : Control
             foreach (var requirement in requirements.EnumerateArray())
             {
                 if (requirement.ValueKind == JsonValueKind.Object
-                    && string.Equals(ReadString(requirement, "sourceObjectId"), sourceObjectId, StringComparison.Ordinal))
+                    && string.Equals(ReadString(requirement, "sourceObjectId"), sourceObjectId, StringComparison.Ordinal)
+                    && (string.IsNullOrWhiteSpace(selectedMode) || string.IsNullOrWhiteSpace(ReadString(requirement, "abilityId"))
+                        || string.Equals(ReadString(requirement, "abilityId"), selectedMode, StringComparison.Ordinal)))
                 {
                     return requirement;
                 }
@@ -1818,7 +1820,9 @@ public partial class Main : Control
             foreach (var requirement in requirements.EnumerateObject())
             {
                 if (requirement.Value.ValueKind == JsonValueKind.Object
-                    && string.Equals(ReadString(requirement.Value, "sourceObjectId"), sourceObjectId, StringComparison.Ordinal))
+                    && string.Equals(ReadString(requirement.Value, "sourceObjectId"), sourceObjectId, StringComparison.Ordinal)
+                    && (string.IsNullOrWhiteSpace(selectedMode) || string.IsNullOrWhiteSpace(ReadString(requirement.Value, "abilityId"))
+                        || string.Equals(ReadString(requirement.Value, "abilityId"), selectedMode, StringComparison.Ordinal)))
                 {
                     return requirement.Value;
                 }

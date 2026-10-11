@@ -1,5 +1,7 @@
 # 规则权威与重审协议
 
+2026-10-12 传奇贴附限定范围通过：check 9,808、最终 focus 63、2 条官方整局和 15 条原生命令回放。见 [审计](LEGEND_ATTACHMENT_AUDIT_2026-10-12.md)。其他传奇、阿兹尔、完整百炼与复制仍待完成。
+
 2026-10-12 贴附事件与前置支付抽牌限定范围通过: check 9,784; 17 focused cases; 2 complete games; 6 native commands. [Audit](ATTACHMENT_OBSERVERS_AUDIT_2026-10-12.md). Legend attach, Azir swap, full Tempered and printed text copies remain open.
 2026-10-11 普通装配结算链限定范围完成：组合验证 9,900 用例、6,489 方法，原生 6 命令回放一致；见 [本批审计](EQUIP_CHAIN_AUDIT_2026-10-11.md)。Jax 贴附触发、其他贴附路径与武装下栏能力继续重审。
 2026-10-11 武装独立字段与基础战力限定范围完成：37 个当前印次，全量 9,883 用例、6,478 方法，原生武装 2 命令与蒙多 3 命令回放一致；见 [本批审计](ARMAMENT_MIGHT_AUDIT_2026-10-11.md)。装配结算链、下栏技能及复制文字仍未闭合。

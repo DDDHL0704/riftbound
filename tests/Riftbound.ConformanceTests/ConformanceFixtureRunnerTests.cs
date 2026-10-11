@@ -34669,6 +34669,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        result = await LegendAttachmentTestDriver.FinishAsync(result);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-JAX"].IsExhausted);
         Assert.Equal("P1-LEGEND-BASE-UNIT", result.State.CardObjects["P1-JAX-ARMAMENT"].AttachedToObjectId);
@@ -34698,10 +34699,12 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        result = await LegendAttachmentTestDriver.FinishAsync(result);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.True(result.State.CardObjects["P1-LEGEND-JAX-REPRINT"].IsExhausted);
         Assert.Equal("P1-LEGEND-BASE-UNIT", result.State.CardObjects["P1-JAX-ARMAMENT"].AttachedToObjectId);
-        var reattachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_REATTACHED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => gameEvent.Kind == "EQUIPMENT_DETACHED");
+        var reattachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
         Assert.Equal("P1-LEGEND-BATTLEFIELD-UNIT", reattachedEvent.Payload["previousAttachedToObjectId"]);
         Assert.Equal("P1-LEGEND-BASE-UNIT", reattachedEvent.Payload["attachedToObjectId"]);
     }
@@ -34722,6 +34725,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        result = await LegendAttachmentTestDriver.FinishAsync(result);
         Assert.True(result.State.CardObjects["P1-LEGEND-PORO-FORGE"].IsExhausted);
         Assert.Equal("P1-LEGEND-BASE-UNIT", result.State.CardObjects["P1-PORO-FORGE-ARMAMENT"].AttachedToObjectId);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
@@ -34752,12 +34756,14 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        result = await LegendAttachmentTestDriver.FinishAsync(result);
         Assert.True(result.State.CardObjects["P1-LEGEND-PORO-FORGE"].IsExhausted);
         Assert.Equal("P1-LEGEND-BASE-UNIT", result.State.CardObjects["P1-PORO-FORGE-ARMAMENT"].AttachedToObjectId);
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT", StringComparison.Ordinal));
-        var reattachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_REATTACHED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => gameEvent.Kind == "EQUIPMENT_DETACHED");
+        var reattachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
         Assert.Equal("P1-LEGEND-BATTLEFIELD-UNIT", reattachedEvent.Payload["previousAttachedToObjectId"]);
         Assert.Equal("P1-LEGEND-BASE-UNIT", reattachedEvent.Payload["attachedToObjectId"]);
     }

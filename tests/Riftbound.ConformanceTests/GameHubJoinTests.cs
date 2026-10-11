@@ -12641,7 +12641,21 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-legend-attach-armament", legendAct);
 
         Assert.Empty(actClients.CallerClient.Errors);
-        var actEvents = EventsFor(actClients);
+        var activationSnapshot = SnapshotFor(actClients, "P1");
+        var activationPlayer = Assert.IsType<Dictionary<string, object?>>(activationSnapshot.Players["P1"]);
+        var activationObjects = Assert.IsType<Dictionary<string, object?>>(activationPlayer["objects"]);
+        var activationArmament = Assert.IsType<Dictionary<string, object?>>(activationObjects["P1-EQUIPMENT-PORO-FORGE-ARMAMENT"]);
+        Assert.Null(activationArmament["attachedToObjectId"]);
+        Assert.DoesNotContain(EventsFor(actClients), e => e.Kind == "EQUIPMENT_ATTACHED");
+        var pass1Clients = new RecordingHubClients();
+        await CreateHub(pass1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "legend-attach-pass-1", JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone());
+        Assert.Empty(pass1Clients.CallerClient.Errors);
+        var pass2Clients = new RecordingHubClients();
+        await CreateHub(pass2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "legend-attach-pass-2", JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone());
+        Assert.Empty(pass2Clients.CallerClient.Errors);
+        var actEvents = EventsFor(actClients).Concat(EventsFor(pass1Clients)).Concat(EventsFor(pass2Clients)).ToArray();
         Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
         Assert.Contains(actEvents, gameEvent =>
@@ -12653,7 +12667,7 @@ public sealed class GameHubJoinTests
             && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-EQUIPMENT-PORO-FORGE-ARMAMENT", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["attachedToObjectId"] as string, "P1-UNIT-PORO-FORGE-TARGET", StringComparison.Ordinal));
 
-        var actSnapshot = SnapshotFor(actClients, "P1");
+        var actSnapshot = SnapshotFor(pass2Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(actSnapshot.Players["P1"]);
         var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
         var legendObject = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-LEGEND-PORO-FORGE"]);

@@ -79,6 +79,7 @@ public sealed partial class CoreRuleEngine
         var payload = new Dictionary<string, object?> {
             ["sourceObjectId"] = sourceId, ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId,
             ["controllerId"] = controller, ["ownerId"] = gear.OwnerId, ["attachedToObjectId"] = unitId,
+            ["previousAttachedToObjectId"] = gear.AttachedToObjectId,
             ["equipmentCardNo"] = gear.CardNo, ["reason"] = reason, ["attachingPlayerId"] = actor };
         if (metadata is not null) foreach (var pair in metadata) payload[pair.Key] = pair.Value;
         events.Add(new("EQUIPMENT_ATTACHED", "武装贴附至单位", payload));

@@ -8458,7 +8458,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (ability.RequiresArmamentSecondTarget
-            && !IsValidLegendArmamentSecondTarget(state, intent.PlayerId, targetObjectIds[0], targetObjectIds[1], ability))
+            && (!state.CardObjects.TryGetValue(targetObjectIds[0], out var attachmentHost)
+                || !IsFaceUpNonStandbyUnit(attachmentHost)
+                || !IsValidLegendArmamentSecondTarget(state, intent.PlayerId, targetObjectIds[0], targetObjectIds[1], ability)))
         {
             return RejectWithCorePrompts(
                 state,
@@ -8606,6 +8608,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return QueueLegendUnitToken(state with { RunePools = runePools, PlayerExperience = playerExperience,
                 CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability, events);
 
+        if (IsLegendAttachmentEffect(ability.EffectKind))
+            return QueueLegendAttachment(state with { RunePools = runePools, PlayerExperience = playerExperience,
+                CardObjects = cardObjects }, intent.PlayerId, command.SourceObjectId, sourceState.CardNo!, ability,
+                targetObjectIds, optionalCosts, events);
+
         switch (ability.EffectKind)
         {
             case LegendAbilityEffectKinds.DrawOne:
@@ -8692,36 +8699,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
                 break;
             }
-            case LegendAbilityEffectKinds.AttachArmament:
-                AddBattlefieldGrantedLegendAbilityEventIfNeeded(
-                    state with { PlayerZones = playerZones, CardObjects = cardObjects },
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    targetObjectIds[0],
-                    targetObjectIds[1],
-                    ability,
-                    events);
-                AttachOrReattachLegendArmament(
-                    cardObjects,
-                    targetObjectIds[0],
-                    targetObjectIds[1],
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    isReattach: false,
-                    events);
-                break;
-            case LegendAbilityEffectKinds.ReattachArmament:
-                AttachOrReattachLegendArmament(
-                    cardObjects,
-                    targetObjectIds[0],
-                    targetObjectIds[1],
-                    intent.PlayerId,
-                    command.SourceObjectId,
-                    command.AbilityId,
-                    isReattach: true,
-                    events);
-                break;
             case LegendAbilityEffectKinds.GainMana:
                 runePools = GainLegendMana(
                     runePools,
@@ -8995,8 +8972,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: true,
                 LegendAbilityEffectKinds.ReattachArmament,
                 RequiresArmamentSecondTarget: true,
-                RequiresAttachedArmamentSecondTarget: true,
-                RequiresDifferentArmamentHost: true),
+                RequiresAttachedArmamentSecondTarget: true),
             BattlefieldGrantedLegendAttachArmamentAbilityId => new LegendAbilityDefinition(
                 BattlefieldGrantedLegendAttachArmamentAbilityId,
                 [],
@@ -9256,8 +9232,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        return !ability.RequiresDifferentArmamentHost
-            || !string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal);
+        return true;
     }
 
     private static bool IsValidOwnedTeemoUnitTarget(
@@ -9732,80 +9707,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["originZone"] = originZone,
                 ["ownerPlayerId"] = playerId,
                 ["destinationZone"] = "HAND"
-            }));
-    }
-
-    private static void AttachOrReattachLegendArmament(
-        Dictionary<string, CardObjectState> cardObjects,
-        string unitObjectId,
-        string equipmentObjectId,
-        string playerId,
-        string sourceObjectId,
-        string abilityId,
-        bool isReattach,
-        List<GameEvent> events)
-    {
-        if (!cardObjects.TryGetValue(equipmentObjectId, out var equipmentState))
-        {
-            return;
-        }
-
-        var previousAttachedToObjectId = equipmentState.AttachedToObjectId;
-        var isActuallyReattach = isReattach || !string.IsNullOrWhiteSpace(previousAttachedToObjectId);
-        cardObjects[equipmentObjectId] = equipmentState with
-        {
-            AttachedToObjectId = unitObjectId
-        };
-        events.Add(new GameEvent(
-            isActuallyReattach ? "EQUIPMENT_REATTACHED" : "EQUIPMENT_ATTACHED",
-            isActuallyReattach ? $"{sourceObjectId} 重贴附武装" : $"{sourceObjectId} 贴附武装",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["sourceObjectId"] = sourceObjectId,
-                ["abilityId"] = abilityId,
-                ["unitObjectId"] = unitObjectId,
-                ["equipmentObjectId"] = equipmentObjectId,
-                ["controllerId"] = playerId,
-                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? playerId : equipmentState.OwnerId,
-                ["attachedToObjectId"] = unitObjectId,
-                ["previousAttachedToObjectId"] = previousAttachedToObjectId
-            }));
-    }
-
-    private static void AddBattlefieldGrantedLegendAbilityEventIfNeeded(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        string unitObjectId,
-        string equipmentObjectId,
-        LegendAbilityDefinition ability,
-        List<GameEvent> events)
-    {
-        if (string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldStaticAbilityKind)
-            || !TryGetControlledBattlefieldStaticAbilityObject(
-                state,
-                playerId,
-                ability.RequiredControlledBattlefieldStaticAbilityKind,
-                out var battlefieldObjectId,
-                out var battlefieldState))
-        {
-            return;
-        }
-
-        events.Add(new GameEvent(
-            "BATTLEFIELD_TRIGGER_RESOLVED",
-            $"{playerId} 通过战场静态能力贴附武装",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["battlefieldObjectId"] = battlefieldObjectId,
-                ["battlefieldCardNo"] = battlefieldState.CardNo,
-                ["trigger"] = "BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT",
-                ["sourceObjectId"] = sourceObjectId,
-                ["unitObjectId"] = unitObjectId,
-                ["equipmentObjectId"] = equipmentObjectId,
-                ["abilityId"] = ability.AbilityId
             }));
     }
 
@@ -27031,6 +26932,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
     {
+        if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
         if (stackItem.ReflexiveCopy is not null) return ResolveReflexiveCopy(state, stackItem);
@@ -38375,7 +38277,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         bool RequiresArmamentSecondTarget = false,
         bool RequiresUnattachedArmamentSecondTarget = false,
         bool RequiresAttachedArmamentSecondTarget = false,
-        bool RequiresDifferentArmamentHost = false,
         bool RequiresPlayedAnotherCardThisTurn = false,
         bool RequiresPlayedArmamentThisTurn = false,
         bool RequiresOwnedTeemoUnitTarget = false,
