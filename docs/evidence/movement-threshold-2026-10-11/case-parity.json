@@ -1,0 +1,33 @@
+{
+  "baseline": 9586,
+  "current": 9611,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.MovementThresholdNativeTests.ProductionImmuneTargetAssignmentRestoresAndReplays",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ActualBlockCannotForceDamageAssignmentToImmuneKayn",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ActualControlChangeKeepsTheSameObjectsMovementHistory",
+    "Riftbound.ConformanceTests.MovementThresholdTests.BlockGrantsStackAndApplyWhenUnitLaterBecomesDefender(printed: 0, casts: 1)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.BlockGrantsStackAndApplyWhenUnitLaterBecomesDefender(printed: 1, casts: 1)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.BlockGrantsStackAndApplyWhenUnitLaterBecomesDefender(printed: 1, casts: 2)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.CapturedThirdMoveKeepsControllerAfterSourceChangesControl",
+    "Riftbound.ConformanceTests.MovementThresholdTests.CountSurvivesRestoreAndHashIncludesIt",
+    "Riftbound.ConformanceTests.MovementThresholdTests.EndingTurnResetsEveryUnitsMovementCount",
+    "Riftbound.ConformanceTests.MovementThresholdTests.FailedMovementDoesNotIncrementCountOrMutateState",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ImmuneBulwarkIsExemptFromMandatoryAssignment(immune: False)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ImmuneBulwarkIsExemptFromMandatoryAssignment(immune: True)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.KaynIsImmuneOnlyAfterTwoActualMoves(moves: 1, damage: 6)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.KaynIsImmuneOnlyAfterTwoActualMoves(moves: 2, damage: 0)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.KaynIsImmuneOnlyAfterTwoActualMoves(moves: 3, damage: 0)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.MovementImmunityDoesNotConsumeNextDamagePrevention",
+    "Riftbound.ConformanceTests.MovementThresholdTests.RecallPreservesObjectWithoutCountingAsMovement",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ReturningToHandCreatesFreshObjectWithoutMovementHistory",
+    "Riftbound.ConformanceTests.MovementThresholdTests.SuggestedCombatAssignmentsSkipImmuneUnitsUnlessTheyAreTheOnlyTargets(only: False)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.SuggestedCombatAssignmentsSkipImmuneUnitsUnlessTheyAreTheOnlyTargets(only: True)",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ThirdActualMoveQueuesScoreForEveryCurrentYasuoPrinting(no: \"OGN·205/298\")",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ThirdActualMoveQueuesScoreForEveryCurrentYasuoPrinting(no: \"OGN·205a/298\")",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ThirdActualMoveQueuesScoreForEveryCurrentYasuoPrinting(no: \"SFD·235*/221\")",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ThirdActualMoveQueuesScoreForEveryCurrentYasuoPrinting(no: \"SFD·235/221\")",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ThirdMoveCanWinWithoutConqueringEveryBattlefield"
+  ],
+  "allPassed": true
+}

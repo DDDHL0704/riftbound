@@ -70,7 +70,7 @@ public sealed class MovementTokenTests
         s = s with {
             PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) { ["P2"] = s.PlayerZones["P2"] with { Battlefields = s.PlayerZones["P2"].Battlefields.Where(id => id != "D").ToArray() }, ["P1"] = s.PlayerZones["P1"] with { Graveyard = [..s.PlayerZones["P1"].Graveyard, "D"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { ["D"] = new("P1", "GRAVEYARD") },
-            CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["D"] = s.CardObjects["D"] with { ObjectGeneration = 1, ControllerId = "P1" } } };
+            CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["D"] = s.CardObjects["D"] with { ObjectGeneration = 1, MovementCountThisTurn = 0, ControllerId = "P1" } } };
         Restore(s); var done = await Top(s); Assert.Equal(Sprite(card) ? 1 : 0, Tokens(done.State).Length); Restore(done.State);
     }
     [Theory]
@@ -161,7 +161,7 @@ public sealed class MovementTokenTests
     {
         var moved = await MovementObserverAuditTests.Move(Position(card));
         var s = moved.State with { CardObjects = new Dictionary<string, CardObjectState>(moved.State.CardObjects) {
-            ["D"] = moved.State.CardObjects["D"] with { ObjectGeneration = 1 } } };
+            ["D"] = moved.State.CardObjects["D"] with { ObjectGeneration = 1, MovementCountThisTurn = 0 } } };
         Restore(s); var done = await Top(s); Assert.Equal(Sprite(card) ? 1 : 0, Tokens(done.State).Length); Restore(done.State);
     }
 

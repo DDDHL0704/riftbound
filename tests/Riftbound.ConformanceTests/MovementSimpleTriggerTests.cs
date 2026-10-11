@@ -69,7 +69,7 @@ public sealed class MovementSimpleTriggerTests
             PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) { ["P2"] = s.PlayerZones["P2"] with {
                 Battlefields = s.PlayerZones["P2"].Battlefields.Where(id => id != "D").ToArray() }, ["P1"] = s.PlayerZones["P1"] with { Graveyard = [..s.PlayerZones["P1"].Graveyard, "D"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { ["D"] = new("P1", "GRAVEYARD") },
-            CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["D"] = s.CardObjects["D"] with { ObjectGeneration = 1, ControllerId = "P1" } } };
+            CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["D"] = s.CardObjects["D"] with { ObjectGeneration = 1, MovementCountThisTurn = 0, ControllerId = "P1" } } };
         Restore(s); var done = await Top(s);
         if (card == "SFD·048/221") Assert.Contains("DRAW-TOP", done.State.PlayerZones["P2"].Hand);
         else Assert.Equal(card == "UNL-115/219" ? 1 : 2, done.State.PlayerExperience["P2"]);
@@ -82,7 +82,7 @@ public sealed class MovementSimpleTriggerTests
     {
         var moved = await MovementObserverAuditTests.Move(Position("SFD·137/221"), "BASE:P2");
         var s = At(moved.State, "D", "P1", "BASE");
-        if (newIncarnation) s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["D"] = s.CardObjects["D"] with { ObjectGeneration = 1 } } };
+        if (newIncarnation) s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["D"] = s.CardObjects["D"] with { ObjectGeneration = 1, MovementCountThisTurn = 0 } } };
         Restore(s); var done = await Top(s);
         Assert.Equal(newIncarnation ? 2 : 4, done.State.CardObjects["D"].Power);
         Restore(done.State);

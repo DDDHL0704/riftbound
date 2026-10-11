@@ -181,7 +181,7 @@ public sealed partial class CoreRuleEngine
                     ["effectSourceObjectId"] = item.SourceObjectId, ["originZone"] = "BATTLEFIELD", ["destinationZone"] = "BASE",
                     ["origin"] = "BATTLEFIELD:" + origin.BattlefieldObjectId, ["destination"] = "BASE" }));
                 events.AddRange(MoveAttachedEquipmentWithHost(zones, equipment, controller, target, "BASE"));
-                events.Add(CaptureMovementObservers(state, target, item.ControllerId, "BASE"));
+                events.Add(CaptureMovementObservers(state, cards, target, item.ControllerId, "BASE"));
                 break;
             case "PAY_POWER_SCORE":
             case "SCORE":

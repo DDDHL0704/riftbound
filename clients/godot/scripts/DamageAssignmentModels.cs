@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Riftbound.GodotClient;
 
-public sealed record DamageTargetPromptItem(string TargetObjectId, string Label, int LethalDamageThreshold, int Priority = 1, long SuggestedDamage = 0);
+public sealed record DamageTargetPromptItem(string TargetObjectId, string Label, int LethalDamageThreshold, int Priority = 1, long SuggestedDamage = 0, bool CannotTakeDamage = false);
 public sealed record DamageAssignmentPromptItem(string SourceObjectId, string SourceLabel, int DamagePool, IReadOnlyList<DamageTargetPromptItem> Targets);
 public sealed record DamageAssignmentSelection(string SourceObjectId, string TargetObjectId, int Damage);
 

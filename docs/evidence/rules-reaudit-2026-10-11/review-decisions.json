@@ -1046,6 +1046,185 @@
         "RAD printing legality and future-effective rules",
         "Dual-window and Windows product acceptance"
       ]
+    },
+    {
+      "id": "movement-threshold-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Actual movement ordinal, Yasuo third-move point with response, Kayn passive damage immunity and assignment exemption, real Block dynamic stacking Shield and Tank grants.",
+      "subjects": [
+        {
+          "id": "OGN-189/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31419,
+              "cardNo": "OGN·189/298",
+              "name": "凯隐",
+              "sha256": "a469f0220fc0b6d1f77fa5357d5f936948a503576300cb36f91554a48b9a073b"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-189-298",
+              "cardNo": "OGN-189/298",
+              "name": "Kayn",
+              "sha256": "50e3e04932dd3d47a873d0882cb2667b951642a9abaa8b459f53acabc8853d31"
+            }
+          ],
+          "activeCardNo": "OGN·189/298",
+          "reviewStatus": "PARTIAL_MOVEMENT_THRESHOLD_OR_BLOCK_GRANT_VERIFIED"
+        },
+        {
+          "id": "OGN-205/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31440,
+              "cardNo": "OGN·205/298",
+              "name": "亚索",
+              "sha256": "e7c97d7da210363bbb2586c072223c4f3a04feb4c69e10804bf91e490ec68529"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-205-298",
+              "cardNo": "OGN-205/298",
+              "name": "Yasuo",
+              "sha256": "c61c9472d0e15c1cfea56dd51c811e0e0a4d65f63b9e1cf3d7d45d4420508826"
+            }
+          ],
+          "activeCardNo": "OGN·205/298",
+          "reviewStatus": "PARTIAL_MOVEMENT_THRESHOLD_OR_BLOCK_GRANT_VERIFIED"
+        },
+        {
+          "id": "OGN-205A/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31441,
+              "cardNo": "OGN·205a/298",
+              "name": "亚索",
+              "sha256": "19b82c38c4258d66dadc2397663205f5b87eaa12060687cdee09dcf6f800a1f3"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-205a-298",
+              "cardNo": "OGN-205a/298",
+              "name": "Yasuo",
+              "sha256": "55962cd3ee1003cd6ec2b43c54e4ca737153465a1bf3395e09b45bc57b45d2d9"
+            }
+          ],
+          "activeCardNo": "OGN·205a/298",
+          "reviewStatus": "PARTIAL_MOVEMENT_THRESHOLD_OR_BLOCK_GRANT_VERIFIED"
+        },
+        {
+          "id": "SFD-235/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33342,
+              "cardNo": "SFD·235/221",
+              "name": "亚索",
+              "sha256": "0792708a05f01aaad70352c5095f4d6c50f2ff3f8a83097c92815c96c0bb678c"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-235-221",
+              "cardNo": "SFD-235/221",
+              "name": "Yasuo",
+              "sha256": "bac944b5c788c706059c87be70e2b74e427f2b6b3cdf0836f3295c0bafdc7bc0"
+            }
+          ],
+          "activeCardNo": "SFD·235/221",
+          "reviewStatus": "PARTIAL_MOVEMENT_THRESHOLD_OR_BLOCK_GRANT_VERIFIED"
+        },
+        {
+          "id": "SFD-235*/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33343,
+              "cardNo": "SFD·235*/221",
+              "name": "亚索",
+              "sha256": "e8657ec4de800960ebec21336378e909e34e4e7eb04a43470172419595919f18"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-235-star-221",
+              "cardNo": "SFD-235*/221",
+              "name": "Yasuo",
+              "sha256": "d6c9e3dcf25bbab7e5bbeac91157feb3c78c897a2dcf43e1d2115030c820b3c1"
+            }
+          ],
+          "activeCardNo": "SFD·235*/221",
+          "reviewStatus": "PARTIAL_MOVEMENT_THRESHOLD_OR_BLOCK_GRANT_VERIFIED"
+        },
+        {
+          "id": "OGN-057/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31269,
+              "cardNo": "OGN·057/298",
+              "name": "格挡",
+              "sha256": "038eeea7f46e0ab6b80edaf7b117f2f5a8118ac34feec5fc0820928e3cb73c05"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-057-298",
+              "cardNo": "OGN-057/298",
+              "name": "Block",
+              "sha256": "91018b1fbbb5efc670e1b5befc73cb3756bd3745e834ed2d719b8f0402d6c162"
+            }
+          ],
+          "activeCardNo": "OGN·057/298",
+          "reviewStatus": "PARTIAL_MOVEMENT_THRESHOLD_OR_BLOCK_GRANT_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P008-B005",
+        "DOC-04-P008-B006",
+        "DOC-04-P090-B004",
+        "DOC-04-P092-B009",
+        "DOC-04-P117-B002",
+        "DOC-04-P117-B003",
+        "DOC-04-P117-B004",
+        "DOC-04-P117-B005",
+        "DOC-04-P117-B006",
+        "DOC-04-P117-B007",
+        "DOC-04-P117-B008",
+        "DOC-04-P117-B009",
+        "DOC-04-P117-B010",
+        "DOC-04-P117-B011",
+        "DOC-15-P008-B027",
+        "DOC-15-P009-B001",
+        "DOC-15-P009-B002",
+        "DOC-15-P009-B003",
+        "DOC-15-P009-B004",
+        "DOC-15-P009-B005",
+        "DOC-15-P009-B006",
+        "DOC-15-P009-B007",
+        "DOC-15-P009-B008"
+      ],
+      "auditDocument": "docs/MOVEMENT_THRESHOLD_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/movement-threshold-2026-10-11",
+      "tests": [
+        "MovementThresholdTests",
+        "MovementThresholdNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9611,
+        "fullMethods": 6352,
+        "nativeScenarios": 1,
+        "nativeCommands": 1,
+        "journalCommands": 2,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "MF CN/EN optionality conflict",
+        "Legacy abstract movement, swaps, Dragon Rage ordered move/reflexive duel",
+        "Other keyword grants, all property references, static aura stacking, combat damage replacements",
+        "RAD and future-effective rules",
+        "Paired-client/Windows visual/network acceptance"
+      ]
     }
   ]
 }

@@ -83,7 +83,7 @@ public sealed partial class CoreRuleEngine
             foreach (var equipment in move.Equipment) locations[equipment] = new(intent.PlayerId, destinationZone, destinationBattlefieldId);
         }
 
-        events.Add(CaptureMovementBatchObservers(state, moves
+        events.Add(CaptureMovementBatchObservers(state, cards, moves
             .Select(move => CaptureMovedUnitFact(state, move.Id, intent.PlayerId, destinationZone, destinationBattlefieldId))
             .OfType<MovedUnitFact>().ToArray()));
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards,

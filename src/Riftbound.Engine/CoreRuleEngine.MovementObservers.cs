@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 public sealed record MovedUnitFact(string ObjectId, long Generation, string ControllerId, string MovingPlayerId,
     ObjectLocationState Origin, ObjectLocationState Destination);
 public sealed record MovementObserverContext(string CardNo, string Kind, long SourceGeneration, MovedUnitFact Unit,
-    IReadOnlyList<MovedUnitFact>? MovementBatch = null, ObjectLocationState? SourceLocation = null);
+    IReadOnlyList<MovedUnitFact>? MovementBatch = null, ObjectLocationState? SourceLocation = null, int? MovementOrdinal = null);
 internal sealed record CapturedMovementObserver(string SourceId, string ControllerId, MovementObserverContext Context);
 
 public sealed partial class CoreRuleEngine
@@ -27,6 +27,9 @@ public sealed partial class CoreRuleEngine
             || effect != MovementObserverEffect || c.SourceGeneration < 0 || cardNo is not null && cardNo != c.CardNo
             || !ValidMovedUnitFact(c.Unit)) return false;
         var unit = c.Unit;
+        if (c.Kind == MovementScoreKind) return source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
+            && c.MovementBatch is null && c.SourceLocation is null && MovementScoreDefinition(c.CardNo) is { } score && c.MovementOrdinal == score.Ordinal;
+        if (c.MovementOrdinal is not null) return false;
         if (c.Kind == TriggerKinds.OpponentMovedToOtherBattlefieldDraw)
         {
             if (c.MovementBatch is not { Count: > 0 } batch || c.SourceLocation is not { } location
@@ -67,6 +70,7 @@ public sealed partial class CoreRuleEngine
     internal static string MovementObserverLabel(MovementObserverContext c)
         => OfficialCardSourceIdentityGroups.DisplayName(c.CardNo)
             + (c.Kind switch {
+                MovementScoreKind => "：第三次移动后获得 1 分",
                 TriggerKinds.UnitMovedCreateDormantGold => "：移动后打出休眠金币",
                 TriggerKinds.UnitMovedCreateUnitToken => "：移动后打出单位指示物",
                 TriggerKinds.UnitMovedDiscardDraw => "：移动后弃牌再抽牌",
@@ -87,18 +91,21 @@ public sealed partial class CoreRuleEngine
         return origin == destination ? null : new(unitId, unit.ObjectGeneration, field.PlayerId, movingPlayer, origin, destination);
     }
 
-    private static GameEvent CaptureMovementObservers(MatchState before, string unitId, string movingPlayer,
+    private static GameEvent CaptureMovementObservers(MatchState before, IDictionary<string,CardObjectState> cards, string unitId, string movingPlayer,
         string destinationZone, string? destinationField = null)
-        => CaptureMovementBatchObservers(before, CaptureMovedUnitFact(before, unitId, movingPlayer, destinationZone, destinationField) is { } unit ? [unit] : []);
+        => CaptureMovementBatchObservers(before, cards, CaptureMovedUnitFact(before, unitId, movingPlayer, destinationZone, destinationField) is { } unit ? [unit] : []);
 
     // A movement instruction is captured once. Self triggers remain per unit; actor
     // triggers use the source's location after every simultaneous relocation (383.2.c).
-    private static GameEvent CaptureMovementBatchObservers(MatchState before, IReadOnlyList<MovedUnitFact> units)
+    private static GameEvent CaptureMovementBatchObservers(MatchState before, IDictionary<string,CardObjectState> cards, IReadOnlyList<MovedUnitFact> units)
     {
         var observers = new List<CapturedMovementObserver>();
         foreach (var fact in units)
         {
             var unit = before.CardObjects[fact.ObjectId];
+            var ordinal = checked(cards[fact.ObjectId].MovementCountThisTurn + 1);
+            if (MovementScoreDefinition(unit.CardNo) is { } score && ordinal == score.Ordinal)
+                observers.Add(new(unit.ObjectId,fact.ControllerId,new(unit.CardNo!,MovementScoreKind,unit.ObjectGeneration,fact,MovementOrdinal:ordinal)));
             foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(unit.CardNo)
                 .Where(t => t.TargetScope == TriggerTargetScopes.SourceUnit && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)))
                 observers.Add(new(unit.ObjectId, fact.ControllerId, new(unit.CardNo!, spec.Kind, unit.ObjectGeneration, fact)));
@@ -127,6 +134,7 @@ public sealed partial class CoreRuleEngine
                 foreach (var spec in specs)
                     observers.Add(new(source.ObjectId, field.PlayerId, new(source.CardNo!, spec.Kind, source.ObjectGeneration, group.First(), units.ToArray(), after)));
         }
+        foreach(var fact in units) cards[fact.ObjectId] = cards[fact.ObjectId] with {MovementCountThisTurn=checked(cards[fact.ObjectId].MovementCountThisTurn+1)};
         return new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() });
     }
 
@@ -158,6 +166,7 @@ public sealed partial class CoreRuleEngine
         var context = item.MovementObserver!;
         if (!ValidMovementObserver(context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured movement observer.");
+        if (context.Kind == MovementScoreKind) return ResolveMovementScore(state,item);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent> { BuildTriggerResolvedEvent(new(item.StackItemId, item.ControllerId,

@@ -130,7 +130,7 @@ public partial class DamageAssignmentOverlay : Control
             var heading = new Label { Text = target.Label };
             heading.AddThemeFontSizeOverride("font_size", 18);
             labels.AddChild(heading);
-            labels.AddChild(new Label { Text = $"{priority}    致命所需 {target.LethalDamageThreshold}" });
+            labels.AddChild(new Label { Text = target.CannotTakeDamage ? "无法受到伤害 · 可跳过分配" : $"{priority}    致命所需 {target.LethalDamageThreshold}" });
             var status = new Label();
             _targetSummaries[target.TargetObjectId] = status;
             labels.AddChild(status);
@@ -178,9 +178,9 @@ public partial class DamageAssignmentOverlay : Control
         {
             var amount = _damageByTarget.GetValueOrDefault(target.TargetObjectId);
             var status = _targetSummaries[target.TargetObjectId];
-            status.Text = amount == 0 ? "尚未分配" : amount >= target.LethalDamageThreshold
+            status.Text = target.CannotTakeDamage ? $"已分配 {amount} · 不会造成伤害" : amount == 0 ? "尚未分配" : amount >= target.LethalDamageThreshold
                 ? $"已分配 {amount} · 达到致命阈值" : $"已分配 {amount} · 距致命还差 {target.LethalDamageThreshold - amount}";
-            status.AddThemeColorOverride("font_color", amount >= target.LethalDamageThreshold && amount > 0
+            status.AddThemeColorOverride("font_color", !target.CannotTakeDamage && amount >= target.LethalDamageThreshold && amount > 0
                 ? MinimalTheme.Selected : MinimalTheme.TextSecondary);
         }
         _confirmButton.Disabled = !_canUsePrompt || !PooledDamageSelection.TrySplit(_assignments, _damageByTarget, out _);

@@ -74,7 +74,7 @@ public sealed class MovementObserverAuditTests
         else state = state with {
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P2"] = state.PlayerZones["P2"] with { Base = state.PlayerZones["P2"].Base.Where(id => id != "D").ToArray(), Graveyard = [..state.PlayerZones["P2"].Graveyard, "D"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["D"] = new("P2", "GRAVEYARD") },
-            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { ["D"] = state.CardObjects["D"] with { ObjectGeneration = 1 } } };
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) { ["D"] = state.CardObjects["D"] with { ObjectGeneration = 1, MovementCountThisTurn = 0 } } };
         Restore(state); var resolved = await Top(state); Assert.Single(Gold(resolved.State)); Assert.Empty(Gold(resolved.State, "P1")); Restore(resolved.State);
     }
 

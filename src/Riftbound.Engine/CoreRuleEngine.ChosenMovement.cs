@@ -37,7 +37,7 @@ public sealed partial class CoreRuleEngine
     private static void MoveFieldUnitsToChosenLocation(
         MatchState state,
         Dictionary<string, PlayerZones> zones,
-        IReadOnlyDictionary<string, CardObjectState> cards,
+        Dictionary<string, CardObjectState> cards,
         Dictionary<string, ObjectLocationState> locations,
         StackItemState item,
         IReadOnlyList<string> ids,
@@ -51,7 +51,7 @@ public sealed partial class CoreRuleEngine
         var movable = ids.Where(id => IsUnitMovementDestination(before, id, destination)
             && MovementRestrictionRules.CanMove(cards.GetValueOrDefault(id), item.ControllerId)
             && !(toBase && BattlefieldLocalRules.PreventsMoveToBase(before, id))).ToArray();
-        var captured = CaptureMovementBatchObservers(before, movable
+        var captured = CaptureMovementBatchObservers(before, cards, movable
             .Select(id => CaptureMovedUnitFact(before, id, item.ControllerId, destinationZone, field))
             .OfType<MovedUnitFact>().ToArray());
         // Facts and observers are immutable before any of the shared dictionaries mutate.

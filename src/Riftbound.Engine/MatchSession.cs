@@ -511,6 +511,9 @@ public sealed record CardObjectState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public long ObjectGeneration { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int MovementCountThisTurn { get; init; }
+
     public int Damage { get; init; }
 
     public IReadOnlyList<string> UntilEndOfTurnEffects { get; init; }
@@ -4112,7 +4115,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
+            state.ObjectGeneration) { MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -4828,7 +4831,7 @@ public sealed record ResolutionResult(
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? Math.Max(0, BattleEffectivePowerFor(state, battle, objectId) - cardObject.Damage)
+                    ? UnitMovementRules.CannotTakeDamage(cardObject) ? 0 : Math.Max(0, BattleEffectivePowerFor(state, battle, objectId) - cardObject.Damage)
                     : 0,
                 StringComparer.Ordinal);
     }
@@ -4901,7 +4904,8 @@ public sealed record ResolutionResult(
                 Index = index,
                 Priority = CoreRuleEngine.CombatDamageTargetPriorityFor(state, objectId)
             })
-            .OrderBy(item => item.Priority)
+            .OrderBy(item => state.CardObjects.TryGetValue(item.ObjectId, out var card) && UnitMovementRules.CannotTakeDamage(card) ? 0 : 1)
+            .ThenBy(item => item.Priority)
             .ThenBy(item => item.Index)
             .Select(item => item.ObjectId)
             .ToArray();
@@ -6337,6 +6341,11 @@ public sealed record ResolutionResult(
             ["ownerId"] = cardObject.OwnerId,
             ["controllerId"] = cardObject.ControllerId
         };
+        if (cardObject.MovementCountThisTurn > 0)
+        {
+            view["movementCountThisTurn"] = cardObject.MovementCountThisTurn;
+            view["cannotTakeDamage"] = UnitMovementRules.CannotTakeDamage(cardObject);
+        }
         if (cardObject.IsFaceDown && CoreRuleEngine.CanInspectFaceDown(state, objectId, viewerPlayerId))
         {
             view["canInspectFaceDown"] = true;
@@ -15292,12 +15301,14 @@ internal static class ActionPromptBuilder
             ["suggestedDamageByTarget"] = CoreRuleEngine.SuggestCombatDamageByTarget(state, battle, assigningSourceIds),
             ["targetPriority"] = ResolutionResult.BattleParticipantObjectIds(battle)
                 .ToDictionary(id => id, id => CoreRuleEngine.CombatDamageTargetPriorityFor(state, id), StringComparer.Ordinal),
-            ["assignmentGuidance"] = "先分配壁垒，再分配普通单位，最后分配后排；同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
+            ["assignmentGuidance"] = "免伤单位可以忽略。其余单位先分配壁垒，再分配普通单位，最后分配后排；同级可自由选择。一个目标达到致命伤害后才能分配下一个目标。",
             ["assigningSourceObjectIds"] = assigningSourceIds,
             ["legalTargets"] = assignableLegalTargets,
             ["allLegalTargets"] = legalTargets,
             ["existingDamage"] = existingDamage,
             ["lethalDamageThreshold"] = lethalDamageThreshold,
+            // Zero means no mandatory assignment for these IDs, never lethal damage.
+            ["damageImmuneTargetIds"] = ResolutionResult.BattleParticipantObjectIds(battle).Where(id => UnitMovementRules.CannotTakeDamage(state.CardObjects[id])).ToArray(),
             ["requiredAssignments"] = requiredAssignmentsForPrompt,
             ["allRequiredAssignments"] = requiredAssignments,
             ["submittedAssignments"] = ResolutionResult.BattleDamageAssignmentLedgerFor(state, battle),

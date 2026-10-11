@@ -8779,9 +8779,9 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["BARRIER", "STEADFAST_3"], result.FinalState.CardObjects["P2-UNIT-PARRY-001"].UntilEndOfTurnEffects);
-        Assert.Equal(5, result.FinalState.CardObjects["P2-UNIT-PARRY-001"].Power);
-        Assert.Equal(3, result.FinalState.CardObjects["P2-UNIT-PARRY-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(["COMBAT_KEYWORD:坚守3:1", "COMBAT_KEYWORD:壁垒:1"], result.FinalState.CardObjects["P2-UNIT-PARRY-001"].UntilEndOfTurnEffects);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-PARRY-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-PARRY-001"].UntilEndOfTurnPowerModifier);
     }
 
     [Fact]
@@ -8834,7 +8834,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(p2PassResult.Accepted);
         Assert.Equal(2, p2PassResult.Events.Count(gameEvent => gameEvent.Kind == "STATUS_EFFECT_APPLIED"));
         Assert.DoesNotContain(p2PassResult.Events, gameEvent => gameEvent.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
-        Assert.Equal(["BARRIER", "STEADFAST_3"], p2PassResult.State.CardObjects["P2-UNIT-PARRY-001"].UntilEndOfTurnEffects);
+        Assert.Equal(["COMBAT_KEYWORD:坚守3:1", "COMBAT_KEYWORD:壁垒:1"], p2PassResult.State.CardObjects["P2-UNIT-PARRY-001"].UntilEndOfTurnEffects);
         Assert.Equal(2, p2PassResult.State.CardObjects["P2-UNIT-PARRY-001"].Power);
         Assert.Equal(0, p2PassResult.State.CardObjects["P2-UNIT-PARRY-001"].UntilEndOfTurnPowerModifier);
     }

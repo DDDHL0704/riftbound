@@ -230,7 +230,7 @@ public sealed partial class CoreRuleEngine
                         ["effectSourceObjectId"] = item.SourceObjectId, ["originZone"] = "BATTLEFIELD", ["destinationZone"] = "BASE",
                         ["origin"] = "BATTLEFIELD:" + item.FieldContext.BattlefieldId, ["destination"] = "BASE" }));
                     events.AddRange(MoveAttachedEquipmentWithHost(zones, equipment, controller, target, "BASE"));
-                    events.Add(CaptureMovementObservers(state, target, item.ControllerId, "BASE"));
+                    events.Add(CaptureMovementObservers(state, cards, target, item.ControllerId, "BASE"));
                 }
             }
         }

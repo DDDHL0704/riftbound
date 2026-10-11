@@ -1,0 +1,2279 @@
+{
+  "prints": [
+    {
+      "card": {
+        "id": 31388,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·162/298",
+        "cardName": "厄运小姐",
+        "subTitle": "船长",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "厄运小姐",
+        "region": "比尔吉沃特",
+        "tag": "海盗",
+        "artist": "League Splash Team",
+        "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{橙色}}，让我以活跃状态进场。）\n{{游走}}（我可以向其他战场进行移动。）\n每回合首次：当我移动时，让一个其他休眠的物体变为活跃状态（包括传奇和符文）。",
+        "flavorText": "“扬帆起航！”",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": 5,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/f653f9e5165b4caaa431ce31b955ad90.png",
+        "backImage": "",
+        "listSort": 317,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "ogn-162-298",
+        "collectorNumber": 162,
+        "name": "Miss Fortune",
+        "subtitle": "Captain",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "OGN",
+            "label": "Origins"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "OGN-162/298",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "epic",
+            "label": "Epic",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+              "dimensions": {
+                "width": 455,
+                "height": 419,
+                "aspectRatio": 1.0859188544152745
+              },
+              "colors": {
+                "primary": "#B8794C",
+                "secondary": "#332F29",
+                "label": "#604634"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "body",
+              "label": "Body",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#221A11",
+                  "secondary": "#F9EADC",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3c7b219245cd6c6ee835974dd74771bc605289de-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Miss Fortune, Captain. [Accelerate] (You may pay [1][C] as an additional cost to have me enter ready.)\n[Ganking] (I can move from battlefield to battlefield.)\nThe first time I move each turn, you may ready something else that's exhausted.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#1C140E",
+            "secondary": "#F9ECDC",
+            "label": "#000000"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "leaguesplashteam",
+              "label": "League Splash Team",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Accelerate] (You may pay :rb_energy_1::rb_rune_body: as an additional cost to have me enter ready.)<br />[Ganking] (I can move from battlefield to battlefield.)<br />The first time I move each turn, you may ready something else that's exhausted.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 5,
+            "label": "5"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 5,
+            "label": "5",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Pirate",
+            "Miss Fortune",
+            "Bilgewater"
+          ]
+        }
+      },
+      "imageFile": "OGN-162-298.png",
+      "imageSha256": "209e87e1c5c94dbda216a2586034506c9070af7c869fb199bcccbe5fd30d40d0"
+    },
+    {
+      "card": {
+        "id": 31389,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·162a/298",
+        "cardName": "厄运小姐",
+        "subTitle": "船长",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "厄运小姐",
+        "region": "比尔吉沃特",
+        "tag": "海盗",
+        "artist": "League Splash Team",
+        "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{橙色}}，让我以活跃状态进场。）\n{{游走}}（我可以向其他战场进行移动。）\n每回合首次：当我移动时，让一个其他休眠的物体变为活跃状态（包括传奇和符文）。",
+        "flavorText": "“扬帆起航！”",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": 5,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/a4ed536edb7946b9abf13d49cf1b86c6.png",
+        "backImage": "",
+        "listSort": 316,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "ogn-162a-298",
+        "collectorNumber": 162,
+        "name": "Miss Fortune",
+        "subtitle": "Captain",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "OGN",
+            "label": "Origins"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "OGN-162a/298",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "showcase",
+            "label": "Showcase",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+              "dimensions": {
+                "width": 376,
+                "height": 426,
+                "aspectRatio": 0.8826291079812206
+              },
+              "colors": {
+                "primary": "#B89D3B",
+                "secondary": "#333229",
+                "label": "#4F472B"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "body",
+              "label": "Body",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#221A11",
+                  "secondary": "#F9EADC",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a7a0dfa952259993fa0d8998a820585ff4f81c6-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Miss Fortune, Captain. [Accelerate] (You may pay [1][C] as an additional cost to have me enter ready.)\n[Ganking] (I can move from battlefield to battlefield.)\nThe first time I move each turn, you may ready something else that's exhausted.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#4C2726",
+            "secondary": "#F9DCDF",
+            "label": "#220A09"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "leaguesplashteam",
+              "label": "League Splash Team",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Accelerate] (You may pay :rb_energy_1::rb_rune_body: as an additional cost to have me enter ready.)<br />[Ganking] (I can move from battlefield to battlefield.)<br />The first time I move each turn, you may ready something else that's exhausted.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 5,
+            "label": "5"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 5,
+            "label": "5",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Pirate",
+            "Miss Fortune",
+            "Bilgewater"
+          ]
+        }
+      },
+      "imageFile": "OGN-162A-298.png",
+      "imageSha256": "e5213cdeedf4ef9b2058e69c633bfe6f3661126f1214166df71b77340a3b4cbc"
+    },
+    {
+      "card": {
+        "id": 31419,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·189/298",
+        "cardName": "凯隐",
+        "subTitle": "巨镰奔扬",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "凯隐",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{游走}}（我可以向其他战场进行移动。）\n在本回合内，如果我移动了两次，则我免疫伤害。",
+        "flavorText": "“我，永垂不朽。而他们，今天就要丧命。 ”",
+        "energy": 6,
+        "returnEnergy": 1,
+        "power": 6,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/2616f9cc286c40858d62524cb60f7e1d.png",
+        "backImage": "",
+        "listSort": 286,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "ogn-189-298",
+        "collectorNumber": 189,
+        "name": "Kayn",
+        "subtitle": "Unleashed",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "OGN",
+            "label": "Origins"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "OGN-189/298",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "rare",
+            "label": "Rare",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+              "dimensions": {
+                "width": 429,
+                "height": 425,
+                "aspectRatio": 1.0094117647058825
+              },
+              "colors": {
+                "primary": "#B881A9",
+                "secondary": "#332932",
+                "label": "#804570"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "chaos",
+              "label": "Chaos",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#100B16",
+                  "secondary": "#EDD6FF",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a1ce0e784264748f170bebb3b26a09a7f55efe0f-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Kayn, Unleashed. [Ganking] (I can move from battlefield to battlefield.)\nIf I have moved twice this turn, I don't take damage.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#180F1E",
+            "secondary": "#EDD6FF",
+            "label": "#040404"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "kudosproductions",
+              "label": "Kudos Productions",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Ganking] (I can move from battlefield to battlefield.)<br />If I have moved twice this turn, I don't take damage.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 6,
+            "label": "6"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 6,
+            "label": "6",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Kayn",
+            "Ionia"
+          ]
+        }
+      },
+      "imageFile": "OGN-189-298.png",
+      "imageSha256": "9f9a1c0cbe41c19041ad041603908bc11710d977408676227ebb9420f34a8e5d"
+    },
+    {
+      "card": {
+        "id": 31440,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·205/298",
+        "cardName": "亚索",
+        "subTitle": "乘风归",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "亚索",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{游走}}（我可以向其他战场进行移动。）\n当我在一个回合内进行了第三次移动，你获得1分。",
+        "flavorText": "“我将遵循此道，直至终结。”",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/0d076c71b0984255a0a600d423199947.png",
+        "backImage": "",
+        "listSort": 265,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "ogn-205-298",
+        "collectorNumber": 205,
+        "name": "Yasuo",
+        "subtitle": "Windrider",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "OGN",
+            "label": "Origins"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "OGN-205/298",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "epic",
+            "label": "Epic",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+              "dimensions": {
+                "width": 455,
+                "height": 419,
+                "aspectRatio": 1.0859188544152745
+              },
+              "colors": {
+                "primary": "#B8794C",
+                "secondary": "#332F29",
+                "label": "#604634"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "chaos",
+              "label": "Chaos",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#100B16",
+                  "secondary": "#EDD6FF",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f5ba378ce4dad16d17e001814e091d5f484f2681-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Yasuo, Windrider. [Ganking] (I can move from battlefield to battlefield.)\nThe third time I move in a turn, you score 1 point.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#281417",
+            "secondary": "#F9E6DC",
+            "label": "#000000"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "sixmorevodka",
+              "label": "Six More Vodka",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Ganking] (I can move from battlefield to battlefield.)<br />The third time I move in a turn, you score 1 point.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 5,
+            "label": "5"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 4,
+            "label": "4",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Yasuo",
+            "Ionia"
+          ]
+        }
+      },
+      "imageFile": "OGN-205-298.png",
+      "imageSha256": "0e8b0b9b88160af4c1391ae5f12b8f4aa6a1c40feaa492f7941871857c3dc8a4"
+    },
+    {
+      "card": {
+        "id": 31441,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·205a/298",
+        "cardName": "亚索",
+        "subTitle": "乘风归",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "亚索",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{游走}}（我可以向其他战场进行移动。）\n当我在一个回合内进行了第三次移动，你获得1分。",
+        "flavorText": "“我将遵循此道，直至终结。”",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/ae81b284f3b446ac8f25046b3b83186c.png",
+        "backImage": "",
+        "listSort": 264,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "ogn-205a-298",
+        "collectorNumber": 205,
+        "name": "Yasuo",
+        "subtitle": "Windrider",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "OGN",
+            "label": "Origins"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "OGN-205a/298",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "showcase",
+            "label": "Showcase",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+              "dimensions": {
+                "width": 376,
+                "height": 426,
+                "aspectRatio": 0.8826291079812206
+              },
+              "colors": {
+                "primary": "#B89D3B",
+                "secondary": "#333229",
+                "label": "#4F472B"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "chaos",
+              "label": "Chaos",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#100B16",
+                  "secondary": "#EDD6FF",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/35f7ca6802af48585af55d23cf7675a8922d8535-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Yasuo, Windrider. [Ganking] (I can move from battlefield to battlefield.)\nThe third time I move in a turn, you score 1 point.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#3C261E",
+            "secondary": "#F9EADC",
+            "label": "#0F0704"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "leaguesplashteam",
+              "label": "League Splash Team",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Ganking] (I can move from battlefield to battlefield.)<br />The third time I move in a turn, you score 1 point.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 5,
+            "label": "5"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 4,
+            "label": "4",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Yasuo",
+            "Ionia"
+          ]
+        }
+      },
+      "imageFile": "OGN-205A-298.png",
+      "imageSha256": "0a2db8c6697eb29d8ef352f5c0f153cfd6e292dd5f9710d52243722a53b0aba6"
+    },
+    {
+      "card": {
+        "id": 33342,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·235/221",
+        "cardName": "亚索",
+        "subTitle": "乘风归",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "亚索",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Jennifer Wuestling",
+        "cardEffect": "{{游走}}（我可以向其他战场进行移动。）\n当我在一个回合内进行了第三次移动，你获得1分。",
+        "flavorText": "“愿你寻得心之所悦。”",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/08a0f0fbbeec4eba88f4b9b5839b17dc.png",
+        "backImage": "",
+        "listSort": 731,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "sfd-235-221",
+        "collectorNumber": 235,
+        "name": "Yasuo",
+        "subtitle": "Windrider",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "SFD",
+            "label": "Spiritforged"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "SFD-235/221",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "showcase",
+            "label": "Showcase",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+              "dimensions": {
+                "width": 376,
+                "height": 426,
+                "aspectRatio": 0.8826291079812206
+              },
+              "colors": {
+                "primary": "#B89D3B",
+                "secondary": "#333229",
+                "label": "#4F472B"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "chaos",
+              "label": "Chaos",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#100B16",
+                  "secondary": "#EDD6FF",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/74021c17acc45cf743609a825490a0e6dd7466b5-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Yasuo, Windrider. [Ganking] (I can move from battlefield to battlefield.)\nThe third time I move in a turn, you score 1 point.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#643253",
+            "secondary": "#F9DCE8",
+            "label": "#3F102F"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "jenniferwuestling",
+              "label": "Jennifer Wuestling",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Ganking] (I can move from battlefield to battlefield.)<br />The third time I move in a turn, you score 1 point.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 5,
+            "label": "5"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 4,
+            "label": "4",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Yasuo"
+          ]
+        }
+      },
+      "imageFile": "SFD-235-221.png",
+      "imageSha256": "2d470f48f653e363898131aaa4caa690544c6d9b2e7ea0c17b072c6955ec9354"
+    },
+    {
+      "card": {
+        "id": 33343,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·235*/221",
+        "cardName": "亚索",
+        "subTitle": "乘风归",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "亚索",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Jennifer Wuestling",
+        "cardEffect": "{{游走}}（我可以向其他战场进行移动。）\n当我在一个回合内进行了第三次移动，你获得1分。",
+        "flavorText": "“愿你寻得心之所悦。”",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/eb350e08e7cb4931b670e02b9f9a025d.png",
+        "backImage": "",
+        "listSort": 730,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "sfd-235-star-221",
+        "collectorNumber": 235,
+        "name": "Yasuo",
+        "subtitle": "Windrider",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "SFD",
+            "label": "Spiritforged"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "SFD-235*/221",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "showcase",
+            "label": "Showcase",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+              "dimensions": {
+                "width": 376,
+                "height": 426,
+                "aspectRatio": 0.8826291079812206
+              },
+              "colors": {
+                "primary": "#B89D3B",
+                "secondary": "#333229",
+                "label": "#4F472B"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "chaos",
+              "label": "Chaos",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#100B16",
+                  "secondary": "#EDD6FF",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/40575a59f02c431223ef484edabdf7bd8cb28381-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Yasuo, Windrider. [Ganking] (I can move from battlefield to battlefield.)\nThe third time I move in a turn, you score 1 point.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#643253",
+            "secondary": "#F9DCE8",
+            "label": "#3F102F"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "jenniferwuestling",
+              "label": "Jennifer Wuestling",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Ganking] (I can move from battlefield to battlefield.)<br />The third time I move in a turn, you score 1 point.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 5,
+            "label": "5"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 4,
+            "label": "4",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Yasuo"
+          ]
+        }
+      },
+      "imageFile": "SFD-235-star-221.png",
+      "imageSha256": "4da0d3f810ea4dc1f726f1a098de09315837a2802c5a3ad01b2310a58a6d95a9"
+    },
+    {
+      "card": {
+        "id": 38304,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "RAD·182/167",
+        "cardName": "凯隐",
+        "subTitle": "巨镰奔扬",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "凯隐",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Luscinia Studio",
+        "cardEffect": "{{游走}}\n如果我已在本回合内移动了两次，则我无法受到伤害。",
+        "flavorText": "我知道我是坏人 反正总要有个坏人\n谁来指手画脚 别怪我没事先警告",
+        "energy": 6,
+        "returnEnergy": 1,
+        "power": 6,
+        "productCodeList": [],
+        "productNameList": [],
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260926/dcea5f12f68149bd83f81dc368bca3ac.png",
+        "backImage": "",
+        "listSort": 2687,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": true,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "rad-182-167",
+        "collectorNumber": 182,
+        "name": "Kayn",
+        "subtitle": "Unleashed",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "RAD",
+            "label": "Radiance"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "RAD-182/167",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "showcase",
+            "label": "Showcase",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+              "dimensions": {
+                "width": 376,
+                "height": 426,
+                "aspectRatio": 0.8826291079812206
+              },
+              "colors": {
+                "primary": "#B89D3B",
+                "secondary": "#333229",
+                "label": "#4F472B"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "chaos",
+              "label": "Chaos",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#100B16",
+                  "secondary": "#EDD6FF",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/df2fbb56c0d56c6c4e310edb17f0c2ae7a9d9e97-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Kayn, Unleashed. [Ganking]\nIf I have moved twice this turn, I don't take damage.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#482435",
+            "secondary": "#F9E7DC",
+            "label": "#1D0712"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "lusciniastudio",
+              "label": "Luscinia Studio",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Ganking]<br />If I have moved twice this turn, I don't take damage.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 6,
+            "label": "6"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 6,
+            "label": "6",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Kayn",
+            "Ionia"
+          ]
+        }
+      },
+      "imageFile": "RAD-182-167.png",
+      "imageSha256": "dfcc5694b62cdb37c15aba7dd388bc6ccb35b126ea84c385d7704b589a5fc7df"
+    },
+    {
+      "card": {
+        "id": 31269,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "OGN·057/298",
+        "cardName": "格挡",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{迅捷}}（可在你的回合或法术对决中打出。）\n让一名单位在本回合内获得{{坚守3}}和{{壁垒}}。（如果它是防守方，则{{S}}+3。它在战斗中首先承担伤害。）",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/ae2f50071aad4b3a93ab7d861418b53e.png",
+        "backImage": "",
+        "listSort": 436,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "ogn-057-298",
+        "collectorNumber": 57,
+        "name": "Block",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "OGN",
+            "label": "Origins"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "spell",
+              "label": "Spell",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "OGN-057/298",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "uncommon",
+            "label": "Uncommon",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+              "dimensions": {
+                "width": 480,
+                "height": 410,
+                "aspectRatio": 1.170731707317073
+              },
+              "colors": {
+                "primary": "#41B4B8",
+                "secondary": "#293331",
+                "label": "#122021"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "calm",
+              "label": "Calm",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#152311",
+                  "secondary": "#E0FFD6",
+                  "label": "#080808"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/36f7352e715fe073631ed85be41408c9a38ab865-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Spell: Block. [Hidden] (Hide now for [A] to react with later for [0].)\n[Action] (Play on your turn or in showdowns.)\nGive a unit [Shield 3] and [Tank] this turn. (+3 [S] while it's a defender. It must be assigned combat damage first.)",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#204036",
+            "secondary": "#F5F9DC",
+            "label": "#05140F"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "kudosproductions",
+              "label": "Kudos Productions",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)<br />[Action] (Play on your turn or in showdowns.)<br />Give a unit [Shield 3] and [Tank] this turn. (+3 :rb_might: while it's a defender. It must be assigned combat damage first.)</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 2,
+            "label": "2"
+          }
+        }
+      },
+      "imageFile": "OGN-057-298.png",
+      "imageSha256": "c786b0693880a13f84ccbb9b996e1b512c74895ac0f54907c69de0b0660bf2a9"
+    }
+  ],
+  "rules": [
+    {
+      "id": "DOC-04-P008-B005",
+      "document": "DOC-04",
+      "page": 8,
+      "clauseAnchors": [
+        "124"
+      ],
+      "text": "124.       游戏物体 从一个区域移动到另一个非场地区域 ,或从一个非场地区域 移动到另一个区域后,在追踪该物体时会将其视为新的物\n           体。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P008-B006",
+      "document": "DOC-04",
+      "page": 8,
+      "clauseAnchors": [
+        "124.1"
+      ],
+      "text": "124.1.           每当一个游戏物体从一个区域移动到另一个非场地区域,或从一个非场地区域移动到另一个区域后,其身上的所有\n                 临时状态 将停止追踪。\n                      举例:\n                      伤害将被清除。\n                      计数标将被移除。\n                      临时给予的关键词效果将不再提供。\n                      状态将被清除。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P090-B004",
+      "document": "DOC-04",
+      "page": 90,
+      "clauseAnchors": [
+        "465.2.c.10"
+      ],
+      "text": "465.2.c.10.                   如果一个单位无法被造成伤害,则任何伤害量都不会被视为致命伤害。此类单位不受任何强制\n                              伤害分配规则的约束。\n                                  举例:“凯隐 -巨镰奔扬”的效果为“在本回合内,如果我移动了两次,则我免疫伤害。”\n                                   当凯隐无法承受伤害时,在战斗中分配致命伤害时会将其忽略。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P092-B009",
+      "document": "DOC-04",
+      "page": 92,
+      "clauseAnchors": [
+        "471.1.a.1"
+      ],
+      "text": "471.1.a.1.                   注意,只有通过征服获得的分数才会受到此限制。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B002",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1"
+      ],
+      "text": "814.1.            [坚守]是一种被动技能关键词。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B003",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1.a"
+      ],
+      "text": "814.1.a.              这个关键词会出现在单位上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B004",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1.b"
+      ],
+      "text": "814.1.b.              [坚守]的格式为“坚守[X]”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B005",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1.b.1"
+      ],
+      "text": "814.1.b.1.                   [X]会被技能的功能性文本引用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B006",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1.b.2"
+      ],
+      "text": "814.1.b.2.                   [X]即为“坚守值”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B007",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1.b.3"
+      ],
+      "text": "814.1.b.3.                   如果[X]没有出现,则默认数值为 1。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B008",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1.c"
+      ],
+      "text": "814.1.c.              该关键词为以下功能的简称:“如果我是防守方,则[M]+X。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B009",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1.d"
+      ],
+      "text": "814.1.d.              成为防守方,意味着该单位在战斗中获得了“防守方”的身份。\n                           想获取更多有关信息,请查阅规则 459.战斗。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B010",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.1.d.1"
+      ],
+      "text": "814.1.d.1.                   只要该单位保持防守方的身份,[坚守]便会持续生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P117-B011",
+      "document": "DOC-04",
+      "page": 117,
+      "clauseAnchors": [
+        "814.2"
+      ],
+      "text": "814.2.            如果一个单位本身就拥有[坚守],或是获得了[坚守],并再次从其他来源获得了[坚守],则所有[坚守]关键词提供的坚\n                  守值将一并相加。\n                      举例:“强强魄罗”拥有[坚守]。该单位被选为“格挡”的目标,其效果为:“让一名单位在本回合内获得[坚守\n                      3]和[壁垒]。”“格挡”结算后,“强强魄罗”将在本回合内拥有[坚守 4]。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P008-B027",
+      "document": "DOC-15",
+      "page": 8,
+      "clauseAnchors": [],
+      "text": "问题 6.5:如果一个单位无法被造成伤害,我还需要为其分配伤害吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P009-B001",
+      "document": "DOC-15",
+      "page": 9,
+      "clauseAnchors": [],
+      "text": "如果一个单位无法被造成伤害,则任何伤害量都不会被视为致命伤害。此类单位不受任何强制伤害",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P009-B002",
+      "document": "DOC-15",
+      "page": 9,
+      "clauseAnchors": [],
+      "text": "分配规则的约束。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P009-B003",
+      "document": "DOC-15",
+      "page": 9,
+      "clauseAnchors": [],
+      "text": "Q:对方的【凯隐 - 巨镰奔扬】在本回合中移动了两次,且被【格挡】选为了目标并成功结算,",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P009-B004",
+      "document": "DOC-15",
+      "page": 9,
+      "clauseAnchors": [],
+      "text": "在战斗伤害分配时,我是否需要优先为【凯隐 - 巨镰奔扬】分配伤害?我应为其分配多少点伤害才是致",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P009-B005",
+      "document": "DOC-15",
+      "page": 9,
+      "clauseAnchors": [],
+      "text": "命伤害?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P009-B006",
+      "document": "DOC-15",
+      "page": 9,
+      "clauseAnchors": [],
+      "text": "A:玩家不需要为【凯隐 - 巨镰奔扬】分配伤害。当一个单位无法承受伤害时,在战斗中分配致",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P009-B007",
+      "document": "DOC-15",
+      "page": 9,
+      "clauseAnchors": [],
+      "text": "命伤害时可以将其忽略。在此情况下,【凯隐 - 巨镰奔扬】通过【格挡】获得的[壁垒]关键词不会产生",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-15-P009-B008",
+      "document": "DOC-15",
+      "page": 9,
+      "clauseAnchors": [],
+      "text": "任何效果。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "sourceDocuments": [
+    {
+      "id": "DOC-04",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "updated": "2026-07-17",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-15",
+      "title": "起源系列 裁判FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/裁判FAQ_251023.pdf",
+      "sha256": "4e960816dd71ffb110e6d37d66d628eb5f7bb3b771192af5975e7164087e2203",
+      "updated": "2025-10-24",
+      "effectiveDate": null
+    }
+  ],
+  "status": "VERIFIED_SCOPED_MOVEMENT_THRESHOLDS_AND_BLOCK_COMBAT_GRANTS",
+  "printingPolicy": "Five active Kayn/Yasuo printings, plus Block OGN057; RAD182 archived but not activated; MF two printings remain explicit unresolved CN/EN optionality conflict.",
+  "visualVerification": [
+    "CN OGN189, OGN205, OGN162 representative images",
+    "CN OGN057 image including keyword grant wording",
+    "DOC15 page9 damage immunity QA",
+    "DOC04 page90 rule465.2.c.10",
+    "DOC04 page117 Shield stacking and Tank rules"
+  ]
+}

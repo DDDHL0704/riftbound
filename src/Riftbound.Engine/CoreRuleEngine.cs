@@ -2881,18 +2881,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var source = side.FirstOrDefault(requiredSources.Contains);
             if (source is null || !legalTargets.TryGetValue(source, out var targets)) continue;
+            var requiredTargets = targets.Where(id => !UnitMovementRules.CannotTakeDamage(state.CardObjects[id])).ToArray();
             var targetPriority = targets.ToDictionary(id => id,
                 id => state.CardObjects.TryGetValue(id, out var card)
                     ? BattleDamageAssignmentPriority(state, state.PlayerZones, id, card) : 1,
                 StringComparer.Ordinal);
             var partiallyAssigned = 0;
             var overAssigned = 0;
-            foreach (var target in targets)
+            foreach (var target in requiredTargets)
             {
                 var damage = targetTotals.GetValueOrDefault(target);
                 var lethal = lethalThreshold.GetValueOrDefault(target);
                 if (damage <= 0) continue;
-                if (targets.Any(other => targetPriority[other] < targetPriority[target]
+                if (requiredTargets.Any(other => targetPriority[other] < targetPriority[target]
                     && targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other)))
                     return Reject(ErrorCodes.InvalidPayload, "必须先向更高优先级的单位分配致命伤害。");
                 if (damage < lethal && ++partiallyAssigned > 1)
@@ -2900,7 +2901,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 if (damage > lethal)
                 {
                     // Excess can only remain on the last target in a legal order.
-                    if (++overAssigned > 1 || targets.Any(other => other != target
+                    if (++overAssigned > 1 || requiredTargets.Any(other => other != target
                         && (targetTotals.GetValueOrDefault(other) < lethalThreshold.GetValueOrDefault(other)
                             || targetPriority[other] > targetPriority[target])))
                         return Reject(ErrorCodes.InvalidPayload, "其他单位尚可分配伤害时，不能向此单位分配过量伤害。");
@@ -3109,7 +3110,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ? BattleDamageAssignmentPriority(state, state.PlayerZones, objectId, cardObject)
                     : 1
             })
-            .OrderBy(item => item.Priority)
+            .OrderBy(item => state.CardObjects.TryGetValue(item.ObjectId, out var card) && UnitMovementRules.CannotTakeDamage(card) ? 0 : 1)
+            .ThenBy(item => item.Priority)
             .ThenBy(item => item.Index)
             .Select(item => item.ObjectId)
             .ToArray();
@@ -3123,7 +3125,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? Math.Max(0, ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false) - cardObject.Damage)
+                    ? UnitMovementRules.CannotTakeDamage(cardObject) ? 0 : Math.Max(0, ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false) - cardObject.Damage)
                     : 0,
                 StringComparer.Ordinal);
     }
@@ -8848,6 +8850,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 MoveLegendTargetBetweenBaseAndBattlefield(
                     state,
                     playerZones,
+                    cardObjects,
                     targetObjectIds[0],
                     intent.PlayerId,
                     command.SourceObjectId,
@@ -9659,6 +9662,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static void MoveLegendTargetBetweenBaseAndBattlefield(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         string playerId,
         string sourceObjectId,
@@ -9674,7 +9678,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destinationZone = string.Equals(location.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
             ? MoveUnitBattlefieldZone
             : MoveUnitBaseZone;
-        var movementObservation = CaptureMovementObservers(state, targetObjectId, playerId, destinationZone);
+        var movementObservation = CaptureMovementObservers(state, cardObjects, targetObjectId, playerId, destinationZone);
         RemoveFieldObjectFromLocation(
             playerZones,
             location.Value.PlayerId,
@@ -12838,7 +12842,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, originZone, command.SourceObjectId);
         AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var movementObservation = CaptureMovementObservers(state, command.SourceObjectId, intent.PlayerId, destinationZone, null);
+        var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, destinationZone, null);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
@@ -13110,7 +13114,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, MoveUnitBaseZone, command.SourceObjectId);
         AddFieldObjectToLocation(playerZones, intent.PlayerId, MoveUnitBattlefieldZone, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var movementObservation = CaptureMovementObservers(state, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
+        var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
@@ -13309,7 +13313,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             MoveUnitBattlefieldZone,
             destinationBattlefieldObjectId);
-        var movementObservation = CaptureMovementObservers(state, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
+        var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
@@ -13535,7 +13539,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId, command.SourceObjectId, MoveUnitBattlefieldZone);
         foreach (var id in attachedEquipmentObjectIds)
             objectLocations[id] = new(intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
-        var movementObservation = CaptureMovementObservers(state, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
+        var movementObservation = CaptureMovementObservers(state, cardObjects, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
@@ -14040,7 +14044,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         out _,
                         out _,
                         damageContribution: false);
-                    var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
+                    var lethalDamage = UnitMovementRules.CannotTakeDamage(defenderState) ? 0 : Math.Max(0, defenderCombatPower - defenderState.Damage);
                     var damageAmount = defenderIndex == defenderAssignments.Count - 1
                         ? remainingAttackerDamage
                         : Math.Min(remainingAttackerDamage, lethalDamage);
@@ -14049,7 +14053,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    assignedOverkillDamageToEnemyUnits += Math.Max(0, damageAmount - lethalDamage);
+                    if (!UnitMovementRules.CannotTakeDamage(defenderState))
+                        assignedOverkillDamageToEnemyUnits += Math.Max(0, damageAmount - lethalDamage);
                     var attackerDamageApplication = ApplyDamageToCardObject(
                         cardObjects,
                         assignment.ObjectId,
@@ -14120,7 +14125,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         out _,
                         out _,
                         damageContribution: false);
-                    var lethalDamage = Math.Max(0, targetAttackerCombatPower - targetAttackerState.Damage);
+                    var lethalDamage = UnitMovementRules.CannotTakeDamage(targetAttackerState) ? 0 : Math.Max(0, targetAttackerCombatPower - targetAttackerState.Damage);
                     var damageAmount = attackerIndex == attackerAssignments.Count - 1
                         ? remainingDefenderDamage
                         : Math.Min(remainingDefenderDamage, lethalDamage);
@@ -14159,7 +14164,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             ApplySubmittedCombatDamage(submittedDamage, cardObjects, damageTriggeredDestroyTargetObjectIds, combatEvents);
             assignedOverkillDamageToEnemyUnits = submittedDamage.Assignments
-                .Where(assignment => attackerObjectIds.Contains(assignment.SourceObjectId, StringComparer.Ordinal))
+                .Where(assignment => attackerObjectIds.Contains(assignment.SourceObjectId, StringComparer.Ordinal)
+                    && !UnitMovementRules.CannotTakeDamage(cardObjects[assignment.TargetObjectId]))
                 .GroupBy(assignment => assignment.TargetObjectId)
                 .Sum(group => Math.Max(0, group.Sum(assignment => assignment.Damage) - submittedDamage.LethalThreshold.GetValueOrDefault(group.Key)));
         }
@@ -15510,6 +15516,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 keywordBonus,
                 defendingPlayerId);
         }
+
+        keywordBonus += TemporaryCombatKeywordRules.Amount(cardObject, combatKeyword);
 
         keywordBonus += ResolveBattlefieldIsolatedDefenderKeywordModifier(
             state,
@@ -17943,7 +17951,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var movementObservation = CaptureMovementObservers(state, targetObjectId, playerId, "BASE");
+        var movementObservation = CaptureMovementObservers(state, cardObjects, targetObjectId, playerId, "BASE");
+        targetState = cardObjects[targetObjectId];
         playerZones[playerId] = zones with
         {
             Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
@@ -20290,7 +20299,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 Role = BattleDamageAssignmentRole(state, playerZones, objectId, defenderStates[objectId]),
                 Priority = BattleDamageAssignmentPriority(state, playerZones, objectId, defenderStates[objectId])
             })
-            .OrderBy(item => item.Priority)
+            .OrderBy(item => UnitMovementRules.CannotTakeDamage(defenderStates[item.ObjectId]) ? 0 : 1)
+            .ThenBy(item => item.Priority)
             .ThenBy(item => item.Index)
             .Select(item => new BattleDamageAssignmentTarget(item.ObjectId, item.Role))
             .ToArray();
@@ -20309,6 +20319,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardObjectState cardObject)
     {
         return HasBattleDamageAssignmentKeyword(cardObject.Tags)
+            || TemporaryCombatKeywordRules.Has(cardObject, CardCombatKeywordNames.Bulwark)
+            || TemporaryCombatKeywordRules.Has(cardObject, CardCombatKeywordNames.BackRow)
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
                 playerZones,
@@ -20333,7 +20345,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId,
         CardObjectState cardObject)
     {
-        if (HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.Bulwark)
+        if (UnitMovementRules.CannotTakeDamage(cardObject)) return 1;
+        if ((HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.Bulwark) || TemporaryCombatKeywordRules.Has(cardObject, CardCombatKeywordNames.Bulwark))
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
                 playerZones,
@@ -20344,7 +20357,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        return HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.BackRow)
+        return (HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.BackRow) || TemporaryCombatKeywordRules.Has(cardObject, CardCombatKeywordNames.BackRow))
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
                 playerZones,
@@ -20361,7 +20374,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId,
         CardObjectState cardObject)
     {
-        if (HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.Bulwark)
+        if ((HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.Bulwark) || TemporaryCombatKeywordRules.Has(cardObject, CardCombatKeywordNames.Bulwark))
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
                 playerZones,
@@ -20372,7 +20385,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return "BULWARK_FIRST";
         }
 
-        return HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.BackRow)
+        return (HasExactCombatKeyword(cardObject.Tags, CardCombatKeywordNames.BackRow) || TemporaryCombatKeywordRules.Has(cardObject, CardCombatKeywordNames.BackRow))
             || ResolveFriendlyFilteredUnitsKeywordBonus(
                 state,
                 playerZones,
@@ -26544,7 +26557,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var movementObservation = CaptureMovementObservers(state, targetObjectId, playerId, "BASE");
+        var movementObservation = CaptureMovementObservers(state, cardObjects, targetObjectId, playerId, "BASE");
+        targetState = cardObjects[targetObjectId];
         cardObjects[targetObjectId] = targetState with
         {
             IsAttacking = false,
@@ -29107,7 +29121,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             ["controllerId"] = stackItem.ControllerId,
                             ["destinationZone"] = "BATTLEFIELD"
                         }));
-                    events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, firstTargetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
+                    events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, cardObjects, firstTargetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
                 }
             }
         }
@@ -29375,10 +29389,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                         foreach (var statusEffectId in statusEffectIds)
                         {
+                            var appliedStatusEffectId = TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId);
                             targetState = targetState with
                             {
                                 UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
-                                    .Concat([statusEffectId])
+                                    .Concat([appliedStatusEffectId])
                                     .Distinct(StringComparer.Ordinal)
                                     .OrderBy(effectId => effectId, StringComparer.Ordinal)
                                     .ToArray()
@@ -29890,7 +29905,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ["targetObjectId"] = targetObjectId,
                                 ["ownerPlayerId"] = movedOwnerPlayerId
                             }));
-                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, targetObjectId, stackItem.ControllerId, "BASE"));
+                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, cardObjects, targetObjectId, stackItem.ControllerId, "BASE"));
                         continue;
                     }
 
@@ -29911,7 +29926,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ["controllerId"] = stackItem.ControllerId,
                                 ["destinationZone"] = "BATTLEFIELD"
                             }));
-                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, targetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
+                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, cardObjects, targetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
                         continue;
                     }
 
@@ -30457,7 +30472,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["enemyUnitPowerSum"] = enemyUnitPowerSum,
                     ["movementPermission"] = "GATEKEEPER_MADULI_PURPLE_MOVE"
                 }));
-            events.Add(CaptureMovementObservers(state, stackItem.SourceObjectId, stackItem.ControllerId, "BATTLEFIELD", targetBattlefieldObjectId));
+            events.Add(CaptureMovementObservers(state, cardObjects, stackItem.SourceObjectId, stackItem.ControllerId, "BATTLEFIELD", targetBattlefieldObjectId));
         }
 
         return new StackResolutionResult(
@@ -30612,7 +30627,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["movementPermission"] = "EZREAL_BLUE_SWIFT_MOVE_TO_BASE",
                     ["swift"] = true
                 }));
-            events.Add(CaptureMovementObservers(state, stackItem.SourceObjectId, stackItem.ControllerId, "BASE"));
+            events.Add(CaptureMovementObservers(state, cardObjects, stackItem.SourceObjectId, stackItem.ControllerId, "BASE"));
         }
 
         return new StackResolutionResult(
@@ -32440,6 +32455,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
             ? existingTarget
             : new CardObjectState(targetObjectId);
+        if (UnitMovementRules.CannotTakeDamage(targetState))
+            return new DamageApplicationResult(0, damageAmount, true, "MOVEMENT_DAMAGE_IMMUNITY");
         var preventsWithTargetEffect = !preventDamage
             && targetState.UntilEndOfTurnEffects.Contains(
                 PreventNextDamageThisTurnEffectId,
@@ -37958,7 +37975,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     .ToArray();
                 if (objectState.Damage <= 0
                     && untilEndEffects.Length == 0
-                    && objectState.UntilEndOfTurnPowerModifier == 0)
+                    && objectState.UntilEndOfTurnPowerModifier == 0 && objectState.MovementCountThisTurn == 0)
                 {
                     return objectState;
                 }
@@ -37976,6 +37993,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return objectState with
                 {
                     Damage = 0,
+                    MovementCountThisTurn = 0,
                     UntilEndOfTurnEffects = [],
                     Power = objectState.Power - objectState.UntilEndOfTurnPowerModifier,
                     UntilEndOfTurnPowerModifier = 0,

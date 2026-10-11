@@ -24846,6 +24846,11 @@ public static class MatchRecoveryValidator
             rejectRedactionSentinel: true);
         ValidateAuthoritativeStateCardObjectIdentities(authoritativeState.CardObjects, errors);
         ValidateAuthoritativeStateCardObjectValues(authoritativeState.CardObjects, errors);
+        foreach (var (id, card) in authoritativeState.CardObjects)
+            if (card is not null && card.MovementCountThisTurn > 0
+                && (!card.Tags.Contains(CardObjectTags.UnitCard)
+                    || !authoritativeState.PlayerZones.Values.Any(z => z.Base.Contains(id) || z.Battlefields.Contains(id))))
+                errors.Add($"authoritative state card object {id} movement count requires a unit on the field");
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationZones(authoritativeState.ObjectLocations, errors);
@@ -25189,6 +25194,12 @@ public static class MatchRecoveryValidator
                 $"card object {objectId} attached object",
                 attachedToObjectId,
                 errors);
+
+            if (cardObject.UntilEndOfTurnEffects.Any(effect => !TemporaryCombatKeywordRules.IsValid(effect)))
+                errors.Add($"authoritative state card object {objectId} has invalid temporary combat keyword grant");
+
+            if (cardObject.MovementCountThisTurn < 0)
+                errors.Add($"authoritative state card object {objectId} movement count cannot be negative");
 
             if (cardObject.Damage < 0)
             {

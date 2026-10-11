@@ -20,8 +20,10 @@ public sealed partial class CoreRuleEngine
                 && oldLocation != newLocation
                 && (!IsIdentityFieldZone(oldLocation.Zone) || !IsIdentityFieldZone(newLocation.Zone));
             var generation = Math.Max(card.ObjectGeneration, checked(previous.ObjectGeneration + (crossedZone ? 1 : 0)));
-            if (card.ObjectGeneration == generation) continue;
-            cards[id] = card with { ObjectGeneration = generation };
+            var movementCount = nextLocations.TryGetValue(id, out var nextLocation) && nextLocation.Zone is "BASE" or "BATTLEFIELD"
+                ? card.MovementCountThisTurn : 0;
+            if (card.ObjectGeneration == generation && card.MovementCountThisTurn == movementCount) continue;
+            cards[id] = card with { ObjectGeneration = generation, MovementCountThisTurn = movementCount };
             changed = true;
         }
 
@@ -40,9 +42,8 @@ public sealed partial class CoreRuleEngine
         }).ToArray();
         if (!changed) return result;
         after = after with { CardObjects = cards, StackItems = stack };
-        // Generations are private engine bookkeeping. The explicit snapshot and
-        // prompt projections contain neither field, so retain their existing views.
-        return result with { State = after };
+        // Generations are private; movement counts are public for visible units.
+        return result with { State = after, Snapshots = ResolutionResult.BuildSnapshots(after), Prompts = BuildCorePrompts(after) };
     }
 
     private static Dictionary<string, ObjectLocationState> IdentityLocations(MatchState state)

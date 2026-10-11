@@ -1,0 +1,23 @@
+{
+  "baseline": 6336,
+  "current": 6352,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.MovementThresholdNativeTests.ProductionImmuneTargetAssignmentRestoresAndReplays",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ActualBlockCannotForceDamageAssignmentToImmuneKayn",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ActualControlChangeKeepsTheSameObjectsMovementHistory",
+    "Riftbound.ConformanceTests.MovementThresholdTests.BlockGrantsStackAndApplyWhenUnitLaterBecomesDefender",
+    "Riftbound.ConformanceTests.MovementThresholdTests.CapturedThirdMoveKeepsControllerAfterSourceChangesControl",
+    "Riftbound.ConformanceTests.MovementThresholdTests.CountSurvivesRestoreAndHashIncludesIt",
+    "Riftbound.ConformanceTests.MovementThresholdTests.EndingTurnResetsEveryUnitsMovementCount",
+    "Riftbound.ConformanceTests.MovementThresholdTests.FailedMovementDoesNotIncrementCountOrMutateState",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ImmuneBulwarkIsExemptFromMandatoryAssignment",
+    "Riftbound.ConformanceTests.MovementThresholdTests.KaynIsImmuneOnlyAfterTwoActualMoves",
+    "Riftbound.ConformanceTests.MovementThresholdTests.MovementImmunityDoesNotConsumeNextDamagePrevention",
+    "Riftbound.ConformanceTests.MovementThresholdTests.RecallPreservesObjectWithoutCountingAsMovement",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ReturningToHandCreatesFreshObjectWithoutMovementHistory",
+    "Riftbound.ConformanceTests.MovementThresholdTests.SuggestedCombatAssignmentsSkipImmuneUnitsUnlessTheyAreTheOnlyTargets",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ThirdActualMoveQueuesScoreForEveryCurrentYasuoPrinting",
+    "Riftbound.ConformanceTests.MovementThresholdTests.ThirdMoveCanWinWithoutConqueringEveryBattlefield"
+  ]
+}

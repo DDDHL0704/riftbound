@@ -752,7 +752,9 @@ public static class SpecialPromptCommandBuilder
                     && suggestion.ValueKind == JsonValueKind.Number
                     && suggestion.TryGetInt64(out var suggested) && suggested >= 0 ? suggested : 0;
                 targets.Add(new DamageTargetPromptItem(targetObjectId, targetLabel, threshold,
-                    targetPriority.GetValueOrDefault(targetObjectId, 1), suggestedDamage));
+                    targetPriority.GetValueOrDefault(targetObjectId, 1), suggestedDamage,
+                    metadata.TryGetProperty("damageImmuneTargetIds", out var immuneIds) && immuneIds.ValueKind == JsonValueKind.Array
+                    && immuneIds.EnumerateArray().Any(id => id.ValueKind == JsonValueKind.String && id.GetString() == targetObjectId)));
             }
 
             parsed.Add(new DamageAssignmentPromptItem(sourceObjectId, sourceLabel, poolDamage, targets));
