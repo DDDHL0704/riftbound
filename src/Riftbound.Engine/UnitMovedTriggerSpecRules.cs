@@ -31,6 +31,22 @@ internal static class UnitMovedTriggerSpecRules
         return true;
     }
 
+    public static IReadOnlyList<TriggerSpec> MovementTriggers(string? cardNo)
+        => cardNo is not null && TriggersByCardNo.Value.TryGetValue(cardNo, out var triggers)
+            ? triggers.Where(IsImplementedMovementTrigger).ToArray() : [];
+
+    public static bool IsImplementedMovementTrigger(TriggerSpec trigger)
+        => IsUnitMovedCreateDormantGoldTrigger(trigger)
+            || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit
+                && (trigger.Kind == TriggerKinds.UnitMovedDraw && trigger.DrawCount > 0
+                    || trigger.Kind == TriggerKinds.UnitMovedGainExperience && trigger.ExperienceCount > 0
+                    || trigger.Kind == TriggerKinds.UnitMovedPowerModifier && trigger.PowerDelta > 0
+                        && trigger.Duration == TriggerDurations.UntilEndOfTurn);
+
+    public static bool MatchesMovement(TriggerSpec trigger, MovedUnitFact unit)
+        => (trigger.MovementOriginZone is null || trigger.MovementOriginZone == unit.Origin.Zone)
+            && (trigger.MovementDestinationZone is null || trigger.MovementDestinationZone == unit.Destination.Zone);
+
     public static bool IsUnitMovedCreateDormantGoldTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.UnitMovedCreateDormantGold, StringComparison.Ordinal)

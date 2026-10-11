@@ -1129,6 +1129,24 @@ public static class TriggerParser
                 CreatedTokenKeywords: ["反应"]);
         }
 
+        var movedDraw = Regex.Match(segment,
+            @"^(?:每当|当)我移动时，抽([0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
+        if (movedDraw.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedDraw, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: ParseChineseNumber(movedDraw.Groups[1].Value));
+        var movedExperience = Regex.Match(segment,
+            @"^(?:每当|当)我移动(至战场)?时，获得([0-9一两二三四五六七八九十]+)经验。?$", RegexOptions.CultureInvariant);
+        if (movedExperience.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedGainExperience, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, ExperienceCount: ParseChineseNumber(movedExperience.Groups[2].Value),
+                MovementDestinationZone: movedExperience.Groups[1].Success ? "BATTLEFIELD" : null);
+        var movedPower = Regex.Match(segment,
+            @"^(?:每当|当)我从一处战场向其他位置移动时，让我本回合内\{\{S\}\}\+([0-9一两二三四五六七八九十]+)。?$", RegexOptions.CultureInvariant);
+        if (movedPower.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedPowerModifier, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedPower.Groups[1].Value),
+                Duration: TriggerDurations.UntilEndOfTurn, MovementOriginZone: "BATTLEFIELD");
+
         var unitMovedCreateDormantGoldMatch = Regex.Match(
             segment,
             @"每当(?:我|其)移动时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",

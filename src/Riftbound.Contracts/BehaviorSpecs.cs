@@ -157,6 +157,9 @@ public static class TriggerKinds
         "UNIT_CONQUEST_RECYCLE_FRIENDLY_PLAY_GRAVEYARD_MECHANICAL_UNIT";
     public const string SourceUnitPlayedPlayLowCostGraveyardSpellRecycle =
         "SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
+    public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
+    public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
+    public const string UnitMovedPowerModifier = "UNIT_MOVED_POWER_MODIFIER";
     public const string UnitMovedCreateDormantGold =
         "TREASURE_HUNTER_MOVE_CREATE_GOLD";
     public const string HandCardsDiscardedReadySourcePower =
@@ -561,7 +564,9 @@ public sealed record TriggerSpec(
     int? ExperienceCount = null,
     bool? RequiresNoOtherFriendlyUnitAtSamePosition = null,
     bool? RequiresOtherFriendlyUnitAtSamePosition = null,
-    string? EffectKind = null);
+    string? EffectKind = null,
+    string? MovementOriginZone = null,
+    string? MovementDestinationZone = null);
 
 public sealed record ReplacementSpec(
     string Kind,

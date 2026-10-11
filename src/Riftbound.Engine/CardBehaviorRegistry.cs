@@ -5188,7 +5188,7 @@ public static class CardBehaviorRegistry
             "SFD·048/221",
             "天角牧者",
             4,
-            "SKYHORN_SHEPHERD_VANILLA_PLAY_UNIT",
+            "STELLACORN_HERDER_PLAY_UNIT",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,

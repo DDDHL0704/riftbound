@@ -1,0 +1,486 @@
+{
+  "focus3": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.96,
+    "total": 66,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 66,
+        "passed": 66,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.5
+      }
+    ]
+  },
+  "focus5": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.69,
+    "total": 31,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 31,
+        "passed": 31,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.29
+      }
+    ]
+  },
+  "focus6": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.89,
+    "total": 35,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 35,
+        "passed": 35,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.51
+      }
+    ]
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 93.13,
+    "total": 9279,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9279,
+        "passed": 9279,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 82.29
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 410.1,
+    "total": 9412,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 212.52
+      },
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 212.94
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 216.67
+      },
+      {
+        "shard": "rules",
+        "total": 9277,
+        "passed": 9277,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 84.33
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 406.41
+      }
+    ]
+  },
+  "native": {
+    "scenarios": [
+      {
+        "scenario": "SFD-048-221-forward",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "53ccc130fb0f9e82a24b360af1685c73666d80c3e9078c7b7378781316b919d7",
+          "expectedStateHash": "53ccc130fb0f9e82a24b360af1685c73666d80c3e9078c7b7378781316b919d7",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "SFD-048-221-reverse",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "53ccc130fb0f9e82a24b360af1685c73666d80c3e9078c7b7378781316b919d7",
+          "expectedStateHash": "53ccc130fb0f9e82a24b360af1685c73666d80c3e9078c7b7378781316b919d7",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "SFD-137-221-forward",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "e94d47b09a8f78163be37e5b1b18d71814888dfb321da0d29dff5934f9f91f4c",
+          "expectedStateHash": "e94d47b09a8f78163be37e5b1b18d71814888dfb321da0d29dff5934f9f91f4c",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "SFD-137-221-reverse",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "8843fda841f89db607a92e2c79d2bdd146a5f89485d2e240dd6a2dd49b9d3c7b",
+          "expectedStateHash": "8843fda841f89db607a92e2c79d2bdd146a5f89485d2e240dd6a2dd49b9d3c7b",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "UNL-115-219-forward",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "8153f2e0725bc290c1da2554039b0c12ea72bf0e4232736dfce607b01af6e311",
+          "expectedStateHash": "8153f2e0725bc290c1da2554039b0c12ea72bf0e4232736dfce607b01af6e311",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "UNL-115-219-reverse",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "8153f2e0725bc290c1da2554039b0c12ea72bf0e4232736dfce607b01af6e311",
+          "expectedStateHash": "8153f2e0725bc290c1da2554039b0c12ea72bf0e4232736dfce607b01af6e311",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "UNL-127-219-forward",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "7bffbe8d4d4e96c5744f1926c20edd0c7d82f1a51de552da6910c2bc82496853",
+          "expectedStateHash": "7bffbe8d4d4e96c5744f1926c20edd0c7d82f1a51de552da6910c2bc82496853",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "UNL-127-219-reverse",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "7bffbe8d4d4e96c5744f1926c20edd0c7d82f1a51de552da6910c2bc82496853",
+          "expectedStateHash": "7bffbe8d4d4e96c5744f1926c20edd0c7d82f1a51de552da6910c2bc82496853",
+          "errors": []
+        },
+        "commands": 5
+      }
+    ],
+    "productionCommands": 8,
+    "journalCommands": 40,
+    "mode": "Godot headless production TriggerOrderOverlay; not dual-window visual or Windows evidence"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:01.07\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nMOVEMENT_OBSERVER_ORDER_PASS: 8 mixed movement-trigger production order commands\n",
+  "artifacts": [
+    {
+      "path": "var/qa/movement-benefits/check/check/results.trx",
+      "sha256": "5efed6965f9309315a8ab855035791666ed4776df949907200a786a111338320"
+    },
+    {
+      "path": "var/qa/movement-benefits/check/plan.json",
+      "sha256": "23bedfbfe3d55427b2c46e6ecb42bdc265a18892f2b73bea88c94000fe04c983"
+    },
+    {
+      "path": "var/qa/movement-benefits/check/summary.json",
+      "sha256": "7803240bea63bd93c1207712dfe7a73ba4a22cc4f75338456e65b3abede66a3d"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus1/focus/results.trx",
+      "sha256": "59a88979dfff7bd360fcfab89d640536da410f878534409530ccd5fd0826c80b"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus1/plan.json",
+      "sha256": "50d6f13dd10a393fa0f4b52ebe6075c4a05013dc90812c16aa7a50a1ead5be4a"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus2/focus/results.trx",
+      "sha256": "14d87155acd4a8541b391379bc210dbefff39358dbc40d1353d70dbcd26b731b"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus2/plan.json",
+      "sha256": "f558daf5920e0fae12baa2222c766bf1672d97dfa82f5d6fdd2aaa8edd512c03"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus3/focus/results.trx",
+      "sha256": "781cdd37fa2cc78d8358659ef891f22b1fe3e5c2de5fd30a52012577c6778eb4"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus3/plan.json",
+      "sha256": "654566b9458d7104db1a7e90c519354d168f4d17df688a8b3b9e36c01f6be258"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus3/summary.json",
+      "sha256": "ac8583742f9429be68fba3633bd2a94f42b80e972fb069d11a1aeb32def7b184"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus4/focus/results.trx",
+      "sha256": "8c396cd6fef175ea5f73cab3b02d76e067e556627016060c9407707491b9ba7e"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus4/plan.json",
+      "sha256": "4ff17442feadd02399d7792f11cbe67a32bec6988ac19aa8ec1f840909515db9"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus5/focus/results.trx",
+      "sha256": "bcdd16ed861a2cbf9f97a5023f46a0a01cf71a6647f1d3f00569abf9968e7593"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus5/plan.json",
+      "sha256": "87f85a8fb7c649831c509b3e953669710a48fd37df0ec2c317cedae9b36dd364"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus5/summary.json",
+      "sha256": "839b4f7e4e8f61774d13fef0be4fb672ee9a27d3a09d68936766c94e4a07c8fb"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus6/focus/results.trx",
+      "sha256": "2f39169a3c08b20c899a58b03d5ec24f8cf5d666046260e9a531ec111b00f669"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus6/plan.json",
+      "sha256": "2825275cd180a51a135fa6db314eb79456ac40ce28d7737296f7c9560ea0c7d4"
+    },
+    {
+      "path": "var/qa/movement-benefits/focus6/summary.json",
+      "sha256": "6df38264d95cbb122d9eec2a5329d87c9149098a1c7a3d25a40cf74a7b82b8ef"
+    },
+    {
+      "path": "var/qa/movement-benefits/full/games-1/results.trx",
+      "sha256": "c028fa061b867c9ba52eb3b0b81e84a0648694044c661ef0d27489c2195c5bd3"
+    },
+    {
+      "path": "var/qa/movement-benefits/full/games-2/results.trx",
+      "sha256": "17188498ccdd58dcb213f046147866551550ead7b82b08c01fda99c44bc6e7f7"
+    },
+    {
+      "path": "var/qa/movement-benefits/full/games-3/results.trx",
+      "sha256": "b1c365d72d9653af77daee7837d93b9e8c807d80dbc157e51ba4122e5e3765ad"
+    },
+    {
+      "path": "var/qa/movement-benefits/full/games-4/results.trx",
+      "sha256": "1f7767a3d994e0f273c70324d6d506ae404355bda7dd0ed0d734caaf6372aa97"
+    },
+    {
+      "path": "var/qa/movement-benefits/full/plan.json",
+      "sha256": "b654a2d00994ac0e45271a929d4620856bece062aa4a62375159268065bfe566"
+    },
+    {
+      "path": "var/qa/movement-benefits/full/rules/results.trx",
+      "sha256": "c8bfbc0e1892200818cbbb369e4ae3bbe3bf93f6dfa5e0032ce1e16357c32b0f"
+    },
+    {
+      "path": "var/qa/movement-benefits/full/summary.json",
+      "sha256": "66488bbae4a7f620a677678217d5d793cf55d69dbdf7045c4e23f7818e3068b6"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-forward/case.json",
+      "sha256": "ed22318fd889431fb1a57c3965ddb6303078193989fcb87ac93b316dd154306b"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-forward/command.json",
+      "sha256": "fe732a56941dccd86b4bdfa1973434132df611cd842a9522a46cd1b0b1c3eda3"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-forward/prompt.json",
+      "sha256": "dfa34b6b11f5a32d7d9383b820396375c0bb56472785e9cc782b13cc465d07f7"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-forward/replay.json",
+      "sha256": "ec30ee2822b61ead43437e4b32365d83c8f41d5b3a26af300dcc9c54bd538450"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-forward/snapshot.json",
+      "sha256": "dd7f4945f6a2b54e72c3d5b2815b6de5486041ee81ebab456e9f093868444261"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-reverse/case.json",
+      "sha256": "5a4e95b95c59abe6c446f7311de922c1f7ddb427c380fc21eea046f840479049"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-reverse/command.json",
+      "sha256": "a3e32684759ff88f73447a5984367e3af80e9e040d2bab31efe385ef254d5a1d"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-reverse/prompt.json",
+      "sha256": "dfa34b6b11f5a32d7d9383b820396375c0bb56472785e9cc782b13cc465d07f7"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-reverse/replay.json",
+      "sha256": "ec30ee2822b61ead43437e4b32365d83c8f41d5b3a26af300dcc9c54bd538450"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-048-221-reverse/snapshot.json",
+      "sha256": "dd7f4945f6a2b54e72c3d5b2815b6de5486041ee81ebab456e9f093868444261"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-forward/case.json",
+      "sha256": "f3fb25e754729c6aa9b54febb999527a0fc3d284ecf02912f2d1ad33a9691f5a"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-forward/command.json",
+      "sha256": "fb3370f596d65d61cfd4933f65f8712693fa8bf0c614ff0e13c6926d62c99543"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-forward/prompt.json",
+      "sha256": "e61744250782f3b8cb423c5d0e82017d392e85dee245b0862aa314b0bf2aff63"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-forward/replay.json",
+      "sha256": "93a072e4593bddfcf73fa6a6486abc7de9a3d881accfacffae011393bbf3d0a2"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-forward/snapshot.json",
+      "sha256": "d0d7835dc0076de105bb899ad0ace238862c3e73e2c0274eb9896a2221b5bf9d"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-reverse/case.json",
+      "sha256": "0d636632f129a5d6b32f6c85d03d19938ea3e37737b9dfb4d7a74bfef1cfa5e9"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-reverse/command.json",
+      "sha256": "d03dd1e3b7d51a4d7a813bc4746a18cccbe7c83bb0b7245393c4697df5dc084e"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-reverse/prompt.json",
+      "sha256": "e61744250782f3b8cb423c5d0e82017d392e85dee245b0862aa314b0bf2aff63"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-reverse/replay.json",
+      "sha256": "a2dc5c5065924d32f5a5d52c1e52b97292d44f48413353ddaa9f8bbf7a7fa2a8"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/SFD-137-221-reverse/snapshot.json",
+      "sha256": "d0d7835dc0076de105bb899ad0ace238862c3e73e2c0274eb9896a2221b5bf9d"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-forward/case.json",
+      "sha256": "9b06be4720e36ea94663be5966b1796d9855532cb6b7c8729d45a34ba3fc9b9f"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-forward/command.json",
+      "sha256": "a026e4b05105d1ffa96a8c66feafecb489097ea40274d588ebe5f7c2611a9ebc"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-forward/prompt.json",
+      "sha256": "022630a94763843c388e6727b4eab375094fcab5dfb58007f55829eb770c6849"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-forward/replay.json",
+      "sha256": "13baaca6670adf0a1501a8452281bff830ff7b5660a6a50762c9be1c5293757e"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-forward/snapshot.json",
+      "sha256": "ad467df59a92b66557e14638e1fbddf9dda0d7c5314460cce1419c48a89bd443"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-reverse/case.json",
+      "sha256": "3bbc3432150d4982142059896ba833e7d6791d2e08a077ceb5cc94fa930e2e60"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-reverse/command.json",
+      "sha256": "341a335165e51287626bd3f3b4fb9058589e9d5c4e0afedb7bdf8883364ca1ce"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-reverse/prompt.json",
+      "sha256": "022630a94763843c388e6727b4eab375094fcab5dfb58007f55829eb770c6849"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-reverse/replay.json",
+      "sha256": "13baaca6670adf0a1501a8452281bff830ff7b5660a6a50762c9be1c5293757e"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-115-219-reverse/snapshot.json",
+      "sha256": "ad467df59a92b66557e14638e1fbddf9dda0d7c5314460cce1419c48a89bd443"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-forward/case.json",
+      "sha256": "e11e1bf6f0d0fb2bc2522aa4455dede19447a2f9a393354b099f59298a81607c"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-forward/command.json",
+      "sha256": "a026e4b05105d1ffa96a8c66feafecb489097ea40274d588ebe5f7c2611a9ebc"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-forward/prompt.json",
+      "sha256": "a3f2e7d342e0381b831000ef5c9d1ac7d6f10e458d1b99073d6ce291e62c34cc"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-forward/replay.json",
+      "sha256": "988d7e3d4cf60f5672d0f613baa1ca91098d93e1b91b7204b30e4cdca1d65bb3"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-forward/snapshot.json",
+      "sha256": "e7446049fcbe16719ee6d66be41ba0485f436f2128fcea22d8d639097bcdf3af"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-reverse/case.json",
+      "sha256": "6116e79e5fb0fef28e5abf93e01fb00ba78a6943c6a325de92c8f9c621d07c7f"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-reverse/command.json",
+      "sha256": "341a335165e51287626bd3f3b4fb9058589e9d5c4e0afedb7bdf8883364ca1ce"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-reverse/prompt.json",
+      "sha256": "a3f2e7d342e0381b831000ef5c9d1ac7d6f10e458d1b99073d6ce291e62c34cc"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-reverse/replay.json",
+      "sha256": "988d7e3d4cf60f5672d0f613baa1ca91098d93e1b91b7204b30e4cdca1d65bb3"
+    },
+    {
+      "path": "var/qa/movement-benefits/native/UNL-127-219-reverse/snapshot.json",
+      "sha256": "e7446049fcbe16719ee6d66be41ba0485f436f2128fcea22d8d639097bcdf3af"
+    },
+    {
+      "path": "var/qa/movement-benefits/red/focus/results.trx",
+      "sha256": "951872a4642839cc31f724a5abf48a19d1f2ce8d908b116136d79aeb6fb45906"
+    },
+    {
+      "path": "var/qa/movement-benefits/red/plan.json",
+      "sha256": "0ca7cf0ca3967ba508cac153c7aee85b490963123d0ecf41ea215429b69bd1aa"
+    }
+  ]
+}

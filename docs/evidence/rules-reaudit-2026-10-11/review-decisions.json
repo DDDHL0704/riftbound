@@ -174,6 +174,162 @@
         "journalCommands": 10,
         "wholeCardCertification": false
       }
+    },
+    {
+      "id": "movement-benefits-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Source movement draw, experience and self power; location predicates, response, draw observers, burnout, generation and accelerated play. Not complete card certification.",
+      "subjects": [
+        {
+          "id": "SFD-048/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33124,
+              "cardNo": "SFD·048/221",
+              "name": "天角牧者",
+              "sha256": "0a6e5b7b10db669b2c42f55b80eb05e672e154bb71461bde833d577acbb66e84"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-048-221",
+              "cardNo": "SFD-048/221",
+              "name": "Stellacorn Herder",
+              "sha256": "4a3443457e74c478206a85caa9b8c9c79cedbee55a9b8e2dd8e0725098b6a993"
+            }
+          ],
+          "activeCardNo": "SFD·048/221",
+          "reviewStatus": "PARTIAL_MOVEMENT_BEHAVIOR_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+            "src/Riftbound.CardCatalog/RuleTextParsers.cs"
+          ],
+          "tests": [
+            "MovementSimpleTriggerTests",
+            "MovementBenefitsNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-benefits-2026-10-11"
+          ]
+        },
+        {
+          "id": "SFD-137/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33227,
+              "cardNo": "SFD·137/221",
+              "name": "猎海小队",
+              "sha256": "07a9411e3c448db6a9dca1f7781e033639a8ae3029e7db819cb25ffa9b818661"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-137-221",
+              "cardNo": "SFD-137/221",
+              "name": "Harpoon Squad",
+              "sha256": "ace5f8d6d2ff018979944302943ca3e063ce494a01d1897b2fe940373acd9c65"
+            }
+          ],
+          "activeCardNo": "SFD·137/221",
+          "reviewStatus": "PARTIAL_MOVEMENT_BEHAVIOR_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+            "src/Riftbound.CardCatalog/RuleTextParsers.cs"
+          ],
+          "tests": [
+            "MovementSimpleTriggerTests",
+            "MovementBenefitsNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-benefits-2026-10-11"
+          ]
+        },
+        {
+          "id": "UNL-115/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34654,
+              "cardNo": "UNL-115/219",
+              "name": "尼菈",
+              "sha256": "fe6217f5ec7ab660c10281e3150fea5765bf0110e2ba78b02043996c8cc1ada0"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-115-219",
+              "cardNo": "UNL-115/219",
+              "name": "Nilah",
+              "sha256": "403bafdc3987bb5be47de35da5bc1c06e6ea0fa075bee54e27fc3317ac0f3a1c"
+            }
+          ],
+          "activeCardNo": "UNL-115/219",
+          "reviewStatus": "PARTIAL_MOVEMENT_BEHAVIOR_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+            "src/Riftbound.CardCatalog/RuleTextParsers.cs"
+          ],
+          "tests": [
+            "MovementSimpleTriggerTests",
+            "MovementBenefitsNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-benefits-2026-10-11"
+          ]
+        },
+        {
+          "id": "UNL-127/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34670,
+              "cardNo": "UNL-127/219",
+              "name": "树根先生",
+              "sha256": "389b00b5bb0121990b312dbcefd072fd129ef2a5954aa47f48487b49b856f38f"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-127-219",
+              "cardNo": "UNL-127/219",
+              "name": "Mister Root",
+              "sha256": "464cb7ee4c5a75817c4b5513378b99fda2e146578357a63f1a8d88ea8d2cb866"
+            }
+          ],
+          "activeCardNo": "UNL-127/219",
+          "reviewStatus": "PARTIAL_MOVEMENT_BEHAVIOR_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+            "src/Riftbound.CardCatalog/RuleTextParsers.cs"
+          ],
+          "tests": [
+            "MovementSimpleTriggerTests",
+            "MovementBenefitsNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-benefits-2026-10-11"
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P060-B006",
+        "DOC-04-P085-B017"
+      ],
+      "auditDocument": "docs/MOVEMENT_BENEFITS_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/movement-benefits-2026-10-11",
+      "validation": {
+        "fullCases": 9412,
+        "fullMethods": 6261,
+        "checkCases": 9279,
+        "nativeScenarios": 8,
+        "nativeCommands": 8,
+        "journalCommands": 40,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Other movement observer families",
+        "Published future-effective rules",
+        "Complete payment and keyword certification",
+        "Dual-window and Windows product acceptance"
+      ]
     }
   ]
 }
