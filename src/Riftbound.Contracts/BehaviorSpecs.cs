@@ -639,7 +639,8 @@ public sealed record StaticAuraSpec(
     int? RequiredDefendingUnitCount = null,
     int? RequiredReadyEnemyUnitCount = null,
     int? RequiredParticipantCount = null,
-    int? RequiredPlayerExperience = null);
+    int? RequiredPlayerExperience = null,
+    string? PowerMultiplierZone = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,

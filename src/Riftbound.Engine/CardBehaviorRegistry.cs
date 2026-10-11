@@ -151,7 +151,6 @@ public sealed record CardBehaviorDefinition(
     bool GrantsBoonToSourceUnit = false,
     bool ModifiesAllEnemyUnits = false,
     bool RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
-    bool AddsControllerGraveyardCountToSourceUnitPower = false,
     string CounteredStackItemDestination = CardCounteredStackItemDestinationZones.Graveyard,
     int? MaxTargetPowerCost = null,
     bool RequiresTargetCostsAtMostDestroyedAdditionalCostUnit = false,
@@ -4600,8 +4599,7 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 6,
-            AddsControllerGraveyardCountToSourceUnitPower: true),
+            SourceUnitPower: 6),
         new(
             "OGN·111/298",
             "黑默丁格",

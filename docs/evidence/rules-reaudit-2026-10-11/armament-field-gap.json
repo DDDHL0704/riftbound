@@ -1,0 +1,403 @@
+{
+  "status": "OPEN",
+  "englishPrints": 43,
+  "activeExactMatches": 36,
+  "records": [
+    {
+      "id": "SFD-161/221",
+      "active": true,
+      "name": "B.F. Sword",
+      "mightBonus": 3,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "RAD-150/167",
+      "active": false,
+      "name": "Blade of the Exile",
+      "mightBonus": 3,
+      "effect": "<p>[Ganking] (I can move from battlefield to battlefield.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-178/221",
+      "active": true,
+      "name": "Blade of the Ruined King",
+      "mightBonus": 4,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "UNL-019/219",
+      "active": true,
+      "name": "Blighted Battleaxe",
+      "mightBonus": 4,
+      "effect": "<p>At the end of your turn, if I didn't conquer this turn, unattach this and deal 4 to me.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-118/221",
+      "active": true,
+      "name": "Boneshiver",
+      "mightBonus": 2,
+      "effect": "<p>When I conquer, channel 1 rune exhausted.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-133/221",
+      "active": true,
+      "name": "Boots of Swiftness",
+      "mightBonus": 2,
+      "effect": "<p>[Ganking] (I can move from battlefield to battlefield.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-042/221",
+      "active": true,
+      "name": "Brutalizer",
+      "mightBonus": 1,
+      "effect": "<p>If this was attached to me this turn, I have an additional +2 :rb_might:.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-064/221",
+      "active": true,
+      "name": "Cloth Armor",
+      "mightBonus": 0,
+      "effect": "<p>[Shield 2] (+2 :rb_might: while I'm a defender.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-134/221",
+      "active": true,
+      "name": "Cull",
+      "mightBonus": 1,
+      "effect": "<p>When I conquer, play a Gold gear token exhausted.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-095/221",
+      "active": true,
+      "name": "Doran's Blade",
+      "mightBonus": 2,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-124/221",
+      "active": true,
+      "name": "Doran's Ring",
+      "mightBonus": 1,
+      "effect": "<p>When I conquer, discard 1, then draw 1.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-033/221",
+      "active": true,
+      "name": "Doran's Shield",
+      "mightBonus": 1,
+      "effect": "<p>[Tank] (I must be assigned combat damage first.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-139/221",
+      "active": true,
+      "name": "Edge of Night",
+      "mightBonus": 2,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-073/221",
+      "active": true,
+      "name": "Experimental Hexplate",
+      "mightBonus": 1,
+      "effect": "<p>I am a Mech.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-153/221",
+      "active": true,
+      "name": "Eye of the Herald",
+      "mightBonus": 0,
+      "effect": "<p>When I move, play a 1 :rb_might: Recruit unit token here.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-190/221",
+      "active": true,
+      "name": "Forgefire Cape",
+      "mightBonus": 3,
+      "effect": "<p>When I attack or defend, deal 2 to all enemy units here.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-051/221",
+      "active": true,
+      "name": "Guardian Angel",
+      "mightBonus": 1,
+      "effect": "<p>If I would die, kill Guardian Angel instead. Heal me, exhaust me, and recall me.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "VEN-027/166",
+      "active": false,
+      "name": "Hand Hammer",
+      "mightBonus": 1,
+      "effect": "<p>I have +2 :rb_might: while I'm at a battlefield with exactly one other unit you control.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-102/221",
+      "active": true,
+      "name": "Hexdrinker",
+      "mightBonus": 1,
+      "effect": "<p>[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "UNL-188/219",
+      "active": true,
+      "name": "Hextech Gauntlets",
+      "mightBonus": 3,
+      "effect": "<p>When I conquer, if you assigned 3 or more excess damage, draw 1.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "UNL-096/219",
+      "active": true,
+      "name": "Hunter's Machete",
+      "mightBonus": 2,
+      "effect": "<p>[Hunt] (When I conquer or hold, gain 1 XP.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "VEN-073/166",
+      "active": false,
+      "name": "Jagged Cutlass",
+      "mightBonus": 2,
+      "effect": "<p>I can't be moved by enemy spells and abilities.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-150/221",
+      "active": true,
+      "name": "Last Rites",
+      "mightBonus": 2,
+      "effect": "<p>When I conquer or hold, you may play a unit from your trash. (You still pay its costs.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-022/221",
+      "active": true,
+      "name": "Long Sword",
+      "mightBonus": 2,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "RAD-071/167",
+      "active": false,
+      "name": "Nazuman Ntofo",
+      "mightBonus": 0,
+      "effect": "<p>[Shield 2] (+2 :rb_might: while I'm a defender.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "VEN-011/166",
+      "active": false,
+      "name": "Pendulum Blade",
+      "mightBonus": 1,
+      "effect": "<p>When I move to a battlefield, give me +2 :rb_might: this turn.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-191/221",
+      "active": true,
+      "name": "Rabadon's Deathcrown",
+      "mightBonus": 3,
+      "effect": "<p>Your spells and abilities deal 3 Bonus Damage (while this is attached).</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-016/221",
+      "active": true,
+      "name": "Recurve Bow",
+      "mightBonus": 0,
+      "effect": "<p>When I attack or defend, deal 2 to an enemy unit here.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-172/221",
+      "active": true,
+      "name": "Sacred Shears",
+      "mightBonus": 1,
+      "effect": "<p>[Deathknell] — Draw 1. (When I die, get the effect.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-009/221",
+      "active": true,
+      "name": "Serrated Dirk",
+      "mightBonus": 0,
+      "effect": "<p>[Assault 2] (+2 :rb_might: while I'm an attacker.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "VEN-103/166",
+      "active": false,
+      "name": "Shadows of the Past",
+      "mightBonus": null,
+      "effect": "<p>1</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "VEN-137/166",
+      "active": false,
+      "name": "Shady Spectacles",
+      "mightBonus": 0,
+      "effect": "<p>(I am a copy of the chosen unit.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "UNL-158/219",
+      "active": true,
+      "name": "Shepherd's Heirloom",
+      "mightBonus": 2,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-192/221",
+      "active": true,
+      "name": "Shurelya's Requiem",
+      "mightBonus": 2,
+      "effect": "<p>Your units here have [Ganking]. (We can move from battlefield to battlefield.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-030/221",
+      "active": true,
+      "name": "Skyfall of Areion",
+      "mightBonus": 2,
+      "effect": "<p>My hold effects are also conquer effects, and vice versa.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "UNL-039/219",
+      "active": true,
+      "name": "Soul Sword",
+      "mightBonus": 1,
+      "effect": "<p>[Level 3][&gt;] I have an additional +1 :rb_might:. (While you have 3+ XP, get the effect.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-186/221",
+      "active": true,
+      "name": "Spinning Axe",
+      "mightBonus": 3,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-056/221",
+      "active": true,
+      "name": "Sterak's Gage",
+      "mightBonus": 3,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-059/221",
+      "active": true,
+      "name": "Svellsongur",
+      "mightBonus": 0,
+      "effect": null,
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-090/221",
+      "active": true,
+      "name": "The Zero Drive",
+      "mightBonus": 2,
+      "effect": "<p>[Deathknell] — Banish me. (When I die, get the effect.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-115/221",
+      "active": true,
+      "name": "Trinity Force",
+      "mightBonus": 2,
+      "effect": "<p>When I hold, score 1 point.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-108/221",
+      "active": true,
+      "name": "Warmog's Armor",
+      "mightBonus": 1,
+      "effect": "<p>When I conquer, buff me. (If I don't have a buff, I get a +1 :rb_might: buff.)</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    },
+    {
+      "id": "SFD-086/221",
+      "active": true,
+      "name": "World Atlas",
+      "mightBonus": 2,
+      "effect": "<p>When I hold, play two Gold gear tokens exhausted.</p>",
+      "source": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+      "reviewStatus": "SOURCE_FIELDS_IDENTIFIED_BEHAVIOR_NOT_VERIFIED"
+    }
+  ],
+  "policy": "Separate mightBonus/effect fields are official source data. This inventory is not implementation or semantic coverage. Active alternate prints without exact EN match still require source grouping and card-image verification.",
+  "currentCnTaggedWeapons": 36,
+  "currentKnownPrintUnion": 37,
+  "unmatchedCnPrints": [
+    "SFD-118A/221-P"
+  ],
+  "missingCnWeaponTag": [
+    "SFD-086/221"
+  ]
+}

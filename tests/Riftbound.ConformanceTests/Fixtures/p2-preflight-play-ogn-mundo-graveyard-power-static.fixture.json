@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-mundo-graveyard-power-static",
-  "description": "Dr. Mundo enters as a unit and gains power from the controller's graveyard count while turn-start recycle is deferred.",
+  "description": "Dr. Mundo enters with printed base Might 6; current graveyard aura gives effective Might 8, separately asserted by MundoBeginningTests.NormalPlayKeepsPrintedBaseAndProjectsCurrentPower.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·109/298 蒙多医生",
-      "note": "官方卡面：费用 8；英雄单位；印刷战力 6；提升我的战力，数值等同于你废牌堆的卡牌数量；在你的回合开始阶段，从废牌堆中回收三张牌。当前 fixture 覆盖普通主阶段打出后按控制者废牌堆 2 张计算为 8 战力的基地单位对象；开始阶段回收三张牌路径暂缓。"
+      "note": "官方卡面：印刷战力 6，当前己方废牌数量持续增加有效战力。本 fixture 保留费用、区域、事件、提示断言；有效战力 8 与实际动态变化由 MundoBeginningTests 验证。开始回收见同组响应／选牌测试。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -28,10 +28,18 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/upstream/2026-10-11/rules-manifest.json",
+      "locator": "DOC-04 p54 363-365; p68-69 416.1-416.6",
+      "note": "持续重算墓地战力；UNIT_PLAYED_TO_BASE.power 与 CardObject.Power 表示入场基础值 6，有效战力由共享层投影为 8。旧值 8 曾错误固化墓地加成。 旧 fixture 没有真实拥有者／控制者，现显式补齐而不依赖隐式区域推断。"
     }
   ],
   "roomId": "p2-preflight-ogn-mundo-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302804,
     "turnNumber": 804,
@@ -39,7 +47,10 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
       "P1": {
         "mana": 8,
@@ -55,29 +66,64 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-OGN-MUNDO"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-OGN-MUNDO"
+        ],
         "base": [],
         "battlefields": [],
-        "graveyard": ["P1-MUNDO-GRAVEYARD-001", "P1-MUNDO-GRAVEYARD-002"],
+        "graveyard": [
+          "P1-MUNDO-GRAVEYARD-001",
+          "P1-MUNDO-GRAVEYARD-002"
+        ],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
-        "graveyard": ["P2-MUNDO-GRAVEYARD-001"],
+        "graveyard": [
+          "P2-MUNDO-GRAVEYARD-001"
+        ],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P1-UNIT-OGN-MUNDO": {
+        "cardNo": "OGN·109/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "power": 6,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ]
+      }
+    }
   },
   "commands": [
     {
@@ -127,47 +173,82 @@
           "unitObjectId": "P1-UNIT-OGN-MUNDO",
           "unitName": "蒙多医生",
           "destinationZone": "BASE",
-          "power": 8,
+          "power": 6,
           "tags": [
             "CARD_TYPE:UNIT"
           ]
         }
       }
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 804,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-UNIT-OGN-MUNDO"],
-          "graveyard": ["P1-MUNDO-GRAVEYARD-001", "P1-MUNDO-GRAVEYARD-002"]
+          "base": [
+            "P1-UNIT-OGN-MUNDO"
+          ],
+          "graveyard": [
+            "P1-MUNDO-GRAVEYARD-001",
+            "P1-MUNDO-GRAVEYARD-002"
+          ]
         },
         "P2": {
-          "graveyard": ["P2-MUNDO-GRAVEYARD-001"]
+          "graveyard": [
+            "P2-MUNDO-GRAVEYARD-001"
+          ]
         }
       },
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-OGN-MUNDO": {
-          "power": 8,
-          "tags": ["CARD_TYPE:UNIT"],
+          "power": 6,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "isExhausted": true
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

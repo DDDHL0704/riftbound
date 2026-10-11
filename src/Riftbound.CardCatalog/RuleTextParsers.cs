@@ -2829,6 +2829,14 @@ public static class StaticAuraParser
         var auras = new List<StaticAuraSpec>();
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (segment.Contains("提升我的战力，数值等同于你废牌堆的卡牌数量", StringComparison.Ordinal))
+            {
+                auras.Add(new StaticAuraSpec(StaticAuraKinds.SourceObjectPower, StaticAuraLayer,
+                    "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
+                    StaticAuraParticipantScopes.SourceObject, 1, segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Current controller graveyard count is recomputed by the shared power layer.", PowerMultiplierZone: "GRAVEYARD"));
+                continue;
+            }
             var levelSourceKeywordAdded = TryAddSourceObjectLevelKeywordAuras(auras, segment);
 
             var sourceObjectLevelPowerMatch = Regex.Match(

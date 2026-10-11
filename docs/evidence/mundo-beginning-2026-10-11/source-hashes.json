@@ -1,0 +1,66 @@
+[
+  {
+    "path": "clients/godot/scenes/debug/MundoBeginningInteractionProof.tscn",
+    "sha256": "1440e4bc9eea83d6c9ad08556f91d87c83dac68774291a20543ffe8c7e845669"
+  },
+  {
+    "path": "clients/godot/scripts/debug/MundoBeginningInteractionProof.cs",
+    "sha256": "d7cbcae5025b325d71268a0aada2f14f6d929230e70e4ebe479ad870ad083d6c"
+  },
+  {
+    "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+    "sha256": "5a444b561a70f7ec4d837bcf4bd235f2fa69c49187e1eacc8903361563b06b66"
+  },
+  {
+    "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+    "sha256": "7fc8b7411cd02c4ff4e6fcb091ca25ca30a50f80ea2e5a176ffe6eb4d81febb2"
+  },
+  {
+    "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+    "sha256": "da39fa11582797b69068952c3efdb9553cc90439533005b999afb4e90acdd562"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningRecycle.cs",
+    "sha256": "b5d22299bbc8088cd4aebd69f29de91c584a764cfe808dbeded979aef573b222"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs",
+    "sha256": "dba0cd973239d353a76e26dfa7e834d9da56e8c01a2de689811aecb15cb51c04"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs",
+    "sha256": "e5c007d717af17c5feb16344bcb79529deb3bdace68b5c633b9488105fd79874"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "31f8a14cea4c1ccd02105a2f1ca7610b9449a83b796aac0aab1aa58798de321c"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "ca8637a9c03dd3980bab3c219dff2c212f60ecf3c7c0236e9e62f1bfff25fe3a"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "318f7b83b88e60f4fbbba925a63ef45b785d8acd4acf1018af92feca89e00a90"
+  },
+  {
+    "path": "src/Riftbound.Engine/StaticAuraSpecRules.cs",
+    "sha256": "66ec200502b9b31c4d1a7ac90994343e5fbfd6c3c13525491f9e128110eb30f7"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "7e745c7c9e7ab5d940aaa0edc18005fb0836e499a531e12f8a87120c5d41d0e4"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-mundo-graveyard-power-static.fixture.json",
+    "sha256": "d446ede9c83162e48304319e805fac59d139e707621668b8059a42db90b14fbf"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MundoBeginningNativeTests.cs",
+    "sha256": "8e0baf0949404e0d0995ba633854fe27e4f38ba77a5ac3ce4773f04488c57d03"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MundoBeginningTests.cs",
+    "sha256": "07ff2e9e9d88566a683a2977ccf0e22ecf6d695c8eee81725efc8c22c55e73df"
+  }
+]

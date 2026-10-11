@@ -3748,6 +3748,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == TokenReplacementWindow) return ResolveTokenReplacementChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "RECYCLE_FOR_EFFECT_PLAY") return ResolveRecyclingChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT") return ResolveRevealedHandChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == GraveyardRecycleWindow) return ResolveGraveyardRecycleChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "DECK_EFFECT") return ResolveDeckChoice(state, pendingChoice, submittedObjectIds);
 
         if (string.Equals(pendingChoice.ChoiceWindow, SeaMonsterHookTopFiveChoiceWindow, StringComparison.Ordinal)
@@ -3923,7 +3924,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -4959,7 +4960,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var assembleRecycleEvents = new List<GameEvent>();
         if (recycledAdditionalCostTargetObjectIds.Count > 0)
         {
-            var recycleResult = RecycleGraveyardCardsAsAdditionalCost(
+            var recycleResult = RecycleGraveyardCards(
                 state,
                 playerZones,
                 intent.PlayerId,
@@ -5252,12 +5253,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static RecycleResult RecycleGraveyardCardsAsAdditionalCost(
+    private static RecycleResult RecycleGraveyardCards(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         string playerId,
         string sourceObjectId,
-        IReadOnlyList<string> recycledObjectIds)
+        IReadOnlyList<string> recycledObjectIds,
+        string reason = "ADDITIONAL_COST")
     {
         var events = new List<GameEvent>();
         var rngCursor = state.RngCursor;
@@ -5292,9 +5294,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
-                ["cardIds"] = randomizedCardIds,
+                ["cardIds"] = recycledObjectIds.Order(StringComparer.Ordinal).ToArray(),
                 ["count"] = randomizedCardIds.Count,
-                ["reason"] = "ADDITIONAL_COST"
+                ["reason"] = reason
             }));
 
         return new RecycleResult(events, rngCursor);
@@ -15697,7 +15699,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            bonus += aura.PowerDeltaPerParticipant;
+            bonus += StaticAuraSpecRules.SourceObjectPowerDelta(aura, state, cardObject);
         }
 
         return bonus;
@@ -27360,6 +27362,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.ReflexiveDuel is not null) return ResolveReflexiveDuel(state, stackItem);
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
+        if (stackItem.BeginningRecycle is not null) return BeginGraveyardRecycle(state, stackItem);
         if (stackItem.BeginningDraw is not null) return ResolveBeginningDraw(state, stackItem);
         if (stackItem.EphemeralStart is not null) return ResolveEphemeralStart(state, stackItem);
         if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStart(state, stackItem);
@@ -28941,8 +28944,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
                 && cardObjects.TryGetValue(secondTargetObjectId, out var secondTargetState))
             {
-                var firstPowerDelta = secondTargetState.Power - firstTargetState.Power;
-                var secondPowerDelta = firstTargetState.Power - secondTargetState.Power;
+                // DOC-14 p14: exchange current Might by a fixed modifier snapshot.
+                // Later changes to either continuous aura remain independent.
+                var powerState = state with { PlayerZones = playerZones, CardObjects = cardObjects };
+                var firstPower = ResolveCurrentFieldUnitPower(powerState, firstTargetState);
+                var secondPower = ResolveCurrentFieldUnitPower(powerState, secondTargetState);
+                var firstPowerDelta = secondPower - firstPower;
+                var secondPowerDelta = firstPower - secondPower;
 
                 if (firstPowerDelta != 0)
                 {

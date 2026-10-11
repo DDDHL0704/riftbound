@@ -2329,6 +2329,116 @@
         "Actual source departure and standby reveal card flows in these response-state scenarios",
         "Paired-client/Windows visual/network acceptance"
       ]
+    },
+    {
+      "id": "mundo-beginning-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Mundo dynamic current-controller graveyard Might and beginning mandatory recycle during resolution; Switcheroo fixed current-Might difference per DOC14p14; shared recycle privacy, recovery and native selection.",
+      "subjects": [
+        {
+          "id": "OGN-109/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31327,
+              "cardNo": "OGN·109/298",
+              "name": "蒙多医生",
+              "sha256": "5aa8593fbc66d32037ab96c54ec3a8d2455bbe78805cdf4e2182555715becba2"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-109-298",
+              "cardNo": "OGN-109/298",
+              "name": "Dr. Mundo",
+              "sha256": "642e89bbaba5618d675dea3c1c672a2b4b591a94757d5cdc53b7e9391c1e2186"
+            }
+          ],
+          "reviewStatus": "PARTIAL_MUNDO_BEGINNING_AND_CURRENT_MIGHT_VERIFIED"
+        },
+        {
+          "id": "SFD-145/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33237,
+              "cardNo": "SFD·145/221",
+              "name": "换换乐",
+              "sha256": "f90f044f6f56db52fcce8f2f49b0d5d8509f6481302a7b10f6abeb84c30a6eeb"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-145-221",
+              "cardNo": "SFD-145/221",
+              "name": "Switcheroo",
+              "sha256": "fb97287392cc214905d280cf55daca672914c40f674a53e1b9348d79b387362d"
+            }
+          ],
+          "reviewStatus": "PARTIAL_MUNDO_BEGINNING_AND_CURRENT_MIGHT_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-01-P073-B004",
+        "DOC-01-P073-B005",
+        "DOC-01-P073-B006",
+        "DOC-01-P073-B007",
+        "DOC-01-P073-B008",
+        "DOC-01-P073-B009",
+        "DOC-01-P073-B010",
+        "DOC-01-P073-B011",
+        "DOC-01-P073-B012",
+        "DOC-01-P073-B013",
+        "DOC-01-P073-B014",
+        "DOC-01-P073-B015",
+        "DOC-04-P068-B020",
+        "DOC-04-P068-B021",
+        "DOC-04-P068-B022",
+        "DOC-04-P069-B001",
+        "DOC-04-P069-B002",
+        "DOC-04-P069-B003",
+        "DOC-04-P069-B004",
+        "DOC-04-P069-B005",
+        "DOC-04-P069-B006",
+        "DOC-04-P069-B007",
+        "DOC-04-P069-B008",
+        "DOC-04-P069-B009",
+        "DOC-01-P057-B003",
+        "DOC-01-P057-B004",
+        "DOC-01-P057-B005",
+        "DOC-01-P057-B007",
+        "DOC-01-P057-B008",
+        "DOC-01-P057-B009",
+        "DOC-01-P057-B011",
+        "DOC-01-P057-B012",
+        "DOC-04-P054-B007",
+        "DOC-04-P054-B008",
+        "DOC-04-P054-B009",
+        "DOC-04-P054-B011",
+        "DOC-04-P054-B012",
+        "DOC-04-P054-B013",
+        "DOC-04-P054-B015",
+        "DOC-04-P054-B016",
+        "DOC-14-P014-B003"
+      ],
+      "auditDocument": "docs/MUNDO_BEGINNING_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/mundo-beginning-2026-10-11",
+      "tests": [
+        "MundoBeginningTests",
+        "MundoBeginningNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9820,
+        "fullMethods": 6464,
+        "nativeCommands": 3,
+        "journalCommands": 4,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Sfur Song copied rules and DOC14p8",
+        "Switcheroo same-battlefield target group and response invalidation breadth",
+        "Armament separate effect and Might-bonus data/behavior",
+        "Other beginning families and future/outside-active cards",
+        "Paired-client/Windows visual/network acceptance"
+      ]
     }
   ]
 }

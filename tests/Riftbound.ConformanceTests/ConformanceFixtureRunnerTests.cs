@@ -20470,7 +20470,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);
+        // DOC-04 363-365: Mundo's continuous graveyard bonus is not printed/base power.
+        if (fixtureFileName == "p2-preflight-play-ogn-mundo-graveyard-power-static.fixture.json")
+        {
+            Assert.Equal(6, result.FinalState.CardObjects[sourceObjectId].Power);
+            Assert.Equal(expectedPower, CurrentPowerTargetTests.Snapshot(result.FinalState).GetProperty("players")
+                .GetProperty("P1").GetProperty("objects").GetProperty(sourceObjectId).GetProperty("effectivePower").GetInt32());
+        }
+        else Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);
         Assert.Equal(expectedTags.Split('|'), result.FinalState.CardObjects[sourceObjectId].Tags);
     }
 

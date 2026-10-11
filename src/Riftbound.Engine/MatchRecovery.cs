@@ -22827,6 +22827,7 @@ public static class MatchRecoveryValidator
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBeginningRecycleViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBeginningDrawViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateEphemeralStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateGrantedTagViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -22872,6 +22873,25 @@ public static class MatchRecoveryValidator
             }
             catch (JsonException) { errors.Add($"{label} invalid per-location damage context"); }
         }
+    }
+
+    private static void ValidateBeginningRecycleViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
+    {
+        void Check(object? payload, BeginningRecycleContext? expected)
+        {
+            try {
+                var json = JsonSerializer.SerializeToElement(payload);
+                var actual = json.ValueKind == JsonValueKind.Object && json.TryGetProperty("beginningRecycle", out var raw)
+                    ? raw.Deserialize<BeginningRecycleContext>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) : null;
+                if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(expected))
+                    errors.Add($"{label} beginning recycle context differs from authoritative state");
+            } catch (JsonException) { errors.Add($"{label} malformed beginning recycle context"); }
+        }
+        foreach (var item in state.StackItems)
+            Check(snapshot.Stack.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId), item.BeginningRecycle);
+        if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "triggerQueue", out var queue))
+            foreach (var item in state.TriggerQueue)
+                Check(queue.FirstOrDefault(payload => TryReadObjectString(payload, "triggerId", out var id) && id == item.TriggerId), item.BeginningRecycle);
     }
 
     private static void ValidateBeginningDrawViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
@@ -23331,6 +23351,16 @@ public static class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidEphemeralStart(state, item.EphemeralStart, item.EffectKind, item.ControllerId, item.SourceObjectId)
                 || item.EphemeralStart is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
                 errors.Add("invalid captured ephemeral start trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidBeginningRecycle(state, item.BeginningRecycle, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                || item.BeginningRecycle is not null && (item.TargetObjectIds.Count != 0 || item.SourceConfirmed))
+                errors.Add("invalid captured beginning recycle ability");
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidBeginningRecycle(state, item.BeginningRecycle, item.EffectKind, item.ControllerId, item.SourceObjectId)
+                || item.BeginningRecycle is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
+                errors.Add("invalid captured beginning recycle trigger");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.GraveyardRecycleWindow } recycle
+            && !CoreRuleEngine.ValidGraveyardRecycleChoice(state, recycle)) errors.Add("invalid graveyard recycle choice");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidBeginningDraw(state, item.BeginningDraw, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
                 || item.BeginningDraw is not null && (item.TargetObjectIds.Count != 0 || item.SourceConfirmed))
@@ -27170,6 +27200,7 @@ public static class MatchRecoveryValidator
         {
             ValidateDamageMarkerViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBeginningDrawViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
+            ValidateBeginningRecycleViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateEphemeralStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateGrantedTagViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBattlefieldStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");

@@ -31,9 +31,7 @@ public sealed partial class CoreRuleEngine
         var baseUnitPower = behavior.SourceUnitPower > 0
             ? behavior.SourceUnitPower
             : existingState.Power;
-        var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
-            ? baseUnitPower + zones.Graveyard.Count
-            : baseUnitPower;
+        var unitPower = baseUnitPower;
         var friendlyEquipmentPowerBonus = ResolveFriendlyEquipmentStaticPowerBonus(
             behavior,
             playerZones,

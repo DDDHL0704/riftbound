@@ -1,0 +1,269 @@
+{
+  "focus4": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 34.19,
+    "total": 68,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 68,
+        "passed": 68,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.48
+      }
+    ]
+  },
+  "focus6": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.73,
+    "total": 269,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 269,
+        "passed": 269,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.94
+      }
+    ]
+  },
+  "full1": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 492.19,
+    "total": 9820,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 262.73
+      },
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 265.83
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 274.9
+      },
+      {
+        "shard": "rules",
+        "total": 9685,
+        "passed": 9685,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 106.39
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 488.35
+      }
+    ]
+  },
+  "initialCheck": {
+    "total": 9683,
+    "passed": 9682,
+    "failed": {
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysKeywordOnlySourceUnit(fixtureFileName: \"p2-preflight-play-ogn-mundo-graveyard-power-static\"···, sourceObjectId: \"P1-UNIT-OGN-MUNDO\", expectedPower: 8, expectedTags: \"CARD_TYPE:UNIT\")": "Failed"
+    }
+  },
+  "native": {
+    "result": {
+      "nativeCommands": 3,
+      "commands": 4,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "c631fdbdfcb24e8bd4ef6fb70c2c9c1792d3d45c0d903005182e4a56de34b6c2",
+        "expectedStateHash": "c631fdbdfcb24e8bd4ef6fb70c2c9c1792d3d45c0d903005182e4a56de34b6c2",
+        "errors": []
+      }
+    },
+    "mode": "Godot headless production ActionBar two passes and mandatory selection of G2/G4/G5. Three native commands and four MatchSession journal entries replayed; not paired-client/network/Windows visual acceptance."
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:02.51\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nMUNDO_BEGINNING_PASS: 3 production response and recycle commands\n",
+  "artifacts": [
+    {
+      "path": "var/qa/mundo-beginning/check1/check/results.trx",
+      "sha256": "bf9dfd67449aebded617bf1149c3b34fb412d2fcbedc9b825ad6f5ef7e4242ad"
+    },
+    {
+      "path": "var/qa/mundo-beginning/check1/plan.json",
+      "sha256": "267d1c8fe4a7fdde79b1c1d4d58836af02ae06c49d42f914bcb27fb41fe0b8f7"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus2/focus/results.trx",
+      "sha256": "cfc27727bc236a345dab831cc7abe19c04df4196acf388aa9bed6b53e939e599"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus2/plan.json",
+      "sha256": "7f75510fb7c254a4c818ee20c33a4fafab569912abe05fe046fe1b845b48a90a"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus4/focus/results.trx",
+      "sha256": "baff9f45f06980aa4a0f122fb23e26961f480cda23b922023b5f37e245b9fa8e"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus4/plan.json",
+      "sha256": "edc151cc4263d1f272ff2a58559281ba4a05f433bf4a1fa83513a59a1345abf2"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus4/summary.json",
+      "sha256": "e63c117c883e93c7f7a27c4e297384b195e6a5765ea8c0d827d0ac0e92bfbed7"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus5/focus/results.trx",
+      "sha256": "46bc4d1d77681bb8aafc26bbc4d6cb64eecd12c0ab43682c0bd8c708c2a71b90"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus5/plan.json",
+      "sha256": "1ef725023dbde4d302a8337ae9c419c6ef7fb29a007125f1ad708bc2f0ec93bd"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus6/focus/results.trx",
+      "sha256": "bcf6efa3fdce44619698c4fcefab63c8f6dc3716a42b7dc2d27b613fcd3ad9e2"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus6/plan.json",
+      "sha256": "f01faa796237bb463fbb4a1e79470f4c3aef39021a3cb2dd368be513481f08f0"
+    },
+    {
+      "path": "var/qa/mundo-beginning/focus6/summary.json",
+      "sha256": "8d258068cc7540f309735bfe0ce7d34305eb95e06d93d5d0d467360cd90fde61"
+    },
+    {
+      "path": "var/qa/mundo-beginning/full1/games-1/results.trx",
+      "sha256": "2cf5aed2d4e25a0d7aafcc89c3075a4f7d06e73ee3335379423601748620f277"
+    },
+    {
+      "path": "var/qa/mundo-beginning/full1/games-2/results.trx",
+      "sha256": "901dfd3bffc8d36636267a5ec41077ff67da9c917e8c9ce93d2448801b1814f3"
+    },
+    {
+      "path": "var/qa/mundo-beginning/full1/games-3/results.trx",
+      "sha256": "6e765a8ec952f23f603d42061e857c43772b5ca205acd57ef1be71723988421a"
+    },
+    {
+      "path": "var/qa/mundo-beginning/full1/games-4/results.trx",
+      "sha256": "7dfeb5c6007a51f9b5e76468c877956d6e581bc15a733f14ec8c8e3e894fc419"
+    },
+    {
+      "path": "var/qa/mundo-beginning/full1/plan.json",
+      "sha256": "f164dec9409d4533566e46242560969dafc649c39419fdca38af7cc3b8cfe22c"
+    },
+    {
+      "path": "var/qa/mundo-beginning/full1/rules/results.trx",
+      "sha256": "c5d959759c34dbc86b05361e9af6a2d37d59de3bb13208ed3e0e4f627f34d251"
+    },
+    {
+      "path": "var/qa/mundo-beginning/full1/summary.json",
+      "sha256": "1e3642663a2037577b16955ea9d6382ab2e19a45bd6c1d07962ecb8e1df2974e"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/pass-1-command.json",
+      "sha256": "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/pass-1-prompt.json",
+      "sha256": "f405f8afdf5ec994d518996c1b643a0827186373165f1b6ca67f1c66f91f4644"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/pass-1-snapshot.json",
+      "sha256": "631bb550fd69d35c8358ebc60c4d1eba64718add13180835658544c1d2c93ea2"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/pass-2-command.json",
+      "sha256": "2339b65139be1d8b8e7abab72e3882ea4e7a16bdcc2f99bc69a0d35481ed00f5"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/pass-2-prompt.json",
+      "sha256": "bb0a47ca280672ed720321a1716f783999f7ce95d2df6e8fe5a3fa1994971829"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/pass-2-snapshot.json",
+      "sha256": "6fc93c6c968cdc17577e64ae79836f012b17643a5d49bade7c85c31169fbfc05"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/recycle-command.json",
+      "sha256": "aea2a56036dda2fb91be0726f67e20bc307ea6cf527960feb070f8de56aab118"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/recycle-prompt.json",
+      "sha256": "2035d1b1ffcc0910175de7164c7dd4bcb27520565996aff617446c73373da717"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/recycle-snapshot.json",
+      "sha256": "637fcce55d38f45f5adea5a98a363d9a8f213cd34c44804e59fad067e62306e1"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/replay.json",
+      "sha256": "f3de73ddfcf720099c85dadcd46571e1b9f20894ea4026a7180030e83363832b"
+    },
+    {
+      "path": "var/qa/mundo-beginning/native/result-snapshot.json",
+      "sha256": "03a2c47b3031220ce272d51d9b8e3643ba4a9e3afb936a9247c766bd38be59fc"
+    },
+    {
+      "path": "var/qa/mundo-beginning/red2/focus/results.trx",
+      "sha256": "b9b00d3b21f88d701cc0afcc3d1cef2916611c07dc52ee809114458d42b7fe9d"
+    },
+    {
+      "path": "var/qa/mundo-beginning/red2/plan.json",
+      "sha256": "34c40f1c8ed74e3c8303102d4a9150ab7d3f1a8a10fd31ed20fab8526a7aebdc"
+    },
+    {
+      "path": "var/qa/mundo-beginning/swap-red/focus/results.trx",
+      "sha256": "04d879c21a9ad92ced1a6fbdd2d6be018e5a900006a0fc14af682080355e0fbe"
+    },
+    {
+      "path": "var/qa/mundo-beginning/swap-red/plan.json",
+      "sha256": "c721d9ded38a3a36051f8a1901575e69b0c6d6293e6f71302d37634e9b4ec958"
+    },
+    {
+      "path": "var/qa/mundo-beginning/swap-red2/focus/results.trx",
+      "sha256": "143387a6cfe48f45203f1c883045442e374205f53d4e0402b77c339779f4c4cb"
+    },
+    {
+      "path": "var/qa/mundo-beginning/swap-red2/plan.json",
+      "sha256": "95eec61eda5df4acf0f6a9b5fa768876f9ecfc6c89ed85c33a26e11077f4660b"
+    },
+    {
+      "path": "var/qa/mundo-beginning/swap-red3/focus/results.trx",
+      "sha256": "d7434ab74ba18dbd5fb6be8e33d89e1bb61e6ccaf42ed477af4619e330785edc"
+    },
+    {
+      "path": "var/qa/mundo-beginning/swap-red3/plan.json",
+      "sha256": "9511f641de704904c09b13d28142d5b11a4a267b49074035f9d28abfb748351f"
+    },
+    {
+      "path": "var/qa/mundo-beginning/swap-red4/focus/results.trx",
+      "sha256": "3bbd9260b72419e35717874814980ca7a665e2b03b2074559d6427a05f5cda8e"
+    },
+    {
+      "path": "var/qa/mundo-beginning/swap-red4/plan.json",
+      "sha256": "f0cb39906385ea5af0b67fa913ce07805e30ee670c113697f4a83a789fb476b3"
+    }
+  ]
+}
