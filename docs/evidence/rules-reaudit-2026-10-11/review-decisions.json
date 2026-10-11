@@ -1225,6 +1225,87 @@
         "RAD and future-effective rules",
         "Paired-client/Windows visual/network acceptance"
       ]
+    },
+    {
+      "id": "reflexive-movement-duel-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Actual move followed by separate embedded ability, target confirmation and Ward, current Might mutual unit damage and per-target destruction attribution.",
+      "subjects": [
+        {
+          "id": "OGN-258/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31500,
+              "cardNo": "OGN·258/298",
+              "name": "猛龙摆尾",
+              "sha256": "1f14ad178d2ec6fba5017f6fcaba110921c7ca14454aae3508cf426036a8ea5d"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-258-298",
+              "cardNo": "OGN-258/298",
+              "name": "Dragon's Rage",
+              "sha256": "5d83e4f60f4b7548fc23a66cf57347fb87d10937cbafdfeffb0354460912b91d"
+            }
+          ],
+          "activeCardNo": "OGN·258/298",
+          "reviewStatus": "PARTIAL_REFLEXIVE_MOVEMENT_DUEL_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P043-B012",
+        "DOC-04-P063-B002",
+        "DOC-04-P063-B003",
+        "DOC-04-P063-B004",
+        "DOC-04-P063-B005",
+        "DOC-04-P063-B006",
+        "DOC-04-P063-B007",
+        "DOC-04-P063-B008",
+        "DOC-04-P063-B009",
+        "DOC-04-P063-B010",
+        "DOC-04-P063-B011",
+        "DOC-04-P070-B005",
+        "DOC-04-P070-B006",
+        "DOC-04-P070-B007",
+        "DOC-04-P070-B008",
+        "DOC-04-P070-B009",
+        "DOC-04-P070-B010",
+        "DOC-04-P070-B011",
+        "DOC-04-P070-B012",
+        "DOC-04-P070-B013",
+        "DOC-04-P070-B014",
+        "DOC-04-P076-B013",
+        "DOC-04-P076-B014",
+        "DOC-04-P076-B015",
+        "DOC-04-P076-B016",
+        "DOC-04-P076-B017",
+        "DOC-04-P076-B018",
+        "DOC-04-P077-B001",
+        "DOC-16-P004-B003"
+      ],
+      "auditDocument": "docs/REFLEXIVE_MOVEMENT_DUEL_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/reflexive-movement-duel-2026-10-11",
+      "tests": [
+        "ReflexiveMovementDuelTests",
+        "ReflexiveMovementDuelNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9632,
+        "fullMethods": 6363,
+        "nativeScenarios": 3,
+        "nativeCommands": 8,
+        "journalCommands": 18,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Elder Dragon positive/negative QA",
+        "Independent single destination per Echo execution",
+        "Blocked movement destination referent",
+        "All mutual damage entrypoints and damage replacements",
+        "Full source-after-leaving property reference semantics",
+        "Paired-client/Windows visual/network acceptance"
+      ]
     }
   ]
 }

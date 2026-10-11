@@ -1,0 +1,414 @@
+{
+  "focus9": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.56,
+    "total": 138,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 138,
+        "passed": 138,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.91
+      }
+    ]
+  },
+  "full2": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 440.33,
+    "total": 9632,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 221.91
+      },
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 224.59
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 233.26
+      },
+      {
+        "shard": "rules",
+        "total": 9497,
+        "passed": 9497,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 91.6
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 429.49
+      }
+    ]
+  },
+  "native": {
+    "scenarios": {
+      "plain": {
+        "nativeCommands": 2,
+        "commands": 6,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "7de6a7bcefc1df9921487968c3fe560c800b8ec4dfd9b409d209d2826050f8c8",
+          "expectedStateHash": "7de6a7bcefc1df9921487968c3fe560c800b8ec4dfd9b409d209d2826050f8c8",
+          "errors": []
+        }
+      },
+      "ward-decline": {
+        "nativeCommands": 3,
+        "commands": 5,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "ed20cb9cbe66b42c1fb1a422ffa9ab22e11f49535a39c49ca91c29335e3b28a4",
+          "expectedStateHash": "ed20cb9cbe66b42c1fb1a422ffa9ab22e11f49535a39c49ca91c29335e3b28a4",
+          "errors": []
+        }
+      },
+      "ward-pay": {
+        "nativeCommands": 3,
+        "commands": 7,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "d4a623ec2b3b033ad1008ce3fd4b87fca494e1a172e6e046635299aebc0c10a6",
+          "expectedStateHash": "d4a623ec2b3b033ad1008ce3fd4b87fca494e1a172e6e046635299aebc0c10a6",
+          "errors": []
+        }
+      }
+    },
+    "mode": "Godot headless production PlayCardOverlay, ActionBar and PromptInteractionController; original play through second target and Ward pay/decline; not paired-client, network or Windows visual acceptance."
+  },
+  "earlierCheck": {
+    "total": 9499,
+    "passed": 9495,
+    "failed": [
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift"
+    ]
+  },
+  "supersededFull": "full was terminated after recognizing it used the old expected diagnostic constant; full2 is the complete corrected run.",
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.87\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nREFLEXIVE_MOVEMENT_DUEL_PASS: 8 production play, target and Ward commands\n",
+  "artifacts": [
+    {
+      "path": "var/qa/reflexive-movement-duel/check/check/results.trx",
+      "sha256": "64bddad2d65c34a2cf6d838e375a528b0881b376071fdacd9a5be7f6ddabaf98"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/check/plan.json",
+      "sha256": "a2635b5dcb1e680dc594a273d796f008a15e3ad61b8f11ea9c043f2d3a84364b"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus/focus/results.trx",
+      "sha256": "05ab5e953b4a23dd7dd5b1a6e6ad272995782e9b5084e04254f6f69c5ce8f4cd"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus/plan.json",
+      "sha256": "24d94b9ee67267f6a3807d3893992b5f0431c829144f6410cd06a5a202f2d483"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus2/focus/results.trx",
+      "sha256": "bc5734cfc6fe5c6fe752639fd792b0aa6be9f9c073e47383e6520afc255ed6b1"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus2/plan.json",
+      "sha256": "c2ff4c25b89910bf51f50f090bcf600f4b0c9faf315be97afda75cff98ea8319"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus2/summary.json",
+      "sha256": "96011e5f5f948089a6c750290c203d67c6fba10091e5e022a2188b161f3ed922"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus3/focus/results.trx",
+      "sha256": "18093846ff2e75d28e11bd0ae26a87735364a3e6a162ec04cfe74ab54dfabee0"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus3/plan.json",
+      "sha256": "3217ed5b1ee8ca3f2ed2c0a94a557e06f9dffe67ff329760cb0987b61a2fba8a"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus3/summary.json",
+      "sha256": "893e9063c0682229ee9b462b0927fdda61e9197af7a726213279ec8a75d1a982"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus4/focus/results.trx",
+      "sha256": "5fe0fb7657ed0cf3738ab46cc86a0b187aa7d349b4972e34ef423638ed7ec070"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus4/plan.json",
+      "sha256": "a5bd72e64b948e6ea02498f77c834471de911855c529f2748b24d2a3f2c8f8bd"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus4/summary.json",
+      "sha256": "12365ed46e076f71288d70bb4c16655ca844851315cc2d487dd6ae34e5da1857"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus7/focus/results.trx",
+      "sha256": "413f046295c4edbaa61be12b500cc0c9f1ea760d3df7c37c7ca88fe7a5f6c606"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus7/plan.json",
+      "sha256": "acc32ecc2badbcf4660a686a66a4d2df75da214cfad146c94ba168c2736a77f6"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus8/focus/results.trx",
+      "sha256": "d93d4b910ecb50d6d37776ee6f5f6fbf3f170356892e96db5a35bd4d54a2ef91"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus8/plan.json",
+      "sha256": "367f45fd9c2101eade5024c69b3f6e7d60e3fdc946e1cd14177a067bd588eee2"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus9/focus/results.trx",
+      "sha256": "96d93690312b761344e9276ddf3c4278fb15a914c9c60a9d612895aa18eb58af"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus9/plan.json",
+      "sha256": "3e91c92fbb7b9848d856fb76fdd899f48c7bec765a7e72ecbb42dd5baab15a55"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/focus9/summary.json",
+      "sha256": "dfd46f05fe4475d845b253f40fdc21bc1b00bd3fd1ed6a9cf3a5f540ee029466"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/full/plan.json",
+      "sha256": "d9b739fd17b8e3717915c4717008ddcbc4c84ea8a7c85b46c800b0de3e139686"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/full2/games-1/results.trx",
+      "sha256": "905a2f59dc26d290e3aaa32f8e94f79cd42b2adfb0dc4f8dacd564ac8fe2b66a"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/full2/games-2/results.trx",
+      "sha256": "bd8b68703aca46ced95c14f761f0d8208ede207baef6198f3140be41d6a9693f"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/full2/games-3/results.trx",
+      "sha256": "d5f9121b8df12320843ad9994db6c0f12bfb4791bc148d02b16a8b9936ea95d5"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/full2/games-4/results.trx",
+      "sha256": "fb4759ace25d31a7c99af6e956df954250076db65d84859b1c11b5e9d4bb6699"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/full2/plan.json",
+      "sha256": "3c0da9ec53222ba54a2400d8efd6096422f7793041c17155186a75ac8997abe7"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/full2/rules/results.trx",
+      "sha256": "bed3419bc3f2fdbec2a6be379cdd46fdea8119333df20f07f4a2382888f4e49d"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/full2/summary.json",
+      "sha256": "4e5e6a59adf5a23af93277b2aca2c005451fbcf0a8371afbeaf009393b13e3c8"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/legacy-check/focus/results.trx",
+      "sha256": "62e47c439dcbc37e1d3323dca7dbbd3eb8888a3b5758f18e53028c329be41346"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/legacy-check/plan.json",
+      "sha256": "7cf486b23aff37dc6367ada15a0acdbac2b9dcfa9df0e68da4ded92e2134b1e1"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/legacy2/focus/results.trx",
+      "sha256": "09be1a471332004347cf626c0f9668cd4845624c1e9fad17e68293a4bb9bb8bb"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/legacy2/plan.json",
+      "sha256": "1e9c96e3c0723917032eadad4ef30dd7058a3a3737b9179571694bfeb71bf553"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/legacy3/focus/results.trx",
+      "sha256": "44831e058bf7304be3b5ec8a91cdabcede3dc98a52240f0de7453f8d127f39d9"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/legacy3/plan.json",
+      "sha256": "1e9c96e3c0723917032eadad4ef30dd7058a3a3737b9179571694bfeb71bf553"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/legacy3/summary.json",
+      "sha256": "c39e537f49e7cfea40379986e86f4372061472a6caf421998ca198c81f29086e"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/fixture-intermediate.json",
+      "sha256": "df3f1e803fa69fa50e749ab009833652bcbff8f23c4680d9ca8f604c8c0904b7"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/play-command.json",
+      "sha256": "1ec414d3304edfd70f588bbb4f43d8335b50777172eec6fbdb48c6cca0ffa925"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/play-preview.json",
+      "sha256": "fcaa38cf0d8fd3f40344280c867f8b5b15031490e39056723b0325803678dfaf"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/play-prompt.json",
+      "sha256": "9c7db34028e7098bb2beb630766cf6eed5ddb89b926b3aec750d996e49ca5b1c"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/play-quote.json",
+      "sha256": "3e54cd8623309b2d974efe9cbd2e6b0f1ea560c4095f94f63f22d2a5077130b2"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/play-snapshot.json",
+      "sha256": "45472f66b6e2cbfbd8293b73c8f8b034e4677680f44d349fc48f2c5e2fce1032"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/replay.json",
+      "sha256": "6904f83040a4ca780553d05c4dc08d1f8f43258fad4eb76eb8e5181492610404"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/result-snapshot.json",
+      "sha256": "be7fe4e28156b0034ba771150acd26a1694cdf0d857ed0f374e6f2589014127c"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/target-command.json",
+      "sha256": "4064021263baeadae751302869422e1a7dc03ce06a691e109ac65bd697bf5e38"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/target-prompt.json",
+      "sha256": "742b2639b664752f35c527afffecdfb51099c77e72806603ae0862425b0f9acc"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/plain/target-snapshot.json",
+      "sha256": "9144227ed25681b3cc31de425b44b6d36aa9727e0502b3df88dedc5e371b49bf"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/payment-command.json",
+      "sha256": "0f9f82f4fcdcac4378bbf298af4a8886c7c8a6213434f09c758b2fd01d1289f5"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/payment-prompt.json",
+      "sha256": "adfabc3183fcd10d437a5338067239fcc4bbf6e37b35d880d09900873982cf33"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/payment-snapshot.json",
+      "sha256": "4fd1233c6739ddd8e2a9855597cd99fc5f09871dddfd2b1d68d7093d5a97342c"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/play-command.json",
+      "sha256": "1ec414d3304edfd70f588bbb4f43d8335b50777172eec6fbdb48c6cca0ffa925"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/play-preview.json",
+      "sha256": "4107a9bcf29243eddc056acf717b522945bfe9b6551e70fa0e99c4956e94e00e"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/play-prompt.json",
+      "sha256": "c1ae8ce3a5f71eb6efa6c2a56386536befd39eaaec4537fe5632582e1484a7ca"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/play-quote.json",
+      "sha256": "e55ea4cf641c3d4d5c8224a1b2b5d3bee2c51c5f1ad2ccd52a19363fe039f12d"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/play-snapshot.json",
+      "sha256": "79b98ef38a7ec8453f6d4479ee326fa643a56be82b79eff5440c9a9fc9ce1934"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/replay.json",
+      "sha256": "cf656ac6e9f89fe8b9f4516961439c5515aa2d80bda9e6de5462a27ad1660b5e"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/result-snapshot.json",
+      "sha256": "ca15dc1cff9d23dca446204d3cdf09bd11472dbd4f37044d0b430553c69e6467"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/target-command.json",
+      "sha256": "4064021263baeadae751302869422e1a7dc03ce06a691e109ac65bd697bf5e38"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/target-prompt.json",
+      "sha256": "742b2639b664752f35c527afffecdfb51099c77e72806603ae0862425b0f9acc"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-decline/target-snapshot.json",
+      "sha256": "c68c36e1c212f775436ec5a196ea8ea92fde262348692e6f17235c9677c8a2bc"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/payment-command.json",
+      "sha256": "5f60aae11d0c59d6db030047faa14a20421e58fb1b6376dc557060830a882bdf"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/payment-prompt.json",
+      "sha256": "adfabc3183fcd10d437a5338067239fcc4bbf6e37b35d880d09900873982cf33"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/payment-snapshot.json",
+      "sha256": "4fd1233c6739ddd8e2a9855597cd99fc5f09871dddfd2b1d68d7093d5a97342c"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/play-command.json",
+      "sha256": "1ec414d3304edfd70f588bbb4f43d8335b50777172eec6fbdb48c6cca0ffa925"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/play-preview.json",
+      "sha256": "1c928733cd472c07af90ecf57a1003fd43bd453427f334b5a22fd8d1894e658b"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/play-prompt.json",
+      "sha256": "c1ae8ce3a5f71eb6efa6c2a56386536befd39eaaec4537fe5632582e1484a7ca"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/play-quote.json",
+      "sha256": "c80f6880015d7342b177d0f24d9a8bbe989e20cbfe16636e63d4717b4225a69e"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/play-snapshot.json",
+      "sha256": "79b98ef38a7ec8453f6d4479ee326fa643a56be82b79eff5440c9a9fc9ce1934"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/replay.json",
+      "sha256": "c6f80a6c66265c5edaa0e7fe6c87dd920cddac795a39bcfa76c0253aaab581b6"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/result-snapshot.json",
+      "sha256": "e8d1ebb0f8eacbbfe93aaa067d8936a0bc58001dc6da3f0b2e3e5bb607766443"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/target-command.json",
+      "sha256": "4064021263baeadae751302869422e1a7dc03ce06a691e109ac65bd697bf5e38"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/target-prompt.json",
+      "sha256": "742b2639b664752f35c527afffecdfb51099c77e72806603ae0862425b0f9acc"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/native/ward-pay/target-snapshot.json",
+      "sha256": "c68c36e1c212f775436ec5a196ea8ea92fde262348692e6f17235c9677c8a2bc"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/red/focus/results.trx",
+      "sha256": "fea2092a52104bc0670c1250b115839c0e43bea9ce74dfacf9783b898301e544"
+    },
+    {
+      "path": "var/qa/reflexive-movement-duel/red/plan.json",
+      "sha256": "12f505bfae5d5288e193b3e3f55697de29e225bbbfd80580f3d10ddcedb17e08"
+    }
+  ]
+}

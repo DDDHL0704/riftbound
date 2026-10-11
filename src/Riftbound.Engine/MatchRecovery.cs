@@ -987,6 +987,7 @@ public static class MatchRecoveryValidator
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
+        "MOVEMENT_INSTRUCTION_COMPLETED",
         "UNIT_TOKEN_CREATED",
         "UNIT_PLAYED_TO_BATTLEFIELD",
         "UNIT_PLAYED_TO_BASE",
@@ -4452,7 +4453,8 @@ public static class MatchRecoveryValidator
                 playerGraveyardObjectIdsByPlayer,
                 "player zones",
                 errors);
-            if (!ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
+            && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors))
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 triggerLabel,
@@ -19019,7 +19021,8 @@ public static class MatchRecoveryValidator
             playerGraveyardObjectIdsByPlayer,
             "authoritative state player zones",
             errors);
-        if (!ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+        if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
+            && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors))
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
@@ -22823,6 +22826,12 @@ public static class MatchRecoveryValidator
             if (view.Snapshot.Timing is not null
                 && TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var publicTriggers))
             {
+                foreach (var trigger in authoritativeState.TriggerQueue.Where(t => t.ReflexiveDuel is not null))
+                {
+                    var projected=publicTriggers.FirstOrDefault(payload=>TryReadObjectString(payload,"triggerId",out var id) && id==trigger.TriggerId);
+                    if(MatchStateHasher.HashValue(ReadReflexiveDuelView(projected))!=MatchStateHasher.HashValue(trigger.ReflexiveDuel))
+                        errors.Add($"snapshot for {view.PlayerId} reflexive movement duel differs from authoritative state");
+                }
                 foreach (var trigger in authoritativeState.TriggerQueue.Where(t => t.DeathObserver is not null))
                 {
                     var projected = publicTriggers.FirstOrDefault(payload =>
@@ -22838,6 +22847,23 @@ public static class MatchRecoveryValidator
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
             }
         }
+    }
+
+    private static ReflexiveDuelContext? ReadReflexiveDuelView(object? payload)
+    {
+        try {
+            var json=JsonSerializer.SerializeToElement(payload);
+            return json.ValueKind==JsonValueKind.Object && json.TryGetProperty("reflexiveDuel",out var raw) && raw.ValueKind!=JsonValueKind.Null
+                ? raw.Deserialize<ReflexiveDuelContext>(new JsonSerializerOptions {PropertyNameCaseInsensitive=true}) : null;
+        } catch(JsonException) {return null;}
+    }
+    private static bool ValidateReflexiveDuelView(object? payload,string? effect,List<string> errors)
+    {
+        var context=ReadReflexiveDuelView(payload);
+        if(effect!=CoreRuleEngine.ReflexiveDuelEffect && context is null)return false;
+        if(context is null || !CoreRuleEngine.ValidReflexiveDuel(context,effect??string.Empty))
+        {errors.Add("invalid public reflexive movement duel");return false;}
+        return true;
     }
 
     private static bool ValidateMovementObserverView(object? payload, string? effect, string? controller, string? source, List<string> errors)
@@ -22913,6 +22939,13 @@ public static class MatchRecoveryValidator
             if (item.DeathObserver is { } death ? !CoreRuleEngine.ValidDeathObserver(death,item.EffectKind,item.ControllerId,item.SourceObjectId,item.CardNo)
                 || !state.Seats.ContainsKey(death.Destroyed.OwnerId)
                 : item.EffectKind == CoreRuleEngine.DeathObserverEffect || CoreRuleEngine.IsDeathObserverKind(item.EffectKind)) errors.Add("invalid captured death observer stack");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.ReflexiveDuel is { } duel ? !CoreRuleEngine.ValidReflexiveDuel(duel,trigger.EffectKind)
+                || duel.Destination is { } destination && !state.Seats.ContainsKey(destination.PlayerId)
+                || trigger.TriggeredByEventKind != "MOVEMENT_INSTRUCTION_COMPLETED"
+                : trigger.EffectKind == CoreRuleEngine.ReflexiveDuelEffect) errors.Add("invalid reflexive movement duel trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidReflexiveDuelStack(state,item)) errors.Add("invalid reflexive movement duel stack");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.UnitConquest is { } conquest ? !CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind)
                 || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
@@ -26109,7 +26142,8 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            if (!(trigger.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind))
+            if (!(trigger.ReflexiveDuel is { } duel && CoreRuleEngine.ValidReflexiveDuel(duel,trigger.EffectKind))
+                && !(trigger.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind))
                 && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))

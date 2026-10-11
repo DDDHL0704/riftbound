@@ -29,7 +29,8 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         Dictionary<string, RunePool> pools, IReadOnlyList<string> candidates,
         StackItemState? cause = null, string? battlefieldId = null,
-        IReadOnlyDictionary<string, ObjectLocationState>? locations = null, Func<string, string>? destructionReason = null)
+        IReadOnlyDictionary<string, ObjectLocationState>? locations = null, Func<string, string>? destructionReason = null,
+        IReadOnlyDictionary<string, StackItemState>? causesByTarget = null)
     {
         var frame = RuleChoices.Value ?? throw new InvalidOperationException("Destruction requires a rule command context.");
         var scope = new DestructionReplacementScope(frame);
@@ -48,7 +49,7 @@ public sealed partial class CoreRuleEngine
                     foreach (var target in remaining.Order(StringComparer.Ordinal)) {
                         if (!cards.TryGetValue(target, out var unit) || EffectiveFieldControllerId(zones, target, unit) != player) continue;
                         var candidatesForTarget = DestructionOptions(state, zones, cards, pools, target, player,
-                            cause, battlefieldId, locations ?? state.ObjectLocations, declinedOptional, out var optionalAvailable);
+                            causesByTarget?.GetValueOrDefault(target) ?? cause, battlefieldId, locations ?? state.ObjectLocations, declinedOptional, out var optionalAvailable);
                         foreach (var candidate in candidatesForTarget.Concat(localRecalls
                             .Where(c => c.Option.Target == target && c.TargetGeneration == unit.ObjectGeneration).Select(c => c.Option)))
                             if (!frame.AppliedDestructionReplacements.Contains(candidate.EffectKey)) options.Add(candidate);
@@ -76,7 +77,7 @@ public sealed partial class CoreRuleEngine
                     var previousChain = frame.AppliedDestructionReplacements;
                     frame.AppliedDestructionReplacements = new(previousChain, StringComparer.Ordinal) { option.EffectKey };
                     try {
-                        ApplyDestructionOption(state, zones, cards, pools, player, option, scope.Events, cause, destructionReason?.Invoke(option.Target));
+                        ApplyDestructionOption(state, zones, cards, pools, player, option, scope.Events, causesByTarget?.GetValueOrDefault(option.Target) ?? cause, destructionReason?.Invoke(option.Target));
                     } finally { frame.AppliedDestructionReplacements = previousChain; }
                     scope.Replaced.Add(option.Target); remaining.Remove(option.Target); frame.CurrentDestructions.Remove(option.Target);
                     scope.Controllers[option.Target] = player;

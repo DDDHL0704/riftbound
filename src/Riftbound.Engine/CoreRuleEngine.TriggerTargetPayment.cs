@@ -8,7 +8,8 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidTriggerTargetPayment(MatchState state, PendingPaymentState payment)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { } item
-            && (item.UnitConquest is not null && ValidConquestDamageStack(state,item)
+            && (item.ReflexiveDuel is not null && ValidReflexiveDuelStack(state,item)
+                || item.UnitConquest is not null && ValidConquestDamageStack(state,item)
                 || HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
                 || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
                 || item.FieldContext is { } field && ValidFieldContext(field, item.EffectKind, item.CardNo)
@@ -29,7 +30,8 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);
         var next = state with { Tick = state.Tick + 1, PendingPayment = null };
         var target = item.TargetObjectIds[0];
-        var legal = item.UnitConquest is not null ? ConquestDamageTargets(state,item)
+        var legal = item.ReflexiveDuel is not null ? ReflexiveDuelTargets(state,item)
+            : item.UnitConquest is not null ? ConquestDamageTargets(state,item)
             : HasHeldTargetConfirmation(item) ? HeldTargetChoices(state, item)
             : HasLegendConquestTarget(item) ? LegendConquestTargets(state, item)
             : item.FieldContext is not null ? FieldTriggerTargets(state, item) : ReflexiveCopyTargets(state, item);

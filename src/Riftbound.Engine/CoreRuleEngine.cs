@@ -165,7 +165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
-            result = RecordDeathObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)));
+            result = QueueReflexiveDuels(RecordDeathObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))));
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
@@ -3910,7 +3910,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -3921,7 +3921,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -27473,6 +27473,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
         if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
+        if (stackItem.ReflexiveDuel is not null) return ResolveReflexiveDuel(state, stackItem);
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
@@ -30050,6 +30051,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations,
                 stackItem, stackItem.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
+            if (behavior.QueuesDestinationDuel) CaptureDestinationDuel(state, chosenStackItem, cardObjects, movementLocations, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
@@ -36958,7 +36960,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? battlefieldId = null,
         IReadOnlySet<string>? damageTriggeredDestroyTargetObjectIds = null,
         Dictionary<string, ObjectLocationState>? objectLocations = null,
-        IEnumerable<string>? destroyedUnitOwnerIdsAlreadyThisTurn = null)
+        IEnumerable<string>? destroyedUnitOwnerIdsAlreadyThisTurn = null,
+        IReadOnlyDictionary<string, StackItemState>? destructionSources = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
@@ -36983,7 +36986,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 knownDestroyedUnitOwnerIds,
                 nextRunePools,
                 battlefieldId,
-                objectLocations);
+                objectLocations, destructionSources: pass == 0 ? destructionSources : null);
             var illegalStandbyCleanup = objectLocations is null
                 ? IllegalStandbyCleanupResult.Empty
                 : ApplyIllegalStandbyCleanup(playerZones, cardObjects, objectLocations);
@@ -37281,7 +37284,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, RunePool>? runePools = null,
         string? battlefieldId = null,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null,
-        IReadOnlySet<string>? explicitDestroyObjectIds = null)
+        IReadOnlySet<string>? explicitDestroyObjectIds = null,
+        IReadOnlyDictionary<string, StackItemState>? destructionSources = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
@@ -37303,11 +37307,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string DestructionReason(string id) => explicitDestroyObjectIds is not null ? "DESTROY_COST"
             : damageTriggeredDestroyTargetObjectIds.Contains(id) ? "DAMAGE_TRIGGERED_DESTROY" : "LETHAL_DAMAGE";
         using var replacements = PrepareDestructionReplacements(state, playerZones, cardObjects, nextRunePools, stateBasedRemovalObjectIds,
-            stackItem, battlefieldId, objectLocations, DestructionReason);
+            stackItem, battlefieldId, objectLocations, DestructionReason, destructionSources);
         events.AddRange(replacements.Events);
         foreach (var objectId in stateBasedRemovalObjectIds.Where(id => !replacements.Replaced.Contains(id)))
         {
             var destroyReason = DestructionReason(objectId);
+            var destructionSource = destructionSources?.GetValueOrDefault(objectId) ?? stackItem;
             if (!cardObjects.TryGetValue(objectId, out var destroyedState))
             {
                 continue;
@@ -37359,7 +37364,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             events.AddRange(BuildFieldRemovalEvents(
                 removalDescription,
-                stackItem,
+                destructionSource,
                 objectId,
                 removalResult,
                 destroyReason));
@@ -37380,7 +37385,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (watchfulSentinelControllerId is not null)
             {
                 var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
+                    destructionSource,
                     objectId,
                     watchfulSentinelControllerId,
                     TriggerKinds.UnitLastBreathDrawOne);
@@ -37397,7 +37402,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 if (unsungHeroDrawPlayerId is not null)
                 {
                     var trigger = BuildLastBreathTriggerQueueItem(
-                        stackItem,
+                        destructionSource,
                         objectId,
                         unsungHeroDrawPlayerId,
                         unsungHeroTriggerSpec.Kind);
@@ -37409,7 +37414,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (sadPoroLastBreathDrawPlayerId is not null)
             {
                 var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
+                    destructionSource,
                     objectId,
                     sadPoroLastBreathDrawPlayerId,
                     TriggerKinds.UnitLastBreathDrawIfAlone);
@@ -37420,7 +37425,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (loyalPoroLastBreathDrawPlayerId is not null)
             {
                 var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
+                    destructionSource,
                     objectId,
                     loyalPoroLastBreathDrawPlayerId,
                     TriggerKinds.UnitLastBreathDrawIfNotAlone);
@@ -37434,7 +37439,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (honestBrokerControllerId is not null)
             {
                 var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
+                    destructionSource,
                     objectId,
                     honestBrokerControllerId,
                     TriggerKinds.UnitLastBreathCreateDormantGold);
@@ -37448,7 +37453,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (scoutingWarhawkControllerId is not null)
             {
                 var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
+                    destructionSource,
                     objectId,
                     scoutingWarhawkControllerId,
                     TriggerKinds.UnitLastBreathCallRuneOne);
@@ -37465,7 +37470,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && !string.IsNullOrWhiteSpace(sourceBattlefieldObjectIdBeforeRemoval))
             {
                 var trigger = BuildLastBreathSourceBattlefieldTriggerQueueItem(
-                    stackItem,
+                    destructionSource,
                     objectId,
                     sourceBattlefieldAoePlayerId,
                     sourceBattlefieldObjectIdBeforeRemoval,
@@ -37480,7 +37485,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (undercoverAgentPlayerId is not null)
             {
                 var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
+                    destructionSource,
                     objectId,
                     undercoverAgentPlayerId,
                     TriggerKinds.UnitLastBreathDiscardDraw);
@@ -37495,7 +37500,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (createBaseUnitControllerId is not null)
             {
                 var trigger = BuildLastBreathTriggerQueueItem(
-                    stackItem,
+                    destructionSource,
                     objectId,
                     createBaseUnitControllerId,
                     createBaseUnitTriggerSpec.Kind);
