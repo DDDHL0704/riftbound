@@ -1945,6 +1945,219 @@
         "Other destruction-cost card families",
         "Paired-client/Windows visual/network acceptance"
       ]
+    },
+    {
+      "id": "ephemeral-start-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Ephemeral captured self-destruction with responses, granted versus printed attached keyword, actual Ashes and native Flash, shared destruction replacement, conditional LastBreath draw and current recovery.",
+      "subjects": [
+        {
+          "id": "SFD-186/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33284,
+              "cardNo": "SFD·186/221",
+              "name": "旋转飞斧",
+              "sha256": "db7cb33e77ae0d81e5a83d7e981c7962999e40331c7c635754428aa282b97e75"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-186-221",
+              "cardNo": "SFD-186/221",
+              "name": "Spinning Axe",
+              "sha256": "84612d78c6eb076a17f99139bfd96079baebffc3e1c0206d30fb935a7d48c41e"
+            }
+          ],
+          "reviewStatus": "PARTIAL_EPHEMERAL_START_VERIFIED"
+        },
+        {
+          "id": "UNL-070/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34603,
+              "cardNo": "UNL-070/219",
+              "name": "化为灰烬",
+              "sha256": "2ed4a22c51d4ddcd9d32f1d79466c0e855a0cec25f6855248680af91b74fe9e2"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-070-219",
+              "cardNo": "UNL-070/219",
+              "name": "Turn to Dust",
+              "sha256": "1099c1f2f702af922eb6de912053fe5722c435e62f66032dbdc97e0db9d94b2a"
+            }
+          ],
+          "reviewStatus": "PARTIAL_EPHEMERAL_START_VERIFIED"
+        },
+        {
+          "id": "UNL-090/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34627,
+              "cardNo": "UNL-090/219",
+              "name": "乐芙兰",
+              "sha256": "7e4e72adbe6256bc2c896a7c98c4f94f42e44ee26ddd3b3b953ae73cfba94a10"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-090-219",
+              "cardNo": "UNL-090/219",
+              "name": "LeBlanc",
+              "sha256": "465a037909448b3f652e8d200881436d6351d243c3e6e6c5c823febb81cf4f09"
+            }
+          ],
+          "reviewStatus": "PARTIAL_EPHEMERAL_START_VERIFIED"
+        },
+        {
+          "id": "UNL-090A/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34628,
+              "cardNo": "UNL-090a/219",
+              "name": "乐芙兰",
+              "sha256": "aacc6d9350532fbec9a940833a6b6adad19d5881f9d740049bd0dd549c19d798"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-090a-219",
+              "cardNo": "UNL-090a/219",
+              "name": "LeBlanc",
+              "sha256": "44a39a9ce4be9e15b32a061e014ccc4190808af4d8e10f4386a6a94cf9cf5f8d"
+            }
+          ],
+          "reviewStatus": "PARTIAL_EPHEMERAL_START_VERIFIED"
+        },
+        {
+          "id": "UNL-172/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34720,
+              "cardNo": "UNL-172/219",
+              "name": "乐芙兰",
+              "sha256": "5d78494a19bc15758885f7d2db65816ed11fdc407527caa2d1c4f35e0d205a2c"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-172-219",
+              "cardNo": "UNL-172/219",
+              "name": "LeBlanc",
+              "sha256": "f9e0989e3eafb542d013becc0629f1b748bb67d4525333074ae0a11f41e1c2bd"
+            }
+          ],
+          "reviewStatus": "PARTIAL_EPHEMERAL_START_VERIFIED"
+        },
+        {
+          "id": "UNL-172A/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34721,
+              "cardNo": "UNL-172a/219",
+              "name": "乐芙兰",
+              "sha256": "dbae67d5727166842243bddd39f30fc7d46fe6da2bbc3a55fd2001b46b70c8a1"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-172a-219",
+              "cardNo": "UNL-172a/219",
+              "name": "LeBlanc",
+              "sha256": "132cef5f5bf81842b79c2ff25eaeaa06d76be8211940721dec528722ee647207"
+            }
+          ],
+          "reviewStatus": "PARTIAL_EPHEMERAL_START_VERIFIED"
+        },
+        {
+          "id": "OGN-180/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31410,
+              "cardNo": "OGN·180/298",
+              "name": "逝水如镜",
+              "sha256": "d6b7c3059cc0b7cb2b852bdc47713306bdcf2e5c1bc2e41742a70b7b38c889dd"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-180-298",
+              "cardNo": "OGN-180/298",
+              "name": "Fading Memories",
+              "sha256": "f3d9b4beefe77fbcd277cf93fe8c120ffb7a8d352c1f4e7e3c83326e755ecabb"
+            }
+          ],
+          "reviewStatus": "PARTIAL_EPHEMERAL_START_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-01-P015-B007",
+        "DOC-01-P054-B004",
+        "DOC-01-P107-B005",
+        "DOC-01-P108-B004",
+        "DOC-01-P108-B005",
+        "DOC-01-P108-B006",
+        "DOC-01-P108-B008",
+        "DOC-01-P108-B009",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003",
+        "DOC-04-P014-B009",
+        "DOC-04-P052-B001",
+        "DOC-04-P103-B013",
+        "DOC-04-P104-B020",
+        "DOC-04-P104-B021",
+        "DOC-04-P105-B001",
+        "DOC-04-P105-B003",
+        "DOC-04-P105-B004",
+        "DOC-04-P118-B001",
+        "DOC-04-P118-B002",
+        "DOC-04-P118-B003",
+        "DOC-04-P118-B004",
+        "DOC-04-P118-B005",
+        "DOC-04-P118-B006",
+        "DOC-04-P118-B007",
+        "DOC-11-P014-B001",
+        "DOC-11-P014-B002",
+        "DOC-11-P014-B003",
+        "DOC-11-P014-B004",
+        "DOC-11-P014-B005",
+        "DOC-11-P014-B006",
+        "DOC-11-P014-B007",
+        "DOC-11-P015-B001",
+        "DOC-11-P015-B002",
+        "DOC-11-P015-B003",
+        "DOC-11-P015-B004",
+        "DOC-11-P015-B005",
+        "DOC-11-P015-B006",
+        "DOC-11-P015-B007",
+        "DOC-11-P015-B008",
+        "DOC-11-P015-B009"
+      ],
+      "auditDocument": "docs/EPHEMERAL_START_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/ephemeral-start-2026-10-11",
+      "tests": [
+        "EphemeralStartTests",
+        "EphemeralStartNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9766,
+        "fullMethods": 6434,
+        "nativeCommands": 5,
+        "journalCommands": 6,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Jinx and Mushroom Pouch start draws",
+        "Other granted/inactive text families and other LastBreath effects",
+        "Paired-client/Windows visual/network acceptance"
+      ]
     }
   ]
 }

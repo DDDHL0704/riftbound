@@ -115,6 +115,7 @@ public sealed partial class CoreRuleEngine
                 CardNo = copied?.CardNo ?? image.CardNo,
                 ManaCost = copied?.ManaCost ?? image.ManaCost,
                 Power = image.Power + (copied?.Power ?? 0),
+                GrantedTags = (image.GrantedTags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
                 Tags = image.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag)
                     .Concat(copied?.Tags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
             };

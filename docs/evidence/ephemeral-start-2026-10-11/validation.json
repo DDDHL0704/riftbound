@@ -1,0 +1,345 @@
+{
+  "focus1": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.9,
+    "total": 68,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 68,
+        "passed": 68,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.72
+      }
+    ]
+  },
+  "focus3": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 23.63,
+    "total": 264,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 264,
+        "passed": 264,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 10.6
+      }
+    ]
+  },
+  "focus4": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 21.69,
+    "total": 273,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 273,
+        "passed": 273,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 10.8
+      }
+    ]
+  },
+  "focus6": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.28,
+    "total": 78,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 78,
+        "passed": 78,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.48
+      }
+    ]
+  },
+  "full1": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 426.45,
+    "total": 9766,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 223.39
+      },
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 223.81
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 231.48
+      },
+      {
+        "shard": "rules",
+        "total": 9631,
+        "passed": 9631,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 92.25
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 422.5
+      }
+    ]
+  },
+  "initialCheck": {
+    "total": 9633,
+    "passed": 9626,
+    "failed": {
+      "Riftbound.ConformanceTests.OfficialCopyIdentityTests.CopyOfCopyKeepsTheCopiedFaceButNotItsLaterModifications": "Failed",
+      "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6LifecycleTriggerReplacementFamiliesReportSpecAndExecutionBoundaryCoverage": "Failed",
+      "Riftbound.ConformanceTests.GameHubJoinTests.P6LifecycleEphemeralLeblancStaticSeedKeepsSameBattlefieldEphemeralInDevelopment": "Failed",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEngineSuppressesEphemeralTurnStartAtLeblancBattlefield": "Failed",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P4LifecycleKeywordProfilesKeepExistingRepresentativeFixturesGreen(fixtureFileName: \"p4-ephemeral-destroys-controlled-objects-turn-star\"···)": "Failed",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P4EphemeralKeywordDestroysControlledObjectsAtTurnStart": "Failed",
+      "Riftbound.ConformanceTests.GameHubJoinTests.P6LifecycleEphemeralSeedBroadcastsTurnStartCleanupInDevelopment": "Failed"
+    }
+  },
+  "native": {
+    "result": {
+      "nativeCommands": 5,
+      "commands": 6,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "c7c8683a38cb4045e2c6d07a47efd722417b6ee134fc6bfaa120cfe14d368403",
+        "expectedStateHash": "c7c8683a38cb4045e2c6d07a47efd722417b6ee134fc6bfaa120cfe14d368403",
+        "errors": []
+      }
+    },
+    "mode": "Godot headless production ActionBar response passes and PlayCardOverlay reaction Flash moves the actual Ephemeral unit into base; the captured skill still destroys that same object. Five native commands and six journal entries replayed; not paired-client/network/Windows visual acceptance."
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.82\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nEPHEMERAL_START_PASS: 5 production response and reaction commands\n",
+  "artifacts": [
+    {
+      "path": "var/qa/ephemeral-start/check1/check/results.trx",
+      "sha256": "8559cf5ec44028f8d26489b63ffe47384ef9ec7fbd03cda4a7e72d93b250b6a0"
+    },
+    {
+      "path": "var/qa/ephemeral-start/check1/plan.json",
+      "sha256": "a1a387ca43871b55f7c851c48d8567503ccc3c40d51b4ad8cf6e9eb6497bd2bc"
+    },
+    {
+      "path": "var/qa/ephemeral-start/fixture-result.json",
+      "sha256": "4841deabe7b924992445588a4e438099b72cdf8dbdb3c97bf506ab012fe706cc"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus1/focus/results.trx",
+      "sha256": "b02c1b90740ff39230a4d894ff6c5cc26225e472408579a65307913b6b48291d"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus1/plan.json",
+      "sha256": "83db5e45428d040faf69a0456fcb93877878a40f9e080f4cdbdd7a0dd3446732"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus1/summary.json",
+      "sha256": "a749bedfffb1072bb790b34da6e758d205a0462668418f98ee550791470607a0"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus2/focus/results.trx",
+      "sha256": "d5310d7f351edc95b6e9682115a97ecc8728b45b2526761893046d0dce51a3ea"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus2/plan.json",
+      "sha256": "2b47eeb76872b338c2fac6ca0187f71086a142d1cd168c6cdadc351184ff6147"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus3/focus/results.trx",
+      "sha256": "a85aa0f90c4c4a761977d64ea9d8b1f0bc8b468d116fc2bcdce6ee31632f6cc6"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus3/plan.json",
+      "sha256": "985eb8356ccf47864317e1e85a1cff15c47e0ff72a8d5a98460383f01252cb2a"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus3/summary.json",
+      "sha256": "39eca1ca46b7c9299793dcb4879f0979aa6733a4e57cef9fd1231e1bdebbd2c4"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus4/focus/results.trx",
+      "sha256": "a0ebd9674dd5d71836506742e2bd9903da25218c05e1a7ff83bbb30e93f9896e"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus4/plan.json",
+      "sha256": "c6b2c0fa2fe3a0f561fb42b1284823a1a349578bf50c2c39de1009f1bf9cff8b"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus4/summary.json",
+      "sha256": "b4b2bba0a6ad1f0ec457c6fd881e9164d1e6845c1de9b978562297f08caec534"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus5/focus/results.trx",
+      "sha256": "6a7a7d969ff34395171c14572dc1dd726c91ae3af2cb77849d39f2d430212a7c"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus5/plan.json",
+      "sha256": "4606666fe7e71583271281101b939a0ecdd7c681f736bbbe1b7d5ca74dec9f69"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus6/focus/results.trx",
+      "sha256": "4c491b472c358fdb789bc356b87fbec79295346f935ac3a0a08f641b5dab51c8"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus6/plan.json",
+      "sha256": "f878b174fe07f22525f8ebf5658bcb0e448fe88079544a429f5ec6bb95b3d743"
+    },
+    {
+      "path": "var/qa/ephemeral-start/focus6/summary.json",
+      "sha256": "40349ba570a3afa4ab591e5383e01bc3d2350525048cd330715b460c77a0b2ff"
+    },
+    {
+      "path": "var/qa/ephemeral-start/full1/games-1/results.trx",
+      "sha256": "0b325ae0da5637d3533cafb27cc9b52f12cbdd820a9dfdece2128ef97b1569ce"
+    },
+    {
+      "path": "var/qa/ephemeral-start/full1/games-2/results.trx",
+      "sha256": "9bb1f3d132d6c15cf54e7cde089701fe2c7059a77a97f26a3ecb9e67012c2542"
+    },
+    {
+      "path": "var/qa/ephemeral-start/full1/games-3/results.trx",
+      "sha256": "905b2c9f09fd9b322ab7a358f2100986ff8ff1075a7d26ba5b128d48023b6582"
+    },
+    {
+      "path": "var/qa/ephemeral-start/full1/games-4/results.trx",
+      "sha256": "12b5c26f41a52b40597344d62c235bff8b2fcbda8fdd3412f6ffc5583233d925"
+    },
+    {
+      "path": "var/qa/ephemeral-start/full1/plan.json",
+      "sha256": "d972b31e284f04ad5d7d916d14c20f6ad0bd538c12b5b951e79393cf3e7e9926"
+    },
+    {
+      "path": "var/qa/ephemeral-start/full1/rules/results.trx",
+      "sha256": "721eccf81193cd20077c026bed848fa12825078c332b588109887d9ce11608f8"
+    },
+    {
+      "path": "var/qa/ephemeral-start/full1/summary.json",
+      "sha256": "603efe5a5bccf7d28225dae322521e526673efd29f4db234487c7616c8c6695f"
+    },
+    {
+      "path": "var/qa/ephemeral-start/fullgame-targeted/results.trx",
+      "sha256": "237300e4f5260972715b48b01eb5b911dfcd480b32260b4a4c45a91bcefdaf06"
+    },
+    {
+      "path": "var/qa/ephemeral-start/fullgame-targeted2/results.trx",
+      "sha256": "e4cbc5d7da1d67728ea08aa2370fe03341577a7274a9a33e0f340d429fcbe704"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-ephemeral-1-command.json",
+      "sha256": "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-ephemeral-1-prompt.json",
+      "sha256": "a48faee344c02764b5a23be400df8cdf675a9e359ff6002754532b7d44763fdc"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-ephemeral-1-snapshot.json",
+      "sha256": "8a1bc94c6062d04f7db0cf99c52db275c0240bce57773722feadd4247a177254"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-ephemeral-2-command.json",
+      "sha256": "e5b5b24867f10eeecc8a8e28784e00e26d983b1a07377cdd3b65ed33a05580ec"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-ephemeral-2-prompt.json",
+      "sha256": "9b3b35bd4b13b72ad9965e048baaf6ff075ab4c54fd48a671074c10bf1556244"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-ephemeral-2-snapshot.json",
+      "sha256": "181170aeb16b41368313b0932a417637363e987dae1a8abb63356f9cbd84ecea"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-reaction-1-command.json",
+      "sha256": "0b5fe3c170f25c4b4cf9d8eda3d61c1a546ba69623cd1bbd3d519fa001fe06c9"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-reaction-1-prompt.json",
+      "sha256": "5f3db138698c7658a28d2fa8bc84c1c2519b50987ecaf1ce6e480f7ae1a997f7"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-reaction-1-snapshot.json",
+      "sha256": "13e32b5cf4bf90bcaa09d1bb96df5826b8d6f80388e93def92fa29907710cc6c"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-reaction-2-command.json",
+      "sha256": "4af628b9dce93e8df6942353d0417248803d164ed82e542f211cc7dc5f052184"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-reaction-2-prompt.json",
+      "sha256": "0c21fd8b67f4280e68d0d8d6c4cb71f0eadd7373b97ccd133bff17f49681d865"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/pass-reaction-2-snapshot.json",
+      "sha256": "5216a018a15e5ef5835889c7fb6c9b3e45af9fd37cdfb5106370f26f9e853695"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/reaction-command.json",
+      "sha256": "55408c213b986fee651e2284d3f7d7496fbcac6a9fa785c8762260e36946f1ff"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/reaction-preview.json",
+      "sha256": "956e13844ea59a038cc2541b027108b19104fa505c03a9ddfcaf22102c30f71c"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/reaction-prompt.json",
+      "sha256": "304ef203218c6cbb7afb08119b9c33989192d09e18cc50419d8017376169a289"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/reaction-quote.json",
+      "sha256": "3b1679d0af66dad345b3188d9d68f8bb7c607552c434bf90ebb731e51f8ab2dd"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/reaction-snapshot.json",
+      "sha256": "1d4a95deb3612af8421b0b4bb846b3cd2c70ceaf72935f53c9ae8322433061b7"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/replay.json",
+      "sha256": "5573bc9e04f34335fe1d8f7847f2cd6e7a43e7a1755712dd1d90d0464be92662"
+    },
+    {
+      "path": "var/qa/ephemeral-start/native/result-snapshot.json",
+      "sha256": "f1f6c276eef675c34f52233e19fe502eb9d184e89bc84dae1ae714e128930373"
+    },
+    {
+      "path": "var/qa/ephemeral-start/red/focus/results.trx",
+      "sha256": "7e64b33366be6b91dbb276a29658532e06b627880b3bba5414f59d06e879e6e1"
+    },
+    {
+      "path": "var/qa/ephemeral-start/red/plan.json",
+      "sha256": "1e5b1f658f892db703cf49587b7b3cb5e7ad74f8386a3ac86c02e770a28ab032"
+    }
+  ]
+}

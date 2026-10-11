@@ -1,0 +1,24 @@
+{
+  "baseline": 6417,
+  "current": 6434,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.EphemeralStartNativeTests.ProductionReactionMovesEphemeralButSameObjectStillDiesAndReplays",
+    "Riftbound.ConformanceTests.EphemeralStartTests.ActualAshesGrantsActiveEphemeralEvenWhenAttachedCardAlreadyHasIt",
+    "Riftbound.ConformanceTests.EphemeralStartTests.AttachedAxePrintedEphemeralDoesNotTrigger",
+    "Riftbound.ConformanceTests.EphemeralStartTests.BothPlayersAndSpectatorRejectChangedEphemeralContext",
+    "Riftbound.ConformanceTests.EphemeralStartTests.BothPlayersAndSpectatorRejectChangedGrantedKeywordProjection",
+    "Riftbound.ConformanceTests.EphemeralStartTests.CapturedSelfReferenceSurvivesFieldMovementControlAndKeywordChanges",
+    "Riftbound.ConformanceTests.EphemeralStartTests.CopiedLeblancTokenCeasesButCapturedLastBreathKeepsTwoDraws",
+    "Riftbound.ConformanceTests.EphemeralStartTests.EphemeralDestructionQueuesLastBreathBeforeNormalTurnDraw",
+    "Riftbound.ConformanceTests.EphemeralStartTests.EphemeralWaitsForResponsesBeforeDestructionAndScoring",
+    "Riftbound.ConformanceTests.EphemeralStartTests.GrantedKeywordProvenanceMustBeCanonicalAndPresentInActualTags",
+    "Riftbound.ConformanceTests.EphemeralStartTests.InvalidEphemeralCapturedContextCannotRecover",
+    "Riftbound.ConformanceTests.EphemeralStartTests.LabMayConsumeEphemeralAsCostBeforeEitherOrderedSkillResolves",
+    "Riftbound.ConformanceTests.EphemeralStartTests.LeblancLastBreathOutsideOwnBeginningDrawsOnlyOne",
+    "Riftbound.ConformanceTests.EphemeralStartTests.LeblancSuppressesOnlyVisibleFriendlySameFieldTrigger",
+    "Riftbound.ConformanceTests.EphemeralStartTests.OnlyVisibleControlledPermanentsTrigger",
+    "Riftbound.ConformanceTests.EphemeralStartTests.RecallReplacementPreventsDeathWithoutRepeatingEphemeral",
+    "Riftbound.ConformanceTests.EphemeralStartTests.ReturnedNewIncarnationIsNotDestroyedByOldEphemeralSkill"
+  ]
+}

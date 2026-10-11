@@ -1,0 +1,5 @@
+{
+  "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesFlowingTimeMirrorLeblancSuppressedEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash": "Passed",
+  "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesFlowingTimeMirrorEquipmentEphemeralCleanupAndScoreVictoryActionLogReplaysToFinalStateHash": "Passed",
+  "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash": "Passed"
+}

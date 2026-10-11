@@ -571,7 +571,8 @@ public sealed record TriggerSpec(
     bool? RequiresOtherFriendlyUnitAtSamePosition = null,
     string? EffectKind = null,
     string? MovementOriginZone = null,
-    string? MovementDestinationZone = null);
+    string? MovementDestinationZone = null,
+    int? OwnBeginningDrawCount = null);
 
 public sealed record ReplacementSpec(
     string Kind,

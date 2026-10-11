@@ -4,8 +4,8 @@
   "description": "Ephemeral controlled objects are destroyed at their controller's turn start before rune call and draw.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
-  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "rulesVersion": "current-CN-2026-07-17",
+  "faqVersion": "official-UNL-2026-04-30",
   "catalogVersion": "official-2026-04-27",
   "seed": 2603303001,
   "rulesEvidence": [
@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p20 rules 164-167; p92-p105 keyword rules 800+",
       "note": "开始阶段包含开始阶段开始、召出符文和抽牌等流程；瞬息在控制者的开始阶段开始时、结算得分之前摧毁自身。"
+    },
+    {
+      "source": "docs/evidence/ephemeral-start-2026-10-11/sources.json",
+      "locator": "DOC-04 816.1-816.3",
+      "note": "瞬息是触发技能；两项技能由玩家排序并分别经双方响应后摧毁，最后继续召符文和通常抽牌。"
     }
   ],
   "roomId": "p4-ephemeral-turn-start-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603303001,
     "turnNumber": 8,
@@ -34,49 +42,90 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 0, "power": 0 },
-      "P2": { "mana": 1, "power": 1 }
+      "P1": {
+        "mana": 0,
+        "power": 0
+      },
+      "P2": {
+        "mana": 1,
+        "power": 1
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
         "runeDeck": [],
         "hand": [],
-        "base": ["P1-EPHEMERAL-OTHER"],
+        "base": [
+          "P1-EPHEMERAL-OTHER"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
-        "base": ["P2-EPHEMERAL-BASE", "P2-KEEP-BASE"],
-        "battlefields": ["P2-EPHEMERAL-BATTLEFIELD"],
-        "graveyard": ["P2-GRAVE-EXISTING"],
+        "base": [
+          "P2-EPHEMERAL-BASE",
+          "P2-KEEP-BASE"
+        ],
+        "battlefields": [
+          "P2-EPHEMERAL-BATTLEFIELD"
+        ],
+        "graveyard": [
+          "P2-GRAVE-EXISTING"
+        ],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-EPHEMERAL-OTHER": {
         "power": 1,
-        "tags": ["CARD_TYPE:UNIT", "瞬息"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "瞬息"
+        ]
       },
       "P2-EPHEMERAL-BASE": {
         "power": 1,
-        "tags": ["CARD_TYPE:UNIT", "瞬息"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "瞬息"
+        ]
       },
       "P2-EPHEMERAL-BATTLEFIELD": {
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT", "瞬息"]
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "瞬息"
+        ]
       },
       "P2-KEEP-BASE": {
         "power": 3,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ]
       }
     }
   },
@@ -87,13 +136,62 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "ephemeral-order",
+      "cmd": {
+        "cmdType": "ORDER_TRIGGERS",
+        "orderedTriggerIds": [
+          "ephemeral-8-1-P2-EPHEMERAL-BASE",
+          "ephemeral-8-1-P2-EPHEMERAL-BATTLEFIELD"
+        ]
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "ephemeral-pass-0",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "ephemeral-pass-1",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "ephemeral-pass-2",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "ephemeral-pass-3",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     }
   ],
   "expected": {
-    "finalTick": 1,
+    "finalTick": 6,
     "eventKinds": [
       "TURN_START_BEGAN",
+      "TRIGGER_QUEUED",
+      "TRIGGER_QUEUED",
+      "TRIGGERS_ORDERED",
+      "TRIGGERS_MOVED_TO_STACK",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
       "UNIT_DESTROYED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
       "UNIT_DESTROYED",
       "RUNES_CALLED",
       "CARD_DRAWN",
@@ -101,11 +199,50 @@
       "MAIN_PHASE_BEGAN"
     ],
     "events": [
-      { "kind": "TURN_START_BEGAN" },
+      {
+        "kind": "TURN_START_BEGAN",
+        "tick": 1,
+        "sequence": 1
+      },
+      {
+        "kind": "TRIGGER_QUEUED",
+        "tick": 1,
+        "sequence": 2
+      },
+      {
+        "kind": "TRIGGER_QUEUED",
+        "tick": 1,
+        "sequence": 3
+      },
+      {
+        "kind": "TRIGGERS_ORDERED",
+        "tick": 2,
+        "sequence": 4
+      },
+      {
+        "kind": "TRIGGERS_MOVED_TO_STACK",
+        "tick": 2,
+        "sequence": 5
+      },
+      {
+        "kind": "PRIORITY_PASSED",
+        "tick": 3,
+        "sequence": 6
+      },
+      {
+        "kind": "PRIORITY_PASSED",
+        "tick": 4,
+        "sequence": 7
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "tick": 4,
+        "sequence": 8
+      },
       {
         "kind": "UNIT_DESTROYED",
-        "tick": 1,
-        "sequence": 2,
+        "tick": 4,
+        "sequence": 9,
         "payload": {
           "sourceObjectId": "P2-EPHEMERAL-BASE",
           "targetObjectId": "P2-EPHEMERAL-BASE",
@@ -116,9 +253,24 @@
         }
       },
       {
+        "kind": "PRIORITY_PASSED",
+        "tick": 5,
+        "sequence": 10
+      },
+      {
+        "kind": "PRIORITY_PASSED",
+        "tick": 6,
+        "sequence": 11
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "tick": 6,
+        "sequence": 12
+      },
+      {
         "kind": "UNIT_DESTROYED",
-        "tick": 1,
-        "sequence": 3,
+        "tick": 6,
+        "sequence": 13,
         "payload": {
           "sourceObjectId": "P2-EPHEMERAL-BATTLEFIELD",
           "targetObjectId": "P2-EPHEMERAL-BATTLEFIELD",
@@ -128,14 +280,34 @@
           "reason": "EPHEMERAL_TURN_START"
         }
       },
-      { "kind": "RUNES_CALLED" },
-      { "kind": "CARD_DRAWN" },
-      { "kind": "RUNE_POOL_CLEARED" },
-      { "kind": "MAIN_PHASE_BEGAN" }
+      {
+        "kind": "RUNES_CALLED",
+        "tick": 6,
+        "sequence": 14
+      },
+      {
+        "kind": "CARD_DRAWN",
+        "tick": 6,
+        "sequence": 15
+      },
+      {
+        "kind": "RUNE_POOL_CLEARED",
+        "tick": 6,
+        "sequence": 16
+      },
+      {
+        "kind": "MAIN_PHASE_BEGAN",
+        "tick": 6,
+        "sequence": 17
+      }
     ],
     "promptActions": {
-      "P1": ["WAIT"],
-      "P2": ["END_TURN"]
+      "P1": [
+        "WAIT"
+      ],
+      "P2": [
+        "END_TURN"
+      ]
     },
     "finalState": {
       "turnNumber": 8,
@@ -148,37 +320,70 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "base": ["P1-EPHEMERAL-OTHER"],
+          "base": [
+            "P1-EPHEMERAL-OTHER"
+          ],
           "graveyard": []
         },
         "P2": {
           "mainDeck": [],
           "runeDeck": [],
-          "hand": ["P2-MAIN-001"],
-          "base": ["P2-KEEP-BASE", "P2-RUNE-001", "P2-RUNE-002"],
+          "hand": [
+            "P2-MAIN-001"
+          ],
+          "base": [
+            "P2-KEEP-BASE",
+            "P2-RUNE-001",
+            "P2-RUNE-002"
+          ],
           "battlefields": [],
-          "graveyard": ["P2-GRAVE-EXISTING", "P2-EPHEMERAL-BASE", "P2-EPHEMERAL-BATTLEFIELD"]
+          "graveyard": [
+            "P2-GRAVE-EXISTING",
+            "P2-EPHEMERAL-BASE",
+            "P2-EPHEMERAL-BATTLEFIELD"
+          ]
         }
       },
       "cardObjects": {
         "P1-EPHEMERAL-OTHER": {
           "power": 1,
-          "tags": ["CARD_TYPE:UNIT", "瞬息"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "瞬息"
+          ]
         },
         "P2-KEEP-BASE": {
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"]
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": false, "actions": ["WAIT"] },
-      "P2": { "actionable": true, "actions": ["END_TURN"] }
+      "P1": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      },
+      "P2": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      }
     }
   }
 }

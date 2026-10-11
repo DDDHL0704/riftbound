@@ -3924,7 +3924,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -6150,7 +6150,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         string sourceObjectId,
         string controllerId,
-        string effectKind)
+        string effectKind,
+        string? sourceCardNo = null)
     {
         return new TriggerQueueItemState(
             $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{effectKind}",
@@ -6159,7 +6160,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             effectKind,
             "UNIT_DESTROYED",
             timingContext: stackItem.TimingContext is TimingStates.SpellDuelOpen or TimingStates.NeutralClosed
-                ? stackItem.TimingContext : null);
+                ? stackItem.TimingContext : null) { SourceCardNo = sourceCardNo };
     }
 
     private static TriggerQueueItemState BuildLastBreathSourceBattlefieldTriggerQueueItem(
@@ -6209,25 +6210,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 cardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfAloneTrigger,
-                out var trigger)
-                ? trigger.DrawCount.GetValueOrDefault(1)
-                : 1;
-    }
-
-    private static int UnitLastBreathDrawOneDrawCount(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string sourceObjectId)
-    {
-        return cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            ? UnitLastBreathDrawOneDrawCount(sourceState.CardNo)
-            : 1;
-    }
-
-    private static int UnitLastBreathDrawOneDrawCount(string? cardNo)
-    {
-        return UnitDestroyedTriggerSpecRules.TryGetTrigger(
-                cardNo,
-                UnitDestroyedTriggerSpecRules.IsLastBreathDrawOneTrigger,
                 out var trigger)
                 ? trigger.DrawCount.GetValueOrDefault(1)
                 : 1;
@@ -23610,77 +23592,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return [];
     }
 
-    private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        Dictionary<string, RunePool> runePools,
-        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
-        string turnPlayerId,
-        long currentTick)
-    {
-        if (!playerZones.TryGetValue(turnPlayerId, out var zones))
-        {
-            return EphemeralCleanupResult.Empty;
-        }
-
-        var controlledFieldObjectIds = zones.Base
-            .Select(objectId => (objectId, isBattlefield: false))
-            .Concat(zones.Battlefields.Select(objectId => (objectId, isBattlefield: true)))
-            .Where(entry => cardObjects.TryGetValue(entry.objectId, out var objectState)
-                && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal)
-                && (!entry.isBattlefield
-                    || !IsEphemeralTurnStartSuppressedByLeblancStatic(
-                        playerZones,
-                        cardObjects,
-                        objectLocations,
-                        turnPlayerId,
-                        entry.objectId)))
-            .Select(entry => entry.objectId)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .ToArray();
-        if (controlledFieldObjectIds.Length == 0)
-        {
-            return EphemeralCleanupResult.Empty;
-        }
-
-        var events = new List<GameEvent>();
-        var destroyedUnitOwnerIds = new List<string>();
-        foreach (var objectId in controlledFieldObjectIds)
-        {
-            var pseudoStackItem = new StackItemState(
-                $"TURN-START-{currentTick}-{objectId}",
-                turnPlayerId,
-                objectId,
-                "EPHEMERAL_TURN_START_DESTROY",
-                string.Empty,
-                [],
-                0);
-            if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, objectId, out var removalResult))
-            {
-                continue;
-            }
-
-            events.AddRange(BuildFieldRemovalEvents(
-                CardObjectTags.Ephemeral,
-                pseudoStackItem,
-                objectId,
-                removalResult,
-                "EPHEMERAL_TURN_START"));
-            if (removalResult.WasDestroyed && removalResult.WasUnit)
-            {
-                destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
-            }
-        }
-
-        return new EphemeralCleanupResult(
-            events,
-            destroyedUnitOwnerIds
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
-                .ToArray());
-    }
-
     private static bool IsEphemeralTurnStartSuppressedByLeblancStatic(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -27477,6 +27388,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.ReflexiveDuel is not null) return ResolveReflexiveDuel(state, stackItem);
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
+        if (stackItem.EphemeralStart is not null) return ResolveEphemeralStart(state, stackItem);
         if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStart(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
         var chosenStackItem = stackItem;
@@ -29537,7 +29449,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                     stackItem,
                                     targetObjectId,
                                     lastBreathDrawPlayerId,
-                                    TriggerKinds.UnitLastBreathDrawOne);
+                                    TriggerKinds.UnitLastBreathDrawOne, targetState.CardNo);
                                 events.Add(BuildTriggerQueuedEvent(trigger));
                                 officialLastBreathTriggers.Add(trigger);
                             }
@@ -30152,10 +30064,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         StackItemState stackItem)
     {
-        return ResolveLastBreathDrawStackItem(
-            state,
-            stackItem,
-            UnitLastBreathDrawOneDrawCount(state.CardObjects, stackItem.SourceObjectId));
+        var cardNo = stackItem.CardNo;
+        var count = UnitDestroyedTriggerSpecRules.TryGetTrigger(cardNo, UnitDestroyedTriggerSpecRules.IsLastBreathDrawOneTrigger, out var spec)
+            ? state.Phase == MatchPhases.TurnStart && state.TurnPlayerId == stackItem.ControllerId && spec.OwnBeginningDrawCount is { } own
+                ? own : spec.DrawCount.GetValueOrDefault(1) : 1;
+        return ResolveLastBreathDrawStackItem(state, stackItem, count);
     }
 
     private static StackResolutionResult ResolveUnitLastBreathDrawIfAloneStackItem(
@@ -34536,6 +34449,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var nextTargetState = targetState with
         {
+            GrantedTags = (targetState.GrantedTags ?? []).Append(behavior.TargetAddedTag!).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
             Tags = targetState.Tags
                 .Concat([behavior.TargetAddedTag])
                 .Distinct(StringComparer.Ordinal)
@@ -36983,7 +36897,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlySet<string>? damageTriggeredDestroyTargetObjectIds = null,
         Dictionary<string, ObjectLocationState>? objectLocations = null,
         IEnumerable<string>? destroyedUnitOwnerIdsAlreadyThisTurn = null,
-        IReadOnlyDictionary<string, StackItemState>? destructionSources = null)
+        IReadOnlyDictionary<string, StackItemState>? destructionSources = null,
+        string explicitDestroyReason = "DESTROY_COST")
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
@@ -37307,7 +37222,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? battlefieldId = null,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null,
         IReadOnlySet<string>? explicitDestroyObjectIds = null,
-        IReadOnlyDictionary<string, StackItemState>? destructionSources = null)
+        IReadOnlyDictionary<string, StackItemState>? destructionSources = null,
+        string explicitDestroyReason = "DESTROY_COST")
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
@@ -37326,7 +37242,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
         var stateBasedRemovalObjectIdSet = stateBasedRemovalObjectIds.ToHashSet(StringComparer.Ordinal);
 
-        string DestructionReason(string id) => explicitDestroyObjectIds is not null ? "DESTROY_COST"
+        string DestructionReason(string id) => explicitDestroyObjectIds is not null ? explicitDestroyReason
             : damageTriggeredDestroyTargetObjectIds.Contains(id) ? "DAMAGE_TRIGGERED_DESTROY" : "LETHAL_DAMAGE";
         using var replacements = PrepareDestructionReplacements(state, playerZones, cardObjects, nextRunePools, stateBasedRemovalObjectIds,
             stackItem, battlefieldId, objectLocations, DestructionReason, destructionSources);
@@ -37381,6 +37297,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var removalDescription = destroyReason switch
             {
                 "DESTROY_COST" => "摧毁费用",
+                "EPHEMERAL_TURN_START" => "瞬息触发技能",
                 "DAMAGE_TRIGGERED_DESTROY" => "伤害触发效果",
                 _ => "致命伤害"
             };
@@ -37410,7 +37327,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     destructionSource,
                     objectId,
                     watchfulSentinelControllerId,
-                    TriggerKinds.UnitLastBreathDrawOne);
+                    TriggerKinds.UnitLastBreathDrawOne, destroyedState.CardNo);
                 events.Add(BuildTriggerQueuedEvent(trigger));
                 triggerQueue.Add(trigger);
             }
@@ -38884,12 +38801,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         long RngCursor,
         int WinningScore);
 
-    private sealed record EphemeralCleanupResult(
-        IReadOnlyList<GameEvent> Events,
-        IReadOnlyList<string> DestroyedUnitOwnerIds)
-    {
-        public static EphemeralCleanupResult Empty { get; } = new([], []);
-    }
 
     private sealed record TurnStartReadyResult(IReadOnlyList<GameEvent> Events)
     {

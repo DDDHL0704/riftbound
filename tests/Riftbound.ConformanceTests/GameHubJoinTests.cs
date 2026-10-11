@@ -16141,7 +16141,26 @@ public sealed class GameHubJoinTests
         await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
             .SubmitIntent(roomId, "P1", "intent-p6-ephemeral-end-turn", endTurn);
         Assert.Empty(endTurnClients.CallerClient.Errors);
-        var events = EventsFor(endTurnClients);
+        var events = EventsFor(endTurnClients).ToList();
+        Assert.DoesNotContain(events, e => e.Kind == "UNIT_DESTROYED");
+        var prompt = PromptFor(endTurnClients, "P2");
+        var ordering = prompt.Candidates!.Single(c => c.Action == "ORDER_TRIGGERS");
+        var ids = JsonSerializer.SerializeToElement(ordering.Metadata).GetProperty("orderedTriggerIds")
+            .EnumerateArray().Select(v => v.GetString()!).Order(StringComparer.Ordinal).ToArray();
+        var orderedClients = new RecordingHubClients();
+        await CreateHub(orderedClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "ephemeral-order", JsonSerializer.SerializeToElement(new {
+                cmdType = "ORDER_TRIGGERS", orderedTriggerIds = ids, promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
+        Assert.Empty(orderedClients.CallerClient.Errors); events.AddRange(EventsFor(orderedClients));
+        for (var index = 0; index < 4; index++)
+        {
+            var responseClients = new RecordingHubClients();
+            var player = index % 2 == 0 ? "P2" : "P1";
+            await CreateHub(responseClients, new RecordingGroupManager(), player == "P2" ? "connection-2" : "connection-1", registry)
+                .SubmitIntent(roomId, player, "ephemeral-pass-" + index, JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
+            Assert.Empty(responseClients.CallerClient.Errors); events.AddRange(EventsFor(responseClients));
+            endTurnClients = responseClients;
+        }
         Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "TURN_END_DECLARED", StringComparison.Ordinal));
         Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "TURN_PLAYER_ADVANCED", StringComparison.Ordinal));
         Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "TURN_START_BEGAN", StringComparison.Ordinal));
@@ -16191,7 +16210,26 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p6-ephemeral-leblanc-static-end-turn", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
-        var events = EventsFor(endTurnClients);
+        var events = EventsFor(endTurnClients).ToList();
+        Assert.DoesNotContain(events, e => e.Kind == "UNIT_DESTROYED");
+        var prompt = PromptFor(endTurnClients, "P2");
+        var ordering = prompt.Candidates!.Single(c => c.Action == "ORDER_TRIGGERS");
+        var ids = JsonSerializer.SerializeToElement(ordering.Metadata).GetProperty("orderedTriggerIds")
+            .EnumerateArray().Select(v => v.GetString()!).Order(StringComparer.Ordinal).ToArray();
+        var orderedClients = new RecordingHubClients();
+        await CreateHub(orderedClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "ephemeral-order", JsonSerializer.SerializeToElement(new {
+                cmdType = "ORDER_TRIGGERS", orderedTriggerIds = ids, promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
+        Assert.Empty(orderedClients.CallerClient.Errors); events.AddRange(EventsFor(orderedClients));
+        for (var index = 0; index < 4; index++)
+        {
+            var responseClients = new RecordingHubClients();
+            var player = index % 2 == 0 ? "P2" : "P1";
+            await CreateHub(responseClients, new RecordingGroupManager(), player == "P2" ? "connection-2" : "connection-1", registry)
+                .SubmitIntent(roomId, player, "ephemeral-pass-" + index, JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
+            Assert.Empty(responseClients.CallerClient.Errors); events.AddRange(EventsFor(responseClients));
+            endTurnClients = responseClients;
+        }
         var ephemeralDestroyedObjectIds = events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
                 && string.Equals(gameEvent.Payload["reason"] as string, "EPHEMERAL_TURN_START", StringComparison.Ordinal))

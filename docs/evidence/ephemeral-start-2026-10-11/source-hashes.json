@@ -1,0 +1,78 @@
+[
+  {
+    "path": "clients/godot/scenes/debug/EphemeralStartInteractionProof.tscn",
+    "sha256": "384eb235f8add5c2bf4c25739641d8c98d90989acadb6aa56ca6b79b7a7cbef7"
+  },
+  {
+    "path": "clients/godot/scripts/debug/EphemeralStartInteractionProof.cs",
+    "sha256": "030487eebcfa8f80a2e1bf518f8cbbb39bfab2598b1a34ed978123c8b3849d3a"
+  },
+  {
+    "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+    "sha256": "16ca6ac0d6cebfb820ced1edc3e6fc8680cae08384a31a552622fd252516eaa3"
+  },
+  {
+    "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+    "sha256": "a0ee48a14fb85c49e59b9bfe1ab1590071e5d6a756a889680c5e61fc5f356fc7"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.EphemeralStart.cs",
+    "sha256": "b366a94429d3e7edb7db28f1d54d9a1e9a2cd63aa0047dfef6fe4b931d0a6c4d"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
+    "sha256": "19871eaee64e240a0e45c0030c9b64481eaf7a5bd23fba9265e69b0d9dfccb67"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.ReflexiveCopy.cs",
+    "sha256": "072e2c50b7a127c60333181b7b2ae01286a260ee143ca033314d1cca8cad4cb3"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs",
+    "sha256": "406a6338bca176c726f0769f6decf653b1188ba131962cfe93982a06cbfdab27"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "22b4394e7e0f9611efc0c54deaf98dc59648bd76f0bbb452861d80d9b0b96825"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "7d3951a886b513f34dbdadf8d2d68529d7828b0cd6ef89b2545a84060a819dcb"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "e9559649d6d451139b74256b1852d54f1a76ad61dff98e53811ff7c11dfff2d4"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+    "sha256": "cd1cf61551dfbca56c84da89c723425edbbf8d048924182f270a25334266efbd"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "a5fba1dc4199718a8e2a8e56048e4751f5af8150292988e9567e3ff522c036ae"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/EphemeralStartNativeTests.cs",
+    "sha256": "2ff14be4d28d9a722fc16e0120dca968f11e9d2de3df7633550c3b8c2690204e"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/EphemeralStartTests.cs",
+    "sha256": "cc8e74defb86d8aad5646901f340caf3ad07a68f07b85e6aa73832c5f9364ef5"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-ephemeral-destroys-controlled-objects-turn-start.fixture.json",
+    "sha256": "15d3928c097f03a9fdde0eb59559cb3f68e4b97702631b6da77815b12a330882"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+    "sha256": "c297b98a68025b9998f8f4815592f553a4cb5e26b9e4d950ac4f4f8391860e35"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+    "sha256": "d050a78bd5f02f77f338929716d8ea5bd13eaacc6964d850cead6ab983aa51ef"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/OfficialCopyIdentityTests.cs",
+    "sha256": "5fc52eb18912f87eaabacac42f6814a10aef2648688e46b57ffcb6b9e5e1fd77"
+  }
+]

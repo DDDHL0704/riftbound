@@ -43,13 +43,8 @@ public sealed partial class CoreRuleEngine
                     state = state with { CardObjects = cards, TurnStartStep = "START" };
                     break;
                 case "START":
-                    var startPools = state.RunePools.ToDictionary(e => e.Key, e => e.Value);
-                    var ephemeral = DestroyEphemeralObjectsAtTurnStart(state, zones, cards, startPools, state.ObjectLocations, player, state.Tick);
-                    events.AddRange(ephemeral.Events);
-                    state = state with { PlayerZones = zones, CardObjects = cards, RunePools = startPools,
-                        PlayerScores = NormalizeScoresForSeats(state),
-                        ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
-                        DestroyedUnitOwnerIdsThisTurn = ephemeral.DestroyedUnitOwnerIds, TurnStartStep = "SCORE" };
+                    state = state with { PlayerScores = NormalizeScoresForSeats(state), TurnStartStep = "SCORE" };
+                    state = QueueEphemeralStartAbilities(state, events);
                     state = QueueBattlefieldStartAbilities(state, events);
                     break;
                 case "SCORE":

@@ -1131,6 +1131,8 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_EPHEMERAL_FIXTURE") is { } output)
+            await File.WriteAllTextAsync(output, JsonSerializer.Serialize(result, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P2"], result.FinalState.DestroyedUnitOwnerIdsThisTurn);
         Assert.DoesNotContain("P2-EPHEMERAL-BASE", result.FinalState.CardObjects.Keys);
@@ -1258,6 +1260,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "UNIT_DESTROYED");
+        result = await TurnSequenceTestDriver.Complete(result);
         var destroyedObjectIds = result.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
                 && string.Equals(gameEvent.Payload["reason"] as string, "EPHEMERAL_TURN_START", StringComparison.Ordinal))

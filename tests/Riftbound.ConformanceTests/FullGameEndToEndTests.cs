@@ -8546,7 +8546,10 @@ public sealed class FullGameEndToEndTests
                 string.Equals(entryEvent.gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
                 && string.Equals(entryEvent.gameEvent.Payload["targetObjectId"] as string, targetObjectId, StringComparison.Ordinal)
                 && string.Equals(entryEvent.gameEvent.Payload["reason"] as string, "EPHEMERAL_TURN_START", StringComparison.Ordinal));
-        Assert.Equal(CommandTypes.EndTurn, cleanup.entry.CommandType);
+        Assert.Equal(CommandTypes.PassPriority, cleanup.entry.CommandType);
+        Assert.Contains(cleanup.entry.Events, e => e.Kind == "STACK_ITEM_RESOLVED");
+        Assert.Contains(journal.Entries, e => e.CompletedTick < cleanup.entry.CompletedTick
+            && e.CommandType == CommandTypes.EndTurn && e.Events.Any(ev => ev.Kind == "TURN_START_BEGAN"));
         Assert.Equal("P2", cleanup.gameEvent.Payload["ownerPlayerId"]);
         Assert.Equal("P2", cleanup.gameEvent.Payload["destroyedByPlayerId"]);
         Assert.Equal("GRAVEYARD", cleanup.gameEvent.Payload["destinationZone"]);
@@ -8616,7 +8619,10 @@ public sealed class FullGameEndToEndTests
                 string.Equals(entryEvent.gameEvent.Kind, "EQUIPMENT_DESTROYED", StringComparison.Ordinal)
                 && string.Equals(entryEvent.gameEvent.Payload["targetObjectId"] as string, targetObjectId, StringComparison.Ordinal)
                 && string.Equals(entryEvent.gameEvent.Payload["reason"] as string, "EPHEMERAL_TURN_START", StringComparison.Ordinal));
-        Assert.Equal(CommandTypes.EndTurn, cleanup.entry.CommandType);
+        Assert.Equal(CommandTypes.PassPriority, cleanup.entry.CommandType);
+        Assert.Contains(cleanup.entry.Events, e => e.Kind == "STACK_ITEM_RESOLVED");
+        Assert.Contains(journal.Entries, e => e.CompletedTick < cleanup.entry.CompletedTick
+            && e.CommandType == CommandTypes.EndTurn && e.Events.Any(ev => ev.Kind == "TURN_START_BEGAN"));
         Assert.Equal("P2", cleanup.gameEvent.Payload["ownerPlayerId"]);
         Assert.Equal("P2", cleanup.gameEvent.Payload["destroyedByPlayerId"]);
         Assert.Equal("GRAVEYARD", cleanup.gameEvent.Payload["destinationZone"]);

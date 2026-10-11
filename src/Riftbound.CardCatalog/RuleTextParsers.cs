@@ -504,7 +504,7 @@ public static class TriggerParser
         trigger = default!;
         var match = Regex.Match(
             text,
-            @"\{\{绝念\}\}\s*[—-]\s*抽一张牌",
+            @"(?:\{\{绝念\}\}\s*[—-]|\{\{绝念>\}\})\s*抽一张牌(?:。若此时是你的开始阶段，则改为抽([一二两三四五六七八九十0-9]+)张牌)?",
             RegexOptions.CultureInvariant);
         if (!match.Success)
         {
@@ -517,7 +517,8 @@ public static class TriggerParser
             match.Value,
             "Unit last-breath draw-one trigger parsed for destroyed-trigger routing; execution is available through shared unit-destroyed TriggerSpec resolution.",
             TargetScope: TriggerTargetScopes.SourceUnit,
-            DrawCount: 1);
+            DrawCount: 1,
+            OwnBeginningDrawCount: match.Groups[1].Success ? ParseChineseNumber(match.Groups[1].Value) : null);
         return true;
     }
 

@@ -1,0 +1,1083 @@
+{
+  "status": "VERIFIED_SCOPED_EPHEMERAL_START",
+  "scope": "Ephemeral start timing and printed versus granted keyword provenance; not whole-card certification",
+  "cards": [
+    {
+      "id": 31282,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·069/298",
+      "cardName": "背水一战",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n让一名友方单位在本回合内战力翻倍，并让其变为{{瞬息}}。（在你下个回合开始阶段，结算得分之前将其摧毁。）",
+      "flavorText": "这波不亏。",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/5484e35094f0479c8ef568f62cf67518.png",
+      "backImage": "",
+      "listSort": 423,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31410,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·180/298",
+      "cardName": "逝水如镜",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "让一名战场上的单位或一件装备变为{{瞬息}}。（在其控制者的下个回合开始阶段，结算得分之前将其摧毁。）",
+      "flavorText": "你也将消逝，如水月镜花。",
+      "energy": 4,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "OGN(英雄预组 金克丝)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 金克丝",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/cf608e01354c44928cf471919f7b42d6.png",
+      "backImage": "",
+      "listSort": 295,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33284,
+      "cardCategoryList": [
+        "exclusive_equipment"
+      ],
+      "cardCategoryNameList": [
+        "专属装备"
+      ],
+      "cardNo": "SFD·186/221",
+      "cardName": "旋转飞斧",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "purple"
+      ],
+      "hero": "德莱文",
+      "region": "",
+      "tag": "武装",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{灵便}}（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）\n{{装配}}{{A}}（支付{{A}}：将此牌贴附到你控制的一名单位上。）\n{{瞬息}}（如果此牌未贴附，则在其控制者的下个回合开始阶段，结算得分之前将其摧毁。）",
+      "flavorText": "“斧头在手，只欠猎物。”\n——德莱文",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/0639abe218a74627b49ab15846218ea6.png",
+      "backImage": "",
+      "listSort": 789,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34603,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "UNL-070/219",
+      "cardName": "化为灰烬",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "让一件装备获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "flavorText": "万物终有沉寂的一天。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/fc885595ef224c8bb20ff5caf68ddf04.webp",
+      "backImage": "",
+      "listSort": 1421,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34620,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "UNL-085/219",
+      "cardName": "地沟区地图",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n{{瞬息}}（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）\n当一名对手得分时，抽一张牌。",
+      "flavorText": "“等等，好像拿反了。”",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/cab71dd4d3e14c22ae09d0a46fe4585a.webp",
+      "backImage": "",
+      "listSort": 1404,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34627,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-090/219",
+      "cardName": "乐芙兰",
+      "subTitle": "万象归宗",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "乐芙兰",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "{{后排}}（我在战斗中最后承担伤害。）\n你在我所处战场的{{瞬息}}效果不会触发。",
+      "flavorText": "“远谋、武力、狡诈。历史不过是一个可笑的循环。”",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/74103242c2df4924a49f24b023cb4c39.webp",
+      "backImage": "",
+      "listSort": 1397,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34628,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-090a/219",
+      "cardName": "乐芙兰",
+      "subTitle": "万象归宗",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "乐芙兰",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "League Splash Team",
+      "cardEffect": "{{后排}}\n你在我所处战场的{{瞬息}}效果不会触发。",
+      "flavorText": "“远谋、武力、狡诈。历史不过是一个可笑的循环。”",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/d0f341017f864a3b9330919411c6f6c6.webp",
+      "backImage": "",
+      "listSort": 1396,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34713,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "UNL-165/219",
+      "cardName": "暗影的召唤",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "选择一名未拥有{{瞬息}}的友方单位，让其获得{{瞬息}}。抽两张牌。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "flavorText": "“你一文不值。你是废物。放弃挣扎吧。”",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/9f91b35b477a40619a324ee535213e88.webp",
+      "backImage": "",
+      "listSort": 1311,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34720,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-172/219",
+      "cardName": "乐芙兰",
+      "subTitle": "残影之殇",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "乐芙兰",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "League Splash Team",
+      "cardEffect": "{{强攻}}（如果我是进攻方，则{{S}}+1。）\n{{绝念>}} 抽一张牌。若此时是你的开始阶段，则改为抽两张牌。（当我被摧毁后，发动此效果。）",
+      "flavorText": "“也许我赢在有太多个我了……”",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 3,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/fc8ffbfa138e43b4a99c2fa08879c732.webp",
+      "backImage": "",
+      "listSort": 1304,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34721,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-172a/219",
+      "cardName": "乐芙兰",
+      "subTitle": "残影之殇",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "乐芙兰",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "League Splash Team",
+      "cardEffect": "{{强攻}}\n{{绝念>}} 抽一张牌。若此时是你的开始阶段，则改为抽两张牌。",
+      "flavorText": "“也许我赢在有太多个我了……”",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 3,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/e4af87b765154a2dbc15f8425cc80c58.webp",
+      "backImage": "",
+      "listSort": 1303,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31590,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGS·011/024",
+      "cardName": "闪现",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Sugar Free",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n将最多两名友方单位从战场上移动到基地。",
+      "flavorText": "这不叫逃跑，这叫战术性转移。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGS"
+      ],
+      "productNameList": [
+        "起源 试炼之地"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/d16981dcbd884d3b89c2a259725a491f.png",
+      "backImage": "",
+      "listSort": 540,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "documents": [
+    {
+      "id": "DOC-01",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则（10.16生效）",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "updated": "2026-10-10",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-04",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "updated": "2026-07-17",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-11",
+      "title": "破限系列 官方FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/破限系列 官方FAQ.pdf",
+      "sha256": "202ecb8a94af03af024daefcf677991c50db00afeeb36cf2c4b72683b623bd70",
+      "updated": "2026-04-30",
+      "effectiveDate": null
+    }
+  ],
+  "rules": [
+    {
+      "id": "DOC-01-P015-B007",
+      "document": "DOC-01",
+      "page": 15,
+      "clauseAnchors": [
+        "135.4"
+      ],
+      "text": "135.4.                当一张卡牌贴附于另一张卡牌时,其卡面上印刷的规则文本处于未激活状态。\n                           想获取更多有关信息,请查阅规则 716.贴附。\n                           想获取更多有关信息,请查阅规则 720.未激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P054-B004",
+      "document": "DOC-01",
+      "page": 54,
+      "clauseAnchors": [
+        "359.3.e.12"
+      ],
+      "text": "359.3.e.12.     如果一个法术需要检查某个目标的信息,但该目标已经不再是合法目标;或者需要检查的卡牌\n                或常驻牌由于其所在位置、区域或状态发生了变化,导致其相关信息不再可用,则检查返回的\n                结果为“无”,基于它的所有指示都将被无视。\n                    举例:\n                    不再位于场上的单位被视为无战力、无费用,等等。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P107-B005",
+      "document": "DOC-01",
+      "page": 107,
+      "clauseAnchors": [
+        "718.2"
+      ],
+      "text": "718.2.          处于此状态时,该卡牌卡面上印刷的规则文本为未激活状态。\n                     想获取更多有关信息,请查阅规则 720.未激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P108-B004",
+      "document": "DOC-01",
+      "page": 108,
+      "clauseAnchors": [
+        "721"
+      ],
+      "text": "721.         在游戏过程中,卡牌文本有时会被指定为被忽略、无视或以其他方式视为不可用。这种状态被称为未激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P108-B005",
+      "document": "DOC-01",
+      "page": 108,
+      "clauseAnchors": [
+        "721.1"
+      ],
+      "text": "721.1.             处于此状态时,以此方式标记的文本将完全不会生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P108-B006",
+      "document": "DOC-01",
+      "page": 108,
+      "clauseAnchors": [
+        "721.2"
+      ],
+      "text": "721.2.             未激活 的技能不会触发、不会生效,也无法被激活。未激活 的指示不会被处理。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P108-B008",
+      "document": "DOC-01",
+      "page": 108,
+      "clauseAnchors": [
+        "722.1"
+      ],
+      "text": "722.1.             如果游戏效果需要引用或检查卡牌是否拥有某个关键词,那么即使卡牌文本处于未激活状态,该卡牌仍然被视为拥\n                   有这些关键词。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P108-B009",
+      "document": "DOC-01",
+      "page": 108,
+      "clauseAnchors": [
+        "722.2"
+      ],
+      "text": "722.2.             如果游戏效果需要解析或解读文本以确定目标资格,那么为了确定资格,仍可以解析未激活的文本。\n                       举例:旋转飞斧是一件拥有[瞬息]的装备。当它处于贴附状态,且规则文本处于未激活状态时,其[瞬息]\n                       技能不会触发。然而,一个描述为“摧毁一件拥有[瞬息]的装备”的法术仍然可以选择并摧毁旋转飞斧。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P120-B022",
+      "document": "DOC-01",
+      "page": 120,
+      "clauseAnchors": [
+        "816.1"
+      ],
+      "text": "816.1.            [瞬息]是一种触发式技能关键词。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P120-B023",
+      "document": "DOC-01",
+      "page": 120,
+      "clauseAnchors": [
+        "816.1.a"
+      ],
+      "text": "816.1.a.              这个关键词会出现在常驻牌上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P120-B024",
+      "document": "DOC-01",
+      "page": 120,
+      "clauseAnchors": [
+        "816.1.b"
+      ],
+      "text": "816.1.b.              该关键词为以下功能的简称:“在此常驻牌控制者的回合开始阶段,计算得分之前将此牌摧毁。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P120-B025",
+      "document": "DOC-01",
+      "page": 120,
+      "clauseAnchors": [
+        "816.1.c"
+      ],
+      "text": "816.1.c.              触发条件为该常驻牌的控制者的开始阶段开始。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P121-B001",
+      "document": "DOC-01",
+      "page": 121,
+      "clauseAnchors": [
+        "816.2"
+      ],
+      "text": "816.2.            即使拥有多个[瞬息],也只会生效一次。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P121-B002",
+      "document": "DOC-01",
+      "page": 121,
+      "clauseAnchors": [
+        "816.2.a"
+      ],
+      "text": "816.2.a.              无论拥有多少个[瞬息],该技能只会触发一次。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P121-B003",
+      "document": "DOC-01",
+      "page": 121,
+      "clauseAnchors": [
+        "816.3"
+      ],
+      "text": "816.3.            [瞬息],以及单位是否拥有[瞬息],是常驻牌的一个特性,其他游戏效果可以检查或引用该特性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P014-B009",
+      "document": "DOC-04",
+      "page": 14,
+      "clauseAnchors": [
+        "135.4"
+      ],
+      "text": "135.4.                当一张卡牌贴附于另一张卡牌时,其卡面上印刷的规则文本处于未激活状态。\n                           想获取更多有关信息,请查阅规则 716.贴附。\n                           想获取更多有关信息,请查阅规则 720.未激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P052-B001",
+      "document": "DOC-04",
+      "page": 52,
+      "clauseAnchors": [
+        "359.3.e.12"
+      ],
+      "text": "359.3.e.12.     如果一个法术需要查询某个目标的信息,但该目标已经不再是合法目标;或者需要查询的卡牌\n                或常驻牌由于其所在位置、区域或状态发生了变化,导致其相关信息不再可用,则查询返回的\n                结果为“无”,基于它的所有计算都将被无视。\n                      举例:\n                      不再位于场上的单位被视为无战力、无费用,等等。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P103-B013",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.2"
+      ],
+      "text": "718.2.          处于此状态时,该卡牌卡面上印刷的规则文本为未激活状态。\n                     想获取更多有关信息,请查阅规则 720.未激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B020",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "721"
+      ],
+      "text": "721.       在游戏过程中,卡牌文本有时会被指定为被忽略、无视或以其他方式视为不可用。这种状态被称为未激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B021",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "721.1"
+      ],
+      "text": "721.1.           处于此状态时,以此方式标记的文本将完全不会生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P105-B001",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "721.2"
+      ],
+      "text": "721.2.            未激活 的技能不会触发、不会生效,也无法被激活。未激活 的指示不会被处理。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P105-B003",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "722.1"
+      ],
+      "text": "722.1.            如果游戏效果需要引用或检查卡牌是否拥有某个关键词,那么即使卡牌文本处于未激活状态,该卡牌仍然被视为拥\n                  有这些关键词。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P105-B004",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "722.2"
+      ],
+      "text": "722.2.            如果游戏效果需要解析或解读文本以确定目标资格,那么为了确定资格,仍可以解析未激活的文本。\n                      举例:旋转飞斧是一件拥有[瞬息]的装备。当它被贴附,且规则文本处于未激活状态时,其[瞬息]技能不\n                      会触发。然而,一个描述为“摧毁一件拥有[瞬息]的装备”的法术仍然可以选择并摧毁旋转飞斧。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B001",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "816.1"
+      ],
+      "text": "816.1.            [瞬息]是一种触发式技能关键词。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B002",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "816.1.a"
+      ],
+      "text": "816.1.a.              这个关键词会出现在常驻牌上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B003",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "816.1.b"
+      ],
+      "text": "816.1.b.              该关键词为以下功能的简称:“在此常驻牌控制者的回合开始阶段,计算得分之前将此牌摧毁。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B004",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "816.1.c"
+      ],
+      "text": "816.1.c.              触发条件为该常驻牌的控制者的开始阶段开始。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B005",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "816.2"
+      ],
+      "text": "816.2.            即使拥有多个[瞬息],也只会生效一次。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B006",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "816.2.a"
+      ],
+      "text": "816.2.a.              无论拥有多少个[瞬息],该技能只会触发一次。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B007",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "816.3"
+      ],
+      "text": "816.3.            [瞬息],以及单位是否拥有[瞬息],是常驻牌的一个特性,其他游戏效果可以检查或引用该特性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P014-B001",
+      "document": "DOC-11",
+      "page": 14,
+      "clauseAnchors": [],
+      "text": "如果我向已贴附的武装打出“化为灰烬”,这件武装会在回合开始阶段被摧毁吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P014-B002",
+      "document": "DOC-11",
+      "page": 14,
+      "clauseAnchors": [],
+      "text": "是的。赋予的瞬息关键词将会生效。它将在其控制者的下个回合开始阶段触发并摧毁该武装。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P014-B003",
+      "document": "DOC-11",
+      "page": 14,
+      "clauseAnchors": [],
+      "text": "根据规则第 718.2.条和第 135.4.条,已贴附的武装只会使其印刷规则文本变为未激活状态。换言\n之,任何赋予的规则文本仍然可以生效;赋予的瞬息效果会触发并摧毁贴附的武装,赋予的法盾\n会让敌方以其为目标的法术和技能的费用增加[A]。在本次规则更新之前,所有已贴附武装的规则\n文本都会处于未激活状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P014-B004",
+      "document": "DOC-11",
+      "page": 14,
+      "clauseAnchors": [
+        "135.4"
+      ],
+      "text": "135.4.   当一张卡牌贴附于另一张卡牌时,其卡面上印刷的规则文本处于未激活状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P014-B005",
+      "document": "DOC-11",
+      "page": 14,
+      "clauseAnchors": [
+        "718.2"
+      ],
+      "text": "718.2.   处于此状态时,该卡牌卡面上印刷的规则文本为未激活状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P014-B006",
+      "document": "DOC-11",
+      "page": 14,
+      "clauseAnchors": [],
+      "text": "如果贴附的旋转飞斧获得瞬息效果,它会在我的开始阶段开始时被摧毁吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P014-B007",
+      "document": "DOC-11",
+      "page": 14,
+      "clauseAnchors": [],
+      "text": "是的。旋转飞斧将具有两个瞬息关键词——一个处于激活状态,另一个处于未激活状态。未激活\n状态的关键词不会触发,激活状态的关键词会触发。所以很遗憾,旋转飞斧会被摧毁。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B001",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [],
+      "text": "根据规则第 816.2.条,多个瞬息关键词是多余的,但该规则指的是多个可能触发的瞬息只会触发\n一次,这在规则第 816.2.a 条已作阐述。如果已贴附的旋转飞斧获得瞬息,则无需纠结这条规则\n——只有一个瞬息会触发,所以它会生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B002",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [],
+      "text": "玩家可以把已贴附的常驻牌想象成电子版卡面,以便更好地理解这个过程。想象当它被贴附时,\n所有卡面上印刷的规则文本都会变成灰色,表明处于非激活状态。然后,该卡被赋予的瞬息关键\n词处于生效状态,所以它将按普通文本的颜色显示。旋转飞斧上有两种颜色的瞬息,而灰色的瞬\n息不产生任何作用。根据规则第 816.2.a.条的规定,我们可以当它不存在。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B003",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [
+        "816.2"
+      ],
+      "text": "816.2.     即使拥有多个[瞬息],也只会生效一次。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B004",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [
+        "816.2.a"
+      ],
+      "text": "816.2.a.   无论拥有多少个[瞬息],该技能只会触发一次。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B005",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [],
+      "text": "你刚才提到规则第 187.4.c.条,上面写着“开环状态”,我记得旧规则里没有这个说法。这是怎\n么回事?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B006",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [],
+      "text": "根据破限系列规则更新中的第 187.4.c.条,只要结算链上还有项目,就无法失去对战场的控制。\n也就是说,能够放逐和打出单位的法术和技能,或者以摧毁单位为费用或效果来打出其他单位的\n法术和技能,现在可以在战场上摧毁或放逐单位,然后将由此产生的单位打出至同一个战场。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B007",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [
+        "187.4.c"
+      ],
+      "text": "187.4.c.   如果玩家在某战场上没有单位,且该回合处于开环状态,则除非该战场正在进行\n           战斗或法术对决,否则该玩家会在后续的清理阶段失去该战场的控制权。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B008",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [],
+      "text": "我们来看几个例子。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P015-B009",
+      "document": "DOC-11",
+      "page": 15,
+      "clauseAnchors": [],
+      "text": "我打出冷血贵族,此时我控制的一个战场上只有 1 个 1[M]随从。我选择摧毁我的随从,以\n      此支付冷血贵族的额外费用。这样虽然会触发一次清理,但由于结算链上存在项目(冷血",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "effectiveBoundary": "DOC-04 currently active; DOC-01 latest published effective Oct16 and compared separately."
+}

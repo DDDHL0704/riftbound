@@ -22827,6 +22827,8 @@ public static class MatchRecoveryValidator
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateEphemeralStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateGrantedTagViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBattlefieldStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             if (view.Snapshot.Timing is not null
                 && TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var publicTriggers))
@@ -22871,6 +22873,25 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateEphemeralStartViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
+    {
+        void Check(object? payload, EphemeralStartContext? expected)
+        {
+            try {
+                var json = JsonSerializer.SerializeToElement(payload);
+                var actual = json.ValueKind == JsonValueKind.Object && json.TryGetProperty("ephemeralStart", out var raw)
+                    ? raw.Deserialize<EphemeralStartContext>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) : null;
+                if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(expected))
+                    errors.Add($"{label} ephemeral start context differs from authoritative state");
+            } catch (JsonException) { errors.Add($"{label} malformed ephemeral start context"); }
+        }
+        foreach (var item in state.StackItems)
+            Check(snapshot.Stack.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId), item.EphemeralStart);
+        if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "triggerQueue", out var queue))
+            foreach (var item in state.TriggerQueue)
+                Check(queue.FirstOrDefault(payload => TryReadObjectString(payload, "triggerId", out var id) && id == item.TriggerId), item.EphemeralStart);
+    }
+
     private static void ValidateBattlefieldStartViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
         void Check(object? payload, BattlefieldStartContext? expected)
@@ -22899,6 +22920,30 @@ public static class MatchRecoveryValidator
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "triggerQueue", out var queue))
             foreach (var item in state.TriggerQueue)
                 Check(queue.FirstOrDefault(payload => TryReadObjectString(payload, "triggerId", out var id) && id == item.TriggerId), item.BattlefieldStart);
+    }
+
+    private static void ValidateGrantedTagViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
+    {
+        if (snapshot.Players is null) return;
+        foreach (var playerPayload in snapshot.Players.Values)
+        {
+            if (!TryReadObjectValue(playerPayload, "objects", out var objects)
+                || !TryReadObjectDictionaryValue(objects, out var cards)) continue;
+            foreach (var (id, payload) in cards)
+            {
+                if (!state.CardObjects.TryGetValue(id, out var card) || card is null) continue;
+                var hasMarks = TryReadObjectValue(payload, "grantedTags", out var marks);
+                if (!TryReadObjectValue(payload, "damage", out _))
+                {
+                    if (hasMarks) errors.Add($"{label} hidden card {id} exposes granted tags");
+                    continue;
+                }
+                var expected = card.GrantedTags;
+                if (expected is null ? hasMarks && !IsNullSnapshotPayloadValue(marks)
+                    : !TryReadObjectStringList(payload, "grantedTags", out var actual) || !actual.SequenceEqual(expected))
+                    errors.Add($"{label} card {id} granted tags differ from authoritative state");
+            }
+        }
     }
 
     private static void ValidateDamageMarkerViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
@@ -23258,6 +23303,14 @@ public static class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidBattlefieldStart(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId)
                 || item.BattlefieldStart is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
                 errors.Add("invalid captured battlefield start trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidEphemeralStart(state, item.EphemeralStart, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                || item.EphemeralStart is not null && (item.TargetObjectIds.Count != 0 || item.SourceConfirmed))
+                errors.Add("invalid captured ephemeral start ability");
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidEphemeralStart(state, item.EphemeralStart, item.EffectKind, item.ControllerId, item.SourceObjectId)
+                || item.EphemeralStart is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
+                errors.Add("invalid captured ephemeral start trigger");
         if (state.TurnStartStep is { } step && (step is not ("READY" or "START" or "SCORE" or "CHANNEL" or "DRAW" or "MAIN")
             || state.Phase != MatchPhases.TurnStart)) errors.Add("invalid turn-start continuation");
         var ids = new HashSet<string>(StringComparer.Ordinal);
@@ -25005,6 +25058,11 @@ public static class MatchRecoveryValidator
                 || !card.Tags.Contains(CardObjectTags.UnitCard)
                 || !authoritativeState.PlayerZones.Values.Any(z => z.Base.Contains(id) || z.Battlefields.Contains(id))))
                 errors.Add($"authoritative state card object {id} has invalid damage marking players");
+        foreach (var (id, card) in authoritativeState.CardObjects)
+            if (card?.GrantedTags is { } granted && (granted.Count == 0 || granted.Any(t => string.IsNullOrWhiteSpace(t) || !card.Tags.Contains(t))
+                || !granted.SequenceEqual(granted.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+                || !authoritativeState.PlayerZones.Values.Any(z => z.Base.Contains(id) || z.Battlefields.Contains(id))))
+                errors.Add($"authoritative state card object {id} has invalid granted tags");
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationZones(authoritativeState.ObjectLocations, errors);
@@ -27083,6 +27141,8 @@ public static class MatchRecoveryValidator
         else
         {
             ValidateDamageMarkerViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
+            ValidateEphemeralStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
+            ValidateGrantedTagViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBattlefieldStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateSpectatorSnapshotStackItemPayloads(
                 spectatorReplayFrame.SpectatorSnapshot,

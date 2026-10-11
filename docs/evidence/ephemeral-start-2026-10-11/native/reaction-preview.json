@@ -1,0 +1,1 @@
+{"requestId":"628e49fc59494796981fa67b5bb4b6f1","promptId":"HOLD-TEST:1:P1:PLAY_CARD,PASS_PRIORITY,SURRENDER","snapshotTick":1,"command":{"sourceObjectId":"FLASH","cardNo":"OGS\u00B7011/024","targetObjectIds":["E"],"mode":"","optionalCosts":[],"destination":"","repeatChoices":null,"movementDestinations":null,"cmdType":"PLAY_CARD"}}

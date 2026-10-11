@@ -31,7 +31,7 @@ public sealed class OfficialCopyIdentityTests
         var first = await Copy(Position("OGN·096/298"));
         var state = AddSpell(first.State, "SECOND", "UNL-200/219");
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
-            ["C-TOKEN-001"] = state.CardObjects["C-TOKEN-001"] with { Power = 12, Tags = [CardObjectTags.UnitCard, "游走"] } } };
+            ["C-TOKEN-001"] = state.CardObjects["C-TOKEN-001"] with { Power = 12, Tags = [CardObjectTags.UnitCard, "游走"], GrantedTags = ["游走"] } } };
         var second = await Copy(state, "C-TOKEN-001", "SECOND");
         var token = second.State.CardObjects["SECOND-TOKEN-001"];
         Assert.Equal("OGN·096/298", token.CardNo); Assert.Equal(1, token.Power); Assert.Equal(2, token.ManaCost);

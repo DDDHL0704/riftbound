@@ -968,12 +968,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
-            entries: 532,
-            specImplementedEntries: 532,
+            entries: 533,
+            specImplementedEntries: 533,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 425,
-            specImplementedFunctionalUnits: 425,
+            functionalUnits: 426,
+            specImplementedFunctionalUnits: 426,
             pendingFunctionalUnits: 0);
         AssertTimingSurfaceCoverage(
             timingRows,
