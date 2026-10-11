@@ -53,8 +53,9 @@ def main():
         cards.extend(result["list"])
     if len(cards) != total or len({card["id"] for card in cards}) != total:
         raise ValueError("Official catalog pagination is incomplete or contains duplicate ids")
-    # cardQaList is not a rule authority. Preserve card data, exclude this field.
-    cards = sorted(({k: v for k, v in card.items() if k != "cardQaList"} for card in cards), key=lambda card: card["id"])
+    # Preserve official QA/errata as source evidence, including null values.
+    # An empty API field does not establish that the card has no published FAQ.
+    cards = sorted(cards, key=lambda card: card["id"])
     catalog = dict(source="https://www.playloltcg.com/card.html", api=API + "/xcx/card/searchCardCraftWeb",
                    fetchedAt=args.date, total=total, cards=cards)
     write(destination / "card-catalog.zh-CN.json", catalog)

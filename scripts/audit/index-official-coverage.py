@@ -4,6 +4,8 @@
 Extraction is coverage bookkeeping, not semantic verification. Review judgments
 and executable evidence belong in a separate file so regeneration cannot erase them.
 """
+import argparse
+from datetime import date
 import hashlib
 import json
 from pathlib import Path
@@ -11,10 +13,13 @@ import re
 import unicodedata
 
 ROOT = Path(__file__).resolve().parents[2]
-DATE = "2026-10-08"
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--date", required=True)
+args = parser.parse_args()
+DATE = date.fromisoformat(args.date).isoformat()
 source = ROOT / "data/official/upstream" / DATE
 manifest = json.loads((source / "rules-manifest.json").read_text())
-destination = ROOT / "docs/evidence/rules-reaudit-2026-10-08"
+destination = ROOT / "docs/evidence" / f"rules-reaudit-{DATE}"
 destination.mkdir(parents=True, exist_ok=True)
 documents, records = [], []
 clause_start = re.compile(r"^\s*(\d{3}(?:\.(?:\d+|[a-z]))*)\.\s+")
@@ -26,7 +31,8 @@ for ordinal, rule in enumerate(manifest["rules"], 1):
         pages.pop()
     document_id = f"DOC-{ordinal:02}"
     document = {"id": document_id, "title": rule["ruleName"], "url": rule["ruleDocUrl"],
-                "sha256": rule["sha256"], "updated": rule.get("updateDate"), "pages": []}
+                "sha256": rule["sha256"], "updated": rule.get("updateDate"),
+                "effectiveDate": rule.get("effectiveDate"), "pages": []}
     for page_number, raw in enumerate(pages, 1):
         text = unicodedata.normalize("NFKC", raw)
         # Keep every paragraph, including unnumbered examples, exceptions,
@@ -48,8 +54,10 @@ result = {"date": DATE, "scope": "All official CN core rules, FAQs, judge QAs, e
           "records": records,
           "coveragePolicy": "Only explicit current-source judgments with behavioral evidence establish coverage. Old registry/test/report status is not inherited."}
 (destination / "official-corpus.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+core_ids = {doc["id"] for doc in documents if "核心规则" in doc["title"]}
 summary = {"documents": len(documents), "pages": sum(len(doc["pages"]) for doc in documents),
            "textBlocks": len(records), "uniqueCoreClauses": len({c for r in records if r["document"] == "DOC-01" for c in r["clauseAnchors"]}),
+           "coreClausesByDocument": {d: len({c for r in records if r["document"] == d for c in r["clauseAnchors"]}) for d in sorted(core_ids)},
            "verifiedByIndexing": 0}
 (destination / "coverage-summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n")
 print(json.dumps(summary, ensure_ascii=False))

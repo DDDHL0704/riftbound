@@ -1,0 +1,20 @@
+{
+  "sourceFilesHashVerified": 36,
+  "cnCatalogEntriesAndUniqueIds": 1459,
+  "cnQaNonempty": 0,
+  "enUniqueReturnedIds": 1381,
+  "originsAccordionQuestionsPreserved": 97,
+  "ruleLedgerUniqueIds": 14293,
+  "cardLedgerUniqueIds": 1711,
+  "pythonSyntax": "passed",
+  "inventoryBuild": "passed",
+  "gitDiffCheck": "passed",
+  "gameplayChanged": false,
+  "gameplayRegression": "not rerun for source/index-only batch",
+  "baselineGameplayCommit": "b8005f8064722eb09428968d3714c592a6d9ca48",
+  "baselineCi": {
+    "run": 38073558495,
+    "conclusion": "success"
+  },
+  "semanticCoverageEstablishedByTheseChecks": 0
+}
