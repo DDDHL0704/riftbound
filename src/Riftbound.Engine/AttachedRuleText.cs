@@ -12,31 +12,35 @@ internal static class AttachedRuleTextRules
 {
     internal static bool CopiesPrintedText(string? no) => OfficialArmamentCatalog.Find(no)?.CopiesHostPrintedRulesText == true;
     internal static string? Face(CardObjectState card) => card.CardNo ?? card.TokenFactoryCardNo;
-    internal static bool Field(MatchState state, string id) => state.PlayerZones.Values
+    internal static bool Field(MatchState state, string id) => Field(state.PlayerZones, id);
+    private static bool Field(IReadOnlyDictionary<string, PlayerZones> zones, string id) => zones.Values
         .Any(z => z.Base.Contains(id, StringComparer.Ordinal) || z.Battlefields.Contains(id, StringComparer.Ordinal));
 
     internal static bool Bound(MatchState state, CardObjectState gear)
+        => Bound(state.PlayerZones, state.CardObjects, gear);
+
+    private static bool Bound(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState gear)
         => gear.AttachedRuleText is { Unit: not null } copy && copy.Revision > 0 && copy.Revision == gear.AttachmentRevision
             && CopiesPrintedText(gear.CardNo)
-            && gear.Tags.Contains(CardObjectTags.EquipmentCard) && Field(state, gear.ObjectId)
+            && gear.Tags.Contains(CardObjectTags.EquipmentCard) && Field(zones, gear.ObjectId)
             && gear.AttachedToObjectId == copy.Unit.ObjectId
-            && state.CardObjects.TryGetValue(copy.Unit.ObjectId, out var unit) && unit.ObjectGeneration == copy.Unit.Generation
+            && cards.TryGetValue(copy.Unit.ObjectId, out var unit) && unit.ObjectGeneration == copy.Unit.Generation
             && unit.Tags.Contains(CardObjectTags.UnitCard)
-            && Field(state, unit.ObjectId) && Face(unit) == copy.CardNo && CopyCharacteristics.HasFace(copy.CardNo);
-
-    internal static bool Active(MatchState state, CardObjectState gear)
-        => Bound(state, gear) && !gear.IsFaceDown && !gear.Tags.Contains(CardObjectTags.Standby)
-            && state.CardObjects[gear.AttachedRuleText!.Unit.ObjectId] is { IsFaceDown: false } unit
-            && !unit.Tags.Contains(CardObjectTags.Standby);
+            && Field(zones, unit.ObjectId) && Face(unit) == copy.CardNo && CopyCharacteristics.HasFace(copy.CardNo);
 
     internal static IEnumerable<RuleTextInstance> Copies(MatchState state, CardObjectState unit)
+        => Copies(state.PlayerZones, state.CardObjects, unit);
+
+    private static IEnumerable<RuleTextInstance> Copies(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState unit)
     {
         if (unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby)
-            || !unit.Tags.Contains(CardObjectTags.UnitCard) || !Field(state, unit.ObjectId)) yield break;
-        foreach (var gear in state.CardObjects.Values.Where(c => c.AttachedToObjectId == unit.ObjectId)
+            || !unit.Tags.Contains(CardObjectTags.UnitCard) || !Field(zones, unit.ObjectId)) yield break;
+        foreach (var gear in cards.Values.Where(c => c.AttachedToObjectId == unit.ObjectId)
             .OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
-            if (!Active(state, gear)) continue;
+            if (!Bound(zones, cards, gear) || gear.IsFaceDown || gear.Tags.Contains(CardObjectTags.Standby)) continue;
             var copy = gear.AttachedRuleText!;
             var origin = new RuleTextInstanceBinding(copy.CardNo, copy.Unit, new(gear.ObjectId, gear.ObjectGeneration), copy.Revision);
             yield return new($"ATTACHED:{gear.ObjectId}:{gear.ObjectGeneration}:{copy.Revision}", copy.CardNo, origin);
@@ -44,9 +48,13 @@ internal static class AttachedRuleTextRules
     }
 
     internal static IEnumerable<RuleTextInstance> Instances(MatchState state, CardObjectState unit)
+        => Instances(state.PlayerZones, state.CardObjects, unit);
+
+    internal static IEnumerable<RuleTextInstance> Instances(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState unit)
     {
         if (Face(unit) is { } no) yield return new($"PRINTED:{unit.ObjectId}:{unit.ObjectGeneration}", no);
-        foreach (var copy in Copies(state, unit)) yield return copy;
+        foreach (var copy in Copies(zones, cards, unit)) yield return copy;
     }
 
     internal static IEnumerable<RuleTextInstance> ActivatedInstances(MatchState state, CardObjectState source,

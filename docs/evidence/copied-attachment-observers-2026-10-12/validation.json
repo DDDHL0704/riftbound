@@ -1,0 +1,122 @@
+{
+  "status": "SCOPED_COMPOSITE_LOCAL_PASS_FULL_CI_PENDING",
+  "batchCheck": {
+    "evidence": "var/qa/copied-attachment-observers/check1",
+    "counters": {
+      "total": "9924",
+      "executed": "9924",
+      "passed": "9920",
+      "failed": "4",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "failedCases": [
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift"
+    ],
+    "repair": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 13.77,
+      "total": 7,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 7,
+          "passed": 7,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 2.28
+        }
+      ]
+    },
+    "repairedCases": [
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+      "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift"
+    ],
+    "engineAssemblySha256BeforeAndAfterRepair": "3da56a7aab1d6ebbac0bb247cf3c0cb641eb89c8fd5dfb21694c91a5dea15f2d",
+    "testOnlyChangeAfterCheck": "One exact known-event diagnostic constant gained EQUIPMENT_ATTACHED; its four referencing rejection tests retained every assertion and all passed. Seven focused cases passed; no engine changes or omitted cases. This is composite verification, not a repeated check/full run."
+  },
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.09,
+    "total": 87,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 87,
+        "passed": 87,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.88
+      }
+    ]
+  },
+  "parity": {
+    "priorHead": "ff5d43044bb8047480e8b3dbc92c8e70bb7eb48e",
+    "priorLocalCheckCases": 9907,
+    "currentLocalCheckCases": 9924,
+    "missingCases": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverNativeTests.ProductionOrderingPaymentsResponsesAndDetachRecoverAndReplay(scenario: \"copy-first\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverNativeTests.ProductionOrderingPaymentsResponsesAndDetachRecoverAndReplay(scenario: \"decline-copy\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverNativeTests.ProductionOrderingPaymentsResponsesAndDetachRecoverAndReplay(scenario: \"detach\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverNativeTests.ProductionOrderingPaymentsResponsesAndDetachRecoverAndReplay(scenario: \"native-first\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.DecliningOneInstancePreservesTheOtherIndependentPayment",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.EachInstanceSeparatelyPaysRespondsAndDraws(first: \"copy\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.EachInstanceSeparatelyPaysRespondsAndDraws(first: \"native\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.LaterActualWeaponAttachmentCapturesNativeAndExistingCopiedObservers(card: \"SFD·119/221\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.LaterActualWeaponAttachmentCapturesNativeAndExistingCopiedObservers(card: \"SFD·119a/221\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.PaidCopiedObserverStillResolvesAfterActualDetachRemovesItsGrant",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.RecoveryRejectsForgedCopiedAttachmentOrigins(change: \"card\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.RecoveryRejectsForgedCopiedAttachmentOrigins(change: \"flag\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.RecoveryRejectsForgedCopiedAttachmentOrigins(change: \"grant-generation\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.RecoveryRejectsForgedCopiedAttachmentOrigins(change: \"origin\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.RecoveryRejectsForgedCopiedAttachmentOrigins(change: \"revision\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.RecoveryRejectsForgedCopiedAttachmentOrigins(change: \"unit-generation\")",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.SecondSongAttachmentSeesOnlyTheCopiesAlreadyPresentAtTheEvent"
+    ],
+    "priorMethods": 6559,
+    "currentMethods": 6567,
+    "missingMethods": [],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverNativeTests.ProductionOrderingPaymentsResponsesAndDetachRecoverAndReplay",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.DecliningOneInstancePreservesTheOtherIndependentPayment",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.EachInstanceSeparatelyPaysRespondsAndDraws",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.LaterActualWeaponAttachmentCapturesNativeAndExistingCopiedObservers",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.PaidCopiedObserverStillResolvesAfterActualDetachRemovesItsGrant",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.RecoveryRejectsForgedCopiedAttachmentOrigins",
+      "Riftbound.ConformanceTests.CopiedAttachmentObserverTests.SecondSongAttachmentSeesOnlyTheCopiesAlreadyPresentAtTheEvent",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAttachmentMidgameConfirmsBothDrawsAndReplaysThroughScoreVictory"
+    ]
+  },
+  "compositeDistinctPassed": 9926,
+  "seededMidgameToScoreVictory": 2,
+  "productionNativeCommands": 57,
+  "nativeEvidence": "native-validation.json",
+  "currentFullCI": "Pending follow-up commit; previous ff5d4304 CI 38175922945 is still running",
+  "wholeCardCertification": false,
+  "remaining": [
+    "Aphelios modal attachment ability and per-instance mode history",
+    "Other copied ability consumers",
+    "Physical mixed-controller BASE location",
+    "Paired visible clients and Windows network acceptance"
+  ]
+}

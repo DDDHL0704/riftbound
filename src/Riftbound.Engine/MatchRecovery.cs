@@ -989,6 +989,7 @@ public static class MatchRecoveryValidator
     [
         "TURN_START_BEGAN",
         "MOVEMENT_INSTRUCTION_COMPLETED",
+        "EQUIPMENT_ATTACHED",
         "UNIT_TOKEN_CREATED",
         "UNIT_PLAYED_TO_BATTLEFIELD",
         "UNIT_PLAYED_TO_BASE",

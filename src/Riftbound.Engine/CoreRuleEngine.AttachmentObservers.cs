@@ -1,10 +1,13 @@
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
+using System.Text.Json.Serialization;
 
 namespace Riftbound.Engine;
 
 public sealed record AttachmentObserverContext(string CardNo, long SourceGeneration,
-    ObjectBinding Equipment, string EquipmentCardNo, string AttachingPlayerId);
+    ObjectBinding Equipment, string EquipmentCardNo, string AttachingPlayerId,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopiedInstance = false);
 internal sealed record CapturedAttachmentObserver(string SourceId, string ControllerId, AttachmentObserverContext Context);
 
 public sealed partial class CoreRuleEngine
@@ -23,11 +26,13 @@ public sealed partial class CoreRuleEngine
                 && source != equipment.ObjectId && !string.IsNullOrWhiteSpace(source)
                 && controller == context.AttachingPlayerId && !string.IsNullOrWhiteSpace(controller)
                 && (cardNo is null || cardNo == context.CardNo) && AttachmentDrawSpec(context.CardNo) is not null
+                && context.CopiedInstance == (context.Origin is not null)
                 && OfficialArmamentCatalog.Find(context.EquipmentCardNo) is not null;
 
     internal static bool ValidAttachmentGenerations(MatchState state, AttachmentObserverContext? context, string source)
         => context is null || (!state.CardObjects.TryGetValue(source, out var host) || context.SourceGeneration <= host.ObjectGeneration)
-            && (!state.CardObjects.TryGetValue(context.Equipment.ObjectId, out var gear) || context.Equipment.Generation <= gear.ObjectGeneration);
+            && (!state.CardObjects.TryGetValue(context.Equipment.ObjectId, out var gear) || context.Equipment.Generation <= gear.ObjectGeneration)
+            && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo);
 
     // Capture the abilities present at the attachment event, before a subsequent
     // replacement instruction grants copied text (latest Vendetta FAQ, page 6).
@@ -38,11 +43,16 @@ public sealed partial class CoreRuleEngine
         if (!cards.TryGetValue(unitId, out var unit) || !cards.TryGetValue(gearId, out var gear)
             || unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby) || !unit.Tags.Contains(CardObjectTags.UnitCard)
             || !gear.Tags.Contains(CardEquipmentKeywordNames.Weapon) || !IsObjectOnField(zones, unitId)
-            || EffectiveFieldControllerId(zones, unitId, unit) != actor || AttachmentDrawSpec(unit.CardNo) is null
+            || EffectiveFieldControllerId(zones, unitId, unit) != actor
             || OfficialArmamentCatalog.Find(gear.CardNo) is null) return;
+        var observers = AttachedRuleTextRules.Instances(zones, cards, unit)
+            .Where(instance => AttachmentDrawSpec(instance.CardNo) is not null)
+            .Select(instance => new CapturedAttachmentObserver(unitId, actor,
+                new(instance.CardNo, unit.ObjectGeneration, new(gearId, gear.ObjectGeneration), gear.CardNo!, actor,
+                    instance.Origin, instance.Origin is not null))).ToArray();
+        if (observers.Length == 0) return;
         events.Add(new(CapturedAttachmentEvent, "捕获贴附时存在的技能", new Dictionary<string, object?> {
-            ["observers"] = new[] { new CapturedAttachmentObserver(unitId, actor,
-                new(unit.CardNo!, unit.ObjectGeneration, new(gearId, gear.ObjectGeneration), gear.CardNo!, actor)) }
+            ["observers"] = observers
         }));
     }
 
@@ -117,7 +127,9 @@ public sealed partial class CoreRuleEngine
                     SourceGeneration = Generation(captured.SourceId, captured.Context.SourceGeneration),
                     Equipment = captured.Context.Equipment with { Generation = Generation(captured.Context.Equipment.ObjectId, captured.Context.Equipment.Generation) }
                 };
-                var trigger = new TriggerQueueItemState($"attachment-{result.State.Tick}-{index}-{captured.SourceId}-{captured.Context.Equipment.ObjectId}",
+                var suffix = context.Origin is { } origin
+                    ? $"-ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}" : "";
+                var trigger = new TriggerQueueItemState($"attachment-{result.State.Tick}-{index}-{captured.SourceId}-{captured.Context.Equipment.ObjectId}{suffix}",
                     captured.ControllerId, captured.SourceId, AttachmentObserverEffect, "EQUIPMENT_ATTACHED")
                     { AttachmentObserver = context, SourceCardNo = context.CardNo };
                 queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
