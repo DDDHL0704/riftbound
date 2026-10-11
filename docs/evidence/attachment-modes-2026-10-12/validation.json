@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_LOCAL_PASS_EXACT_HEAD_FULL_CI_PENDING",
+  "status": "SCOPED_LOCAL_AND_EXACT_HEAD_FULL_CI_PASS",
   "batchCheck": {
     "status": "PASSED",
     "profile": "check",
@@ -133,7 +133,15 @@
     ]
   },
   "compositeDistinctPassed": 9954,
-  "currentFullCI": "Pending commit and exact SHA verification; prior a59d5954 full CI is verified with 10065 passed cases and 6567 retained methods.",
+  "currentFullCI": {
+    "headSha": "0557b376e663f035dea11e76ced2c84f3dbcb6d3",
+    "runId": 38180439696,
+    "passedDistinctCases": 10095,
+    "discoveredMethods": 6580,
+    "missingPriorCases": 0,
+    "missingPriorMethods": 0,
+    "evidence": "ci-0557b376.json"
+  },
   "wholeCardCertification": false,
   "pairedVisibleClients": false,
   "windowsNetworkAcceptance": false,

@@ -1,0 +1,346 @@
+{
+  "date": "2026-10-12",
+  "cards": [
+    {
+      "id": 33083,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "SFD·011/221",
+      "cardName": "取放自如",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一名单位和其控制者的一件武装。为该单位贴附或卸除该武装。抽一张牌。",
+      "flavorText": "“承认吧，你已经上钩了。”",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/fa95f3a87cf149418034bd5520876884.png",
+      "backImage": "",
+      "listSort": 990,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33095,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "SFD·022/221",
+      "cardName": "长剑",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "黯荧岛Dark Glow",
+      "cardEffect": "{{灵便}}（此牌获得{{反应}}。当你打出此牌时,将它贴附到你控制的一名单位上。)\n{{装配}}{{红色}}（支付{{红色}}：将此牌贴附到你控制的一名单位上。）",
+      "flavorText": "剑不是造得越长越好——听过\"边际收益递减\"吗?",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(英雄预组 兰博)",
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 英雄预组 兰博",
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/48ad3f52ea5a4fc4bef6b90e0186d6c7.png",
+      "backImage": "",
+      "listSort": 978,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33126,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·050/221",
+      "cardName": "阿兹尔",
+      "subTitle": "飞升者",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "阿兹尔",
+      "region": "恕瑞玛",
+      "tag": "鸟类",
+      "artist": "Six More Vodka",
+      "cardEffect": "支付{{绿色}}：{{迅捷}} — 选择一个受你控制的单位，将我移动到它的位置，再将它移动到我原来的位置。如果该单位已配有武装，则你可以选择将其中一件武装贴附到我身上。每回合仅可使用一次。",
+      "flavorText": "“挑战恕瑞玛，挑战命运。”",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/52f820dac30846909d5723912f6aadc8.png",
+      "backImage": "",
+      "listSort": 947,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33127,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·050a/221",
+      "cardName": "阿兹尔",
+      "subTitle": "飞升者",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "阿兹尔",
+      "region": "恕瑞玛",
+      "tag": "鸟类",
+      "artist": "League Splash Team",
+      "cardEffect": "支付{{绿色}}：{{迅捷}} — 选择一个受你控制的单位，将我移动到它的位置，再将它移动到我原来的位置。如果该单位已配有武装，则你可以选择将其中一件武装贴附到我身上。每回合仅可使用一次。",
+      "flavorText": "“挑战恕瑞玛，挑战命运。”",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/6b1f136094484f9d885ca1c691b286cd.png",
+      "backImage": "",
+      "listSort": 946,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33139,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "SFD·059/221",
+      "cardName": "斯弗尔尚歌",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "Envar Studio",
+      "cardEffect": "{{装配}}{{1}}{{绿色}}（支付{{1}}和{{绿色}}：将此牌贴附到你控制的一名单位上。）\n在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+      "flavorText": "\"只有最伟大的弗雷尔卓德英雄才拥有臻冰做的武器!\"——努努",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/3fb9c51990c64735b1d613e27e53f2a7.png",
+      "backImage": "",
+      "listSort": 934,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "rules": [
+    {
+      "id": "DOC-04-P043-B017",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.8"
+      ],
+      "text": "355.8.       要将法术或技能放置到结算链,必须为其所有目标做出有效的选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P044-B005",
+      "document": "DOC-04",
+      "page": 44,
+      "clauseAnchors": [
+        "355.10"
+      ],
+      "text": "355.10.       在法术、主动技能或触发式技能的文本中提及的游戏物体、玩家或区域均被视为目标,除非出现下列任一情况:",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P045-B009",
+      "document": "DOC-04",
+      "page": 45,
+      "clauseAnchors": [
+        "355.12"
+      ],
+      "text": "355.12.       如果法术指示玩家可以对一定数量的游戏物体执行游戏行动,则所有选择均被视为目标选取,且每次选择都是独立\n              的,与是否执行该游戏行动的决定无关。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P046-B013",
+      "document": "DOC-04",
+      "page": 46,
+      "clauseAnchors": [
+        "355.15"
+      ],
+      "text": "355.15.            除非法术或技能另有说明,否则经过此步骤后,这些选择将无法更改。\n                        想获取更多有关信息,请查阅规则 750.另做选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P050-B005",
+      "document": "DOC-04",
+      "page": 50,
+      "clauseAnchors": [
+        "359.3.e.1"
+      ],
+      "text": "359.3.e.1.        即使部分或所有目标不合法,法术依旧会进行结算。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P050-B014",
+      "document": "DOC-04",
+      "page": 50,
+      "clauseAnchors": [
+        "359.3.e.6"
+      ],
+      "text": "359.3.e.6.        由于非法目标或其他情况而无法遵循的指示会被无视。\n                       举例:一名玩家打出“驭风而行”,并选择将其位于“卑鄙之喉的巢穴”的单位移动到基\n                       地。基地是“驭风而行”的合法移动终点位置,但由于“卑鄙之喉的巢穴”的限制,该移\n                       动指示无法执行,因此在“驭风而行”效果结算时,该移动指示将被无视。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B001",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.a.3"
+      ],
+      "text": "383.3.a.3.              当“你可以选择”或“该玩家可以选择”出现在触发式技能效果的后半部分时,则该选择将在结算阶\n                        段决定。\n                               举例:“奥恩 - 铁匠”的描述为:“当你打出我时,或当我据守一处战场时,查看你主牌\n                               堆顶部的四张牌。你可以选择从中展示一件装备,并抽取该卡牌。然后回收其余的卡\n                               牌。”其中的“你可以选择”并非出现在效果的开头部分,因此该决定将在结算阶段做\n                               出。该技能始终会被确认并放入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P021-B003",
+      "document": "DOC-14",
+      "page": 21,
+      "clauseAnchors": [],
+      "text": "我方贴附有武装 A 和武装 B 的\n                    A1:可以选择,但这\n【寻宝猎人】和我方【阿兹尔 -\n                    并不会造成任何移动,\n  飞升者】在同一处位置。\n                    所以【寻宝猎人】的技\n                     能不会触发。\nQ1:【阿兹尔 - 飞升者】能否选\n择【寻宝猎人】并触发其移动时技\n                    A2:不可以。你必须\n       能?\n                    在技能确认时选取一名\n                    单位,若其身上贴附有\nQ2:【阿兹尔 - 飞升者】选择\n                    武装,则你必须选取其\n【寻宝猎人】后,能否在技能结算\n                    中一件武装作为目标。\n时再决定贴附武装 A 或武装 B?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "currentRefresh": "docs/evidence/rules-reaudit-2026-10-12/live-readback.json",
+  "visualSource": "DOC-14 page 21 checked in prior attachment-mode scope; /tmp/rift-attachment-modes-14-p21.png",
+  "scope": "Mandatory conditional equipment reference at confirmation, separate optional attachment execution after movements; no whole-card or all-copy certification."
+}

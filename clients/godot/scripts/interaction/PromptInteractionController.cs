@@ -439,7 +439,8 @@ internal sealed class PromptInteractionController
             if (selectedMode is not null && requirementMode != selectedMode) continue;
             var steps = new List<PromptStep>(prefix);
             var minimum = requirement.GetProperty("minTargetCount").GetInt32();
-            var maximum = requirement.GetProperty("maxTargetCount").GetInt32();
+            var hasConditionalTargets = requirement.TryGetProperty("targetChoicesByFirstTarget", out var conditionalTargets);
+            var maximum = hasConditionalTargets ? 1 : requirement.GetProperty("maxTargetCount").GetInt32();
             for (var targetIndex = 0; targetIndex < maximum; targetIndex++)
             {
                 var choices = new List<PromptChoice>();
@@ -453,6 +454,17 @@ internal sealed class PromptInteractionController
                     }
                 steps.Add(new(index, "target", minimum > 0 ? "目标／费用" : "目标", targetIndex < minimum, choices));
             }
+            if (hasConditionalTargets && steps.FirstOrDefault(step => step.Role == "target") is { } firstTarget
+                && _selectedChoiceByStep.TryGetValue(firstTarget.Index, out var targetId)
+                && conditionalTargets.TryGetProperty(targetId, out var references) && references.GetArrayLength() > 0)
+            {
+                var index = steps.Count;
+                var choices = references.EnumerateArray().Select(choice => {
+                    var id = choice.GetProperty("id").GetString()!;
+                    return new PromptChoice("target", id, choice.GetProperty("label").GetString() ?? id, [id], index);
+                }).ToArray();
+                steps.Add(new(index, "target", requirement.GetProperty("additionalTargetLabel").GetString() ?? "确认额外目标", true, choices));
+            }
             if (requirement.TryGetProperty("optionalCostChoices", out var costs) && costs.GetArrayLength() > 0)
             {
                 var index = steps.Count;
@@ -461,18 +473,6 @@ internal sealed class PromptInteractionController
                     return new PromptChoice("optionalCost", id, choice.GetProperty("label").GetString() ?? id, [id], index);
                 }).ToArray();
                 steps.Add(new(index, "optionalCost", "可选费用", false, choices));
-            }
-            if (requirement.TryGetProperty("armamentReattachChoicesByTargetObjectId", out var reattach)
-                && steps.FirstOrDefault(step => step.Role == "target") is { } firstTarget
-                && _selectedChoiceByStep.TryGetValue(firstTarget.Index, out var targetId)
-                && reattach.TryGetProperty(targetId, out var armaments) && armaments.GetArrayLength() > 0)
-            {
-                var index = steps.Count;
-                var choices = armaments.EnumerateArray().Select(choice => {
-                    var id = choice.GetProperty("id").GetString()!;
-                    return new PromptChoice("optionalCost", id, choice.GetProperty("label").GetString() ?? id, [id], index);
-                }).ToArray();
-                steps.Add(new(index, "optionalCost", "改贴武装（可选）", false, choices));
             }
             return action with { Steps = steps };
         }

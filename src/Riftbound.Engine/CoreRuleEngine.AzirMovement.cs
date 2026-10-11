@@ -1,3 +1,4 @@
+using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using System.Text.Json.Serialization;
 
@@ -5,7 +6,9 @@ namespace Riftbound.Engine;
 
 public sealed record AzirMovementContext(ObjectBinding Source, ObjectBinding? Equipment = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopiedInstance = false);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopiedInstance = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool MovementsCompleted = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? AttachmentChosen = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -29,17 +32,25 @@ public sealed partial class CoreRuleEngine
             || item.RepeatExecutions is not null || context.Source.ObjectId != item.SourceObjectId || !BindingValid(context.Source)
             || context.CopiedInstance != (context.Origin is not null)
             || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, item.SourceObjectId, context.Source.Generation, item.CardNo!)
-            || item.TargetObjectIds.Count != 1 || item.TargetObjectIds[0] == item.SourceObjectId
-            || item.TargetGenerations is not { Count: 1 } bindings
+            || item.TargetObjectIds.Count != (context.Equipment is null ? 1 : 2) || item.TargetObjectIds[0] == item.SourceObjectId
+            || item.TargetGenerations is not { } bindings || bindings.Count != item.TargetObjectIds.Count
             || !bindings.TryGetValue(item.TargetObjectIds[0], out var generation)
             || !BindingValid(new(item.TargetObjectIds[0], generation))
+            || state.CardObjects.TryGetValue(item.TargetObjectIds[0], out var target)
+                && target.ObjectGeneration == generation && !target.Tags.Contains(CardObjectTags.UnitCard)
             || state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                 && source.ObjectGeneration == context.Source.Generation && source.CardNo != item.CardNo)
             return false;
-        return context.Equipment is null ? item.OptionalCosts.Count == 0
+        if (item.OptionalCosts.Count != 0 || !context.MovementsCompleted && context.AttachmentChosen is not null
+            || context.MovementsCompleted && context.Equipment is null) return false;
+        return context.Equipment is null ? true
             : BindingValid(context.Equipment) && context.Equipment.ObjectId != item.SourceObjectId
                 && context.Equipment.ObjectId != item.TargetObjectIds[0]
-                && item.OptionalCosts.SequenceEqual([P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(context.Equipment.ObjectId)]);
+                && item.TargetObjectIds[1] == context.Equipment.ObjectId
+                && bindings.TryGetValue(context.Equipment.ObjectId, out var gearGeneration) && gearGeneration == context.Equipment.Generation
+                && (!state.CardObjects.TryGetValue(context.Equipment.ObjectId, out var gear)
+                    || gear.ObjectGeneration != gearGeneration
+                    || gear.Tags.Contains(CardObjectTags.EquipmentCard) && OfficialArmamentCatalog.Find(gear.CardNo) is not null);
     }
 
     // One move instruction, including all equipment following its host. Equipment
@@ -95,6 +106,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveAzirMovement(MatchState state, StackItemState item)
     {
         if (!ValidAzirMovement(state, item)) return NoopStackResolutionResult(state);
+        if (item.AzirMovement!.MovementsCompleted) return ResolveAzirAttachmentAfterMovements(state, item);
         var context = item.AzirMovement!;
         var targetId = item.TargetObjectIds[0];
         var events = new List<GameEvent> { new("ABILITY_RESOLVED", "阿兹尔的迅捷移动技能结算", new Dictionary<string, object?> {
@@ -121,17 +133,6 @@ public sealed partial class CoreRuleEngine
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         var sourceMoved = TryMoveFieldUnitByEffect(state, zones, cards, locations, item.SourceObjectId, targetOrigin, item.ControllerId, item, events);
         var targetMoved = TryMoveFieldUnitByEffect(state, zones, cards, locations, targetId, sourceOrigin, item.ControllerId, item, events);
-        var attached = false;
-        if (context.Equipment is { } binding && cards.TryGetValue(binding.ObjectId, out var gear)
-            && gear.ObjectGeneration == binding.Generation && IsLegalAzirArmamentReattachChoice(cards, targetId, binding.ObjectId))
-        {
-            attached = TryAttachEquipment(zones, cards, locations, item.ControllerId, item.SourceObjectId,
-                binding.ObjectId, item.SourceObjectId, item.EffectKind, events, out var nextLocations,
-                new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
-                    ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, ["stackItemId"] = item.StackItemId,
-                    ["targetObjectId"] = targetId });
-            locations = nextLocations.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        }
         if (sourceMoved || targetMoved)
             events.Add(new("UNIT_LOCATIONS_SWAPPED", "阿兹尔的两次移动指示完成", new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = targetId,
@@ -141,8 +142,17 @@ public sealed partial class CoreRuleEngine
                 ["sourceDestinationLocation"] = BuildLocationPayload(locations[item.SourceObjectId]),
                 ["targetOriginLocation"] = BuildLocationPayload(targetOrigin), ["targetDestinationLocation"] = BuildLocationPayload(locations[targetId]),
                 ["sourceMoved"] = sourceMoved, ["targetMoved"] = targetMoved,
-                ["selectedArmamentObjectId"] = context.Equipment?.ObjectId, ["armamentReattachApplied"] = attached,
+                ["selectedArmamentObjectId"] = context.Equipment?.ObjectId, ["armamentReattachApplied"] = false,
                 ["armamentReattachPolicy"] = P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy }));
-        return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, Events = events };
+        var result = NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, Events = events };
+        var movedState = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+        if (!CanExecuteAzirAttachment(movedState, item)) return result;
+        var changed = item with { AzirMovement = context with { MovementsCompleted = true } };
+        var choice = AzirAttachmentChoice(changed);
+        events[0] = events[0] with { Kind = "ABILITY_MOVEMENTS_COMPLETED", Description = "阿兹尔移动指示已执行，等待可选贴附决定" };
+        events.Add(new("CARD_CHOICE_REQUESTED", "移动完成后决定是否贴附已确认的武装", new Dictionary<string, object?> {
+            ["choiceId"] = choice.ChoiceId, ["choiceWindow"] = choice.ChoiceWindow, ["playerId"] = choice.PlayerId,
+            ["sourceObjectId"] = item.SourceObjectId, ["targetObjectIds"] = item.TargetObjectIds.ToArray() }));
+        return result with { PendingCardChoice = choice, StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(changed).ToArray(), Events = events };
     }
 }

@@ -12,9 +12,9 @@ public partial class AzirMovementInteractionProof : Control
     {
         try {
             var root = OS.GetCmdlineUserArgs().Single(a => a.StartsWith("--evidence="))[11..]; var count = 0;
-            foreach (var scenario in new[] { "same-location", "move-attach", "move-decline", "opponent-focus" }) {
-                var names = scenario == "same-location" ? new[] { "activate", "move-pass-1", "move-pass-2" }
-                    : new[] { "activate", "move-pass-1", "move-pass-2", "gold-pass-1", "gold-pass-2" };
+            foreach (var scenario in new[] { "same-location", "move-attach", "move-decline", "opponent-focus", "copied-attach", "copied-decline" }) {
+                var names = scenario == "same-location" ? new[] { "activate", "move-pass-1", "move-pass-2", "reattach-choice" }
+                    : new[] { "activate", "move-pass-1", "move-pass-2", "reattach-choice", "gold-pass-1", "gold-pass-2" };
                 foreach (var name in names) {
                     var dir = Path.Combine(root, scenario);
                     using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, name + "-prompt.json"))); var prompt = document.RootElement;
@@ -22,23 +22,32 @@ public partial class AzirMovementInteractionProof : Control
                     var controller = new PromptInteractionController(); controller.Load(view);
                     var bar = GD.Load<PackedScene>("res://scenes/components/ActionBar.tscn").Instantiate<ActionBar>(); AddChild(bar);
                     bar.ActionSelected += id => controller.SelectAction(id); bar.ShowPrompt(view["message"].AsString(), controller.Actions);
-                    var action = name == "activate" ? "ACTIVATE_ABILITY" : "PASS_PRIORITY";
+                    var action = name == "activate" ? "ACTIVATE_ABILITY" : name == "reattach-choice" ? "CHOOSE_CARDS" : "PASS_PRIORITY";
                     if (action == "PASS_PRIORITY") {
                         var primary = (Button)typeof(ActionBar).GetField("_primaryAction", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(bar)!;
                         Check(!primary.Disabled && primary.Text == "不响应 · 让过", "Production pass is enabled"); primary.EmitSignal(BaseButton.SignalName.Pressed);
-                    } else {
+                    } else if (action == "ACTIVATE_ABILITY") {
                         var label = controller.Actions.Single(a => a.Name == action).Label;
                         bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b => b.Text == label).EmitSignal(BaseButton.SignalName.Pressed);
                         if (controller.Current!.SourceId != "HOST") Check(controller.TrySelectChoice("source", "HOST"), "Azir source selection");
-                        if (!controller.Current.TargetIds.SequenceEqual(new[] { "TARGET" })) Check(controller.TrySelectChoice("target", "TARGET"), "Unit target selection");
-                        Check(controller.Current.CanSubmit && controller.Current.OptionalCostIds.Count == 0, "Declining the printed optional attachment is legal");
-                        if (scenario != "move-decline") {
-                            Check(controller.TrySelectChoice("optionalCost", "AZIR_REATTACH_ARMAMENT:GEAR"), "Selected unit's weapon is available before activation");
-                            Check(controller.Current!.OptionalCostIds.SequenceEqual(new[] { "AZIR_REATTACH_ARMAMENT:GEAR" }), "Chosen weapon retained");
+                        if (scenario.StartsWith("copied", StringComparison.Ordinal)) {
+                            var row = prompt.GetProperty("candidates").EnumerateArray().Single(c => c.GetProperty("action").GetString() == action)
+                                .GetProperty("metadata").GetProperty("sourceRequirements").EnumerateArray()
+                                .Single(r => r.GetProperty("sourceObjectId").GetString() == "HOST" && r.TryGetProperty("abilityInstanceId", out _));
+                            Check(controller.TrySelectChoice("mode", row.GetProperty("abilityInstanceId").GetString()!), "Explicit copied instance selected");
                         }
+                        if (!controller.Current.TargetIds.SequenceEqual(new[] { "TARGET" })) Check(controller.TrySelectChoice("target", "TARGET"), "Unit target selection");
+                        if (!controller.Current!.TargetIds.Contains("GEAR")) Check(controller.TrySelectChoice("target", "GEAR"), "Mandatory weapon reference selected");
+                        Check(controller.Current!.CanSubmit && controller.Current.OptionalCostIds.Count == 0, "References are confirmed without deciding the later optional action");
                         controller.Load(view);
-                        Check(controller.Current!.TargetIds.SequenceEqual(new[] { "TARGET" }), "Prompt reload retains unit target");
-                        Check(controller.Current.OptionalCostIds.Count == (scenario == "move-decline" ? 0 : 1), "Prompt reload retains attachment decision");
+                        Check(controller.Current!.TargetIds.SequenceEqual(new[] { "TARGET", "GEAR" }), "Prompt reload retains both references");
+                        Check(controller.Current.OptionalCostIds.Count == 0, "Weapon reference is not an optional cost");
+                    } else {
+                        var label = controller.Actions.Single(a => a.Name == action).Label;
+                        Check(label == "决定是否改贴武装", "Late optional decision has a specific Chinese action label");
+                        bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b => b.Text == label).EmitSignal(BaseButton.SignalName.Pressed);
+                        if (!scenario.EndsWith("decline", StringComparison.Ordinal)) Check(controller.TrySelectChoice("target", "GEAR"), "Optional action uses only the previously confirmed weapon");
+                        Check(controller.Current!.CanSubmit, "Optional action can be accepted or declined after movement");
                     }
                     bar.ShowSelection(controller.Current!, controller.CurrentChoices, controller.CurrentStepLabel, controller.CurrentStepRequired);
                     var candidate = prompt.GetProperty("candidates").EnumerateArray().Single(c => c.GetProperty("action").GetString() == action);
@@ -54,7 +63,9 @@ public partial class AzirMovementInteractionProof : Control
                         Check((string)command!["abilityId"]! == "AZIR_SWIFT_PAY_GREEN_SWAP_WITH_CONTROLLED_UNIT", "Exact Azir ability selected");
                         var costs = command.TryGetValue("optionalCosts", out var selectedCosts)
                             ? ((IEnumerable<string>)selectedCosts!).ToArray() : Array.Empty<string>();
-                        Check(costs.SequenceEqual(scenario == "move-decline" ? Array.Empty<string>() : new[] { "AZIR_REATTACH_ARMAMENT:GEAR" }), "Command carries chosen weapon and no late substitution");
+                        Check(costs.Length == 0, "Activation contains no premature optional attachment decision");
+                        Check(((IEnumerable<string>)command["targetObjectIds"]!).SequenceEqual(new[] { "TARGET", "GEAR" }), "Both confirmed targets are sent");
+                        if (scenario.StartsWith("copied", StringComparison.Ordinal)) Check(command.ContainsKey("abilityInstanceId"), "Copied command retains its instance binding");
                     }
                     File.WriteAllText(Path.Combine(dir, name + "-command.json"), JsonSerializer.Serialize(command)); bar.Free(); count++;
                 }

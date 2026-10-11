@@ -1,0 +1,118 @@
+{
+  "status": "SCOPED_LOCAL_PASS_EXACT_HEAD_FULL_CI_PENDING",
+  "batchCheck": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 98.27,
+    "total": 9975,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9975,
+        "passed": 9975,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 93.86
+      }
+    ]
+  },
+  "focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 37.78,
+    "total": 126,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 126,
+        "passed": 126,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.26
+      }
+    ]
+  },
+  "native": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.9,
+    "total": 6,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.27
+      }
+    ]
+  },
+  "productionCommands": 34,
+  "selectedFullGames": {
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAzirMidgameMovesEquipmentAndReplaysThroughScoreVictory(card: \"SFD·050/221\", attach: False)": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAzirMidgameMovesEquipmentAndReplaysThroughScoreVictory(card: \"SFD·050a/221\", attach: True)": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAzirConfirmsWeaponThenChoosesAttachmentAndReplaysThroughScoreVictory": "Passed"
+  },
+  "compositeDistinctPassed": 9978,
+  "parity": {
+    "priorLocalCases": 9952,
+    "currentLocalCases": 9975,
+    "missingCases": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.AzirMovementNativeTests.ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery(scenario: \"copied-attach\")",
+      "Riftbound.ConformanceTests.AzirMovementNativeTests.ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery(scenario: \"copied-decline\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.ChosenOptionalReattachIsOfferedOnlyAfterMovements",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.ExistingChosenArmamentIsPublishedAsSecondTargetBeforeResponse",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.LaterDecisionRejectsChangingTheReferenceOrTakingAnotherAction(change: \"activate\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.LaterDecisionRejectsChangingTheReferenceOrTakingAnotherAction(change: \"opponent\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.LaterDecisionRejectsChangingTheReferenceOrTakingAnotherAction(change: \"other-object\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.LaterDecisionRejectsChangingTheReferenceOrTakingAnotherAction(change: \"pass\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.OmittingMandatoryWeaponReferenceCannotConsumeCostOrOnceUse",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.OptionalDecisionKeepsConfirmedTargetsAndDoesNotMoveUnitsAgain(attach: False)",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.OptionalDecisionKeepsConfirmedTargetsAndDoesNotMoveUnitsAgain(attach: True)",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.PrintedAndCopiedInstancesUseTheSameTwoReferencesAndLaterDecision(copied: False)",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.PrintedAndCopiedInstancesUseTheSameTwoReferencesAndLaterDecision(copied: True)",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsAConsistentReferenceToANonArmamentObject(reference: \"armament\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsAConsistentReferenceToANonArmamentObject(reference: \"unit\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsForgedOptionalContinuation(change: \"context\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsForgedOptionalContinuation(change: \"count\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsForgedOptionalContinuation(change: \"decision\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsForgedOptionalContinuation(change: \"legal\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsForgedOptionalContinuation(change: \"missing\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsForgedOptionalContinuation(change: \"stack\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsForgedOptionalContinuation(change: \"window\")",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.UnitWithoutArmamentNeedsOnlyItsOwnReferenceAndNoLaterAttachmentChoice"
+    ],
+    "priorFullMethods": 6580,
+    "currentDiscoveredMethods": 6590,
+    "missingMethods": [],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.ChosenOptionalReattachIsOfferedOnlyAfterMovements",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.ExistingChosenArmamentIsPublishedAsSecondTargetBeforeResponse",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.LaterDecisionRejectsChangingTheReferenceOrTakingAnotherAction",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.OmittingMandatoryWeaponReferenceCannotConsumeCostOrOnceUse",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.OptionalDecisionKeepsConfirmedTargetsAndDoesNotMoveUnitsAgain",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.PrintedAndCopiedInstancesUseTheSameTwoReferencesAndLaterDecision",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsAConsistentReferenceToANonArmamentObject",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.RecoveryRejectsForgedOptionalContinuation",
+      "Riftbound.ConformanceTests.AzirReferenceConfirmationTests.UnitWithoutArmamentNeedsOnlyItsOwnReferenceAndNoLaterAttachmentChoice",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAzirConfirmsWeaponThenChoosesAttachmentAndReplaysThroughScoreVictory"
+    ]
+  },
+  "firstThreeRedReproductions": "var/qa/azir-reference-confirmation/red1",
+  "additionalReferenceTypeRedReproduction": "var/qa/azir-reference-confirmation/focus7-red",
+  "wholeCardCertification": false,
+  "visiblePairedClients": false,
+  "windowsNetworkAcceptance": false,
+  "currentFullCI": "Pending commit and exact SHA verification",
+  "remaining": [
+    "Shared spell-or-ability counters and current target counting policy",
+    "All remaining printed-text copy consumers and armament lower abilities",
+    "Mixed-controller base physical placement",
+    "Entire official corpus and visible two-client/network acceptance"
+  ]
+}

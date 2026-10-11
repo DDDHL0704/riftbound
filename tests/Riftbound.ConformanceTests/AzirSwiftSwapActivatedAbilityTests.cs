@@ -126,13 +126,13 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             requirement["armamentReattachChoicesByTargetObjectId"]);
         Assert.Equal(
             [
-                P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(TargetArmamentObjectId),
-                P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(SecondTargetArmamentObjectId),
-                P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(EnemyControlledArmamentObjectId)
+                TargetArmamentObjectId,
+                SecondTargetArmamentObjectId,
+                EnemyControlledArmamentObjectId
             ],
             choicesByTarget[TargetObjectId].Select(choice => choice.Id).ToArray());
         Assert.Equal(
-            [P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(OtherUnitArmamentObjectId)],
+            [OtherUnitArmamentObjectId],
             choicesByTarget[BaseTargetObjectId].Select(choice => choice.Id).ToArray());
         Assert.Contains(
             choicesByTarget[TargetObjectId],
@@ -203,7 +203,8 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
     public async Task AzirNoReattachChoiceRemainsLegalWhenTargetHasArmament()
     {
         var engine = new CoreRuleEngine();
-        var activated = await ActivateAzirAsync(BuildAzirStateWithArmaments(), engine: engine);
+        var activated = await ActivateAzirAsync(BuildAzirStateWithArmaments(), engine: engine,
+            targetObjectIds: [TargetObjectId, TargetArmamentObjectId]);
 
         Assert.True(activated.Accepted, activated.ErrorMessage);
         Assert.Empty(Assert.Single(activated.State.StackItems).OptionalCosts);
@@ -216,29 +217,31 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
         var swapEvent = Assert.Single(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_LOCATIONS_SWAPPED", StringComparison.Ordinal));
         Assert.False(Assert.IsType<bool>(swapEvent.Payload["armamentReattachApplied"]));
         Assert.Equal(P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy, swapEvent.Payload["armamentReattachPolicy"]);
-        Assert.Null(swapEvent.Payload["selectedArmamentObjectId"]);
+        Assert.Equal(TargetArmamentObjectId, swapEvent.Payload["selectedArmamentObjectId"]);
+        Assert.False(Assert.IsType<bool>(Assert.Single(resolved.Events, e => e.Kind == "ABILITY_RESOLVED").Payload["armamentReattachChosen"]));
     }
 
     [Fact]
     public async Task AzirSelectedLegalArmamentReattachesToAzirOnResolution()
     {
         var engine = new CoreRuleEngine();
-        var selectedOptionalCost = P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId(TargetArmamentObjectId);
         var activated = await ActivateAzirAsync(
             BuildAzirStateWithArmaments(),
-            optionalCosts: [selectedOptionalCost],
+            targetObjectIds: [TargetObjectId, TargetArmamentObjectId],
             engine: engine);
 
         Assert.True(activated.Accepted, activated.ErrorMessage);
-        Assert.Equal([selectedOptionalCost], Assert.Single(activated.State.StackItems).OptionalCosts);
+        Assert.Empty(Assert.Single(activated.State.StackItems).OptionalCosts);
+        Assert.Equal(new[] { TargetObjectId, TargetArmamentObjectId }, activated.State.StackItems[0].TargetObjectIds);
 
-        var resolved = await ResolveAzirStackAsync(engine, activated.State);
+        var resolved = await ResolveAzirStackAsync(engine, activated.State, attach: true);
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
         Assert.Equal(AzirObjectId, resolved.State.CardObjects[TargetArmamentObjectId].AttachedToObjectId);
         Assert.Equal(TargetObjectId, resolved.State.CardObjects[SecondTargetArmamentObjectId].AttachedToObjectId);
         var swapEvent = Assert.Single(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_LOCATIONS_SWAPPED", StringComparison.Ordinal));
-        Assert.True(Assert.IsType<bool>(swapEvent.Payload["armamentReattachApplied"]));
+        Assert.False(Assert.IsType<bool>(swapEvent.Payload["armamentReattachApplied"]));
+        Assert.True(Assert.IsType<bool>(Assert.Single(resolved.Events, e => e.Kind == "ABILITY_RESOLVED").Payload["armamentReattachApplied"]));
         Assert.Equal(TargetArmamentObjectId, swapEvent.Payload["selectedArmamentObjectId"]);
         Assert.Equal(P4ActivatedAbilityCatalog.AzirArmamentReattachPolicy, swapEvent.Payload["armamentReattachPolicy"]);
         var reattachEvent = Assert.Single(resolved.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
@@ -533,25 +536,21 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
         var state = BuildAzirStateWithArmaments();
         var command = scenario switch
         {
-            "missing-object" => AzirCommand(optionalCosts: [AzirReattachOptionalCost("P1-MISSING-ARMAMENT")]),
-            "non-equipment" => AzirCommand(optionalCosts: [AzirReattachOptionalCost(NonEquipmentAttachedObjectId)]),
-            "unattached" => AzirCommand(optionalCosts: [AzirReattachOptionalCost(UnattachedArmamentObjectId)]),
-            "attached-to-different-unit" => AzirCommand(optionalCosts: [AzirReattachOptionalCost(OtherUnitArmamentObjectId)]),
-            "opponent-controlled" => AzirCommand(optionalCosts: [AzirReattachOptionalCost(EnemyControlledArmamentObjectId)]),
-            "multiple-choices" => AzirCommand(optionalCosts:
-            [
-                AzirReattachOptionalCost(TargetArmamentObjectId),
-                AzirReattachOptionalCost(SecondTargetArmamentObjectId)
-            ]),
+            "missing-object" => AzirCommand(targetObjectIds: [TargetObjectId, "P1-MISSING-ARMAMENT"]),
+            "non-equipment" => AzirCommand(targetObjectIds: [TargetObjectId, NonEquipmentAttachedObjectId]),
+            "unattached" => AzirCommand(targetObjectIds: [TargetObjectId, UnattachedArmamentObjectId]),
+            "attached-to-different-unit" => AzirCommand(targetObjectIds: [TargetObjectId, OtherUnitArmamentObjectId]),
+            "opponent-controlled" => AzirCommand(targetObjectIds: [TargetObjectId, EnemyControlledArmamentObjectId]),
+            "multiple-choices" => AzirCommand(targetObjectIds: [TargetObjectId, TargetArmamentObjectId, SecondTargetArmamentObjectId]),
             _ => AzirCommand()
         };
 
         if (scenario == "opponent-controlled")
         {
             // Printed text chooses the unit you control; the attached weapon has no control restriction.
-            var activated = await ActivateAzirAsync(state, command.OptionalCosts);
+            var activated = await ActivateAzirAsync(state, command.OptionalCosts, targetObjectIds: command.TargetObjectIds);
             Assert.True(activated.Accepted, activated.ErrorMessage);
-            var resolved = await ResolveAzirStackAsync(new CoreRuleEngine(), activated.State);
+            var resolved = await ResolveAzirStackAsync(new CoreRuleEngine(), activated.State, attach: true);
             Assert.True(resolved.Accepted, resolved.ErrorMessage);
             var gear = resolved.State.CardObjects[EnemyControlledArmamentObjectId];
             Assert.Equal(AzirObjectId, gear.AttachedToObjectId);
@@ -569,7 +568,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
         var engine = new CoreRuleEngine();
         var activated = await ActivateAzirAsync(
             BuildAzirStateWithArmaments(),
-            optionalCosts: [AzirReattachOptionalCost(TargetArmamentObjectId)],
+            targetObjectIds: [TargetObjectId, TargetArmamentObjectId],
             engine: engine);
         Assert.True(activated.Accepted, activated.ErrorMessage);
         var staleCardObjects = activated.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -598,16 +597,17 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
     private static async Task<ResolutionResult> ActivateAzirAsync(
         MatchState state,
         IReadOnlyList<string>? optionalCosts = null,
-        CoreRuleEngine? engine = null)
+        CoreRuleEngine? engine = null,
+        IReadOnlyList<string>? targetObjectIds = null)
     {
         return await (engine ?? new CoreRuleEngine()).ResolveAsync(
             state,
             new PlayerIntent("intent-azir-activate", "P1", CommandTypes.ActivateAbility),
-            AzirCommand(optionalCosts: optionalCosts),
+            AzirCommand(targetObjectIds: targetObjectIds, optionalCosts: optionalCosts),
             CancellationToken.None);
     }
 
-    private static async Task<ResolutionResult> ResolveAzirStackAsync(CoreRuleEngine engine, MatchState state)
+    private static async Task<ResolutionResult> ResolveAzirStackAsync(CoreRuleEngine engine, MatchState state, bool attach = false)
     {
         var p1Pass = await engine.ResolveAsync(
             state,
@@ -616,11 +616,12 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             CancellationToken.None);
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
 
-        return await engine.ResolveAsync(
+        var resolved = await engine.ResolveAsync(
             p1Pass.State,
             new PlayerIntent("intent-azir-resolve-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
+        return await AzirTestDriver.Finish(resolved, attach);
     }
 
     private static string AzirReattachOptionalCost(string equipmentObjectId)
@@ -887,7 +888,7 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             ["P1-FACE-DOWN"] = new("P1", "BASE"),
             ["P1-STALE"] = new("P1", "GRAVEYARD"),
             ["P1-DIRTY-P2-CONTROLLED"] = new("P1", "BASE"),
-            ["P2-ENEMY-UNIT"] = new("P2", "BATTLEFIELD", "BF-ENEMY")
+            ["P2-ENEMY-UNIT"] = new("P2", "BASE")
         };
         foreach (var objectId in baseObjectIds ?? [])
         {
@@ -906,8 +907,8 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
             "P1",
             new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                ["P1"] = "Alice",
-                ["P2"] = "Bob"
+                ["P1"] = "P1",
+                ["P2"] = "P2"
             },
             status: MatchStatuses.InProgress,
             turnPlayerId: "P1",
@@ -925,11 +926,12 @@ public sealed class AzirSwiftSwapActivatedAbilityTests
                     Base = allBaseObjectIds,
                     Battlefields = [AzirBattlefieldObjectId, TargetBattlefieldObjectId, AzirObjectId, TargetObjectId],
                     Hand = ["P1-HAND-UNIT"],
+                    Graveyard = ["P1-STALE"],
                     RuneDeck = runeDeckObjectIds ?? []
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P2-ENEMY-UNIT"]
+                    Base = ["P2-ENEMY-UNIT"]
                 }
             },
             cardObjects: cardObjects,

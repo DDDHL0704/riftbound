@@ -412,7 +412,7 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: false,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Printed Azir Swift movements and chosen optional armament use shared movement and attachment actions; copied instances preserve independent once-per-turn use and captured attachment origins.",
+            "Printed Azir Swift movements use shared actions; the conditional armament target is confirmed before responses, with optional attachment decided after movements. Copied instances retain independent use and captured origins.",
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Green] = AzirSwiftSwapGreenPowerCost

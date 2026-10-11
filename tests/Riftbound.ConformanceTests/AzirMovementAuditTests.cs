@@ -26,8 +26,7 @@ public sealed class AzirMovementAuditTests
     }
 
     internal static ActivateAbilityCommand Command(bool attach = false) => new("HOST",
-        P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, ["TARGET"],
-        attach ? [P4ActivatedAbilityCatalog.AzirArmamentReattachOptionalCostId("GEAR")] : []);
+        P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, ["TARGET", "GEAR"], []);
 
     internal static async Task<MatchState> OpponentFocusPosition()
     {
@@ -47,7 +46,7 @@ public sealed class AzirMovementAuditTests
         var activated = await Act(s, "P1", Command(true));
         Assert.Equal("P2", activated.State.TurnPlayerId);
         Assert.Equal(TimingStates.SpellDuelClosed, activated.State.TimingState);
-        var done = await Top(activated.State);
+        var done = await AttachTop(activated.State);
         Assert.Equal("OTHER", done.State.ObjectLocations["HOST"].BattlefieldObjectId);
         Assert.Equal("F", done.State.ObjectLocations["TARGET"].BattlefieldObjectId);
         Assert.Equal("HOST", done.State.CardObjects["GEAR"].AttachedToObjectId);
@@ -61,7 +60,7 @@ public sealed class AzirMovementAuditTests
     {
         var activated = await Act(AzirPosition(true, card), "P1", Command(true));
         Assert.Equal("TARGET", activated.State.CardObjects["GEAR"].AttachedToObjectId);
-        var done = await Top(activated.State);
+        var done = await AttachTop(activated.State);
         Assert.Equal("HOST", done.State.CardObjects["GEAR"].AttachedToObjectId);
         Assert.Equal("F", done.State.ObjectLocations["HOST"].BattlefieldObjectId);
         Assert.Equal("F", done.State.ObjectLocations["TARGET"].BattlefieldObjectId);
@@ -111,7 +110,7 @@ public sealed class AzirMovementAuditTests
         s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
             [restricted] = s.CardObjects[restricted] with { UntilEndOfTurnEffects = [MovementRestrictionRules.ForPlayer("P1")] }
         }};
-        var activated = await Act(s, "P1", Command(true)); var done = await Top(activated.State);
+        var activated = await Act(s, "P1", Command(true)); var done = await AttachTop(activated.State);
         Assert.Equal(restricted == "HOST" ? "F" : "OTHER", done.State.ObjectLocations["HOST"].BattlefieldObjectId);
         Assert.Equal(restricted == "TARGET" ? "OTHER" : "F", done.State.ObjectLocations["TARGET"].BattlefieldObjectId);
         Assert.Equal(0, done.State.CardObjects[restricted].MovementCountThisTurn);
@@ -163,7 +162,7 @@ public sealed class AzirMovementAuditTests
     {
         var activated = await Act(AzirPosition(), "P1", Command(true));
         var changed = At(activated.State, "HOST", "P2", "BATTLEFIELD", "F");
-        Restore(changed); PublicRecovery(changed); var done = await Top(changed);
+        Restore(changed); PublicRecovery(changed); var done = await AttachTop(changed);
         Assert.Equal("OTHER", done.State.ObjectLocations["HOST"].BattlefieldObjectId);
         Assert.Equal("P2", done.State.CardObjects["HOST"].ControllerId);
         Assert.Equal("P1", done.State.CardObjects["GEAR"].ControllerId);
@@ -191,7 +190,7 @@ public sealed class AzirMovementAuditTests
             "source-generation" => item with { AzirMovement = item.AzirMovement! with { Source = new("HOST", 99) } },
             "target-generation" => item with { TargetGenerations = new Dictionary<string, long> { ["TARGET"] = 99 } },
             "equipment-generation" => item with { AzirMovement = item.AzirMovement! with { Equipment = new("GEAR", 99) } },
-            "equipment-choice" => item with { OptionalCosts = [] },
+            "equipment-choice" => item with { TargetObjectIds = ["TARGET"] },
             "effect" => item with { EffectKind = "DRAW_ONE" },
             "card" => item with { CardNo = "OGN·001/298" },
             _ => item
@@ -295,11 +294,16 @@ public sealed class AzirMovementAuditTests
             ["TARGET"] = s.CardObjects["TARGET"] with { IsExhausted = true },
             ["GEAR"] = s.CardObjects["GEAR"] with { IsExhausted = true }
         }};
-        var done = await Top((await Act(s, "P1", Command(true))).State);
+        var done = await AttachTop((await Act(s, "P1", Command(true))).State);
         foreach (var id in new[] { "HOST", "TARGET", "GEAR" }) Assert.True(done.State.CardObjects[id].IsExhausted);
         Assert.Equal(2, done.State.CardObjects["HOST"].Damage);
         Assert.Equal("OTHER", done.State.ObjectLocations["HOST"].BattlefieldObjectId);
         Assert.Equal("HOST", done.State.CardObjects["GEAR"].AttachedToObjectId);
         Restore(done.State); PublicRecovery(done.State);
     }
+    private static async Task<ResolutionResult> Top(MatchState state)
+        => await AzirTestDriver.Finish(await OfficialGraveyardRecastTests.Top(state), attach: false);
+    private static async Task<ResolutionResult> AttachTop(MatchState state)
+        => await AzirTestDriver.Finish(await OfficialGraveyardRecastTests.Top(state), attach: true);
+
 }

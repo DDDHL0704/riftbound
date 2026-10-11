@@ -23405,6 +23405,11 @@ public static class MatchRecoveryValidator
 
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.AzirAttachmentWindow } azirChoice
+            && !CoreRuleEngine.ValidAzirAttachmentChoice(state, azirChoice)) errors.Add("invalid Azir optional attachment choice");
+        if (state.StackItems.Any(i => i.AzirMovement is { MovementsCompleted: true } ctx
+            && (ctx.AttachmentChosen is not null || state.PendingCardChoice is not { } pending
+                || pending.ResolvingStackItemId != i.StackItemId || pending.ChoiceWindow != CoreRuleEngine.AzirAttachmentWindow))) errors.Add("invalid Azir movement continuation");
         if (!CoreRuleEngine.ValidRuleTextModeLedger(state)) errors.Add("invalid printed text instance mode-use ledger");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.AttachmentModeTargetWindow } modeChoice
             && !CoreRuleEngine.ValidAttachmentModeChoice(state, modeChoice)) errors.Add("invalid attachment mode confirmation");

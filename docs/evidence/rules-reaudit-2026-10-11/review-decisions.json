@@ -7766,7 +7766,7 @@
     },
     {
       "id": "ATTACHMENT-MODES-2026-10-12",
-      "status": "SCOPED_LOCAL_PASS_FULL_CI_PENDING",
+      "status": "SCOPED_LOCAL_AND_EXACT_HEAD_FULL_CI_PASS",
       "scope": "Printed attachment modal trigger with confirmation-time choice, selected public targets, per-continuous-source and copied-origin used modes, independent copied ability confirmation and resolution. Whole cards are not certified.",
       "subjects": [
         "SFD-049/221",
@@ -7793,7 +7793,44 @@
       "evidence": [
         "docs/ATTACHMENT_MODE_AUDIT_2026-10-12.md",
         "docs/evidence/attachment-modes-2026-10-12/validation.json",
-        "docs/evidence/attachment-modes-2026-10-12/native-validation.json"
+        "docs/evidence/attachment-modes-2026-10-12/native-validation.json",
+        "docs/evidence/attachment-modes-2026-10-12/ci-0557b376.json"
+      ],
+      "wholeCardCertification": false
+    },
+    {
+      "id": "AZIR-REFERENCE-CONFIRMATION-2026-10-12",
+      "status": "SCOPED_LOCAL_PASS_FULL_CI_PENDING",
+      "scope": "Mandatory conditional armament reference at confirmation, separate optional action after both movement instructions, exact continuous object identity and reference types, shared native/copied ability flow. Earlier optional-cost protocol and conditional-reference wording are superseded. Whole cards are not certified.",
+      "subjects": [
+        "SFD-050/221",
+        "SFD-050A/221",
+        "SFD-059/221"
+      ],
+      "rules": [
+        "DOC-14-P021-B003",
+        "DOC-04 355.8,355.10,355.12,355.15,359.3.e.1,359.3.e.6,383.3.a.3"
+      ],
+      "implementation": [
+        "CoreRuleEngine.AzirMovement.cs",
+        "CoreRuleEngine.AzirAttachmentChoice.cs",
+        "CoreRuleEngine.cs",
+        "MatchRecovery.cs",
+        "MatchSession.cs",
+        "PromptInteractionController.cs"
+      ],
+      "tests": [
+        "AzirReferenceConfirmationTests",
+        "AzirMovementAuditTests",
+        "AzirSwiftSwapActivatedAbilityTests",
+        "AzirMovementNativeTests",
+        "FullGameEndToEndTests.AuditedAzirMidgameMovesEquipmentAndReplaysThroughScoreVictory",
+        "FullGameEndToEndTests.AuditedCopiedAzirConfirmsWeaponThenChoosesAttachmentAndReplaysThroughScoreVictory"
+      ],
+      "evidence": [
+        "docs/AZIR_REFERENCE_CONFIRMATION_AUDIT_2026-10-12.md",
+        "docs/evidence/azir-reference-confirmation-2026-10-12/validation.json",
+        "docs/evidence/azir-reference-confirmation-2026-10-12/native-validation.json"
       ],
       "wholeCardCertification": false
     }

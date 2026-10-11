@@ -3586,6 +3586,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (pendingChoice.ChoiceWindow is AttachmentModeWindow or AttachmentModeTargetWindow) return ResolveAttachmentModeChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == AzirAttachmentWindow) return ResolveAzirAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
@@ -7287,11 +7288,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var normalizedTargets = NormalizeTargetObjectIds(command.TargetObjectIds);
-        if (command.TargetObjectIds.Count != 1 || normalizedTargets.Count != 1)
+        if (command.TargetObjectIds.Count is < 1 or > 2 || command.TargetObjectIds.Count != normalizedTargets.Count)
         {
             return RejectWithCorePrompts(
                 state,
-                "阿兹尔的迅捷交换技能需要且只能选择 1 个受控单位目标。",
+                "阿兹尔需要一名受控单位；若该单位已配武装，确认时还需选定其中一件武装。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7304,16 +7305,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out var behaviorOptionalCosts,
                 out var paymentResourceActions,
                 out var recycledRuneObjectIds)
-            || !TrySelectAzirArmamentReattachChoice(
-                state,
-                intent.PlayerId,
-                targetObjectId,
-                behaviorOptionalCosts,
-                out var selectedArmamentObjectId))
+            || behaviorOptionalCosts.Count != 0
+            || !TrySelectAzirArmamentReference(state, targetObjectId, normalizedTargets, out var selectedArmamentObjectId))
         {
             return RejectWithCorePrompts(
                 state,
-                "阿兹尔的迅捷交换技能只接受合法的符能支付资源动作或目标武装重贴附选择。",
+                "阿兹尔需要确认目标单位上的武装引用；可选费用只接受合法的符能支付资源动作。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7480,15 +7477,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             ability.EffectKind,
             sourceState.CardNo,
-            [targetObjectId],
+            normalizedTargets,
             0,
             1,
             behaviorOptionalCosts) {
             AzirMovement = new(new(command.SourceObjectId, sourceState.ObjectGeneration),
                 string.IsNullOrWhiteSpace(selectedArmamentObjectId) ? null
                     : new(selectedArmamentObjectId, state.CardObjects[selectedArmamentObjectId].ObjectGeneration), instance.Origin, instance.Origin is not null),
-            TargetGenerations = new Dictionary<string, long>(StringComparer.Ordinal) {
-                [targetObjectId] = state.CardObjects[targetObjectId].ObjectGeneration }
+            TargetGenerations = normalizedTargets.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration, StringComparer.Ordinal)
         };
         var untilEndOfTurnEffects = AddUntilEndOfTurnEffect(state.UntilEndOfTurnEffects, oncePerTurnEffectId);
         var nextState = state with
@@ -23753,39 +23749,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
-    private static bool TrySelectAzirArmamentReattachChoice(
-        MatchState state,
-        string playerId,
-        string targetObjectId,
-        IReadOnlyList<string> behaviorOptionalCosts,
-        out string selectedArmamentObjectId)
+    private static bool TrySelectAzirArmamentReference(MatchState state, string targetObjectId,
+        IReadOnlyList<string> targets, out string selectedArmamentObjectId)
     {
-        selectedArmamentObjectId = string.Empty;
-        if (behaviorOptionalCosts.Count == 0)
-        {
-            return true;
-        }
-
-        if (behaviorOptionalCosts.Count != 1
-            || !P4ActivatedAbilityCatalog.TryParseAzirArmamentReattachOptionalCost(
-                behaviorOptionalCosts[0],
-                out selectedArmamentObjectId))
-        {
-            selectedArmamentObjectId = string.Empty;
-            return false;
-        }
-
-        if (!IsObjectOnField(state.PlayerZones, selectedArmamentObjectId)
-            || !IsLegalAzirArmamentReattachChoice(
-            state.CardObjects,
-            targetObjectId,
-            selectedArmamentObjectId))
-        {
-            selectedArmamentObjectId = string.Empty;
-            return false;
-        }
-
-        return true;
+        selectedArmamentObjectId = targets.Count == 2 ? targets[1] : string.Empty;
+        var hasArmament = state.CardObjects.Keys.Any(id => IsObjectOnField(state.PlayerZones, id)
+            && IsLegalAzirArmamentReattachChoice(state.CardObjects, targetObjectId, id));
+        return hasArmament ? targets.Count == 2 && IsObjectOnField(state.PlayerZones, selectedArmamentObjectId)
+            && IsLegalAzirArmamentReattachChoice(state.CardObjects, targetObjectId, selectedArmamentObjectId)
+            : targets.Count == 1;
     }
 
     private static bool IsLegalAzirArmamentReattachChoice(

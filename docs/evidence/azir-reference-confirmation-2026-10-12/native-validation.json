@@ -1,0 +1,507 @@
+{
+  "status": "PASSED",
+  "productionComponent": "ActionBar/PromptInteractionController/Main.CommandFromTemplate",
+  "commands": 34,
+  "scenarios": [
+    {
+      "scenario": "copied-attach",
+      "commands": 6,
+      "nativeCommands": 6,
+      "replayMatched": true
+    },
+    {
+      "scenario": "copied-decline",
+      "commands": 6,
+      "nativeCommands": 6,
+      "replayMatched": true
+    },
+    {
+      "scenario": "move-attach",
+      "commands": 6,
+      "nativeCommands": 6,
+      "replayMatched": true
+    },
+    {
+      "scenario": "move-decline",
+      "commands": 6,
+      "nativeCommands": 6,
+      "replayMatched": true
+    },
+    {
+      "scenario": "opponent-focus",
+      "commands": 6,
+      "nativeCommands": 6,
+      "replayMatched": true
+    },
+    {
+      "scenario": "same-location",
+      "commands": 4,
+      "nativeCommands": 4,
+      "replayMatched": true
+    }
+  ],
+  "rawFiles": [
+    {
+      "path": "copied-attach/activate-command.json",
+      "sha256": "25996468ea98f8d97fb3c9ac33d4c847e6cc7b5a9891c31a110aacd982dcfe85"
+    },
+    {
+      "path": "copied-attach/activate-prompt.json",
+      "sha256": "1c014c898a11a3e418ecc191117cdc6b68441c5550b128d6a220122b121fe916"
+    },
+    {
+      "path": "copied-attach/activate-snapshot.json",
+      "sha256": "9bd79d243e76f6be179f2cc65cb3fbb893d5645ad898abc625e5543fe1173490"
+    },
+    {
+      "path": "copied-attach/gold-pass-1-command.json",
+      "sha256": "b135a2eae0fc4245fa3313e591996c3eca1f1adc39bd4c8014743a686e7b86f8"
+    },
+    {
+      "path": "copied-attach/gold-pass-1-prompt.json",
+      "sha256": "116d3d164e72dfe7aca8aaabfe5227b6d7f447851d4fa5be065347bdcc4f5f5e"
+    },
+    {
+      "path": "copied-attach/gold-pass-1-snapshot.json",
+      "sha256": "238e96b4dc2836c3f3386ce13e08892d48dbf0a179445e4751545dba2640b205"
+    },
+    {
+      "path": "copied-attach/gold-pass-2-command.json",
+      "sha256": "472a9880bda48861891a5a6913d4e7428c3b9b68f1fa1f5990f7bb24d2cd5db5"
+    },
+    {
+      "path": "copied-attach/gold-pass-2-prompt.json",
+      "sha256": "a5159ba028ea65ba0a2091144dc90cffbd49d55a1e77a95cc76759864f8bdc3b"
+    },
+    {
+      "path": "copied-attach/gold-pass-2-snapshot.json",
+      "sha256": "cd62d491e67d34e7a23d7a624630e241c25f9c3959aa07ccf337c46866e39f8f"
+    },
+    {
+      "path": "copied-attach/move-pass-1-command.json",
+      "sha256": "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80"
+    },
+    {
+      "path": "copied-attach/move-pass-1-prompt.json",
+      "sha256": "474140a7b5e18916b23d08ce3b8c270352f3edc1b5996bc76b8896de9e3a3737"
+    },
+    {
+      "path": "copied-attach/move-pass-1-snapshot.json",
+      "sha256": "9ad7ff88d4d880d05de2b2581f0c8f3db6542b8cf77d1fab1b1455a7b60f22f8"
+    },
+    {
+      "path": "copied-attach/move-pass-2-command.json",
+      "sha256": "e5b5b24867f10eeecc8a8e28784e00e26d983b1a07377cdd3b65ed33a05580ec"
+    },
+    {
+      "path": "copied-attach/move-pass-2-prompt.json",
+      "sha256": "7f4264550d8d830af7912caa2c6f3f0d7e77ae7b129b139d0ddaa17b59cd2b96"
+    },
+    {
+      "path": "copied-attach/move-pass-2-snapshot.json",
+      "sha256": "6bcb7e001545b7f1edf96cdb9ce2d7511cd97c61eefeb3bb26c2c0aa80c5ca37"
+    },
+    {
+      "path": "copied-attach/reattach-choice-command.json",
+      "sha256": "2f431c24accbe46ccc4b168ca25ce3162b8e2d6d05df5778ec47fda8d7deb8a6"
+    },
+    {
+      "path": "copied-attach/reattach-choice-prompt.json",
+      "sha256": "94fe3aca7bc7abbeb76a4a0b3bb0ae45d9ce8f8d0d3a8528a3e94fdbecc571eb"
+    },
+    {
+      "path": "copied-attach/reattach-choice-snapshot.json",
+      "sha256": "4a404585d06114f9659238bfdcb2de5e3e98502aec9ad30040aa599ea68c3f7a"
+    },
+    {
+      "path": "copied-attach/replay.json",
+      "sha256": "27c8c26737d1cd3149723e359c5a99f9ab27ed2b245056a3287f222cddc4d40f"
+    },
+    {
+      "path": "copied-attach/result-snapshot.json",
+      "sha256": "5b952677b189539d3aecf6f71fa82814048ee5ee72366bb027576c2cd922aedf"
+    },
+    {
+      "path": "copied-decline/activate-command.json",
+      "sha256": "25996468ea98f8d97fb3c9ac33d4c847e6cc7b5a9891c31a110aacd982dcfe85"
+    },
+    {
+      "path": "copied-decline/activate-prompt.json",
+      "sha256": "1c014c898a11a3e418ecc191117cdc6b68441c5550b128d6a220122b121fe916"
+    },
+    {
+      "path": "copied-decline/activate-snapshot.json",
+      "sha256": "9bd79d243e76f6be179f2cc65cb3fbb893d5645ad898abc625e5543fe1173490"
+    },
+    {
+      "path": "copied-decline/gold-pass-1-command.json",
+      "sha256": "b135a2eae0fc4245fa3313e591996c3eca1f1adc39bd4c8014743a686e7b86f8"
+    },
+    {
+      "path": "copied-decline/gold-pass-1-prompt.json",
+      "sha256": "116d3d164e72dfe7aca8aaabfe5227b6d7f447851d4fa5be065347bdcc4f5f5e"
+    },
+    {
+      "path": "copied-decline/gold-pass-1-snapshot.json",
+      "sha256": "3ca620298fd61f3974d8fd98ddd69eac68ecdba85fb6c80e0fe700f868125f36"
+    },
+    {
+      "path": "copied-decline/gold-pass-2-command.json",
+      "sha256": "472a9880bda48861891a5a6913d4e7428c3b9b68f1fa1f5990f7bb24d2cd5db5"
+    },
+    {
+      "path": "copied-decline/gold-pass-2-prompt.json",
+      "sha256": "a5159ba028ea65ba0a2091144dc90cffbd49d55a1e77a95cc76759864f8bdc3b"
+    },
+    {
+      "path": "copied-decline/gold-pass-2-snapshot.json",
+      "sha256": "810acfde7d92e9228c379ee48fc5017fbf4e416b15eb38a1542564f5ff1b29b3"
+    },
+    {
+      "path": "copied-decline/move-pass-1-command.json",
+      "sha256": "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80"
+    },
+    {
+      "path": "copied-decline/move-pass-1-prompt.json",
+      "sha256": "474140a7b5e18916b23d08ce3b8c270352f3edc1b5996bc76b8896de9e3a3737"
+    },
+    {
+      "path": "copied-decline/move-pass-1-snapshot.json",
+      "sha256": "9ad7ff88d4d880d05de2b2581f0c8f3db6542b8cf77d1fab1b1455a7b60f22f8"
+    },
+    {
+      "path": "copied-decline/move-pass-2-command.json",
+      "sha256": "e5b5b24867f10eeecc8a8e28784e00e26d983b1a07377cdd3b65ed33a05580ec"
+    },
+    {
+      "path": "copied-decline/move-pass-2-prompt.json",
+      "sha256": "7f4264550d8d830af7912caa2c6f3f0d7e77ae7b129b139d0ddaa17b59cd2b96"
+    },
+    {
+      "path": "copied-decline/move-pass-2-snapshot.json",
+      "sha256": "6bcb7e001545b7f1edf96cdb9ce2d7511cd97c61eefeb3bb26c2c0aa80c5ca37"
+    },
+    {
+      "path": "copied-decline/reattach-choice-command.json",
+      "sha256": "c9b14e754b598f9c0ab0aeffde821d2652578bb67bbcb156703f77a6fe6ed51a"
+    },
+    {
+      "path": "copied-decline/reattach-choice-prompt.json",
+      "sha256": "94fe3aca7bc7abbeb76a4a0b3bb0ae45d9ce8f8d0d3a8528a3e94fdbecc571eb"
+    },
+    {
+      "path": "copied-decline/reattach-choice-snapshot.json",
+      "sha256": "4a404585d06114f9659238bfdcb2de5e3e98502aec9ad30040aa599ea68c3f7a"
+    },
+    {
+      "path": "copied-decline/replay.json",
+      "sha256": "8e3131d81a8aff48de56455a372a64c6d837b71c09684bed11201d77b35a039a"
+    },
+    {
+      "path": "copied-decline/result-snapshot.json",
+      "sha256": "675099d89ea893adc88e0a23d25160c37bce0c41af0bca2014438784620fbbcf"
+    },
+    {
+      "path": "move-attach/activate-command.json",
+      "sha256": "bc8f48b2cf17026213e9ebd5b2937ccaaeb8984b8a3026ca1c1304c65f09487a"
+    },
+    {
+      "path": "move-attach/activate-prompt.json",
+      "sha256": "58165649114fbf097d0b36f74f9b49d1bde60434ce7aebf3598c01950b86f70d"
+    },
+    {
+      "path": "move-attach/activate-snapshot.json",
+      "sha256": "8d6c07740a2ed9a5de71eda01a2ec44cec9ac7330bfd06029ef4bfcae5cc762c"
+    },
+    {
+      "path": "move-attach/gold-pass-1-command.json",
+      "sha256": "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80"
+    },
+    {
+      "path": "move-attach/gold-pass-1-prompt.json",
+      "sha256": "65fe1e9cffd419991e96c1b655d13e7824ddc4878ebcc0a39747ebe7bbe22311"
+    },
+    {
+      "path": "move-attach/gold-pass-1-snapshot.json",
+      "sha256": "a4c500deb474b1a3ee3f291e03f339786f11af722c4f447da9ec0908a5be8ed2"
+    },
+    {
+      "path": "move-attach/gold-pass-2-command.json",
+      "sha256": "e5b5b24867f10eeecc8a8e28784e00e26d983b1a07377cdd3b65ed33a05580ec"
+    },
+    {
+      "path": "move-attach/gold-pass-2-prompt.json",
+      "sha256": "5d14b2ff8eed836891e6bb932130760e11a5a319f4b7f557b94ca448f9845d46"
+    },
+    {
+      "path": "move-attach/gold-pass-2-snapshot.json",
+      "sha256": "2ff7d6d3de3034e5a29757ef316818d1eb7cc3ade313c53ab12c0d2c7d7e7ca9"
+    },
+    {
+      "path": "move-attach/move-pass-1-command.json",
+      "sha256": "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f"
+    },
+    {
+      "path": "move-attach/move-pass-1-prompt.json",
+      "sha256": "95d1442f234f884962ac13c41ef33a3f47967073b096f47529910ae7e82ef02b"
+    },
+    {
+      "path": "move-attach/move-pass-1-snapshot.json",
+      "sha256": "371e842d94ce2a0d7b682f5fd3ebc4a86aede363e00ccc2c3fe00e07cd25cea6"
+    },
+    {
+      "path": "move-attach/move-pass-2-command.json",
+      "sha256": "2339b65139be1d8b8e7abab72e3882ea4e7a16bdcc2f99bc69a0d35481ed00f5"
+    },
+    {
+      "path": "move-attach/move-pass-2-prompt.json",
+      "sha256": "784dfd47f682e2dc2e1bc223bc0a94fd78fcb15af26ad66b132992b1850c6010"
+    },
+    {
+      "path": "move-attach/move-pass-2-snapshot.json",
+      "sha256": "56e201dfb733f2d2a64f4b5756e98788da431726c8dd7e7ecb813a557c390e3e"
+    },
+    {
+      "path": "move-attach/reattach-choice-command.json",
+      "sha256": "8310c90b9366c7c88a0989c182fd135adf27cca9f47485aa4a87ac8c293b83f8"
+    },
+    {
+      "path": "move-attach/reattach-choice-prompt.json",
+      "sha256": "96159660e2fa217c4decfdea2850017778009c77ba71ffc79babc8d34eea1029"
+    },
+    {
+      "path": "move-attach/reattach-choice-snapshot.json",
+      "sha256": "28220175626c949d8544d0d84e8d22610c07c8e1e04518cbfd0863efe7587b00"
+    },
+    {
+      "path": "move-attach/replay.json",
+      "sha256": "b7e4887d4a12edc9d8c07ae4d6460c555c118a74097a53da043123e7398037f8"
+    },
+    {
+      "path": "move-attach/result-snapshot.json",
+      "sha256": "d0d8b61c6248613d4c1384f58ba228366cad1e0fa540ad805444aea5e57ad32e"
+    },
+    {
+      "path": "move-decline/activate-command.json",
+      "sha256": "bc8f48b2cf17026213e9ebd5b2937ccaaeb8984b8a3026ca1c1304c65f09487a"
+    },
+    {
+      "path": "move-decline/activate-prompt.json",
+      "sha256": "58165649114fbf097d0b36f74f9b49d1bde60434ce7aebf3598c01950b86f70d"
+    },
+    {
+      "path": "move-decline/activate-snapshot.json",
+      "sha256": "8d6c07740a2ed9a5de71eda01a2ec44cec9ac7330bfd06029ef4bfcae5cc762c"
+    },
+    {
+      "path": "move-decline/gold-pass-1-command.json",
+      "sha256": "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80"
+    },
+    {
+      "path": "move-decline/gold-pass-1-prompt.json",
+      "sha256": "65fe1e9cffd419991e96c1b655d13e7824ddc4878ebcc0a39747ebe7bbe22311"
+    },
+    {
+      "path": "move-decline/gold-pass-1-snapshot.json",
+      "sha256": "c3efc4f724d8f9f346172184f57178f9fd621a5562194d1830b58b12872d0d99"
+    },
+    {
+      "path": "move-decline/gold-pass-2-command.json",
+      "sha256": "e5b5b24867f10eeecc8a8e28784e00e26d983b1a07377cdd3b65ed33a05580ec"
+    },
+    {
+      "path": "move-decline/gold-pass-2-prompt.json",
+      "sha256": "5d14b2ff8eed836891e6bb932130760e11a5a319f4b7f557b94ca448f9845d46"
+    },
+    {
+      "path": "move-decline/gold-pass-2-snapshot.json",
+      "sha256": "08069846502e767153bf66e71d668ecf877084302836143fd0a8b7ab6e346d74"
+    },
+    {
+      "path": "move-decline/move-pass-1-command.json",
+      "sha256": "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f"
+    },
+    {
+      "path": "move-decline/move-pass-1-prompt.json",
+      "sha256": "95d1442f234f884962ac13c41ef33a3f47967073b096f47529910ae7e82ef02b"
+    },
+    {
+      "path": "move-decline/move-pass-1-snapshot.json",
+      "sha256": "371e842d94ce2a0d7b682f5fd3ebc4a86aede363e00ccc2c3fe00e07cd25cea6"
+    },
+    {
+      "path": "move-decline/move-pass-2-command.json",
+      "sha256": "2339b65139be1d8b8e7abab72e3882ea4e7a16bdcc2f99bc69a0d35481ed00f5"
+    },
+    {
+      "path": "move-decline/move-pass-2-prompt.json",
+      "sha256": "784dfd47f682e2dc2e1bc223bc0a94fd78fcb15af26ad66b132992b1850c6010"
+    },
+    {
+      "path": "move-decline/move-pass-2-snapshot.json",
+      "sha256": "56e201dfb733f2d2a64f4b5756e98788da431726c8dd7e7ecb813a557c390e3e"
+    },
+    {
+      "path": "move-decline/reattach-choice-command.json",
+      "sha256": "06816c3634cebf2cd053481b7a11e9af9bd3fd86535f04016b5c435599153dcd"
+    },
+    {
+      "path": "move-decline/reattach-choice-prompt.json",
+      "sha256": "96159660e2fa217c4decfdea2850017778009c77ba71ffc79babc8d34eea1029"
+    },
+    {
+      "path": "move-decline/reattach-choice-snapshot.json",
+      "sha256": "28220175626c949d8544d0d84e8d22610c07c8e1e04518cbfd0863efe7587b00"
+    },
+    {
+      "path": "move-decline/replay.json",
+      "sha256": "339562e2cb23710f7d2aa6663d84d1fe4d641ba2511debccdea0adfe4700505d"
+    },
+    {
+      "path": "move-decline/result-snapshot.json",
+      "sha256": "a26822a145d65828738c77dc5237e7b5faba1ed6bc5d278d3a81e01a81e07a32"
+    },
+    {
+      "path": "opponent-focus/activate-command.json",
+      "sha256": "114a94c82ff6b2b5423b6be7481c6c7c783a31b229dddb2c8a2cc74245793b4d"
+    },
+    {
+      "path": "opponent-focus/activate-prompt.json",
+      "sha256": "97df3d51559fe9b3f0f6db688833bf327410eb90279e1e5d1ea6c1a300adc111"
+    },
+    {
+      "path": "opponent-focus/activate-snapshot.json",
+      "sha256": "ef8fda201d6ffcfaa2e96bf9fe236e7a81d1931543f62c1ba77f1b9c5ae73cbd"
+    },
+    {
+      "path": "opponent-focus/gold-pass-1-command.json",
+      "sha256": "1f7bb64033d79a928294a532f081df52a4f989ac17a2c2c22103e11859f83e88"
+    },
+    {
+      "path": "opponent-focus/gold-pass-1-prompt.json",
+      "sha256": "36f805d866b9dbf8e8441764e70990afcc4a1cf531e088e10df915030abcd116"
+    },
+    {
+      "path": "opponent-focus/gold-pass-1-snapshot.json",
+      "sha256": "2328a80c9d0fe8912ebed250de48a65e45ac2cb110c00469210f50e76a29a2bf"
+    },
+    {
+      "path": "opponent-focus/gold-pass-2-command.json",
+      "sha256": "cc6c64a0de8af4a28ad5bd917fc1cdcc1dc577b0bc5007bec4956efc9a6195c6"
+    },
+    {
+      "path": "opponent-focus/gold-pass-2-prompt.json",
+      "sha256": "b009d49b87e10caf4f8202b3e86cae97c3abfa032d67890ef2111b4668450c05"
+    },
+    {
+      "path": "opponent-focus/gold-pass-2-snapshot.json",
+      "sha256": "cf87fc27fbdc167f14cbc7308d7564f56d56508ec62df58010e523a2deeab719"
+    },
+    {
+      "path": "opponent-focus/move-pass-1-command.json",
+      "sha256": "337acd4a6739c8aea941655e5908508299bf913efe9c8a2c5915a7ed04db35d8"
+    },
+    {
+      "path": "opponent-focus/move-pass-1-prompt.json",
+      "sha256": "f9615ef30782fe785a2b6e815c25967e5bf8848ca2594242d1647fb24d7c8d84"
+    },
+    {
+      "path": "opponent-focus/move-pass-1-snapshot.json",
+      "sha256": "be3bb149ec8919877ae017e09c8f5588a7158bff43f1aa49e5bce0def1aaf86c"
+    },
+    {
+      "path": "opponent-focus/move-pass-2-command.json",
+      "sha256": "20540fff4130d30cf00a0a7cfd8fb2de4c69176da4ecdd9de3e632ad30ea0e00"
+    },
+    {
+      "path": "opponent-focus/move-pass-2-prompt.json",
+      "sha256": "f889ac020e079e3775ab4ec47d940d0343765a7354574cca0d135a6ebbcc8028"
+    },
+    {
+      "path": "opponent-focus/move-pass-2-snapshot.json",
+      "sha256": "e421f96f666abb3cef0bdb6e56c0a94d68349b688c8ebfb6f29a31395d8d2e98"
+    },
+    {
+      "path": "opponent-focus/reattach-choice-command.json",
+      "sha256": "519e63dcca964d853841a40a38856606a3491ec0ff95f71ad60a5553cd0fb7af"
+    },
+    {
+      "path": "opponent-focus/reattach-choice-prompt.json",
+      "sha256": "db66c5472b82e8d386d5a90819c835c8a135f41fa4e7fd95a705edb32a660e54"
+    },
+    {
+      "path": "opponent-focus/reattach-choice-snapshot.json",
+      "sha256": "6b72b9ec635606f46daf74228827781228b22d06e239f2d7e37d35e1cb9d5860"
+    },
+    {
+      "path": "opponent-focus/replay.json",
+      "sha256": "479183d5fe0fd5380c9cfc93f536eb06ae82f984bd1b57bd10112b0a3174bb35"
+    },
+    {
+      "path": "opponent-focus/result-snapshot.json",
+      "sha256": "60c8126e5b66520e408a8a5d545ee82292ce80ce3c095dcb4b501a985e27b7ab"
+    },
+    {
+      "path": "same-location/activate-command.json",
+      "sha256": "bc8f48b2cf17026213e9ebd5b2937ccaaeb8984b8a3026ca1c1304c65f09487a"
+    },
+    {
+      "path": "same-location/activate-prompt.json",
+      "sha256": "58165649114fbf097d0b36f74f9b49d1bde60434ce7aebf3598c01950b86f70d"
+    },
+    {
+      "path": "same-location/activate-snapshot.json",
+      "sha256": "11bf781824b506b39b4235a7fbb92f8802fcce6e4afb17c631382667061fa898"
+    },
+    {
+      "path": "same-location/move-pass-1-command.json",
+      "sha256": "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f"
+    },
+    {
+      "path": "same-location/move-pass-1-prompt.json",
+      "sha256": "95d1442f234f884962ac13c41ef33a3f47967073b096f47529910ae7e82ef02b"
+    },
+    {
+      "path": "same-location/move-pass-1-snapshot.json",
+      "sha256": "bc62b9cd66642aad8a26f2690596296fb7a0c935be761931bb88a2907578f884"
+    },
+    {
+      "path": "same-location/move-pass-2-command.json",
+      "sha256": "2339b65139be1d8b8e7abab72e3882ea4e7a16bdcc2f99bc69a0d35481ed00f5"
+    },
+    {
+      "path": "same-location/move-pass-2-prompt.json",
+      "sha256": "784dfd47f682e2dc2e1bc223bc0a94fd78fcb15af26ad66b132992b1850c6010"
+    },
+    {
+      "path": "same-location/move-pass-2-snapshot.json",
+      "sha256": "45acdf13040add170bbeb8bb601970bf39aee2592d3bcdcf166ad8edb18327ed"
+    },
+    {
+      "path": "same-location/reattach-choice-command.json",
+      "sha256": "8310c90b9366c7c88a0989c182fd135adf27cca9f47485aa4a87ac8c293b83f8"
+    },
+    {
+      "path": "same-location/reattach-choice-prompt.json",
+      "sha256": "44b465449823e865dc76ca13db7f108088bc3724c503e8262f6633b6d57aad36"
+    },
+    {
+      "path": "same-location/reattach-choice-snapshot.json",
+      "sha256": "1f5d9965ac0fc78643628afb9f768a00c23dd6d711f3b0bf1ac4a016596766ce"
+    },
+    {
+      "path": "same-location/replay.json",
+      "sha256": "35d8d2fe397fbfc6084f41b1e86b8c0e8e1429d6eca081e664903445225b70a3"
+    },
+    {
+      "path": "same-location/result-snapshot.json",
+      "sha256": "9c6c01bba3eb5f7ac3bef2c9a6613171aafcbb50a437de6874af115283d92d06"
+    }
+  ],
+  "perStepPrivateAndP1P2SpectatorRecovery": true,
+  "finalStateAndEventReplayMatched": true,
+  "backendEvidence": "var/qa/azir-reference-confirmation/native-verify",
+  "headless": true,
+  "visiblePairedClients": false,
+  "windowsNetworkAcceptance": false
+}
