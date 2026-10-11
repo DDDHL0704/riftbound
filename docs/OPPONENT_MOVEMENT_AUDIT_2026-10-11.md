@@ -25,3 +25,5 @@ CN 383.2.c 要求在事件处理完毕后判断触发条件。因此同一动作
 DOC-15 第 3 页的沃利贝尔／旅行商人跨玩家入链顺序 QA 规定回合玩家先入链；其中在另一玩家回合执行移动的真实入口依赖上述交互。该 QA 仍待完整命令链证据，不因本批观察者通过而关闭。未来生效规则、双窗口视觉与 Windows 产品验收同样未闭合。
 
 证据：[官方来源与规则定位](evidence/movement-opponent-2026-10-11/sources.json)、[验证及原生回放](evidence/movement-opponent-2026-10-11/validation.json)、[用例对账](evidence/movement-opponent-2026-10-11/case-parity.json)、[方法对账](evidence/movement-opponent-2026-10-11/method-parity.json)、[源码哈希](evidence/movement-opponent-2026-10-11/source-hashes.json)。
+
+后续记录：上述战斗号令与沃利贝尔／旅行商人两种回合方向 QA 已由 [战斗号令批次](COMMANDED_MOVEMENT_AUDIT_2026-10-11.md) 补齐限定范围证据；旧抽象移动与其他关键词仍不在认证范围内。

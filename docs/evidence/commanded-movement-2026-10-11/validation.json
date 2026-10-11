@@ -1,0 +1,401 @@
+{
+  "focus6": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 18.99,
+    "total": 16,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 16,
+        "passed": 16,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.65
+      }
+    ]
+  },
+  "final-focus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.65,
+    "total": 66,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 66,
+        "passed": 66,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.69
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 422.46,
+    "total": 9529,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 212.39
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 214.06
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 214.68
+      },
+      {
+        "shard": "rules",
+        "total": 9394,
+        "passed": 9394,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 89.01
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 411.66
+      }
+    ]
+  },
+  "full2": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 413.51,
+    "total": 9530,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 210.86
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 213.35
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 214.99
+      },
+      {
+        "shard": "rules",
+        "total": 9395,
+        "passed": 9395,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 86.59
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 410.06
+      }
+    ]
+  },
+  "native": {
+    "scenarios": [
+      {
+        "scenario": "D",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "408a73d02e7bc5cedbcdf99d71d36afc208ec6a923fe62460bb7d507dcfae792",
+          "expectedStateHash": "408a73d02e7bc5cedbcdf99d71d36afc208ec6a923fe62460bb7d507dcfae792",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "D2",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "74a8955eb374f49b56dd0241f774cf0d2b9ea43acaafa9c755779bee7c821083",
+          "expectedStateHash": "74a8955eb374f49b56dd0241f774cf0d2b9ea43acaafa9c755779bee7c821083",
+          "errors": []
+        },
+        "commands": 4
+      }
+    ],
+    "productionCommands": 4,
+    "journalCommands": 8,
+    "mode": "Godot headless production opponent selection controls; starts at actual play, then both passes and opponent choice; not dual-window visual or Windows product evidence"
+  },
+  "earlierCheck": {
+    "total": 9392,
+    "passed": 9391,
+    "failed": 1,
+    "cause": "Obsolete Battle Command fixture expected neutral end-turn instead of a contested battlefield spell duel. Corrected exact event and prompt assertions; full suite validates final oracle."
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.70\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nCOMMANDED_MOVEMENT_PASS: two production plays and two opponent movement commands\n",
+  "artifacts": [
+    {
+      "path": "var/qa/commanded-movement/check/check/results.trx",
+      "sha256": "dccc692fabfe634287656bb5ad7e8ec5589ba5498bfc98176047fe3f558fa98c"
+    },
+    {
+      "path": "var/qa/commanded-movement/check/plan.json",
+      "sha256": "65c20aa33f78d0984a579da9cef8bb8606dde27bcbd703772e5a1d15291c1a17"
+    },
+    {
+      "path": "var/qa/commanded-movement/final-focus/focus/results.trx",
+      "sha256": "54d1f759340f795914c8044d5685294313ebdd92b392c3e5516ed5517c951989"
+    },
+    {
+      "path": "var/qa/commanded-movement/final-focus/plan.json",
+      "sha256": "c561d9303b7ffc4ef8955027969527bd09b07a14759a76b80d958fc750b74734"
+    },
+    {
+      "path": "var/qa/commanded-movement/final-focus/summary.json",
+      "sha256": "faeb1b54586f0c8453f4260e2edc8aee1699b7363dfe3504a60b9ebc52062ec3"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus2/focus/results.trx",
+      "sha256": "9278851c8295c17c8a95fd569459c827a43c7e4ab20e05ec80b2014416665975"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus2/plan.json",
+      "sha256": "9cd579a27839aa4a37c695d763cd1c2bfd5633012584f834949d69ae4ecaf409"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus3/focus/results.trx",
+      "sha256": "c7302e98b153bdd5e86446ee01febacd478b8242cbb380dd1287ba6416c8b590"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus3/plan.json",
+      "sha256": "2a235560dd4731d36accca49db131dbe12dbb3e6a92f8aea1be3f74a2cfec020"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus4/focus/results.trx",
+      "sha256": "a34390699597c0215b327b9ea043c9da4f74b427ea9c7f3439f1eb1c9679b041"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus4/plan.json",
+      "sha256": "ffb73657c1d3d93d3228e4543be3693a957bfb72f900191a4bf4578e230684a6"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus5/focus/results.trx",
+      "sha256": "bf6deb99d9583ec2ff298c06c5bf44cf0e928a19f8f5f7caf3b0a0843190a356"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus5/plan.json",
+      "sha256": "708b9af69e2984e0c8655ce99a73a91660a03841c5f8a7b63deb4c9bfdf7d1a0"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus6/focus/results.trx",
+      "sha256": "e11dc9e1afaf5bed25ebd073940d6f374535821177d1ba60adce8acd663d7e60"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus6/plan.json",
+      "sha256": "ffe005e84da2d5f6ef6886b7805c4899a6cda46cc578a473a287d61de8e60fe9"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus6/summary.json",
+      "sha256": "94e281350a3d3c5e9f537ba47bb26992f04b5f8c911e8b7cc3458bf462bdef4e"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus7/focus/results.trx",
+      "sha256": "f410ded192331df428067d524499ba8041c76448db839f09c5da48e57d6a0224"
+    },
+    {
+      "path": "var/qa/commanded-movement/focus7/plan.json",
+      "sha256": "f188ea1af090d2d6dcbfcebcf265d33fbd84c25cc6ac317b906816c7e69a81bb"
+    },
+    {
+      "path": "var/qa/commanded-movement/full/games-1/results.trx",
+      "sha256": "f4a20e4776f99c14e8fc2bf456b3e359e672b8c0081ea03b3eba7ae3d4ac0693"
+    },
+    {
+      "path": "var/qa/commanded-movement/full/games-2/results.trx",
+      "sha256": "a5a0b0ae599641105370ce2978de0caabe9e16cfb50a80395861d483b2f25569"
+    },
+    {
+      "path": "var/qa/commanded-movement/full/games-3/results.trx",
+      "sha256": "5301ae6a51516cf788a973b6aadfee42b5f3cd82df05a36da3032a66c084a560"
+    },
+    {
+      "path": "var/qa/commanded-movement/full/games-4/results.trx",
+      "sha256": "0a21eaa171b9b70e9c944c9e0687a7139a2ec087eff3df5426d6b63f92f01d08"
+    },
+    {
+      "path": "var/qa/commanded-movement/full/plan.json",
+      "sha256": "d3dc8796a31da6643ededecfbfd1f2cf349da3ec55129bd4ba527fe14c2823ae"
+    },
+    {
+      "path": "var/qa/commanded-movement/full/rules/results.trx",
+      "sha256": "a6f1eaadb71569dec538126f05b9774e9ab411132095d78dbb21f9962aedcd63"
+    },
+    {
+      "path": "var/qa/commanded-movement/full/summary.json",
+      "sha256": "544532a1f97803c05acdb0848d7804c93045768d71721bb9835ca383aad09081"
+    },
+    {
+      "path": "var/qa/commanded-movement/full2/games-1/results.trx",
+      "sha256": "3535fa8d7ce61b5c7853d68ff6352cffac6ae7c8276af1daa1416e11cebcca79"
+    },
+    {
+      "path": "var/qa/commanded-movement/full2/games-2/results.trx",
+      "sha256": "673b813e5cac6c32288c81e0d402987a2bb70b144a399df9b0da0740f8241c3a"
+    },
+    {
+      "path": "var/qa/commanded-movement/full2/games-3/results.trx",
+      "sha256": "f2f7f1cff6a263731dc531298e4cda2a3075c93ab05dde0c64ee7225ab8f6ef6"
+    },
+    {
+      "path": "var/qa/commanded-movement/full2/games-4/results.trx",
+      "sha256": "800abb93095ba4eff82bafd2098b34b4a62ba1f3c588c779c04435454ec8414e"
+    },
+    {
+      "path": "var/qa/commanded-movement/full2/plan.json",
+      "sha256": "9fe20c3cc86495fa4e4f0213d159dc5c64704de145fefa93208be253ac630eb9"
+    },
+    {
+      "path": "var/qa/commanded-movement/full2/rules/results.trx",
+      "sha256": "9dd9a32c72da16f4632a9478e889e408c28a076b880ceac53d797be9bfc8b1f5"
+    },
+    {
+      "path": "var/qa/commanded-movement/full2/summary.json",
+      "sha256": "39d2d21cb40a07ad79f17056dda076fdee17247bf698cdd9cf38c67c6a6d555a"
+    },
+    {
+      "path": "var/qa/commanded-movement/green1/focus/results.trx",
+      "sha256": "1dd64cb37eeae3fac3ce0a5e002d0dc0b0fa136ffe70382b31f4033f18b9f50f"
+    },
+    {
+      "path": "var/qa/commanded-movement/green1/plan.json",
+      "sha256": "a59dc3c8d009e83c7380f2d87234ed69ddc5f313e5a2d172fa2a91b41eca0083"
+    },
+    {
+      "path": "var/qa/commanded-movement/green1/summary.json",
+      "sha256": "d07a567012a3eb48ef4f8cbe7cfa563322596658f0c3d1e87b271904957baaaf"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/command.json",
+      "sha256": "18fda65afd3d5c973308ca08fb8a9a65a86ddf07fd4851d0390e1ca2e0d1e6f8"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/play-command.json",
+      "sha256": "1593b4ec02bc02c36e1632dd7bc2d332364e4584323406f03dd7231059afddeb"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/play-preview.json",
+      "sha256": "ad2d736ba266ab8eab35dc38ece4b4f34e93f49043c55f81263cd87e21d3ac5f"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/play-prompt.json",
+      "sha256": "6c4f85d6fc066e4b3e130dc289829f354e06ae271a0803df3258696a7943c004"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/play-quote.json",
+      "sha256": "4a17d409d959824d02398fe375368b80e2e5ab02b2a6e84f3bba699102faf407"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/prompt.json",
+      "sha256": "e7e5a5896e9e6bff287daa91a9d809fbbee2eb5b1d57f1e38ed293459f7917a7"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/replay.json",
+      "sha256": "b373fae1ef5dd63a9c01a7b25974adbbf1275dc4311b06b2edff0a48fac16741"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/result-snapshot.json",
+      "sha256": "207ca42eea1a7e40e1168cc15c731aff2615889fc555c399abbe5c20504a2f97"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D/snapshot.json",
+      "sha256": "511c6c9b01510a67b7a1a3047a183fb0012d56ca4700c592adb080b33c8a8efd"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/command.json",
+      "sha256": "cfad142202ba0075efe207a62de20b1df732ae7b27de38cecafe05f120c3aea5"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/play-command.json",
+      "sha256": "1593b4ec02bc02c36e1632dd7bc2d332364e4584323406f03dd7231059afddeb"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/play-preview.json",
+      "sha256": "27d3175c2f42a31cc659dbd157b7f7617be935d80de686d75ccff0dfb161bbcb"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/play-prompt.json",
+      "sha256": "6c4f85d6fc066e4b3e130dc289829f354e06ae271a0803df3258696a7943c004"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/play-quote.json",
+      "sha256": "ac5bf6ea13d300d45ee7bd4f9c2d4402f938556b6918bd40300b38adb7c2fc94"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/prompt.json",
+      "sha256": "e7e5a5896e9e6bff287daa91a9d809fbbee2eb5b1d57f1e38ed293459f7917a7"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/replay.json",
+      "sha256": "4b01c223c5cb0c4afd3e853595afa90dd32dcd30b1960ec4f86bf0640f0c3853"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/result-snapshot.json",
+      "sha256": "05968e637d3faa72eb5a835885041dae66cced7eee7dae640c07e561b6fba607"
+    },
+    {
+      "path": "var/qa/commanded-movement/native/D2/snapshot.json",
+      "sha256": "511c6c9b01510a67b7a1a3047a183fb0012d56ca4700c592adb080b33c8a8efd"
+    },
+    {
+      "path": "var/qa/commanded-movement/recast-red/focus/results.trx",
+      "sha256": "417172c4431eb72abf65c5d5bdfdbe61ef137e1da4657ceae62eed1653db1daf"
+    },
+    {
+      "path": "var/qa/commanded-movement/recast-red/plan.json",
+      "sha256": "5f07802345be578594664bc9df1ee9c536d8ae06e6a5d8765875c1458a2169a9"
+    },
+    {
+      "path": "var/qa/commanded-movement/red2/focus/results.trx",
+      "sha256": "dbae047f2c72202270bc87a027c244313c7258c47439cd4018ae83409a33f406"
+    },
+    {
+      "path": "var/qa/commanded-movement/red2/plan.json",
+      "sha256": "6158136e07b41c9be1755db15011647459cc71526364faf8f1545f941cb809c8"
+    }
+  ]
+}

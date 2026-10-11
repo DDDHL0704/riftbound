@@ -1,0 +1,19 @@
+{
+  "baseline": 6294,
+  "current": 6306,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.CommandedMovementNativeTests.NativeOpponentChoiceRestoresAndReplays",
+    "Riftbound.ConformanceTests.CommandedMovementTests.CasterCannotPreselectTheOpponentsUnit",
+    "Riftbound.ConformanceTests.CommandedMovementTests.EchoAsksOpponentSeparatelyAndRetainsTheFirstAnswerAcrossRecovery",
+    "Riftbound.ConformanceTests.CommandedMovementTests.ForgedPreviewAndChoiceCannotSurviveRecoveryOrChangeTheBoard",
+    "Riftbound.ConformanceTests.CommandedMovementTests.GraveyardRecastUsesMovementDestinationAndStillLetsOpponentChoose",
+    "Riftbound.ConformanceTests.CommandedMovementTests.IneligibleOpponentUnitsAreExcludedAndNoEligibleUnitDoesNotUndoFirstMove",
+    "Riftbound.ConformanceTests.CommandedMovementTests.IntermediatePreviewDoesNotRevealPrivateCardsOrOfferResponsePriority",
+    "Riftbound.ConformanceTests.CommandedMovementTests.InvalidFirstMovementStillAttemptsIndependentOpponentInstruction",
+    "Riftbound.ConformanceTests.CommandedMovementTests.OfficialMerchantVolibearQaUsesTurnPlayerFirstInsertion",
+    "Riftbound.ConformanceTests.CommandedMovementTests.OpponentChoosesTheirUnitAfterSeeingTheFirstMovement",
+    "Riftbound.ConformanceTests.CommandedMovementTests.OwnSelectedUnitDoesNotChargeOpponentWardAndEquipmentFollows",
+    "Riftbound.ConformanceTests.CommandedMovementTests.PreflightRequiresAnExistingControlledBattlefield"
+  ]
+}

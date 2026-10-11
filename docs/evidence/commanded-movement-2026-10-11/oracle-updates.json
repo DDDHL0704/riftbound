@@ -1,0 +1,19 @@
+{
+  "authority": [
+    "UNL-101/219 official CN and EN card text",
+    "CN 355.4",
+    "CN 383.3.d.1",
+    "DOC-15 P3 Volibear Merchant QA"
+  ],
+  "retainedMethods": true,
+  "changes": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-battle-command-move-friendly-and-opponent-unit.fixture.json",
+      "reason": "Replace coarse two-declared-target surrogate with precise battlefield and real opponent resolution choice; assert all events, both moved units and spell-duel prompts."
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "reason": "Retain original methods; update precise battlefield membership and invalidated friendly target case to current one-target command while retaining independent opponent move assertions."
+    }
+  ]
+}

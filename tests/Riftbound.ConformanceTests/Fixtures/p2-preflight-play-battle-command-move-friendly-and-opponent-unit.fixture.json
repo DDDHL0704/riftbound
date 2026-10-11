@@ -1,10 +1,10 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-battle-command-move-friendly-and-opponent-unit",
-  "description": "Battle Command moves a friendly base unit and the opponent's chosen base unit to the battlefield in the current coarse battlefield model.",
+  "description": "Call to Battle declares one friendly unit and controlled battlefield, then the opponent selects their own unit during resolution.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
+  "rulesVersion": "current-cn-2026-07-17",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
   "seed": 2603302501,
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-101/219 战斗号令",
-      "note": "官方卡面：费用 3；将你控制的一名单位移动至你控制的一处战场，然后一名对手将自己控制的一名单位移动至该战场。当前 fixture 用第二目标记录 2P 对手选择的单位。"
+      "note": "官网卡面：先移动己方单位至己控战场，然后由对手在结算时选择自己的单位，移动至同处。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-battle-command-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302501,
     "turnNumber": 75,
@@ -34,38 +37,73 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 3,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-BATTLE-COMMAND-DRAW-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-BATTLE-COMMAND"],
-        "base": ["P1-BATTLE-COMMAND-BASE-001"],
-        "battlefields": ["P1-BATTLE-COMMAND-FIELD-KEEPER"],
+        "mainDeck": [
+          "P1-BATTLE-COMMAND-DRAW-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-BATTLE-COMMAND"
+        ],
+        "base": [
+          "P1-BATTLE-COMMAND-BASE-001"
+        ],
+        "battlefields": [
+          "BF",
+          "P1-BATTLE-COMMAND-FIELD-KEEPER"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
-        "base": ["P2-BATTLE-COMMAND-BASE-001"],
+        "base": [
+          "P2-BATTLE-COMMAND-BASE-001"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-BATTLE-COMMAND-BASE-001": {
         "damage": 1,
         "power": 4,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false
@@ -73,7 +111,9 @@
       "P1-BATTLE-COMMAND-FIELD-KEEPER": {
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false
@@ -81,10 +121,32 @@
       "P2-BATTLE-COMMAND-BASE-001": {
         "damage": 0,
         "power": 3,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": true
+      },
+      "BF": {
+        "cardNo": "OGN·282/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ]
+      }
+    },
+    "objectLocations": {
+      "BF": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P1-BATTLE-COMMAND-FIELD-KEEPER": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
       }
     }
   },
@@ -96,7 +158,10 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-BATTLE-COMMAND",
         "cardNo": "UNL-101/219",
-        "targetObjectIds": ["P1-BATTLE-COMMAND-BASE-001", "P2-BATTLE-COMMAND-BASE-001"]
+        "targetObjectIds": [
+          "P1-BATTLE-COMMAND-BASE-001"
+        ],
+        "destination": "BATTLEFIELD:BF"
       }
     },
     {
@@ -112,22 +177,39 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "opponent-move-selection",
+      "cmd": {
+        "cmdType": "PAY_COST",
+        "paymentId": "REPLACEMENT:2:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "MOVE:P2-BATTLE-COMMAND-BASE-001"
+        ]
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
+      "RULE_CHOICE_REQUESTED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "UNIT_MOVED_TO_BATTLEFIELD",
-      "UNIT_MOVED_TO_BATTLEFIELD"
+      "UNIT_MOVED_TO_BATTLEFIELD",
+      "BATTLEFIELD_CONTESTED",
+      "SPELL_DUEL_STARTED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -142,13 +224,27 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-BATTLE-COMMAND",
           "cardNo": "UNL-101/219",
-          "targetObjectIds": ["P1-BATTLE-COMMAND-BASE-001", "P2-BATTLE-COMMAND-BASE-001"],
+          "targetObjectIds": [
+            "P1-BATTLE-COMMAND-BASE-001"
+          ],
           "effectKind": "BATTLE_COMMAND_MOVE_FRIENDLY_AND_OPPONENT_UNIT_TO_BATTLEFIELD"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "RULE_CHOICE_REQUESTED",
+        "payload": {
+          "playerId": "P2"
+        }
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "UNIT_MOVED_TO_BATTLEFIELD",
         "payload": {
@@ -166,43 +262,75 @@
           "ownerPlayerId": "P2",
           "destinationZone": "BATTLEFIELD"
         }
+      },
+      {
+        "kind": "BATTLEFIELD_CONTESTED",
+        "payload": {
+          "battlefieldObjectId": "BF"
+        }
+      },
+      {
+        "kind": "SPELL_DUEL_STARTED",
+        "payload": {
+          "battlefieldObjectId": "BF"
+        }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "WAIT"
+      ],
+      "P2": [
+        "PASS_FOCUS"
+      ]
     },
     "finalState": {
       "turnNumber": 75,
-      "activePlayerId": "P1",
+      "activePlayerId": "P2",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
+      "timingState": "SPELL_DUEL_OPEN",
       "scores": {
         "P1": 0,
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
           "base": [],
-          "battlefields": ["P1-BATTLE-COMMAND-FIELD-KEEPER", "P1-BATTLE-COMMAND-BASE-001"],
-          "graveyard": ["P1-SPELL-BATTLE-COMMAND"]
+          "battlefields": [
+            "BF",
+            "P1-BATTLE-COMMAND-FIELD-KEEPER",
+            "P1-BATTLE-COMMAND-BASE-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-BATTLE-COMMAND"
+          ]
         },
         "P2": {
           "base": [],
-          "battlefields": ["P2-BATTLE-COMMAND-BASE-001"]
+          "battlefields": [
+            "P2-BATTLE-COMMAND-BASE-001"
+          ]
         }
       },
       "cardObjects": {
         "P1-BATTLE-COMMAND-BASE-001": {
           "damage": 1,
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false
@@ -210,7 +338,9 @@
         "P2-BATTLE-COMMAND-BASE-001": {
           "damage": 0,
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": true
@@ -219,8 +349,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      },
+      "P2": {
+        "actionable": true,
+        "actions": [
+          "PASS_FOCUS"
+        ]
+      }
     }
   }
 }

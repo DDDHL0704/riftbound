@@ -4320,10 +4320,10 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.True(ConformanceFixtureRunner.CompareExpected(fixture, result).Count == 0, string.Join("\n", ConformanceFixtureRunner.CompareExpected(fixture, result)));
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(
-            ["P1-BATTLE-COMMAND-FIELD-KEEPER", "P1-BATTLE-COMMAND-BASE-001"],
+            ["BF", "P1-BATTLE-COMMAND-FIELD-KEEPER", "P1-BATTLE-COMMAND-BASE-001"],
             result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
         Assert.Equal(["P2-BATTLE-COMMAND-BASE-001"], result.FinalState.PlayerZones["P2"].Battlefields);
@@ -4332,80 +4332,22 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task CoreRuleEngineBattleCommandResolutionSkipsOpponentControlledFriendlyBaseTarget()
     {
-        var state = PunishmentState(mana: 0) with
-        {
-            TimingState = TimingStates.NeutralClosed,
-            ActivePlayerId = "P1",
-            PriorityPlayerId = "P1",
-            StackItems =
-            [
-                new StackItemState(
-                    "STACK-BATTLE-COMMAND-DIRTY-BASE",
-                    "P1",
-                    "P1-SPELL-BATTLE-COMMAND",
-                    "BATTLE_COMMAND_MOVE_FRIENDLY_AND_OPPONENT_UNIT_TO_BATTLEFIELD",
-                    "UNL-101/219",
-                    [
-                        "P1-DIRTY-P2-CONTROLLED-BASE-UNIT",
-                        "P2-BATTLE-COMMAND-VALID-BASE-UNIT"
-                    ])
-            ],
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Base = ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Base = ["P2-BATTLE-COMMAND-VALID-BASE-UNIT"]
-                }
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"] = new(
-                    "P1-DIRTY-P2-CONTROLLED-BASE-UNIT",
-                    cardNo: "SFD·125/221",
-                    manaCost: 3,
-                    power: 2,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P2-BATTLE-COMMAND-VALID-BASE-UNIT"] = new(
-                    "P2-BATTLE-COMMAND-VALID-BASE-UNIT",
-                    cardNo: "SFD·125/221",
-                    manaCost: 3,
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
-            }
-        };
-        var engine = new CoreRuleEngine();
-
-        var p1Pass = await engine.ResolveAsync(
-            state,
-            new PlayerIntent("intent-battle-command-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-battle-command-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p1Pass.Accepted);
-        Assert.True(p2Pass.Accepted);
-        Assert.Equal(["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"], p2Pass.State.PlayerZones["P1"].Base);
-        Assert.Empty(p2Pass.State.PlayerZones["P1"].Battlefields);
-        Assert.Empty(p2Pass.State.PlayerZones["P2"].Base);
-        Assert.Equal(["P2-BATTLE-COMMAND-VALID-BASE-UNIT"], p2Pass.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(["P1-SPELL-BATTLE-COMMAND"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        var moveEvents = p2Pass.Events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal))
-            .ToArray();
-        var moveEvent = Assert.Single(moveEvents);
-        Assert.Equal("P2-BATTLE-COMMAND-VALID-BASE-UNIT", moveEvent.Payload["targetObjectId"]);
+        var cast = await OfficialGraveyardRecastTests.Act(CommandedMovementTests.Position(), "P1", CommandedMovementTests.Command());
+        // The declared friendly target changes controller before resolution. Its
+        // stale physical zone cannot make it a legal friendly target again.
+        var state = cast.State with { CardObjects = new Dictionary<string,CardObjectState>(cast.State.CardObjects) {
+            ["A"] = cast.State.CardObjects["A"] with { ControllerId = "P2" } } };
+        var opened = await OfficialGraveyardRecastTests.Top(state);
+        var done = await DestructionOrderTests.Select(opened.State, "MOVE:D");
+        Assert.Contains("A", done.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("A", done.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("D", done.State.PlayerZones["P2"].Base);
+        Assert.Contains("D", done.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal("BF2", done.State.ObjectLocations["D"].BattlefieldObjectId);
+        Assert.Contains("AOE", done.State.PlayerZones["P1"].Graveyard);
+        var move = Assert.Single(done.Events, e => e.Kind == "UNIT_MOVED_TO_BATTLEFIELD");
+        Assert.Equal("D", move.Payload["targetObjectId"]);
+        Assert.Equal("P2", move.Payload["movingPlayerId"]);
     }
 
     [Fact]

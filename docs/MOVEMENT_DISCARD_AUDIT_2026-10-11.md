@@ -25,3 +25,5 @@ Godot 构建零警告／错误；来源存在／消失两个场景均由生产�
 证据：[验证与原生回放](evidence/movement-discard-2026-10-11/validation.json)、[用例对账](evidence/movement-discard-2026-10-11/case-parity.json)、[方法对账](evidence/movement-discard-2026-10-11/method-parity.json)、[源码哈希](evidence/movement-discard-2026-10-11/source-hashes.json)。
 
 交付读回：提交 `f4123a238d505f5dac555d5f19d8079deb3f3e3e` 已推送且远端一致；GitHub CI run `38124882855` 已确认 success（此前两个桌面作业已读回成功，本次规则作业完成后整体成功）。
+
+后续记录：上述战斗号令与沃利贝尔／旅行商人两种回合方向 QA 已由 [战斗号令批次](COMMANDED_MOVEMENT_AUDIT_2026-10-11.md) 补齐限定范围证据；旧抽象移动与其他关键词仍不在认证范围内。

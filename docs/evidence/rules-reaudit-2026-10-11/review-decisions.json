@@ -686,6 +686,129 @@
         "Future-effective rules",
         "Dual-window and Windows product acceptance"
       ]
+    },
+    {
+      "id": "commanded-movement-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Call to Battle sequential movement, opponent resolution choice, intermediate private projections, recovery, Echo; Volibear Merchant QA turn-player insertion and discard continuation. Not all keyword certification.",
+      "subjects": [
+        {
+          "id": "UNL-101/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34639,
+              "cardNo": "UNL-101/219",
+              "name": "战斗号令",
+              "sha256": "bb25ed706c60008c990631781f9d48609f405189e47bc9f60bd5969e1b42c6be"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-101-219",
+              "cardNo": "UNL-101/219",
+              "name": "Call to Battle",
+              "sha256": "cfe89eacc2cc8a24c900c875b8a3c3ca1881774d8b8ea4fdbe081bc1c3c6ce53"
+            }
+          ],
+          "activeCardNo": "UNL-101/219",
+          "reviewStatus": "PARTIAL_COMMANDED_MOVEMENT_QA_VERIFIED"
+        },
+        {
+          "id": "OGN-158/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31383,
+              "cardNo": "OGN·158/298",
+              "name": "沃利贝尔",
+              "sha256": "23481bf1544a193c5a2c47df1fe47b5af27ec34e71a92b801ad163045adf0532"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-158-298",
+              "cardNo": "OGN-158/298",
+              "name": "Volibear",
+              "sha256": "0511e65982b0d988c80fa0a3d2e9ba8bb13d91dd0686e9aceb43981e48d7ce25"
+            }
+          ],
+          "activeCardNo": "OGN·158/298",
+          "reviewStatus": "PARTIAL_COMMANDED_MOVEMENT_QA_VERIFIED"
+        },
+        {
+          "id": "OGN-158A/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31384,
+              "cardNo": "OGN·158a/298",
+              "name": "沃利贝尔",
+              "sha256": "ac9bb3c7558c787fbf0bb98a6842c2a213e90bad823fc94f5cdaa51343c384d1"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-158a-298",
+              "cardNo": "OGN-158a/298",
+              "name": "Volibear",
+              "sha256": "e770ec53d3cc03bf3c7105f04e4ad781c4a8418fdfa822373c6c40a4910470dd"
+            }
+          ],
+          "activeCardNo": "OGN·158a/298",
+          "reviewStatus": "PARTIAL_COMMANDED_MOVEMENT_QA_VERIFIED"
+        },
+        {
+          "id": "OGN-185/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31415,
+              "cardNo": "OGN·185/298",
+              "name": "旅行商人",
+              "sha256": "be03ac38c964f92dc76c6dd84d6710ba69798e84f71213e728448923925ffd49"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-185-298",
+              "cardNo": "OGN-185/298",
+              "name": "Traveling Merchant",
+              "sha256": "1727de4bcd1ab7d26475d55f53ad9b79a971621bdd71184b278198456be2a53b"
+            }
+          ],
+          "activeCardNo": "OGN·185/298",
+          "reviewStatus": "PARTIAL_COMMANDED_MOVEMENT_QA_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P001-B015",
+        "DOC-04-P060-B007",
+        "DOC-15-P003-B014",
+        "DOC-15-P003-B015",
+        "DOC-15-P003-B016",
+        "DOC-15-P003-B017",
+        "DOC-04-P043-B007",
+        "DOC-04-P043-B008",
+        "DOC-04-P050-B011"
+      ],
+      "auditDocument": "docs/COMMANDED_MOVEMENT_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/commanded-movement-2026-10-11",
+      "tests": [
+        "CommandedMovementTests",
+        "CommandedMovementNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9530,
+        "fullMethods": 6306,
+        "nativeScenarios": 2,
+        "nativeCommands": 4,
+        "journalCommands": 8,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Void Assault independent destinations and attacker determination",
+        "Legacy abstract movement and swaps",
+        "Other printed keywords",
+        "Future-effective rules",
+        "Dual-window and Windows product acceptance"
+      ]
     }
   ]
 }

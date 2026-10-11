@@ -1,0 +1,481 @@
+{
+  "cards": [
+    {
+      "card": {
+        "id": 34639,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "UNL-101/219",
+        "cardName": "战斗号令",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "将你控制的一名单位移动至你控制的一处战场。然后，选择一名对手。该对手将自己控制的一名单位移动至该战场。",
+        "flavorText": "“我说，这下你打算怎么办？”",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/54fe06c3df8e4530a60aa3c3d6acbbc5.webp",
+        "backImage": "",
+        "listSort": 1385,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "unl-101-219",
+        "collectorNumber": 101,
+        "name": "Call to Battle",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "UNL",
+            "label": "Unleashed"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "spell",
+              "label": "Spell",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "UNL-101/219",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "uncommon",
+            "label": "Uncommon",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+              "dimensions": {
+                "width": 480,
+                "height": 410,
+                "aspectRatio": 1.170731707317073
+              },
+              "colors": {
+                "primary": "#41B4B8",
+                "secondary": "#293331",
+                "label": "#122021"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "body",
+              "label": "Body",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#221A11",
+                  "secondary": "#F9EADC",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3c7e0f93c72654f786f5df37895c6e95fa9d4d60-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Spell: Call to Battle. Move a unit you control to a battlefield you control. Then, choose an opponent. They move a unit they control to the same battlefield.",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#402720",
+            "secondary": "#F9E3DC",
+            "label": "#140805"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "kudosproductions",
+              "label": "Kudos Productions",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>Move a unit you control to a battlefield you control. Then, choose an opponent. They move a unit they control to the same battlefield.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 3,
+            "label": "3"
+          }
+        }
+      },
+      "imageFile": "UNL-101-219.webp",
+      "imageSha256": "c36fbe81d3aadd52f33ad2614d62881bf7e4d62c2e10af80e75346f5d302bb80"
+    }
+  ],
+  "comparedButNotCertified": [
+    {
+      "card": {
+        "id": 34755,
+        "cardCategoryList": [
+          "exclusive_spell"
+        ],
+        "cardCategoryNameList": [
+          "专属法术"
+        ],
+        "cardNo": "UNL-202/219",
+        "cardName": "虚空来袭",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange",
+          "purple"
+        ],
+        "hero": "卡兹克",
+        "region": "",
+        "tag": "",
+        "artist": "莺之歌",
+        "cardEffect": "移动一名友方单位，然后移动一名敌方单位。（如果它们都移动到一处不受你控制的战场，则你视为进攻方。）",
+        "flavorText": "“如果我把你吃掉的话，能学会如何去死吗？”\n——卡兹克",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/992138a2ecc84f6baa50f513949b3a02.webp",
+        "backImage": "",
+        "listSort": 1269,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "english": {
+        "id": "unl-202-219",
+        "collectorNumber": 202,
+        "name": "Void Assault",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "UNL",
+            "label": "Unleashed"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "spell",
+              "label": "Spell",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "signature",
+              "label": "Signature"
+            }
+          ]
+        },
+        "publicCode": "UNL-202/219",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "epic",
+            "label": "Epic",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+              "dimensions": {
+                "width": 455,
+                "height": 419,
+                "aspectRatio": 1.0859188544152745
+              },
+              "colors": {
+                "primary": "#B8794C",
+                "secondary": "#332F29",
+                "label": "#604634"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "body",
+              "label": "Body",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#221A11",
+                  "secondary": "#F9EADC",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            },
+            {
+              "id": "chaos",
+              "label": "Chaos",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#100B16",
+                  "secondary": "#EDD6FF",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0b79108a9492fb34866cc63815b57bfab8a5aeae-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Spell: Void Assault. Move a friendly unit, then move an enemy unit. (If they both move to a battlefield you don't control, you're the attacker.)",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#48243D",
+            "secondary": "#F9DCE6",
+            "label": "#1D0717"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "莺之歌",
+              "label": "莺之歌",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>Move a friendly unit, then move an enemy unit. (If they both move to a battlefield you don't control, you're the attacker.)</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 2,
+            "label": "2"
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 1,
+            "label": "1",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Kha'Zix"
+          ]
+        }
+      },
+      "imageFile": "UNL-202-219.webp",
+      "imageSha256": "1f525bdb19d5495045e5f1a1066fbea45089d4ea6610d64c99d94baad583573e"
+    }
+  ],
+  "officialCardApi": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rules": [
+    "DOC-04-P001-B015",
+    "DOC-04-P060-B007",
+    "DOC-15-P003-B014",
+    "DOC-15-P003-B015",
+    "DOC-15-P003-B016",
+    "DOC-15-P003-B017"
+  ],
+  "currentCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "note": "Current CN rules; future effective Oct 16 documents are not silently substituted.",
+  "qaSource": [
+    "DOC-15-P003-B014",
+    "DOC-15-P003-B015",
+    "DOC-15-P003-B016",
+    "DOC-15-P003-B017"
+  ],
+  "authority": [
+    {
+      "id": "DOC-04",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "updated": "2026-07-17",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-15",
+      "title": "起源系列 裁判FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/裁判FAQ_251023.pdf",
+      "sha256": "4e960816dd71ffb110e6d37d66d628eb5f7bb3b771192af5975e7164087e2203",
+      "updated": "2025-10-24",
+      "effectiveDate": null
+    }
+  ],
+  "currentCorePdf": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+  "movementDeclarationRules": [
+    {
+      "id": "DOC-04-P043-B007",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.4"
+      ],
+      "text": "355.4.       如果是能够移动一名或多名单位的法术和技能,则每次需执行的移动都必须选择一个有效的位置,作为本次移动的\n             终点 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P043-B008",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.4.a"
+      ],
+      "text": "355.4.a.            移动效果 的有效位置 是指除单位 当前所在位置 以外,其可以合法存在的位置 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P050-B011",
+      "document": "DOC-04",
+      "page": 50,
+      "clauseAnchors": [
+        "359.3.e.5"
+      ],
+      "text": "359.3.e.5.        如果该法术的目标均已不再合法,则这些游戏物体、玩家或区域在法术结算时不受影响。所有\n                  与非法目标相关的指示都无法执行。\n                       举例:一名玩家打出了“虚空索敌”,该法术的效果为“对战场上的一名单位造成 4 点伤\n                       害。抽一张牌。”该法术目标单位的控制者使用[反应],将单位移动至所属基地。既然\n                       该单位不再是合法单位,也就无法受到任何伤害。不过,“虚空索敌”的控制者依然会\n                       抽一张牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ]
+}

@@ -3377,9 +3377,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
-        if (controllerIds.Contains(state.ActivePlayerId, StringComparer.Ordinal))
+        if (controllerIds.Contains(state.TurnPlayerId, StringComparer.Ordinal))
         {
-            return state.ActivePlayerId;
+            return state.TurnPlayerId;
         }
 
         return OrderTriggerApnapControllerIds(state, controllerIds).FirstOrDefault();
@@ -3447,9 +3447,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToList();
         var ordered = new List<string>();
 
-        if (remaining.Remove(state.ActivePlayerId))
+        if (remaining.Remove(state.TurnPlayerId))
         {
-            ordered.Add(state.ActivePlayerId);
+            ordered.Add(state.TurnPlayerId);
         }
 
         foreach (var seatPlayerId in state.Seats
@@ -3651,6 +3651,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
         };
+
+        // The discard/draw choice finishes the top effect; any lower stack item
+        // must regain response priority before battlefield cleanup can advance.
+        if (nextState.Status == MatchStatuses.InProgress && nextState.StackItems.Count > 0)
+            nextState = nextState with { ActivePlayerId = nextState.StackItems[^1].ControllerId,
+                PriorityPlayerId = nextState.StackItems[^1].ControllerId, PassedPriorityPlayerIds = [],
+                TimingState = nextState.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed };
 
         var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId, state);
         nextState = taskAdvance.State;
@@ -21013,9 +21020,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
             ? string.Empty : command.Destination?.Trim() ?? string.Empty;
-        if (state.PendingEffectPlay is not null && !behavior.MovesTargetsToChosenLocation && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
+        if (state.PendingEffectPlay is not null && !behavior.MovesTargetsToChosenLocation && behavior.CommandedMovement is null && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
         {
             rejection = Reject(state, "效果不允许打出到该位置。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (behavior.CommandedMovement is { } commanded
+            && !IsCommandedMovementDestinationAllowed(state, intent.PlayerId, destination, command.TargetObjectIds, commanded))
+        {
+            rejection = Reject(state, "请选择受你控制、且与目标单位当前位置不同的战场。", ErrorCodes.InvalidTarget);
             return false;
         }
         if (behavior.MovesTargetsToChosenLocation
@@ -21024,14 +21037,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "请选择所有目标均可移动至的同一个位置。", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!behavior.MovesTargetsToChosenLocation && !string.IsNullOrWhiteSpace(destination)
+        if (!behavior.MovesTargetsToChosenLocation && behavior.CommandedMovement is null && !string.IsNullOrWhiteSpace(destination)
             && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)))
         {
             rejection = Reject(state, $"{behavior.DisplayName} has unsupported play destination.", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!behavior.MovesTargetsToChosenLocation && !string.IsNullOrWhiteSpace(destination)
+        if (!behavior.MovesTargetsToChosenLocation && behavior.CommandedMovement is null && !string.IsNullOrWhiteSpace(destination)
             && HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
         {
             rejection = Reject(state, "战场效果禁止将单位打出到该战场。", ErrorCodes.InvalidTarget);
@@ -30007,6 +30020,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     break;
                 }
             }
+        }
+
+        if (behavior.CommandedMovement is not null)
+        {
+            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            ResolveCommandedMovement(state, playerZones, cardObjects, movementLocations, stackItem, behavior, events);
+            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.MovesTargetsToChosenLocation)

@@ -4,7 +4,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record RuleChoiceOption(string Id, string Label, IReadOnlyList<string>? ObjectIds = null);
-public sealed record RuleChoiceRequest(string Id, string PlayerId, string Reason, IReadOnlyList<RuleChoiceOption> Options, int PowerCost = 0, string Kind = "DESTRUCTION_REPLACEMENT");
+public sealed record RuleChoiceRequest(string Id, string PlayerId, string Reason, IReadOnlyList<RuleChoiceOption> Options, int PowerCost = 0, string Kind = "DESTRUCTION_REPLACEMENT", MatchState? Preview = null);
 public sealed record RuleChoiceAnswer(string RequestHash, string OptionId);
 // Deterministic command checkpoint for synchronous decisions.
 // Until all synchronous replacement decisions are known, the original action is uncommitted.
@@ -28,9 +28,9 @@ public sealed partial class CoreRuleEngine
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
         public HashSet<string> NestedDestroyedOwners { get; } = [];
         private int cursor;
-        public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT")
+        public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT", MatchState? preview = null)
         {
-            var request = new RuleChoiceRequest($"REPLACEMENT:{Origin.Tick}:{cursor}", player, reason, options, powerCost, kind);
+            var request = new RuleChoiceRequest($"REPLACEMENT:{Origin.Tick}:{cursor}", player, reason, options, powerCost, kind, preview);
             if (cursor == answers.Count) throw new RuleChoiceRequired(request);
             var answer = answers[cursor++];
             if (answer.RequestHash != MatchStateHasher.HashValue(request) || !options.Any(o => o.Id == answer.OptionId))
@@ -51,7 +51,7 @@ public sealed partial class CoreRuleEngine
             if (intent.PlayerId != pending.Request.PlayerId || command is not PayCostCommand choice
                 || choice.PaymentId != pending.Request.Id || choice.PaymentWindow != RuleChoiceWindow
                 || choice.PaymentChoiceIds is not { Count: 1 } selected || !pending.Request.Options.Any(o => o.Id == selected[0]))
-                return RejectWithCorePrompts(state, "请由替换效果的控制者确认当前选择。", ErrorCodes.InvalidTarget);
+                return RejectWithCorePrompts(state, "请由当前结算选择的玩家确认。", ErrorCodes.InvalidTarget);
             answers = answers.Append(new RuleChoiceAnswer(MatchStateHasher.HashValue(pending.Request), selected[0])).ToArray();
             command = GameCommandJsonMapper.Map(pending.Command);
         }
@@ -74,6 +74,12 @@ public sealed partial class CoreRuleEngine
         finally { RuleChoices.Value = previous; }
     }
 
+    // Intermediate effects are displayed through the normal per-viewer privacy
+    // projection. The original action remains the deterministic recovery checkpoint.
+    internal static MatchState VisibleRuleChoiceState(MatchState state)
+        => state.PendingRuleChoice is { Request.Preview: { } preview } pending
+            ? preview with { Tick = state.Tick, PendingRuleChoice = pending } : state;
+
     internal static PendingPaymentState? VisiblePendingPayment(MatchState state)
         => state.PendingRuleChoice is { } pending ? RuleChoicePayment(pending) : state.PendingPayment;
 
@@ -84,7 +90,7 @@ public sealed partial class CoreRuleEngine
     internal static IReadOnlyDictionary<string, ActionPromptDto> BuildRuleChoicePrompts(MatchState state)
     {
         var pending = state.PendingRuleChoice!;
-        var projection = state with { PendingPayment = RuleChoicePayment(pending) };
+        var projection = VisibleRuleChoiceState(state) with { PendingPayment = RuleChoicePayment(pending) };
         return state.Seats.Keys.ToDictionary(id => id, id => ActionPromptBuilder.Build(projection, id,
             id == pending.Request.PlayerId, id == pending.Request.PlayerId ? pending.Request.Reason : "等待对手完成结算选择",
             id == pending.Request.PlayerId ? [CommandTypes.PayCost, CommandTypes.Surrender] : ["WAIT", CommandTypes.Surrender]));

@@ -4379,9 +4379,9 @@ public sealed record ResolutionResult(
             .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
-        if (controllerIds.Contains(state.ActivePlayerId, StringComparer.Ordinal))
+        if (controllerIds.Contains(state.TurnPlayerId, StringComparer.Ordinal))
         {
-            return state.ActivePlayerId;
+            return state.TurnPlayerId;
         }
 
         return OrderTriggerApnapControllerIds(state, controllerIds).FirstOrDefault();
@@ -4497,9 +4497,9 @@ public sealed record ResolutionResult(
             .ToList();
         var ordered = new List<string>();
 
-        if (remaining.Remove(state.ActivePlayerId))
+        if (remaining.Remove(state.TurnPlayerId))
         {
-            ordered.Add(state.ActivePlayerId);
+            ordered.Add(state.TurnPlayerId);
         }
 
         foreach (var seatPlayerId in state.Seats
@@ -4958,6 +4958,7 @@ public sealed record ResolutionResult(
 
     private static SnapshotDto BuildSnapshotForViewer(MatchState state, string viewerPlayerId)
     {
+        state = CoreRuleEngine.VisibleRuleChoiceState(state);
         var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
         var players = state.Seats.ToDictionary(
             entry => entry.Key,
@@ -8684,7 +8685,7 @@ internal static class ActionPromptBuilder
             && (payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
         {
             var steps = new List<ActionPromptSelectionStepDto>();
-            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? "选择替换对象与支付方式，或不替换" : "支付或放弃此效果", true,
+            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : "选择替换对象与支付方式，或不替换" : "支付或放弃此效果", true,
                 payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
             selectionSteps = steps;
             commandTemplate = CommandTemplate(CommandTypes.PayCost,
@@ -8694,7 +8695,7 @@ internal static class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -16065,7 +16066,7 @@ internal static class ActionPromptBuilder
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
-            ["destinationLabel"] = behavior.MovesTargetsToChosenLocation ? "移动目的地" : "入场位置",
+            ["destinationLabel"] = behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null ? "移动目的地" : "入场位置",
             ["optionalCostChoices"] = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) ? Array.Empty<ActionPromptChoiceDto>() : PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
@@ -16156,6 +16157,8 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
+        if (behavior.CommandedMovement is { } commanded)
+            return CoreRuleEngine.CommandedMovementDestinations(state, playerId, commanded);
         if (behavior.MovesTargetsToChosenLocation)
             return CoreRuleEngine.ChosenMovementDestinations(state, playerId);
         if (state.PendingEffectPlay is not null && behavior.PlaysSourceToBaseAsUnit)

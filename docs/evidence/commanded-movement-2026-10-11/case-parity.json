@@ -1,0 +1,29 @@
+{
+  "baseline": 9509,
+  "current": 9530,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.CommandedMovementNativeTests.NativeOpponentChoiceRestoresAndReplays(selected: \"D\")",
+    "Riftbound.ConformanceTests.CommandedMovementNativeTests.NativeOpponentChoiceRestoresAndReplays(selected: \"D2\")",
+    "Riftbound.ConformanceTests.CommandedMovementTests.CasterCannotPreselectTheOpponentsUnit",
+    "Riftbound.ConformanceTests.CommandedMovementTests.EchoAsksOpponentSeparatelyAndRetainsTheFirstAnswerAcrossRecovery",
+    "Riftbound.ConformanceTests.CommandedMovementTests.ForgedPreviewAndChoiceCannotSurviveRecoveryOrChangeTheBoard",
+    "Riftbound.ConformanceTests.CommandedMovementTests.GraveyardRecastUsesMovementDestinationAndStillLetsOpponentChoose",
+    "Riftbound.ConformanceTests.CommandedMovementTests.IneligibleOpponentUnitsAreExcludedAndNoEligibleUnitDoesNotUndoFirstMove(none: False)",
+    "Riftbound.ConformanceTests.CommandedMovementTests.IneligibleOpponentUnitsAreExcludedAndNoEligibleUnitDoesNotUndoFirstMove(none: True)",
+    "Riftbound.ConformanceTests.CommandedMovementTests.IntermediatePreviewDoesNotRevealPrivateCardsOrOfferResponsePriority",
+    "Riftbound.ConformanceTests.CommandedMovementTests.InvalidFirstMovementStillAttemptsIndependentOpponentInstruction(change: \"battlefield-control\")",
+    "Riftbound.ConformanceTests.CommandedMovementTests.InvalidFirstMovementStillAttemptsIndependentOpponentInstruction(change: \"control\")",
+    "Riftbound.ConformanceTests.CommandedMovementTests.InvalidFirstMovementStillAttemptsIndependentOpponentInstruction(change: \"generation\")",
+    "Riftbound.ConformanceTests.CommandedMovementTests.InvalidFirstMovementStillAttemptsIndependentOpponentInstruction(change: \"prohibited\")",
+    "Riftbound.ConformanceTests.CommandedMovementTests.OfficialMerchantVolibearQaUsesTurnPlayerFirstInsertion(merchantTurn: False)",
+    "Riftbound.ConformanceTests.CommandedMovementTests.OfficialMerchantVolibearQaUsesTurnPlayerFirstInsertion(merchantTurn: True)",
+    "Riftbound.ConformanceTests.CommandedMovementTests.OpponentChoosesTheirUnitAfterSeeingTheFirstMovement",
+    "Riftbound.ConformanceTests.CommandedMovementTests.OwnSelectedUnitDoesNotChargeOpponentWardAndEquipmentFollows",
+    "Riftbound.ConformanceTests.CommandedMovementTests.PreflightRequiresAnExistingControlledBattlefield(destination: \"\")",
+    "Riftbound.ConformanceTests.CommandedMovementTests.PreflightRequiresAnExistingControlledBattlefield(destination: \"BASE:P1\")",
+    "Riftbound.ConformanceTests.CommandedMovementTests.PreflightRequiresAnExistingControlledBattlefield(destination: \"BATTLEFIELD:ABSENT\")",
+    "Riftbound.ConformanceTests.CommandedMovementTests.PreflightRequiresAnExistingControlledBattlefield(destination: \"BATTLEFIELD:BF\")"
+  ],
+  "allPassed": true
+}
