@@ -44436,6 +44436,9 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Single(result.State.StackItems);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "DAMAGE_APPLIED");
+        result = await TurnSequenceTestDriver.Complete(result);
         Assert.Equal("P2", result.State.TurnPlayerId);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -44478,14 +44481,20 @@ public sealed class ConformanceFixtureRunnerTests
             ControllerId = "P2"
         };
 
+        var dirtyState = state with { CardObjects = dirtyObjects };
         var result = await new CoreRuleEngine().ResolveAsync(
-            state with { CardObjects = dirtyObjects },
+            dirtyState,
             new PlayerIntent("intent-p7-9-battlefield-turn-start-damage-dirty-source", "P1", "END_TURN"),
             new EndTurnCommand(),
             CancellationToken.None);
 
-        Assert.True(result.Accepted);
-        Assert.Equal("P2", result.State.TurnPlayerId);
+        // The historical dirty fixture puts only P1 units on a P2-controlled
+        // field. With a real field identity this must finish its control task
+        // before ending the turn; it cannot silently skip an official trigger.
+        Assert.False(result.Accepted);
+        Assert.Contains("任务队列", result.ErrorMessage);
+        Assert.Equal(MatchStateHasher.Hash(dirtyState), MatchStateHasher.Hash(result.State));
+        Assert.Equal("P1", result.State.TurnPlayerId);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS", StringComparison.Ordinal));
@@ -44496,6 +44505,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-FROST-FALLING"].Damage);
         Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-FROST-SURVIVOR"].Damage);
+
     }
 
     [Fact]
@@ -68554,7 +68564,7 @@ public sealed class ConformanceFixtureRunnerTests
                 {
                     MainDeck = ["P2-MAIN-001"],
                     RuneDeck = ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
-                    Battlefields = ["P2-BATTLEFIELD-FROST-SURVIVOR"]
+                    Battlefields = ["P2-BATTLEFIELD-FROST-OTHER", "P2-BATTLEFIELD-FROST-SURVIVOR"]
                 }
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -68571,6 +68581,8 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P2-BATTLEFIELD-FROST-OTHER"] = new("P2-BATTLEFIELD-FROST-OTHER", cardNo: "OGN·294/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2", controllerId: "P2"),
                 ["P2-BATTLEFIELD-FROST-SURVIVOR"] = new(
                     "P2-BATTLEFIELD-FROST-SURVIVOR",
                     power: 2,
@@ -68580,9 +68592,10 @@ public sealed class ConformanceFixtureRunnerTests
             },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
-                ["P1-BATTLEFIELD-FROST-HOLD"] = new("P1", "BATTLEFIELD", "P1-MAIN"),
-                ["P1-BATTLEFIELD-FROST-FALLING"] = new("P1", "BATTLEFIELD", "P1-MAIN"),
-                ["P2-BATTLEFIELD-FROST-SURVIVOR"] = new("P2", "BATTLEFIELD", "P2-MAIN"),
+                ["P1-BATTLEFIELD-FROST-HOLD"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-FROST-HOLD"),
+                ["P1-BATTLEFIELD-FROST-FALLING"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-FROST-HOLD"),
+                ["P2-BATTLEFIELD-FROST-OTHER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-FROST-OTHER"),
+                ["P2-BATTLEFIELD-FROST-SURVIVOR"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-FROST-OTHER"),
                 ["P2-MAIN-001"] = new("P2", "MAIN_DECK"),
                 ["P2-RUNE-001"] = new("P2", "RUNE_DECK"),
                 ["P2-RUNE-002"] = new("P2", "RUNE_DECK"),

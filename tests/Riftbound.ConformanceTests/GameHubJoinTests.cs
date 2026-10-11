@@ -11899,7 +11899,18 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-turn-start-damage", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
-        var endTurnEvents = EventsFor(endTurnClients);
+        var endTurnEvents = EventsFor(endTurnClients).ToList();
+        Assert.DoesNotContain(endTurnEvents, e => e.Kind == "DAMAGE_APPLIED");
+        foreach (var (player, connection) in new[]{("P2", "connection-2"), ("P1", "connection-1")})
+        {
+            var responseClients = new RecordingHubClients();
+            await CreateHub(responseClients, new RecordingGroupManager(), connection, registry)
+                .SubmitIntent(roomId, player, "frost-start-pass-" + player,
+                    JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
+            Assert.Empty(responseClients.CallerClient.Errors);
+            endTurnEvents.AddRange(EventsFor(responseClients));
+            endTurnClients = responseClients;
+        }
         Assert.Contains(endTurnEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS", StringComparison.Ordinal));

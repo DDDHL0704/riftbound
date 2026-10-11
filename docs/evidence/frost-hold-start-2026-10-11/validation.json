@@ -1,0 +1,342 @@
+{
+  "focus4": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.76,
+    "total": 56,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 56,
+        "passed": 56,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.28
+      }
+    ]
+  },
+  "focus6": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 36.59,
+    "total": 24,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.85
+      }
+    ]
+  },
+  "full2": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 430.83,
+    "total": 9705,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 224.79
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 225.83
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 235.75
+      },
+      {
+        "shard": "rules",
+        "total": 9570,
+        "passed": 9570,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 92.98
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 427.39
+      }
+    ]
+  },
+  "initialCheck": {
+    "total": 9572,
+    "passed": 9570,
+    "failed": {
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79BattlefieldTurnStartDamageAllBattlefieldUnitsBeforeScoring": "Failed",
+      "Riftbound.ConformanceTests.GameHubJoinTests.P79BattlefieldTurnStartDamageSeedDamagesAndDestroysBeforeRuneCall": "Failed"
+    }
+  },
+  "native": {
+    "result": {
+      "nativeCommands": 6,
+      "commands": 7,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "95704b43636a8de54232779af1e597d97280e69a8cc9478604f5e9ffae81aa33",
+        "expectedStateHash": "95704b43636a8de54232779af1e597d97280e69a8cc9478604f5e9ffae81aa33",
+        "errors": []
+      }
+    },
+    "mode": "Godot headless production ActionBar pass buttons and PlayCardOverlay reaction Flash. Current prompt/tick, authoritative cost quote, real server response and journal replay. Not paired-client/network/Windows visual acceptance."
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.62\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nFROST_HOLD_PASS: 6 production response and reaction commands\n",
+  "artifacts": [
+    {
+      "path": "var/qa/frost-hold-start/check/check/results.trx",
+      "sha256": "544a8c1730dacf04c4c27b3177f08f0b2af7a8273d530ce6f0f13fe735b92bf1"
+    },
+    {
+      "path": "var/qa/frost-hold-start/check/plan.json",
+      "sha256": "b2c7a257357beafc35e6e5b0a9f1720127575c44e5a0d5496f3b8422cdd999a5"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus1/focus/results.trx",
+      "sha256": "192be7fe7ae7508e1c37e72db761eece57b460823e87e59d0102556eba849f08"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus1/plan.json",
+      "sha256": "c5805a2b50622f3f815fac1a13f3636fee8d90055e02dc5716271c38e7819fe9"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus1/summary.json",
+      "sha256": "647a7b7cce8026b94c2509d91ac3f253ba28634d022db91622e1be7354bca7f7"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus2/focus/results.trx",
+      "sha256": "b5e50508482fe5c438852008b1b072fb85fe973da5ca5d53cca362a0589365f3"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus2/plan.json",
+      "sha256": "788de64048a9d1d3ce902b4df0b304daeb34fd43e4bc0ce9e9868f9f32b0ba44"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus2/summary.json",
+      "sha256": "e08006c6d121fa76d546448957b29be73621fc364c2ede3e94a5bfac9965aedf"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus3/focus/results.trx",
+      "sha256": "07975140751df999f57775e1f85b77e4f8ece39926dc8733c730bfc7be42e240"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus3/plan.json",
+      "sha256": "78966ba321904911fe3775680f15ec89ffc6153b5d81c7cc4bc1e5d98bf7d883"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus3/summary.json",
+      "sha256": "55c61ce611db90e43ca6438ecb05d54f7cd498ac749172db3fee3c995a2ec96f"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus4/focus/results.trx",
+      "sha256": "3b606cf540b91b987880ee64d9b737dd0c0bfb546ec5a3d169772e0a26f3fab0"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus4/plan.json",
+      "sha256": "01d8d61819bfd8f421859b992ae69da851196f22b7ec1c88af39864d49d9185c"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus4/summary.json",
+      "sha256": "8d2e9af2ccd13780b5e87fda24fc7a5235cdedfba66d4e3a17e36cf4b9d128e7"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus5/focus/results.trx",
+      "sha256": "7a88bfd39af09ef378b2c3fc69dd91d3773f7b9c698a48aeddc524c14e07fe8a"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus5/plan.json",
+      "sha256": "698b54de5d4c61890e1f1c0d02870370c8e764570d7899e71016917e4ab961a9"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus6/focus/results.trx",
+      "sha256": "ac2b0ce1daa96045df5a5242948c39a9caac8a10da5050979cd6f9ab7a426dff"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus6/plan.json",
+      "sha256": "808478fc3cb80e2bdac5fa57db12a351ceb1260600716a95d29c0043bbb89536"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus6/summary.json",
+      "sha256": "71b11062544b3b394bb63e3f811c92fc6732c4eafcc88051004041378a7cf818"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus7/focus/results.trx",
+      "sha256": "496199dfd72dcc4dcd43b7696a39d3a1de23cd683b2cc66f437cc65fc62a59d5"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus7/plan.json",
+      "sha256": "6421540a57096e6f7b8341c7fa7c1f6e637acad1d2a0549e1ddaa7e0eed71fdb"
+    },
+    {
+      "path": "var/qa/frost-hold-start/focus7/summary.json",
+      "sha256": "a53586c7ad0826e18c5e66ce50aa047f73240ca03af5018061954c0e02b0d2ef"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full/games-3/results.trx",
+      "sha256": "26434cb650122d940538597b9ad759f0fb3f5391d17e403c337069a15604bfb9"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full/plan.json",
+      "sha256": "34045e744685066d5134472a9abb571301c3f8c382d6204da220f4b08b8d49b1"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full2/games-1/results.trx",
+      "sha256": "14b7d68cdfdeaa575cc68e847cd9daa877d831ef8e83fa3aa2fce5de3f82a122"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full2/games-2/results.trx",
+      "sha256": "80fe9065c244975f1aaa146d221a452e73831559b81c8688eb316e6dd8f03b92"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full2/games-3/results.trx",
+      "sha256": "5968dd8f2beef3cd55da96ffe5707fd1243465107149fa1a212745d10e0c62d2"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full2/games-4/results.trx",
+      "sha256": "1066147458c49ebfdb97714fcffd2376094467a10e52ed89ce045178c9b113d9"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full2/plan.json",
+      "sha256": "f78bd65852cb571fe546dbe0f2bc60afcaf13b29504f9f1d88a5af5cb539f99b"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full2/rules/results.trx",
+      "sha256": "2e58bc42df312614b1429e23eaf97fb35d9ae62da0696d10e8c25aa93d181d26"
+    },
+    {
+      "path": "var/qa/frost-hold-start/full2/summary.json",
+      "sha256": "3103a0a810bcb204f54edb252e781309a870635b9ce92f6ec4297ec10f6f696d"
+    },
+    {
+      "path": "var/qa/frost-hold-start/fullgame-targeted/results.trx",
+      "sha256": "6a47c6d75eee4012c7a691c87bcce6e13057b833b1987bd2fa9603178dcd88c3"
+    },
+    {
+      "path": "var/qa/frost-hold-start/legacy-diagnostic/focus/results.trx",
+      "sha256": "b36a7a3fe1acfa78d66941507d30123d7388a3fdfa0f99df8d587665dc741460"
+    },
+    {
+      "path": "var/qa/frost-hold-start/legacy-diagnostic/plan.json",
+      "sha256": "52da92484557dd877226b0c4919375f95b08d6e58ddb6088c77ab7a7e5c5a207"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-first-command.json",
+      "sha256": "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-first-prompt.json",
+      "sha256": "226a151e8a396d8782fe31933082db7cd0bc1d5670646f80af2ebb1d713fc301"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-first-snapshot.json",
+      "sha256": "6afad4f6df4ec5f7fa9b38c788407f6cedf758232abf005008908eed3dd0a59f"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-frost-1-command.json",
+      "sha256": "4cded514b7cccfc53f117845e304aff6ff43ad9bc47f3660d4f48d2f8c956132"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-frost-1-prompt.json",
+      "sha256": "f3abeaf22ebf0dc231b9b6d94fecb02273f7e774fdd51bcd3f9a822eef89bb15"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-frost-1-snapshot.json",
+      "sha256": "d42ce4571f7bb5611afc6692ddcf0f80db13ab06538b8988995bdaf56a0b70e7"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-frost-2-command.json",
+      "sha256": "f699c61820c15e619d60cc2d1132d5d80df77b0970a8ce7e3f04c673eb6e2e25"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-frost-2-prompt.json",
+      "sha256": "1a82d99ca8a52a87507c1f2fc7338a7e0bb1b6599b8eb05af5a88816b535f90b"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-frost-2-snapshot.json",
+      "sha256": "b04b856ea3c234730614c0a5e750f1d9517d138a2bdbea0e7988e032814167c2"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-reaction-1-command.json",
+      "sha256": "4af628b9dce93e8df6942353d0417248803d164ed82e542f211cc7dc5f052184"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-reaction-1-prompt.json",
+      "sha256": "86a29ca0ac3893e7be0c47de9f2980ad77493bceb5bece394a032aeb23fc2d5f"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-reaction-1-snapshot.json",
+      "sha256": "f121cda2db4faf434deea848de370fa7eccb9ceaf76d6ba2fe527008319890fc"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-reaction-2-command.json",
+      "sha256": "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-reaction-2-prompt.json",
+      "sha256": "d07cb5bdd72821fba8a35bd69ac39915500e8823bf992067b4b324684b653499"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/pass-reaction-2-snapshot.json",
+      "sha256": "e29f546db28e956bddf6368e1e9eab9888bd129ad9cfc10601fc6346b93696de"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/reaction-command.json",
+      "sha256": "408669f4e06e2de29923f289bd73ca06c49a3e252441cbf4fd03cd6768776c47"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/reaction-preview.json",
+      "sha256": "6d8e4ae09ac1df4ebe0c445074a08830a19bd4c577775e13fe64371f3294972a"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/reaction-prompt.json",
+      "sha256": "2cb6ebc3ed60480cc86aa1214ae2c848ebcdec2b24c1afacae399c1ecfdbf6c7"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/reaction-quote.json",
+      "sha256": "a8ecae84068f2b28da572f6dcb6775e39bf0ddc4a380fbd20efea436b953af52"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/reaction-snapshot.json",
+      "sha256": "36b5fbc8b45b5663566d1681bf663247e4e38055f89fd7fd66ce2498b0ad0800"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/replay.json",
+      "sha256": "980a791f7b117d0058e20055ff6f98bc7cafef9ab349d7ebf151c0fe96d77ed7"
+    },
+    {
+      "path": "var/qa/frost-hold-start/native/result-snapshot.json",
+      "sha256": "150b630db5ac37ddccb56a334e876153bb37927b09a89318010d783987405f57"
+    },
+    {
+      "path": "var/qa/frost-hold-start/red/focus/results.trx",
+      "sha256": "9f6b3a9718aac15a9bb91448ddc867302e02e3849520f6c88b08f5901d73e85c"
+    },
+    {
+      "path": "var/qa/frost-hold-start/red/plan.json",
+      "sha256": "1b744c7519ad1e351de29e373a976f3fb3d895cb07ca80cc952fff02b84bbe18"
+    }
+  ]
+}

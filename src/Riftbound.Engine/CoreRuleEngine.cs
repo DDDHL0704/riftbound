@@ -3913,7 +3913,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -3924,7 +3924,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -27477,6 +27477,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.ReflexiveDuel is not null) return ResolveReflexiveDuel(state, stackItem);
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
+        if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStartDamage(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
@@ -38066,147 +38067,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static BattlefieldStartDamageResult ApplyBattlefieldTurnStartDamageAllUnits(MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
-        string turnPlayerId,
-        long currentTick,
-        IReadOnlyDictionary<string, RunePool> runePools)
-    {
-        var sourceEntries = new List<(string SourceObjectId, string BattlefieldObjectId, int DamageAmount)>();
-        foreach (var (playerId, zones) in playerZones.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-        {
-            foreach (var sourceObjectId in zones.Battlefields.OrderBy(objectId => objectId, StringComparer.Ordinal))
-            {
-                if (!cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                    || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                        sourceState.CardNo,
-                        BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDamageAllUnitsTrigger,
-                        out var trigger)
-                    || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId))
-                {
-                    continue;
-                }
-
-                sourceEntries.Add((
-                    sourceObjectId,
-                    BattlefieldScopeForSource(objectLocations, sourceObjectId),
-                    trigger.DamageAmount.GetValueOrDefault()));
-            }
-        }
-
-        if (sourceEntries.Count == 0)
-        {
-            return BattlefieldStartDamageResult.Empty;
-        }
-
-        var damageByTargetObjectId = new Dictionary<string, int>(StringComparer.Ordinal);
-        var sourceObjectIdsByTargetObjectId = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-        foreach (var sourceEntry in sourceEntries)
-        {
-            var scopedTargetObjectIds = GetBattlefieldUnitObjectIdsAtBattlefield(
-                playerZones,
-                cardObjects,
-                objectLocations,
-                sourceEntry.BattlefieldObjectId);
-            foreach (var targetObjectId in scopedTargetObjectIds)
-            {
-                damageByTargetObjectId[targetObjectId] = damageByTargetObjectId.TryGetValue(targetObjectId, out var currentDamage)
-                    ? currentDamage + sourceEntry.DamageAmount
-                    : sourceEntry.DamageAmount;
-                if (!sourceObjectIdsByTargetObjectId.TryGetValue(targetObjectId, out var targetSourceObjectIds))
-                {
-                    targetSourceObjectIds = [];
-                    sourceObjectIdsByTargetObjectId[targetObjectId] = targetSourceObjectIds;
-                }
-
-                targetSourceObjectIds.Add(sourceEntry.SourceObjectId);
-            }
-        }
-
-        var targetObjectIds = damageByTargetObjectId.Keys
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .ToArray();
-        if (targetObjectIds.Length == 0)
-        {
-            return BattlefieldStartDamageResult.Empty;
-        }
-
-        var sourceObjectIds = sourceEntries
-            .Select(entry => entry.SourceObjectId)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .ToArray();
-        var damageAmount = damageByTargetObjectId.Values.Max();
-        var events = new List<GameEvent>
-        {
-            new(
-                "BATTLEFIELD_TRIGGER_RESOLVED",
-                $"{turnPlayerId} 回合开始时冰霜要塞造成伤害",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = turnPlayerId,
-                    ["trigger"] = TriggerKinds.BattlefieldTurnStartDamageAllUnits,
-                    ["sourceObjectIds"] = sourceObjectIds,
-                    ["targetObjectIds"] = targetObjectIds,
-                    ["damage"] = damageAmount,
-                    ["timing"] = MatchPhases.TurnStart,
-                    ["beforeScoring"] = true
-                })
-        };
-
-        var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var targetObjectId in targetObjectIds)
-        {
-            var targetDamageAmount = damageByTargetObjectId[targetObjectId];
-            var damageApplication = ApplyDamageToCardObject(
-                cardObjects,
-                turnPlayerId,
-                targetObjectId,
-                targetDamageAmount,
-                damageTriggeredDestroyTargetObjectIds);
-            var targetSourceObjectIds = sourceObjectIdsByTargetObjectId[targetObjectId]
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(objectId => objectId, StringComparer.Ordinal)
-                .ToArray();
-            var payload = BuildDamagePayload(targetSourceObjectIds[0], targetObjectId, damageApplication);
-            payload["sourceObjectIds"] = targetSourceObjectIds;
-            payload["reason"] = TriggerKinds.BattlefieldTurnStartDamageAllUnits;
-            payload["timing"] = MatchPhases.TurnStart;
-            events.Add(new GameEvent(
-                "DAMAGE_APPLIED",
-                $"{targetObjectId} 因冰霜要塞受到 {damageApplication.DamageAmount} 点伤害",
-                payload));
-        }
-
-        var pseudoStackItem = new StackItemState(
-            $"TURN-START-BATTLEFIELD-DAMAGE-{currentTick}",
-            turnPlayerId,
-            sourceObjectIds[0],
-            TriggerKinds.BattlefieldTurnStartDamageAllUnits,
-            string.Empty,
-            [],
-            0);
-        var lethalCleanup = RunStateBasedCleanupLoop(state,
-            playerZones,
-            cardObjects,
-            pseudoStackItem,
-            runePools,
-            damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds,
-            objectLocations: new Dictionary<string, ObjectLocationState>(objectLocations, StringComparer.Ordinal));
-        events.AddRange(lethalCleanup.Events);
-
-        return new BattlefieldStartDamageResult(
-            events,
-            lethalCleanup.DestroyedUnitOwnerIds
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
-                .ToArray(),
-            lethalCleanup.RunePools,
-            lethalCleanup.TriggerQueue);
-    }
-
     private static string BattlefieldScopeForSource(
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         string sourceObjectId)
@@ -39160,18 +39020,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private sealed record TurnStartReadyResult(IReadOnlyList<GameEvent> Events)
     {
         public static TurnStartReadyResult Empty { get; } = new([]);
-    }
-
-    private sealed record BattlefieldStartDamageResult(
-        IReadOnlyList<GameEvent> Events,
-        IReadOnlyList<string> DestroyedUnitOwnerIds,
-        IReadOnlyDictionary<string, RunePool> RunePools,
-        IReadOnlyList<TriggerQueueItemState> TriggerQueue)
-    {
-        public static BattlefieldStartDamageResult Empty { get; } = new(
-            [],
-            [],
-            new Dictionary<string, RunePool>(StringComparer.Ordinal), []);
     }
 
     private sealed record BattlefieldStartDrawResult(

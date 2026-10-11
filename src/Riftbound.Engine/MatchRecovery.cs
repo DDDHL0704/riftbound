@@ -987,6 +987,7 @@ public static class MatchRecoveryValidator
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
+        "TURN_START_BEGAN",
         "MOVEMENT_INSTRUCTION_COMPLETED",
         "UNIT_TOKEN_CREATED",
         "UNIT_PLAYED_TO_BATTLEFIELD",
@@ -22826,6 +22827,7 @@ public static class MatchRecoveryValidator
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBattlefieldStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             if (view.Snapshot.Timing is not null
                 && TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var publicTriggers))
             {
@@ -22867,6 +22869,25 @@ public static class MatchRecoveryValidator
             }
             catch (JsonException) { errors.Add($"{label} invalid per-location damage context"); }
         }
+    }
+
+    private static void ValidateBattlefieldStartViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
+    {
+        void Check(object? payload, BattlefieldStartContext? expected)
+        {
+            try {
+                var json = JsonSerializer.SerializeToElement(payload);
+                var actual = json.ValueKind == JsonValueKind.Object && json.TryGetProperty("battlefieldStart", out var raw)
+                    ? raw.Deserialize<BattlefieldStartContext>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) : null;
+                if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(expected))
+                    errors.Add($"{label} battlefield start context differs from authoritative state");
+            } catch (JsonException) { errors.Add($"{label} malformed battlefield start context"); }
+        }
+        foreach (var item in state.StackItems)
+            Check(snapshot.Stack.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId), item.BattlefieldStart);
+        if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "triggerQueue", out var queue))
+            foreach (var item in state.TriggerQueue)
+                Check(queue.FirstOrDefault(payload => TryReadObjectString(payload, "triggerId", out var id) && id == item.TriggerId), item.BattlefieldStart);
     }
 
     private static void ValidateDamageMarkerViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
@@ -23218,6 +23239,14 @@ public static class MatchRecoveryValidator
 
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidBattlefieldStart(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                || item.BattlefieldStart is not null && (item.TargetObjectIds.Count != 0 || item.SourceConfirmed))
+                errors.Add("invalid captured battlefield start ability");
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidBattlefieldStart(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId)
+                || item.BattlefieldStart is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
+                errors.Add("invalid captured battlefield start trigger");
         if (state.TurnStartStep is { } step && (step is not ("READY" or "START" or "SCORE" or "CHANNEL" or "DRAW" or "MAIN")
             || state.Phase != MatchPhases.TurnStart)) errors.Add("invalid turn-start continuation");
         var ids = new HashSet<string>(StringComparer.Ordinal);
@@ -27043,6 +27072,7 @@ public static class MatchRecoveryValidator
         else
         {
             ValidateDamageMarkerViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
+            ValidateBattlefieldStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateSpectatorSnapshotStackItemPayloads(
                 spectatorReplayFrame.SpectatorSnapshot,
                 authoritativeState,

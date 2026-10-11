@@ -1,0 +1,18 @@
+{
+  "baseline": 6390,
+  "current": 6401,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.FrostHoldNativeTests.ProductionReactionFlashEscapesElderBattlefieldDamageAndReplays",
+    "Riftbound.ConformanceTests.FrostHoldTests.BattlefieldStartDamageRespondsBeforeScoreChannelAndDraw",
+    "Riftbound.ConformanceTests.FrostHoldTests.BothPlayersAndSpectatorRejectAlteredPublicBattlefieldContext",
+    "Riftbound.ConformanceTests.FrostHoldTests.CapturedSkillKeepsItsFieldControllerAndAmountAfterSourceChanges",
+    "Riftbound.ConformanceTests.FrostHoldTests.EmptyBattlefieldStillQueuesAndIncomingEnemyUsesTurnPlayersElder",
+    "Riftbound.ConformanceTests.FrostHoldTests.PreventedBattlefieldSkillDamageDoesNotTriggerElderLethality",
+    "Riftbound.ConformanceTests.FrostHoldTests.QueuedBattlefieldContextRejectsPrivateAndPublicTampering",
+    "Riftbound.ConformanceTests.FrostHoldTests.RecoveryRejectsForgedCapturedBattlefieldStartAbility",
+    "Riftbound.ConformanceTests.FrostHoldTests.ResponseLocationChangesExcludeUnitsNoLongerPubliclyHere",
+    "Riftbound.ConformanceTests.FrostHoldTests.SecondPlayersTurnOwnsDamageRegardlessOfBattlefieldController",
+    "Riftbound.ConformanceTests.FrostHoldTests.TwoBattlefieldsUseOrderedSeparateResponseWindows"
+  ]
+}

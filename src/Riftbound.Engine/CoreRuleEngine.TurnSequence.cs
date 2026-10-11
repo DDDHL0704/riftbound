@@ -45,18 +45,17 @@ public sealed partial class CoreRuleEngine
                 case "START":
                     var startPools = state.RunePools.ToDictionary(e => e.Key, e => e.Value);
                     var ephemeral = DestroyEphemeralObjectsAtTurnStart(state, zones, cards, startPools, state.ObjectLocations, player, state.Tick);
-                    var damage = ApplyBattlefieldTurnStartDamageAllUnits(state, zones, cards, state.ObjectLocations, player, state.Tick, startPools);
-                    foreach (var entry in damage.RunePools) startPools[entry.Key] = entry.Value;
                     var startDraw = ApplyBattlefieldTurnStartDestroyUnitDraw(state with { PlayerZones = zones, CardObjects = cards },
                         zones, cards, startPools, player, state.RngCursor);
-                    events.AddRange(ephemeral.Events); events.AddRange(damage.Events); events.AddRange(startDraw.Events);
+                    events.AddRange(ephemeral.Events); events.AddRange(startDraw.Events);
                     state = state with { PlayerZones = zones, CardObjects = cards, RunePools = startPools,
                         PlayerScores = startDraw.PlayerScores, WinnerPlayerId = startDraw.WinnerPlayerId,
                         Status = startDraw.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
                         RngCursor = startDraw.RngCursor, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
-                        DestroyedUnitOwnerIdsThisTurn = ephemeral.DestroyedUnitOwnerIds.Concat(damage.DestroyedUnitOwnerIds)
+                        DestroyedUnitOwnerIdsThisTurn = ephemeral.DestroyedUnitOwnerIds
                             .Concat(startDraw.DestroyedUnitOwnerIds).Distinct().ToArray(),
-                        TriggerQueue = state.TriggerQueue.Concat(damage.TriggerQueue).ToArray(), TurnStartStep = "SCORE" };
+                        TurnStartStep = "SCORE" };
+                    state = QueueBattlefieldStartDamage(state, events);
                     break;
                 case "SCORE":
                     var firstScore = ApplyBattlefieldFirstTurnScore(state, player);

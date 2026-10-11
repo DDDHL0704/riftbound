@@ -1578,6 +1578,205 @@
         "Reverse multiple-attacker manual allocation coverage",
         "Paired-client/Windows visual/network acceptance"
       ]
+    },
+    {
+      "id": "frost-hold-start-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Captured battlefield start damage, turn-player responsibility, response before scoring, independent ordering, resolution-time location, source independence, current recovery and native reaction.",
+      "subjects": [
+        {
+          "id": "UNL-212/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34765,
+              "cardNo": "UNL-212/219",
+              "name": "冰霜要塞",
+              "sha256": "4e5cf25bd21ed6d87c4180b3e429774ffa2281af068b2d56aa2767f85fbed114"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-212-219",
+              "cardNo": "UNL-212/219",
+              "name": "Frozen Fortress",
+              "sha256": "d0ed05754316bb6288a789b24fd6c118469b1741738b374204759f6e17f445a0"
+            }
+          ],
+          "reviewStatus": "PARTIAL_START_DAMAGE_RESPONSE_VERIFIED"
+        },
+        {
+          "id": "UNL-118/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34658,
+              "cardNo": "UNL-118/219",
+              "name": "远古巨龙",
+              "sha256": "8739afffb8e0a6f0795e61fb3a15213d0fee027c6a87d1f3139f6615c1a7b52e"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-118-219",
+              "cardNo": "UNL-118/219",
+              "name": "Elder Dragon",
+              "sha256": "0a6f2318d2700588e9367a8918c16104046e1b37e0b5ec38ce7c1d017103a472"
+            }
+          ],
+          "reviewStatus": "PARTIAL_START_DAMAGE_RESPONSE_VERIFIED"
+        },
+        {
+          "id": "UNL-118A/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34659,
+              "cardNo": "UNL-118a/219",
+              "name": "远古巨龙",
+              "sha256": "52da7819fc04171598a2bca3bb4d0eb18ac2bdb6162158c309e8b0c17d4c335f"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-118a-219",
+              "cardNo": "UNL-118a/219",
+              "name": "Elder Dragon",
+              "sha256": "ece049190bbd4e1ae436ff298734ae0495981f63a94952646c751c1d6c233336"
+            }
+          ],
+          "reviewStatus": "PARTIAL_START_DAMAGE_RESPONSE_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P016-B013",
+        "DOC-04-P016-B014",
+        "DOC-04-P016-B015",
+        "DOC-04-P016-B017",
+        "DOC-04-P034-B002",
+        "DOC-04-P034-B003",
+        "DOC-04-P034-B004",
+        "DOC-04-P034-B005",
+        "DOC-04-P034-B006",
+        "DOC-04-P034-B007",
+        "DOC-04-P034-B008",
+        "DOC-04-P034-B009",
+        "DOC-04-P034-B010",
+        "DOC-04-P034-B011",
+        "DOC-04-P034-B012",
+        "DOC-04-P034-B013",
+        "DOC-04-P034-B014",
+        "DOC-04-P034-B015",
+        "DOC-04-P034-B016",
+        "DOC-04-P034-B017",
+        "DOC-04-P034-B018",
+        "DOC-04-P034-B019",
+        "DOC-04-P034-B020",
+        "DOC-04-P035-B001",
+        "DOC-04-P035-B002",
+        "DOC-04-P035-B003",
+        "DOC-04-P035-B004",
+        "DOC-04-P035-B005",
+        "DOC-04-P035-B006",
+        "DOC-04-P035-B007",
+        "DOC-04-P035-B008",
+        "DOC-04-P035-B009",
+        "DOC-04-P035-B010",
+        "DOC-04-P035-B011",
+        "DOC-04-P035-B012",
+        "DOC-04-P035-B013",
+        "DOC-04-P035-B014",
+        "DOC-04-P035-B015",
+        "DOC-04-P035-B016",
+        "DOC-04-P035-B017",
+        "DOC-04-P035-B018",
+        "DOC-04-P035-B019",
+        "DOC-04-P035-B020",
+        "DOC-04-P035-B021",
+        "DOC-04-P036-B001",
+        "DOC-04-P036-B002",
+        "DOC-04-P036-B003",
+        "DOC-04-P036-B004",
+        "DOC-04-P036-B005",
+        "DOC-04-P060-B013",
+        "DOC-04-P060-B014",
+        "DOC-04-P060-B015",
+        "DOC-04-P061-B001",
+        "DOC-04-P061-B002",
+        "DOC-04-P061-B003",
+        "DOC-04-P061-B004",
+        "DOC-04-P061-B005",
+        "DOC-04-P061-B006",
+        "DOC-04-P061-B007",
+        "DOC-04-P061-B008",
+        "DOC-04-P061-B009",
+        "DOC-04-P061-B010",
+        "DOC-04-P061-B011",
+        "DOC-04-P061-B012",
+        "DOC-04-P061-B013",
+        "DOC-04-P061-B014",
+        "DOC-04-P061-B015",
+        "DOC-04-P061-B016",
+        "DOC-04-P061-B017",
+        "DOC-04-P061-B018",
+        "DOC-04-P061-B019",
+        "DOC-04-P061-B020",
+        "DOC-04-P061-B021",
+        "DOC-04-P061-B022",
+        "DOC-04-P062-B001",
+        "DOC-04-P062-B002",
+        "DOC-04-P062-B003",
+        "DOC-04-P062-B004",
+        "DOC-04-P062-B005",
+        "DOC-04-P062-B006",
+        "DOC-04-P062-B007",
+        "DOC-04-P062-B008",
+        "DOC-04-P062-B009",
+        "DOC-04-P062-B010",
+        "DOC-04-P062-B011",
+        "DOC-04-P062-B012",
+        "DOC-04-P062-B013",
+        "DOC-04-P062-B014",
+        "DOC-04-P063-B014",
+        "DOC-04-P063-B015",
+        "DOC-04-P063-B016",
+        "DOC-04-P063-B017",
+        "DOC-04-P063-B018",
+        "DOC-04-P063-B019",
+        "DOC-04-P063-B020",
+        "DOC-04-P063-B021",
+        "DOC-04-P064-B001",
+        "DOC-04-P064-B002",
+        "DOC-04-P064-B003",
+        "DOC-04-P070-B005",
+        "DOC-04-P070-B006",
+        "DOC-04-P070-B007",
+        "DOC-04-P070-B008",
+        "DOC-04-P070-B009",
+        "DOC-04-P070-B010",
+        "DOC-04-P070-B011",
+        "DOC-04-P070-B012",
+        "DOC-04-P070-B013",
+        "DOC-04-P070-B014",
+        "DOC-09-P015-B010",
+        "DOC-09-P015-B012",
+        "DOC-09-P015-B013"
+      ],
+      "auditDocument": "docs/FROST_HOLD_START_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/frost-hold-start-2026-10-11",
+      "tests": [
+        "FrostHoldTests",
+        "FrostHoldNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9705,
+        "fullMethods": 6401,
+        "nativeCommands": 6,
+        "journalCommands": 7,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Other simultaneous start triggers: Ephemeral, Dusk Rose Lab and Jinx",
+        "Actual incoming enemy movement and battlefield replacement card flows in these scenarios",
+        "Paired-client/Windows visual/network acceptance"
+      ]
     }
   ]
 }

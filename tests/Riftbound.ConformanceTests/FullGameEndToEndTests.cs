@@ -13295,6 +13295,7 @@ public sealed class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(secondMulligan);
         AssertNoHiddenZoneLeak(secondMulligan);
+        secondMulligan = await ResolveDriverPendingEffectsAsync(session, secondMulligan, "b0-opening-start-triggers");
         Assert.Equal(MatchPhases.Main, secondMulligan.State.Phase);
 
         var result = secondMulligan;
