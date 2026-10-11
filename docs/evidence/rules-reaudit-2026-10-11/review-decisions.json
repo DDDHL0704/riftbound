@@ -809,6 +809,74 @@
         "Future-effective rules",
         "Dual-window and Windows product acceptance"
       ]
+    },
+    {
+      "id": "sequential-movement-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Void Assault independent declared destinations, ordered movement, Echo, attacker determination, recovery and production native choices; Yone conquest QA remains pending.",
+      "subjects": [
+        {
+          "id": "UNL-202/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34755,
+              "cardNo": "UNL-202/219",
+              "name": "虚空来袭",
+              "sha256": "79fa62ed9f3ca9dce212b5445fb59a95cdcacd9d0ab275221621f438ddd1bdc8"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-202-219",
+              "cardNo": "UNL-202/219",
+              "name": "Void Assault",
+              "sha256": "fcd918c07bdd5e8113cb59939b14f3c26c58c90a7f02e3217a8a63ea40f5fb10"
+            }
+          ],
+          "activeCardNo": "UNL-202/219",
+          "reviewStatus": "PARTIAL_SEQUENTIAL_MOVEMENT_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P043-B007",
+        "DOC-04-P043-B008",
+        "DOC-04-P050-B011"
+      ],
+      "pendingRuleRecords": [
+        "DOC-09-P018-B006",
+        "DOC-09-P018-B007",
+        "DOC-09-P018-B008",
+        "DOC-09-P018-B009",
+        "DOC-09-P018-B010",
+        "DOC-09-P018-B011",
+        "DOC-09-P018-B012",
+        "DOC-09-P018-B013",
+        "DOC-09-P018-B014",
+        "DOC-09-P018-B015",
+        "DOC-09-P018-B016",
+        "DOC-09-P018-B017",
+        "DOC-09-P018-B018"
+      ],
+      "auditDocument": "docs/SEQUENTIAL_MOVEMENT_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/sequential-movement-2026-10-11",
+      "tests": [
+        "SequentialMovementTests",
+        "SequentialMovementNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9557,
+        "fullMethods": 6319,
+        "nativeScenarios": 4,
+        "nativeCommands": 4,
+        "journalCommands": 12,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Yone conquest QA",
+        "Legacy movement and swaps",
+        "Future-effective rules",
+        "Dual-window and Windows product acceptance"
+      ]
     }
   ]
 }

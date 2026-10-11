@@ -25,3 +25,5 @@ QA 还暴露两项共享缺陷：跨玩家触发排序原先使用当前操作�
 最终全量 9,530/9,530、6,306 个方法通过，相对上一批新增 21 个用例、12 个方法，没有删除或更名。Godot 构建零警告、零错误；四个原生命令及 8 条 journal 命令恢复和回放通过。此前批次检查 9,392 项中只有旧战斗号令结束回合预期失败，修正后由最终全量覆盖验证。
 
 证据：[来源](evidence/commanded-movement-2026-10-11/sources.json)、[验证](evidence/commanded-movement-2026-10-11/validation.json)、[用例对账](evidence/commanded-movement-2026-10-11/case-parity.json)、[方法对账](evidence/commanded-movement-2026-10-11/method-parity.json)、[旧预期变更](evidence/commanded-movement-2026-10-11/oracle-updates.json)。
+
+后续记录：虚空来袭独立终点与进攻方已由 [顺序移动批次](SEQUENTIAL_MOVEMENT_AUDIT_2026-10-11.md) 验证，永恩关联 QA 仍待后续征服批次。

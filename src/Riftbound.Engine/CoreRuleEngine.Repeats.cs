@@ -15,14 +15,14 @@ public sealed partial class CoreRuleEngine
         var choices = command.RepeatChoices is { Count: > 0 } supplied ? supplied
             : Enumerable.Range(1, count - 1).Select(_ => new SpellRepeatChoice(command.Mode, targets)).ToArray();
         if (choices.Count != count - 1) return false;
-        SpellExecutionState Capture(CardBehaviorDefinition definition, IReadOnlyList<string> ids)
+        SpellExecutionState Capture(CardBehaviorDefinition definition, IReadOnlyList<string> ids, IReadOnlyList<string>? destinations)
             => new(definition.EffectKind, ids, ids.Distinct(StringComparer.Ordinal)
-                .Where(state.CardObjects.ContainsKey).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration));
-        var result = new List<SpellExecutionState> { Capture(behavior, targets) };
+                .Where(state.CardObjects.ContainsKey).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), destinations);
+        var result = new List<SpellExecutionState> { Capture(behavior, targets, command.MovementDestinations) };
         foreach (var choice in choices)
         {
             if (choice is null || choice.TargetObjectIds is null) return false;
-            var repeatCommand = command with { Mode = choice.Mode, TargetObjectIds = choice.TargetObjectIds, RepeatChoices = null };
+            var repeatCommand = command with { Mode = choice.Mode, TargetObjectIds = choice.TargetObjectIds, MovementDestinations = choice.MovementDestinations ?? command.MovementDestinations, RepeatChoices = null };
             // Validate with the same authoritative target rules as the initial play.
             // A quote may be short of resources; resource authorization belongs to
             // the combined plan after all target taxes have been counted.
@@ -30,7 +30,7 @@ public sealed partial class CoreRuleEngine
                     includeRejectionProjections: false, validateRepeats: false)
                 && (repeatPlan is null || rejection.ErrorCode != ErrorCodes.InsufficientCost)) return false;
             if (!SupportsSeparateExecution(repeatPlan.Behavior)) return false;
-            result.Add(Capture(repeatPlan.Behavior, repeatPlan.TargetObjectIds));
+            result.Add(Capture(repeatPlan.Behavior, repeatPlan.TargetObjectIds, repeatCommand.MovementDestinations));
         }
         executions = result;
         return true;
@@ -59,7 +59,7 @@ public sealed partial class CoreRuleEngine
         {
             var execution = executions[index];
             var item = original with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
-                TargetGenerations = execution.TargetGenerations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = 0,
+                TargetGenerations = execution.TargetGenerations, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = 0,
                 TokenEntryPlan = index == original.CompletedRepeatExecutions ? original.TokenEntryPlan : null };
             result = ResolveStackItemEffect(current, item, deferCompletion: index < executions.Count - 1, repeatDamageDestroyTargets: damageDestroyTargets);
             events.AddRange(result.Events);

@@ -94,6 +94,12 @@ public static class GameCommandJsonMapper
 
     private static GameCommand MapPlayCard(JsonElement cmd)
     {
+        static bool ValidMoves(JsonElement value) => !value.TryGetProperty("movementDestinations", out var moves)
+            || moves.ValueKind == JsonValueKind.Null
+            || moves.ValueKind == JsonValueKind.Array && moves.EnumerateArray().All(m => m.ValueKind == JsonValueKind.String);
+        static IReadOnlyList<string>? Moves(JsonElement value) => value.TryGetProperty("movementDestinations", out var moves)
+            && moves.ValueKind == JsonValueKind.Array ? TextArray(value, "movementDestinations") : null;
+        if (!ValidMoves(cmd)) return new UnsupportedCommand("MALFORMED_PLAY_CARD");
         SpellRepeatChoice[]? choices = null;
         if (cmd.TryGetProperty("repeatChoices", out var repeats) && repeats.ValueKind != JsonValueKind.Null)
         {
@@ -104,14 +110,14 @@ public static class GameCommandJsonMapper
                 if (repeat.ValueKind != JsonValueKind.Object
                     || repeat.TryGetProperty("mode", out var mode) && mode.ValueKind != JsonValueKind.String
                     || !repeat.TryGetProperty("targetObjectIds", out var targets) || targets.ValueKind != JsonValueKind.Array
-                    || targets.EnumerateArray().Any(target => target.ValueKind != JsonValueKind.String))
+                    || targets.EnumerateArray().Any(target => target.ValueKind != JsonValueKind.String) || !ValidMoves(repeat))
                     return new UnsupportedCommand("MALFORMED_PLAY_CARD");
-                list.Add(new(Text(repeat, "mode"), TextArray(repeat, "targetObjectIds")));
+                list.Add(new(Text(repeat, "mode"), TextArray(repeat, "targetObjectIds"), Moves(repeat)));
             }
             choices = list.ToArray();
         }
         return new PlayCardCommand(Text(cmd, "sourceObjectId"), Text(cmd, "cardNo"), TextArray(cmd, "targetObjectIds"),
-            Text(cmd, "mode"), TextArray(cmd, "optionalCosts"), Text(cmd, "destination"), choices);
+            Text(cmd, "mode"), TextArray(cmd, "optionalCosts"), Text(cmd, "destination"), choices, Moves(cmd));
     }
 
     private static string Text(JsonElement cmd, string propertyName)

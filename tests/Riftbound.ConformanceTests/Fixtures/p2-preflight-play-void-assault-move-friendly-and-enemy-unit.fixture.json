@@ -1,10 +1,10 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-void-assault-move-friendly-and-enemy-unit",
-  "description": "Void Assault moves a friendly unit and an enemy unit to the battlefield in the current coarse battlefield model.",
+  "description": "Void Assault moves the declared friendly and enemy units sequentially to their separately declared precise battlefield destinations.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
+  "rulesVersion": "current-cn-2026-07-17",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
   "seed": 2603302021,
@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-202/219 虚空来袭",
-      "note": "官方卡面：费用 2；移动一名友方单位，然后移动一名敌方单位。如果它们都移动到一处不受你控制的战场，则你视为进攻方。当前 fixture 锁定当前粗粒度战场移动路径。"
+      "note": "官网卡面：先移动友方单位，再移动敌方单位。依据核心 355.4 分别声明终点，两个移动均由施放者执行。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-void-assault-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302021,
     "turnNumber": 80,
@@ -48,33 +51,62 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-VOID-ASSAULT"],
-        "base": ["P1-VOID-ASSAULT-FRIENDLY-001"],
-        "battlefields": ["P1-VOID-ASSAULT-FIELD-KEEPER"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-VOID-ASSAULT"
+        ],
+        "base": [
+          "P1-VOID-ASSAULT-FRIENDLY-001"
+        ],
+        "battlefields": [
+          "BF",
+          "P1-VOID-ASSAULT-FIELD-KEEPER"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
-        "base": ["P2-VOID-ASSAULT-ENEMY-001"],
+        "base": [
+          "P2-VOID-ASSAULT-ENEMY-001"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-VOID-ASSAULT-FRIENDLY-001": {
         "damage": 1,
         "power": 4,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false
@@ -82,7 +114,9 @@
       "P1-VOID-ASSAULT-FIELD-KEEPER": {
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false
@@ -90,10 +124,32 @@
       "P2-VOID-ASSAULT-ENEMY-001": {
         "damage": 0,
         "power": 3,
-        "tags": ["CARD_TYPE:UNIT"],
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": true
+      },
+      "BF": {
+        "cardNo": "OGN·282/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ]
+      }
+    },
+    "objectLocations": {
+      "BF": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P1-VOID-ASSAULT-FIELD-KEEPER": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
       }
     }
   },
@@ -105,8 +161,15 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-VOID-ASSAULT",
         "cardNo": "UNL-202/219",
-        "targetObjectIds": ["P1-VOID-ASSAULT-FRIENDLY-001", "P2-VOID-ASSAULT-ENEMY-001"],
-        "optionalCosts": []
+        "targetObjectIds": [
+          "P1-VOID-ASSAULT-FRIENDLY-001",
+          "P2-VOID-ASSAULT-ENEMY-001"
+        ],
+        "optionalCosts": [],
+        "movementDestinations": [
+          "BATTLEFIELD:BF",
+          "BATTLEFIELD:BF"
+        ]
       }
     },
     {
@@ -134,10 +197,14 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "UNIT_MOVED_TO_BATTLEFIELD",
-      "UNIT_MOVED_TO_BATTLEFIELD"
+      "UNIT_MOVED_TO_BATTLEFIELD",
+      "BATTLEFIELD_CONTESTED",
+      "SPELL_DUEL_STARTED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -153,13 +220,22 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-VOID-ASSAULT",
           "cardNo": "UNL-202/219",
-          "targetObjectIds": ["P1-VOID-ASSAULT-FRIENDLY-001", "P2-VOID-ASSAULT-ENEMY-001"],
+          "targetObjectIds": [
+            "P1-VOID-ASSAULT-FRIENDLY-001",
+            "P2-VOID-ASSAULT-ENEMY-001"
+          ],
           "effectKind": "VOID_ASSAULT_MOVE_FRIENDLY_AND_ENEMY_UNIT_TO_BATTLEFIELD"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "UNIT_MOVED_TO_BATTLEFIELD",
         "payload": {
@@ -177,43 +253,75 @@
           "ownerPlayerId": "P2",
           "destinationZone": "BATTLEFIELD"
         }
+      },
+      {
+        "kind": "BATTLEFIELD_CONTESTED",
+        "payload": {
+          "battlefieldObjectId": "BF"
+        }
+      },
+      {
+        "kind": "SPELL_DUEL_STARTED",
+        "payload": {
+          "battlefieldObjectId": "BF"
+        }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "WAIT"
+      ],
+      "P2": [
+        "PASS_FOCUS"
+      ]
     },
     "finalState": {
       "turnNumber": 80,
-      "activePlayerId": "P1",
+      "activePlayerId": "P2",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
+      "timingState": "SPELL_DUEL_OPEN",
       "scores": {
         "P1": 0,
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
           "base": [],
-          "battlefields": ["P1-VOID-ASSAULT-FIELD-KEEPER", "P1-VOID-ASSAULT-FRIENDLY-001"],
-          "graveyard": ["P1-SPELL-VOID-ASSAULT"]
+          "battlefields": [
+            "BF",
+            "P1-VOID-ASSAULT-FIELD-KEEPER",
+            "P1-VOID-ASSAULT-FRIENDLY-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-VOID-ASSAULT"
+          ]
         },
         "P2": {
           "base": [],
-          "battlefields": ["P2-VOID-ASSAULT-ENEMY-001"]
+          "battlefields": [
+            "P2-VOID-ASSAULT-ENEMY-001"
+          ]
         }
       },
       "cardObjects": {
         "P1-VOID-ASSAULT-FRIENDLY-001": {
           "damage": 1,
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false
@@ -221,7 +329,9 @@
         "P2-VOID-ASSAULT-ENEMY-001": {
           "damage": 0,
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": true
@@ -230,8 +340,18 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      },
+      "P2": {
+        "actionable": true,
+        "actions": [
+          "PASS_FOCUS"
+        ]
+      }
     }
   }
 }

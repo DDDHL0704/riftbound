@@ -4436,7 +4436,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(
-            ["P1-VOID-ASSAULT-FIELD-KEEPER", "P1-VOID-ASSAULT-FRIENDLY-001"],
+            ["BF", "P1-VOID-ASSAULT-FIELD-KEEPER", "P1-VOID-ASSAULT-FRIENDLY-001"],
             result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
         Assert.Equal(["P2-VOID-ASSAULT-ENEMY-001"], result.FinalState.PlayerZones["P2"].Battlefields);

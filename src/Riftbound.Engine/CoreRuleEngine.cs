@@ -4271,7 +4271,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
             destination: destination,
-            timingContext: StackTimingContextForNewStackItem(state)) { RepeatExecutions = plan.RepeatExecutions,
+            timingContext: StackTimingContextForNewStackItem(state)) { RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
                 AfterPlayRecycle = RecycleInstructionFor(state),
                 PlayCost = IsSpellPlayBehavior(behavior) ? new(cardObjects.TryGetValue(command.SourceObjectId, out var playedSource) ? EffectiveCardManaCost(playedSource, behavior) : behavior.ManaCost, plan.TotalManaCost) : null,
                 TargetStackSources = state.StackItems.Where(item => (plan.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? targetObjectIds)
@@ -21020,9 +21020,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
             ? string.Empty : command.Destination?.Trim() ?? string.Empty;
-        if (state.PendingEffectPlay is not null && !behavior.MovesTargetsToChosenLocation && behavior.CommandedMovement is null && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
+        if (state.PendingEffectPlay is not null && !UsesDeclaredMovementDestination(behavior) && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
         {
             rejection = Reject(state, "效果不允许打出到该位置。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (!IsSequentialMovementPlanAllowed(state, intent.PlayerId, behavior, command))
+        {
+            rejection = Reject(state, "请为每次移动选择对应单位可到达的终点。", ErrorCodes.InvalidTarget);
             return false;
         }
         if (behavior.CommandedMovement is { } commanded
@@ -21037,14 +21042,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "请选择所有目标均可移动至的同一个位置。", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!behavior.MovesTargetsToChosenLocation && behavior.CommandedMovement is null && !string.IsNullOrWhiteSpace(destination)
+        if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
             && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)))
         {
             rejection = Reject(state, $"{behavior.DisplayName} has unsupported play destination.", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!behavior.MovesTargetsToChosenLocation && behavior.CommandedMovement is null && !string.IsNullOrWhiteSpace(destination)
+        if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
             && HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
         {
             rejection = Reject(state, "战场效果禁止将单位打出到该战场。", ErrorCodes.InvalidTarget);
@@ -29880,28 +29885,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.MovesTargetsToOwnerBattlefields
-                        && TryMoveTargetToOwnerBattlefield(
-                            playerZones,
-                            cardObjects,
-                            stackItem.ControllerId,
-                            targetObjectId,
-                            out var ownerBattlefieldPlayerId))
-                    {
-                        events.Add(new GameEvent(
-                            "UNIT_MOVED_TO_BATTLEFIELD",
-                            $"{behavior.DisplayName}让单位移动到战场",
-                            new Dictionary<string, object?>
-                            {
-                                ["sourceObjectId"] = stackItem.SourceObjectId,
-                                ["targetObjectId"] = targetObjectId,
-                                ["ownerPlayerId"] = ownerBattlefieldPlayerId,
-                                ["destinationZone"] = "BATTLEFIELD"
-                            }));
-                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, targetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
-                        continue;
-                    }
-
                     if (behavior.MovesTargetToBattlefield
                         && TryMoveTargetToControllerBattlefield(
                             playerZones,
@@ -30020,6 +30003,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     break;
                 }
             }
+        }
+
+        if (behavior.MovesTargetsSequentially)
+        {
+            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            for (var index = 0; index < stackItem.TargetObjectIds.Count; index++)
+                MoveFieldUnitsToChosenLocation(state with { PlayerZones = playerZones, CardObjects = cardObjects, ObjectLocations = movementLocations },
+                    playerZones, cardObjects, movementLocations, stackItem, [stackItem.TargetObjectIds[index]], stackItem.MovementDestinations![index], events);
+            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 
         if (behavior.CommandedMovement is not null)
@@ -36444,37 +36436,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["objectIds"] = damagedObjectIds,
                 ["count"] = damagedObjectIds.Length
             }));
-    }
-
-    private static bool TryMoveTargetToOwnerBattlefield(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string movingPlayerId,
-        string targetObjectId,
-        out string ownerPlayerId)
-    {
-        ownerPlayerId = string.Empty;
-        if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(targetObjectId), movingPlayerId)) return false;
-        foreach (var (playerId, zones) in playerZones)
-        {
-            if (!zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
-                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
-            {
-                continue;
-            }
-
-            playerZones[playerId] = zones with
-            {
-                Base = RemoveFromZone(zones.Base, targetObjectId),
-                Battlefields = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? zones.Battlefields
-                    : zones.Battlefields.Concat([targetObjectId]).ToArray()
-            };
-            ownerPlayerId = playerId;
-            return true;
-        }
-
-        return false;
     }
 
     private static bool TryMoveTargetToControllerBattlefield(

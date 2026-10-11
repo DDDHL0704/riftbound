@@ -590,10 +590,11 @@ public sealed record CardObjectState
     }
 }
 
-public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations);
+public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations, IReadOnlyList<string>? MovementDestinations = null);
 
 public sealed record StackItemState
 {
+    public IReadOnlyList<string>? MovementDestinations { get; init; }
     public TriggerCostReceipt? TriggerCost { get; init; }
     public TokenEntryPlan? TokenEntryPlan { get; init; }
     public int CompletedRepeatExecutions { get; init; }
@@ -4131,7 +4132,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -5191,8 +5192,11 @@ public sealed record ResolutionResult(
             view["repeatExecutions"] = executions.Select((execution, index) => new Dictionary<string, object?>
             {
                 ["index"] = index, ["effectKind"] = execution.EffectKind,
-                ["targetObjectIds"] = VisibleObjectIdsForViewer(state, execution.TargetObjectIds, viewerPlayerId)
+                ["targetObjectIds"] = VisibleObjectIdsForViewer(state, execution.TargetObjectIds, viewerPlayerId),
+                ["movementDestinations"] = execution.MovementDestinations
             }).ToArray();
+        if (!hiddenSource && item.MovementDestinations is { } moves)
+            view["movementDestinations"] = moves.ToArray();
         if (!hiddenSource && item.HeldContext is { } held && (held.Kind switch {
             "LEBLANC_DISCARD" => "映像创建", "VEX" => "据守抽牌", "RENATA" => "据守创建金币",
             "PAY_POWER_SCORE" => "据守额外得分", "BOON" => "据守增益", "MOVE_BASE" => "据守移回基地", "RETURN_PERMANENT" => "据守返回手牌", "RETURN_HERO" => "据守返回选定英雄", "CHANNEL_OPTIONAL" => "据守召出符文", "IVERN" => "替换为草丛", "BRUSH_RETURN" => "换回原战场", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
@@ -16066,6 +16070,9 @@ internal static class ActionPromptBuilder
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
+            ["movementDestinationChoicesByIndex"] = behavior.MovesTargetsSequentially
+                ? Enumerable.Range(0, behavior.RequiredTargetCount).ToDictionary(i => i.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    i => CoreRuleEngine.SequentialMovementDestinations(state, playerId, i)) : null,
             ["destinationLabel"] = behavior.MovesTargetsToChosenLocation || behavior.CommandedMovement is not null ? "移动目的地" : "入场位置",
             ["optionalCostChoices"] = CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId) ? Array.Empty<ActionPromptChoiceDto>() : PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
             ["paymentResourceChoices"] = paymentResourceChoices,
@@ -16157,6 +16164,7 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
+        if (behavior.MovesTargetsSequentially) return [];
         if (behavior.CommandedMovement is { } commanded)
             return CoreRuleEngine.CommandedMovementDestinations(state, playerId, commanded);
         if (behavior.MovesTargetsToChosenLocation)

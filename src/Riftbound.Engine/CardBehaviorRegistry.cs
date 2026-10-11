@@ -129,7 +129,7 @@ public sealed record CardBehaviorDefinition(
     bool GainsControlOfTargetToBattlefield = false,
     bool ExhaustsControlledTarget = false,
     bool DamagesAllEnemyBattlefieldUnitsByFirstTargetPower = false,
-    bool MovesTargetsToOwnerBattlefields = false,
+    bool MovesTargetsSequentially = false,
     bool DamageAmountFromOptionalPowerCost = false,
     bool BanishesTargetThenPlaysToBase = false,
     bool BanishesTargetThenPlaysToBattlefield = false,
@@ -8074,7 +8074,7 @@ public static class CardBehaviorRegistry
             2,
             TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
             TargetRequiredTag: CardObjectTags.UnitCard,
-            MovesTargetsToOwnerBattlefields: true),
+            MovesTargetsSequentially: true),
         new(
             "OGS·011/024",
             "闪现",

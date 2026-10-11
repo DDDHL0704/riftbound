@@ -102,6 +102,7 @@ public partial class PlayCardOverlay : Control
         foreach (var node in _choices.GetChildren()) { _choices.RemoveChild(node); node.QueueFree(); }
         _repeats.Clear(); _repeatPanel = null;
         _targets.Clear(); _focusedTarget = null; _optional.Clear(); _destination = null; _printed = null;
+        _movementDestinations.Clear(); _focusedMovement = null; _destinations = [];
         var requirement = _requirements[_source.Selected];
         RefreshCardPreview();
         _origin.Text = Text(requirement, "effectPlayReason");
@@ -118,6 +119,7 @@ public partial class PlayCardOverlay : Control
         {
             _destination = Picker(Text(requirement, "destinationLabel") is { Length: > 0 } label ? label : "入场位置", destinations, false); _destinations = destinations.Select(x => x.Id).ToArray();
         }
+        _movementDestinations.AddRange(BuildMovementDestinations(requirement, _choices));
         if (Choices(requirement, "printedPowerChoices") is { Length: > 0 } printed)
         {
             _printed = Picker("卡面符能支付", printed, true, "自动选择可支付的特性");
@@ -184,7 +186,8 @@ public partial class PlayCardOverlay : Control
         if (clearFeedback) _rejection = string.Empty;
         UpdateRepeatChoices();
         var missing = _targets.Count(target => target.Required && target.Picker.Selected <= 0)
-            + _repeats.Sum(entry => entry.Targets.Count(target => target.Required && target.Picker.Selected <= 0));
+            + _repeats.Sum(entry => entry.Targets.Count(target => target.Required && target.Picker.Selected <= 0))
+            + AllMovementDestinations.Count(choice => choice.Picker.Selected <= 0);
         var targets = _targets.Where(x => x.Picker.Selected > 0).Select(x => x.Ids[x.Picker.Selected]).ToArray();
         var legalCombination = _legalSelections.Length == 0 || _legalSelections.Any(selection => selection.SequenceEqual(targets));
         var selectedResources = _optional.Count(x => _resourceIds.Contains(x.Key) && x.Value.ButtonPressed);
@@ -207,7 +210,7 @@ public partial class PlayCardOverlay : Control
         _status.Text = _submitting ? "正在等待对局确认，请稍候。"
             : _rejection.Length > 0 ? _rejection
             : !_composable ? "该效果的选择流程尚未完成，暂不能从客户端打出。"
-            : missing > 0 ? $"还需选择 {missing} 个目标。"
+            : missing > 0 ? $"还需完成 {missing} 项目标或终点选择。"
             : !legalCombination ? "当前目标组合不可用，请调整选择。"
             : needsQuote ? _quote?.Message ?? "正在核对最终费用…"
             : _powerShortfall > 0 ? $"支付前需补充 {_powerShortfall} 符能 · 所选 {selectedResources} 个资源可提供 {selectedResourcePower} 符能。"
@@ -266,7 +269,8 @@ public partial class PlayCardOverlay : Control
             ["cmdType"] = "PLAY_CARD", ["sourceObjectId"] = command.SourceObjectId,
             ["cardNo"] = command.CardNo, ["mode"] = command.Mode,
             ["destination"] = command.Destination, ["targetObjectIds"] = command.TargetObjectIds,
-            ["optionalCosts"] = command.OptionalCosts, ["repeatChoices"] = command.RepeatChoices
+            ["optionalCosts"] = command.OptionalCosts, ["repeatChoices"] = command.RepeatChoices,
+            ["movementDestinations"] = command.MovementDestinations
         });
     }
 
@@ -277,7 +281,7 @@ public partial class PlayCardOverlay : Control
         if (_printed is not null && _printed.Selected > 0) optional.Add(_printedChoices[_printed.Selected]);
         return new(Text(requirement, "sourceObjectId"), Text(requirement, "cardNo"),
             _targets.Where(x => x.Picker.Selected > 0).Select(x => x.Ids[x.Picker.Selected]).ToArray(),
-            Text(requirement, "mode"), optional.ToArray(), _destination is null ? "" : _destinations[_destination.Selected], RepeatCommandChoices());
+            Text(requirement, "mode"), optional.ToArray(), _destination is null ? "" : _destinations[_destination.Selected], RepeatCommandChoices(), MovementChoices(_movementDestinations));
     }
 
     private static string Text(JsonElement value, string key) => value.TryGetProperty(key, out var found) && found.ValueKind == JsonValueKind.String ? found.GetString() ?? "" : "";

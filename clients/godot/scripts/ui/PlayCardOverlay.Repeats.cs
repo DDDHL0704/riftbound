@@ -13,6 +13,7 @@ public partial class PlayCardOverlay
         public JsonElement[] Modes = [];
         public VBoxContainer TargetsPanel = null!;
         public List<(OptionButton Picker, string[] Ids, bool Required)> Targets = [];
+        public List<(OptionButton Picker, string[] Ids)> MovementDestinations = [];
     }
     private readonly List<RepeatSelection> _repeats = [];
     private VBoxContainer? _repeatPanel;
@@ -53,8 +54,9 @@ public partial class PlayCardOverlay
     private void BuildRepeatTargets(RepeatSelection entry)
     {
         foreach (var node in entry.TargetsPanel.GetChildren()) { entry.TargetsPanel.RemoveChild(node); node.QueueFree(); }
-        entry.Targets.Clear();
+        entry.Targets.Clear(); entry.MovementDestinations.Clear();
         var mode = entry.Modes[entry.Mode.Selected];
+        entry.MovementDestinations.AddRange(BuildMovementDestinations(mode, entry.TargetsPanel, MovementChoices(_movementDestinations)));
         if (!mode.TryGetProperty("targetChoicesByIndex", out var byIndex)) return;
         foreach (var target in byIndex.EnumerateObject().OrderBy(x => int.Parse(x.Name)))
         {
@@ -78,5 +80,5 @@ public partial class PlayCardOverlay
 
     private IReadOnlyList<SpellRepeatChoice>? RepeatCommandChoices()
         => _repeats.Count == 0 ? null : _repeats.Select(entry => new SpellRepeatChoice(Text(entry.Modes[entry.Mode.Selected], "mode"),
-            entry.Targets.Where(t => t.Picker.Selected > 0).Select(t => t.Ids[t.Picker.Selected]).ToArray())).ToArray();
+            entry.Targets.Where(t => t.Picker.Selected > 0).Select(t => t.Ids[t.Picker.Selected]).ToArray(), MovementChoices(entry.MovementDestinations))).ToArray();
 }

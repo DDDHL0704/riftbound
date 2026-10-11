@@ -249,7 +249,7 @@ public sealed partial class CoreRuleEngine
         if (command is PlayCardCommand play)
         {
             if (!EffectPlaySources(state, intent.PlayerId).Contains(play.SourceObjectId)
-                || (!(CardBehaviorRegistry.TryGetByCardNo(play.CardNo, out var playedBehavior) && (playedBehavior.MovesTargetsToChosenLocation || playedBehavior.CommandedMovement is not null))
+                || (!(CardBehaviorRegistry.TryGetByCardNo(play.CardNo, out var playedBehavior) && UsesDeclaredMovementDestination(playedBehavior))
                     && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrWhiteSpace(play.Destination) ? "BASE" : play.Destination))
                 || IsAmbushPlayMode(play.Mode))
                 return RejectWithCorePrompts(state, "再次打出的来源或位置已失效。", ErrorCodes.InvalidTarget);

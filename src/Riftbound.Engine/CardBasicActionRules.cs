@@ -200,7 +200,7 @@ public static class CardBasicActionRules
             && (behavior.MovesTargetToBase
                 || behavior.MovesTargetToBattlefield
                 || behavior.MovesFirstTargetToSecondTargetLocation
-                || behavior.MovesTargetsToOwnerBattlefields
+                || behavior.MovesTargetsSequentially
                 || behavior.CommandedMovement is not null
                 || behavior.SwapsTargetLocations);
     }

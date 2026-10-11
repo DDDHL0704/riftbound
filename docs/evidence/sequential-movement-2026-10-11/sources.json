@@ -1,0 +1,425 @@
+{
+  "card": {
+    "card": {
+      "id": 34755,
+      "cardCategoryList": [
+        "exclusive_spell"
+      ],
+      "cardCategoryNameList": [
+        "专属法术"
+      ],
+      "cardNo": "UNL-202/219",
+      "cardName": "虚空来袭",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange",
+        "purple"
+      ],
+      "hero": "卡兹克",
+      "region": "",
+      "tag": "",
+      "artist": "莺之歌",
+      "cardEffect": "移动一名友方单位，然后移动一名敌方单位。（如果它们都移动到一处不受你控制的战场，则你视为进攻方。）",
+      "flavorText": "“如果我把你吃掉的话，能学会如何去死吗？”\n——卡兹克",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/992138a2ecc84f6baa50f513949b3a02.webp",
+      "backImage": "",
+      "listSort": 1269,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "english": {
+      "id": "unl-202-219",
+      "collectorNumber": 202,
+      "name": "Void Assault",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "UNL",
+          "label": "Unleashed"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "spell",
+            "label": "Spell",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "signature",
+            "label": "Signature"
+          }
+        ]
+      },
+      "publicCode": "UNL-202/219",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "epic",
+          "label": "Epic",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+            "dimensions": {
+              "width": 455,
+              "height": 419,
+              "aspectRatio": 1.0859188544152745
+            },
+            "colors": {
+              "primary": "#B8794C",
+              "secondary": "#332F29",
+              "label": "#604634"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "body",
+            "label": "Body",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#221A11",
+                "secondary": "#F9EADC",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          },
+          {
+            "id": "chaos",
+            "label": "Chaos",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#100B16",
+                "secondary": "#EDD6FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0b79108a9492fb34866cc63815b57bfab8a5aeae-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Spell: Void Assault. Move a friendly unit, then move an enemy unit. (If they both move to a battlefield you don't control, you're the attacker.)",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#48243D",
+          "secondary": "#F9DCE6",
+          "label": "#1D0717"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "莺之歌",
+            "label": "莺之歌",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>Move a friendly unit, then move an enemy unit. (If they both move to a battlefield you don't control, you're the attacker.)</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Kha'Zix"
+        ]
+      }
+    },
+    "imageFile": "UNL-202-219.webp",
+    "imageSha256": "1f525bdb19d5495045e5f1a1066fbea45089d4ea6610d64c99d94baad583573e"
+  },
+  "currentCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "rules": [
+    {
+      "id": "DOC-04-P043-B007",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.4"
+      ],
+      "text": "355.4.       如果是能够移动一名或多名单位的法术和技能,则每次需执行的移动都必须选择一个有效的位置,作为本次移动的\n             终点 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P043-B008",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.4.a"
+      ],
+      "text": "355.4.a.            移动效果 的有效位置 是指除单位 当前所在位置 以外,其可以合法存在的位置 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P050-B011",
+      "document": "DOC-04",
+      "page": 50,
+      "clauseAnchors": [
+        "359.3.e.5"
+      ],
+      "text": "359.3.e.5.        如果该法术的目标均已不再合法,则这些游戏物体、玩家或区域在法术结算时不受影响。所有\n                  与非法目标相关的指示都无法执行。\n                       举例:一名玩家打出了“虚空索敌”,该法术的效果为“对战场上的一名单位造成 4 点伤\n                       害。抽一张牌。”该法术目标单位的控制者使用[反应],将单位移动至所属基地。既然\n                       该单位不再是合法单位,也就无法受到任何伤害。不过,“虚空索敌”的控制者依然会\n                       抽一张牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-12-P008-B003",
+      "document": "DOC-12",
+      "page": 8,
+      "clauseAnchors": [],
+      "text": "永恩 - 一剑封尘\n[新文本]\n[百炼](当你打出我时,你可以选择为我[装配]你的一件武装,其装配费用减少[A]。可选择已贴\n附的武装。)\n当我征服一处未受控制的战场时,对基地中的一名敌方单位造成等同于我战力的伤害。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-13-P014-B003",
+      "document": "DOC-13",
+      "page": 14,
+      "clauseAnchors": [],
+      "text": "永恩 - 一剑封尘\n问:永恩的技能什么时候触发?怎么触发?如果我征服了一个战场,那这个战场还算是\n“开放”吗?\n永恩现在的卡牌文本确实有点......嗯,容易口胡。如果死扣字眼,那他永远都触发不了—\n—毕竟你征服战场的瞬间,它就不再是“开放”状态了——但这显然不是我们的本意。我们\n调整了他的文本,现在判定的是征服该战场前那一刻的控制权状态。这样他就变正常了:\n当他在一场“非战斗法术对决”中征服战场后,就能在该对决结束时正确触发。而这也意味\n着他能在“防守突袭”的情况下触发技能——即在法术对决过程中单位发生了移动,导致你\n最后在防守回合征服了一处你之前未控制的战场。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-13-P014-B004",
+      "document": "DOC-13",
+      "page": 14,
+      "clauseAnchors": [],
+      "text": "永恩 - 一剑封尘(修订后)",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B006",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "Q:我方打出【虚空来袭】选择将我方",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B007",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "【永恩 - 一剑封尘】移动进入对方控制",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B008",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "的战场,然后将对方在该处战场上唯一的",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B009",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "单位移动到基地。如果后续双方没有其他",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B010",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "行动,我方【永恩 - 一剑封尘】是否征",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B011",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "服了未受控制的战场,因而触发其技能?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B012",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "注:【永恩 - 一剑封尘】中英文卡牌文   A:是的,可以。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B013",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "本有过勘误。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B014",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "勘误后文本为:",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B015",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "【百炼】",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B016",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "当我征服一处未受控制的战场时,对基地",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B017",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "中的一名敌方单位造成等同于我战力的伤",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P018-B018",
+      "document": "DOC-09",
+      "page": 18,
+      "clauseAnchors": [],
+      "text": "害。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "scopeNote": "Yone QA and errata identified for the next conquest continuation; this movement batch does not certify Yone."
+}

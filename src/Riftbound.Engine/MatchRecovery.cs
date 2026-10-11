@@ -23065,11 +23065,14 @@ public static class MatchRecoveryValidator
             if (item.CompletedDeckExecutions < 0 || item.CompletedDeckExecutions > item.EffectRepeatCount
                 || (item.DeckChoiceCompleted && item.CompletedDeckExecutions < item.EffectRepeatCount))
                 errors.Add("invalid deck resolution continuation count");
+            if (!CoreRuleEngine.ValidSequentialMovementPlan(state, item.EffectKind, item.TargetObjectIds.Count, item.MovementDestinations))
+                errors.Add("invalid sequential movement plan");
             if (item.RepeatExecutions is { } executions && (executions.Count != item.EffectRepeatCount
                 || executions.Any(execution => execution is null || execution.TargetObjectIds is null || execution.TargetGenerations is null
                     || execution.TargetGenerations.Values.Any(generation => generation < 0)
                     || !CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var definition)
-                    || definition.CardNo != item.CardNo || !CoreRuleEngine.SupportsSeparateExecution(definition))))
+                    || definition.CardNo != item.CardNo || !CoreRuleEngine.SupportsSeparateExecution(definition)
+                    || !CoreRuleEngine.ValidSequentialMovementPlan(state, execution.EffectKind, execution.TargetObjectIds.Count, execution.MovementDestinations))))
                 errors.Add("invalid spell repeat execution plan");
         }
         if (state.PendingCardChoice is { ChoiceWindow: "DECK_EFFECT" } choice)

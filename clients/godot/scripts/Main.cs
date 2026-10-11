@@ -3193,11 +3193,23 @@ public partial class Main : Control
             var abilityLabel = ReadString(item, "abilityLabel");
             if (!string.IsNullOrWhiteSpace(abilityLabel)) name += " · " + abilityLabel;
             var targets = ReadStringArray(item, "targetObjectIds").Select(Name).ToArray();
+            string DestinationName(string destination) => destination.StartsWith("BASE:", StringComparison.Ordinal)
+                ? destination[5..] == viewerId ? "我方基地" : "对手基地"
+                : destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal) ? Name(destination[12..]) : "所选位置";
+            string MovementText(JsonElement execution) {
+                var units = ReadStringArray(execution, "targetObjectIds").Select(Name).ToArray();
+                var destinations = ReadStringArray(execution, "movementDestinations");
+                return string.Join("；", units.Select((unit, i) => $"第 {i + 1} 次：{unit} → {DestinationName(destinations.ElementAtOrDefault(i) ?? "")} "));
+            }
+            var movement = ReadStringArray(item, "movementDestinations").Count > 0
+                ? item.TryGetProperty("repeatExecutions", out var executions) && executions.ValueKind == JsonValueKind.Array
+                    ? string.Join("\n", executions.EnumerateArray().Select((execution, i) => $"执行 {i + 1} · {MovementText(execution)}"))
+                    : MovementText(item) : null;
             result.Add(new Godot.Collections.Dictionary
             {
                 ["objectId"] = ReadString(item, "stackItemId"), ["title"] = (index == 0 ? "下一项  " : $"{index + 1}.  ") + name,
                 ["detail"] = (ReadString(item, "controllerId") == viewerId ? "我方" : "对手")
-                    + (targets.Length > 0 ? " → " + string.Join("、", targets) : " · 等待响应结束")
+                    + (movement is not null ? " · " + movement : targets.Length > 0 ? " → " + string.Join("、", targets) : " · 等待响应结束")
             });
         }
         return result;

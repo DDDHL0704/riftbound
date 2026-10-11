@@ -1,0 +1,86 @@
+[
+  {
+    "path": "clients/godot/scenes/debug/SequentialMovementInteractionProof.tscn",
+    "sha256": "f915fb82f836a6620a471f1cb433ef658ed783b91f9252ce6bb528a4f97c273e"
+  },
+  {
+    "path": "clients/godot/scripts/Main.cs",
+    "sha256": "016fb2ad9bc395d9024217d4ac628f26f004582dfcfde37a90838bbd9776b51a"
+  },
+  {
+    "path": "clients/godot/scripts/debug/SequentialMovementInteractionProof.cs",
+    "sha256": "17108836581f0be2fd17a639c3048200a155365000efff5e816f21f83ff3604c"
+  },
+  {
+    "path": "clients/godot/scripts/ui/PlayCardOverlay.Movement.cs",
+    "sha256": "f8238755d16920d899cff5cb9a6e816926ef1b904c450c23b1f5b22056120ff1"
+  },
+  {
+    "path": "clients/godot/scripts/ui/PlayCardOverlay.Repeats.cs",
+    "sha256": "633d9b70f7927704a3cc6890ebe3131cb17913ed470a8b4252787ea0b6063a9c"
+  },
+  {
+    "path": "clients/godot/scripts/ui/PlayCardOverlay.Table.cs",
+    "sha256": "71328cc0a46a5db7ae6784e7b83b2427d803b5d140216717533609da3ded3d88"
+  },
+  {
+    "path": "clients/godot/scripts/ui/PlayCardOverlay.cs",
+    "sha256": "ba79106e1412e3475c9722d17bad389fee9e2d40923fe3c166c452e8be376a0f"
+  },
+  {
+    "path": "src/Riftbound.Contracts/GameCommandJsonMapper.cs",
+    "sha256": "dcf96272490c7bef0312638012daa61c12bd8b9fef1497023ecadace00a82926"
+  },
+  {
+    "path": "src/Riftbound.Contracts/Protocol.cs",
+    "sha256": "7e263b4efb4736472ca1f9363931dde82b7dd026a882cce22d422593af23059c"
+  },
+  {
+    "path": "src/Riftbound.Engine/CardBasicActionRules.cs",
+    "sha256": "7768fd14396ef4877a0e2ac34d2c5db81a0ccbc08c0ff997effc68f3fc84a894"
+  },
+  {
+    "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+    "sha256": "01376339d9b8c7acbb9ca58029159a8148240c44245845824eec73b055aeeaa0"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+    "sha256": "0f51d9cf6f629b072f79aab23a32fafb13ba99584d95b09f8fafc77aed89d459"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+    "sha256": "837003cf9a4c89b10f81c775a3651ccb53aecce5defe3d9519df2b5313f15589"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.SequentialMovement.cs",
+    "sha256": "ff8243684786e1298ba36c0ae5b94ff943c5ca43aeb3d805a61033173738f6ef"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "f2b55077fd24a83add586f3e165fca36ff9af84ec3b9ecb9584d8ed25f45ffc2"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "125d2c316473da6a720c7771b0ea05d54fa4d08fad31f61c701759ba32caba0a"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "61a6b68dc3f363115e7f577fe6a8d2d27f83e00f4f432f11cd2a8d3ae9acbf3b"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "82a9b2d7c9a541b74ae0dba1f5ec728dda43d2f3853d24b9c3a420dd86320418"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-assault-move-friendly-and-enemy-unit.fixture.json",
+    "sha256": "e95ade692007b594df7897e61b82f076f3b3c470732d6454b50c01ff2c4c8751"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/SequentialMovementNativeTests.cs",
+    "sha256": "19c9f76499434b4c7e2ce13e62aa9c636cc242e3aab81c40f74c9f29f7ac15da"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/SequentialMovementTests.cs",
+    "sha256": "bebe712b98cd8984b17f8ecefec12c9d9ba4e9c4cd38e52fec6aa1662d8bf6d9"
+  }
+]
