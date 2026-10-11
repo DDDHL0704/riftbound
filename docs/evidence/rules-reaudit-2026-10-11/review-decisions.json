@@ -3394,6 +3394,143 @@
         "All armament lower-box abilities",
         "Paired-client/Windows visual/network acceptance"
       ]
+    },
+    {
+      "id": "attachment-observers-2026-10-12",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Captured attachment actor and optional leading-payment draw through shared confirmation/response; shared normal Equip, Agile, current Tempered attach, Take Up reattachment and Akshan attach actions. Full remaining attachment entrances and printed-text copies remain open.",
+      "subjects": [
+        {
+          "id": "SFD-119/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33207,
+              "cardNo": "SFD·119/221",
+              "name": "贾克斯",
+              "sha256": "77c2abb39b4b29ae5fbb12a9c5fbec6b0cb7df5e9a2ebe93a6199db88c48e8c3"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-119-221",
+              "cardNo": "SFD-119/221",
+              "name": "Jax",
+              "sha256": "c773fc1ec2cb6de0ed58e72161a7d43f60ec12d2f3818fb5c3f344c08c2625c3"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ATTACHMENT_DRAW_AND_SHARED_ATTACH_VERIFIED"
+        },
+        {
+          "id": "SFD-119A/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33208,
+              "cardNo": "SFD·119a/221",
+              "name": "贾克斯",
+              "sha256": "2eb66d6fb707583f9b4008cf3b4f135b8ee17d1bdc60e945b5a1f5d41bde2339"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-119a-221",
+              "cardNo": "SFD-119a/221",
+              "name": "Jax",
+              "sha256": "8922467ee7faf84f4b4113cbbd8aaaf94550346233a634adcf5e8d2aadadee66"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ATTACHMENT_DRAW_AND_SHARED_ATTACH_VERIFIED"
+        },
+        {
+          "id": "SFD-011/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33083,
+              "cardNo": "SFD·011/221",
+              "name": "取放自如",
+              "sha256": "ed0aea75f39a356cbffa5ca4fd07de31162f153176b1ff2cbc347c0984e671dc"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-011-221",
+              "cardNo": "SFD-011/221",
+              "name": "Angle Shot",
+              "sha256": "ddc9e908a675f7126114e4e716663c483f960602ef1e651b04cf38148b8dbaf2"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ATTACHMENT_DRAW_AND_SHARED_ATTACH_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P030-B020",
+        "DOC-04-P030-B021",
+        "DOC-04-P030-B022",
+        "DOC-04-P058-B005",
+        "DOC-04-P058-B006",
+        "DOC-04-P058-B007",
+        "DOC-04-P058-B008",
+        "DOC-04-P058-B009",
+        "DOC-04-P058-B010",
+        "DOC-04-P058-B011",
+        "DOC-04-P059-B002",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B004",
+        "DOC-04-P059-B006",
+        "DOC-04-P059-B007",
+        "DOC-04-P059-B008",
+        "DOC-04-P059-B009",
+        "DOC-04-P079-B022",
+        "DOC-04-P080-B002",
+        "DOC-04-P080-B003",
+        "DOC-04-P080-B004",
+        "DOC-04-P080-B005",
+        "DOC-04-P080-B006",
+        "DOC-04-P080-B007",
+        "DOC-04-P080-B008",
+        "DOC-04-P080-B009",
+        "DOC-04-P080-B010",
+        "DOC-04-P080-B011",
+        "DOC-04-P080-B015",
+        "DOC-04-P080-B016",
+        "DOC-04-P104-B001",
+        "DOC-04-P104-B002",
+        "DOC-04-P104-B003",
+        "DOC-04-P104-B004",
+        "DOC-04-P104-B005",
+        "DOC-04-P104-B006",
+        "DOC-04-P104-B007",
+        "DOC-04-P104-B008",
+        "DOC-04-P104-B012",
+        "DOC-04-P104-B013",
+        "DOC-04-P105-B008",
+        "DOC-06-P006-B007",
+        "DOC-06-P006-B008",
+        "DOC-14-P020-B001"
+      ],
+      "auditDocument": "docs/ATTACHMENT_OBSERVERS_AUDIT_2026-10-12.md",
+      "evidence": "docs/evidence/attachment-observers-2026-10-12",
+      "tests": [
+        "AttachmentObserverTests",
+        "AttachmentObserverNativeTests",
+        "TriggerPaymentTests",
+        "JaxTemperedOptionalAttachTests",
+        "EquipChainTests"
+      ],
+      "validation": {
+        "checkCases": 9784,
+        "checkedDistinctCases": 9787,
+        "discoveredMethods": 6499,
+        "nativeCommands": 6,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Legend attach and Azir swap attachment entrances",
+        "Full Tempered entry trigger chain",
+        "All printed ability copies and lower boxes",
+        "Different-controller base physical location and attached movement",
+        "Full current suite pending CI",
+        "Paired native clients/Windows visual/network"
+      ]
     }
   ]
 }

@@ -12,7 +12,7 @@ public sealed partial class CoreRuleEngine
 
     // CN 204.3.a: leading instruction costs are paid while confirming a trigger,
     // before responses. A paid receipt follows the captured stack item, not its live source.
-    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
+    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.AttachmentObserver is { } attached ? new(Mana: AttachmentDrawSpec(attached.CardNo)?.ManaCost ?? 0) : item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
         "PAY_READY_SELF" => new(Mana: LegendConquestDefinition(item.LegendConquest.CardNo)?.Spec.ManaCost ?? 0),
         "EXHAUST_READY_UNIT" or "EXHAUST_DECK_PLAY" => new(Exhaust: true),
         _ => item.HeldContext?.Kind switch {
@@ -25,7 +25,7 @@ public sealed partial class CoreRuleEngine
     };
     internal static bool NeedsTriggerCostConfirmation(StackItemState item) => LeadingTriggerCost(item) is not null && item.TriggerCost is null;
 
-    private static bool ValidLeadingCostContext(StackItemState item) => item.BattlefieldStart is { DrawCount: > 0 } start ? ValidBattlefieldStartDefinition(start, item.EffectKind, item.CardNo) : item.LegendConquest is { } conquest ? LeadingTriggerCost(item) is not null && ValidLegendConquest(conquest, item.EffectKind, item.CardNo)
+    private static bool ValidLeadingCostContext(StackItemState item) => item.AttachmentObserver is not null ? ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo) : item.BattlefieldStart is { DrawCount: > 0 } start ? ValidBattlefieldStartDefinition(start, item.EffectKind, item.CardNo) : item.LegendConquest is { } conquest ? LeadingTriggerCost(item) is not null && ValidLegendConquest(conquest, item.EffectKind, item.CardNo)
         : item.HeldContext is { } held
         && LeadingTriggerCost(item) is not null && item.CardNo == held.CardNo
         && (HeldDefinition(held.CardNo) is { } definition && definition.Kind == held.Kind && definition.Amount == held.Amount
@@ -59,12 +59,12 @@ public sealed partial class CoreRuleEngine
                 : "选择横置此传奇以确认触发技能；不选则放弃。费用支付后双方可以响应，效果随后结算。",
             item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
 
-    private static long TriggerCostSourceGeneration(StackItemState item) => item.BattlefieldStart?.SourceGeneration ?? item.LegendConquest?.SourceGeneration ?? item.HeldContext!.SourceGeneration;
+    private static long TriggerCostSourceGeneration(StackItemState item) => item.AttachmentObserver?.SourceGeneration ?? item.BattlefieldStart?.SourceGeneration ?? item.LegendConquest?.SourceGeneration ?? item.HeldContext!.SourceGeneration;
 
     private static PendingPaymentState TriggerCostPayment(StackItemState item)
         => new("TRIGGER-COST:" + item.StackItemId, TriggerCostWindow, item.ControllerId,
             manaCost: LeadingTriggerCost(item)!.Mana, powerCost: LeadingTriggerCost(item)!.Power, legalPaymentChoiceIds: ["PAY", "DECLINE"],
-            reason: item.LegendConquest is not null ? "支付 1 法力以确认征服技能，或放弃；双方响应后传奇才变为活跃。" : "支付 4 点任意符能以确认据守技能；确认后双方可以响应，结算时额外获得 1 分。")
+            reason: item.AttachmentObserver is not null ? "支付法力以确认贴附后的抽牌技能，或放弃；双方响应后才抽牌。" : item.LegendConquest is not null ? "支付 1 法力以确认征服技能，或放弃；双方响应后传奇才变为活跃。" : "支付 4 点任意符能以确认据守技能；确认后双方可以响应，结算时额外获得 1 分。")
             { ResolvingStackItemId = item.StackItemId };
 
     private static ResolutionResult PrepareTriggerCostConfirmation(ResolutionResult result, StackItemState item)
@@ -76,7 +76,9 @@ public sealed partial class CoreRuleEngine
         state = state with { PendingCardChoice = cost.Power + cost.Mana == 0 ? TriggerCostChoice(state, item) : null,
             PendingPayment = cost.Power + cost.Mana > 0 ? TriggerCostPayment(item) : null,
             PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
-        return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+        return result with { State = state, Events = item.AttachmentObserver is not null
+            ? result.Events.Append(AttachmentPaymentOpened(item, state.PendingPayment!)).ToArray() : result.Events,
+            Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
     internal static bool ValidTriggerCostChoice(MatchState state, PendingCardChoiceState choice)
@@ -122,6 +124,8 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult CompleteTriggerCost(MatchState state, StackItemState item,
         TriggerCostReceipt? receipt, List<GameEvent> events)
     {
+        if (item.AttachmentObserver is not null && state.PendingPayment is { } payment)
+            events.Add(BuildPaymentWindowClosedEvent(payment, item.ControllerId, declined: receipt is null));
         var paid = receipt is null ? null : item with { TriggerCost = receipt };
         var next = RestoreAfterTriggerConfirmation(state with { Tick = state.Tick + 1,
             PendingCardChoice = null, PendingPayment = null,

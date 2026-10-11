@@ -13,8 +13,8 @@ public sealed class JaxTemperedOptionalAttachTests
     private const string SpinningAxeObjectId = "P1-EQUIPMENT-SPINNING-AXE";
     private const string SpinningAxeCardNo = "SFD·186/221";
     private const string JaxTrigger = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
-    private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
-    private const string PayOneMana = "SPEND_MANA:1";
+    private const string TriggerPaymentWindow = "TRIGGER_COST_CONFIRMATION";
+    private const string PayOneMana = "PAY";
     private const string Decline = "DECLINE";
 
     [Theory]
@@ -67,7 +67,7 @@ public sealed class JaxTemperedOptionalAttachTests
         var resolved = await ResolveTopStackAsync(engine, played.State);
 
         Assert.True(resolved.Accepted, resolved.ErrorMessage);
-        Assert.Empty(resolved.State.StackItems);
+        Assert.Single(resolved.State.StackItems, item => item.AttachmentObserver is not null);
         Assert.Contains(JaxObjectId, resolved.State.PlayerZones["P1"].Base);
         Assert.Equal(JaxObjectId, resolved.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
         Assert.Contains(CardEquipmentKeywordNames.Tempered, resolved.State.CardObjects[JaxObjectId].Tags);
@@ -238,6 +238,8 @@ public sealed class JaxTemperedOptionalAttachTests
             CancellationToken.None);
 
         Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Equal(opened.State.PlayerZones["P1"].Hand, paid.State.PlayerZones["P1"].Hand);
+        paid = await AttachmentObserverTests.FinishPaidDraw(paid);
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         Assert.Equal(["P1-HAND-SPINNING-AXE", "P1-JAX-DRAW-001"], paid.State.PlayerZones["P1"].Hand);

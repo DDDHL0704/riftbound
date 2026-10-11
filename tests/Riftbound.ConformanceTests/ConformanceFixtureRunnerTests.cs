@@ -22664,6 +22664,17 @@ public sealed class ConformanceFixtureRunnerTests
                     targetObjectIds),
                 CancellationToken.None);
 
+            // DOC-04 434.1.f: this former rejection is a legal reattachment.
+            // Keep the original pair and verify its actual detach/attach result.
+            if (targetObjectIds[0] == "P1-UNIT-TAKE-UP-001" && targetObjectIds[1] == "P1-EQUIPMENT-WEAPON-ATTACHED-OTHER")
+            {
+                Assert.True(result.Accepted, result.ErrorMessage);
+                var resolved = await OfficialGraveyardRecastTests.Top(result.State);
+                Assert.Equal("P1-UNIT-TAKE-UP-001", resolved.State.CardObjects[targetObjectIds[1]].AttachedToObjectId);
+                Assert.Single(resolved.Events, e => e.Kind == "EQUIPMENT_DETACHED");
+                Assert.Single(resolved.Events, e => e.Kind == "EQUIPMENT_ATTACHED");
+                continue;
+            }
             Assert.False(result.Accepted);
             Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
             Assert.Empty(result.Events);

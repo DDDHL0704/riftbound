@@ -52,7 +52,7 @@ public sealed class TriggerPaymentTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
-        var source = File.ReadAllText(coreRuleEnginePath);
+        var source = File.ReadAllText(coreRuleEnginePath) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.AttachmentObservers.cs"));
 
         Assert.DoesNotContain("IsSfdFioraPowerfulReadyCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdFioraPowerfulReadyCardNo", source, StringComparison.Ordinal);
@@ -1177,7 +1177,7 @@ public sealed class TriggerPaymentTests
         Assert.Equal(2, result.State.PlayerZones["P1"].MainDeck.Count);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Equal("P1-JAX", result.State.CardObjects["P1-JAX-WEAPON"].AttachedToObjectId);
-        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
         Assert.DoesNotContain(result.Events, IsJaxTriggerResolved);
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
     }
@@ -1192,10 +1192,12 @@ public sealed class TriggerPaymentTests
         var paid = await engine.ResolveAsync(
             opened.State,
             new PlayerIntent("intent-jax-pay", "P1", CommandTypes.PayCost),
-            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]),
             CancellationToken.None);
 
         Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Equal(opened.State.PlayerZones["P1"].Hand, paid.State.PlayerZones["P1"].Hand);
+        paid = await AttachmentObserverTests.FinishPaidDraw(paid);
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         Assert.Equal(["P1-JAX-DRAW-001"], paid.State.PlayerZones["P1"].Hand);
@@ -1290,7 +1292,7 @@ public sealed class TriggerPaymentTests
         var insufficient = await engine.ResolveAsync(
             opened.State,
             new PlayerIntent("intent-jax-insufficient", "P1", CommandTypes.PayCost),
-            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]),
             CancellationToken.None);
 
         Assert.False(insufficient.Accepted);
@@ -1821,10 +1823,10 @@ public sealed class TriggerPaymentTests
     {
         var payment = result.State.PendingPayment;
         Assert.NotNull(payment);
-        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
         Assert.Equal("P1", payment.PlayerId);
         Assert.Equal(1, payment.ManaCost);
-        Assert.Contains(PayOneMana, payment.LegalPaymentChoiceIds);
+        Assert.Contains("PAY", payment.LegalPaymentChoiceIds);
         Assert.Contains(Decline, payment.LegalPaymentChoiceIds);
         var openedEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
@@ -1834,7 +1836,7 @@ public sealed class TriggerPaymentTests
         Assert.Equal("P1-JAX", openedEvent.Payload["sourceObjectId"]);
         Assert.Equal("P1-JAX-WEAPON", openedEvent.Payload["equipmentObjectId"]);
         Assert.Equal("SFD·022/221", openedEvent.Payload["equipmentCardNo"]);
-        Assert.Equal([PayOneMana, Decline], Assert.IsType<string[]>(openedEvent.Payload["paymentChoices"]));
+        Assert.Equal(["PAY", Decline], Assert.IsType<string[]>(openedEvent.Payload["paymentChoices"]));
 
         var prompt = result.Prompts["P1"];
         Assert.True(prompt.Actionable);
@@ -1844,11 +1846,11 @@ public sealed class TriggerPaymentTests
             promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
         Assert.Equal(payment.PaymentId, Assert.IsType<string>(metadata["paymentId"]));
-        Assert.Equal(TriggerPaymentWindow, Assert.IsType<string>(metadata["paymentWindow"]));
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", Assert.IsType<string>(metadata["paymentWindow"]));
         var cost = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["cost"]);
         Assert.Equal(1, Assert.IsType<int>(cost["mana"]));
         var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]).ToArray();
-        Assert.Contains(choices, choice => string.Equals(choice.Id, PayOneMana, StringComparison.Ordinal));
+        Assert.Contains(choices, choice => string.Equals(choice.Id, "PAY", StringComparison.Ordinal));
         Assert.Contains(choices, choice => string.Equals(choice.Id, Decline, StringComparison.Ordinal));
         return payment;
     }

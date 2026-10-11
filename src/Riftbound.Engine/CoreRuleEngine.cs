@@ -165,7 +165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
-            result = QueueReflexiveDuels(RecordDeathObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))));
+            result = QueueReflexiveDuels(RecordDeathObservers(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))));
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
@@ -908,22 +908,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 icevaleTargetObjectId);
         }
 
-        if (TryReadJaxWeaponAttachPaymentContext(
-                pendingPayment,
-                out var jaxEffectKind,
-                out var jaxSourceObjectId,
-                out var jaxEquipmentObjectId))
-        {
-            return ResolveJaxWeaponAttachTriggerPayment(
-                state,
-                intent,
-                pendingPayment,
-                submittedChoices,
-                jaxEffectKind,
-                jaxSourceObjectId,
-                jaxEquipmentObjectId);
-        }
-
         return RejectWithCorePrompts(
             state,
             "当前触发支付窗口缺少服务端上下文。",
@@ -1662,100 +1646,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
     }
 
-    private static ResolutionResult ResolveJaxWeaponAttachTriggerPayment(
-        MatchState state,
-        PlayerIntent intent,
-        PendingPaymentState pendingPayment,
-        IReadOnlyList<string> submittedChoices,
-        string effectKind,
-        string sourceObjectId,
-        string equipmentObjectId)
-    {
-        var playerZones = NormalizeZonesForSeats(state);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var trigger)
-            || !string.Equals(RuntimeTriggerEffectKind(trigger), effectKind, StringComparison.Ordinal)
-            || !TryGetAttachedArmamentForJax(cardObjects, playerZones, intent.PlayerId, sourceObjectId, equipmentObjectId, out var equipmentState))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "当前触发支付窗口的贾克斯或武装来源已不可用。",
-                ErrorCodes.InvalidTarget);
-        }
-        var drawCount = trigger.DrawCount.GetValueOrDefault();
 
-        var paymentPlan = BuildPendingPaymentPlan(
-            pendingPayment,
-            intent.PlayerId,
-            effectKind,
-            sourceObjectId);
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, state.RunePools);
-        if (!paymentCommit.Accepted)
-        {
-            return RejectWithCorePrompts(
-                state,
-                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
-                ErrorCodes.InsufficientCost);
-        }
-
-        var runePools = paymentCommit.RunePools;
-        var events = new List<GameEvent>
-        {
-            new(
-                "COST_PAID",
-                $"{intent.PlayerId} 支付贾克斯贴附武装触发费用",
-                PaymentCostRules.BuildCostPaidPayload(
-                    paymentPlan,
-                    runePools,
-                    null,
-                    new Dictionary<string, object?>
-                    {
-                        ["mana"] = pendingPayment.ManaCost,
-                        ["power"] = pendingPayment.PowerCost,
-                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
-                        ["paymentChoiceIds"] = submittedChoices.ToArray(),
-                        ["reason"] = effectKind
-                    })),
-            new(
-                "TRIGGER_RESOLVED",
-                $"{intent.PlayerId} 的贾克斯贴附武装后抽牌",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["trigger"] = effectKind,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["equipmentObjectId"] = equipmentObjectId,
-                    ["equipmentCardNo"] = equipmentState.CardNo,
-                    ["drawCount"] = drawCount,
-                    ["paymentId"] = pendingPayment.PaymentId,
-                    ["paymentWindow"] = pendingPayment.PaymentWindow
-                })
-        };
-
-        var drawApplication = ApplyDrawToPlayer(
-            state,
-            playerZones,
-            state.PlayerScores,
-            intent.PlayerId,
-            drawCount,
-            state.RngCursor,
-            events);
-        events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
-
-        var nextState = state with
-        {
-            Tick = state.Tick + 1,
-            RunePools = runePools,
-            PlayerZones = playerZones,
-            CardObjects = cardObjects,
-            PlayerScores = drawApplication.PlayerScores,
-            RngCursor = drawApplication.RngCursor,
-            PendingPayment = null,
-            Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
-            WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
-        };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
-    }
 
     private static ResolutionResult ResolveSfdFioraPowerfulReadyTriggerPayment(
         MatchState state,
@@ -2062,16 +1953,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["battlefieldId"] = battlefieldId;
             payload["sourceObjectId"] = sourceObjectId;
             payload["targetObjectId"] = targetObjectId;
-        }
-        else if (TryReadJaxWeaponAttachPaymentContext(
-                     pendingPayment,
-                     out effectKind,
-                     out sourceObjectId,
-                     out var equipmentObjectId))
-        {
-            payload["trigger"] = effectKind;
-            payload["sourceObjectId"] = sourceObjectId;
-            payload["equipmentObjectId"] = equipmentObjectId;
         }
         else if (TryReadSfdFioraPowerfulReadyPaymentContext(
                      pendingPayment,
@@ -2420,50 +2301,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : trigger.EffectKind!;
     }
 
-    private static string BuildJaxWeaponAttachPaymentReason(
-        string effectKind,
-        string sourceObjectId,
-        string equipmentObjectId)
-    {
-        return string.Join(
-            '|',
-            effectKind,
-            sourceObjectId,
-            equipmentObjectId);
-    }
 
-    private static bool TryReadJaxWeaponAttachPaymentContext(
-        PendingPaymentState pendingPayment,
-        out string effectKind,
-        out string sourceObjectId,
-        out string equipmentObjectId)
-    {
-        effectKind = string.Empty;
-        sourceObjectId = string.Empty;
-        equipmentObjectId = string.Empty;
-        if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(pendingPayment.Reason))
-        {
-            return false;
-        }
 
-        var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
-        if (parts.Length != 3
-            || !UnitTriggerPaymentSpecRules.TryGetTriggerByEffectKind(
-                parts[0],
-                UnitTriggerPaymentSpecRules.IsUnitArmamentAttachedPayDrawTrigger,
-                out _)
-            || string.IsNullOrWhiteSpace(parts[1])
-            || string.IsNullOrWhiteSpace(parts[2]))
-        {
-            return false;
-        }
 
-        effectKind = parts[0];
-        sourceObjectId = parts[1];
-        equipmentObjectId = parts[2];
-        return true;
-    }
 
     private static string BuildSfdFioraPowerfulReadyPaymentReason(
         string effectKind,
@@ -3914,7 +3754,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -3925,7 +3765,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { AttachmentObserver = trigger.AttachmentObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -5296,10 +5136,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool FieldIdentityMatchesZone(CardObjectState cardObject, string playerId)
     {
-        return (string.IsNullOrWhiteSpace(cardObject.OwnerId)
-                || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal))
-            && (string.IsNullOrWhiteSpace(cardObject.ControllerId)
-                || string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal));
+        return string.IsNullOrWhiteSpace(cardObject.ControllerId)
+            || string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool FieldIdentityExplicitlyMatchesZone(CardObjectState cardObject, string playerId)
@@ -19016,62 +18854,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static bool TryOpenJaxWeaponAttachPaymentWindow(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string sourceObjectId,
-        string equipmentObjectId,
-        long paymentTick,
-        List<GameEvent> events,
-        out PendingPaymentState? pendingPayment)
-    {
-        pendingPayment = null;
-        if (!TryGetJaxWeaponAttachSource(cardObjects, playerZones, playerId, sourceObjectId, out var trigger)
-            || !TryGetAttachedArmamentForJax(cardObjects, playerZones, playerId, sourceObjectId, equipmentObjectId, out var equipmentState))
-        {
-            return false;
-        }
-        var manaCost = trigger.ManaCost.GetValueOrDefault();
-        var effectKind = RuntimeTriggerEffectKind(trigger);
 
-        var paymentId = PaymentCostRules.BuildPaymentId(
-            paymentTick,
-            TriggerPaymentWindow,
-            playerId,
-            sourceObjectId: sourceObjectId);
-        pendingPayment = new PendingPaymentState(
-            paymentId,
-            TriggerPaymentWindow,
-            playerId,
-            manaCost: manaCost,
-            legalPaymentChoiceIds: [SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId],
-            reason: BuildJaxWeaponAttachPaymentReason(effectKind, sourceObjectId, equipmentObjectId));
-        events.Add(new GameEvent(
-            "PAYMENT_WINDOW_OPENED",
-            $"{playerId} 的贾克斯贴附武装后等待支付抽牌触发费用",
-            new Dictionary<string, object?>
-            {
-                ["paymentId"] = paymentId,
-                ["paymentWindow"] = TriggerPaymentWindow,
-                ["playerId"] = playerId,
-                ["trigger"] = effectKind,
-                ["sourceObjectId"] = sourceObjectId,
-                ["equipmentObjectId"] = equipmentObjectId,
-                ["equipmentCardNo"] = equipmentState.CardNo,
-                ["mana"] = manaCost,
-                ["power"] = 0,
-                ["cost"] = new Dictionary<string, object?>
-                {
-                    ["mana"] = manaCost,
-                    ["power"] = 0,
-                    ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
-                },
-                ["paymentChoices"] = new[] { SpendOneManaPaymentChoiceId, DeclinePaymentChoiceId },
-                ["reason"] = effectKind
-            }));
-        return true;
-    }
 
     private static bool TryOpenSfdFioraPowerfulReadyPaymentWindowFromEvents(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -19333,52 +19116,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(controllerId);
     }
 
-    private static bool TryGetJaxWeaponAttachSource(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string playerId,
-        string sourceObjectId,
-        out TriggerSpec trigger)
-    {
-        trigger = default!;
-        if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
-        {
-            return false;
-        }
 
-        return UnitTriggerPaymentSpecRules.TryGetTrigger(
-                candidate.CardNo,
-                UnitTriggerPaymentSpecRules.IsUnitArmamentAttachedPayDrawTrigger,
-                out trigger)
-            && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !candidate.IsFaceDown
-            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-            && IsObjectOnField(playerZones, sourceObjectId);
-    }
 
-    private static bool TryGetAttachedArmamentForJax(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string playerId,
-        string sourceObjectId,
-        string equipmentObjectId,
-        out CardObjectState equipmentState)
-    {
-        equipmentState = default!;
-        if (!cardObjects.TryGetValue(equipmentObjectId, out var candidate))
-        {
-            return false;
-        }
 
-        equipmentState = candidate;
-        return candidate.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && candidate.Tags.Contains("武装", StringComparer.Ordinal)
-            && !candidate.IsFaceDown
-            && string.Equals(candidate.AttachedToObjectId, sourceObjectId, StringComparison.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-            && IsObjectOnField(playerZones, equipmentObjectId);
-    }
 
     private static bool TryGetIcevaleArcherAttackSource(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -24826,10 +24566,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        return FieldIdentityMatchesZone(unitState, unitControllerId)
-            && FieldIdentityMatchesZone(equipmentState, equipmentControllerId)
-            && (string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId)
-                || string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal));
+        return !unitState.IsFaceDown && !equipmentState.IsFaceDown
+            && FieldIdentityMatchesZone(unitState, unitControllerId)
+            && FieldIdentityMatchesZone(equipmentState, equipmentControllerId);
     }
 
     private static bool HasValidSacredJudgmentKeepTargets(
@@ -27310,6 +27049,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
         if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
+        if (stackItem.AttachmentObserver is not null) return ResolveAttachmentObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
         if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
@@ -27525,13 +27265,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
             if (IsAgileDirectPlayAttachRepresentative(behavior)
                 && TryAttachAgileDirectPlayEquipmentToTarget(
-                    playerZones,
-                    cardObjects,
-                    behavior,
-                    stackItem,
-                    out var agileAttachmentEvent))
+                    state, playerZones, cardObjects, behavior, stackItem, events, out var agileLocations))
             {
-                events.Add(agileAttachmentEvent);
+                resolvedObjectLocations = agileLocations;
             }
         }
 
@@ -27566,23 +27302,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
 
             if (TryAttachTemperedOptionalEquipmentToSource(
-                    playerZones,
-                    cardObjects,
-                    behavior,
-                    stackItem,
-                    state.Tick + 1,
-                    events,
-                    out var temperedPendingPayment))
+                    state, playerZones, cardObjects, behavior, stackItem, events, out var temperedLocations))
             {
-                pendingPayment = temperedPendingPayment;
+                resolvedObjectLocations = temperedLocations;
             }
 
-            TryResolveSourceStealEnemyEquipment(
-                playerZones,
-                cardObjects,
-                behavior,
-                stackItem,
-                events);
+            if (TryResolveSourceStealEnemyEquipment(
+                state, playerZones, cardObjects, behavior, stackItem, events, out var stolenLocations))
+                resolvedObjectLocations = stolenLocations;
 
             if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
                     playerZones,
@@ -27907,13 +27634,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (behavior.AttachesOrDetachesSecondTargetEquipmentToFirstTarget
             && TryAttachOrDetachSecondTargetEquipmentToFirstTarget(
-                playerZones,
-                cardObjects,
-                behavior,
-                stackItem,
-                out var attachmentEvent))
+                state, playerZones, cardObjects, behavior, stackItem, events, out var attachmentLocations))
         {
-            events.Add(attachmentEvent);
+            resolvedObjectLocations = attachmentLocations;
         }
 
         if (behavior.DiscardsTargetFromHand)
@@ -32038,77 +31761,30 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryAttachOrDetachSecondTargetEquipmentToFirstTarget(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        CardBehaviorDefinition behavior,
-        StackItemState stackItem,
-        out GameEvent attachmentEvent)
+        MatchState state, Dictionary<string, PlayerZones> playerZones, Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior, StackItemState stackItem, List<GameEvent> events,
+        out IReadOnlyDictionary<string, ObjectLocationState> locations)
     {
-        attachmentEvent = default!;
-        if (stackItem.TargetObjectIds.Count < 2)
+        locations = state.ObjectLocations;
+        if (stackItem.TargetObjectIds.Count != 2) return false;
+        var unitId = stackItem.TargetObjectIds[0]; var gearId = stackItem.TargetObjectIds[1];
+        if (!IsFieldObject(playerZones, unitId) || !IsFieldObject(playerZones, gearId)
+            || !cardObjects.TryGetValue(unitId, out var unit) || !cardObjects.TryGetValue(gearId, out var gear)
+            || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !gear.Tags.Contains(CardEquipmentKeywordNames.Weapon)
+            || !TryGetFieldControllerId(playerZones, unitId, out var controller)
+            || !TryGetFieldControllerId(playerZones, gearId, out var gearController) || controller != gearController
+            || !FieldIdentityMatchesZone(unit, controller) || !FieldIdentityMatchesZone(gear, gearController)) return false;
+        if (gear.AttachedToObjectId == unitId)
         {
-            return false;
+            cardObjects[gearId] = gear with { AttachedToObjectId = null };
+            events.Add(new("EQUIPMENT_DETACHED", "卸除武装", new Dictionary<string, object?> {
+                ["sourceObjectId"] = stackItem.SourceObjectId, ["unitObjectId"] = unitId,
+                ["equipmentObjectId"] = gearId, ["controllerId"] = controller, ["ownerId"] = gear.OwnerId,
+                ["attachingPlayerId"] = stackItem.ControllerId }));
+            locations = ReconcileObjectLocations(state.ObjectLocations, playerZones); return true;
         }
-
-        var unitObjectId = stackItem.TargetObjectIds[0];
-        var equipmentObjectId = stackItem.TargetObjectIds[1];
-        if (!IsFieldObject(playerZones, unitObjectId)
-            || !IsFieldObject(playerZones, equipmentObjectId)
-            || !cardObjects.TryGetValue(unitObjectId, out var unitState)
-            || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
-            || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || !equipmentState.Tags.Contains("武装", StringComparer.Ordinal)
-            || !TryGetFieldControllerId(playerZones, unitObjectId, out var unitControllerId)
-            || !TryGetFieldControllerId(playerZones, equipmentObjectId, out var equipmentControllerId)
-            || !string.Equals(unitControllerId, equipmentControllerId, StringComparison.Ordinal)
-            || !FieldIdentityMatchesZone(unitState, unitControllerId)
-            || !FieldIdentityMatchesZone(equipmentState, equipmentControllerId))
-        {
-            return false;
-        }
-
-        if (string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal))
-        {
-            cardObjects[equipmentObjectId] = equipmentState with
-            {
-                AttachedToObjectId = null
-            };
-            attachmentEvent = new GameEvent(
-                "EQUIPMENT_DETACHED",
-                $"{behavior.DisplayName}卸除武装",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["unitObjectId"] = unitObjectId,
-                    ["equipmentObjectId"] = equipmentObjectId,
-                    ["controllerId"] = unitControllerId,
-                    ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? unitControllerId : equipmentState.OwnerId
-                });
-            return true;
-        }
-
-        if (!string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId))
-        {
-            return false;
-        }
-
-        cardObjects[equipmentObjectId] = equipmentState with
-        {
-            AttachedToObjectId = unitObjectId
-        };
-        attachmentEvent = new GameEvent(
-            "EQUIPMENT_ATTACHED",
-            $"{behavior.DisplayName}贴附武装",
-            new Dictionary<string, object?>
-            {
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["unitObjectId"] = unitObjectId,
-                ["equipmentObjectId"] = equipmentObjectId,
-                ["controllerId"] = unitControllerId,
-                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? unitControllerId : equipmentState.OwnerId,
-                ["attachedToObjectId"] = unitObjectId
-            });
-        return true;
+        return TryAttachEquipment(playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
+            stackItem.SourceObjectId, gearId, unitId, behavior.EffectKind, events, out locations);
     }
 
     private static void ApplyDamageToBattlefieldUnits(
@@ -32802,127 +32478,52 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryAttachAgileDirectPlayEquipmentToTarget(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        CardBehaviorDefinition behavior,
-        StackItemState stackItem,
-        out GameEvent attachmentEvent)
+        MatchState state, Dictionary<string, PlayerZones> playerZones, Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior, StackItemState stackItem, List<GameEvent> events,
+        out IReadOnlyDictionary<string, ObjectLocationState> locations)
     {
-        attachmentEvent = default!;
-        if (stackItem.TargetObjectIds.Count != 1)
-        {
-            return false;
-        }
-
-        var targetObjectId = stackItem.TargetObjectIds[0];
-        if (!TryGetFieldControllerId(playerZones, targetObjectId, out var targetControllerId)
-            || !string.Equals(targetControllerId, stackItem.ControllerId, StringComparison.Ordinal)
-            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
-            || targetState.IsFaceDown
-            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, stackItem.ControllerId)
-            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var equipmentState)
-            || equipmentState.IsFaceDown
-            || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || !string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId))
-        {
-            return false;
-        }
-
-        cardObjects[stackItem.SourceObjectId] = equipmentState with
-        {
-            AttachedToObjectId = targetObjectId
-        };
-        attachmentEvent = new GameEvent(
-            "EQUIPMENT_ATTACHED",
-            $"{behavior.DisplayName}以灵便贴附",
-            new Dictionary<string, object?>
-            {
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["unitObjectId"] = targetObjectId,
-                ["equipmentObjectId"] = stackItem.SourceObjectId,
-                ["equipmentCardNo"] = behavior.CardNo,
-                ["controllerId"] = stackItem.ControllerId,
-                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? stackItem.ControllerId : equipmentState.OwnerId,
-                ["attachedToObjectId"] = targetObjectId,
-                ["reason"] = "AGILE_DIRECT_PLAY_ATTACH"
-            });
-        return true;
+        locations = state.ObjectLocations;
+        if (stackItem.TargetObjectIds.Count != 1) return false;
+        var targetId = stackItem.TargetObjectIds[0];
+        if (!TryGetFieldControllerId(playerZones, targetId, out var controller) || controller != stackItem.ControllerId
+            || !cardObjects.TryGetValue(targetId, out var target) || target.IsFaceDown
+            || !target.Tags.Contains(CardObjectTags.UnitCard) || target.Tags.Contains(CardObjectTags.Standby)
+            || target.Tags.Contains(CardObjectTags.EquipmentCard) || target.Tags.Contains(CardObjectTags.SpellCard)
+            || target.Tags.Contains(CardObjectTags.RuneCard) || !SourceObjectControlledByPlayerOrLegacyOwned(target, controller)
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var gear) || gear.IsFaceDown
+            || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(gear.AttachedToObjectId)) return false;
+        return TryAttachEquipment(playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
+            stackItem.SourceObjectId, gear.ObjectId, targetId, "AGILE_DIRECT_PLAY_ATTACH", events, out locations);
     }
 
     private static bool TryAttachTemperedOptionalEquipmentToSource(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        CardBehaviorDefinition behavior,
-        StackItemState stackItem,
-        long paymentTick,
-        List<GameEvent> events,
-        out PendingPaymentState? pendingPayment)
+        MatchState state, Dictionary<string, PlayerZones> playerZones, Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior, StackItemState stackItem, List<GameEvent> events,
+        out IReadOnlyDictionary<string, ObjectLocationState> locations)
     {
-        pendingPayment = null;
-        var equipmentObjectId = TemperedOptionalAttachEquipmentObjectId(stackItem.OptionalCosts);
-        if (!IsTemperedOptionalAttachRepresentative(behavior)
-            || string.IsNullOrWhiteSpace(equipmentObjectId)
-            || !playerZones.TryGetValue(stackItem.ControllerId, out var zones)
-            || !zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
-            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var unitState)
-            || unitState.IsFaceDown
-            || !string.Equals(unitState.CardNo, behavior.CardNo, StringComparison.Ordinal)
-            || !unitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(unitState, stackItem.ControllerId)
-            || !IsLegalTemperedOptionalAttachChoice(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                equipmentObjectId)
-            || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState))
-        {
-            return false;
-        }
-
-        cardObjects[equipmentObjectId] = equipmentState with
-        {
-            AttachedToObjectId = stackItem.SourceObjectId
-        };
-        events.Add(new GameEvent(
-            "EQUIPMENT_ATTACHED",
-            $"{behavior.DisplayName}以百炼装配武装",
-            new Dictionary<string, object?>
-            {
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["unitObjectId"] = stackItem.SourceObjectId,
-                ["equipmentObjectId"] = equipmentObjectId,
-                ["equipmentCardNo"] = equipmentState.CardNo,
-                ["unitCardNo"] = unitState.CardNo,
-                ["controllerId"] = stackItem.ControllerId,
-                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? stackItem.ControllerId : equipmentState.OwnerId,
-                ["attachedToObjectId"] = stackItem.SourceObjectId,
-                ["reason"] = "TEMPERED_OPTIONAL_ATTACH",
-                ["optionalCosts"] = stackItem.OptionalCosts.ToArray()
-            }));
-        TryOpenJaxWeaponAttachPaymentWindow(
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId,
-            stackItem.SourceObjectId,
-            equipmentObjectId,
-            paymentTick,
-            events,
-            out pendingPayment);
-        return true;
+        locations = state.ObjectLocations;
+        var gearId = TemperedOptionalAttachEquipmentObjectId(stackItem.OptionalCosts);
+        if (!IsTemperedOptionalAttachRepresentative(behavior) || string.IsNullOrWhiteSpace(gearId)
+            || !playerZones.TryGetValue(stackItem.ControllerId, out var zones) || !zones.Base.Contains(stackItem.SourceObjectId)
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var unit) || unit.IsFaceDown
+            || unit.CardNo != behavior.CardNo || !unit.Tags.Contains(CardObjectTags.UnitCard)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(unit, stackItem.ControllerId)
+            || !IsLegalTemperedOptionalAttachChoice(playerZones, cardObjects, stackItem.ControllerId, gearId)) return false;
+        return TryAttachEquipment(playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
+            stackItem.SourceObjectId, gearId, unit.ObjectId, "TEMPERED_OPTIONAL_ATTACH", events, out locations,
+            new Dictionary<string, object?> { ["unitCardNo"] = unit.CardNo, ["optionalCosts"] = stackItem.OptionalCosts.ToArray() });
     }
 
     private static bool TryResolveSourceStealEnemyEquipment(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        out IReadOnlyDictionary<string, ObjectLocationState> locations)
     {
+        locations = state.ObjectLocations;
         if (!HasSourceStealEnemyEquipmentOptionalCost(behavior)
             || !TryGetSourceStealEnemyEquipmentObjectId(behavior, stackItem.OptionalCosts, out var equipmentObjectId)
             || !playerZones.TryGetValue(stackItem.ControllerId, out var zones)
@@ -32963,7 +32564,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             OwnerId = ownerId,
             ControllerId = stackItem.ControllerId,
-            AttachedToObjectId = isWeapon ? stackItem.SourceObjectId : null,
+            AttachedToObjectId = isWeapon ? equipmentState.AttachedToObjectId : null,
             Tags = AddSourceStolenEquipmentMarker(equipmentState.Tags, stackItem.SourceObjectId, reason)
         };
         cardObjects[equipmentObjectId] = nextEquipmentState;
@@ -32987,24 +32588,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
 
         if (isWeapon)
-        {
-            events.Add(new GameEvent(
-                "EQUIPMENT_ATTACHED",
-                $"{stackItem.ControllerId} 的{behavior.DisplayName}贴附夺取的武装",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["unitObjectId"] = stackItem.SourceObjectId,
-                    ["equipmentObjectId"] = equipmentObjectId,
-                    ["equipmentCardNo"] = equipmentState.CardNo,
-                    ["unitCardNo"] = akshanState.CardNo,
-                    ["controllerId"] = stackItem.ControllerId,
-                    ["ownerId"] = ownerId,
-                    ["attachedToObjectId"] = stackItem.SourceObjectId,
-                    ["reason"] = reason,
-                    ["optionalCosts"] = stackItem.OptionalCosts.ToArray()
-                }));
-        }
+            TryAttachEquipment(playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
+                stackItem.SourceObjectId, equipmentObjectId, stackItem.SourceObjectId, reason, events, out locations,
+                new Dictionary<string, object?> { ["unitCardNo"] = akshanState.CardNo, ["optionalCosts"] = stackItem.OptionalCosts.ToArray() });
+        else locations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
 
         return true;
     }

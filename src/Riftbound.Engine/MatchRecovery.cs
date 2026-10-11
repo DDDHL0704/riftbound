@@ -23397,6 +23397,16 @@ public static class MatchRecoveryValidator
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
         foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                || !CoreRuleEngine.ValidAttachmentGenerations(state, item.AttachmentObserver, item.SourceObjectId)
+                || item.AttachmentObserver is not null && (item.SourceConfirmed || item.TargetObjectIds.Count != 0))
+                errors.Add("invalid captured attachment observer");
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId)
+                || !CoreRuleEngine.ValidAttachmentGenerations(state, item.AttachmentObserver, item.SourceObjectId)
+                || item.AttachmentObserver is not null && item.TriggeredByEventKind != "EQUIPMENT_ATTACHED")
+                errors.Add("invalid captured attachment trigger");
+        foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidEquipContext(item)) errors.Add("invalid captured equip ability");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidBattlefieldStart(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)

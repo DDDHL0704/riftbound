@@ -1,0 +1,58 @@
+[
+  {
+    "path": "clients/godot/scenes/debug/AttachmentObserverInteractionProof.tscn",
+    "sha256": "d67eb3a6aa6214ad5d85f72e05c8bd7af511628d5e74c3ae195e0471d927b0bc"
+  },
+  {
+    "path": "clients/godot/scripts/debug/AttachmentObserverInteractionProof.cs",
+    "sha256": "dece61bf3b099273ac54bf091cf759db6a3ea09fe26582193d44f1daebd4e510"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.AttachmentObservers.cs",
+    "sha256": "f2e96b69869930a9c9a19423be9e6df1c97a64983d14eb3d481b6346af4a1466"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.Equip.cs",
+    "sha256": "a4fbbed15977ffb8075e9fe82a94ce45f5a67ac420d156a3a09c0bcf4c82b4ee"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+    "sha256": "1305eda964d2d7f413a5246c9ea60a428b256b5e926f7d82ded16c19dcdb0fb3"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "a4f86f3a621f2058424e71d1f626e1d0a87a7949ae665ae327a6388c37b80ff7"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "bf1ff526fd672a9b2e495872d64c9ec7885ae954499591a4b867fd9e5e4c524d"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "e7c482048a34cb215a4790626cba6ac88a2230019986cb4a33d39e52fcd60239"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/AttachmentObserverNativeTests.cs",
+    "sha256": "3b1c578b480ce7c35164c899410df7f1d7b7de6cd3ca2100a23a655d722d6bfc"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/AttachmentObserverTests.cs",
+    "sha256": "3e802e469c267a60fd2c7216a58442f4e25111962959d358fc51ae702ed9a2a6"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "20a43f7205ade898ba23e3495c0a6af62e690b767b461f9e043badffebd593cd"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-take-up-attach-weapon-draw.fixture.json",
+    "sha256": "47a268040247ce5fc672000d1cbc576309b42457f321596d469dc238dca10225"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/JaxTemperedOptionalAttachTests.cs",
+    "sha256": "b609d24e8d387e76db5c2ede503627946d69e0adb32fc5c930b91ee70c58cd4e"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "sha256": "a91aa2ca65e6db5716f2ec021ecb6b26742b55466fff5846d9c71475fa5b29b9"
+  }
+]

@@ -1,0 +1,138 @@
+using Riftbound.CardCatalog;
+using Riftbound.Contracts;
+
+namespace Riftbound.Engine;
+
+public sealed record AttachmentObserverContext(string CardNo, long SourceGeneration,
+    ObjectBinding Equipment, string EquipmentCardNo, string AttachingPlayerId);
+internal sealed record CapturedAttachmentObserver(string SourceId, string ControllerId, AttachmentObserverContext Context);
+
+public sealed partial class CoreRuleEngine
+{
+    internal const string AttachmentObserverEffect = "CAPTURED_ARMAMENT_ATTACHMENT_OBSERVER";
+    private const string CapturedAttachmentEvent = "INTERNAL_ATTACHMENT_OBSERVERS";
+
+    private static TriggerSpec? AttachmentDrawSpec(string? no) => UnitTriggerPaymentSpecRules.TryGetTrigger(no,
+        UnitTriggerPaymentSpecRules.IsUnitArmamentAttachedPayDrawTrigger, out var spec) ? spec : null;
+
+    internal static bool ValidAttachmentObserver(AttachmentObserverContext? context, string effect,
+        string controller, string source, string? cardNo = null)
+        => context is null ? effect != AttachmentObserverEffect
+            : effect == AttachmentObserverEffect && context.SourceGeneration >= 0
+                && context.Equipment is { Generation: >= 0 } equipment && !string.IsNullOrWhiteSpace(equipment.ObjectId)
+                && source != equipment.ObjectId && !string.IsNullOrWhiteSpace(source)
+                && controller == context.AttachingPlayerId && !string.IsNullOrWhiteSpace(controller)
+                && (cardNo is null || cardNo == context.CardNo) && AttachmentDrawSpec(context.CardNo) is not null
+                && OfficialArmamentCatalog.Find(context.EquipmentCardNo) is not null;
+
+    internal static bool ValidAttachmentGenerations(MatchState state, AttachmentObserverContext? context, string source)
+        => context is null || (!state.CardObjects.TryGetValue(source, out var host) || context.SourceGeneration <= host.ObjectGeneration)
+            && (!state.CardObjects.TryGetValue(context.Equipment.ObjectId, out var gear) || context.Equipment.Generation <= gear.ObjectGeneration);
+
+    // Capture the abilities present at the attachment event, before a subsequent
+    // replacement instruction grants copied text (latest Vendetta FAQ, page 6).
+    private static void CaptureAttachmentObservers(IReadOnlyDictionary<string, PlayerZones> zones,
+        IReadOnlyDictionary<string, CardObjectState> cards, string unitId, string gearId, string actor,
+        List<GameEvent> events)
+    {
+        if (!cards.TryGetValue(unitId, out var unit) || !cards.TryGetValue(gearId, out var gear)
+            || unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby) || !unit.Tags.Contains(CardObjectTags.UnitCard)
+            || !gear.Tags.Contains(CardEquipmentKeywordNames.Weapon) || !IsObjectOnField(zones, unitId)
+            || EffectiveFieldControllerId(zones, unitId, unit) != actor || AttachmentDrawSpec(unit.CardNo) is null
+            || OfficialArmamentCatalog.Find(gear.CardNo) is null) return;
+        events.Add(new(CapturedAttachmentEvent, "捕获贴附时存在的技能", new Dictionary<string, object?> {
+            ["observers"] = new[] { new CapturedAttachmentObserver(unitId, actor,
+                new(unit.CardNo!, unit.ObjectGeneration, new(gearId, gear.ObjectGeneration), gear.CardNo!, actor)) }
+        }));
+    }
+
+    private static bool TryAttachEquipment(Dictionary<string, PlayerZones> zones,
+        Dictionary<string, CardObjectState> cards, IReadOnlyDictionary<string, ObjectLocationState> knownLocations,
+        string actor, string sourceId, string gearId, string unitId, string reason, List<GameEvent> events,
+        out IReadOnlyDictionary<string, ObjectLocationState> locations,
+        IReadOnlyDictionary<string, object?>? metadata = null)
+    {
+        var nextLocations = ReconcileObjectLocations(knownLocations, zones).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        locations = nextLocations;
+        if (!cards.TryGetValue(gearId, out var gear) || gear.IsFaceDown || !gear.Tags.Contains(CardObjectTags.EquipmentCard)
+            || !cards.TryGetValue(unitId, out var unit) || unit.IsFaceDown || !unit.Tags.Contains(CardObjectTags.UnitCard)
+            || !IsObjectOnField(zones, gearId) || !IsObjectOnField(zones, unitId)
+            || !nextLocations.TryGetValue(unitId, out var target) || !nextLocations.TryGetValue(gearId, out var origin)) return false;
+        if (gear.AttachedToObjectId == unitId) return false;
+        var controller = EffectiveFieldControllerId(zones, gearId, gear);
+        if (!string.IsNullOrWhiteSpace(gear.AttachedToObjectId))
+            events.Add(new("EQUIPMENT_DETACHED", "武装从原宿主卸除", new Dictionary<string, object?> {
+                ["sourceObjectId"] = sourceId, ["equipmentObjectId"] = gearId,
+                ["unitObjectId"] = gear.AttachedToObjectId, ["controllerId"] = controller,
+                ["ownerId"] = gear.OwnerId, ["reason"] = "REATTACH", ["attachingPlayerId"] = actor }));
+        if (origin.Zone != target.Zone || origin.BattlefieldObjectId != target.BattlefieldObjectId)
+        {
+            foreach (var (player, zone) in zones.ToArray())
+                zones[player] = zone with { Base = zone.Base.Where(id => id != gearId).ToArray(),
+                    Battlefields = zone.Battlefields.Where(id => id != gearId).ToArray() };
+            var gearZones = zones[controller];
+            zones[controller] = target.Zone == "BASE" ? gearZones with { Base = [..gearZones.Base, gearId] }
+                : gearZones with { Battlefields = [..gearZones.Battlefields, gearId] };
+        }
+        nextLocations[gearId] = new(controller, target.Zone, target.BattlefieldObjectId);
+        cards[gearId] = gear with { AttachedToObjectId = unitId };
+        var payload = new Dictionary<string, object?> {
+            ["sourceObjectId"] = sourceId, ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId,
+            ["controllerId"] = controller, ["ownerId"] = gear.OwnerId, ["attachedToObjectId"] = unitId,
+            ["equipmentCardNo"] = gear.CardNo, ["reason"] = reason, ["attachingPlayerId"] = actor };
+        if (metadata is not null) foreach (var pair in metadata) payload[pair.Key] = pair.Value;
+        events.Add(new("EQUIPMENT_ATTACHED", "武装贴附至单位", payload));
+        CaptureAttachmentObservers(zones, cards, unitId, gearId, actor, events);
+        return true;
+    }
+
+    private static ResolutionResult RecordAttachmentObservers(MatchState before, ResolutionResult result)
+    {
+        if (!result.Accepted) return result;
+        var events = new List<GameEvent>(); var queue = result.State.TriggerQueue.ToList();
+        for (var index = 0; index < result.Events.Count; index++)
+        {
+            var ev = result.Events[index];
+            if (ev.Kind != CapturedAttachmentEvent) { events.Add(ev); continue; }
+            if (result.State.Status != MatchStatuses.InProgress) continue;
+            foreach (var captured in (CapturedAttachmentObserver[])ev.Payload["observers"]!)
+            {
+                long Generation(string id, long generation) => before.CardObjects.TryGetValue(id, out var prior)
+                    && !IsObjectOnField(before.PlayerZones, id) && IsObjectOnField(result.State.PlayerZones, id)
+                        ? Math.Max(generation, checked(prior.ObjectGeneration + 1)) : generation;
+                var context = captured.Context with {
+                    SourceGeneration = Generation(captured.SourceId, captured.Context.SourceGeneration),
+                    Equipment = captured.Context.Equipment with { Generation = Generation(captured.Context.Equipment.ObjectId, captured.Context.Equipment.Generation) }
+                };
+                var trigger = new TriggerQueueItemState($"attachment-{result.State.Tick}-{index}-{captured.SourceId}-{captured.Context.Equipment.ObjectId}",
+                    captured.ControllerId, captured.SourceId, AttachmentObserverEffect, "EQUIPMENT_ATTACHED")
+                    { AttachmentObserver = context, SourceCardNo = context.CardNo };
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
+        }
+        var state = result.State with { TriggerQueue = queue };
+        return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+    }
+
+    private static StackResolutionResult ResolveAttachmentObserver(MatchState state, StackItemState item)
+    {
+        if (!ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+            || item.TriggerCost is null) throw new InvalidOperationException("Invalid captured attachment draw trigger.");
+        var draw = ResolveLastBreathDrawStackItem(state, item, AttachmentDrawSpec(item.CardNo)!.DrawCount!.Value);
+        var context = item.AttachmentObserver!;
+        return draw with { Events = draw.Events.Select(e => e.Kind != "TRIGGER_RESOLVED" ? e : e with {
+            Payload = new Dictionary<string, object?>(e.Payload) {
+                ["trigger"] = RuntimeTriggerEffectKind(AttachmentDrawSpec(context.CardNo)!),
+                ["triggeredByEventKind"] = "EQUIPMENT_ATTACHED",
+                ["equipmentObjectId"] = context.Equipment.ObjectId, ["equipmentCardNo"] = context.EquipmentCardNo
+            } }).ToArray() };
+    }
+
+    private static GameEvent AttachmentPaymentOpened(StackItemState item, PendingPaymentState payment)
+        => new("PAYMENT_WINDOW_OPENED", "贴附触发：支付费用以确认技能，然后双方可响应", new Dictionary<string, object?> {
+            ["paymentId"] = payment.PaymentId, ["paymentWindow"] = payment.PaymentWindow, ["playerId"] = item.ControllerId,
+            ["trigger"] = RuntimeTriggerEffectKind(AttachmentDrawSpec(item.CardNo)!), ["sourceObjectId"] = item.SourceObjectId,
+            ["equipmentObjectId"] = item.AttachmentObserver!.Equipment.ObjectId, ["equipmentCardNo"] = item.AttachmentObserver.EquipmentCardNo,
+            ["mana"] = payment.ManaCost, ["power"] = 0, ["reason"] = RuntimeTriggerEffectKind(AttachmentDrawSpec(item.CardNo)!),
+            ["paymentChoices"] = payment.LegalPaymentChoiceIds.ToArray() });
+}
