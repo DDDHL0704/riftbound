@@ -1003,10 +1003,19 @@ public sealed class FullGameEndToEndTests
         Assert.Equal("P1", current.State.ActivePlayerId);
         Assert.Contains(CommandTypes.EndTurn, current.Prompts["P1"].EnabledActions());
 
-        var destroyedAndDrew = await EndTurnAsync(
-            session,
-            "P1",
-            "b0-duskpetal-lab-turn-start-destroy-draw");
+        var opened = await session.SubmitAsync("P1", "b0-lab-start", new EndTurnCommand(), RawCommand(new EndTurnCommand()), default);
+        AssertAccepted(opened);
+        var field = BattlefieldObjectIdForCardNo(opened.State, "P2", DuskpetalLabBattlefieldTurnStartDestroyDrawCardNo);
+        var sacrifice = FindBattlefieldUnitByCardNo(opened.State, "P2", WildclawBeastmasterCardNo, field)!;
+        var choice = opened.State.PendingCardChoice!;
+        Assert.NotNull(choice);
+        Assert.Contains(sacrifice, choice.LegalObjectIds);
+        var pay = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [sacrifice]);
+        var paid = await session.SubmitAsync("P2", "b0-lab-pay", pay, RawCommand(pay), default);
+        AssertAccepted(paid);
+        Assert.DoesNotContain(paid.Events, e => e.Kind == "CARD_DRAWN");
+        var destroyedAndDrew = await ResolveDriverPendingEffectsAsync(session,
+            paid with { Events = opened.Events.Concat(paid.Events).ToArray() }, "b0-lab-response");
         AssertBattlefieldTurnStartDestroyDrawResolved(current, destroyedAndDrew);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -6690,8 +6699,9 @@ public sealed class FullGameEndToEndTests
         var destroyEntry = Assert.Single(indexedEvents, entry =>
             string.Equals(entry.gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(entry.gameEvent.Payload["targetObjectId"] as string, targetObjectId, StringComparison.Ordinal));
-        Assert.Equal(TriggerKinds.BattlefieldTurnStartDestroyUnitDraw, destroyEntry.gameEvent.Payload["reason"]);
-        Assert.True(destroyEntry.index > triggerEntry.index);
+        // Current rule 204.3.a pays the leading destruction cost before the response window.
+        Assert.Equal("DESTROY_COST", destroyEntry.gameEvent.Payload["reason"]);
+        Assert.True(destroyEntry.index < triggerEntry.index);
         Assert.Equal("GRAVEYARD", result.State.ObjectLocations[targetObjectId].Zone);
         Assert.Contains(targetObjectId, result.State.PlayerZones["P2"].Graveyard);
 

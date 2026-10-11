@@ -22884,7 +22884,18 @@ public static class MatchRecoveryValidator
             } catch (JsonException) { errors.Add($"{label} malformed battlefield start context"); }
         }
         foreach (var item in state.StackItems)
-            Check(snapshot.Stack.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId), item.BattlefieldStart);
+        {
+            var payload = snapshot.Stack.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId);
+            Check(payload, item.BattlefieldStart);
+            if (item.BattlefieldStart is not { DrawCount: > 0 }) continue;
+            try {
+                var json = JsonSerializer.SerializeToElement(payload);
+                var receipt = json.ValueKind == JsonValueKind.Object && json.TryGetProperty("triggerCost", out var raw)
+                    ? raw.Deserialize<TriggerCostReceipt>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) : null;
+                if (MatchStateHasher.HashValue(receipt) != MatchStateHasher.HashValue(item.TriggerCost))
+                    errors.Add($"{label} battlefield destruction cost receipt differs from authoritative state");
+            } catch (JsonException) { errors.Add($"{label} malformed battlefield destruction cost receipt"); }
+        }
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "triggerQueue", out var queue))
             foreach (var item in state.TriggerQueue)
                 Check(queue.FirstOrDefault(payload => TryReadObjectString(payload, "triggerId", out var id) && id == item.TriggerId), item.BattlefieldStart);

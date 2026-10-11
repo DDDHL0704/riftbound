@@ -44520,6 +44520,16 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.NotNull(result.State.PendingCardChoice);
+        Assert.DoesNotContain(result.Events, e => e.Kind == "UNIT_DESTROYED" || e.Kind == "CARD_DRAWN");
+        var openedEvents = result.Events;
+        var choice = result.State.PendingCardChoice!;
+        result = await new CoreRuleEngine().ResolveAsync(result.State,
+            new("lab-pay", "P2", CommandTypes.ChooseCards),
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P2-BATTLEFIELD-ROSE-SACRIFICE"]), default);
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        result = await TurnSequenceTestDriver.Complete(result with { Events = openedEvents.Concat(result.Events).ToArray() });
         Assert.Equal("P2", result.State.TurnPlayerId);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -44531,7 +44541,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-ROSE-SACRIFICE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["reason"] as string, "DESTROY_COST", StringComparison.Ordinal));
         Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)));
         Assert.Equal(["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-ROSE-SACRIFICE"], result.State.PlayerZones["P2"].Graveyard);
@@ -44558,14 +44568,19 @@ public sealed class ConformanceFixtureRunnerTests
             ControllerId = "P1"
         };
 
+        var dirtyState = state with { CardObjects = dirtyObjects };
         var result = await new CoreRuleEngine().ResolveAsync(
-            state with { CardObjects = dirtyObjects },
+            dirtyState,
             new PlayerIntent("intent-p7-9-battlefield-turn-start-destroy-draw-dirty-source", "P1", "END_TURN"),
             new EndTurnCommand(),
             CancellationToken.None);
 
-        Assert.True(result.Accepted);
-        Assert.Equal("P2", result.State.TurnPlayerId);
+        // A real field with only P2 units cannot remain controlled by P1.
+        // Reject the dirty fixture until its control task completes.
+        Assert.False(result.Accepted);
+        Assert.Contains("任务队列", result.ErrorMessage);
+        Assert.Equal(MatchStateHasher.Hash(dirtyState), MatchStateHasher.Hash(result.State));
+        Assert.Equal("P1", result.State.TurnPlayerId);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
@@ -44574,9 +44589,9 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
         Assert.Equal(["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
-        Assert.Equal(["P2-ROSE-DRAW-001"], result.State.PlayerZones["P2"].Hand);
-        Assert.Equal(["P2-NORMAL-DRAW-001"], result.State.PlayerZones["P2"].MainDeck);
-        Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"], result.State.PlayerZones["P2"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -68613,7 +68628,7 @@ public sealed class ConformanceFixtureRunnerTests
             TurnPlayerId = "P1",
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
-                ["P1"] = PlayerZones.Empty,
+                ["P1"] = PlayerZones.Empty with { Battlefields = ["P2-OTHER"] },
                 ["P2"] = PlayerZones.Empty with
                 {
                     MainDeck = ["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"],
@@ -68623,6 +68638,8 @@ public sealed class ConformanceFixtureRunnerTests
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["P2-OTHER"] = new("P2-OTHER", cardNo: "OGN·294/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P1", controllerId: "P2"),
                 ["P2-BATTLEFIELD-AAA-OFFSITE"] = new(
                     "P2-BATTLEFIELD-AAA-OFFSITE",
                     power: 2,
@@ -68652,9 +68669,10 @@ public sealed class ConformanceFixtureRunnerTests
             },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
+                ["P2-OTHER"] = new("P1", "BATTLEFIELD", "P2-OTHER"),
                 ["P2-BATTLEFIELD-AAA-OFFSITE"] = new("P2", "BATTLEFIELD", "P2-OTHER"),
-                ["P2-BATTLEFIELD-ROSE-LAB"] = new("P2", "BATTLEFIELD", "P2-ROSE"),
-                ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new("P2", "BATTLEFIELD", "P2-ROSE"),
+                ["P2-BATTLEFIELD-ROSE-LAB"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-ROSE-LAB"),
+                ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-ROSE-LAB"),
                 ["P2-ROSE-DRAW-001"] = new("P2", "MAIN_DECK"),
                 ["P2-NORMAL-DRAW-001"] = new("P2", "MAIN_DECK"),
                 ["P2-RUNE-001"] = new("P2", "RUNE_DECK"),

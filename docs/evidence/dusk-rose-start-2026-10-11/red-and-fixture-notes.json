@@ -1,0 +1,9 @@
+{
+  "red": "Three initial cases failed without optional cost choice. Expanded LastBreath case exposed direct removal omission; shared ResolveFieldDestructions now used.",
+  "legacyAssertions": "No legacy test methods removed or renamed. Conformance and Hub now choose the intended same-field sacrifice and pass actual response window before original draw and before-scoring assertions. Real battlefield identity replaces abstract alias. Conformance dirty-control fixture is rejected atomically before ending turn and retains no-destruction assertions; legal opponent-controlled source skip independently verified in DuskRoseLabStartTests. Full-game explicitly pays the chosen Wildclaw Beastmaster then drains real responses; original offsite/draw/score/replay assertions retained. Event reason becomes DESTROY_COST and destruction now precedes trigger settlement per current204.3.a. Focus profile excludes FullGameEndToEndTests, so exact fullgame was directly executed and verified in its TRX, then included in full1.",
+  "boundaries": [
+    "Paid destruction receipt validates captured source and cost structure and matches public projection; no claim of independently reconstructing historical payment from an arbitrarily fabricated trusted private state.",
+    "Response-state source replacement is reconstructed, not an actual replacement-card play.",
+    "Other start-trigger families remain open: Ephemeral, Jinx and Mushroom Pouch."
+  ]
+}

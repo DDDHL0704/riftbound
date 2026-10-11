@@ -27477,7 +27477,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.ReflexiveDuel is not null) return ResolveReflexiveDuel(state, stackItem);
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
-        if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStartDamage(state, stackItem);
+        if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStart(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);
         var chosenStackItem = stackItem;
         stackItem = MaskTargetsFromPreviousGenerations(state, stackItem);
@@ -38078,132 +38078,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : sourceObjectId.Trim();
     }
 
-    private static BattlefieldStartDrawResult ApplyBattlefieldTurnStartDestroyUnitDraw(
-        MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        Dictionary<string, RunePool> runePools,
-        string turnPlayerId,
-        long rngCursor)
-    {
-        var playerScores = NormalizeScoresForSeats(state);
-        if (!playerZones.TryGetValue(turnPlayerId, out var zones))
-        {
-            return new BattlefieldStartDrawResult([], [], playerScores, null, rngCursor);
-        }
-
-        var sourceEntries = zones.Battlefields
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldTriggerSpecRules.TryGetTrigger(
-                    cardObject.CardNo,
-                    BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger,
-                    out _)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, turnPlayerId))
-            .Select(objectId =>
-            {
-                BattlefieldTriggerSpecRules.TryGetTrigger(
-                    cardObjects[objectId].CardNo,
-                    BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger,
-                    out var trigger);
-                return (
-                    SourceObjectId: objectId,
-                    BattlefieldObjectId: BattlefieldScopeForSource(state.ObjectLocations, objectId),
-                    DestroyCount: trigger.DestroyCount.GetValueOrDefault(),
-                    DrawCount: trigger.DrawCount.GetValueOrDefault());
-            })
-            .Distinct()
-            .OrderBy(entry => entry.SourceObjectId, StringComparer.Ordinal)
-            .ToArray();
-        if (sourceEntries.Length == 0)
-        {
-            return new BattlefieldStartDrawResult([], [], playerScores, null, rngCursor);
-        }
-
-        var targetSelection = sourceEntries
-            .Select(entry => (
-                entry.SourceObjectId,
-                entry.DestroyCount,
-                entry.DrawCount,
-                TargetObjectId: GetBattlefieldUnitObjectIdsAtBattlefield(
-                        playerZones,
-                        cardObjects,
-                        state.ObjectLocations,
-                        entry.BattlefieldObjectId)
-                    .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, turnPlayerId, objectId))
-                    .OrderBy(objectId => objectId, StringComparer.Ordinal)
-                    .FirstOrDefault()))
-            .FirstOrDefault(entry => !string.IsNullOrWhiteSpace(entry.TargetObjectId));
-        if (string.IsNullOrWhiteSpace(targetSelection.TargetObjectId))
-        {
-            return new BattlefieldStartDrawResult([], [], playerScores, null, rngCursor);
-        }
-
-        var sourceObjectIds = new[] { targetSelection.SourceObjectId };
-        var targetObjectId = targetSelection.TargetObjectId!;
-        var drawCount = targetSelection.DrawCount;
-        var events = new List<GameEvent>
-        {
-            new(
-                "BATTLEFIELD_TRIGGER_RESOLVED",
-                $"{turnPlayerId} 回合开始时摧毁单位并抽牌",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = turnPlayerId,
-                    ["trigger"] = TriggerKinds.BattlefieldTurnStartDestroyUnitDraw,
-                    ["sourceObjectIds"] = sourceObjectIds,
-                    ["targetObjectId"] = targetObjectId,
-                    ["drawCount"] = drawCount,
-                    ["timing"] = MatchPhases.TurnStart,
-                    ["beforeScoring"] = true
-                })
-        };
-        var pseudoStackItem = new StackItemState(
-            $"TURN-START-BATTLEFIELD-DRAW-{state.Tick}",
-            turnPlayerId,
-            sourceObjectIds[0],
-            TriggerKinds.BattlefieldTurnStartDestroyUnitDraw,
-            string.Empty,
-            [],
-            0);
-        if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
-        {
-            return new BattlefieldStartDrawResult(events, [], playerScores, null, rngCursor);
-        }
-
-        events.AddRange(BuildFieldRemovalEvents(
-            TriggerKinds.BattlefieldTurnStartDestroyUnitDraw,
-            pseudoStackItem,
-            targetObjectId,
-            removalResult,
-            TriggerKinds.BattlefieldTurnStartDestroyUnitDraw));
-        var destroyedUnitOwnerIds = removalResult.WasDestroyed && removalResult.WasUnit
-            ? new[] { removalResult.OwnerPlayerId }
-            : [];
-        var drawApplication = ApplyDrawToPlayer(
-            state with
-            {
-                PlayerZones = playerZones,
-                PlayerScores = playerScores,
-                CardObjects = cardObjects
-            },
-            playerZones,
-            playerScores,
-            turnPlayerId,
-            drawCount,
-            rngCursor,
-            events);
-
-        return new BattlefieldStartDrawResult(
-            events,
-            destroyedUnitOwnerIds
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
-                .ToArray(),
-            drawApplication.PlayerScores,
-            drawApplication.WinnerPlayerId,
-            drawApplication.RngCursor);
-    }
-
     private static ScoreApplicationResult ApplyBattlefieldFirstTurnScore(MatchState state, string playerId)
     {
         var playerScores = NormalizeScoresForSeats(state);
@@ -39021,13 +38895,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         public static TurnStartReadyResult Empty { get; } = new([]);
     }
-
-    private sealed record BattlefieldStartDrawResult(
-        IReadOnlyList<GameEvent> Events,
-        IReadOnlyList<string> DestroyedUnitOwnerIds,
-        IReadOnlyDictionary<string, int> PlayerScores,
-        string? WinnerPlayerId,
-        long RngCursor);
 
     private sealed record DrawApplicationResult(
         IReadOnlyDictionary<string, int> PlayerScores,

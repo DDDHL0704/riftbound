@@ -11963,7 +11963,28 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-turn-start-destroy-draw", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
-        var endTurnEvents = EventsFor(endTurnClients);
+        var endTurnEvents = EventsFor(endTurnClients).ToList();
+        Assert.DoesNotContain(endTurnEvents, e => e.Kind == "UNIT_DESTROYED" || e.Kind == "CARD_DRAWN");
+        var prompt = PromptFor(endTurnClients, "P2");
+        var choice = prompt.Candidates!.Single(c => c.Action == CommandTypes.ChooseCards);
+        var paidClients = new RecordingHubClients();
+        await CreateHub(paidClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "lab-pay-cost", JsonSerializer.SerializeToElement(new {
+                cmdType = "CHOOSE_CARDS", choiceId = choice.Metadata!["choiceId"], choiceWindow = choice.Metadata["choiceWindow"],
+                chosenObjectIds = new[] { "P2-BATTLEFIELD-ROSE-SACRIFICE" }, promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
+        Assert.Empty(paidClients.CallerClient.Errors);
+        Assert.DoesNotContain(EventsFor(paidClients), e => e.Kind == "CARD_DRAWN");
+        endTurnEvents.AddRange(EventsFor(paidClients));
+        foreach (var (player, connection) in new[]{("P2", "connection-2"), ("P1", "connection-1")})
+        {
+            var responseClients = new RecordingHubClients();
+            await CreateHub(responseClients, new RecordingGroupManager(), connection, registry)
+                .SubmitIntent(roomId, player, "lab-start-pass-" + player,
+                    JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
+            Assert.Empty(responseClients.CallerClient.Errors);
+            endTurnEvents.AddRange(EventsFor(responseClients));
+            endTurnClients = responseClients;
+        }
         Assert.Contains(endTurnEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal)
@@ -11971,7 +11992,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(endTurnEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-ROSE-SACRIFICE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["reason"] as string, "DESTROY_COST", StringComparison.Ordinal));
         Assert.Equal(2, endTurnEvents.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)));
         var indexedEvents = endTurnEvents.Select((gameEvent, index) => (gameEvent, index)).ToArray();
         var triggerIndex = indexedEvents.First(entry =>

@@ -2,46 +2,60 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record BattlefieldStartContext(string CardNo, string BattlefieldObjectId, int Damage, long SourceGeneration);
+public sealed record BattlefieldStartContext(string CardNo, string BattlefieldObjectId, int Damage, long SourceGeneration, int DrawCount = 0);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string BattlefieldStartDamageEffect = "CAPTURED_BATTLEFIELD_START_DAMAGE";
 
-    private static MatchState QueueBattlefieldStartDamage(MatchState state, List<GameEvent> events)
+    internal const string BattlefieldStartDrawEffect = "CAPTURED_BATTLEFIELD_START_DESTROY_DRAW";
+
+    private static MatchState QueueBattlefieldStartAbilities(MatchState state, List<GameEvent> events)
     {
         var queue = state.TriggerQueue.ToList();
         foreach (var id in state.PlayerZones.Values.SelectMany(z => z.Battlefields).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
-            if (!state.CardObjects.TryGetValue(id, out var source) || !IsBattlefieldCardObject(source) || source.IsFaceDown
-                || !BattlefieldTriggerSpecRules.TryGetTrigger(source.CardNo,
-                    BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDamageAllUnitsTrigger, out var definition)) continue;
-            var context = new BattlefieldStartContext(source.CardNo!, id, definition.DamageAmount!.Value, source.ObjectGeneration);
-            var trigger = new TriggerQueueItemState($"start-damage-{state.TurnNumber}-{state.Tick}-{id}",
-                state.TurnPlayerId, id, BattlefieldStartDamageEffect, "TURN_START_BEGAN") { BattlefieldStart = context };
+            if (!state.CardObjects.TryGetValue(id, out var source) || !IsBattlefieldCardObject(source) || source.IsFaceDown) continue;
+            var damage = BattlefieldTriggerSpecRules.TryGetTrigger(source.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDamageAllUnitsTrigger, out var damageSpec) ? damageSpec.DamageAmount!.Value : 0;
+            var draw = source.ControllerId == state.TurnPlayerId && BattlefieldTriggerSpecRules.TryGetTrigger(source.CardNo,
+                BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger, out var drawSpec)
+                && drawSpec.DestroyCount == 1 ? drawSpec.DrawCount!.Value : 0;
+            if (damage == 0 && draw == 0) continue;
+            var effect = draw > 0 ? BattlefieldStartDrawEffect : BattlefieldStartDamageEffect;
+            var context = new BattlefieldStartContext(source.CardNo!, id, damage, source.ObjectGeneration, draw);
+            var trigger = new TriggerQueueItemState($"start-{state.TurnNumber}-{state.Tick}-{id}",
+                state.TurnPlayerId, id, effect, "TURN_START_BEGAN") { BattlefieldStart = context };
             queue.Add(trigger);
             events.Add(BuildTriggerQueuedEvent(trigger));
         }
         return state with { TriggerQueue = queue };
     }
 
+    internal static bool ValidBattlefieldStartDefinition(BattlefieldStartContext context, string effect, string? cardNo = null)
+        => context.SourceGeneration >= 0 && !string.IsNullOrWhiteSpace(context.BattlefieldObjectId)
+            && (cardNo is null || cardNo == context.CardNo)
+            && (effect == BattlefieldStartDamageEffect && context.DrawCount == 0
+                && BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDamageAllUnitsTrigger, out var damage)
+                && context.Damage == damage.DamageAmount
+                || effect == BattlefieldStartDrawEffect && context.Damage == 0
+                && BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDestroyUnitDrawTrigger, out var draw)
+                && draw.DestroyCount == 1 && context.DrawCount == draw.DrawCount);
+
     internal static bool ValidBattlefieldStart(MatchState state, BattlefieldStartContext? context,
         string effect, string controller, string source, string? cardNo = null)
     {
-        if (context is null) return effect != BattlefieldStartDamageEffect;
-        return effect == BattlefieldStartDamageEffect && state.TurnStartStep == "SCORE"
+        if (context is null) return effect is not (BattlefieldStartDamageEffect or BattlefieldStartDrawEffect);
+        return ValidBattlefieldStartDefinition(context, effect, cardNo) && state.TurnStartStep == "SCORE"
             && state.Phase == MatchPhases.TurnStart && controller == state.TurnPlayerId
-            && source == context.BattlefieldObjectId && context.SourceGeneration >= 0
-            && (cardNo is null || cardNo == context.CardNo)
-            && state.CardObjects.TryGetValue(context.BattlefieldObjectId, out var field) && IsBattlefieldCardObject(field)
-            && BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldTurnStartDamageAllUnitsTrigger, out var definition)
-            && context.Damage == definition.DamageAmount;
+            && source == context.BattlefieldObjectId
+            && state.CardObjects.TryGetValue(context.BattlefieldObjectId, out var field) && IsBattlefieldCardObject(field);
     }
 
-    private static StackResolutionResult ResolveBattlefieldStartDamage(MatchState state, StackItemState item)
+    private static StackResolutionResult ResolveBattlefieldStart(MatchState state, StackItemState item)
     {
         var context = item.BattlefieldStart!;
+        if (context.DrawCount > 0) return ResolveBattlefieldStartDraw(state, item);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var locations = state.ObjectLocations.ToDictionary(e => e.Key, e => e.Value);
@@ -70,4 +84,20 @@ public sealed partial class CoreRuleEngine
             ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = cleanup.RunePools,
             TriggerQueue = cleanup.TriggerQueue, DestroyedUnitOwnerIds = cleanup.DestroyedUnitOwnerIds, Events = events };
     }
+    private static StackResolutionResult ResolveBattlefieldStartDraw(MatchState state, StackItemState item)
+    {
+        if (item.TriggerCost?.DestructionTarget is null) return NoopStackResolutionResult(state);
+        var zones = NormalizeZonesForSeats(state);
+        var events = new List<GameEvent> { new("BATTLEFIELD_TRIGGER_RESOLVED", "已支付摧毁费用的开始技能抽牌",
+            new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
+                ["trigger"] = TriggerKinds.BattlefieldTurnStartDestroyUnitDraw, ["sourceObjectIds"] = new[] { item.SourceObjectId },
+                ["targetObjectId"] = item.TriggerCost.DestructionTarget.ObjectId, ["drawCount"] = item.BattlefieldStart!.DrawCount,
+                ["timing"] = MatchPhases.TurnStart, ["beforeScoring"] = true }) };
+        var draw = ApplyDrawToPlayer(state, zones, NormalizeScoresForSeats(state), item.ControllerId,
+            item.BattlefieldStart!.DrawCount, state.RngCursor, events);
+        return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
+            WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor, Events = events,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+    }
+
 }

@@ -45,17 +45,12 @@ public sealed partial class CoreRuleEngine
                 case "START":
                     var startPools = state.RunePools.ToDictionary(e => e.Key, e => e.Value);
                     var ephemeral = DestroyEphemeralObjectsAtTurnStart(state, zones, cards, startPools, state.ObjectLocations, player, state.Tick);
-                    var startDraw = ApplyBattlefieldTurnStartDestroyUnitDraw(state with { PlayerZones = zones, CardObjects = cards },
-                        zones, cards, startPools, player, state.RngCursor);
-                    events.AddRange(ephemeral.Events); events.AddRange(startDraw.Events);
+                    events.AddRange(ephemeral.Events);
                     state = state with { PlayerZones = zones, CardObjects = cards, RunePools = startPools,
-                        PlayerScores = startDraw.PlayerScores, WinnerPlayerId = startDraw.WinnerPlayerId,
-                        Status = startDraw.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
-                        RngCursor = startDraw.RngCursor, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
-                        DestroyedUnitOwnerIdsThisTurn = ephemeral.DestroyedUnitOwnerIds
-                            .Concat(startDraw.DestroyedUnitOwnerIds).Distinct().ToArray(),
-                        TurnStartStep = "SCORE" };
-                    state = QueueBattlefieldStartDamage(state, events);
+                        PlayerScores = NormalizeScoresForSeats(state),
+                        ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
+                        DestroyedUnitOwnerIdsThisTurn = ephemeral.DestroyedUnitOwnerIds, TurnStartStep = "SCORE" };
+                    state = QueueBattlefieldStartAbilities(state, events);
                     break;
                 case "SCORE":
                     var firstScore = ApplyBattlefieldFirstTurnScore(state, player);

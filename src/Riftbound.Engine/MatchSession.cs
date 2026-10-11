@@ -5236,7 +5236,8 @@ public sealed record ResolutionResult(
         }
         if (item.BattlefieldStart is not null) {
             view["battlefieldStart"] = item.BattlefieldStart;
-            view["abilityLabel"] = "开始阶段：对该战场所有单位造成伤害";
+            view["abilityLabel"] = item.BattlefieldStart.DrawCount > 0 ? "开始阶段：摧毁费用后抽牌" : "开始阶段：对该战场所有单位造成伤害";
+            if (item.BattlefieldStart.DrawCount > 0) view["triggerCost"] = item.TriggerCost;
         }
         if (item.SourceConfirmed) view["playAbility"] = true;
         if (!string.IsNullOrWhiteSpace(item.Destination))
@@ -8724,7 +8725,7 @@ internal static class ActionPromptBuilder
             var cards = AnnotatePromptChoiceObjectIds(PendingCardChoiceDtos(state, cardChoice));
             var steps = new List<ActionPromptSelectionStepDto>();
             for (var index = 0; index < cardChoice.MaxCount; index++)
-                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? cardChoice.EffectKind == "HOLD_LEBLANC_DISCARD" ? "弃置所选手牌并横置传奇；不选则放弃" : "横置所选传奇；不选则放弃" : cardChoice.ChoiceWindow == CoreRuleEngine.OptionalTriggerWindow ? cardChoice.EffectKind == "HOLD_CHANNEL_OPTIONAL" ? "确认召出符文；不选则放弃" : "选择换回原战场；不选则保留草丛" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择技能目标" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
+                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? cardChoice.EffectKind == CoreRuleEngine.BattlefieldStartDrawEffect ? "选择支付摧毁费用的单位；不选则放弃" : cardChoice.EffectKind == "HOLD_LEBLANC_DISCARD" ? "弃置所选手牌并横置传奇；不选则放弃" : "横置所选传奇；不选则放弃" : cardChoice.ChoiceWindow == CoreRuleEngine.OptionalTriggerWindow ? cardChoice.EffectKind == "HOLD_CHANNEL_OPTIONAL" ? "确认召出符文；不选则放弃" : "选择换回原战场；不选则保留草丛" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择技能目标" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
             selectionSteps = steps;
         }
         if (action == CommandTypes.PayCost && state.PendingPayment is { } payment && payment.PlayerId == playerId
@@ -22737,8 +22738,8 @@ public sealed class MatchSession : IMatchSession
             ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
                 ["P2-BATTLEFIELD-AAA-OFFSITE"] = new(seed.P2, "BATTLEFIELD", "P2-OTHER"),
-                ["P2-BATTLEFIELD-ROSE-LAB"] = new(seed.P2, "BATTLEFIELD", "P2-ROSE"),
-                ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new(seed.P2, "BATTLEFIELD", "P2-ROSE"),
+                ["P2-BATTLEFIELD-ROSE-LAB"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-ROSE-LAB"),
+                ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-ROSE-LAB"),
                 ["P2-ROSE-DRAW-001"] = new(seed.P2, "MAIN_DECK"),
                 ["P2-NORMAL-DRAW-001"] = new(seed.P2, "MAIN_DECK"),
                 ["P2-RUNE-001"] = new(seed.P2, "RUNE_DECK"),
