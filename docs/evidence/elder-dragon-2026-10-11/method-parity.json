@@ -1,0 +1,26 @@
+{
+  "baseline": 6371,
+  "current": 6390,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.ElderDragonCombatNativeTests.ProductionOnePointLethalAssignmentRestoresAndReplays",
+    "Riftbound.ConformanceTests.ElderDragonNativeTests.ProductionElderPlayAndLocationTargetsRestoreAndReplay",
+    "Riftbound.ConformanceTests.ElderDragonTests.CombatUsesModifiedNonzeroLethalThreshold",
+    "Riftbound.ConformanceTests.ElderDragonTests.EarlierDamageBecomesLethalAsDragonEntersBeforeItsPlayAbility",
+    "Riftbound.ConformanceTests.ElderDragonTests.EndTurnRemovesDamageAndItsPlayerMarksTogether",
+    "Riftbound.ConformanceTests.ElderDragonTests.EnemyUnitsInDragonsRageDoNotUseTheCastersElderDragon",
+    "Riftbound.ConformanceTests.ElderDragonTests.FriendlyDuelUnitDamageUsesItsControllerAndKillsWithOnePoint",
+    "Riftbound.ConformanceTests.ElderDragonTests.LocationDamageCannotHitAnInvalidatedTarget",
+    "Riftbound.ConformanceTests.ElderDragonTests.MultiTargetWardCanBePaidOrDeclinedAfterChoosingDifferentLocations",
+    "Riftbound.ConformanceTests.ElderDragonTests.OnlyVisibleControlledDragonMakesItsControllersDamageLethal",
+    "Riftbound.ConformanceTests.ElderDragonTests.PendingCombatAssignmentCannotBeBypassedByEndingTheTurn",
+    "Riftbound.ConformanceTests.ElderDragonTests.PlayAbilityChoosesAtMostOneEnemyPerLocationAfterEntry",
+    "Riftbound.ConformanceTests.ElderDragonTests.PlayAbilitySurvivesSourceDepartureWithoutKeepingThePassive",
+    "Riftbound.ConformanceTests.ElderDragonTests.PreventedDamageLeavesNoPlayerMarkAndCannotBecomeLethal",
+    "Riftbound.ConformanceTests.ElderDragonTests.PublicTargetLocationContextCannotDriftFromTheSavedAbility",
+    "Riftbound.ConformanceTests.ElderDragonTests.RecoveryRejectsForgedDamageMarkingPlayers",
+    "Riftbound.ConformanceTests.ElderDragonTests.RecoveryRejectsForgedPerLocationPlayAbility",
+    "Riftbound.ConformanceTests.ElderDragonTests.ResponseMoveInvalidatesOnlyTheTargetThatLeftItsDeclaredLocation",
+    "Riftbound.ConformanceTests.ElderDragonTests.TwoTargetWardCannotBeForgedToCostOnePower"
+  ]
+}

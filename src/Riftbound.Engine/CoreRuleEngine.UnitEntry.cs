@@ -130,7 +130,7 @@ public sealed partial class CoreRuleEngine
         var unit = PrintedCardFactory.TryRestoreOutsidePlay(previous, ownerId, out var printed)
             ? printed : previous with
             {
-                Damage = 0,
+                Damage = 0, DamageMarkedByPlayerIds = null,
                 Power = previous.Power - previous.UntilEndOfTurnPowerModifier,
                 UntilEndOfTurnEffects = [], UntilEndOfTurnPowerModifier = 0,
                 UntilEndOfTurnPowerModifiers = [], AttachedToObjectId = null,

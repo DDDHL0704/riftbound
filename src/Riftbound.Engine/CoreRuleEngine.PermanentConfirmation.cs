@@ -22,6 +22,8 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, List<GameEvent> events)
     {
         var ability = item with { SourceConfirmed = true };
+        if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior) && behavior.PlayDamagePerLocation > 0)
+            ability = ability with { TargetObjectIds = [], TargetGenerations = null, LocationDamage = new(item.CardNo) };
         events.Add(new("TRIGGER_QUEUED", "入场后的打出技能等待响应", new Dictionary<string, object?>
         { ["sourceObjectId"] = item.SourceObjectId, ["controllerId"] = item.ControllerId,
             ["stackItemId"] = ability.StackItemId, ["effectKind"] = item.EffectKind }));

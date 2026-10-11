@@ -108,6 +108,8 @@ public sealed record CardBehaviorDefinition(
     bool TargetsShareController = false,
     bool MovesTargetsToChosenLocation = false,
     bool QueuesDestinationDuel = false,
+    bool MakesControllerDamageLethal = false,
+    int PlayDamagePerLocation = 0,
     CommandedMovementSpec? CommandedMovement = null,
     bool AppliesStatusEffectToAllUnits = false,
     bool MovesFirstTargetToSecondTargetLocation = false,
@@ -7200,6 +7202,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 10,
+            MakesControllerDamageLethal: true,
+            PlayDamagePerLocation: 1,
             SourceUnitTags: "龙"),
         new(
             "UNL-118a/219",
@@ -7210,6 +7214,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 10,
+            MakesControllerDamageLethal: true,
+            PlayDamagePerLocation: 1,
             SourceUnitTags: "龙"),
         new(
             "UNL-130/219",

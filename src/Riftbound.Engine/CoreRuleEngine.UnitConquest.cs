@@ -77,7 +77,7 @@ public sealed partial class CoreRuleEngine
         var zones=NormalizeZonesForSeats(state);var cards=state.CardObjects.ToDictionary(e=>e.Key,e=>e.Value);
         var destroyed=new HashSet<string>(StringComparer.Ordinal);
         var prevention=state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId);
-        var damage=ApplyDamageToCardObject(cards,target,amount,destroyed,prevention,PreventSpellAndSkillDamageThisTurnEffectId);
+        var damage=ApplyDamageToCardObject(cards,item.ControllerId,target,amount,destroyed,prevention,PreventSpellAndSkillDamageThisTurnEffectId);
         var events=new List<GameEvent> {new("DAMAGE_APPLIED","征服技能造成战力伤害",BuildDamagePayload(item.SourceObjectId,target,damage))};
         var locations=state.ObjectLocations.ToDictionary(e=>e.Key,e=>e.Value);
         var cleanup=RunStateBasedCleanupLoop(state,zones,cards,item,state.RunePools,damageTriggeredDestroyTargetObjectIds:destroyed,

@@ -75,12 +75,13 @@ public sealed partial class CoreRuleEngine
         // Confirm pending items in insertion order, regardless of which rule family
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(i =>
-            i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
+            i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
             || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false });
         if (item is null) return result;
+        if (item.LocationDamage is not null) return PrepareLocationDamage(result, item);
         if (item.ReflexiveDuel is not null) return PrepareReflexiveDuelTarget(result, item);
         if (item.UnitConquest is not null) return PrepareConquestTarget(result, item);
         if (HasLegendConquestTarget(item)) return PrepareLegendConquestTarget(result, item);
@@ -142,16 +143,20 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
+            || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected)
     {
         if (!ValidTriggerChoice(state, choice)) return RejectWithCorePrompts(state, "触发技能确认上下文已失效。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
+        if (item.LocationDamage is not null && selected.Select(id => LocationDamageKey(state.ObjectLocations[id])).Distinct(StringComparer.Ordinal).Count() != selected.Count)
+            return RejectWithCorePrompts(state, "每个位置至多选择一名敌方单位。", ErrorCodes.InvalidTarget);
         var next = state with { Tick = state.Tick + 1, PendingCardChoice = null };
         if (selected.Count == 0) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var tax = ResolveSpellshieldTargetTaxPower(state, item.ControllerId, selected, out _);
         var bound = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
+        if (item.LocationDamage is { } locationDamage)
+            bound = bound with { LocationDamage = locationDamage with { TargetLocations = selected.ToDictionary(id => id, id => state.ObjectLocations[id]) } };
         if (tax > 0)
         {
             // CN 404.2: even a mandatory trigger may be declined when it has a cost.

@@ -22824,6 +22824,8 @@ public static class MatchRecoveryValidator
             }
 
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             if (view.Snapshot.Timing is not null
                 && TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var publicTriggers))
             {
@@ -22846,6 +22848,47 @@ public static class MatchRecoveryValidator
             if (!SeatsEqual(authoritativeState.Seats, viewSeats))
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
+            }
+        }
+    }
+
+    private static void ValidateLocationDamageViews(IReadOnlyList<object?> items, MatchState state, List<string> errors, string label)
+    {
+        foreach (var item in state.StackItems.Where(item => item?.LocationDamage is not null))
+        {
+            var projected = items.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId);
+            try
+            {
+                var json = JsonSerializer.SerializeToElement(projected);
+                var context = json.ValueKind == JsonValueKind.Object && json.TryGetProperty("locationDamage", out var value)
+                    ? value.Deserialize<LocationDamageContext>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) : null;
+                if (MatchStateHasher.HashValue(context) != MatchStateHasher.HashValue(item.LocationDamage))
+                    errors.Add($"{label} per-location damage context differs from authoritative state");
+            }
+            catch (JsonException) { errors.Add($"{label} invalid per-location damage context"); }
+        }
+    }
+
+    private static void ValidateDamageMarkerViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
+    {
+        if (snapshot.Players is null) return;
+        foreach (var playerPayload in snapshot.Players.Values)
+        {
+            if (!TryReadObjectValue(playerPayload, "objects", out var objects)
+                || !TryReadObjectDictionaryValue(objects, out var cards)) continue;
+            foreach (var (id, payload) in cards)
+            {
+                if (!state.CardObjects.TryGetValue(id, out var card) || card is null) continue;
+                var hasMarks = TryReadObjectValue(payload, "damageMarkedByPlayerIds", out var marks);
+                if (!TryReadObjectValue(payload, "damage", out _))
+                {
+                    if (hasMarks) errors.Add($"{label} hidden card {id} exposes damage marking players");
+                    continue;
+                }
+                var expected = card.DamageMarkedByPlayerIds;
+                if (expected is null ? hasMarks && !IsNullSnapshotPayloadValue(marks)
+                    : !TryReadObjectStringList(payload, "damageMarkedByPlayerIds", out var actual) || !actual.SequenceEqual(expected))
+                    errors.Add($"{label} card {id} damage marking players differ from authoritative state");
             }
         }
     }
@@ -23122,6 +23165,7 @@ public static class MatchRecoveryValidator
                 errors.Add("invalid captured Insight trigger");
         foreach (var item in state.StackItems)
         {
+            if (!CoreRuleEngine.ValidLocationDamageStack(state, item)) errors.Add("invalid per-location damage ability");
             if (item.InsightContext is { } captured
                 ? !CoreRuleEngine.ValidInsightTrigger(captured, item.EffectKind, item.ControllerId, item.CardNo)
                     || captured.Kind == "DUEL" && !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!)
@@ -24914,6 +24958,13 @@ public static class MatchRecoveryValidator
                 && (!card.Tags.Contains(CardObjectTags.UnitCard)
                     || !authoritativeState.PlayerZones.Values.Any(z => z.Base.Contains(id) || z.Battlefields.Contains(id))))
                 errors.Add($"authoritative state card object {id} movement count requires a unit on the field");
+        foreach (var (id, card) in authoritativeState.CardObjects)
+            if (card?.DamageMarkedByPlayerIds is { } players && (players.Count == 0 || card.Damage <= 0
+                || players.Count > card.Damage || players.Any(player => player is null || !seatPlayerIds.Contains(player))
+                || !players.SequenceEqual(players.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+                || !card.Tags.Contains(CardObjectTags.UnitCard)
+                || !authoritativeState.PlayerZones.Values.Any(z => z.Base.Contains(id) || z.Battlefields.Contains(id))))
+                errors.Add($"authoritative state card object {id} has invalid damage marking players");
         ValidateAuthoritativeStateCardObjectPlayers(authoritativeState.CardObjects, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationPlayers(authoritativeState.ObjectLocations, seatPlayerIds, errors);
         ValidateAuthoritativeStateObjectLocationZones(authoritativeState.ObjectLocations, errors);
@@ -26991,6 +27042,7 @@ public static class MatchRecoveryValidator
         }
         else
         {
+            ValidateDamageMarkerViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateSpectatorSnapshotStackItemPayloads(
                 spectatorReplayFrame.SpectatorSnapshot,
                 authoritativeState,
@@ -30836,6 +30888,7 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");
+        ValidateLocationDamageViews(stackItems, authoritativeState, errors, "spectator replay frame");
         var authoritativeStackItemsById = new Dictionary<string, StackItemState>(StringComparer.Ordinal);
         foreach (var authoritativeStackItem in authoritativeState.StackItems)
         {

@@ -95,6 +95,7 @@ public sealed class DeathAndDuelLifecycleTests
         var response = await OpenBattle(state with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations }, ["D", "D2"]);
         var first = await Act(response.State, "P2", new PassPriorityCommand());
         var death = await Act(first.State, "P1", new PassPriorityCommand());
+        death = await CombatTestDriver.FinishAsync(death);
         Assert.Equal(2, death.State.TriggerQueue.Count);
         Assert.Contains(death.Prompts["P2"].Candidates!, c => c.Action == "ORDER_TRIGGERS" && c.Enabled);
         var ordered = await Act(death.State, "P2", new OrderTriggersCommand(death.State.TriggerQueue.Reverse().Select(t => t.TriggerId).ToArray()));

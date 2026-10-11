@@ -915,6 +915,8 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-piltover-academy-held-next-spell-echo");
+        responseOpened = await ResolveOpenBattleDamageAssignmentsAsync(session, responseOpened, "b0-piltover-damage-assignments");
+        responseOpened = await PassOpenBattleResponseAsync(session, responseOpened, "b0-piltover-after-assignments");
         responseOpened = await ResolveDriverPendingEffectsAsync(session, responseOpened, "b0-piltover-death-triggers");
         AssertDefenseDoesNotHold(responseOpened);
         responseOpened = await EndTurnAsync(session, responseOpened.State.TurnPlayerId, "piltover-real-hold");

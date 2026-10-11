@@ -3010,6 +3010,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
+                EffectiveFieldControllerId(state.PlayerZones, assignment.SourceObjectId, state.CardObjects[assignment.SourceObjectId])!,
                 assignment.TargetObjectId,
                 assignment.Damage,
                 damageTriggeredDestroyTargetObjectIds);
@@ -3125,7 +3126,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? UnitMovementRules.CannotTakeDamage(cardObject) ? 0 : Math.Max(0, ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false) - cardObject.Damage)
+                    ? RequiredLethalDamage(state, cardObject,
+                        ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false),
+                        battle.AttackerObjectIds.Contains(objectId) ? BattleDefendingPlayerId(state, battle) : BattleAttackingPlayerId(state, battle))
                     : 0,
                 StringComparer.Ordinal);
     }
@@ -13892,8 +13895,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state,
                 command,
                 optionalCosts,
-                defenderObjectIds,
-                defenderStates))
+                defenderObjectIds))
         {
             var assignmentObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
             var assignmentState = state with
@@ -14044,7 +14046,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         out _,
                         out _,
                         damageContribution: false);
-                    var lethalDamage = UnitMovementRules.CannotTakeDamage(defenderState) ? 0 : Math.Max(0, defenderCombatPower - defenderState.Damage);
+                    var lethalDamage = RequiredLethalDamage(state with { CardObjects = cardObjects, PlayerZones = playerZones }, defenderState, defenderCombatPower, intent.PlayerId);
                     var damageAmount = defenderIndex == defenderAssignments.Count - 1
                         ? remainingAttackerDamage
                         : Math.Min(remainingAttackerDamage, lethalDamage);
@@ -14057,6 +14059,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         assignedOverkillDamageToEnemyUnits += Math.Max(0, damageAmount - lethalDamage);
                     var attackerDamageApplication = ApplyDamageToCardObject(
                         cardObjects,
+                        intent.PlayerId,
                         assignment.ObjectId,
                         damageAmount,
                         damageTriggeredDestroyTargetObjectIds);
@@ -14125,7 +14128,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         out _,
                         out _,
                         damageContribution: false);
-                    var lethalDamage = UnitMovementRules.CannotTakeDamage(targetAttackerState) ? 0 : Math.Max(0, targetAttackerCombatPower - targetAttackerState.Damage);
+                    var lethalDamage = RequiredLethalDamage(state with { CardObjects = cardObjects, PlayerZones = playerZones }, targetAttackerState, targetAttackerCombatPower, defendingPlayerId);
                     var damageAmount = attackerIndex == attackerAssignments.Count - 1
                         ? remainingDefenderDamage
                         : Math.Min(remainingDefenderDamage, lethalDamage);
@@ -14136,6 +14139,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                     var defenderDamageApplication = ApplyDamageToCardObject(
                         cardObjects,
+                        defendingPlayerId!,
                         attackerAssignment.ObjectId,
                         damageAmount,
                         damageTriggeredDestroyTargetObjectIds);
@@ -14477,7 +14481,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 StringComparer.Ordinal);
             foreach (var objectId in damagedParticipantObjectIds)
             {
-                cardObjects[objectId] = cardObjects[objectId] with { Damage = 0 };
+                cardObjects[objectId] = cardObjects[objectId] with { Damage = 0, DamageMarkedByPlayerIds = null };
             }
 
             events.Add(new GameEvent(
@@ -14534,7 +14538,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 attackerObjectId);
             cardObjects[attackerObjectId] = attackerState with
             {
-                Damage = 0,
+                Damage = 0, DamageMarkedByPlayerIds = null,
                 OwnerId = string.IsNullOrWhiteSpace(attackerState.OwnerId) ? ownerPlayerId : attackerState.OwnerId,
                 ControllerId = controllerId,
                 IsAttacking = false,
@@ -14755,7 +14759,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             cardObjects[objectId] = cardObject with
             {
-                Damage = 0,
+                Damage = 0, DamageMarkedByPlayerIds = null,
                 IsFaceDown = false,
                 IsAttacking = false,
                 IsDefending = false,
@@ -14993,6 +14997,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }));
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
+                playerId,
                 targetObjectId,
                 damageAmount,
                 damageTriggeredDestroyTargetObjectIds);
@@ -15421,21 +15426,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         DeclareBattleCommand command,
         IReadOnlyList<string> optionalCosts,
-        IReadOnlyList<string> defenderObjectIds,
-        IReadOnlyDictionary<string, CardObjectState> defenderStates)
+        IReadOnlyList<string> defenderObjectIds)
     {
         return ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
             && optionalCosts.Count == 1
             && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
             && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0
-            && defenderObjectIds.Count > 1
-            && defenderObjectIds.Any(defenderObjectId =>
-                defenderStates.TryGetValue(defenderObjectId, out var defenderState)
-                && HasBattleDamageAssignmentKeyword(
-                    state,
-                    state.PlayerZones,
-                    defenderObjectId,
-                    defenderState));
+            // Choosing among multiple recipients matters even without Tank or
+            // Back Row (for example, Elder Dragon changes lethal thresholds).
+            && defenderObjectIds.Count > 1;
     }
 
     private static bool IsObjectLocatedAtBattlefield(
@@ -22546,7 +22545,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
             || !string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || state.StackItems.Count > 0)
+            || state.StackItems.Count > 0
+            || state.BattleState.IsActive)
         {
             return RejectWithCorePrompts(
                 state,
@@ -27473,6 +27473,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
         if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
+        if (stackItem.LocationDamage is not null) return ResolveLocationDamage(state, stackItem);
         if (stackItem.ReflexiveDuel is not null) return ResolveReflexiveDuel(state, stackItem);
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
@@ -28845,6 +28846,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     {
                         var damageApplication = ApplyDamageToCardObject(
                             cardObjects,
+                            EffectiveFieldControllerId(playerZones, firstTargetObjectId, cardObjects[firstTargetObjectId])!,
                             secondTargetObjectId,
                             firstTargetPower,
                             damageTriggeredDestroyTargetObjectIds,
@@ -28865,6 +28867,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     {
                         var damageApplication = ApplyDamageToCardObject(
                             cardObjects,
+                            EffectiveFieldControllerId(playerZones, secondTargetObjectId, cardObjects[secondTargetObjectId])!,
                             firstTargetObjectId,
                             secondTargetPower,
                             damageTriggeredDestroyTargetObjectIds,
@@ -28901,6 +28904,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     var damageApplication = ApplyDamageToCardObject(
                         cardObjects,
+                        EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, cardObjects[stackItem.SourceObjectId])!,
                         targetObjectId,
                         sourcePower,
                         damageTriggeredDestroyTargetObjectIds,
@@ -28921,6 +28925,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     var damageApplication = ApplyDamageToCardObject(
                         cardObjects,
+                        EffectiveFieldControllerId(playerZones, targetObjectId, cardObjects[targetObjectId])!,
                         stackItem.SourceObjectId,
                         targetPower,
                         damageTriggeredDestroyTargetObjectIds,
@@ -28954,6 +28959,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     var damageApplication = ApplyDamageToCardObject(
                         cardObjects,
+                        stackItem.ControllerId,
                         damagedTargetObjectId,
                         damageAmount,
                         damageTriggeredDestroyTargetObjectIds,
@@ -28999,6 +29005,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     var damageApplication = ApplyDamageToCardObject(
                         cardObjects,
+                        stackItem.ControllerId,
                         damagedTargetObjectId,
                         damageAmount,
                         damageTriggeredDestroyTargetObjectIds,
@@ -29325,6 +29332,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     {
                         var damageApplication = ApplyDamageToCardObject(
                             cardObjects,
+                            stackItem.ControllerId,
                             targetObjectId,
                             damageAmount,
                             damageTriggeredDestroyTargetObjectIds,
@@ -30892,6 +30900,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var damageApplication = ApplyDamageToCardObject(
                     cardObjects,
+                    stackItem.ControllerId,
                     targetObjectId,
                     damageAmount);
                 var payload = BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication);
@@ -31517,6 +31526,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 StringComparer.Ordinal);
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
+                stackItem.ControllerId,
                 targetObjectId,
                 damageAmount,
                 damageTriggeredDestroyTargetObjectIds,
@@ -32271,6 +32281,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
+                stackItem.ControllerId,
                 targetObjectId,
                 damageAmount,
                 damageTriggeredDestroyTargetObjectIds,
@@ -32359,6 +32370,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
+                stackItem.ControllerId,
                 targetObjectId,
                 damageAmount,
                 damageTriggeredDestroyTargetObjectIds,
@@ -32391,6 +32403,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
+                stackItem.ControllerId,
                 targetObjectId,
                 damageAmount,
                 damageTriggeredDestroyTargetObjectIds,
@@ -32429,6 +32442,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
+                stackItem.ControllerId,
                 targetObjectId,
                 damageAmount,
                 damageTriggeredDestroyTargetObjectIds,
@@ -32443,6 +32457,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static DamageApplicationResult ApplyDamageToCardObject(
         Dictionary<string, CardObjectState> cardObjects,
+        string damageControllerId,
         string targetObjectId,
         int damageAmount,
         ISet<string>? damageTriggeredDestroyTargetObjectIds = null,
@@ -32483,6 +32498,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         cardObjects[targetObjectId] = targetState with
         {
             Damage = targetState.Damage + adjustedDamageAmount,
+            DamageMarkedByPlayerIds = adjustedDamageAmount > 0
+                ? (targetState.Damage > 0 ? targetState.DamageMarkedByPlayerIds ?? [] : []).Append(damageControllerId)
+                    .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
+                : targetState.DamageMarkedByPlayerIds,
             UntilEndOfTurnEffects = nextEffects
         };
         if (triggersDestroyOnDamage)
@@ -34977,7 +34996,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         targetState = targetState with
         {
-            Damage = 0,
+            Damage = 0, DamageMarkedByPlayerIds = null,
             Power = targetState.Power - targetState.UntilEndOfTurnPowerModifier,
             UntilEndOfTurnEffects = [],
             UntilEndOfTurnPowerModifier = 0,
@@ -35175,6 +35194,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 {
                     var damageApplication = ApplyDamageToCardObject(
                         cardObjects,
+                        defendingPlayerId,
                         targetObjectId,
                         damageAmount,
                         damageTriggeredDestroyTargetObjectIds);
@@ -35330,6 +35350,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                 var damageApplication = ApplyDamageToCardObject(
                     cardObjects,
+                    stackItem.ControllerId,
                     targetObjectId,
                     damageAmount,
                     damageTriggeredDestroyTargetObjectIds,
@@ -36451,7 +36472,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         foreach (var objectId in damagedObjectIds)
         {
-            cardObjects[objectId] = cardObjects[objectId] with { Damage = 0 };
+            cardObjects[objectId] = cardObjects[objectId] with { Damage = 0, DamageMarkedByPlayerIds = null };
         }
 
         events.Add(new GameEvent(
@@ -37095,7 +37116,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             cardObjects[objectId] = cardObject with
             {
-                Damage = 0,
+                Damage = 0, DamageMarkedByPlayerIds = null,
                 IsFaceDown = false,
                 IsAttacking = false,
                 IsDefending = false,
@@ -37527,6 +37548,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     internal static bool IsLethalFieldUnit(MatchState state, CardObjectState card)
     {
         if (card.Damage <= 0) return false;
+        if (IsMarkedDamageLethal(state, card)) return true;
         var currentPower = ResolveCurrentFieldUnitPower(state, card);
         // Preserve the cleanup eligibility checks; only replace the damage
         // threshold with current power so local auras and battle roles apply.
@@ -37997,7 +38019,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
                 return objectState with
                 {
-                    Damage = 0,
+                    Damage = 0, DamageMarkedByPlayerIds = null,
                     MovementCountThisTurn = 0,
                     UntilEndOfTurnEffects = [],
                     Power = objectState.Power - objectState.UntilEndOfTurnPowerModifier,
@@ -38140,6 +38162,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var targetDamageAmount = damageByTargetObjectId[targetObjectId];
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
+                turnPlayerId,
                 targetObjectId,
                 targetDamageAmount,
                 damageTriggeredDestroyTargetObjectIds);

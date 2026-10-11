@@ -1,0 +1,1 @@
+{"cmdType":"PAY_COST","paymentId":"TRIGGER-WARD:STACK-1-ELDER","paymentWindow":"TRIGGER_TARGET_COST","paymentChoiceIds":["DECLINE"],"promptId":"death-duel:2:P1:PAY_COST,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER","snapshotTick":2}

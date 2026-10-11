@@ -1,0 +1,27 @@
+{
+  "red": "Both Elder Dragon prints failed real prior damage followed by real Elder play: marked enemy survived instead of becoming lethal before play ability.",
+  "legacyFixtureUpdates": [
+    {
+      "tests": "CoreRuleEnginePlaysKeywordOnlySourceUnit (2 Elder fixture cases)",
+      "change": "No enemy means optional play ability is discarded without an empty response stack. Preserve cost, readiness, power, tags, hand/base and prompt assertions; update command list and exact events/tick to actual official flow."
+    },
+    {
+      "tests": "P79FriendlyFilteredStaticPowerAddsOneToMatchingFriendlyUnits; P79FriendlyFilteredStaticKeywordGrantsKeywordsToMatchingFriendlyUnits; P79FriendlyFilteredStaticKeywordGrantDoesNotProjectFromFaceDownSource; ReliableSiegeDogCountsSameBattlefieldOtherFriendlyUnitForBattlePower; ReliableSiegeDogSkipsBattlePowerWhenOtherFriendlyUnitIsAtDifferentLocation",
+      "change": "Finish explicit damage allocation; aggregate per-source damage while preserving source power/keyword/static/total-damage assertions."
+    },
+    {
+      "tests": "OfficialBattleParticipationTests.ThreeOrdinaryUnitsPerSideAllParticipateEvenWhenClientOmitsUnits (2 cases); TwoCombatDeathsRequireOrderingAndEachDrawsExactlyOnce; ShadowActivatesAndResolvesFromNaturalBattleResponseWindow",
+      "change": "Finish official allocation before original battle completion/death trigger/draw/order/recovery assertions."
+    },
+    {
+      "tests": "P79PetalPixieCountsFriendlyEphemeralUnitsAtSameBattlefieldForBattlePower",
+      "change": "Mark intended hidden standby fixture IsFaceDown=true; submit legal full side allocation and retain original target, base2/static1/current3/total3 assertions. Earlier invalid allocation probes were rejected because of overkill before remaining lethal targets and missing the wrongly face-up standby source."
+    }
+  ],
+  "newFixtureCorrections": [
+    "Remove Elder from hand when reconstructing a field position; hidden standby is stored in battlefield zone, not a non-existent zone property.",
+    "Drain Watchful Sentry Last Breath after resolving native play-ability damage before requiring empty stack."
+  ],
+  "additionalFullGameFix": "Piltover Academy now submits full battle assignment before ending turn; original Hold/replay assertions retained. Added red-to-green server rejection test for EndTurn during unresolved battle.",
+  "noRemovedOrRenamedTests": true
+}

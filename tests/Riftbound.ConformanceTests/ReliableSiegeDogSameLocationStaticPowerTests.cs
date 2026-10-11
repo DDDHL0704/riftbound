@@ -73,9 +73,8 @@ public sealed class ReliableSiegeDogSameLocationStaticPowerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, SourceObjectId, StringComparison.Ordinal));
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, SourceObjectId);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
@@ -103,9 +102,8 @@ public sealed class ReliableSiegeDogSameLocationStaticPowerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, SourceObjectId, StringComparison.Ordinal));
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, SourceObjectId);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.False(attackerDamageEvent.Payload.ContainsKey("staticPowerBonus"));
         Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);

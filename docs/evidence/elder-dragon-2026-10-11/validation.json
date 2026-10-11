@@ -1,0 +1,593 @@
+{
+  "focus12": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 20.2,
+    "total": 187,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 187,
+        "passed": 187,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 9.75
+      }
+    ]
+  },
+  "focus16": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.97,
+    "total": 282,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 282,
+        "passed": 282,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.07
+      }
+    ]
+  },
+  "focus18": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.73,
+    "total": 35,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 35,
+        "passed": 35,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.29
+      }
+    ]
+  },
+  "full2": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 430.75,
+    "total": 9684,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 225.12
+      },
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 226.36
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 235.48
+      },
+      {
+        "shard": "rules",
+        "total": 9549,
+        "passed": 9549,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 92.11
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 427.3
+      }
+    ]
+  },
+  "initialCheck": {
+    "total": 9547,
+    "passed": 9535,
+    "failed": {
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysKeywordOnlySourceUnit(fixtureFileName: \"p2-preflight-play-ancient-dragon-alt-a-lethal-dama\"···, sourceObjectId: \"P1-UNIT-ANCIENT-DRAGON-A\", expectedPower: 10, expectedTags: \"CARD_TYPE:UNIT|龙\")": "Failed",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79PetalPixieCountsFriendlyEphemeralUnitsAtSameBattlefieldForBattlePower": "Failed",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticKeywordGrantsKeywordsToMatchingFriendlyUnits": "Failed",
+      "Riftbound.ConformanceTests.ReliableSiegeDogSameLocationStaticPowerTests.ReliableSiegeDogSkipsBattlePowerWhenOtherFriendlyUnitIsAtDifferentLocation": "Failed",
+      "Riftbound.ConformanceTests.ShadowActivatedAbilityTests.ShadowActivatesAndResolvesFromNaturalBattleResponseWindow": "Failed",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticKeywordGrantDoesNotProjectFromFaceDownSource": "Failed",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticPowerAddsOneToMatchingFriendlyUnits": "Failed",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysKeywordOnlySourceUnit(fixtureFileName: \"p2-preflight-play-ancient-dragon-lethal-damage-sta\"···, sourceObjectId: \"P1-UNIT-ANCIENT-DRAGON\", expectedPower: 10, expectedTags: \"CARD_TYPE:UNIT|龙\")": "Failed",
+      "Riftbound.ConformanceTests.OfficialBattleParticipationTests.ThreeOrdinaryUnitsPerSideAllParticipateEvenWhenClientOmitsUnits(submitSubset: False)": "Failed",
+      "Riftbound.ConformanceTests.OfficialBattleParticipationTests.ThreeOrdinaryUnitsPerSideAllParticipateEvenWhenClientOmitsUnits(submitSubset: True)": "Failed",
+      "Riftbound.ConformanceTests.DeathAndDuelLifecycleTests.TwoCombatDeathsRequireOrderingAndEachDrawsExactlyOnce": "Failed",
+      "Riftbound.ConformanceTests.ReliableSiegeDogSameLocationStaticPowerTests.ReliableSiegeDogCountsSameBattlefieldOtherFriendlyUnitForBattlePower": "Failed"
+    }
+  },
+  "native": {
+    "scenarios": {
+      "native/plain/replay.json": {
+        "nativeCommands": 2,
+        "commands": 6,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "1abab35d74f27aa0b2fa15dc60991aedefed05b7146bcc1f00df5363b8023b13",
+          "expectedStateHash": "1abab35d74f27aa0b2fa15dc60991aedefed05b7146bcc1f00df5363b8023b13",
+          "errors": []
+        }
+      },
+      "native/ward-decline/replay.json": {
+        "nativeCommands": 3,
+        "commands": 3,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "c0409c4c03fde45a6c224128f4ecdb1d75db72e3dd11a980877bcb4cd25d633e",
+          "expectedStateHash": "c0409c4c03fde45a6c224128f4ecdb1d75db72e3dd11a980877bcb4cd25d633e",
+          "errors": []
+        }
+      },
+      "native/ward-pay/replay.json": {
+        "nativeCommands": 3,
+        "commands": 7,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "b71d97f4527e4383c1e58a82104ab038bca110ab7c7b5944b5b29a8070e40c3a",
+          "expectedStateHash": "b71d97f4527e4383c1e58a82104ab038bca110ab7c7b5944b5b29a8070e40c3a",
+          "errors": []
+        }
+      },
+      "combat-native/replay.json": {
+        "nativeCommands": 1,
+        "commands": 2,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "48f021ac978290e8ea15dc7259619f73d103bb6b03f7f06b607b688cd716f09b",
+          "expectedStateHash": "48f021ac978290e8ea15dc7259619f73d103bb6b03f7f06b607b688cd716f09b",
+          "errors": []
+        }
+      }
+    },
+    "mode": "Godot headless production PlayCardOverlay/target/Ward controls and combat allocation. Play scenarios start with real card play; combat scenario starts from a reconstructed current assignment state. Not paired-client/network/Windows visual acceptance."
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.73\n",
+  "godotRun": {
+    "native": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nELDER_DRAGON_PASS: 8 production play, target and Ward commands\n",
+    "combat-native": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nELDER_COMBAT_PASS: server one-point thresholds and production damage assignment command\n"
+  },
+  "checkFailures": "Initial check had 12 obsolete timing/fixture failures; all fixed without removing methods or expected behavior assertions, then verified by focus16 and final full2. First full additionally found Piltover incomplete allocation plus an actual EndTurn server guard defect; red test recorded and fixed.",
+  "artifacts": [
+    {
+      "path": "var/qa/elder-dragon/check/check/results.trx",
+      "sha256": "d9cea3ef25be8cbe3c60987e68368c25e6f9d2af76cd1b943449531278b5b7b1"
+    },
+    {
+      "path": "var/qa/elder-dragon/check/plan.json",
+      "sha256": "5f779c8b581f329fbd35fe3d83c71d8ec5aa374a7cc792609ea4510f12fddcf2"
+    },
+    {
+      "path": "var/qa/elder-dragon/combat-debug/focus/results.trx",
+      "sha256": "67be1ceceeefa40183dfb35f8b03c559fd33aefaea8c4251dab4a052415da595"
+    },
+    {
+      "path": "var/qa/elder-dragon/combat-debug/plan.json",
+      "sha256": "c53a6be6560b82217db3b011740972564fc6b039e5a7635eb1bab67f24b4b4dd"
+    },
+    {
+      "path": "var/qa/elder-dragon/combat-native/assignment-command.json",
+      "sha256": "70f62bc6633688a68c8fe0891b7bb1720cec0648c742c73744c906acaebdc068"
+    },
+    {
+      "path": "var/qa/elder-dragon/combat-native/assignment-prompt.json",
+      "sha256": "5cb36acaf52129dbb4cfa9c006ad684e9aab2906d373f5d506e803621e7a698a"
+    },
+    {
+      "path": "var/qa/elder-dragon/combat-native/assignment-snapshot.json",
+      "sha256": "203ab663d622b043a54dd8da63c1aedf3cdfebfd46f8f3bc106193e93a3912ab"
+    },
+    {
+      "path": "var/qa/elder-dragon/combat-native/replay.json",
+      "sha256": "d71f1aff954d2d8a50f04b51c86dd54fbc7c25b0f0cc53e72fa7fd28a7c7e722"
+    },
+    {
+      "path": "var/qa/elder-dragon/combat-native/result-snapshot.json",
+      "sha256": "4c43e49dbceeaf8d022c7d103041c63d09fe15a4f50aa54fc1155805b85f8a0e"
+    },
+    {
+      "path": "var/qa/elder-dragon/endturn-red/focus/results.trx",
+      "sha256": "43585675cad00c29a635f9b92e0a33e4902c5dd15909a43f6f42cbe14d4815c4"
+    },
+    {
+      "path": "var/qa/elder-dragon/endturn-red/plan.json",
+      "sha256": "d8991d48e86dc9aa05e5d6f666060167d38991d4050be7158a8c6ca0cf955544"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus1/focus/results.trx",
+      "sha256": "2ef8ff89a96c7fdbe67c873b950fe08eec6f48915c8d53e3192a8f3653a17e17"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus1/plan.json",
+      "sha256": "1e9d11715ab2a4b2c94a19ac3e3a9f98fee3a3db85d28d2a4434ce49f9111ee6"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus1/summary.json",
+      "sha256": "22ea1c635cfe671fb55c7137a220d5c40640140866452fe41ba22aa81abe1573"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus10/focus/results.trx",
+      "sha256": "bd3f7a3e7eea55802cdc40a1df7ab707cbad521e0707a9d38841f72579cc34a2"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus10/plan.json",
+      "sha256": "ceb161edfec1d9dfeeaccb48f5cd87317c7c6ff90f5c8ba8bba87cde564f2d08"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus11/focus/results.trx",
+      "sha256": "101cc512dd3ff1ebf745d4de54dfcb33e6e1ce330ad1c6d60b935aa5672bcc35"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus11/plan.json",
+      "sha256": "d8454fcd0f26a6e5b79578897c3fbcfd205929d7f3dee88c3e43cb9f7002a587"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus11/summary.json",
+      "sha256": "58d45939c737cf7e2e389e640f77caef717dd56edd9849f5fd1b1160ddda8088"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus12/focus/results.trx",
+      "sha256": "4cce73df395b8e5084d6d1c1d81e6833a07aae1e68ac49f1f4c00c2f3b07cde5"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus12/plan.json",
+      "sha256": "4fbc69d44e93523727966e0f9a4fa31b488d3edd6282b042fb82248a723283d7"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus12/summary.json",
+      "sha256": "01415f8bc81263dcd66932d088ab7e4b81b2d4c8a788e2ee8ab6b860bafed424"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus13/focus/results.trx",
+      "sha256": "4c3f1f671b773e7b1c4bb45911abc6c5944eb54ad6407c63f776f7807a779051"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus13/plan.json",
+      "sha256": "00ffe1211bff8ce0d826950b8ed37f2fbd223789ddad11cb53a7c04f3d01e69c"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus16/focus/results.trx",
+      "sha256": "9e7281e4aea80cf07f8c6065ddb6d7590c3c0ae09d14fc004f4d813e88793504"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus16/plan.json",
+      "sha256": "d5d36cee14a272c843537868432ff2739faf45ec7e320b1a34c89cf50e7a4ad7"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus16/summary.json",
+      "sha256": "13d26586a72f0c5a35679eaa21bd51f91190fa9595530a5b2762d54c915fb3d3"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus17/focus/results.trx",
+      "sha256": "5946de45895378ed8c014a292774a9cf9cca6e593b93ebbcda2c272fd68b50d1"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus17/plan.json",
+      "sha256": "faea63e2e2d79645ed5a5653379c97b28a81e0fcbf33e89f1b08effc2b2c7c00"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus18/focus/results.trx",
+      "sha256": "a7c5bd11e0a1529964e278085c7cab4b0dee3484d8e4a59a6d41941d36feac38"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus18/plan.json",
+      "sha256": "d1075868163f9fafc1aebd52780ed5d2e2af314d0d1d75c06f0a995c6f5611e7"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus18/summary.json",
+      "sha256": "e24dbf7fde3650d2694819ac55320b75f9a6c59fb42253542e3109589348625c"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus2/focus/results.trx",
+      "sha256": "b2dbf8c30fefa36ad01d1b2022e628f1a904c6dc548d1ec58607b1aa5851fe54"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus2/plan.json",
+      "sha256": "d293e41c7d7af3b5c77388a051f24103aadb8769ebf1e590e96efefbc9dca062"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus4/focus/results.trx",
+      "sha256": "3293fbae6bdb7f06a7e5ba0cc904d8a5795772aa6de48cf5a88e7e323fd8e033"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus4/plan.json",
+      "sha256": "c84fa96048c99418a32b92fac74623df1c3f237b6ce4b3db8b813dfd05e2d98d"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus4/summary.json",
+      "sha256": "2b383d16af10972c401e3a0fb2d4a6911bde85c890c95cb1d9771daf0b2b465d"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus6/focus/results.trx",
+      "sha256": "20b3c3e5c5d1f471962a2dd380a1d8aa2b07b7be07ad650d78fab91f5cdf87f2"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus6/plan.json",
+      "sha256": "497b141707921d432e6340289172bd8d0880f637ebad739560b6876dc3110cdf"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus6/summary.json",
+      "sha256": "80cd9c22998f4b815e5ad3545fde9275a38cae370f3989996a9b2790a589afa2"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus7/focus/results.trx",
+      "sha256": "0a8c62613a3b8d01d57674b971041d6027d6587867406c58ff64830242b2f294"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus7/plan.json",
+      "sha256": "9a64523a8db3602e39e3fe22a466c7d802488554dbfd59a70ef727e38fd5cf09"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus7/summary.json",
+      "sha256": "8856b21caeff41ab32ee3136517c3860a120530405dba0bded923108af9b9097"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus8/focus/results.trx",
+      "sha256": "1c0b884e163f04e9064e23297fb1c98c912734a6078e9aa85256fd80220004a2"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus8/plan.json",
+      "sha256": "d6c9728b91296092af3f18ddd7e5ccf829d1291cc4293f034daa61ce39ac9076"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus9/focus/results.trx",
+      "sha256": "8a8ef7a268cd25c987ddf8482006b5bf9e92a5c819b63efb9830c647c66b5b9d"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus9/plan.json",
+      "sha256": "2c9c886afc5f1e7e76eaa778f8c6ec728ebe522fd79147dc311036e678f7536a"
+    },
+    {
+      "path": "var/qa/elder-dragon/focus9/summary.json",
+      "sha256": "a015001c9b46f275ae833a8844e43538e9e552124d603aff6ccafa08e189cf9c"
+    },
+    {
+      "path": "var/qa/elder-dragon/full/games-2/results.trx",
+      "sha256": "09bdaf155a4365292226a933bf67d90be3f49af434d3b59b7a798829c72c0c55"
+    },
+    {
+      "path": "var/qa/elder-dragon/full/games-3/results.trx",
+      "sha256": "2b33605fdc08eed90947b0a55bb8f0cd1b725afc9b64e2a3666f92662f469136"
+    },
+    {
+      "path": "var/qa/elder-dragon/full/games-4/results.trx",
+      "sha256": "26757335c51d547bb7dc50a27413c828641ef8c9b4adf1d3a8a97eb23638ff51"
+    },
+    {
+      "path": "var/qa/elder-dragon/full/plan.json",
+      "sha256": "e52378a542f22e6af82fe73701c84baa3f89ea24d00ea920a7ed1a64fd919ca7"
+    },
+    {
+      "path": "var/qa/elder-dragon/full2/games-1/results.trx",
+      "sha256": "16764a9abeff654375637c52f487966de3e98224526d263265c4ae1f4f53d36a"
+    },
+    {
+      "path": "var/qa/elder-dragon/full2/games-2/results.trx",
+      "sha256": "79f1b25d37a27ab9fb4018c5dbd17f8052eabd7950affab068f6220db81ed95e"
+    },
+    {
+      "path": "var/qa/elder-dragon/full2/games-3/results.trx",
+      "sha256": "e4295792f50109d4ec5d54d5a60fda977871f15d009b51b34193b10ea55667a6"
+    },
+    {
+      "path": "var/qa/elder-dragon/full2/games-4/results.trx",
+      "sha256": "53e9ffb0abd3b78369ed268270f9c7ab451ba273a0c14854d611d248c5a3f36d"
+    },
+    {
+      "path": "var/qa/elder-dragon/full2/plan.json",
+      "sha256": "a433ca35b0569b9467edc58bbd17613ecba6b3dcc625e90cbaf328e942b91c37"
+    },
+    {
+      "path": "var/qa/elder-dragon/full2/rules/results.trx",
+      "sha256": "2542c025d08404ab195fd9e5ec8037378812f789b5b47a4afcbba1e8253e9040"
+    },
+    {
+      "path": "var/qa/elder-dragon/full2/summary.json",
+      "sha256": "23cd4b2c80b56163c7e2528040cd48bd57cdd00a3f2e11f29b6d1d5483a4673d"
+    },
+    {
+      "path": "var/qa/elder-dragon/legacy1/focus/results.trx",
+      "sha256": "3810d5be29e8db1c1369ecab609c35df70ab1952f914d2edffb1c6c0707f4341"
+    },
+    {
+      "path": "var/qa/elder-dragon/legacy1/plan.json",
+      "sha256": "ea182f449b6e3127c076f6145c41e88312e9d18bc54edacdb69f83690ff2c8ad"
+    },
+    {
+      "path": "var/qa/elder-dragon/legacy2/focus/results.trx",
+      "sha256": "9becb309ac42b00b91002493462f0ea509648c28b8a4d230e6c45db74be217ec"
+    },
+    {
+      "path": "var/qa/elder-dragon/legacy2/plan.json",
+      "sha256": "9e3715fc1ed5a3dedbdc5a1737f7157162857e20cf03e380636cff8fdaeb8eab"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/p2-preflight-play-ancient-dragon-alt-a-lethal-damage-static.fixture.json.actual.json",
+      "sha256": "be0a9b0d15d38d348e38ed1fb32e2fad76f3b89077695553f140c4b28dce91a5"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/p2-preflight-play-ancient-dragon-lethal-damage-static.fixture.json.actual.json",
+      "sha256": "8c40a0ff74be7d6c5a6e5c7d614d644762402e643428b0cc526f9eeb75ad4d77"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/play-command.json",
+      "sha256": "a5405c7fdd5bf2cc4f1db07fcbefdca70d3f22a5ed36f21dd27a6e9f3a480931"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/play-preview.json",
+      "sha256": "5d0e4cd96b34d5408b437d470710dc0bcf424b9b453534893c09e80b3afa75f2"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/play-prompt.json",
+      "sha256": "2b44371cdc3c6ce1f9c8c88485f752144179df6cce76efa05d36c82d3945b4ca"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/play-quote.json",
+      "sha256": "ba62fbd3468ba330a428a2c7984f04c9359bd11ce7d13731f237beabdd501188"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/play-snapshot.json",
+      "sha256": "4c991d5d0986e104f7f6d9c8ae961aa3c5bc76b8b70e3ba5d7ec953145038690"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/replay.json",
+      "sha256": "c112ef46e192881f1808ba9b24475a48f17e3406f2c4d200ba79775df5312c8f"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/result-snapshot.json",
+      "sha256": "1a5cd8e3cf7bd56cc7532aac698f8b80c0ddb2c8a4f8a5079b087f09126e18f8"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/target-command.json",
+      "sha256": "07962ecc4e48d9bb79d2752465e7b923e6d95cad128f8cc917eda163e346029c"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/target-prompt.json",
+      "sha256": "75347ca8346e96263ab3816a1279f296990b602c1d3b52742b28bb57a9092cc8"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/plain/target-snapshot.json",
+      "sha256": "8dda2ffd35763dd792e6808aab8cc650a5ba3042afbab3853baddd9ebb632ed8"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/payment-command.json",
+      "sha256": "b1485dbe91a90ace7ed05fc97483882afd55c0da5cfb7a10b8b6d6b6f9e7e166"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/payment-prompt.json",
+      "sha256": "74a93be53286d725997b8ea23007aa687f5f172a4bc7876ddca617c5e8897d14"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/payment-snapshot.json",
+      "sha256": "f7ad16aea7c0682fd044b37bf474708797468fe749699a78ed41f8f713a3e125"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/play-command.json",
+      "sha256": "a5405c7fdd5bf2cc4f1db07fcbefdca70d3f22a5ed36f21dd27a6e9f3a480931"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/play-preview.json",
+      "sha256": "9daee3d0f273bbb4014b45336d86dc7523e56a4adfb6bbe6a545ca919776f286"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/play-prompt.json",
+      "sha256": "db20acda1d848d15193464eba3f4c36e4d2f1e6038978f4a84476ac3d04febcb"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/play-quote.json",
+      "sha256": "809bc5e8b0a20faade06324989930e5102cc4b18200daa38c1fbb8a0ffba67e9"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/play-snapshot.json",
+      "sha256": "a9d0fc53e25795b55a565a66eb049867260cae6dc6c3739db37d31432a20c09d"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/replay.json",
+      "sha256": "cbb7646f2b750d46e69a97545cf710f96fd076ff9430f2f75f0b70337d9b0e43"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/result-snapshot.json",
+      "sha256": "5f4a35eac592d87af784510baf7a5197c1cb8da867b98d10737a2d296dadaf55"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/target-command.json",
+      "sha256": "07962ecc4e48d9bb79d2752465e7b923e6d95cad128f8cc917eda163e346029c"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/target-prompt.json",
+      "sha256": "75347ca8346e96263ab3816a1279f296990b602c1d3b52742b28bb57a9092cc8"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-decline/target-snapshot.json",
+      "sha256": "b020bf8840143bd6e60ae78accf4519969ada82e803bfb8b599eb8159f884fa2"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/payment-command.json",
+      "sha256": "01256b402fc6d453002291afef360ade51e9ec89e65124d0b053855ccd7ada59"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/payment-prompt.json",
+      "sha256": "74a93be53286d725997b8ea23007aa687f5f172a4bc7876ddca617c5e8897d14"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/payment-snapshot.json",
+      "sha256": "f7ad16aea7c0682fd044b37bf474708797468fe749699a78ed41f8f713a3e125"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/play-command.json",
+      "sha256": "a5405c7fdd5bf2cc4f1db07fcbefdca70d3f22a5ed36f21dd27a6e9f3a480931"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/play-preview.json",
+      "sha256": "1f455a5fee80f01313db7b1355d157e68ffffe862f400189dca64444693fe1bf"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/play-prompt.json",
+      "sha256": "db20acda1d848d15193464eba3f4c36e4d2f1e6038978f4a84476ac3d04febcb"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/play-quote.json",
+      "sha256": "3f3d793d433767a944916d6dc09b491f657c40edee798d8ae5b254d37b0d1f0e"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/play-snapshot.json",
+      "sha256": "a9d0fc53e25795b55a565a66eb049867260cae6dc6c3739db37d31432a20c09d"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/replay.json",
+      "sha256": "a763d25a28d5957674c9eb83bca4bafbe507ad3934438b0c233904125f08feab"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/result-snapshot.json",
+      "sha256": "0aa9fce04aca3a89b7686e97b80a61bda315c5198edde4e68c55280cf0a54389"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/target-command.json",
+      "sha256": "07962ecc4e48d9bb79d2752465e7b923e6d95cad128f8cc917eda163e346029c"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/target-prompt.json",
+      "sha256": "75347ca8346e96263ab3816a1279f296990b602c1d3b52742b28bb57a9092cc8"
+    },
+    {
+      "path": "var/qa/elder-dragon/native/ward-pay/target-snapshot.json",
+      "sha256": "b020bf8840143bd6e60ae78accf4519969ada82e803bfb8b599eb8159f884fa2"
+    },
+    {
+      "path": "var/qa/elder-dragon/petal-diagnostic/focus/results.trx",
+      "sha256": "eb93c115533a38cc97bd9e264e4e09d8aba48d281eee37081ff7694f7480ba8c"
+    },
+    {
+      "path": "var/qa/elder-dragon/petal-diagnostic/plan.json",
+      "sha256": "5826264984f750b796caa2177dca5aad245428735885fc002428a4aa013d8fef"
+    },
+    {
+      "path": "var/qa/elder-dragon/red/focus/results.trx",
+      "sha256": "5b9f8fceb3b04057a2fad18c6e439a03e1d681dc0064251a8928bbf52a05afba"
+    },
+    {
+      "path": "var/qa/elder-dragon/red/plan.json",
+      "sha256": "4fce3f960587e483aef5ca98a9fc9fa78904545b8cd34b9deacb9da2d19a9559"
+    }
+  ]
+}

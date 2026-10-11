@@ -20458,6 +20458,11 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
+        if (fixtureFileName.Contains("ancient-dragon") && Environment.GetEnvironmentVariable("RIFTBOUND_ELDER_EVIDENCE") is { } root)
+        {
+            Directory.CreateDirectory(root);
+            File.WriteAllText(Path.Combine(root, fixtureFileName + ".actual.json"), JsonSerializer.Serialize(result));
+        }
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
@@ -39568,9 +39573,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-RUMBLE-MECH-ALLY");
         Assert.Equal("P1-RUMBLE-MECH-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
@@ -39685,9 +39689,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-RUMBLE-MECH-ALLY");
         Assert.Equal("P1-RUMBLE-MECH-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(1, attackerDamageEvent.Payload["keywordBonus"]);
@@ -39726,9 +39729,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        result = await CombatTestDriver.FinishAsync(result);
+        var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-RUMBLE-MECH-ALLY");
         Assert.Equal("P1-RUMBLE-MECH-ALLY", attackerDamageEvent.Payload["sourceObjectId"]);
         Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
@@ -39958,13 +39960,13 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
                     ownerId: "P1",
                     controllerId: "P1"),
-                ["P1-EPHEMERAL-STANDBY"] = new(
+                ["P1-EPHEMERAL-STANDBY"] = new CardObjectState(
                     "P1-EPHEMERAL-STANDBY",
                     cardNo: "OGN·121/298",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral, CardObjectTags.Standby],
                     ownerId: "P1",
-                    controllerId: "P1"),
+                    controllerId: "P1") with { IsFaceDown = true },
                 ["P1-BATTLEFIELD-OTHER"] = new(
                     "P1-BATTLEFIELD-OTHER",
                     cardNo: "OGN·275/298",
@@ -40030,6 +40032,11 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
+        Assert.True(result.Accepted, result.ErrorMessage);
+        CombatDamageAssignmentDto[] chosen = [new("P1-PETAL-PIXIE", "P2-DEFENDER", 1),
+            new("P1-PETAL-PIXIE", "P2-EPHEMERAL-SAME", 2), new("P1-EPHEMERAL-SAME", "P2-DEFENDER", 1)];
+        result = await new CoreRuleEngine().ResolveAsync(result.State, new("petal-allocation", "P1", CommandTypes.AssignCombatDamage),
+            new AssignCombatDamageCommand(result.State.BattleState.BattleId!, result.State.BattleState.BattlefieldObjectId!, chosen), default);
         Assert.True(result.Accepted, result.ErrorMessage);
         result = await CombatTestDriver.FinishAsync(result);
         var attackerDamageEvent = CombatTestDriver.DamageFrom(result, "P1-PETAL-PIXIE");

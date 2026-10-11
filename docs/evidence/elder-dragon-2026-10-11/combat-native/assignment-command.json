@@ -1,0 +1,1 @@
+{"cmdType":"ASSIGN_COMBAT_DAMAGE","battleId":"battle:BF","battlefieldId":"BF","assignments":[{"sourceObjectId":"A","targetObjectId":"D","damage":1},{"sourceObjectId":"A","targetObjectId":"D2","damage":1},{"sourceObjectId":"A","targetObjectId":"D3","damage":1}],"promptId":"death-duel:6:P1:ASSIGN_COMBAT_DAMAGE,SURRENDER","snapshotTick":6}

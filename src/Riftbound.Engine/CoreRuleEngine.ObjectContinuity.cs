@@ -22,8 +22,10 @@ public sealed partial class CoreRuleEngine
             var generation = Math.Max(card.ObjectGeneration, checked(previous.ObjectGeneration + (crossedZone ? 1 : 0)));
             var movementCount = nextLocations.TryGetValue(id, out var nextLocation) && nextLocation.Zone is "BASE" or "BATTLEFIELD"
                 ? card.MovementCountThisTurn : 0;
-            if (card.ObjectGeneration == generation && card.MovementCountThisTurn == movementCount) continue;
-            cards[id] = card with { ObjectGeneration = generation, MovementCountThisTurn = movementCount };
+            var damageMarkers = crossedZone || card.Damage == 0 || !IsObjectOnField(after.PlayerZones, id)
+                ? null : card.DamageMarkedByPlayerIds;
+            if (card.ObjectGeneration == generation && card.MovementCountThisTurn == movementCount && card.DamageMarkedByPlayerIds == damageMarkers) continue;
+            cards[id] = card with { ObjectGeneration = generation, MovementCountThisTurn = movementCount, DamageMarkedByPlayerIds = damageMarkers };
             changed = true;
         }
 

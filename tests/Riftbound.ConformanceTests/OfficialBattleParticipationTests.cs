@@ -22,6 +22,7 @@ public sealed class OfficialBattleParticipationTests
         var declaration = Assert.Single(result.Events, e => e.Kind == "BATTLE_DECLARED");
         Assert.Equal(3, Assert.IsAssignableFrom<IReadOnlyList<string>>(declaration.Payload["attackerObjectIds"]).Count);
         Assert.Equal(3, Assert.IsAssignableFrom<IReadOnlyList<string>>(declaration.Payload["defenderObjectIds"]).Count);
+        result = await CombatTestDriver.FinishAsync(result);
         Assert.Equal(3, result.State.PlayerZones["P1"].Graveyard.Count);
         Assert.Equal(3, result.State.PlayerZones["P2"].Graveyard.Count);
         Assert.False(result.State.BattleState.IsActive);

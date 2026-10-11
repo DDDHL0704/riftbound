@@ -167,6 +167,7 @@ public sealed class ShadowActivatedAbilityTests
             CancellationToken.None);
 
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
+        responseP2Pass = await CombatTestDriver.FinishAsync(responseP2Pass, engine);
         Assert.False(responseP2Pass.State.BattleState.IsActive);
         Assert.Empty(responseP2Pass.State.StackItems);
         Assert.Contains(responseP2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
