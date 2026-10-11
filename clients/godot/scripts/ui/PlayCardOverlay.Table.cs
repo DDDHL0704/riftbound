@@ -7,6 +7,12 @@ namespace Riftbound.GodotClient.Ui;
 
 public partial class PlayCardOverlay
 {
+    private OptionButton? _focusedDestination;
+    private (OptionButton? Picker, string[] Ids) CurrentSingleDestination()
+    {
+        var repeat = _repeats.FirstOrDefault(r => r.Destination == _focusedDestination && _focusedDestination is not null);
+        return repeat is not null ? (repeat.Destination, repeat.DestinationIds) : (_destination, _destinations);
+    }
     public bool TableMode { get; set; }
     public event Action? TableSelectionChanged;
     public bool IsSubmitting => _submitting;
@@ -14,9 +20,9 @@ public partial class PlayCardOverlay
         (AllExecutionTargets.FirstOrDefault(target => target.Picker == _focusedTarget).Ids
             ?? AllExecutionTargets.FirstOrDefault(target => target.Picker.Selected <= 0).Ids
             ?? _targets.FirstOrDefault().Ids ?? []).Where(id => id.Length > 0);
-    public IEnumerable<string> TableDestinations => _submitting ? [] : CurrentMovementDestination() is { Picker: not null } move ? move.Ids.Where(id => id.Length > 0) : _destinations;
+    public IEnumerable<string> TableDestinations => _submitting ? [] : CurrentMovementDestination() is { Picker: not null } move ? move.Ids.Where(id => id.Length > 0) : CurrentSingleDestination().Ids;
     public string? TableDestination => CurrentMovementDestination() is { Picker: { Selected: >= 0 } } move
-        ? move.Ids[move.Picker.Selected] : _destination is { Selected: >= 0 } ? _destinations[_destination.Selected] : null;
+        ? move.Ids[move.Picker.Selected] : CurrentSingleDestination() is { Picker: { Selected: >= 0 } } single ? single.Ids[single.Picker.Selected] : null;
     public IEnumerable<string> TableSelectedObjects => _requirements.Count == 0 ? [] :
         AllExecutionTargets.Where(target => target.Picker.Selected > 0).Select(target => target.Ids[target.Picker.Selected])
             .Prepend(Text(_requirements[_source.Selected], "sourceObjectId"));
@@ -38,10 +44,11 @@ public partial class PlayCardOverlay
             var selected = Array.IndexOf(move.Ids, id); if (selected <= 0) return false;
             move.Picker.Select(selected); Refresh(); return true;
         }
-        if (_destination is null) return false;
-        var index = Array.IndexOf(_destinations, id);
+        var single = CurrentSingleDestination();
+        if (single.Picker is null) return false;
+        var index = Array.IndexOf(single.Ids, id);
         if (index < 0) return false;
-        _destination.Select(index); Refresh(); return true;
+        single.Picker.Select(index); Refresh(); return true;
     }
 
     private void BuildTableUi()

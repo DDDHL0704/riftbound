@@ -22823,6 +22823,7 @@ public static class MatchRecoveryValidator
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state active player");
             }
 
+            ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             if (view.Snapshot.Timing is not null
                 && TryReadObjectList(view.Snapshot.Timing, "triggerQueue", out var publicTriggers))
             {
@@ -22846,6 +22847,33 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
             }
+        }
+    }
+
+    private static void ValidateRepeatDestinationViews(IReadOnlyList<object?> stackItems, MatchState state,
+        List<string> errors, string label)
+    {
+        foreach (var item in state.StackItems.Where(item => item?.RepeatExecutions is not null))
+        {
+            var projected = stackItems.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId);
+            if (projected is null) continue; // Existing stack identity checks report missing items.
+            try
+            {
+                var json = JsonSerializer.SerializeToElement(projected);
+                var hasExecutions = json.TryGetProperty("repeatExecutions", out var executions);
+                if (TryReadObjectString(projected, "sourceVisibility", out var visibility) && visibility == "HIDDEN")
+                {
+                    if (hasExecutions) errors.Add($"{label} hidden spell repeat destinations exposed");
+                    continue;
+                }
+                var expected = item.RepeatExecutions!;
+                if (!hasExecutions || executions.ValueKind != JsonValueKind.Array || executions.GetArrayLength() != expected.Count
+                    || executions.EnumerateArray().Select((execution, index) => execution.ValueKind != JsonValueKind.Object
+                        || !execution.TryGetProperty("destination", out var destination) || destination.ValueKind != JsonValueKind.String
+                        || destination.GetString() != expected[index]?.Destination).Any(mismatch => mismatch))
+                    errors.Add($"{label} spell repeat destinations differ from authoritative state");
+            }
+            catch (JsonException) { errors.Add($"{label} invalid spell repeat destinations"); }
         }
     }
 
@@ -23107,10 +23135,12 @@ public static class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidSequentialMovementPlan(state, item.EffectKind, item.TargetObjectIds.Count, item.MovementDestinations))
                 errors.Add("invalid sequential movement plan");
             if (item.RepeatExecutions is { } executions && (executions.Count != item.EffectRepeatCount
+                || executions.Count > 0 && (executions[0] is null || executions[0].Destination != item.Destination)
                 || executions.Any(execution => execution is null || execution.TargetObjectIds is null || execution.TargetGenerations is null
                     || execution.TargetGenerations.Values.Any(generation => generation < 0)
                     || !CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var definition)
                     || definition.CardNo != item.CardNo || !CoreRuleEngine.SupportsSeparateExecution(definition)
+                    || !CoreRuleEngine.ValidRepeatDestination(state, item.ControllerId, execution)
                     || !CoreRuleEngine.ValidSequentialMovementPlan(state, execution.EffectKind, execution.TargetObjectIds.Count, execution.MovementDestinations))))
                 errors.Add("invalid spell repeat execution plan");
         }
@@ -30805,6 +30835,7 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");
         var authoritativeStackItemsById = new Dictionary<string, StackItemState>(StringComparer.Ordinal);
         foreach (var authoritativeStackItem in authoritativeState.StackItems)
         {

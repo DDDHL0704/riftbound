@@ -15,14 +15,14 @@ public sealed partial class CoreRuleEngine
         var choices = command.RepeatChoices is { Count: > 0 } supplied ? supplied
             : Enumerable.Range(1, count - 1).Select(_ => new SpellRepeatChoice(command.Mode, targets)).ToArray();
         if (choices.Count != count - 1) return false;
-        SpellExecutionState Capture(CardBehaviorDefinition definition, IReadOnlyList<string> ids, IReadOnlyList<string>? destinations)
+        SpellExecutionState Capture(CardBehaviorDefinition definition, IReadOnlyList<string> ids, IReadOnlyList<string>? destinations, string? destination)
             => new(definition.EffectKind, ids, ids.Distinct(StringComparer.Ordinal)
-                .Where(state.CardObjects.ContainsKey).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), destinations);
-        var result = new List<SpellExecutionState> { Capture(behavior, targets, command.MovementDestinations) };
+                .Where(state.CardObjects.ContainsKey).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), destinations, NormalizeRepeatDestination(destination));
+        var result = new List<SpellExecutionState> { Capture(behavior, targets, command.MovementDestinations, command.Destination) };
         foreach (var choice in choices)
         {
             if (choice is null || choice.TargetObjectIds is null) return false;
-            var repeatCommand = command with { Mode = choice.Mode, TargetObjectIds = choice.TargetObjectIds, MovementDestinations = choice.MovementDestinations ?? command.MovementDestinations, RepeatChoices = null };
+            var repeatCommand = command with { Mode = choice.Mode, TargetObjectIds = choice.TargetObjectIds, Destination = choice.Destination ?? command.Destination, MovementDestinations = choice.MovementDestinations ?? command.MovementDestinations, RepeatChoices = null };
             // Validate with the same authoritative target rules as the initial play.
             // A quote may be short of resources; resource authorization belongs to
             // the combined plan after all target taxes have been counted.
@@ -30,10 +30,29 @@ public sealed partial class CoreRuleEngine
                     includeRejectionProjections: false, validateRepeats: false)
                 && (repeatPlan is null || rejection.ErrorCode != ErrorCodes.InsufficientCost)) return false;
             if (!SupportsSeparateExecution(repeatPlan.Behavior)) return false;
-            result.Add(Capture(repeatPlan.Behavior, repeatPlan.TargetObjectIds, repeatCommand.MovementDestinations));
+            result.Add(Capture(repeatPlan.Behavior, repeatPlan.TargetObjectIds, repeatCommand.MovementDestinations, repeatCommand.Destination));
         }
         executions = result;
         return true;
+    }
+
+    private static string NormalizeRepeatDestination(string? destination)
+        => destination?.Trim() is { Length: > 0 } value && value != "BASE" ? value : string.Empty;
+
+    // A response can change control, location or target legality. Recovery checks
+    // the declaration structure, not the current legality of executing the move.
+    internal static bool ValidRepeatDestination(MatchState state, string controller, SpellExecutionState execution)
+    {
+        if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var behavior)) return false;
+        var destination = execution.Destination;
+        if (destination is null || destination != NormalizeRepeatDestination(destination)) return false;
+        if (!behavior.MovesTargetsToChosenLocation && behavior.CommandedMovement is null) return destination.Length == 0;
+        if (destination.Length == 0) return behavior.MinTargetCount == 0 && execution.TargetObjectIds.Count == 0;
+        if (destination.StartsWith("BASE:", StringComparison.Ordinal))
+            return behavior.MovesTargetsToChosenLocation && destination[5..] != controller && state.Seats.ContainsKey(destination[5..]);
+        return destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(destination[12..], out var battlefield)
+            && battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag);
     }
 
     internal static bool SupportsSeparateExecution(CardBehaviorDefinition behavior)
@@ -59,7 +78,7 @@ public sealed partial class CoreRuleEngine
         {
             var execution = executions[index];
             var item = original with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
-                TargetGenerations = execution.TargetGenerations, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = 0,
+                TargetGenerations = execution.TargetGenerations, Destination = execution.Destination, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = 0,
                 TokenEntryPlan = index == original.CompletedRepeatExecutions ? original.TokenEntryPlan : null };
             result = ResolveStackItemEffect(current, item, deferCompletion: index < executions.Count - 1, repeatDamageDestroyTargets: damageDestroyTargets);
             events.AddRange(result.Events);

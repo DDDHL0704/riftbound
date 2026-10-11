@@ -593,7 +593,7 @@ public sealed record CardObjectState
     }
 }
 
-public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations, IReadOnlyList<string>? MovementDestinations = null);
+public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations, IReadOnlyList<string>? MovementDestinations = null, string Destination = "");
 
 public sealed record StackItemState
 {
@@ -5207,7 +5207,7 @@ public sealed record ResolutionResult(
             {
                 ["index"] = index, ["effectKind"] = execution.EffectKind,
                 ["targetObjectIds"] = VisibleObjectIdsForViewer(state, execution.TargetObjectIds, viewerPlayerId),
-                ["movementDestinations"] = execution.MovementDestinations
+                ["movementDestinations"] = execution.MovementDestinations, ["destination"] = execution.Destination
             }).ToArray();
         if (!hiddenSource && item.MovementDestinations is { } moves)
             view["movementDestinations"] = moves.ToArray();

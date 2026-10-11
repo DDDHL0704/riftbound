@@ -1,0 +1,258 @@
+{
+  "focus5": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.65,
+    "total": 77,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 77,
+        "passed": 77,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.07
+      }
+    ]
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 96.18,
+    "total": 9516,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9516,
+        "passed": 9516,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 90.55
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 427.1,
+    "total": 9649,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 222.91
+      },
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 223.53
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 231.0
+      },
+      {
+        "shard": "rules",
+        "total": 9514,
+        "passed": 9514,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 89.77
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 423.45
+      }
+    ]
+  },
+  "native": {
+    "scenarios": {
+      "tentacles": {
+        "nativeCommands": 1,
+        "commands": 3,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "2bb229a10e6f82171e8a1a6cf5bc30aa2844c2a00c51e751f0fbf9946e732f9b",
+          "expectedStateHash": "2bb229a10e6f82171e8a1a6cf5bc30aa2844c2a00c51e751f0fbf9946e732f9b",
+          "errors": []
+        }
+      },
+      "rage": {
+        "nativeCommands": 1,
+        "commands": 10,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "bc19255ecdb8a9677b3f81dcc30df986cad76d52f4a2ce9b33889d93cb6e8796",
+          "expectedStateHash": "bc19255ecdb8a9677b3f81dcc30df986cad76d52f4a2ce9b33889d93cb6e8796",
+          "errors": []
+        }
+      }
+    },
+    "mode": "Godot headless production PlayCardOverlay in table mode: focus later destination and select it on table; server quote and emitted commands. Not paired-client/network/Windows visual acceptance."
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.72\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nECHO_SINGLE_DESTINATION_PASS: 2 production commands with independent repeat destinations\n",
+  "artifacts": [
+    {
+      "path": "var/qa/echo-single-destination/check/check/results.trx",
+      "sha256": "d0f0bcae1d27285673ed5487247b07d5fb6ae6e065f6cf68594d862f62af9327"
+    },
+    {
+      "path": "var/qa/echo-single-destination/check/plan.json",
+      "sha256": "7ffc08b45e13fa2d431cbc039a8148463c8fb03668dda3ccf5a1d41c4bb34be9"
+    },
+    {
+      "path": "var/qa/echo-single-destination/check/summary.json",
+      "sha256": "07e2c486108cc94e52a8445b88e237b9336fe0d74753626932a5b5a0566853d8"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus1/focus/results.trx",
+      "sha256": "70a19b19dd1469d7f54bbea09ab9360b2705288d2fad9c4de08b29ce044f7f46"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus1/plan.json",
+      "sha256": "a9b02fc6e0fb6041a63c136077df0c99f43a5633afe17025a9efc2f134dfce52"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus1/summary.json",
+      "sha256": "f38be3c6cd7e54e7b1c63dc9584f0bc8adb391f6d3cc93bc55efce4d0e2e5c8b"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus3/focus/results.trx",
+      "sha256": "1ba239b1bdc1d7ac236ec8a2d9128f675b9b0b61199144a7d6c3db69b371e4bd"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus3/plan.json",
+      "sha256": "3562ae18a26bf755a556944a215785e39c654e54b1529613c62593192b62402a"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus4/focus/results.trx",
+      "sha256": "91e3e0f296c0b7e18b7dedc4bfd59a0102e180132831a5860c547301969b8d1a"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus4/plan.json",
+      "sha256": "671a76a93c4e4c83fbadc7eff5332f0dd90d198c1af583c46a6659e244ed3701"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus5/focus/results.trx",
+      "sha256": "c7247c9ac0dca0949a8f6f44ff2344c2c5961dcce4e461fa59eb182e75fefb0d"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus5/plan.json",
+      "sha256": "d466627c1c91989312c7936d980f3815b981a656b1015cc3115971cd3c525233"
+    },
+    {
+      "path": "var/qa/echo-single-destination/focus5/summary.json",
+      "sha256": "ce9704a4d82125f08f4f36cc03ba107bfd2372828453a97e274b4104475978b8"
+    },
+    {
+      "path": "var/qa/echo-single-destination/full/games-1/results.trx",
+      "sha256": "817c316b5d4143c59b399492f86af387e52a5acd17449fc26cf0965dec990b38"
+    },
+    {
+      "path": "var/qa/echo-single-destination/full/games-2/results.trx",
+      "sha256": "abb435f57730b88b89b398ca197cb275c4d3fb6ab3436d50efedb678c9ac2edf"
+    },
+    {
+      "path": "var/qa/echo-single-destination/full/games-3/results.trx",
+      "sha256": "b185b88404483eb3b60eafb217f35664dfeddb9483edab192c3d11d7c1610d56"
+    },
+    {
+      "path": "var/qa/echo-single-destination/full/games-4/results.trx",
+      "sha256": "55c4e4a0e0bda83ff013b409941e4b87489a8a16182703e79e4f977f74dd8cd8"
+    },
+    {
+      "path": "var/qa/echo-single-destination/full/plan.json",
+      "sha256": "77a8c00cc0006f4893014d076711cfa35df7f1b9743b4716dd984321623e651c"
+    },
+    {
+      "path": "var/qa/echo-single-destination/full/rules/results.trx",
+      "sha256": "929129d629363536994ee85c8b869e29ca5362290351488063f0bd498f958fe0"
+    },
+    {
+      "path": "var/qa/echo-single-destination/full/summary.json",
+      "sha256": "a9ce80569fd647fa94fac3aeb87fd96e8c2b88c82f2ad1d2e87a76ea242c02ce"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/rage/play-command.json",
+      "sha256": "1d8d1cfe9f66f0042374e83fabb3c4b81829b1ca2f4497006c9d38fe2e17c918"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/rage/play-preview.json",
+      "sha256": "0e11156689706ae7c0b657ffe621db2064be3090c040394e2ff3e695ed09529a"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/rage/play-prompt.json",
+      "sha256": "4a82f3b1c1c760eb3b519961215f726c8e6f3323b8fb364748caaf76037a5a33"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/rage/play-quote.json",
+      "sha256": "ee0477136e105ca92114561fc16a20eacec75e8e8108bca851dd4246dd6403e0"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/rage/play-snapshot.json",
+      "sha256": "280f747d100a010a7c4733d3592d8a1b3dee52327042f584a0b37a46ff6a03f2"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/rage/replay.json",
+      "sha256": "3c3c20daf67233d9aa7980e162ca94baf678b4750285573425ebbfc09e62ac23"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/rage/result-snapshot.json",
+      "sha256": "a7b98233686783748730f96b920ed01292f55e5fad711b37b554b932029cd778"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/tentacles/play-command.json",
+      "sha256": "95d4295563748be6cdcb42ada882f62b8e39bbe91d24408ebbf87f4486289c90"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/tentacles/play-preview.json",
+      "sha256": "27fe935b0542985e313af6bb0abd29f0d077236dcf10e97373cd1d97ed0d8b60"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/tentacles/play-prompt.json",
+      "sha256": "8d9d82e1d8b28151e6fb2ec92c756a2788491524e6cb0e1ad2f908e9fd44dfaa"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/tentacles/play-quote.json",
+      "sha256": "a8b2caf21e74f4b1ea07fe68574c8c6372668e44e92d9cbf780e7d14cf3d6b16"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/tentacles/play-snapshot.json",
+      "sha256": "262e2fb2d9286b4840176839c36b869cfee1cec5609f3c57c1feed180dd7ffe7"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/tentacles/replay.json",
+      "sha256": "3b776d9212d0ac5e965fb837bff984797aa0d346ede3f718ef0a29e7637b9db6"
+    },
+    {
+      "path": "var/qa/echo-single-destination/native/tentacles/result-snapshot.json",
+      "sha256": "b05c8334393fe107736f0246a621f811f4fbf95b80721cbadc042f5575f537ed"
+    },
+    {
+      "path": "var/qa/echo-single-destination/red/focus/results.trx",
+      "sha256": "189b4621e5c13ecaec233631deb3484d2a702ade532f06c000f866eccc4501da"
+    },
+    {
+      "path": "var/qa/echo-single-destination/red/plan.json",
+      "sha256": "3c24c9c668d0099f6c2ad881cf13f609c329a0b45819da3954f114c175e182d6"
+    }
+  ]
+}

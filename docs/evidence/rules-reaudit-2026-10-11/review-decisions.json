@@ -1306,6 +1306,98 @@
         "Full source-after-leaving property reference semantics",
         "Paired-client/Windows visual/network acceptance"
       ]
+    },
+    {
+      "id": "echo-single-destination-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Independent single movement destination in each Echo declaration/execution; authoritative rejection, current-version recovery, public projection and native composer.",
+      "subjects": [
+        {
+          "id": "OGN-258/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31500,
+              "cardNo": "OGN·258/298",
+              "name": "猛龙摆尾",
+              "sha256": "1f14ad178d2ec6fba5017f6fcaba110921c7ca14454aae3508cf426036a8ea5d"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-258-298",
+              "cardNo": "OGN-258/298",
+              "name": "Dragon's Rage",
+              "sha256": "5d83e4f60f4b7548fc23a66cf57347fb87d10937cbafdfeffb0354460912b91d"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ECHO_SINGLE_DESTINATION_VERIFIED"
+        },
+        {
+          "id": "UNL-054/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34583,
+              "cardNo": "UNL-054/219",
+              "name": "顽皮触手",
+              "sha256": "f56fa2d054fb37ddc265cb4eb1f7d3821ef63bd0e2672b7973f27466e0f0721b"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-054-219",
+              "cardNo": "UNL-054/219",
+              "name": "Tricksy Tentacles",
+              "sha256": "cc0bfe5bf603ff674633c540c6d844456ee95cd8d7540641d6865cd4c375d3f9"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ECHO_SINGLE_DESTINATION_VERIFIED"
+        },
+        {
+          "id": "UNL-101/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34639,
+              "cardNo": "UNL-101/219",
+              "name": "战斗号令",
+              "sha256": "bb25ed706c60008c990631781f9d48609f405189e47bc9f60bd5969e1b42c6be"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-101-219",
+              "cardNo": "UNL-101/219",
+              "name": "Call to Battle",
+              "sha256": "cfe89eacc2cc8a24c900c875b8a3c3ca1881774d8b8ea4fdbe081bc1c3c6ce53"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ECHO_SINGLE_DESTINATION_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P043-B007",
+        "DOC-04-P120-B013",
+        "DOC-04-P120-B014"
+      ],
+      "auditDocument": "docs/ECHO_SINGLE_DESTINATION_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/echo-single-destination-2026-10-11",
+      "tests": [
+        "EchoSingleDestinationTests",
+        "EchoSingleDestinationNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9649,
+        "fullMethods": 6371,
+        "nativeScenarios": 2,
+        "nativeCommands": 2,
+        "journalCommands": 13,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "All other Echo and skill cost/choice families",
+        "Elder Dragon and complete damage source semantics",
+        "Blocked movement destination referent and complete object-after-leaving semantics",
+        "Paired-client/Windows visual/network acceptance"
+      ]
     }
   ]
 }

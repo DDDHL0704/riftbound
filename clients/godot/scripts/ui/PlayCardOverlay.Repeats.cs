@@ -14,6 +14,8 @@ public partial class PlayCardOverlay
         public VBoxContainer TargetsPanel = null!;
         public List<(OptionButton Picker, string[] Ids, bool Required)> Targets = [];
         public List<(OptionButton Picker, string[] Ids)> MovementDestinations = [];
+        public OptionButton? Destination;
+        public string[] DestinationIds = [];
     }
     private readonly List<RepeatSelection> _repeats = [];
     private VBoxContainer? _repeatPanel;
@@ -28,7 +30,7 @@ public partial class PlayCardOverlay
         var enabled = requirement.TryGetProperty("supportsSeparateExecutions", out var support) && support.ValueKind == JsonValueKind.True;
         var modes = _requirements.Where(r => Text(r, "cardNo") == Text(requirement, "cardNo")
             && r.TryGetProperty("supportsSeparateExecutions", out var allow) && allow.ValueKind == JsonValueKind.True).ToArray();
-        var count = enabled && (modes.Length > 1 || Number(requirement, "maxTargetCount") > 0)
+        var count = enabled && (modes.Length > 1 || Number(requirement, "maxTargetCount") > 0 || Choices(requirement, "destinationChoices").Length > 0)
             ? _optional.Count(entry => entry.Value.ButtonPressed && (entry.Key == "ECHO" || entry.Key.StartsWith("ECHO:", StringComparison.Ordinal))) : 0;
         while (_repeats.Count > count)
         {
@@ -54,8 +56,19 @@ public partial class PlayCardOverlay
     private void BuildRepeatTargets(RepeatSelection entry)
     {
         foreach (var node in entry.TargetsPanel.GetChildren()) { entry.TargetsPanel.RemoveChild(node); node.QueueFree(); }
-        entry.Targets.Clear(); entry.MovementDestinations.Clear();
+        entry.Targets.Clear(); entry.MovementDestinations.Clear(); entry.Destination = null; entry.DestinationIds = [];
         var mode = entry.Modes[entry.Mode.Selected];
+        if (Choices(mode, "destinationChoices") is { Length: > 0 } destinations)
+        {
+            entry.TargetsPanel.AddChild(new Label { Text = Text(mode, "destinationLabel") is { Length: > 0 } label ? label : "移动终点" });
+            var picker = new OptionButton { FitToLongestItem = false, CustomMinimumSize = new Vector2(0, 38) };
+            foreach (var destination in destinations) picker.AddItem(destination.Label);
+            entry.DestinationIds = destinations.Select(d => d.Id).ToArray();
+            picker.Select(Math.Max(0, Array.IndexOf(entry.DestinationIds, _destination is { Selected: >= 0 } ? _destinations[_destination.Selected] : "")));
+            entry.Destination = picker; entry.TargetsPanel.AddChild(picker);
+            picker.FocusEntered += () => { _focusedDestination = picker; TableSelectionChanged?.Invoke(); };
+            picker.ItemSelected += _ => Refresh();
+        }
         entry.MovementDestinations.AddRange(BuildMovementDestinations(mode, entry.TargetsPanel, MovementChoices(_movementDestinations)));
         if (!mode.TryGetProperty("targetChoicesByIndex", out var byIndex)) return;
         foreach (var target in byIndex.EnumerateObject().OrderBy(x => int.Parse(x.Name)))
@@ -80,5 +93,6 @@ public partial class PlayCardOverlay
 
     private IReadOnlyList<SpellRepeatChoice>? RepeatCommandChoices()
         => _repeats.Count == 0 ? null : _repeats.Select(entry => new SpellRepeatChoice(Text(entry.Modes[entry.Mode.Selected], "mode"),
-            entry.Targets.Where(t => t.Picker.Selected > 0).Select(t => t.Ids[t.Picker.Selected]).ToArray(), MovementChoices(entry.MovementDestinations))).ToArray();
+            entry.Targets.Where(t => t.Picker.Selected > 0).Select(t => t.Ids[t.Picker.Selected]).ToArray(), MovementChoices(entry.MovementDestinations),
+                entry.Destination is { Selected: >= 0 } ? entry.DestinationIds[entry.Destination.Selected] : null)).ToArray();
 }

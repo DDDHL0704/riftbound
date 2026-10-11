@@ -29,3 +29,5 @@ DOC-09 第 16 页还有远古巨龙关联问答：决斗的友方单位伤害可
 证据：[来源与勘误](evidence/reflexive-movement-duel-2026-10-11/sources.json)、[旧夹具与断言迁移](evidence/reflexive-movement-duel-2026-10-11/oracle-updates.json)。
 
 最终完整回归 9,632/9,632、6,363 个方法通过；比上一批增加 21 个用例、11 个方法，零删除、更名。原生生产控件生成 8 条命令，18 条 journal 恢复与回放一致。Godot 构建零警告、零错误。
+
+后续补齐：每次回响独立声明单一移动终点已在 [回响终点审计](ECHO_SINGLE_DESTINATION_AUDIT_2026-10-11.md) 验证；本文其他未认证范围继续保留。

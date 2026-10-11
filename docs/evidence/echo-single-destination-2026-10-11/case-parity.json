@@ -1,0 +1,25 @@
+{
+  "baseline": 9632,
+  "current": 9649,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.EchoSingleDestinationNativeTests.ProductionEchoDestinationComposerRestoresAndReplays(branch: \"rage\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationNativeTests.ProductionEchoDestinationComposerRestoresAndReplays(branch: \"tentacles\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.BothPlayersAndSpectatorSeeAndValidateTheIndependentDeclarations",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.CommandedMovementKeepsItsOwnDestinationThroughEachOpponentChoice",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.EchoMovesToTwoDistinctDeclaredLocationsAndCreatesDistinctDuelContexts",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.InvalidLaterDestinationRejectsAtomicallyBeforeChargingEcho(destination: \"BASE:P1\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.InvalidLaterDestinationRejectsAtomicallyBeforeChargingEcho(destination: \"BATTLEFIELD:BF\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.InvalidLaterDestinationRejectsAtomicallyBeforeChargingEcho(destination: \"BATTLEFIELD:missing\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.MalformedLaterDestinationCannotSilentlyUseTheFirstDestination(value: \"7\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.MalformedLaterDestinationCannotSilentlyUseTheFirstDestination(value: \"[]\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.MalformedLaterDestinationCannotSilentlyUseTheFirstDestination(value: \"true\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.MalformedLaterDestinationCannotSilentlyUseTheFirstDestination(value: \"{}\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.RecoveryRejectsAlteredInitialOrMalformedLaterDestination(index: 0, destination: \"BATTLEFIELD:BF2\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.RecoveryRejectsAlteredInitialOrMalformedLaterDestination(index: 1, destination: \"\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.RecoveryRejectsAlteredInitialOrMalformedLaterDestination(index: 1, destination: \"BASE:P1\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.RecoveryRejectsAlteredInitialOrMalformedLaterDestination(index: 1, destination: \"BATTLEFIELD:missing\")",
+    "Riftbound.ConformanceTests.EchoSingleDestinationTests.ResponseInvalidationOfOneTargetDoesNotRedirectTheOtherExecution"
+  ],
+  "allPassed": true
+}

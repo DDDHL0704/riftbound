@@ -110,9 +110,11 @@ public static class GameCommandJsonMapper
                 if (repeat.ValueKind != JsonValueKind.Object
                     || repeat.TryGetProperty("mode", out var mode) && mode.ValueKind != JsonValueKind.String
                     || !repeat.TryGetProperty("targetObjectIds", out var targets) || targets.ValueKind != JsonValueKind.Array
-                    || targets.EnumerateArray().Any(target => target.ValueKind != JsonValueKind.String) || !ValidMoves(repeat))
+                    || targets.EnumerateArray().Any(target => target.ValueKind != JsonValueKind.String) || !ValidMoves(repeat)
+                    || repeat.TryGetProperty("destination", out var destination) && destination.ValueKind is not (JsonValueKind.String or JsonValueKind.Null))
                     return new UnsupportedCommand("MALFORMED_PLAY_CARD");
-                list.Add(new(Text(repeat, "mode"), TextArray(repeat, "targetObjectIds"), Moves(repeat)));
+                list.Add(new(Text(repeat, "mode"), TextArray(repeat, "targetObjectIds"), Moves(repeat),
+                    repeat.TryGetProperty("destination", out var declared) && declared.ValueKind == JsonValueKind.String ? declared.GetString() : null));
             }
             choices = list.ToArray();
         }

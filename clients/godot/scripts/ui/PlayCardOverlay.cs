@@ -102,7 +102,7 @@ public partial class PlayCardOverlay : Control
         foreach (var node in _choices.GetChildren()) { _choices.RemoveChild(node); node.QueueFree(); }
         _repeats.Clear(); _repeatPanel = null;
         _targets.Clear(); _focusedTarget = null; _optional.Clear(); _destination = null; _printed = null;
-        _movementDestinations.Clear(); _focusedMovement = null; _destinations = [];
+        _movementDestinations.Clear(); _focusedMovement = null; _focusedDestination = null; _destinations = [];
         var requirement = _requirements[_source.Selected];
         RefreshCardPreview();
         _origin.Text = Text(requirement, "effectPlayReason");
@@ -118,6 +118,7 @@ public partial class PlayCardOverlay : Control
         if (Choices(requirement, "destinationChoices") is { Length: > 0 } destinations)
         {
             _destination = Picker(Text(requirement, "destinationLabel") is { Length: > 0 } label ? label : "入场位置", destinations, false); _destinations = destinations.Select(x => x.Id).ToArray();
+            _destination.FocusEntered += () => { _focusedDestination = _destination; TableSelectionChanged?.Invoke(); };
         }
         _movementDestinations.AddRange(BuildMovementDestinations(requirement, _choices));
         if (Choices(requirement, "printedPowerChoices") is { Length: > 0 } printed)

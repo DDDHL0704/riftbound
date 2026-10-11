@@ -1,0 +1,50 @@
+[
+  {
+    "path": "clients/godot/scenes/debug/EchoSingleDestinationInteractionProof.tscn",
+    "sha256": "64d2eb0610d8f2bb45a9571d9de23e7a0b5c147b4e4ea3ec92ad89d963785020"
+  },
+  {
+    "path": "clients/godot/scripts/debug/EchoSingleDestinationInteractionProof.cs",
+    "sha256": "7eaef0a54c180e70fe44567664732e02685c187e612d08167001f692eceab7a3"
+  },
+  {
+    "path": "clients/godot/scripts/ui/PlayCardOverlay.Repeats.cs",
+    "sha256": "e3678e4d3db60696916a73eb436cd3ddc8dda69f48be743ff3f2a47a8846a831"
+  },
+  {
+    "path": "clients/godot/scripts/ui/PlayCardOverlay.Table.cs",
+    "sha256": "37cf1046de36c441857696b0bee3c9e512ad67b749f1397a63f2783502a2da66"
+  },
+  {
+    "path": "clients/godot/scripts/ui/PlayCardOverlay.cs",
+    "sha256": "7c7e1e47a3730e26100b71dc8a11f7c0a3626112308d770c1c0eb21a2f5c6f87"
+  },
+  {
+    "path": "src/Riftbound.Contracts/GameCommandJsonMapper.cs",
+    "sha256": "d2423778438f7030eebdf16a45b610d4dabd05f4819acd4b47d124f1bea5f885"
+  },
+  {
+    "path": "src/Riftbound.Contracts/Protocol.cs",
+    "sha256": "a2a9862eea0e5ff58b73d71129b594bb49ee2b2c45907e1d9a634706aaf18b46"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+    "sha256": "114080e1536e5bdf10c0393239c34c70d47d3463594a2943e9f0a51cedd5a9fb"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "46b30404c252882a27317fd356dcc85848a7f2345ce3fda5ef1410e02d578aff"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "e379f9ff4dd46b0c33fe07fa82c394a131e428cae5fc8304282b5648ec407f52"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/EchoSingleDestinationNativeTests.cs",
+    "sha256": "9eb0a5ed81d926123d2fbdc14ccf148d861681b6a527ccab72d691fa1348d7cd"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/EchoSingleDestinationTests.cs",
+    "sha256": "cea4de91a3fcc9ad2327fbb1330dbcfaba31b2eaa48c74c08de5ed6c359ca6cd"
+  }
+]
