@@ -15,6 +15,9 @@ public sealed class TreasureHunterMoveTriggerTests
         var result = await MoveTreasureHunterAsync(BuildTreasureHunterMoveState());
 
         Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(GoldTokenIds(result.State));
+        Assert.Single(result.State.StackItems);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         var tokenObjectId = Assert.Single(GoldTokenIds(result.State));
         Assert.Equal([tokenObjectId], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-TREASURE-HUNTER"], result.State.PlayerZones["P1"].Battlefields);
@@ -29,7 +32,7 @@ public sealed class TreasureHunterMoveTriggerTests
 
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TreasureHunterTrigger, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["observerKind"] as string, TreasureHunterTrigger, StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-TREASURE-HUNTER", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal)
@@ -45,7 +48,7 @@ public sealed class TreasureHunterMoveTriggerTests
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        var command = new MoveUnitCommand("P1-TREASURE-HUNTER", "BASE", "BATTLEFIELD", []);
+        var command = new MoveUnitCommand("P1-TREASURE-HUNTER", "BASE", "BATTLEFIELD:P1-BATTLEFIELD-B", []);
 
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
@@ -71,10 +74,11 @@ public sealed class TreasureHunterMoveTriggerTests
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
         Assert.Contains(accepted.Events, IsTreasureHunterTriggerEvent);
-        Assert.Contains(accepted.Events, IsTreasureHunterGoldTokenEvent);
+        Assert.DoesNotContain(accepted.Events, IsTreasureHunterGoldTokenEvent);
+        Assert.Single(accepted.State.StackItems);
         var acceptedGoldTokenIds = GoldTokenIds(accepted.State);
-        var acceptedGoldTokenId = Assert.Single(acceptedGoldTokenIds);
-        Assert.Equal([acceptedGoldTokenId], accepted.State.PlayerZones["P1"].Base);
+        Assert.Empty(acceptedGoldTokenIds);
+        Assert.Empty(accepted.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-TREASURE-HUNTER"], accepted.State.PlayerZones["P1"].Battlefields);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -258,6 +262,11 @@ public sealed class TreasureHunterMoveTriggerTests
         var result = await PreciseRoamTreasureHunterAsync(BuildTreasureHunterPreciseRoamState());
 
         Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(GoldTokenIds(result.State));
+        var captured = Assert.Single(result.State.StackItems).MovementObserver!;
+        Assert.Equal("P1-BATTLEFIELD-A", captured.Unit.Origin.BattlefieldObjectId);
+        Assert.Equal("P1-BATTLEFIELD-B", captured.Unit.Destination.BattlefieldObjectId);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         var tokenObjectId = Assert.Single(GoldTokenIds(result.State));
         Assert.Equal([tokenObjectId], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-TREASURE-HUNTER"], result.State.PlayerZones["P1"].Battlefields);
@@ -272,9 +281,8 @@ public sealed class TreasureHunterMoveTriggerTests
 
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TreasureHunterTrigger, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["originZone"] as string, "BATTLEFIELD:P1-BATTLEFIELD-A", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["destinationZone"] as string, "BATTLEFIELD:P1-BATTLEFIELD-B", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["observerKind"] as string, TreasureHunterTrigger, StringComparison.Ordinal)
+);
         Assert.Contains(result.Events, IsTreasureHunterGoldTokenEvent);
     }
 
@@ -307,7 +315,7 @@ public sealed class TreasureHunterMoveTriggerTests
         return await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-treasure-hunter-move", "P1", CommandTypes.MoveUnit),
-            new MoveUnitCommand("P1-TREASURE-HUNTER", "BASE", "BATTLEFIELD", []),
+            new MoveUnitCommand("P1-TREASURE-HUNTER", "BASE", "BATTLEFIELD:P1-BATTLEFIELD-B", []),
             CancellationToken.None);
     }
 
@@ -326,7 +334,7 @@ public sealed class TreasureHunterMoveTriggerTests
 
     private static bool IsTreasureHunterTriggerEvent(GameEvent gameEvent)
     {
-        return string.Equals(gameEvent.Payload.TryGetValue("trigger", out var trigger) ? trigger as string : null, TreasureHunterTrigger, StringComparison.Ordinal);
+        return string.Equals(gameEvent.Payload.TryGetValue("observerKind", out var trigger) ? trigger as string : null, TreasureHunterTrigger, StringComparison.Ordinal);
     }
 
     private static bool IsTreasureHunterGoldTokenEvent(GameEvent gameEvent)
@@ -426,7 +434,7 @@ public sealed class TreasureHunterMoveTriggerTests
         var treasureHunterTags = standby
             ? new[] { CardObjectTags.UnitCard, CardObjectTags.Standby }
             : [CardObjectTags.UnitCard];
-        return new MatchState(
+        return RealFields(new MatchState(
             roomId: "treasure-hunter-move-trigger-test",
             tick: 27,
             turnNumber: 1,
@@ -468,12 +476,12 @@ public sealed class TreasureHunterMoveTriggerTests
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
                 ["P1-TREASURE-HUNTER"] = new("P1", "BASE")
-            });
+            }));
     }
 
     private static MatchState BuildTreasureHunterPreciseRoamState()
     {
-        return new MatchState(
+        return RealFields(new MatchState(
             roomId: "treasure-hunter-roam-trigger-test",
             tick: 27,
             turnNumber: 1,
@@ -514,7 +522,20 @@ public sealed class TreasureHunterMoveTriggerTests
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
                 ["P1-TREASURE-HUNTER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-A")
-            });
+            }));
+    }
+
+    private static MatchState RealFields(MatchState state)
+    {
+        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        var locations = state.ObjectLocations.ToDictionary(p => p.Key, p => p.Value);
+        var fields = new[] { "P1-BATTLEFIELD-A", "P1-BATTLEFIELD-B" };
+        foreach (var id in fields) {
+            cards[id] = new(id, cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2", controllerId: "P1");
+            locations[id] = new("P2", "BATTLEFIELD", id);
+        }
+        return state with { CardObjects = cards, ObjectLocations = locations,
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P2"] = state.PlayerZones["P2"] with { Battlefields = fields } } };
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

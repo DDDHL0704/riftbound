@@ -4452,7 +4452,8 @@ public static class MatchRecoveryValidator
                 playerGraveyardObjectIdsByPlayer,
                 "player zones",
                 errors);
-            if (!ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors))
+            if (!ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors))
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 triggerLabel,
                 sourceObjectId,
@@ -19018,7 +19019,8 @@ public static class MatchRecoveryValidator
             playerGraveyardObjectIdsByPlayer,
             "authoritative state player zones",
             errors);
-        if (!ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors))
+        if (!ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors))
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
             sourceObjectId,
@@ -22838,6 +22840,20 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static bool ValidateMovementObserverView(object? payload, string? effect, string? controller, string? source, List<string> errors)
+    {
+        MovementObserverContext? context = null;
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            if (json.ValueKind == JsonValueKind.Object && json.TryGetProperty("movementObserver", out var raw) && raw.ValueKind != JsonValueKind.Null)
+                context = raw.Deserialize<MovementObserverContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        } catch (JsonException) { errors.Add("invalid public movement observer encoding"); }
+        if (effect != CoreRuleEngine.MovementObserverEffect && context is null) return false;
+        if (context is null || !CoreRuleEngine.ValidMovementObserver(context, effect ?? "", controller ?? "", source ?? ""))
+        { errors.Add("invalid public captured movement observer"); return false; }
+        return true;
+    }
+
     private static DeathObserverContext? ReadDeathObserverView(object? payload)
     {
         try {
@@ -22863,6 +22879,17 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.MovementObserver is { } movement
+                ? !CoreRuleEngine.ValidMovementObserver(movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId)
+                    || trigger.TriggeredByEventKind != (movement.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD")
+                    || !state.Seats.ContainsKey(movement.Unit.ControllerId) || !state.Seats.ContainsKey(movement.Unit.MovingPlayerId)
+                : trigger.EffectKind == CoreRuleEngine.MovementObserverEffect) errors.Add("invalid captured movement observer");
+        foreach (var item in state.StackItems)
+            if (item.MovementObserver is { } movement
+                ? !CoreRuleEngine.ValidMovementObserver(movement, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+                    || !state.Seats.ContainsKey(movement.Unit.ControllerId) || !state.Seats.ContainsKey(movement.Unit.MovingPlayerId)
+                : item.EffectKind == CoreRuleEngine.MovementObserverEffect) errors.Add("invalid captured movement observer stack");
         if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
         if (state.DeathLedger is null || state.DeathLedger.Counts is null || state.DeathLedger.TurnNumber < 0
             || state.DeathLedger.Counts.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber
@@ -25950,7 +25977,8 @@ public static class MatchRecoveryValidator
 
             // Captured triggered abilities survive their source object leaving.
             // Only validated official contexts permit a missing source.
-            if (!(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
+            if (!(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
+                && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
                     stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo))
                 && !UnitDestroyedTriggerSpecRules.TryGetTrigger(stackItem.CardNo,
@@ -26054,7 +26082,8 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            if (!(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
+            if (!(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
+                && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))
                 && !(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
                 && UnitDestroyedTriggerSpecRules.TryGetTrigger(trigger.SourceCardNo,

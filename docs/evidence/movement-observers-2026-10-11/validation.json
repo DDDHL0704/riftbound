@@ -1,0 +1,438 @@
+{
+  "focus9": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 20.48,
+    "total": 84,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 84,
+        "passed": 84,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.73
+      }
+    ]
+  },
+  "focus10": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.8,
+    "total": 18,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 18,
+        "passed": 18,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.21
+      }
+    ]
+  },
+  "focus11": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 33.47,
+    "total": 19,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 5.8
+      }
+    ]
+  },
+  "native-replay": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 9.91,
+    "total": 2,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.24
+      }
+    ]
+  },
+  "check3": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 84.41,
+    "total": 9244,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9244,
+        "passed": 9244,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 80.98
+      }
+    ]
+  },
+  "full4": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 412.01,
+    "total": 9377,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 211.69
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 214.58
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 214.79
+      },
+      {
+        "shard": "rules",
+        "total": 9242,
+        "passed": 9242,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 83.74
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 408.33
+      }
+    ]
+  },
+  "native": {
+    "productionCommands": 2,
+    "scenarios": 2,
+    "allNative": true,
+    "allReplayMatch": true,
+    "journalCommands": 10,
+    "mode": "Godot headless TriggerOrderOverlay; not two-window visual or Windows acceptance"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.49\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nMOVEMENT_OBSERVER_ORDER_PASS: two mixed movement-trigger production order commands\n",
+  "artifacts": {
+    "focus": [
+      {
+        "path": "var/qa/movement-observers/focus/focus/results.trx",
+        "sha256": "7265bd045b4769e7c4919aea3b285d05c366c3571b106cb7203cb9259cc14512"
+      },
+      {
+        "path": "var/qa/movement-observers/focus/plan.json",
+        "sha256": "7471f0b5b44ce5bf79f8ddab1702fd1d2abb40e975949f4f9951beeb5cf72723"
+      }
+    ],
+    "focus2": [
+      {
+        "path": "var/qa/movement-observers/focus2/focus/results.trx",
+        "sha256": "94de3a0cb8d9f95467df37bf61de694a627821103fc68bf93cd00207258212fc"
+      },
+      {
+        "path": "var/qa/movement-observers/focus2/plan.json",
+        "sha256": "c64415b1dfc0484fb97010df65416e27d0a9313990dea68f3e2c19a1232c409c"
+      }
+    ],
+    "focus3": [
+      {
+        "path": "var/qa/movement-observers/focus3/focus/results.trx",
+        "sha256": "8457c8e5ed3057dbd0fed86d9f744417ef471e68cb3b5e88a8eacdde9dba76f7"
+      },
+      {
+        "path": "var/qa/movement-observers/focus3/plan.json",
+        "sha256": "b2bb9dd576a5638ee41a63beb53de5d0e806d7bcf1936c2310811072b0296fe6"
+      },
+      {
+        "path": "var/qa/movement-observers/focus3/summary.json",
+        "sha256": "a3b2644da9bef82f8516e8b9d59410bfff27f8613ae915c2a362eb23a67a573b"
+      }
+    ],
+    "focus4": [
+      {
+        "path": "var/qa/movement-observers/focus4/focus/results.trx",
+        "sha256": "d89c1da34083f31acec6f168e6038ef5534cac334edaaacd13269f23d66fc4ce"
+      },
+      {
+        "path": "var/qa/movement-observers/focus4/plan.json",
+        "sha256": "272f2142f27a82d0b78c39986fc0b0fe20ed1f4468d3aedd32c5e09bd287539d"
+      }
+    ],
+    "focus5": [
+      {
+        "path": "var/qa/movement-observers/focus5/focus/results.trx",
+        "sha256": "4bce52f2db4a58813f25e83d78baa9fc237e4b9c1eb25bdd3fe9d6f696b2af9e"
+      },
+      {
+        "path": "var/qa/movement-observers/focus5/plan.json",
+        "sha256": "752ffae9aadf73004d8b8dfc7134b726ca9c61f612e9280d467733564ffd518c"
+      },
+      {
+        "path": "var/qa/movement-observers/focus5/summary.json",
+        "sha256": "2614c2dfbf3ee29be7ed7ce47bda3f5a8a1698d201feca522ad0cccdffc7d449"
+      }
+    ],
+    "focus6": [
+      {
+        "path": "var/qa/movement-observers/focus6/focus/results.trx",
+        "sha256": "f2207de929f97cf932cd3d9de13522d7b63fd499ba4d68524bc04783d992cdba"
+      },
+      {
+        "path": "var/qa/movement-observers/focus6/plan.json",
+        "sha256": "a86e1c952ba56e9a6a886adf474682b4a78e98f2ac7b489b4a86090b30bbf0ff"
+      }
+    ],
+    "focus7": [
+      {
+        "path": "var/qa/movement-observers/focus7/focus/results.trx",
+        "sha256": "a135689aaa4c4dce557c30d20b6a7a90674b0430d2fc898e12764f52bfc1bd7f"
+      },
+      {
+        "path": "var/qa/movement-observers/focus7/plan.json",
+        "sha256": "8fa97ce430034f82b42a63375654d8fa0eb2f3f37c0c6b5a152955afefe95d43"
+      }
+    ],
+    "focus8": [
+      {
+        "path": "var/qa/movement-observers/focus8/focus/results.trx",
+        "sha256": "3bb9b0bf623177569a5729cc8f03fb222e846e959bcd72dfab707f5131d9fa1b"
+      },
+      {
+        "path": "var/qa/movement-observers/focus8/plan.json",
+        "sha256": "48a9c70b21116acd1b77781cf867fd836d90086693adc95444c70975de826c8d"
+      }
+    ],
+    "focus9": [
+      {
+        "path": "var/qa/movement-observers/focus9/focus/results.trx",
+        "sha256": "cfcd6260d4795362c5e3100d9edfd344976aa7b0a8a94ab6d95f92a3924cadd2"
+      },
+      {
+        "path": "var/qa/movement-observers/focus9/plan.json",
+        "sha256": "ea0fb9e2c24c12a51096c1b355daf232de41187c606d740e532b38cfdef1a003"
+      },
+      {
+        "path": "var/qa/movement-observers/focus9/summary.json",
+        "sha256": "6057261261449137bca1d3cfa6f4dd18d61548c477bd009975a83ed9db53a559"
+      }
+    ],
+    "focus10": [
+      {
+        "path": "var/qa/movement-observers/focus10/focus/results.trx",
+        "sha256": "b4fcb60ee384c1fd8eb48cf90936bc48bbb66f3a81e521a276adeef68705e8b6"
+      },
+      {
+        "path": "var/qa/movement-observers/focus10/plan.json",
+        "sha256": "610f8dfd4145711bd505037da511ec68e16609193672b38621fe47b901335ded"
+      },
+      {
+        "path": "var/qa/movement-observers/focus10/summary.json",
+        "sha256": "2485ae7f26ceb566c75afd3e7651b84ca7c2cc31585d23394703835c5970ae86"
+      }
+    ],
+    "focus11": [
+      {
+        "path": "var/qa/movement-observers/focus11/focus/results.trx",
+        "sha256": "b89f0f03a0e4423ab58e94e0b19b9128c66872302f868d7b6a16c22f32ee3ea6"
+      },
+      {
+        "path": "var/qa/movement-observers/focus11/plan.json",
+        "sha256": "636661edefc3249c88ece1896f9c61fd38530f40560f9ad4001b65923536d8d2"
+      },
+      {
+        "path": "var/qa/movement-observers/focus11/summary.json",
+        "sha256": "1c5062ebae1031b81db54fc2df324a4a4352fc9f77f86910e0dd7693ca95228e"
+      }
+    ],
+    "check": [
+      {
+        "path": "var/qa/movement-observers/check/check/results.trx",
+        "sha256": "d64e7fe654cdfeb774b995edb2333f13c2b50480380999fc59e5bf42d53e1518"
+      },
+      {
+        "path": "var/qa/movement-observers/check/plan.json",
+        "sha256": "855e75bff886645c56b6ef86298aa0180346bb67ee61b18f8004d589f5e8dcaa"
+      }
+    ],
+    "check2": [
+      {
+        "path": "var/qa/movement-observers/check2/check/results.trx",
+        "sha256": "c7c3560e113378b8644572aa86776d7eb1200e367137d2dfdd75eba74ac6bb7d"
+      },
+      {
+        "path": "var/qa/movement-observers/check2/plan.json",
+        "sha256": "5305aa61a426dca9be54ad99052fbfe61b7567afa348df911e1ba8a2b4ac7026"
+      }
+    ],
+    "check3": [
+      {
+        "path": "var/qa/movement-observers/check3/check/results.trx",
+        "sha256": "fe56b0079cf1994704767e5c8c2aba6266c769acb72353314c9b294a4ad39ffa"
+      },
+      {
+        "path": "var/qa/movement-observers/check3/plan.json",
+        "sha256": "7ace10d6e580a66048069ddcdf5005582c065bd768b4163fd54b994dd965abf0"
+      },
+      {
+        "path": "var/qa/movement-observers/check3/summary.json",
+        "sha256": "9357d3ba9ed719c8522c5ae6484b5f6f58aea9aa1cc87bc8628f295c0e0d59c7"
+      }
+    ],
+    "native-export": [
+      {
+        "path": "var/qa/movement-observers/native-export/focus/results.trx",
+        "sha256": "702b77e31702fbc5ea2fb5ebd4b912ca86a7da8f122f01336583373670eb4c7c"
+      },
+      {
+        "path": "var/qa/movement-observers/native-export/plan.json",
+        "sha256": "f99ef55d50fb41aa4c7d902cc454e7231e253d9b504be29ab03627a6536a85b5"
+      },
+      {
+        "path": "var/qa/movement-observers/native-export/summary.json",
+        "sha256": "2da85285351d8aecff6e56c89f706fcfbf16e39c954085b6e23c5ec8cea422da"
+      }
+    ],
+    "native-replay": [
+      {
+        "path": "var/qa/movement-observers/native-replay/focus/results.trx",
+        "sha256": "d5f4e432ad937809f1c8d3e25861b374712ef6b88722cd6509cfba871f2a81bf"
+      },
+      {
+        "path": "var/qa/movement-observers/native-replay/plan.json",
+        "sha256": "f99ef55d50fb41aa4c7d902cc454e7231e253d9b504be29ab03627a6536a85b5"
+      },
+      {
+        "path": "var/qa/movement-observers/native-replay/summary.json",
+        "sha256": "74fda84d703b2f5def8fee327af2ebf7a4e9ed324c0c0b2850f561cd4fd0c490"
+      }
+    ],
+    "full": [
+      {
+        "path": "var/qa/movement-observers/full/games-1/results.trx",
+        "sha256": "13000a2558b6208d76dae1509fe4a1996e70fee778c4b2cc4571f58a0209f5c8"
+      },
+      {
+        "path": "var/qa/movement-observers/full/plan.json",
+        "sha256": "0c4ab084e4e2cd4f6f96c12ce38650f494ee596be38bbbc8ee5807492c070005"
+      }
+    ],
+    "full2": [
+      {
+        "path": "var/qa/movement-observers/full2/games-2/results.trx",
+        "sha256": "6580ea39077d55e725d0ee868452b595e7e3a74686d05aa23619be90ef3892c5"
+      },
+      {
+        "path": "var/qa/movement-observers/full2/games-3/results.trx",
+        "sha256": "ea10c581b89ac08b5381b314feb2010317c0cdf63849f790b88aaaa70f6d7d92"
+      },
+      {
+        "path": "var/qa/movement-observers/full2/games-4/results.trx",
+        "sha256": "85bc72b979210c412bff57e510f15ad5d1c38e773afcf7aa9fc7bcbe2184df4a"
+      },
+      {
+        "path": "var/qa/movement-observers/full2/plan.json",
+        "sha256": "fcd159d7c4e42245c5552fc19d8cbe3e536af0a704dc5ad24308a3a8d80f0742"
+      }
+    ],
+    "full3": [
+      {
+        "path": "var/qa/movement-observers/full3/games-2/results.trx",
+        "sha256": "e56d183142ff7efe91e6d506394fd16923d71fe9fb46db430889fef2a0481fb5"
+      },
+      {
+        "path": "var/qa/movement-observers/full3/games-3/results.trx",
+        "sha256": "175a228337f97e80ef13a60e9372a509a829f293df537f41cd6f174a14f7d5b3"
+      },
+      {
+        "path": "var/qa/movement-observers/full3/games-4/results.trx",
+        "sha256": "d8a5cf029feefab33b76175a3acda79748fd150c2492417d0f8d3c5dc9e25035"
+      },
+      {
+        "path": "var/qa/movement-observers/full3/plan.json",
+        "sha256": "779aa13d6a828971e520cccb3133ba4be767e19756686d6290aae9c2465b9be6"
+      },
+      {
+        "path": "var/qa/movement-observers/full3/rules/results.trx",
+        "sha256": "912928573fab71457b222a10f7f5efd073fb372ba3d3ae80fb17a0e6053053e0"
+      }
+    ],
+    "full4": [
+      {
+        "path": "var/qa/movement-observers/full4/games-1/results.trx",
+        "sha256": "cd3145182c9b5d10c212a65ab47cffef6a3f26668b92d1952af88cea380cb5a4"
+      },
+      {
+        "path": "var/qa/movement-observers/full4/games-2/results.trx",
+        "sha256": "562640027bf814cbc6269003644f7ba4ecf20dc715fa2695c26e0293a5592c94"
+      },
+      {
+        "path": "var/qa/movement-observers/full4/games-3/results.trx",
+        "sha256": "f327f8353de446e46013125caae6772b6f651abf42052d2ac61a58df0c443380"
+      },
+      {
+        "path": "var/qa/movement-observers/full4/games-4/results.trx",
+        "sha256": "90330821b4d0824e3ce02ba5dd8fb36f522e26a7a08236e9035b78a7e0393288"
+      },
+      {
+        "path": "var/qa/movement-observers/full4/plan.json",
+        "sha256": "17584997195165389bfcd2457c050120b824dd24c53dc19eb95a001a236fdde0"
+      },
+      {
+        "path": "var/qa/movement-observers/full4/rules/results.trx",
+        "sha256": "9bbf28806eecd94af560bf23cf75144eb27fe183113aaa5ded561dcb73d2a530"
+      },
+      {
+        "path": "var/qa/movement-observers/full4/summary.json",
+        "sha256": "0278bbc391506f474bff77edd5b16097a70c9f36fab8f6af73027a4e96a10f60"
+      }
+    ],
+    "bar-fullgame-focus": [
+      {
+        "path": "var/qa/movement-observers/bar-fullgame-focus/results.trx",
+        "sha256": "7f06003c67a89e3cbb64ecb57174a2bf6647f5021633c249398f92755218d180"
+      }
+    ],
+    "bar-fullgame-focus2": [
+      {
+        "path": "var/qa/movement-observers/bar-fullgame-focus2/results.trx",
+        "sha256": "860ab46c61cfb27893fb42f479c3eeaa79daabd86b94ab0973633c18261dafce"
+      }
+    ],
+    "fullgame-focus-direct": [
+      {
+        "path": "var/qa/movement-observers/fullgame-focus-direct/results.trx",
+        "sha256": "e2717dd979c0bb871d5177df9aea89b1ad28929f011654617cfe8852e7f01ce1"
+      }
+    ]
+  }
+}

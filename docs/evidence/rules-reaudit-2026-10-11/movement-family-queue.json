@@ -1,0 +1,510 @@
+{
+  "scope": "Source-text candidates; includes movement instructions as well as observers. No automatic gameplay certification.",
+  "cards": [
+    {
+      "cardNo": "OGN·067/298",
+      "name": "布里茨",
+      "subtitle": "钢铁意志",
+      "officialText": "{{壁垒}}（我在战斗中首先承担伤害。）\n每当你将我打出到一处战场时，你可以选择移动任意一名敌方单位到此处。\n当我据守一处战场时，把我送回所属的手牌。",
+      "sourceId": 31280,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·158/298",
+      "name": "沃利贝尔",
+      "subtitle": "雄浑巨力",
+      "officialText": "{{坚守3}}（如果我是防守方，则{{S}}+3。）\n{{壁垒}}（我在战斗中首先承担伤害。）\n每当对手移动单位到我不在的其他战场时，你抽一张牌。（基地不算作战场。）",
+      "sourceId": 31383,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·158a/298",
+      "name": "沃利贝尔",
+      "subtitle": "雄浑巨力",
+      "officialText": "{{坚守3}}（如果我是防守方，则{{S}}+3。）\n{{壁垒}}（我在战斗中首先承担伤害。）\n每当对手移动单位到我不在的其他战场时，你抽一张牌。（基地不算作战场。）",
+      "sourceId": 31384,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·162/298",
+      "name": "厄运小姐",
+      "subtitle": "船长",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{橙色}}，让我以活跃状态进场。）\n{{游走}}（我可以向其他战场进行移动。）\n每回合首次：当我移动时，让一个其他休眠的物体变为活跃状态（包括传奇和符文）。",
+      "sourceId": 31388,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·162a/298",
+      "name": "厄运小姐",
+      "subtitle": "船长",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{橙色}}，让我以活跃状态进场。）\n{{游走}}（我可以向其他战场进行移动。）\n每回合首次：当我移动时，让一个其他休眠的物体变为活跃状态（包括传奇和符文）。",
+      "sourceId": 31389,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·185/298",
+      "name": "旅行商人",
+      "subtitle": "",
+      "officialText": "每当我移动时，弃置一张手牌，然后抽一张牌。",
+      "sourceId": 31415,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·189/298",
+      "name": "凯隐",
+      "subtitle": "巨镰奔扬",
+      "officialText": "{{游走}}（我可以向其他战场进行移动。）\n在本回合内，如果我移动了两次，则我免疫伤害。",
+      "sourceId": 31419,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·205/298",
+      "name": "亚索",
+      "subtitle": "乘风归",
+      "officialText": "{{游走}}（我可以向其他战场进行移动。）\n当我在一个回合内进行了第三次移动，你获得1分。",
+      "sourceId": 31440,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·205a/298",
+      "name": "亚索",
+      "subtitle": "乘风归",
+      "officialText": "{{游走}}（我可以向其他战场进行移动。）\n当我在一个回合内进行了第三次移动，你获得1分。",
+      "sourceId": 31441,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·222/298",
+      "name": "诺克萨斯鼓手",
+      "subtitle": "",
+      "officialText": "当我移动到一处战场时，在此处打出一名1{{S}}的“随从”（它也位于此战场）。",
+      "sourceId": 31460,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·277/298",
+      "name": "后巷酒吧",
+      "subtitle": "",
+      "officialText": "每当一名单位从此处向别处移动时，让其本回合内{{S}}+1。",
+      "sourceId": 31521,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·038/221",
+      "name": "绸舞士",
+      "subtitle": "",
+      "officialText": "当我移动到一处战场时，让另一名友方单位在本回合内{{S}}+1。",
+      "sourceId": 33114,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·041/221",
+      "name": "学徒铁匠",
+      "subtitle": "",
+      "officialText": "当我移动时，展示你主牌堆顶部的一张牌。如果是一张装备牌，则抽取该卡牌，否则将其回收。",
+      "sourceId": 33117,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·048/221",
+      "name": "天角牧者",
+      "subtitle": "",
+      "officialText": "每当我移动时，抽一张牌。",
+      "sourceId": 33124,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·112/221",
+      "name": "巨腕加藤",
+      "subtitle": "",
+      "officialText": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当我移动到一处战场时，让一名友方单位在本回合内获得我的关键词和等同于我战力的+{{S}}加成。",
+      "sourceId": 33198,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·123/221",
+      "name": "腐化执法官",
+      "subtitle": "",
+      "officialText": "每当我移动到一处战场时，弃置一张手牌。\n每当我赢得战斗时，抽一张牌。",
+      "sourceId": 33213,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·125/221",
+      "name": "大力仙灵",
+      "subtitle": "",
+      "officialText": "当我移动到一处战场时，你可以选择支付{{紫色}}，将你控制的另一名单位移动到相同的战场。",
+      "sourceId": 33215,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·128/221",
+      "name": "狂热粉丝",
+      "subtitle": "",
+      "officialText": "当我防守时，你可以选择摧毁我，以此将一名进攻方单位移动到其基地。",
+      "sourceId": 33218,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·130/221",
+      "name": "寻宝猎人",
+      "subtitle": "",
+      "officialText": "每当我移动时，打出一个休眠的“金币”装备指示物。",
+      "sourceId": 33220,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·137/221",
+      "name": "猎海小队",
+      "subtitle": "",
+      "officialText": "当我从一处战场向其他位置移动时，让我本回合内{{S}}+2。",
+      "sourceId": 33227,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·177/221",
+      "name": "阿兹尔",
+      "subtitle": "帝君",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{黄色}}，让我以活跃状态进场。）\n当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
+      "sourceId": 33273,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·177a/221",
+      "name": "阿兹尔",
+      "subtitle": "帝君",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{黄色}}，让我以活跃状态进场。）\n当我进攻时，你可以选择将自己任意数量的指示物单位移动到此战场。",
+      "sourceId": 33274,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·179/221",
+      "name": "卡银娜·薇蕊泽",
+      "subtitle": "",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{黄色}}，让我以活跃状态进场。）\n当我移动到一处战场时，在此处打出三名1{{S}}的“随从”。",
+      "sourceId": 33276,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·184/221",
+      "name": "冷酷追击",
+      "subtitle": "",
+      "officialText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n移动一名友方单位。你可以选择为其贴附其控制者的一件武装。在本回合内，该单位拥有“当我征服一处战场时，你可以选择将我移动到我的基地”。",
+      "sourceId": 33282,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·235/221",
+      "name": "亚索",
+      "subtitle": "乘风归",
+      "officialText": "{{游走}}（我可以向其他战场进行移动。）\n当我在一个回合内进行了第三次移动，你获得1分。",
+      "sourceId": 33342,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "SFD·235*/221",
+      "name": "亚索",
+      "subtitle": "乘风归",
+      "officialText": "{{游走}}（我可以向其他战场进行移动。）\n当我在一个回合内进行了第三次移动，你获得1分。",
+      "sourceId": 33343,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-022/219",
+      "name": "烬",
+      "subtitle": "致命艺术",
+      "officialText": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n{{游走}}（我可以向其他战场进行移动。）\n当我移动时，{{获得}}{{1}}和{{A}}。（获得费用资源的技能无法成为其他法术的反应目标。）",
+      "sourceId": 34545,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-022a/219",
+      "name": "烬",
+      "subtitle": "致命艺术",
+      "officialText": "{{法盾}}\n{{游走}}\n当我移动时，{{获得}}{{1}}和{{A}}。",
+      "sourceId": 34546,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-050/219",
+      "name": "娅希拉",
+      "subtitle": "",
+      "officialText": "当我据守一处战场时，在你的下一个主阶段开始时，你可以选择将一名敌方单位移动到此战场。",
+      "sourceId": 34578,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-080/219",
+      "name": "彗",
+      "subtitle": "焚心绘华",
+      "officialText": "当我移动时，抽一张牌，然后弃置一张手牌。随后，根据被弃置卡牌的类型，执行以下效果：\n*法术 — 抽一张牌。\n*装备 — 让最多两枚符文变为活跃状态。\n*单位 — 让我本回合内{{S}}+3。",
+      "sourceId": 34614,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-082/219",
+      "name": "莉莉娅",
+      "subtitle": "仙灵小鹿",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{蓝色}}，让我以活跃状态进场。）\n当我移动时，在我移动的起点位置打出一名3{{S}}的“精灵”，它拥有{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "sourceId": 34616,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-082a/219",
+      "name": "莉莉娅",
+      "subtitle": "仙灵小鹿",
+      "officialText": "{{急速}}\n当我移动时，在我移动的起点位置打出一名3{{S}}的“精灵”，它拥有{{瞬息}}。",
+      "sourceId": 34617,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-105/219",
+      "name": "气势逼人的挑战者",
+      "subtitle": "",
+      "officialText": "当我移动时，你可以选择将一名位于此处且战力低于我的敌方单位移动到另一处战场。",
+      "sourceId": 34643,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-112/219",
+      "name": "诱人仙灵",
+      "subtitle": "",
+      "officialText": "当我移动到一处战场时，你可以选择将一名敌方单位移动到该战场。",
+      "sourceId": 34650,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-115/219",
+      "name": "尼菈",
+      "subtitle": "欢歌破浪",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{橙色}}，让我以活跃状态进场。）\n{{游走}}（我可以向其他战场进行移动。）\n当我移动时，获得1经验。",
+      "sourceId": 34654,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-127/219",
+      "name": "树根先生",
+      "subtitle": "",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{紫色}}，让我以活跃状态进场。）\n当我移动至战场时，获得2经验。",
+      "sourceId": 34670,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-137/219",
+      "name": "悚悚魄罗",
+      "subtitle": "",
+      "officialText": "当我进攻时，你可以选择支付{{1}}，将此处的一名敌方单位移动到其基地。",
+      "sourceId": 34680,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-144/219",
+      "name": "守门者马杜里",
+      "subtitle": "",
+      "officialText": "我无法变为活跃状态。\n支付{{紫色}}：如果我的战力大于一处敌方控制的战场上所有敌方单位的战力总和，则将我移动到该处。",
+      "sourceId": 34688,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-150/219",
+      "name": "薇古丝",
+      "subtitle": "冷眼旁观",
+      "officialText": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当对手打出一名单位时，如果我位于战场上，则{{眩晕}}该单位。该对手在本回合内无法移动该单位。（使其在本回合内无法造成战斗伤害。）",
+      "sourceId": 34697,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-150a/219",
+      "name": "薇古丝",
+      "subtitle": "冷眼旁观",
+      "officialText": "{{法盾}}\n当对手打出一名单位时，如果我位于战场上，则{{眩晕}}该单位。该对手在本回合内无法移动该单位。",
+      "sourceId": 34698,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-179/219",
+      "name": "峡谷先锋",
+      "subtitle": "",
+      "officialText": "当我移动至一处战场时，查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。\n{{绝念>}} 从你的手牌中打出一名单位到你的基地，无视其法力费用。（当我被摧毁后，发动此效果。仍需支付所有符能费用。）",
+      "sourceId": 34731,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "UNL-179a/219",
+      "name": "峡谷先锋",
+      "subtitle": "",
+      "officialText": "当我移动至一处战场时，查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。\n{{绝念>}} 从你的手牌中打出一名单位到你的基地，无视其法力费用。",
+      "sourceId": 34732,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·002",
+      "name": "旋风剑客",
+      "subtitle": "",
+      "officialText": "每回合首次，当我移动时，选择一名玩家。该玩家{{燃烧1}}。（该玩家将其主牌堆顶部的一张牌放入其废牌堆。）",
+      "sourceId": 37687,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·016",
+      "name": "蚀影巨龙",
+      "subtitle": "",
+      "officialText": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n当我移动时，如果你控制的符文数量不超过四枚，则抽一张牌。",
+      "sourceId": 37701,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·021",
+      "name": "阿卡丽",
+      "subtitle": "游离之刃",
+      "officialText": "{{强化2红色}}（支付{{2}}和{{红色}}：强化我。仅在未强化时可用。）\n当我移动时，你可以选择对我移动起点或终点的战场上的一名单位造成1点伤害。如果我{{已强化}}，则改为造成2点伤害。\n{{已强化>}} 我获得{{S}}+1。",
+      "sourceId": 37707,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·021a",
+      "name": "阿卡丽",
+      "subtitle": "游离之刃",
+      "officialText": "{{强化2红色}}\n当我移动时，你可以选择对我移动起点或终点的战场上的一名单位造成1点伤害。如果我{{已强化}}，则改为造成2点伤害。\n{{已强化>}} 我获得{{S}}+1。",
+      "sourceId": 37708,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·033",
+      "name": "帕卡监护者",
+      "subtitle": "",
+      "officialText": "当我移动时，展示你主牌堆顶部的一张牌。如果是一张单位牌，则抽取该卡牌。否则，将其放入你的废牌堆并给予我在本回合内{{S}}+2。",
+      "sourceId": 37721,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·038",
+      "name": "阿卡丽",
+      "subtitle": "无形致命",
+      "officialText": "除非我处于战斗中，否则我无法被敌方法术和技能选作目标。\n当我移动到一处战场时，给予我在本回合内{{S}}+2。",
+      "sourceId": 37726,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·038a",
+      "name": "阿卡丽",
+      "subtitle": "无形致命",
+      "officialText": "除非我处于战斗中，否则我无法被敌方法术和技能选作目标。\n当我移动到一处战场时，给予我在本回合内{{S}}+2。",
+      "sourceId": 37727,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·057",
+      "name": "秘密线人",
+      "subtitle": "",
+      "officialText": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 当我移动时，抽一张牌。",
+      "sourceId": 37748,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·091",
+      "name": "腐化巨龙",
+      "subtitle": "",
+      "officialText": "如果你的得分距离胜利得分超过3分，则我以活跃状态进场。\n当我进攻时，你可以选择将此处任意数量的战力不高于5{{S}}的敌方单位移动到其基地。",
+      "sourceId": 37787,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·095",
+      "name": "影流弟子",
+      "subtitle": "",
+      "officialText": "当我移动时，你可以选择{{燃烧1}}，以此给予我在本回合内{{S}}+1。（将你主牌堆顶部的一张牌放入你的废牌堆，即为燃烧1。）",
+      "sourceId": 37792,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "VEN·111",
+      "name": "米娜·捷足",
+      "subtitle": "",
+      "officialText": "当我移动到一处战场时，选择一个效果 —\n- 每名玩家各弃置一张手牌。\n- 每名玩家各抽一张牌。",
+      "sourceId": 37809,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "OGN·177/298",
+      "name": "隐秘追踪者",
+      "subtitle": "",
+      "officialText": "每当有友方单位从我的位置向别处移动时，我可以选择跟随它一起移动。",
+      "sourceId": 37951,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "RAD·015/167",
+      "name": "阿卡丽",
+      "subtitle": "狂傲不羁",
+      "officialText": "当我每回合首次移动时，{{获得}}{{1}}和{{A}}。\n当我每回合第二次移动时，放逐你主牌堆顶部的一张牌。直到你的下一个回合结束阶段，你可以选择打出该牌。（仍须支付卡牌费用。）",
+      "sourceId": 38202,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "RAD·110/167",
+      "name": "璐璐",
+      "subtitle": "古灵精怪",
+      "officialText": "当我移动时，你可以选择让另一名单位的基础战力在本回合内变为4。",
+      "sourceId": 38214,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "RAD·074/167",
+      "name": "狂热目击者",
+      "subtitle": "",
+      "officialText": "当我移动时，展示你主牌堆顶部的一张牌。如果其为{{强力}}单位，则抽取该卡牌。否则将其回收。（只要战力达到5或以上，即为强力单位。）",
+      "sourceId": 38235,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "RAD·SP2/005",
+      "name": "阿卡丽",
+      "subtitle": "狂傲不羁",
+      "officialText": "当我每回合首次移动时，{{获得}}{{1}}和{{A}}。\n当我每回合第二次移动时，放逐你主牌堆顶部的一张牌。直到你的下一个回合结束阶段，你可以选择打出该牌。",
+      "sourceId": 38263,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "RAD·133/167",
+      "name": "嘉文四世",
+      "subtitle": "冕武天骄",
+      "officialText": "{{强攻}}（只要我是进攻方，便{{S}}+1。） \n{{壁垒}}（必须先为我分配战斗伤害。） \n当我进攻时，你可以选择将你控制的一名单位移动到我所在的战场。",
+      "sourceId": 38290,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "RAD·133a/167",
+      "name": "嘉文四世",
+      "subtitle": "冕武天骄",
+      "officialText": "{{强攻}}\n{{壁垒}}\n当我进攻时，你可以选择将你控制的一名单位移动到我的战场。",
+      "sourceId": 38291,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "RAD·182/167",
+      "name": "凯隐",
+      "subtitle": "巨镰奔扬",
+      "officialText": "{{游走}}\n如果我已在本回合内移动了两次，则我无法受到伤害。",
+      "sourceId": 38304,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    },
+    {
+      "cardNo": "RAD·078/167",
+      "name": "重甲象骑",
+      "subtitle": "",
+      "officialText": "{{坚守3}}（只要我是防守方，便{{S}}+3。）\n{{壁垒}}（必须先为我分配战斗伤害。）\n当我移动时，你可以选择对战场上的一名单位造成等同于我{{坚守}}数值的伤害。",
+      "sourceId": 38313,
+      "status": "CANDIDATE_REQUIRES_SEMANTIC_REVIEW"
+    }
+  ],
+  "nextFamilies": [
+    "movement draw and experience",
+    "movement target confirmation and optional costs",
+    "per-unit turn movement count",
+    "movement creation at exact origin/destination",
+    "opponent performer and other-location observers",
+    "follow movement and swaps",
+    "remaining movement destination and equipment-following paths"
+  ]
+}

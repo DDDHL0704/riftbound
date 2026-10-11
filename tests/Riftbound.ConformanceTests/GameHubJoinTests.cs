@@ -11697,9 +11697,18 @@ public sealed class GameHubJoinTests
         Assert.Empty(moveClients.CallerClient.Errors);
         var moveEvents = EventsFor(moveClients);
         Assert.Contains(moveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
+        Assert.DoesNotContain(moveEvents, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "pass-move-trigger-1", pass);
+        var resolvedClients = new RecordingHubClients();
+        await CreateHub(resolvedClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "pass-move-trigger-2", pass);
+        Assert.Empty(resolvedClients.CallerClient.Errors);
+        moveEvents = EventsFor(resolvedClients);
         Assert.Contains(moveEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["observerKind"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
         Assert.Contains(moveEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
             && Equals(gameEvent.Payload["resultingPower"], 3));

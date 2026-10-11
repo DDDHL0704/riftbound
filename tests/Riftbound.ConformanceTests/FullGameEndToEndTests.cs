@@ -867,6 +867,17 @@ public sealed class FullGameEndToEndTests
             current,
             "P1",
             "b0-back-alley-bar-move-to-base");
+        var skill = Assert.Single(moved.State.StackItems);
+        var movement = Assert.IsType<MovementObserverContext>(skill.MovementObserver);
+        Assert.Equal(TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, movement.Kind);
+        Assert.Equal("P1", skill.ControllerId);
+        Assert.Equal(BackAlleyBarBattlefieldMovedUnitPowerCardNo, movement.CardNo);
+        Assert.Equal(skill.SourceObjectId, movement.Unit.Origin.BattlefieldObjectId);
+        Assert.Equal("BATTLEFIELD", movement.Unit.Origin.Zone);
+        Assert.Equal("BASE", movement.Unit.Destination.Zone);
+        Assert.Equal(current.State.CardObjects[movement.Unit.ObjectId].Power,
+            moved.State.CardObjects[movement.Unit.ObjectId].Power);
+        moved = await ResolveDriverPendingEffectsAsync(session, moved, "b0-back-alley-bar-response");
         AssertBattlefieldMovedUnitPowerResolved(current, moved);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -6505,20 +6516,15 @@ public sealed class FullGameEndToEndTests
         Assert.Null(movedLocation.BattlefieldObjectId);
 
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
-        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(BackAlleyBarBattlefieldMovedUnitPowerCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(movedObjectId, triggerEvent.Payload["targetObjectId"]);
-        Assert.Equal("BATTLEFIELD", triggerEvent.Payload["originZone"]);
-        Assert.Equal("BASE", triggerEvent.Payload["destinationZone"]);
-        Assert.Equal(expectedPowerDelta, triggerEvent.Payload["powerDelta"]);
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "CAPTURED_UNIT_MOVEMENT_OBSERVER", StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["controllerId"]);
+        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["sourceObjectId"]);
 
         var movedState = result.State.CardObjects[movedObjectId];
         var powerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
         Assert.Equal(movedObjectId, powerEvent.Payload["targetObjectId"]);
         Assert.Equal(expectedPowerDelta, powerEvent.Payload["appliedPowerDelta"]);
         Assert.Equal(movedState.Power, powerEvent.Payload["resultingPower"]);
@@ -22061,10 +22067,13 @@ public sealed class FullGameEndToEndTests
         var result = current;
         for (var index = 0; index < 20; index++)
         {
+            // Movement observers may resolve first and only then open the
+            // battlefield's spell duel. Re-check focus after draining that chain.
+            result = await ResolveDriverPendingEffectsAsync(session, result, $"{intentPrefix}-drain-{index}");
             if (!string.Equals(result.State.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
                 && string.IsNullOrWhiteSpace(result.State.FocusPlayerId))
             {
-                return await ResolveDriverPendingEffectsAsync(session, result, intentPrefix);
+                return result;
             }
 
             var focusPlayerId = result.State.FocusPlayerId;

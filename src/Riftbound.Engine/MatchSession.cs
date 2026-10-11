@@ -663,6 +663,7 @@ public sealed record StackItemState
     public InsightTriggerContext? InsightContext { get; init; }
     public DeathRevealContext? DeathRevealContext { get; init; }
     public DeathObserverContext? DeathObserver { get; init; }
+    public MovementObserverContext? MovementObserver { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public FieldTriggerContext? FieldContext { get; init; }
@@ -750,6 +751,7 @@ public sealed record TriggerQueueItemState
     public InsightTriggerContext? InsightContext { get; init; }
     public DeathRevealContext? DeathRevealContext { get; init; }
     public DeathObserverContext? DeathObserver { get; init; }
+    public MovementObserverContext? MovementObserver { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public FieldTriggerContext? FieldContext { get; init; }
@@ -1520,22 +1522,7 @@ public sealed record MatchState
                 continue;
             }
 
-            if (cardObject.Damage <= 0)
-            {
-                continue;
-            }
-
-            if (cardObject.Power <= 0)
-            {
-                if (!IsZeroOrNegativePowerDamagedCleanupCandidate(cardObject))
-                {
-                    continue;
-                }
-            }
-            else if (cardObject.Damage < cardObject.Power)
-            {
-                continue;
-            }
+            if (!CoreRuleEngine.IsLethalFieldUnit(state, cardObject)) continue;
 
             tasks.Add(new CleanupTaskState(
                 $"cleanup:lethal:{objectId}",
@@ -1912,15 +1899,6 @@ public sealed record MatchState
     {
         return !string.IsNullOrWhiteSpace(cardObject.OwnerId)
             || !string.IsNullOrWhiteSpace(cardObject.ControllerId);
-    }
-
-    private static bool IsZeroOrNegativePowerDamagedCleanupCandidate(CardObjectState cardObject)
-    {
-        return cardObject.Power <= 0
-            && cardObject.Damage > 0
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && HasOwnerOrControllerIdentity(cardObject);
     }
 
     private static string PendingTaskQueuePhase(MatchState state, CleanupTaskState? activeTask)
@@ -4151,7 +4129,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4165,7 +4143,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -4546,6 +4524,7 @@ public sealed record ResolutionResult(
             return $"隐藏来源触发 ({trigger.TriggerId})";
         }
 
+        if (trigger.MovementObserver is { } movement) return CoreRuleEngine.MovementObserverLabel(movement);
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death);
         return string.IsNullOrWhiteSpace(trigger.EffectKind)
             ? trigger.TriggerId
@@ -4562,6 +4541,7 @@ public sealed record ResolutionResult(
             return "对手隐藏来源的触发能力";
         }
 
+        if (trigger.MovementObserver is { } movement) return CoreRuleEngine.MovementObserverLabel(movement) + "；双方响应后结算。";
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death) + "；记录死亡时的控制者，双方响应后结算。";
         var source = string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             ? "未知来源"
@@ -4597,7 +4577,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        return trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
+        return trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
     }
 
@@ -5214,6 +5194,7 @@ public sealed record ResolutionResult(
             "LEBLANC_DISCARD" => "映像创建", "VEX" => "据守抽牌", "RENATA" => "据守创建金币",
             "PAY_POWER_SCORE" => "据守额外得分", "BOON" => "据守增益", "MOVE_BASE" => "据守移回基地", "RETURN_PERMANENT" => "据守返回手牌", "RETURN_HERO" => "据守返回选定英雄", "CHANNEL_OPTIONAL" => "据守召出符文", "IVERN" => "替换为草丛", "BRUSH_RETURN" => "换回原战场", _ => null }) is { } heldLabel) view["abilityLabel"] = heldLabel;
         if (!hiddenSource && item.LegendConquest is { } conquest) view["abilityLabel"] = conquest.Kind == "EXHAUST_DECK_PLAY" ? "征服展示并打出" : conquest.Kind == "EXHAUST_READY_UNIT" ? "征服活跃单位" : "征服活跃传奇";
+        if (!hiddenSource && item.MovementObserver is { } movement) view["abilityLabel"] = CoreRuleEngine.MovementObserverLabel(movement);
         if (!hiddenSource && item.DeathObserver is { } death) view["abilityLabel"] = CoreRuleEngine.DeathObserverLabel(death);
         if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
@@ -5232,7 +5213,7 @@ public sealed record ResolutionResult(
         StackItemState item,
         string viewerPlayerId)
     {
-        return !string.IsNullOrWhiteSpace(item.SourceObjectId)
+        return item.MovementObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 
@@ -5329,6 +5310,7 @@ public sealed record ResolutionResult(
             ["sourceVisibility"] = hiddenSource ? "HIDDEN" : "VISIBLE",
             ["effectKind"] = hiddenSource ? "HIDDEN" : item.EffectKind,
             ["deathObserver"] = item.DeathObserver,
+            ["movementObserver"] = item.MovementObserver,
             ["triggeredByEventKind"] = item.TriggeredByEventKind
         };
     }
@@ -22904,7 +22886,7 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldMovePowerScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var state = BuildScenarioState(
             current,
             seed,
             2603303063,
@@ -22944,6 +22926,9 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+        return state with { ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
+            ["P1-BATTLEFIELD-BACK-ALLEY-BAR"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-BACK-ALLEY-BAR"),
+            ["P1-BATTLEFIELD-BAR-REGULAR"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-BACK-ALLEY-BAR") } };
     }
 
     private static MatchState BuildBattlefieldStaticPreventPlayUnitsScenario(MatchState current, DevScenarioSeed seed)

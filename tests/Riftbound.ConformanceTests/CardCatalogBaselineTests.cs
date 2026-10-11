@@ -4322,7 +4322,8 @@ public sealed class CardCatalogBaselineTests
     public void SingleRepresentativeTriggerSpecRulesUseGenericSpecPredicateSurface()
     {
         var engineRoot = Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine");
-        var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"));
+        var coreRuleEngineSource = File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.cs"))
+            + File.ReadAllText(Path.Combine(engineRoot, "CoreRuleEngine.MovementObservers.cs"));
 
         Assert.DoesNotContain(
             "UnitMovedTriggerSpecRules.TryGetUnitMovedCreateDormantGoldTrigger",

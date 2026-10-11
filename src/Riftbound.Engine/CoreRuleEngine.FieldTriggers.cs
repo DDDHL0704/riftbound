@@ -229,10 +229,7 @@ public sealed partial class CoreRuleEngine
                         ["effectSourceObjectId"] = item.SourceObjectId, ["originZone"] = "BATTLEFIELD", ["destinationZone"] = "BASE",
                         ["origin"] = "BATTLEFIELD:" + item.FieldContext.BattlefieldId, ["destination"] = "BASE" }));
                     events.AddRange(MoveAttachedEquipmentWithHost(zones, equipment, controller, target, "BASE"));
-                    events.AddRange(ResolveUnitMovedCreateDormantGoldTrigger(zones, cards, controller, target, "BATTLEFIELD", "BASE"));
-                    var moved = state with { PlayerZones = zones, CardObjects = cards };
-                    var resource = BuildJhinMovementResourceTrigger(moved, controller, target, card, "BATTLEFIELD:" + item.FieldContext.BattlefieldId, "BASE");
-                    if (resource is not null) { triggers.Add(resource); events.Add(BuildTriggerQueuedEvent(resource)); }
+                    events.Add(CaptureMovementObservers(state, target, item.ControllerId, "BASE"));
                 }
             }
         }

@@ -83,15 +83,8 @@ public sealed partial class CoreRuleEngine
             foreach (var equipment in move.Equipment) locations[equipment] = new(intent.PlayerId, destinationZone, destinationBattlefieldId);
         }
 
-        var relocated = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, RunePools = pools };
-        var queued = new List<TriggerQueueItemState>();
         foreach (var move in moves)
-        {
-            events.AddRange(ApplyBattlefieldMovedUnitPowerPlusOne(relocated, cards, intent.PlayerId, move.Id, move.OriginZone, destinationZone));
-            events.AddRange(ResolveUnitMovedCreateDormantGoldTrigger(zones, cards, intent.PlayerId, move.Id, move.OriginZone, destinationZone));
-            var trigger = BuildJhinMovementResourceTrigger(relocated, intent.PlayerId, move.Id, cards[move.Id], move.Origin, destination);
-            if (trigger is not null) { queued.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger)); }
-        }
+            events.Add(CaptureMovementObservers(state, move.Id, intent.PlayerId, destinationZone, destinationBattlefieldId));
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards,
             new StackItemState($"move-group-{state.Tick + 1}", intent.PlayerId, ids[0], "MOVE_UNIT", targetObjectIds: ids),
             pools, objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);
@@ -100,7 +93,7 @@ public sealed partial class CoreRuleEngine
         {
             Tick = state.Tick + 1, PlayerZones = zones, CardObjects = cards,
             ObjectLocations = ReconcileObjectLocations(locations, zones), RunePools = cleanup.RunePools,
-            PassedPriorityPlayerIds = [], TriggerQueue = state.TriggerQueue.Concat(queued).Concat(cleanup.TriggerQueue).ToArray(),
+            PassedPriorityPlayerIds = [], TriggerQueue = state.TriggerQueue.Concat(cleanup.TriggerQueue).ToArray(),
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, cleanup.DestroyedUnitOwnerIds)
         };
         var advance = AdvancePendingBattlefieldTasksAfterStateChange(next, intent.PlayerId, state);

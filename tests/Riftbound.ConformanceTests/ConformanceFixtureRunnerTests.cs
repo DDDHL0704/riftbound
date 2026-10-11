@@ -42946,19 +42946,21 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Equal(["P1-BATTLEFIELD-BACK-ALLEY-BAR"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P1-BATTLEFIELD-BAR-REGULAR"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(2, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].Power);
+        Assert.Single(result.State.StackItems);
+        result = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].Power);
         Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].UntilEndOfTurnPowerModifier);
         Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["observerKind"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal)
             && Equals(gameEvent.Payload["resultingPower"], 3));
     }
 
     [Fact]
-    public async Task P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource()
+    public async Task P79BattlefieldMovedUnitPowerSkipsUnrelatedBattlefield()
     {
         var state = BattlefieldMovePowerState();
         var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -42967,8 +42969,11 @@ public sealed class ConformanceFixtureRunnerTests
             ControllerId = "P2"
         };
 
+        dirtyObjects["OTHER"] = new("OTHER", cardNo: "OGN·275/298", ownerId: "P1", controllerId: "P1", tags: [P6TokenFactoryCatalog.BattlefieldCardTag]);
+        state = state with { PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with { Battlefields = [..state.PlayerZones["P1"].Battlefields, "OTHER"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["OTHER"] = new("P1", "BATTLEFIELD", "OTHER"), ["P1-BATTLEFIELD-BAR-REGULAR"] = new("P1", "BATTLEFIELD", "OTHER") } };
         var result = await new CoreRuleEngine().ResolveAsync(
-            state with { CardObjects = dirtyObjects },
+            state with { CardObjects = dirtyObjects, ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["P1-BATTLEFIELD-BAR-REGULAR"] = new("P1", "BATTLEFIELD", "OTHER") } },
             new PlayerIntent("intent-p7-9-battlefield-move-power-dirty-source", "P1", "MOVE_UNIT"),
             new MoveUnitCommand(
                 "P1-BATTLEFIELD-BAR-REGULAR",
@@ -42977,16 +42982,14 @@ public sealed class ConformanceFixtureRunnerTests
                 []),
             CancellationToken.None);
 
-        Assert.True(result.Accepted);
-        Assert.Equal(["P1-BATTLEFIELD-BACK-ALLEY-BAR"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["P1-BATTLEFIELD-BACK-ALLEY-BAR", "OTHER"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P1-BATTLEFIELD-BAR-REGULAR"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(2, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].Power);
+        Assert.Empty(result.State.StackItems);
+        Assert.Empty(result.State.TriggerQueue);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].UntilEndOfTurnPowerModifier);
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldUnitMovedAwayPowerModifier, StringComparison.Ordinal));
-        Assert.DoesNotContain(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
     }
 
     [Fact]
@@ -61040,8 +61043,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains("UNIT_RECALLED_TO_BASE", snapshotRelatedEventKinds);
     }
 
-    [Fact]
-    public async Task P4DeclareBattleCommandStunnedDefenderContributesZeroCombatPowerButCanBeDestroyed()
+    [Theory]
+    [InlineData(5, false)]
+    [InlineData(7, true)]
+    public async Task P4DeclareBattleCommandStunnedDefenderContributesZeroCombatPowerButCanBeDestroyed(int attackerPower, bool lethal)
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -61061,7 +61066,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ATTACKER",
                     cardNo: "OGS·007/024",
-                    power: 5,
+                    power: attackerPower,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
@@ -61094,10 +61099,22 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-BATTLEFIELD-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
         Assert.Equal("P2-BATTLEFIELD-STUNNED-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
         Assert.Equal("ATTACKER", attackerDamageEvent.Payload["combatRole"]);
-        Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(attackerPower, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
-        Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
-        Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
+        Assert.Equal(attackerPower, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(attackerPower, attackerDamageEvent.Payload["damage"]);
+        // Stun suppresses damage contribution, not the defender's +2 current might.
+        // Five marked damage is nonlethal; seven still destroys the stunned unit.
+        if (!lethal)
+        {
+            Assert.DoesNotContain(result.Events, e => e.Kind == "UNIT_DESTROYED");
+            Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
+            Assert.Contains("P2-BATTLEFIELD-STUNNED-DEFENDER", result.State.PlayerZones["P2"].Battlefields);
+            Assert.Contains("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Base);
+            Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-STUNNED-DEFENDER"].Damage);
+            Assert.Empty(result.State.StackItems);
+            return;
+        }
         var destroyedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
         Assert.Equal("P1-BATTLEFIELD-ATTACKER", destroyedEvent.Payload["sourceObjectId"]);
         Assert.Equal("P2-BATTLEFIELD-STUNNED-DEFENDER", destroyedEvent.Payload["targetObjectId"]);
@@ -67890,6 +67907,10 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 0) with
         {
+            TimingState = TimingStates.NeutralOpen, PriorityPlayerId = null, PassedPriorityPlayerIds = [],
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["P1-BATTLEFIELD-BACK-ALLEY-BAR"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-BACK-ALLEY-BAR"),
+                ["P1-BATTLEFIELD-BAR-REGULAR"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-BACK-ALLEY-BAR") },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with

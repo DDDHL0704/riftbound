@@ -1,0 +1,38 @@
+{
+  "baseline": 9357,
+  "current": 9377,
+  "removed": [],
+  "renamed": {
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79BattlefieldMovedUnitPowerSkipsOpponentControlledSource": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79BattlefieldMovedUnitPowerSkipsUnrelatedBattlefield"
+  },
+  "expanded": {
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P4DeclareBattleCommandStunnedDefenderContributesZeroCombatPowerButCanBeDestroyed": [
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P4DeclareBattleCommandStunnedDefenderContributesZeroCombatPowerButCanBeDestroyed(attackerPower: 5, lethal: False)",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P4DeclareBattleCommandStunnedDefenderContributesZeroCombatPowerButCanBeDestroyed(attackerPower: 7, lethal: True)"
+    ]
+  },
+  "added": [
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.DamageAndBanishReplacementDoNotCountAsMovement",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.EarnedGoldSurvivesSourceLeavingOrChangingControl(changedControl: False)",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.EarnedGoldSurvivesSourceLeavingOrChangingControl(changedControl: True)",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.MovingOutOfAnAuraCanKillTheHunterBeforeItsGoldSkillResolves",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.OpponentMovingJhinImmediatelyCreditsJhinController(no: \"UNL-022/219\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.OpponentMovingJhinImmediatelyCreditsJhinController(no: \"UNL-022a/219\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.OpponentMovingTreasureHunterCreatesResponsiveSkillForItsController(destination: \"BASE:P2\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.OpponentMovingTreasureHunterCreatesResponsiveSkillForItsController(destination: \"BATTLEFIELD:BF2\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.RecoveryRejectsMissingOrForgedMovementFacts(kind: \"generation\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.RecoveryRejectsMissingOrForgedMovementFacts(kind: \"missing\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.RecoveryRejectsMissingOrForgedMovementFacts(kind: \"no-move\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.RecoveryRejectsMissingOrForgedMovementFacts(kind: \"source\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.SimultaneousMovementKeepsEveryGoldAndTavernTriggerAvailableForOrdering",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.TavernAtUnrelatedFieldDoesNotObserveMovement",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.TavernCannotBuffANewIncarnationOfTheMovedUnit",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.TavernObservesEveryUnitLeavingItsExactLocationAfterResponse(destination: \"BASE:P2\")",
+    "Riftbound.ConformanceTests.MovementObserverAuditTests.TavernObservesEveryUnitLeavingItsExactLocationAfterResponse(destination: \"BATTLEFIELD:BF2\")",
+    "Riftbound.ConformanceTests.MovementObserverNativeTests.ProductionMovementOrderRestoresAndReplays(reverse: False)",
+    "Riftbound.ConformanceTests.MovementObserverNativeTests.ProductionMovementOrderRestoresAndReplays(reverse: True)"
+  ],
+  "allPassed": true,
+  "renameReason": "Opposing battlefield control does not disqualify movement triggers; the negative case now checks an unrelated battlefield.",
+  "expansionReason": "CN 423.1.b/c and 814.1.c: stun prevents damage contribution but preserves +2 might while defending. Split old incorrect five-damage destruction into five-damage survival and seven-damage destruction."
+}

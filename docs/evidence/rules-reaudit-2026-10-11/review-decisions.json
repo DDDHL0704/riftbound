@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "overallStatus": "IN_PROGRESS_NOT_READY",
+  "policy": "Scope-limited decisions only; no automatic whole-card or whole-rule coverage inheritance.",
+  "reviews": [
+    {
+      "id": "movement-observers-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Captured movement triggers for Back Alley Bar, Treasure Hunter and Jhin Deadly Artist; shared current-power lethal cleanup. Not complete card certification.",
+      "subjects": [
+        {
+          "id": "OGN-277/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31521,
+              "cardNo": "OGN·277/298",
+              "name": "后巷酒吧",
+              "sha256": "6ef72648197617af0c0fcee189b9711f7937078e5472ba14720b1c9d112b243b"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-277-298",
+              "cardNo": "OGN-277/298",
+              "name": "Back-Alley Bar",
+              "sha256": "176fa4a17f2d7ce7859c39ccbb9ee56ed288bff16aacbffc90e54fc2f3658782"
+            }
+          ],
+          "activeCardNo": "OGN·277/298",
+          "reviewStatus": "PARTIAL_MOVEMENT_BEHAVIOR_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs"
+          ],
+          "tests": [
+            "MovementObserverAuditTests",
+            "MovementObserverNativeTests",
+            "TreasureHunterMoveTriggerTests",
+            "JhinMovementResourceSkillTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-observers-2026-10-11"
+          ]
+        },
+        {
+          "id": "SFD-130/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33220,
+              "cardNo": "SFD·130/221",
+              "name": "寻宝猎人",
+              "sha256": "af9e8365957044e86e4a3b08491b0b4cc8af7ff20a090072fae9fa6ba2496eaf"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-130-221",
+              "cardNo": "SFD-130/221",
+              "name": "Treasure Hunter",
+              "sha256": "f3c98db46bcfdadca6c210bc6a681f0e9d4f0d382d1073d9e826f7cd0d015112"
+            }
+          ],
+          "activeCardNo": "SFD·130/221",
+          "reviewStatus": "PARTIAL_MOVEMENT_BEHAVIOR_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs"
+          ],
+          "tests": [
+            "MovementObserverAuditTests",
+            "MovementObserverNativeTests",
+            "TreasureHunterMoveTriggerTests",
+            "JhinMovementResourceSkillTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-observers-2026-10-11"
+          ]
+        },
+        {
+          "id": "UNL-022/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34545,
+              "cardNo": "UNL-022/219",
+              "name": "烬",
+              "sha256": "a584099cf12ad202ce8cb4b423b9d836e396de427d28cb3db8d215730de152f5"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-022-219",
+              "cardNo": "UNL-022/219",
+              "name": "Jhin",
+              "sha256": "6f7d68edc1c53b2923260d5509e75d273a6f4601ea83f3514adef1a6aff13f2f"
+            }
+          ],
+          "activeCardNo": "UNL-022/219",
+          "reviewStatus": "PARTIAL_MOVEMENT_BEHAVIOR_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs"
+          ],
+          "tests": [
+            "MovementObserverAuditTests",
+            "MovementObserverNativeTests",
+            "TreasureHunterMoveTriggerTests",
+            "JhinMovementResourceSkillTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-observers-2026-10-11"
+          ]
+        },
+        {
+          "id": "UNL-022A/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34546,
+              "cardNo": "UNL-022a/219",
+              "name": "烬",
+              "sha256": "6a2ecaced831e6f38ff1515f1053976324a4069355a9025937b526388c52c923"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-022a-219",
+              "cardNo": "UNL-022a/219",
+              "name": "Jhin",
+              "sha256": "d44e8741c150e7eb9d21969c3d852206249ba0dd8d075225a9e6635d0df6b385"
+            }
+          ],
+          "activeCardNo": "UNL-022a/219",
+          "reviewStatus": "PARTIAL_MOVEMENT_BEHAVIOR_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs"
+          ],
+          "tests": [
+            "MovementObserverAuditTests",
+            "MovementObserverNativeTests",
+            "TreasureHunterMoveTriggerTests",
+            "JhinMovementResourceSkillTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-observers-2026-10-11"
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P027-B020",
+        "DOC-04-P028-B001",
+        "DOC-04-P060-B006",
+        "DOC-04-P077-B005",
+        "DOC-04-P085-B017",
+        "DOC-04-P073-B007",
+        "DOC-04-P073-B008",
+        "DOC-04-P117-B008"
+      ],
+      "auditDocument": "docs/MOVEMENT_OBSERVERS_AUDIT_2026-10-11.md",
+      "tests": [
+        "MovementObserverAuditTests",
+        "MovementObserverNativeTests",
+        "TreasureHunterMoveTriggerTests",
+        "JhinMovementResourceSkillTests"
+      ],
+      "evidence": "docs/evidence/movement-observers-2026-10-11",
+      "exclusions": [
+        "Other abilities printed on the same cards",
+        "Other movement observer families",
+        "Published future-effective rules",
+        "Dual-window and Windows acceptance"
+      ],
+      "validation": {
+        "fullCases": 9377,
+        "fullMethods": 6252,
+        "checkCases": 9244,
+        "nativeScenarios": 2,
+        "nativeCommands": 2,
+        "journalCommands": 10,
+        "wholeCardCertification": false
+      }
+    }
+  ]
+}

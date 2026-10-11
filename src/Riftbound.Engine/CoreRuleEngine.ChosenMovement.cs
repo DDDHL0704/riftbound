@@ -50,9 +50,11 @@ public sealed partial class CoreRuleEngine
         // All selected units relocate before downstream cleanup/contest processing.
         foreach (var id in ids)
         {
-            if (!IsUnitMovementDestination(state, id, destination)
+            var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+            if (!IsUnitMovementDestination(current, id, destination)
                 || !MovementRestrictionRules.CanMove(cards.GetValueOrDefault(id), item.ControllerId)
-                || (toBase && BattlefieldLocalRules.PreventsMoveToBase(state, id))) continue;
+                || (toBase && BattlefieldLocalRules.PreventsMoveToBase(current, id))) continue;
+            var movementObservation = CaptureMovementObservers(current, id, item.ControllerId, destinationZone, field);
             var origin = FindFieldObjectLocation(zones, id)!.Value;
             var equipment = AttachedEquipmentObjectIds(cards, id);
             RemoveFieldObjectFromLocation(zones, origin.PlayerId, origin.Zone, id);
@@ -66,6 +68,7 @@ public sealed partial class CoreRuleEngine
                     ["destinationZone"] = destinationZone, ["destination"] = destination, ["battlefieldObjectId"] = field,
                     ["simultaneousSourceObjectIds"] = ids
                 }));
+            events.Add(movementObservation);
             events.AddRange(MoveAttachedEquipmentWithHost(zones, equipment, origin.PlayerId, id, destinationZone));
             foreach (var gear in equipment) locations[gear] = new(origin.PlayerId, destinationZone, field);
         }

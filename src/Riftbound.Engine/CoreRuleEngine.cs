@@ -165,7 +165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
-            result = RecordDeathObservers(state, ApplyNestedDestructionContinuations(result));
+            result = RecordDeathObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)));
             var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
@@ -3901,7 +3901,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -3912,7 +3912,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -6280,7 +6280,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["controllerId"] = trigger.ControllerId,
             ["sourceObjectId"] = trigger.SourceObjectId,
             ["effectKind"] = trigger.EffectKind,
-            ["observerKind"] = trigger.DeathObserver?.Kind,
+            ["observerKind"] = trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
             ["triggeredByEventKind"] = trigger.TriggeredByEventKind
         };
         if (string.Equals(trigger.EffectKind, TriggerKinds.UnitLastBreathDamageSourceBattlefieldUnits, StringComparison.Ordinal)
@@ -6306,7 +6306,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["controllerId"] = trigger.ControllerId,
                 ["sourceObjectId"] = trigger.SourceObjectId,
                 ["effectKind"] = trigger.EffectKind,
-                ["observerKind"] = trigger.DeathObserver?.Kind
+                ["observerKind"] = trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind
             });
     }
 
@@ -8021,15 +8021,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
-    private static string JhinMovementResourceTriggerId(
-        long tick,
-        string sourceObjectId,
-        string origin,
-        string destination)
-    {
-        return $"JHIN_MOVE_RESOURCE::{tick.ToString(System.Globalization.CultureInfo.InvariantCulture)}::{sourceObjectId}::{origin}::{destination}";
-    }
-
     private static ResolutionResult ResolveGatekeeperMaduliMoveAbility(
         MatchState state,
         PlayerIntent intent,
@@ -8848,6 +8839,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
             case LegendAbilityEffectKinds.MoveFriendlyUnit:
                 MoveLegendTargetBetweenBaseAndBattlefield(
+                    state,
                     playerZones,
                     targetObjectIds[0],
                     intent.PlayerId,
@@ -9658,6 +9650,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void MoveLegendTargetBetweenBaseAndBattlefield(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         string targetObjectId,
         string playerId,
@@ -9674,6 +9667,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destinationZone = string.Equals(location.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
             ? MoveUnitBattlefieldZone
             : MoveUnitBaseZone;
+        var movementObservation = CaptureMovementObservers(state, targetObjectId, playerId, destinationZone);
         RemoveFieldObjectFromLocation(
             playerZones,
             location.Value.PlayerId,
@@ -9694,6 +9688,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["originZone"] = location.Value.Zone,
                 ["destinationZone"] = destinationZone
             }));
+        events.Add(movementObservation);
     }
 
     private static void GrantLegendBoon(
@@ -10035,7 +10030,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string tokenName,
         IReadOnlyList<string> tokenTags,
         bool isExhausted,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        string? capturedSourceCardNo = null)
     {
         if (!playerZones.TryGetValue(playerId, out var zones))
         {
@@ -10043,9 +10039,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
-        var sourceCardNo = cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            ? sourceState.CardNo
-            : string.Empty;
+        var sourceCardNo = capturedSourceCardNo ?? (cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            ? sourceState.CardNo : string.Empty);
         var hasTokenDefinition = TryGetEquipmentTokenDefinition(
             tokenName,
             tokenTags,
@@ -12836,31 +12831,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, originZone, command.SourceObjectId);
         AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
-            state,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            originZone,
-            destinationZone);
-        movementTriggerEvents = movementTriggerEvents.Concat(ResolveUnitMovedCreateDormantGoldTrigger(
-            playerZones,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            originZone,
-            destinationZone)).ToArray();
+        var movementObservation = CaptureMovementObservers(state, command.SourceObjectId, intent.PlayerId, destinationZone, null);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
-        var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
-            state,
-            intent.PlayerId,
-            command.SourceObjectId,
-            sourceState,
-            originZone,
-            destinationZone);
-        IReadOnlyList<TriggerQueueItemState> jhinMovementResourceTriggers = jhinMovementResourceTrigger is null
-            ? []
-            : [jhinMovementResourceTrigger];
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -12899,7 +12871,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             RunePools = runePools,
             CardObjects = cardObjects,
             PassedPriorityPlayerIds = [],
-            TriggerQueue = state.TriggerQueue.Concat(jhinMovementResourceTriggers).Concat(lethalCleanup.TriggerQueue).ToArray(),
+            TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(),
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds)
         };
 
@@ -12925,11 +12897,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(attachedEquipmentMoves);
-        events.AddRange(movementTriggerEvents);
-        foreach (var trigger in jhinMovementResourceTriggers)
-        {
-            events.Add(BuildTriggerQueuedEvent(trigger));
-        }
+        events.Add(movementObservation);
 
         events.AddRange(lethalCleanup.Events);
 
@@ -13135,31 +13103,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, MoveUnitBaseZone, command.SourceObjectId);
         AddFieldObjectToLocation(playerZones, intent.PlayerId, MoveUnitBattlefieldZone, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
-            state,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            MoveUnitBaseZone,
-            MoveUnitBattlefieldZone);
-        movementTriggerEvents = movementTriggerEvents.Concat(ResolveUnitMovedCreateDormantGoldTrigger(
-            playerZones,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            MoveUnitBaseZone,
-            MoveUnitBattlefieldZone)).ToArray();
+        var movementObservation = CaptureMovementObservers(state, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
-        var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
-            state,
-            intent.PlayerId,
-            command.SourceObjectId,
-            sourceState,
-            MoveUnitBaseZone,
-            destinationLocation);
-        IReadOnlyList<TriggerQueueItemState> jhinMovementResourceTriggers = jhinMovementResourceTrigger is null
-            ? []
-            : [jhinMovementResourceTrigger];
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -13205,7 +13150,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             RunePools = runePools,
             CardObjects = cardObjects,
             PassedPriorityPlayerIds = [],
-            TriggerQueue = state.TriggerQueue.Concat(jhinMovementResourceTriggers).Concat(lethalCleanup.TriggerQueue).ToArray(),
+            TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(),
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds)
         };
 
@@ -13227,11 +13172,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(attachedEquipmentMoves);
-        events.AddRange(movementTriggerEvents);
-        foreach (var trigger in jhinMovementResourceTriggers)
-        {
-            events.Add(BuildTriggerQueuedEvent(trigger));
-        }
+        events.Add(movementObservation);
 
         events.AddRange(lethalCleanup.Events);
 
@@ -13361,31 +13302,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             MoveUnitBattlefieldZone,
             destinationBattlefieldObjectId);
-        var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
-            state,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            originZone,
-            destinationZone);
-        movementTriggerEvents = movementTriggerEvents.Concat(ResolveUnitMovedCreateDormantGoldTrigger(
-            playerZones,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            originLocation,
-            destinationLocation)).ToArray();
+        var movementObservation = CaptureMovementObservers(state, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, destinationBattlefieldObjectId);
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
-        var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
-            state,
-            intent.PlayerId,
-            command.SourceObjectId,
-            sourceState,
-            originLocation,
-            destinationLocation);
-        IReadOnlyList<TriggerQueueItemState> jhinMovementResourceTriggers = jhinMovementResourceTrigger is null
-            ? []
-            : [jhinMovementResourceTrigger];
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -13411,7 +13329,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             RunePools = runePools,
             CardObjects = cardObjects,
             PassedPriorityPlayerIds = [],
-            TriggerQueue = state.TriggerQueue.Concat(jhinMovementResourceTriggers).Concat(lethalCleanup.TriggerQueue).ToArray(),
+            TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(),
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds)
         };
 
@@ -13434,11 +13352,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = optionalCosts.ToArray()
                 })
         };
-        events.AddRange(movementTriggerEvents);
-        foreach (var trigger in jhinMovementResourceTriggers)
-        {
-            events.Add(BuildTriggerQueuedEvent(trigger));
-        }
+        events.Add(movementObservation);
 
         events.AddRange(lethalCleanup.Events);
 
@@ -13614,31 +13528,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId, command.SourceObjectId, MoveUnitBattlefieldZone);
         foreach (var id in attachedEquipmentObjectIds)
             objectLocations[id] = new(intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
-        var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
-            state,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            originZone,
-            destinationZone);
-        movementTriggerEvents = movementTriggerEvents.Concat(ResolveUnitMovedCreateDormantGoldTrigger(
-            playerZones,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            originLocation,
-            destinationLocation)).ToArray();
+        var movementObservation = CaptureMovementObservers(state, command.SourceObjectId, intent.PlayerId, MoveUnitBattlefieldZone, PreciseBattlefieldLocationObjectId(destinationLocation));
         ExhaustMoveUnitSource(cardObjects, command.SourceObjectId);
-        var jhinMovementResourceTrigger = BuildJhinMovementResourceTrigger(
-            state,
-            intent.PlayerId,
-            command.SourceObjectId,
-            sourceState,
-            originLocation,
-            destinationLocation);
-        IReadOnlyList<TriggerQueueItemState> jhinMovementResourceTriggers = jhinMovementResourceTrigger is null
-            ? []
-            : [jhinMovementResourceTrigger];
         var cleanupStackItem = new StackItemState(
             $"move-unit-{state.Tick + 1}",
             intent.PlayerId,
@@ -13664,7 +13555,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             RunePools = runePools,
             CardObjects = cardObjects,
             PassedPriorityPlayerIds = [],
-            TriggerQueue = state.TriggerQueue.Concat(jhinMovementResourceTriggers).Concat(lethalCleanup.TriggerQueue).ToArray(),
+            TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(),
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds)
         };
 
@@ -13687,11 +13578,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(attachedEquipmentMoves);
-        events.AddRange(movementTriggerEvents);
-        foreach (var trigger in jhinMovementResourceTriggers)
-        {
-            events.Add(BuildTriggerQueuedEvent(trigger));
-        }
+        events.Add(movementObservation);
 
         events.AddRange(lethalCleanup.Events);
 
@@ -14298,6 +14185,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!string.IsNullOrWhiteSpace(battlefieldDefenderMoveObjectId))
         {
             TryResolveBattlefieldDefenderMoveToBaseTrigger(
+                state,
                 playerZones,
                 cardObjects,
                 defendingPlayerId ?? string.Empty,
@@ -18019,6 +17907,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryResolveBattlefieldDefenderMoveToBaseTrigger(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -18047,6 +17936,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var movementObservation = CaptureMovementObservers(state, targetObjectId, playerId, "BASE");
         playerZones[playerId] = zones with
         {
             Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
@@ -18085,6 +17975,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["destinationZone"] = MoveUnitBaseZone,
                 ["reason"] = trigger.Kind
             }));
+        events.Add(movementObservation);
         return true;
     }
 
@@ -22724,7 +22615,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = trigger.SourceObjectId,
                 ["controllerId"] = trigger.ControllerId,
                 ["effectKind"] = trigger.EffectKind,
-            ["observerKind"] = trigger.DeathObserver?.Kind,
+            ["observerKind"] = trigger.MovementObserver?.Kind ?? trigger.DeathObserver?.Kind,
                 ["triggeredByEventKind"] = trigger.TriggeredByEventKind,
                 ["resourceSkill"] = true,
                 ["movementTriggered"] = true,
@@ -24132,183 +24023,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool HasBattlefieldStaticPreventUnitPlayToBattlefield(MatchState state, string playerId, string destination) =>
         BattlefieldLocalRules.PreventsUnitPlay(state, destination);
-
-    private static IReadOnlyList<GameEvent> ApplyBattlefieldMovedUnitPowerPlusOne(
-        MatchState state,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string sourceObjectId,
-        string originZone,
-        string destinationZone)
-    {
-        if (!string.Equals(originZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            || string.Equals(originZone, destinationZone, StringComparison.Ordinal)
-            || !state.PlayerZones.TryGetValue(playerId, out var zones)
-            || !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
-            || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || sourceState.IsFaceDown)
-        {
-            return [];
-        }
-
-        var triggerSourceObjectId = zones.Battlefields
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && BattlefieldTriggerSpecRules.TryGetTrigger(
-                    cardObject.CardNo,
-                    BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger,
-                    out _)
-                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .FirstOrDefault();
-        if (triggerSourceObjectId is null
-            || !state.CardObjects.TryGetValue(triggerSourceObjectId, out var triggerSourceState)
-            || !BattlefieldTriggerSpecRules.TryGetTrigger(
-                triggerSourceState.CardNo,
-                BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger,
-                out var triggerSpec))
-        {
-            return [];
-        }
-
-        var powerDelta = triggerSpec.PowerDelta.GetValueOrDefault();
-        var nextSourceState = ApplyDirectUntilEndPowerModifier(
-            sourceState,
-            sourceObjectId,
-            triggerSourceObjectId,
-            triggerSourceState.CardNo,
-            triggerSpec.Kind,
-            "CoreRuleEngine.ApplyBattlefieldMovedUnitPowerPlusOne",
-            powerDelta,
-            sourceState.Power + powerDelta);
-        cardObjects[sourceObjectId] = nextSourceState;
-        return
-        [
-            new GameEvent(
-                "BATTLEFIELD_TRIGGER_RESOLVED",
-                $"{playerId} 的后巷酒吧移动单位触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["trigger"] = triggerSpec.Kind,
-                    ["battlefieldObjectId"] = triggerSourceObjectId,
-                    ["battlefieldCardNo"] = triggerSourceState.CardNo,
-                    ["targetObjectId"] = sourceObjectId,
-                    ["originZone"] = originZone,
-                    ["destinationZone"] = destinationZone,
-                    ["powerDelta"] = powerDelta
-                }),
-            new GameEvent(
-                "POWER_MODIFIED_UNTIL_END_OF_TURN",
-                $"{sourceObjectId} 本回合战力 +{powerDelta}",
-                new Dictionary<string, object?>
-                {
-                    ["targetObjectId"] = sourceObjectId,
-                    ["powerDelta"] = powerDelta,
-                    ["appliedPowerDelta"] = powerDelta,
-                    ["minimumPower"] = 0,
-                    ["resultingPower"] = nextSourceState.Power,
-                    ["reason"] = triggerSpec.Kind
-                })
-        ];
-    }
-
-    private static IReadOnlyList<GameEvent> ResolveUnitMovedCreateDormantGoldTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string sourceObjectId,
-        string originZone,
-        string destinationZone)
-    {
-        var sourceLocation = FindFieldObjectLocation(playerZones, sourceObjectId);
-        if (string.Equals(originZone, destinationZone, StringComparison.Ordinal)
-            || !playerZones.TryGetValue(playerId, out _)
-            || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || !UnitMovedTriggerSpecRules.TryGetTrigger(
-                sourceState.CardNo,
-                UnitMovedTriggerSpecRules.IsUnitMovedCreateDormantGoldTrigger,
-                out var triggerSpec)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            || sourceLocation is null
-            || !string.Equals(sourceLocation.Value.PlayerId, playerId, StringComparison.Ordinal))
-        {
-            return [];
-        }
-
-        var events = new List<GameEvent>
-        {
-            new(
-                "TRIGGER_RESOLVED",
-                $"{playerId} 的单位移动触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = playerId,
-                    ["trigger"] = triggerSpec.Kind,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["originZone"] = originZone,
-                    ["destinationZone"] = destinationZone
-                })
-        };
-        var tokenName = triggerSpec.CreatedTokenName ?? string.Empty;
-        var tokenTags = new[] { CardObjectTags.EquipmentCard, tokenName }
-            .Concat((triggerSpec.CreatedTokenKeywords ?? [])
-                .Where(keyword => !string.IsNullOrWhiteSpace(keyword))
-                .Select(keyword => keyword!))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        var tokenCount = triggerSpec.CreatedTokenCount.GetValueOrDefault();
-        var tokenIsExhausted = triggerSpec.CreatedTokenExhausted.GetValueOrDefault(true);
-        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
-        {
-            CreateLegendEquipmentToken(
-                playerZones,
-                cardObjects,
-                playerId,
-                sourceObjectId,
-                triggerSpec.Kind,
-                tokenName,
-                tokenTags,
-                isExhausted: tokenIsExhausted,
-                events);
-        }
-
-        return events;
-    }
-
-    private static TriggerQueueItemState? BuildJhinMovementResourceTrigger(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        CardObjectState sourceState,
-        string origin,
-        string destination)
-    {
-        if (string.Equals(origin, destination, StringComparison.Ordinal)
-            || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(
-                P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId,
-                sourceState.CardNo)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId))
-        {
-            return null;
-        }
-
-        var triggeredByEventKind = destination.StartsWith(MoveUnitBattlefieldZone, StringComparison.Ordinal)
-            ? "UNIT_MOVED_TO_BATTLEFIELD"
-            : "UNIT_MOVED_TO_BASE";
-        return new TriggerQueueItemState(
-            JhinMovementResourceTriggerId(state.Tick + 1, sourceObjectId, origin, destination),
-            playerId,
-            sourceObjectId,
-            P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind,
-            triggeredByEventKind);
-    }
 
     private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)
     {
@@ -26739,6 +26453,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryResolveBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -26803,6 +26518,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var movementObservation = CaptureMovementObservers(state, targetObjectId, playerId, "BASE");
         cardObjects[targetObjectId] = targetState with
         {
             IsAttacking = false,
@@ -26836,6 +26552,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["destinationZone"] = MoveUnitBaseZone,
                 ["reason"] = triggerKind
             }));
+        events.Add(movementObservation);
         return true;
     }
 
@@ -27713,6 +27430,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
         if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
+        if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
         if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
@@ -27992,6 +27710,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             TryResolveBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(
+                state,
                 playerZones,
                 cardObjects,
                 stackItem.ControllerId,
@@ -29361,6 +29080,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             ["controllerId"] = stackItem.ControllerId,
                             ["destinationZone"] = "BATTLEFIELD"
                         }));
+                    events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, firstTargetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
                 }
             }
         }
@@ -30143,6 +29863,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ["targetObjectId"] = targetObjectId,
                                 ["ownerPlayerId"] = movedOwnerPlayerId
                             }));
+                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, targetObjectId, stackItem.ControllerId, "BASE"));
                         continue;
                     }
 
@@ -30164,6 +29885,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ["ownerPlayerId"] = ownerBattlefieldPlayerId,
                                 ["destinationZone"] = "BATTLEFIELD"
                             }));
+                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, targetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
                         continue;
                     }
 
@@ -30184,6 +29906,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ["controllerId"] = stackItem.ControllerId,
                                 ["destinationZone"] = "BATTLEFIELD"
                             }));
+                        events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, targetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
                         continue;
                     }
 
@@ -30713,6 +30436,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["enemyUnitPowerSum"] = enemyUnitPowerSum,
                     ["movementPermission"] = "GATEKEEPER_MADULI_PURPLE_MOVE"
                 }));
+            events.Add(CaptureMovementObservers(state, stackItem.SourceObjectId, stackItem.ControllerId, "BATTLEFIELD", targetBattlefieldObjectId));
         }
 
         return new StackResolutionResult(
@@ -30867,6 +30591,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["movementPermission"] = "EZREAL_BLUE_SWIFT_MOVE_TO_BASE",
                     ["swift"] = true
                 }));
+            events.Add(CaptureMovementObservers(state, stackItem.SourceObjectId, stackItem.ControllerId, "BASE"));
         }
 
         return new StackResolutionResult(
@@ -37559,14 +37284,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destroyedUnitOwnerIds = new List<string>();
         var triggerQueue = new List<TriggerQueueItemState>();
         var nextRunePools = (runePools ?? new Dictionary<string, RunePool>()).ToDictionary(e => e.Key, e => e.Value);
+        var cleanupContext = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+            ObjectLocations = objectLocations ?? ReconcileObjectLocations(state.ObjectLocations, playerZones) };
         var stateBasedRemovalObjectIds = cardObjects
             .Where(entry => (explicitDestroyObjectIds is not null
                     ? explicitDestroyObjectIds.Contains(entry.Key)
-                    : (IsZeroOrNegativePowerDamagedCleanupCandidate(entry.Value)
-                    || (entry.Value.Power > 0
-                        && entry.Value.Damage > 0
-                        && entry.Value.Damage >= entry.Value.Power)
-                    || damageTriggeredDestroyTargetObjectIds.Contains(entry.Key)))
+                    : (IsLethalFieldUnit(cleanupContext, entry.Value) || damageTriggeredDestroyTargetObjectIds.Contains(entry.Key)))
                 && IsObjectOnField(playerZones, entry.Key))
             .Select(entry => entry.Key)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -37792,14 +37515,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !string.IsNullOrWhiteSpace(cardObject.ControllerId);
     }
 
-    private static bool IsZeroOrNegativePowerDamagedCleanupCandidate(CardObjectState cardObject)
+    internal static bool IsLethalFieldUnit(MatchState state, CardObjectState card)
     {
-        return cardObject.Power <= 0
-            && cardObject.Damage > 0
-            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && HasOwnerOrControllerIdentity(cardObject);
+        if (card.Damage <= 0) return false;
+        var currentPower = ResolveCurrentFieldUnitPower(state, card);
+        // Preserve the cleanup eligibility checks; only replace the damage
+        // threshold with current power so local auras and battle roles apply.
+        return currentPower > 0 ? card.Damage >= currentPower
+            : card.Tags.Contains(CardObjectTags.UnitCard) && !card.IsFaceDown
+                && !card.Tags.Contains(CardObjectTags.Standby) && HasOwnerOrControllerIdentity(card);
     }
 
     private static bool IsObjectOnField(
