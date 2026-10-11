@@ -551,6 +551,63 @@
         "Future-effective rules",
         "Dual-window and Windows product acceptance"
       ]
+    },
+    {
+      "id": "movement-discard-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Captured self movement discard-then-draw; shared hand choice, hidden information and restore context. Cross-player Volibear QA not verified.",
+      "subjects": [
+        {
+          "id": "OGN-185/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31415,
+              "cardNo": "OGN·185/298",
+              "name": "旅行商人",
+              "sha256": "be03ac38c964f92dc76c6dd84d6710ba69798e84f71213e728448923925ffd49"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-185-298",
+              "cardNo": "OGN-185/298",
+              "name": "Traveling Merchant",
+              "sha256": "1727de4bcd1ab7d26475d55f53ad9b79a971621bdd71184b278198456be2a53b"
+            }
+          ],
+          "activeCardNo": "OGN·185/298",
+          "reviewStatus": "PARTIAL_MOVEMENT_DISCARD_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P001-B015",
+        "DOC-04-P051-B006",
+        "DOC-04-P072-B012",
+        "DOC-04-P072-B013",
+        "DOC-04-P072-B018"
+      ],
+      "auditDocument": "docs/MOVEMENT_DISCARD_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/movement-discard-2026-10-11",
+      "tests": [
+        "MovementDiscardTests",
+        "MovementDiscardNativeTests",
+        "UndercoverAgentTriggerTests"
+      ],
+      "validation": {
+        "fullCases": 9487,
+        "fullMethods": 6284,
+        "checkCases": 9354,
+        "nativeScenarios": 2,
+        "nativeCommands": 2,
+        "journalCommands": 2,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Volibear simultaneous cross-player triggers QA DOC-15 P003 B014-B017",
+        "Other movement observer families",
+        "Future-effective rules",
+        "Dual-window and Windows product acceptance"
+      ]
     }
   ]
 }

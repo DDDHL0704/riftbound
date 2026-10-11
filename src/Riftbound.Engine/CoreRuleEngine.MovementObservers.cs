@@ -27,11 +27,28 @@ public sealed partial class CoreRuleEngine
                     && source == unit.Origin.BattlefieldObjectId
                     && BattlefieldTriggerSpecRules.TryGetTrigger(c.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out _));
 
+    internal static bool ValidMovementDiscardChoice(MatchState state)
+    {
+        var p = state.PendingHandChoice;
+        if (p is null) return true;
+        if (p.MovementObserver is null) return p.EffectKind != TriggerKinds.UnitMovedDiscardDraw
+            && p.ChoiceWindow != TriggerKinds.UnitMovedDiscardDraw && p.Reason != TriggerKinds.UnitMovedDiscardDraw;
+        var c = p.MovementObserver;
+        var spec = UnitMovedTriggerSpecRules.MovementTriggers(c.CardNo).FirstOrDefault(t => t.Kind == c.Kind);
+        return c.Kind == TriggerKinds.UnitMovedDiscardDraw && p.EffectKind == c.Kind && p.ChoiceWindow == c.Kind && p.Reason == c.Kind
+            && ValidMovementObserver(c, MovementObserverEffect, p.PlayerId, p.SourceObjectId)
+            && state.Seats.ContainsKey(c.Unit.MovingPlayerId) && state.PlayerZones.TryGetValue(p.PlayerId, out var zones)
+            && spec is not null && p.DrawCount == spec.DrawCount && p.RequiredCount == Math.Min(spec.DiscardCount!.Value, zones.Hand.Count)
+            && p.MaxCount == p.RequiredCount && p.RequiredCount > 0
+            && p.LegalObjectIds.Order(StringComparer.Ordinal).SequenceEqual(zones.Hand.Order(StringComparer.Ordinal));
+    }
+
     internal static string MovementObserverLabel(MovementObserverContext c)
         => OfficialCardSourceIdentityGroups.DisplayName(c.CardNo)
             + (c.Kind switch {
                 TriggerKinds.UnitMovedCreateDormantGold => "：移动后打出休眠金币",
                 TriggerKinds.UnitMovedCreateUnitToken => "：移动后打出单位指示物",
+                TriggerKinds.UnitMovedDiscardDraw => "：移动后弃牌再抽牌",
                 TriggerKinds.UnitMovedDraw => "：移动后抽牌",
                 TriggerKinds.UnitMovedGainExperience => "：移动后获得经验",
                 TriggerKinds.UnitMovedPowerModifier => "：离开战场后本回合增加战力",
@@ -109,6 +126,9 @@ public sealed partial class CoreRuleEngine
                 instruction.Count + AdditionalUnitTokens(item), false, instruction.Location.BattlefieldObjectId, context.Kind);
             return created with { Events = events.Concat(created.Events).ToArray() };
         }
+        if (context.Kind == TriggerKinds.UnitMovedDiscardDraw)
+            return ResolveDiscardDrawStackItem(state, item, unitSpec!.DiscardCount!.Value, unitSpec.DrawCount!.Value,
+                context.Kind, context.Kind, TriggerTimings.UnitMoved);
         if (context.Kind == TriggerKinds.UnitMovedDraw)
         {
             var draw = ResolveLastBreathDrawStackItem(state, item, unitSpec!.DrawCount!.Value);

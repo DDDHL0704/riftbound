@@ -879,6 +879,8 @@ public sealed record PendingHandChoiceState
 
     public int DrawCount { get; init; }
 
+    public MovementObserverContext? MovementObserver { get; init; }
+
     private static string Normalize(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
@@ -4192,7 +4194,7 @@ public sealed record MatchState
             pendingHandChoice.Reason,
             pendingHandChoice.SourceObjectId,
             pendingHandChoice.EffectKind,
-            pendingHandChoice.DrawCount);
+            pendingHandChoice.DrawCount) { MovementObserver = pendingHandChoice.MovementObserver };
     }
 
     private static PendingCardChoiceState? NormalizePendingCardChoice(PendingCardChoiceState? pendingCardChoice)

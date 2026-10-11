@@ -1,0 +1,18 @@
+{
+  "baseline": 6273,
+  "current": 6284,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.MovementDiscardNativeTests.NativeHandChoiceRestoresAndReplaysAfterSourceLeaves",
+    "Riftbound.ConformanceTests.MovementDiscardTests.ActualDestructionResponseDoesNotCancelTheEarnedSkill",
+    "Riftbound.ConformanceTests.MovementDiscardTests.CapturedControllerKeepsChoiceWhenSourceChangesControlOrDisappears",
+    "Riftbound.ConformanceTests.MovementDiscardTests.ChoosingDiscardFeedsSecondDrawObserverOnlyAfterTheDraw",
+    "Riftbound.ConformanceTests.MovementDiscardTests.DiscardThenBurnoutCanRecycleTheJustDiscardedCard",
+    "Riftbound.ConformanceTests.MovementDiscardTests.EveryRouteWaitsForResponseThenChosenDiscardBeforeDraw",
+    "Riftbound.ConformanceTests.MovementDiscardTests.ForgedContinuationCannotChangeSkillControllerCountsOrKind",
+    "Riftbound.ConformanceTests.MovementDiscardTests.InsufficientOrSingleHandStillCompletesTheDraw",
+    "Riftbound.ConformanceTests.MovementDiscardTests.OpponentIllegalDuplicateAndStaleChoicesAreRejectedWithoutMutation",
+    "Riftbound.ConformanceTests.MovementDiscardTests.PendingDiscardDoesNotAllowOtherActionsOrExposePrivateCards",
+    "Riftbound.ConformanceTests.MovementDiscardTests.StandardMoveAndASecondMoveEachRequireTheirOwnDiscard"
+  ]
+}

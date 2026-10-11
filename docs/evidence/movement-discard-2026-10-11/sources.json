@@ -1,0 +1,254 @@
+{
+  "card": {
+    "id": 31415,
+    "cardCategoryList": [
+      "unit"
+    ],
+    "cardCategoryNameList": [
+      "单位"
+    ],
+    "cardNo": "OGN·185/298",
+    "cardName": "旅行商人",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "purple"
+    ],
+    "hero": "",
+    "region": "比尔吉沃特",
+    "tag": "",
+    "artist": "Six More Vodka",
+    "cardEffect": "每当我移动时，弃置一张手牌，然后抽一张牌。",
+    "flavorText": "先付款再说，想退款没门。",
+    "energy": 2,
+    "returnEnergy": null,
+    "power": 2,
+    "productCodeList": [
+      "OGS",
+      "OGN(英雄预组 金克丝)",
+      "OGN(标准补充包)",
+      "OGN(进阶补充包)"
+    ],
+    "productNameList": [
+      "起源 试炼之地",
+      "起源 英雄预组 金克丝",
+      "起源 标准补充包",
+      "起源 进阶补充包"
+    ],
+    "craftLevel": 0,
+    "rarity": "rune_glimmer",
+    "rarityName": "不凡",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4412781634d047c3ada64d8dbdaf93be.png",
+    "backImage": "",
+    "listSort": 290,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "imageSha256": "172096860d32b88613f0e440239e917b4512515495bc816f085efa02de776cc7",
+  "englishCard": {
+    "id": "ogn-185-298",
+    "collectorNumber": 185,
+    "name": "Traveling Merchant",
+    "set": {
+      "label": "Card Set",
+      "value": {
+        "id": "OGN",
+        "label": "Origins"
+      }
+    },
+    "cardType": {
+      "label": "Card Type",
+      "type": [
+        {
+          "id": "unit",
+          "label": "Unit",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+            "dimensions": {
+              "width": 64,
+              "height": 64,
+              "aspectRatio": 1
+            },
+            "mimeType": "image/png"
+          }
+        }
+      ]
+    },
+    "publicCode": "OGN-185/298",
+    "rarity": {
+      "label": "Rarity",
+      "value": {
+        "id": "uncommon",
+        "label": "Uncommon",
+        "icon": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+          "dimensions": {
+            "width": 480,
+            "height": 410,
+            "aspectRatio": 1.170731707317073
+          },
+          "colors": {
+            "primary": "#41B4B8",
+            "secondary": "#293331",
+            "label": "#122021"
+          },
+          "mimeType": "image/png"
+        }
+      }
+    },
+    "domain": {
+      "label": "Domain",
+      "values": [
+        {
+          "id": "chaos",
+          "label": "Chaos",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+            "dimensions": {
+              "width": 64,
+              "height": 64,
+              "aspectRatio": 1
+            },
+            "colors": {
+              "primary": "#100B16",
+              "secondary": "#EDD6FF",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      ]
+    },
+    "cardImage": {
+      "type": "image",
+      "provider": "sanity",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b7dbebe2bf5691391c8e4146e478b8bd2ac40aef-744x1039.png?accountingTag=RB",
+      "accessibilityText": "Riftbound Unit: Traveling Merchant. When I move, discard 1, then draw 1.",
+      "dimensions": {
+        "width": 744,
+        "height": 1039,
+        "aspectRatio": 0.7160731472569779
+      },
+      "colors": {
+        "primary": "#2C1621",
+        "secondary": "#F9E8DC",
+        "label": "#000000"
+      },
+      "mimeType": "image/png"
+    },
+    "orientation": "portrait",
+    "illustrator": {
+      "label": "Artist",
+      "values": [
+        {
+          "id": "sixmorevodka",
+          "label": "Six More Vodka",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+          }
+        }
+      ]
+    },
+    "text": {
+      "label": "Ability",
+      "richText": {
+        "type": "html",
+        "body": "<p>When I move, discard 1, then draw 1.</p>"
+      }
+    },
+    "energy": {
+      "label": "Energy",
+      "value": {
+        "id": 2,
+        "label": "2"
+      }
+    },
+    "might": {
+      "label": "Might",
+      "value": {
+        "id": 2,
+        "label": "2",
+        "icon": {
+          "type": "image",
+          "provider": "web",
+          "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+        }
+      }
+    },
+    "tags": {
+      "label": "Tags",
+      "tags": [
+        "Bilgewater"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "id": "DOC-04-P001-B015",
+      "page": 1,
+      "clauseAnchors": [
+        "055"
+      ]
+    },
+    {
+      "id": "DOC-04-P051-B006",
+      "page": 51,
+      "clauseAnchors": [
+        "359.3.e.11"
+      ]
+    },
+    {
+      "id": "DOC-04-P072-B012",
+      "page": 72,
+      "clauseAnchors": [
+        "422.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P072-B013",
+      "page": 72,
+      "clauseAnchors": [
+        "422.1.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P072-B018",
+      "page": 72,
+      "clauseAnchors": [
+        "422.4"
+      ]
+    }
+  ],
+  "authority": {
+    "id": "DOC-04",
+    "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+    "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+    "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "updated": "2026-07-17",
+    "effectiveDate": null
+  },
+  "pendingCrossCardQA": {
+    "document": "DOC-15",
+    "records": [
+      "DOC-15-P003-B014",
+      "DOC-15-P003-B015",
+      "DOC-15-P003-B016",
+      "DOC-15-P003-B017"
+    ],
+    "status": "PENDING_VOLIBEAR_OBSERVER_IMPLEMENTATION"
+  }
+}

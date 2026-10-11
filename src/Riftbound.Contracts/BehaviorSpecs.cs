@@ -159,6 +159,7 @@ public static class TriggerKinds
         "SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
+    public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
     public const string UnitMovedPowerModifier = "UNIT_MOVED_POWER_MODIFIER";
     public const string UnitMovedCreateDormantGold =

@@ -30882,21 +30882,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state.RngCursor);
     }
 
-    private static StackResolutionResult ResolveUndercoverAgentLastBreathStackItem(
-        MatchState state,
-        StackItemState stackItem)
+    private static StackResolutionResult ResolveUndercoverAgentLastBreathStackItem(MatchState state, StackItemState stackItem)
+    {
+        var triggerSpec = TryGetLastBreathDiscardDrawTrigger(stackItem, out var matchedTrigger)
+            && UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger(matchedTrigger) ? matchedTrigger : null;
+        return ResolveDiscardDrawStackItem(state, stackItem,
+            triggerSpec?.DiscardCount.GetValueOrDefault(2) ?? 2, triggerSpec?.DrawCount.GetValueOrDefault(2) ?? 2,
+            TriggerKinds.UnitLastBreathDiscardDraw, UndercoverAgentHandChoiceWindow, TriggerTimings.UnitDestroyed);
+    }
+
+    private static StackResolutionResult ResolveDiscardDrawStackItem(MatchState state, StackItemState stackItem,
+        int discardCount, int drawCount, string effectKind, string choiceWindow, string triggerTiming)
     {
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerScores = state.PlayerScores;
         var untilEndOfTurnEffects = state.UntilEndOfTurnEffects.ToArray();
         var rngCursor = state.RngCursor;
-        var triggerSpec = TryGetLastBreathDiscardDrawTrigger(stackItem, out var matchedTrigger)
-            && UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger(matchedTrigger)
-                ? matchedTrigger
-                : null;
-        var discardCount = triggerSpec?.DiscardCount.GetValueOrDefault(2) ?? 2;
-        var drawCount = triggerSpec?.DrawCount.GetValueOrDefault(2) ?? 2;
         var events = new List<GameEvent>
         {
             BuildTriggerResolvedEvent(new TriggerQueueItemState(
@@ -30906,7 +30908,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem.ControllerId,
                 stackItem.SourceObjectId,
                 stackItem.EffectKind,
-                "UNIT_DESTROYED"))
+                triggerTiming) { MovementObserver = stackItem.MovementObserver })
         };
 
         var handObjectIds = playerZones.TryGetValue(stackItem.ControllerId, out var zones)
@@ -30916,29 +30918,29 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : [];
         var choiceCount = Math.Min(discardCount, handObjectIds.Length);
         var pendingChoice = new PendingHandChoiceState(
-            choiceId: BuildUndercoverAgentHandChoiceId(stackItem),
-            choiceWindow: UndercoverAgentHandChoiceWindow,
+            choiceId: $"CHOICE-{stackItem.StackItemId}",
+            choiceWindow: choiceWindow,
             playerId: stackItem.ControllerId,
             requiredCount: choiceCount,
             maxCount: choiceCount,
             legalObjectIds: handObjectIds,
-            reason: TriggerKinds.UnitLastBreathDiscardDraw,
+            reason: effectKind,
             sourceObjectId: stackItem.SourceObjectId,
-            effectKind: TriggerKinds.UnitLastBreathDiscardDraw,
-            drawCount: drawCount);
+            effectKind: effectKind,
+            drawCount: drawCount) { MovementObserver = stackItem.MovementObserver };
 
         if (discardCount > 0 && handObjectIds.Length >= discardCount)
         {
             events.Add(new GameEvent(
                 "HAND_CHOICE_REQUESTED",
-                "卧底特工要求选择手牌",
+                "选择要弃置的手牌，然后抽牌",
                 new Dictionary<string, object?>
                 {
                     ["choiceId"] = pendingChoice.ChoiceId,
                     ["choiceWindow"] = pendingChoice.ChoiceWindow,
                     ["playerId"] = stackItem.ControllerId,
                     ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["effectKind"] = TriggerKinds.UnitLastBreathDiscardDraw,
+                    ["effectKind"] = effectKind,
                     ["requiredCount"] = pendingChoice.RequiredCount,
                     ["maxCount"] = pendingChoice.MaxCount,
                     ["legalCount"] = handObjectIds.Length
@@ -31001,14 +31003,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             events.Add(new GameEvent(
                 "HAND_CHOICE_SKIPPED",
-                "卧底特工无可弃置手牌",
+                "无可弃置手牌，继续抽牌",
                 new Dictionary<string, object?>
                 {
                     ["choiceId"] = pendingChoice.ChoiceId,
                     ["choiceWindow"] = pendingChoice.ChoiceWindow,
                     ["playerId"] = stackItem.ControllerId,
                     ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["effectKind"] = TriggerKinds.UnitLastBreathDiscardDraw,
+                    ["effectKind"] = effectKind,
                     ["availableHandCount"] = 0,
                     ["drawCount"] = drawCount
                 }));
@@ -31038,11 +31040,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             null,
             [],
             drawApplication.RngCursor);
-    }
-
-    private static string BuildUndercoverAgentHandChoiceId(StackItemState stackItem)
-    {
-        return $"CHOICE-{stackItem.StackItemId}";
     }
 
     private static string BuildSeaMonsterHookTopFiveChoiceId(StackItemState stackItem)

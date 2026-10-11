@@ -23,3 +23,5 @@
 证据：[官方规则定位](evidence/token-definitions-2026-10-11/sources.json)。
 
 验证证据：[运行与原生回放](evidence/token-definitions-2026-10-11/validation.json)、[用例对账](evidence/token-definitions-2026-10-11/case-parity.json)、[方法对账](evidence/token-definitions-2026-10-11/method-parity.json)、[源码哈希](evidence/token-definitions-2026-10-11/source-hashes.json)。
+
+交付读回：提交 `65a533d39e30420d895d779c0cef61c0c39e8c82` 已推送且远端一致；GitHub CI run `38121663187` 的规则、macOS、Windows 三作业均 success。前一提交 `c433de9f` 的 run `38120722219` 被后续推送取消，不能当作成功；本次后继提交 CI 包含其代码并已通过。

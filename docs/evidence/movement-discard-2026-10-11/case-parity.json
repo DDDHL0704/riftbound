@@ -1,0 +1,24 @@
+{
+  "baseline": 9471,
+  "current": 9487,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.MovementDiscardNativeTests.NativeHandChoiceRestoresAndReplaysAfterSourceLeaves(sourceLeaves: False)",
+    "Riftbound.ConformanceTests.MovementDiscardNativeTests.NativeHandChoiceRestoresAndReplaysAfterSourceLeaves(sourceLeaves: True)",
+    "Riftbound.ConformanceTests.MovementDiscardTests.ActualDestructionResponseDoesNotCancelTheEarnedSkill",
+    "Riftbound.ConformanceTests.MovementDiscardTests.CapturedControllerKeepsChoiceWhenSourceChangesControlOrDisappears(disappears: False)",
+    "Riftbound.ConformanceTests.MovementDiscardTests.CapturedControllerKeepsChoiceWhenSourceChangesControlOrDisappears(disappears: True)",
+    "Riftbound.ConformanceTests.MovementDiscardTests.ChoosingDiscardFeedsSecondDrawObserverOnlyAfterTheDraw",
+    "Riftbound.ConformanceTests.MovementDiscardTests.DiscardThenBurnoutCanRecycleTheJustDiscardedCard",
+    "Riftbound.ConformanceTests.MovementDiscardTests.EveryRouteWaitsForResponseThenChosenDiscardBeforeDraw(origin: \"BASE\", destination: \"BATTLEFIELD:BF2\")",
+    "Riftbound.ConformanceTests.MovementDiscardTests.EveryRouteWaitsForResponseThenChosenDiscardBeforeDraw(origin: \"BATTLEFIELD\", destination: \"BASE:P2\")",
+    "Riftbound.ConformanceTests.MovementDiscardTests.EveryRouteWaitsForResponseThenChosenDiscardBeforeDraw(origin: \"BATTLEFIELD\", destination: \"BATTLEFIELD:BF2\")",
+    "Riftbound.ConformanceTests.MovementDiscardTests.ForgedContinuationCannotChangeSkillControllerCountsOrKind",
+    "Riftbound.ConformanceTests.MovementDiscardTests.InsufficientOrSingleHandStillCompletesTheDraw(handCount: 0)",
+    "Riftbound.ConformanceTests.MovementDiscardTests.InsufficientOrSingleHandStillCompletesTheDraw(handCount: 1)",
+    "Riftbound.ConformanceTests.MovementDiscardTests.OpponentIllegalDuplicateAndStaleChoicesAreRejectedWithoutMutation",
+    "Riftbound.ConformanceTests.MovementDiscardTests.PendingDiscardDoesNotAllowOtherActionsOrExposePrivateCards",
+    "Riftbound.ConformanceTests.MovementDiscardTests.StandardMoveAndASecondMoveEachRequireTheirOwnDiscard"
+  ],
+  "allPassed": true
+}

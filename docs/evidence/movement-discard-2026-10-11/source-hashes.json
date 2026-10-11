@@ -1,0 +1,46 @@
+[
+  {
+    "path": "clients/godot/scripts/Interaction/PromptInteractionController.cs",
+    "sha256": "5417f8c86bb44fc9ef16ba4029d2cdd91c18d2487d2562c408fe7d142afb12bb"
+  },
+  {
+    "path": "clients/godot/scripts/debug/HandChoiceInteractionProof.cs",
+    "sha256": "ec9ec49b0c17fa2ce48054a66be087f4980f38b894c3006b311f9e5796d34b26"
+  },
+  {
+    "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+    "sha256": "388433fcc292c944697ccd7f11d112946fef967a8d865cfaaa80d86a7ac15890"
+  },
+  {
+    "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+    "sha256": "ca03ad89df529f561ceb8ef104c000b96c567e9b298141ecca521b6cd9cd4e1e"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+    "sha256": "d03c66be08c2da4c702355ed29f38578e030af0ae173b9d4ba668a1f4fb5cfa7"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "036e053a14f36af5dc4daae94f31bdbe6f68b08e99e846c83c9e9574236448b2"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "fbac34bd1395adae67d06da7e13ef2e9f616889a47955c4fd6d6b5dbed00c6c3"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "a3762d7e4aa3cca97b14cc0a2cf9150060e2f7c2914391623f57babc2aeda31f"
+  },
+  {
+    "path": "src/Riftbound.Engine/UnitMovedTriggerSpecRules.cs",
+    "sha256": "39de530dd35ebb90cd964e18598e6220b53efdf34968d7080ac568cb0529db11"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MovementDiscardNativeTests.cs",
+    "sha256": "4ce08eecbbed014f068e9d7aa381ab3c68f67c47d33389c7595fef75e44fda6f"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MovementDiscardTests.cs",
+    "sha256": "c6e44e88a1cdbe7a65d7e5a157328b4c38a6a711b6f966559757fdbc55284100"
+  }
+]

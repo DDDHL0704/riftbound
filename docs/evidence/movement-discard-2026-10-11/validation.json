@@ -1,0 +1,266 @@
+{
+  "focus2": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.39,
+    "total": 41,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 41,
+        "passed": 41,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.64
+      }
+    ]
+  },
+  "focus5": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 35.82,
+    "total": 43,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.06
+      }
+    ]
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 86.39,
+    "total": 9354,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9354,
+        "passed": 9354,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 82.92
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 415.06,
+    "total": 9487,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 212.3
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 212.72
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 215.22
+      },
+      {
+        "shard": "rules",
+        "total": 9352,
+        "passed": 9352,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 88.71
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 411.6
+      }
+    ]
+  },
+  "native": {
+    "scenarios": [
+      {
+        "scenario": "source-gone",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "781c918588a14ac188453859a38adcfee20ef86fe10bd70a63b36205379eaabe",
+          "expectedStateHash": "781c918588a14ac188453859a38adcfee20ef86fe10bd70a63b36205379eaabe",
+          "errors": []
+        },
+        "commands": 1
+      },
+      {
+        "scenario": "source-present",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "36eddd438229b88fe7c76092631b20f2d2bd459a3a997cd11bf14f52469992e2",
+          "expectedStateHash": "36eddd438229b88fe7c76092631b20f2d2bd459a3a997cd11bf14f52469992e2",
+          "errors": []
+        },
+        "commands": 1
+      }
+    ],
+    "productionCommands": 2,
+    "journalCommands": 2,
+    "mode": "Godot headless production hand choice controls; not dual-window visual or Windows product evidence"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:02.13\n",
+  "godotRuns": {
+    "rift-movement-discard-native-source-present.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nHAND_CHOICE_INTERACTION_PASS: real server prompt -> card click -> guarded chosenObjectIds\n",
+    "rift-movement-discard-native-source-gone.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nHAND_CHOICE_INTERACTION_PASS: real server prompt -> card click -> guarded chosenObjectIds\n"
+  },
+  "artifacts": [
+    {
+      "path": "var/qa/movement-discard/check/check/results.trx",
+      "sha256": "48d5db591a4a58a16dc6f0677bece5058b51210e6b4b46eac80505c6377f4d29"
+    },
+    {
+      "path": "var/qa/movement-discard/check/plan.json",
+      "sha256": "0d5cf23fa55ea411cc43a3a874922aa7b7e38287cef3747b85536e125aac53e1"
+    },
+    {
+      "path": "var/qa/movement-discard/check/summary.json",
+      "sha256": "ad7cb0c781f58cfc2cb70caee6214379d450238d90389d3d8df40035efd68714"
+    },
+    {
+      "path": "var/qa/movement-discard/focus1/focus/results.trx",
+      "sha256": "2f57de17a6c10d65459ff8a6bf3d210ecbb226148c263b6e4d5c55ce18a13509"
+    },
+    {
+      "path": "var/qa/movement-discard/focus1/plan.json",
+      "sha256": "71d51cc432de8885315f12c9ca510babad1aff3ddee01e69f0b61b096dc84fec"
+    },
+    {
+      "path": "var/qa/movement-discard/focus2/focus/results.trx",
+      "sha256": "b254405d3f570dbdbaab9b04643c532c6b1fbf7eeca815e591ca66030fc644ad"
+    },
+    {
+      "path": "var/qa/movement-discard/focus2/plan.json",
+      "sha256": "88e706d168cea2c6c851b04b1716808b581116d70b3ab0553b77e740dc2d1268"
+    },
+    {
+      "path": "var/qa/movement-discard/focus2/summary.json",
+      "sha256": "46a7967dceb1d74eefa7a9160baa22962e179de36264ad9b28e85432ee814668"
+    },
+    {
+      "path": "var/qa/movement-discard/focus3/focus/results.trx",
+      "sha256": "c487a2f3843091099fd164f9028bd4777f22d0b3555ea35ed0db9679cb3aa644"
+    },
+    {
+      "path": "var/qa/movement-discard/focus3/plan.json",
+      "sha256": "dcfe40a16d7a5bd19c8e33b7cd2d5e88b5c05f77543f8fc61bb3b8810915cc9d"
+    },
+    {
+      "path": "var/qa/movement-discard/focus4/focus/results.trx",
+      "sha256": "c923a2241b20b387d135788091730239b1346fceed31c03b7dc5dd02ba2fd410"
+    },
+    {
+      "path": "var/qa/movement-discard/focus4/plan.json",
+      "sha256": "4bd45a64a18da1f7c64c50734be43fe860e33cc3bcd6906d327ba6337257da76"
+    },
+    {
+      "path": "var/qa/movement-discard/focus5/focus/results.trx",
+      "sha256": "ca9887c783edbe6f3ec4f022591ee98916ab75e34f12f14fc0d3665c6b2ccb4b"
+    },
+    {
+      "path": "var/qa/movement-discard/focus5/plan.json",
+      "sha256": "382936448f71e6a4c432bd05ad4b1cf08e86fc1f661087beecd680bb68603599"
+    },
+    {
+      "path": "var/qa/movement-discard/focus5/summary.json",
+      "sha256": "d14b1aab4f8383b3929cb13b83ff50f834daeeb982f9e8e11c16b9e63a656aeb"
+    },
+    {
+      "path": "var/qa/movement-discard/full/games-1/results.trx",
+      "sha256": "b457e936a36ab6ed0371824a2529c6e425b010571f0857f23cbd0b1877fb90cb"
+    },
+    {
+      "path": "var/qa/movement-discard/full/games-2/results.trx",
+      "sha256": "1e1b6f8c914fdcb6e8a3903ebf0730016b98bb2fa805ef036d54a9fa7136e4e7"
+    },
+    {
+      "path": "var/qa/movement-discard/full/games-3/results.trx",
+      "sha256": "0b996c46cc9d8343b331d270e9a5484df3487398e1de9abcee6dbd69e6852133"
+    },
+    {
+      "path": "var/qa/movement-discard/full/games-4/results.trx",
+      "sha256": "34e7018c3a8e22f1a22d2c9a5774cda331af3af18e2d8746bb49ee9102675378"
+    },
+    {
+      "path": "var/qa/movement-discard/full/plan.json",
+      "sha256": "9cc64af4b3b527f67f34a75588381ee158bcf55e1678095b64392bf309211d56"
+    },
+    {
+      "path": "var/qa/movement-discard/full/rules/results.trx",
+      "sha256": "85cfd2f609b18eb055f058af019974dba6bdb77dca6efafa5301580cb9d80479"
+    },
+    {
+      "path": "var/qa/movement-discard/full/summary.json",
+      "sha256": "a86d30b4d17435271975bad110454da7bfb724ba8d9b119d71f305c6462d0253"
+    },
+    {
+      "path": "var/qa/movement-discard/native/source-gone/hand-choice-prompt.json",
+      "sha256": "f5e9b83ab87a1141ebb247accc9c8da10e6d9d631ef093fab60d457f164b849b"
+    },
+    {
+      "path": "var/qa/movement-discard/native/source-gone/native-hand-choice-command.json",
+      "sha256": "5886c0261e517ec54927837d24abd40346af2eb09b1f0c9869bf2637f44527a7"
+    },
+    {
+      "path": "var/qa/movement-discard/native/source-gone/replay.json",
+      "sha256": "83157b933bfc78317775782439fe31577593d2de96f7d08547b66d5f20336ca3"
+    },
+    {
+      "path": "var/qa/movement-discard/native/source-gone/snapshot.json",
+      "sha256": "a4e2e791ca2105aecac9c577053338f79f2d9d2d419bcef8bdc63027172c355d"
+    },
+    {
+      "path": "var/qa/movement-discard/native/source-present/hand-choice-prompt.json",
+      "sha256": "20bd2c618a0fd27de84a92f7e0cec3b0f2a466a0796774892515ea201ba88471"
+    },
+    {
+      "path": "var/qa/movement-discard/native/source-present/native-hand-choice-command.json",
+      "sha256": "5886c0261e517ec54927837d24abd40346af2eb09b1f0c9869bf2637f44527a7"
+    },
+    {
+      "path": "var/qa/movement-discard/native/source-present/replay.json",
+      "sha256": "586a201dd36aaca61f7703721f1b66243c6fca795412680b0dce01c8fd77076e"
+    },
+    {
+      "path": "var/qa/movement-discard/native/source-present/snapshot.json",
+      "sha256": "d74351576ab02ec9cb563e733ae5540af1b92145e39eda3b0014c3f716d99048"
+    },
+    {
+      "path": "var/qa/movement-discard/red/focus/results.trx",
+      "sha256": "79c490d4cb56c5c1865f292b1b42ec62312de11c3f5b6bcff3b94ea59544319d"
+    },
+    {
+      "path": "var/qa/movement-discard/red/plan.json",
+      "sha256": "f6b7a42797d9608ac0f2a45ce58c552fb75e70821b3297c1925fc48345662f24"
+    }
+  ]
+}

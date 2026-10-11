@@ -22879,6 +22879,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.MovementObserver is { } movement
                 ? !CoreRuleEngine.ValidMovementObserver(movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId)
@@ -25844,11 +25845,12 @@ public static class MatchRecoveryValidator
 
         if (authoritativeState.PendingHandChoice is not null)
         {
-            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
-                $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} source object",
-                authoritativeState.PendingHandChoice.SourceObjectId,
-                knownObjectIds,
-                errors);
+            if (authoritativeState.PendingHandChoice.MovementObserver is null || !CoreRuleEngine.ValidMovementDiscardChoice(authoritativeState))
+                ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+                    $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} source object",
+                    authoritativeState.PendingHandChoice.SourceObjectId,
+                    knownObjectIds,
+                    errors);
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending hand choice {authoritativeState.PendingHandChoice.ChoiceId} legal object",
                 authoritativeState.PendingHandChoice.LegalObjectIds,

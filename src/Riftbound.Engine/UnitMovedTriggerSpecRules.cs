@@ -39,6 +39,7 @@ internal static class UnitMovedTriggerSpecRules
         => IsUnitMovedCreateDormantGoldTrigger(trigger)
             || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit
                 && (IsMovementUnitTokenTrigger(trigger)
+                    || trigger.Kind == TriggerKinds.UnitMovedDiscardDraw && trigger.DiscardCount > 0 && trigger.DrawCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedDraw && trigger.DrawCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedGainExperience && trigger.ExperienceCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedPowerModifier && trigger.PowerDelta > 0
