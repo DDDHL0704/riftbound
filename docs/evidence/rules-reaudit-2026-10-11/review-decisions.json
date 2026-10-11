@@ -488,6 +488,69 @@
         "Published future-effective rules",
         "Dual-window and Windows product acceptance"
       ]
+    },
+    {
+      "id": "token-definitions-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Official literal tags on eight active unit-token printings; factory filtering and representative legend/spell/movement creation. Not complete token abilities or all active factories.",
+      "subjects": [
+        {
+          "activeCardNo": "OGN·271/298",
+          "reviewStatus": "PARTIAL_TOKEN_DEFINITION_VERIFIED"
+        },
+        {
+          "activeCardNo": "OGN·272/298",
+          "reviewStatus": "PARTIAL_TOKEN_DEFINITION_VERIFIED"
+        },
+        {
+          "activeCardNo": "OGN·273/298",
+          "reviewStatus": "PARTIAL_TOKEN_DEFINITION_VERIFIED"
+        },
+        {
+          "activeCardNo": "OGN·274/298",
+          "reviewStatus": "PARTIAL_TOKEN_DEFINITION_VERIFIED"
+        },
+        {
+          "activeCardNo": "UNL·T07",
+          "reviewStatus": "PARTIAL_TOKEN_DEFINITION_VERIFIED"
+        },
+        {
+          "activeCardNo": "SFD·T02",
+          "reviewStatus": "PARTIAL_TOKEN_DEFINITION_VERIFIED"
+        },
+        {
+          "activeCardNo": "SFD·T01",
+          "reviewStatus": "PARTIAL_TOKEN_DEFINITION_VERIFIED"
+        },
+        {
+          "activeCardNo": "UNL·T02",
+          "reviewStatus": "PARTIAL_TOKEN_DEFINITION_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P026-B009",
+        "DOC-04-P026-B010",
+        "DOC-04-P026-B011",
+        "DOC-04-P026-B012",
+        "DOC-04-P026-B015"
+      ],
+      "auditDocument": "docs/TOKEN_DEFINITIONS_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/token-definitions-2026-10-11",
+      "validation": {
+        "fullCases": 9471,
+        "fullMethods": 6273,
+        "checkCases": 9338,
+        "nativeScenarios": 8,
+        "nativeCommands": 8,
+        "journalCommands": 30,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Complete token abilities/lifecycle",
+        "New set factories including Tentacle and Shadow Clone",
+        "Future-effective rules",
+        "Dual-window and Windows product acceptance"
+      ]
     }
   ]
 }

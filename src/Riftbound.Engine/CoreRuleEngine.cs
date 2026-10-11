@@ -34148,7 +34148,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return tokenTags
-            .Concat([CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily])
+            .Concat([CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"])
             .Distinct(StringComparer.Ordinal)
             .OrderBy(tag => tag, StringComparer.Ordinal)
             .ToArray();

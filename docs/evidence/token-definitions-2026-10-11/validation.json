@@ -1,0 +1,385 @@
+{
+  "focus1": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.95,
+    "total": 59,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 59,
+        "passed": 59,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.87
+      }
+    ]
+  },
+  "check2": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 96.04,
+    "total": 9338,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9338,
+        "passed": 9338,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 85.2
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 416.04,
+    "total": 9471,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 212.46
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 213.51
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 215.78
+      },
+      {
+        "shard": "rules",
+        "total": 9336,
+        "passed": 9336,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 86.38
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 412.23
+      }
+    ]
+  },
+  "native": {
+    "scenarios": [
+      {
+        "scenario": "OGN-222-298/accept",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "e9296593117c8c49bb87513a89e11eb397c411028e1c175043bdab947337b495",
+          "expectedStateHash": "e9296593117c8c49bb87513a89e11eb397c411028e1c175043bdab947337b495",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "OGN-222-298/decline",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "9f484ecd5c4e24fb0ea9f66c2968076a21f83748058be6d8ba248ef1c38d9887",
+          "expectedStateHash": "9f484ecd5c4e24fb0ea9f66c2968076a21f83748058be6d8ba248ef1c38d9887",
+          "errors": []
+        },
+        "commands": 3
+      },
+      {
+        "scenario": "SFD-179-221/accept",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "033872315015a2684f4c56dfad3ee80114421462c7160f2cb9158323c25bd33a",
+          "expectedStateHash": "033872315015a2684f4c56dfad3ee80114421462c7160f2cb9158323c25bd33a",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "SFD-179-221/decline",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "c5026559048dcdcc66ed3f30aafc3996fa2453f2ba9f27624171e098266758b2",
+          "expectedStateHash": "c5026559048dcdcc66ed3f30aafc3996fa2453f2ba9f27624171e098266758b2",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "UNL-082-219/accept",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "cb166d1175a9907502001aca15c1e7b2a6b9c6fb52fc8d04c36bbc11179a8ba3",
+          "expectedStateHash": "cb166d1175a9907502001aca15c1e7b2a6b9c6fb52fc8d04c36bbc11179a8ba3",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "UNL-082-219/decline",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "f14978125258c9dab0a8d3ee98c17ec5d55ad7ac3ab1d499f7421a19e57984da",
+          "expectedStateHash": "f14978125258c9dab0a8d3ee98c17ec5d55ad7ac3ab1d499f7421a19e57984da",
+          "errors": []
+        },
+        "commands": 3
+      },
+      {
+        "scenario": "UNL-082a-219/accept",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "26859b0a1bc2b21ef673266b280edf969ae58745068f25386f0e6719c5825813",
+          "expectedStateHash": "26859b0a1bc2b21ef673266b280edf969ae58745068f25386f0e6719c5825813",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "UNL-082a-219/decline",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "f6c5b45665578030e247313a7a50e7475955c68596cef5f3a02a9cf255672dfa",
+          "expectedStateHash": "f6c5b45665578030e247313a7a50e7475955c68596cef5f3a02a9cf255672dfa",
+          "errors": []
+        },
+        "commands": 3
+      }
+    ],
+    "productionCommands": 8,
+    "journalCommands": 30,
+    "mode": "Godot headless production token replacement controls; not dual-window visual or Windows product evidence"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.84\n",
+  "godotRuns": {
+    "rift-token-definitions-native-UNL-082a-219.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTOKEN_REPLACEMENT_INTERACTION_PASS: chosen source order, explicit decline, production commands\n",
+    "rift-token-definitions-native-OGN-222-298.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTOKEN_REPLACEMENT_INTERACTION_PASS: chosen source order, explicit decline, production commands\n",
+    "rift-token-definitions-native-UNL-082-219.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTOKEN_REPLACEMENT_INTERACTION_PASS: chosen source order, explicit decline, production commands\n",
+    "rift-token-definitions-native-SFD-179-221.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTOKEN_REPLACEMENT_INTERACTION_PASS: chosen source order, explicit decline, production commands\n"
+  },
+  "artifacts": [
+    {
+      "path": "var/qa/token-definitions/check/check/results.trx",
+      "sha256": "b9ea069aa57f1064337bb26844a5610ab618b1785966af2e1cf8a31f87344fc4"
+    },
+    {
+      "path": "var/qa/token-definitions/check/plan.json",
+      "sha256": "6ebbb41ca2f5d2bed9d5764ec16515bd10f77e44d1bd6b356463edd519624c1f"
+    },
+    {
+      "path": "var/qa/token-definitions/check2/check/results.trx",
+      "sha256": "1e005e4ad856db7569cc164273fb34099164557701e5e14bebc387c33d0b9043"
+    },
+    {
+      "path": "var/qa/token-definitions/check2/plan.json",
+      "sha256": "c3a37b4bd16de5acd6014091fbd482cb2a11356760216a40a1cabdf6ac3afc36"
+    },
+    {
+      "path": "var/qa/token-definitions/check2/summary.json",
+      "sha256": "43b17c7a371ba3ace2d1194394c1514d669cfb083b7d266e4b1762825a081508"
+    },
+    {
+      "path": "var/qa/token-definitions/focus1/focus/results.trx",
+      "sha256": "5d182453814001a5d9b06162714231f3f365f892bc22417d74b1175a8ffd6210"
+    },
+    {
+      "path": "var/qa/token-definitions/focus1/plan.json",
+      "sha256": "6cb091a0c70f3a32b47ed172e3b52c45c780e5399785e8d9be95e018de11ff05"
+    },
+    {
+      "path": "var/qa/token-definitions/focus1/summary.json",
+      "sha256": "4a2dbc03cc155a1b3f4bfa3f620bb8e9e03317107860352a195990e0dd5d9d2f"
+    },
+    {
+      "path": "var/qa/token-definitions/full/games-1/results.trx",
+      "sha256": "940021cccb399576305821e7e71c5c53c1ded4b433b46cf07c1392b76cd717b9"
+    },
+    {
+      "path": "var/qa/token-definitions/full/games-2/results.trx",
+      "sha256": "341ae381ac10a8c3566df26ebb458be8d8107fbb7d40aca7a71f4b5b5e5f8ee5"
+    },
+    {
+      "path": "var/qa/token-definitions/full/games-3/results.trx",
+      "sha256": "fcc74f66a62819c909d0512f21780bf04fb6227b00812727cfba202b7f07422f"
+    },
+    {
+      "path": "var/qa/token-definitions/full/games-4/results.trx",
+      "sha256": "6e07443909d07071d7d7e4b1643bbf92f598036417d242596996051457fee92f"
+    },
+    {
+      "path": "var/qa/token-definitions/full/plan.json",
+      "sha256": "3c9a9a60baf3e3af57dd6a5632399e02206c9eb083b3b37b1e9ecf6955ca8bdb"
+    },
+    {
+      "path": "var/qa/token-definitions/full/rules/results.trx",
+      "sha256": "df4615d21e0ddcc985abebe6b405fb3cf20c862fe823c0ca0d8431eb855bbe30"
+    },
+    {
+      "path": "var/qa/token-definitions/full/summary.json",
+      "sha256": "b689443b7e02b1a88c7270f6b95c991c6491d3ea94aa6d8e78e08c89767b4aff"
+    },
+    {
+      "path": "var/qa/token-definitions/native/OGN-222-298/accept/native-command.json",
+      "sha256": "698d6450eca76d25420f7a473730d7a8a342faa8a65c315f847de9a05107bec6"
+    },
+    {
+      "path": "var/qa/token-definitions/native/OGN-222-298/accept/prompt.json",
+      "sha256": "1a328cd662d3fdbfd9cf161b22041558da0725ac94eaff9df59d39a8d4f49bb1"
+    },
+    {
+      "path": "var/qa/token-definitions/native/OGN-222-298/accept/replay.json",
+      "sha256": "5e8df76a0ba51fe7b138b5e70b75e89aaccb36f8349cab6710c7f583b8e17af8"
+    },
+    {
+      "path": "var/qa/token-definitions/native/OGN-222-298/accept/snapshot.json",
+      "sha256": "63fd30f0e6917573812e66503b1be1298dc79b299291a164965abf66908f12e6"
+    },
+    {
+      "path": "var/qa/token-definitions/native/OGN-222-298/decline/native-command.json",
+      "sha256": "94be29722f52684e66b609be6027f9bacf3366128b68a67391f1440c65162adf"
+    },
+    {
+      "path": "var/qa/token-definitions/native/OGN-222-298/decline/prompt.json",
+      "sha256": "1a328cd662d3fdbfd9cf161b22041558da0725ac94eaff9df59d39a8d4f49bb1"
+    },
+    {
+      "path": "var/qa/token-definitions/native/OGN-222-298/decline/replay.json",
+      "sha256": "9720ee71d8f94a013da8996868c9b8351b54ac8dbffaf47c8076d1443c553da3"
+    },
+    {
+      "path": "var/qa/token-definitions/native/OGN-222-298/decline/snapshot.json",
+      "sha256": "63fd30f0e6917573812e66503b1be1298dc79b299291a164965abf66908f12e6"
+    },
+    {
+      "path": "var/qa/token-definitions/native/SFD-179-221/accept/native-command.json",
+      "sha256": "698d6450eca76d25420f7a473730d7a8a342faa8a65c315f847de9a05107bec6"
+    },
+    {
+      "path": "var/qa/token-definitions/native/SFD-179-221/accept/prompt.json",
+      "sha256": "dd1c65d1c3d403bc3c44c7def46561d69feed3aed662484bd8c4d706daa5e456"
+    },
+    {
+      "path": "var/qa/token-definitions/native/SFD-179-221/accept/replay.json",
+      "sha256": "b7894f82e326e871bd3c634bdb65a5fe06af22c80b6efc160cd518ebc84b03a2"
+    },
+    {
+      "path": "var/qa/token-definitions/native/SFD-179-221/accept/snapshot.json",
+      "sha256": "4509e0a4d9938ed96d5b22ab8f158714d3ffe7e18d5e01212c78007b0e310c58"
+    },
+    {
+      "path": "var/qa/token-definitions/native/SFD-179-221/decline/native-command.json",
+      "sha256": "94be29722f52684e66b609be6027f9bacf3366128b68a67391f1440c65162adf"
+    },
+    {
+      "path": "var/qa/token-definitions/native/SFD-179-221/decline/prompt.json",
+      "sha256": "dd1c65d1c3d403bc3c44c7def46561d69feed3aed662484bd8c4d706daa5e456"
+    },
+    {
+      "path": "var/qa/token-definitions/native/SFD-179-221/decline/replay.json",
+      "sha256": "c02455047fef0ff1c52a4600d28f6dd1555609a7a720654499e559fed0ec0e1d"
+    },
+    {
+      "path": "var/qa/token-definitions/native/SFD-179-221/decline/snapshot.json",
+      "sha256": "4509e0a4d9938ed96d5b22ab8f158714d3ffe7e18d5e01212c78007b0e310c58"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082-219/accept/native-command.json",
+      "sha256": "698d6450eca76d25420f7a473730d7a8a342faa8a65c315f847de9a05107bec6"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082-219/accept/prompt.json",
+      "sha256": "244cd1574d84d39ba08a161920847cebb743a24d62ebabfe2c70f9686c420c4e"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082-219/accept/replay.json",
+      "sha256": "2c80b817ab951451376a0e19011708e7ddf4ab4dcd01734813ae4cee5c6c703b"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082-219/accept/snapshot.json",
+      "sha256": "e3c8401bf2e798dff7a82d8680506736b2c48d83956f27c44561756c54bf1065"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082-219/decline/native-command.json",
+      "sha256": "94be29722f52684e66b609be6027f9bacf3366128b68a67391f1440c65162adf"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082-219/decline/prompt.json",
+      "sha256": "244cd1574d84d39ba08a161920847cebb743a24d62ebabfe2c70f9686c420c4e"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082-219/decline/replay.json",
+      "sha256": "8640c1797a4089a1aea28b4ced17fc45d4f2a2f0d006a66dfc90e645c0d9e313"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082-219/decline/snapshot.json",
+      "sha256": "e3c8401bf2e798dff7a82d8680506736b2c48d83956f27c44561756c54bf1065"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082a-219/accept/native-command.json",
+      "sha256": "698d6450eca76d25420f7a473730d7a8a342faa8a65c315f847de9a05107bec6"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082a-219/accept/prompt.json",
+      "sha256": "097cadd4dd7724d2bfdc43ca812969db18ba1a732d412091591fb624fd36f0d0"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082a-219/accept/replay.json",
+      "sha256": "1ba22356905b73750ab1150029e19cc7f7d59758fcf263c07d6a39152936add1"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082a-219/accept/snapshot.json",
+      "sha256": "13347bfde1c6486386756ee6aaa734eb004627b2619e9ff469314a4d38f18f16"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082a-219/decline/native-command.json",
+      "sha256": "94be29722f52684e66b609be6027f9bacf3366128b68a67391f1440c65162adf"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082a-219/decline/prompt.json",
+      "sha256": "097cadd4dd7724d2bfdc43ca812969db18ba1a732d412091591fb624fd36f0d0"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082a-219/decline/replay.json",
+      "sha256": "800bd4bc5ea47c029cc1b09654f1ce34ba26d93cc4eeea97cfa120aaa8d18f38"
+    },
+    {
+      "path": "var/qa/token-definitions/native/UNL-082a-219/decline/snapshot.json",
+      "sha256": "13347bfde1c6486386756ee6aaa734eb004627b2619e9ff469314a4d38f18f16"
+    },
+    {
+      "path": "var/qa/token-definitions/red/focus/results.trx",
+      "sha256": "f3c25214e7e0c39e9f5635f3933114155d1194ed8e59ed5ab5def03f0881a462"
+    },
+    {
+      "path": "var/qa/token-definitions/red/plan.json",
+      "sha256": "8f523f224e4688a9855725f269dbd7d61e07d373173e61dd85fae5161db1243a"
+    }
+  ]
+}

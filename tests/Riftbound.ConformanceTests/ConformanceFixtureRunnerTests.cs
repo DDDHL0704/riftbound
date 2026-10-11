@@ -10308,7 +10308,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-FUTURE-FORGE"].Tags);
         Assert.Equal(1, result.FinalState.CardObjects["P1-EQUIPMENT-FUTURE-FORGE-TOKEN-001"].Power);
         Assert.Equal(
-            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"],
             result.FinalState.CardObjects["P1-EQUIPMENT-FUTURE-FORGE-TOKEN-001"].Tags);
     }
 
@@ -10479,7 +10479,7 @@ public sealed class ConformanceFixtureRunnerTests
             [CardObjectTags.EquipmentCard, CardObjectTags.Ephemeral],
             result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN"].Tags);
         Assert.Equal(3, result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.UnitCard, "仙灵", CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"].Tags);
     }
 
     [Fact]
@@ -15481,7 +15481,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(CardObjectTags.MinionTokenFamily, result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN"].Tags);
         Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"].Power);
         Assert.Equal(
-            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"],
             result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"].Tags);
     }
 
@@ -15513,7 +15513,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-ROYAL-GUARD"].Power);
         Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-ROYAL-GUARD-TOKEN-001"].Power);
         Assert.Equal(
-            [CardObjectTags.UnitCard, CardObjectTags.SandSoldier],
+            [CardObjectTags.UnitCard, "恕瑞玛", CardObjectTags.SandSoldier],
             result.FinalState.CardObjects["P1-UNIT-ROYAL-GUARD-TOKEN-001"].Tags);
     }
 
@@ -16037,7 +16037,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER"].Power);
         Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER"].Tags);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.UnitCard, "仙灵", CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER-TOKEN-001"].Tags);
     }
 
     [Fact]
@@ -17529,7 +17529,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-SPRITE-QUEEN"].Power);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SPRITE-QUEEN-TOKEN-001"].Power);
         Assert.Equal(
-            [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+            [CardObjectTags.UnitCard, "仙灵", CardObjectTags.Ephemeral],
             result.FinalState.CardObjects["P1-UNIT-SPRITE-QUEEN-TOKEN-001"].Tags);
         Assert.Contains("UNIT_TOKEN_CREATED", result.EventKinds);
     }
@@ -25819,7 +25819,7 @@ public sealed class ConformanceFixtureRunnerTests
         {
             Assert.Equal(1, result.FinalState.CardObjects[objectId].Power);
             Assert.Equal(
-                [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+                [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"],
                 result.FinalState.CardObjects[objectId].Tags);
         });
     }
@@ -26053,7 +26053,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-SPELL-SPRITE-SUMMON-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(3, result.FinalState.CardObjects["P1-SPELL-SPRITE-SUMMON-TOKEN-001"].Power);
-        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-SPELL-SPRITE-SUMMON-TOKEN-001"].Tags);
+        Assert.Equal([CardObjectTags.UnitCard, "仙灵", CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-SPELL-SPRITE-SUMMON-TOKEN-001"].Tags);
         Assert.Equal(
             1,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
@@ -26084,7 +26084,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.All(result.FinalState.PlayerZones["P1"].Base, objectId =>
         {
             Assert.Equal(3, result.FinalState.CardObjects[objectId].Power);
-            Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Ephemeral], result.FinalState.CardObjects[objectId].Tags);
+            Assert.Equal([CardObjectTags.UnitCard, "仙灵", CardObjectTags.Ephemeral], result.FinalState.CardObjects[objectId].Tags);
         });
     }
 
@@ -33648,11 +33648,11 @@ public sealed class ConformanceFixtureRunnerTests
             result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN"].Tags);
         Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001"].Power);
         Assert.Equal(
-            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"],
             result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001"].Tags);
         Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002"].Power);
         Assert.Equal(
-            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"],
             result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002"].Tags);
         Assert.Equal(2, result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
     }
@@ -41221,7 +41221,7 @@ public sealed class ConformanceFixtureRunnerTests
         {
             Assert.Equal(1, p2ResolvesTrigger.State.CardObjects[tokenObjectId].Power);
             Assert.Equal(
-                [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+                [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"],
                 p2ResolvesTrigger.State.CardObjects[tokenObjectId].Tags);
         }
 

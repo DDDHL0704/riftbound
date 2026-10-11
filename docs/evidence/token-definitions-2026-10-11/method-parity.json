@@ -1,0 +1,10 @@
+{
+  "baseline": 6270,
+  "current": 6273,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.RealLegendCreationPreservesTheCoreDefinedTag",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.SpellSpriteCreationUsesTheSameCoreDefinedTag"
+  ]
+}

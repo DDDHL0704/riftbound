@@ -212,10 +212,7 @@
           "tokenName": "随从",
           "power": 1,
           "destinationZone": "BASE",
-          "tokenTags": [
-            "CARD_TYPE:UNIT",
-            "TOKEN_FAMILY:MINION"
-          ]
+          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION", "随从"]
         }
       },
       {
@@ -227,10 +224,7 @@
           "tokenName": "随从",
           "power": 1,
           "destinationZone": "BASE",
-          "tokenTags": [
-            "CARD_TYPE:UNIT",
-            "TOKEN_FAMILY:MINION"
-          ]
+          "tokenTags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION", "随从"]
         }
       }
     ],
@@ -276,12 +270,12 @@
         },
         "P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001": {
           "power": 1,
-          "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"],
+          "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION", "随从"],
           "isExhausted": true
         },
         "P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002": {
           "power": 1,
-          "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION"],
+          "tags": ["CARD_TYPE:UNIT", "TOKEN_FAMILY:MINION", "随从"],
           "isExhausted": true
         }
       }

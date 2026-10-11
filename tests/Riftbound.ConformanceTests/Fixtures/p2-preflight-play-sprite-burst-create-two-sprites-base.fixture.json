@@ -138,7 +138,7 @@
           "tokenName": "精灵",
           "power": 3,
           "destinationZone": "BASE",
-          "tokenTags": ["CARD_TYPE:UNIT", "瞬息"]
+          "tokenTags": ["CARD_TYPE:UNIT", "仙灵", "瞬息"]
         }
       },
       {
@@ -150,7 +150,7 @@
           "tokenName": "精灵",
           "power": 3,
           "destinationZone": "BASE",
-          "tokenTags": ["CARD_TYPE:UNIT", "瞬息"]
+          "tokenTags": ["CARD_TYPE:UNIT", "仙灵", "瞬息"]
         }
       }
     ],
@@ -185,18 +185,12 @@
       "cardObjects": {
         "P1-SPELL-SPRITE-BURST-TOKEN-001": {
           "power": 3,
-          "tags": [
-            "CARD_TYPE:UNIT",
-            "瞬息"
-          ],
+          "tags": ["CARD_TYPE:UNIT", "仙灵", "瞬息"],
           "isExhausted": false
         },
         "P1-SPELL-SPRITE-BURST-TOKEN-002": {
           "power": 3,
-          "tags": [
-            "CARD_TYPE:UNIT",
-            "瞬息"
-          ],
+          "tags": ["CARD_TYPE:UNIT", "仙灵", "瞬息"],
           "isExhausted": false
         }
       },

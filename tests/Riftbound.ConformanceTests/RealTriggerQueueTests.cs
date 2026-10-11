@@ -510,7 +510,7 @@ public sealed class RealTriggerQueueTests
             "P2-CLEANUP-MECHANICAL-TRICKSTER",
             "随从",
             1,
-            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+            [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"],
             [
                 "P1-CLEANUP-MECHANICAL-TRICKSTER-TOKEN-001",
                 "P1-CLEANUP-MECHANICAL-TRICKSTER-TOKEN-002",
@@ -2187,7 +2187,7 @@ public sealed class RealTriggerQueueTests
         {
             Assert.Equal(1, p2ResolvesP1Trigger.State.CardObjects[tokenObjectId].Power);
             Assert.Equal(
-                [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily],
+                [CardObjectTags.UnitCard, CardObjectTags.MinionTokenFamily, "随从"],
                 p2ResolvesP1Trigger.State.CardObjects[tokenObjectId].Tags);
         }
     }

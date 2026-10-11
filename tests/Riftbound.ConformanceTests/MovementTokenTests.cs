@@ -39,6 +39,7 @@ public sealed class MovementTokenTests
             Assert.Equal(Sprite(card) ? 3 : 1, t.Power);
             Assert.Equal(Sprite(card), t.Tags.Contains(CardObjectTags.Ephemeral));
             Assert.Contains(Sprite(card) ? "仙灵" : CardObjectTags.MinionTokenFamily, t.Tags);
+            Assert.Contains(Sprite(card) ? "仙灵" : "随从", t.Tags);
             Assert.Equal(new ObjectLocationState("P2", expectedZone, expectedField), done.State.ObjectLocations[t.ObjectId]);
         });
         Restore(done.State);

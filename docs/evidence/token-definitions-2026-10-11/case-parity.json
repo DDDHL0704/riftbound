@@ -1,0 +1,20 @@
+{
+  "baseline": 9459,
+  "current": 9471,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter(card: \"OGN·271/298\", might: 1, tag: \"随从\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter(card: \"OGN·272/298\", might: 1, tag: \"随从\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter(card: \"OGN·273/298\", might: 1, tag: \"随从\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter(card: \"OGN·274/298\", might: 3, tag: \"仙灵\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter(card: \"SFD·T01\", might: 3, tag: \"机械\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter(card: \"SFD·T02\", might: 2, tag: \"恕瑞玛\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter(card: \"UNL·T02\", might: 1, tag: \"鸟类\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.OfficialTokenTagsAlsoMatchTheGenericTagFilter(card: \"UNL·T07\", might: 3, tag: \"仙灵\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.RealLegendCreationPreservesTheCoreDefinedTag(card: \"OGN·265/298\", tag: \"随从\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.RealLegendCreationPreservesTheCoreDefinedTag(card: \"SFD·197/221\", tag: \"恕瑞玛\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.RealLegendCreationPreservesTheCoreDefinedTag(card: \"UNL-189/219\", tag: \"仙灵\")",
+    "Riftbound.ConformanceTests.TokenDefinitionAuditTests.SpellSpriteCreationUsesTheSameCoreDefinedTag"
+  ],
+  "allPassed": true
+}

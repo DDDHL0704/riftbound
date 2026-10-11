@@ -181,7 +181,7 @@
           "tokenName": "精灵",
           "power": 3,
           "destinationZone": "BASE",
-          "tokenTags": ["CARD_TYPE:UNIT", "瞬息"]
+          "tokenTags": ["CARD_TYPE:UNIT", "仙灵", "瞬息"]
         }
       }
     ],
@@ -219,7 +219,7 @@
         },
         "P1-UNIT-SPRITE-QUEEN-TOKEN-001": {
           "power": 3,
-          "tags": ["CARD_TYPE:UNIT", "瞬息"],
+          "tags": ["CARD_TYPE:UNIT", "仙灵", "瞬息"],
           "isExhausted": false
         }
       }

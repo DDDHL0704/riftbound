@@ -172,10 +172,7 @@
           "tokenName": "黄沙士兵",
           "power": 2,
           "destinationZone": "BASE",
-          "tokenTags": [
-            "CARD_TYPE:UNIT",
-            "黄沙士兵"
-          ]
+          "tokenTags": ["CARD_TYPE:UNIT", "恕瑞玛", "黄沙士兵"]
         }
       }
     ],
@@ -213,7 +210,7 @@
         },
         "P1-UNIT-ROYAL-GUARD-TOKEN-001": {
           "power": 2,
-          "tags": ["CARD_TYPE:UNIT", "黄沙士兵"],
+          "tags": ["CARD_TYPE:UNIT", "恕瑞玛", "黄沙士兵"],
           "isExhausted": true
         }
       }
