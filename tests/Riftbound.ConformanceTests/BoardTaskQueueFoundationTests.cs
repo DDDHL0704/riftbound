@@ -633,7 +633,7 @@ public sealed class BoardTaskQueueFoundationTests
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(
-            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "UNIT_DESTROYED", "EQUIPMENT_RECALLED_TO_BASE"],
+            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "UNIT_DESTROYED", "EQUIPMENT_RECALLED_TO_BASE", "BATTLEFIELD_CONTROL_LOST"],
             result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Contains("P1-LETHAL-HOST", result.State.PlayerZones["P1"].Graveyard);
         Assert.Contains("P1-ATTACHED-EQUIPMENT", result.State.PlayerZones["P1"].Base);
@@ -2075,8 +2075,8 @@ public sealed class BoardTaskQueueFoundationTests
         var battlefield = result.State.BattlefieldStates["BF-1"];
         Assert.Equal("BF-1", battlefield.BattlefieldObjectId);
         Assert.Equal("P1", battlefield.ZonePlayerId);
-        Assert.Equal("P1", battlefield.ControllerId);
-        Assert.Equal("CONTROLLED", battlefield.Status);
+        Assert.Null(battlefield.ControllerId);
+        Assert.Equal("UNCONTROLLED", battlefield.Status);
         Assert.False(battlefield.Contested);
         Assert.Empty(battlefield.OccupantObjectIds);
         Assert.Empty(battlefield.OccupantControllerIds);
@@ -2137,7 +2137,8 @@ public sealed class BoardTaskQueueFoundationTests
 
         var originBattlefield = result.State.BattlefieldStates[originBattlefieldObjectId];
         Assert.Equal(originBattlefieldObjectId, originBattlefield.BattlefieldObjectId);
-        Assert.Equal("P1", originBattlefield.ControllerId);
+        Assert.Null(originBattlefield.ControllerId);
+        Assert.Contains(result.Events, e => e.Kind == "BATTLEFIELD_CONTROL_LOST" && Equals(e.Payload["battlefieldObjectId"], originBattlefieldObjectId));
         Assert.False(originBattlefield.Contested);
         Assert.Empty(originBattlefield.OccupantObjectIds);
         Assert.Empty(originBattlefield.OccupantControllerIds);

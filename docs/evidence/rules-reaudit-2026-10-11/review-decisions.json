@@ -877,6 +877,175 @@
         "Future-effective rules",
         "Dual-window and Windows product acceptance"
       ]
+    },
+    {
+      "id": "uncontrolled-conquest-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Yone uncontrolled conquest condition, current-power damage, target confirmation, Ward, official Void Assault/Hostile Takeover/hold activation QAs; open cleanup releases unsupported control before a new showdown.",
+      "subjects": [
+        {
+          "id": "SFD-116/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34847,
+              "cardNo": "SFD·116/221",
+              "name": "永恩",
+              "sha256": "c6d4056cd9300c6d72c84a7fd077503b4ad6c6e248e9c6ac07a7cfbeaa6aaa49"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-116-221",
+              "cardNo": "SFD-116/221",
+              "name": "Yone",
+              "sha256": "7271f44bbb27c2de9c17dc438c6499fe9f8291fb29ea047cccdcfeac34d87a82"
+            }
+          ],
+          "activeCardNo": "SFD·116/221",
+          "reviewStatus": "PARTIAL_UNCONTROLLED_CONQUEST_QA_VERIFIED"
+        },
+        {
+          "id": "SFD-233/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34848,
+              "cardNo": "SFD·233/221",
+              "name": "永恩",
+              "sha256": "4cc062fb01521c21afd0a8324b0b3ac03c575725fe3624f7edd9f05b0cd0b28c"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-233-221",
+              "cardNo": "SFD-233/221",
+              "name": "Yone",
+              "sha256": "360bb57b936ea0b47e082c682fb721965a7532c42bf85a96bfc1836ff70f88fa"
+            }
+          ],
+          "activeCardNo": "SFD·233/221",
+          "reviewStatus": "PARTIAL_UNCONTROLLED_CONQUEST_QA_VERIFIED"
+        },
+        {
+          "id": "SFD-233*/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34849,
+              "cardNo": "SFD·233*/221",
+              "name": "永恩",
+              "sha256": "59259ceee9977245ebcee11db7587162efa7ea8cdb57f76629c7590db04b87ea"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-233-star-221",
+              "cardNo": "SFD-233*/221",
+              "name": "Yone",
+              "sha256": "79cd14fa6226470b66d657da2d878b6793c24e4729d103ec0d57a22f83185b80"
+            }
+          ],
+          "activeCardNo": "SFD·233*/221",
+          "reviewStatus": "PARTIAL_UNCONTROLLED_CONQUEST_QA_VERIFIED"
+        },
+        {
+          "id": "UNL-202/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34755,
+              "cardNo": "UNL-202/219",
+              "name": "虚空来袭",
+              "sha256": "79fa62ed9f3ca9dce212b5445fb59a95cdcacd9d0ab275221621f438ddd1bdc8"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-202-219",
+              "cardNo": "UNL-202/219",
+              "name": "Void Assault",
+              "sha256": "fcd918c07bdd5e8113cb59939b14f3c26c58c90a7f02e3217a8a63ea40f5fb10"
+            }
+          ],
+          "activeCardNo": "UNL-202/219",
+          "reviewStatus": "PARTIAL_UNCONTROLLED_CONQUEST_QA_VERIFIED"
+        },
+        {
+          "id": "SFD-202/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33301,
+              "cardNo": "SFD·202/221",
+              "name": "恶意收购",
+              "sha256": "8399bca16b05612bee70f28677c8b85a98f8211c9639a234e9ec8cc5415c92fd"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-202-221",
+              "cardNo": "SFD-202/221",
+              "name": "Hostile Takeover",
+              "sha256": "649f03a9b2a7145070c04c6b5e0bf469a8f9f186cfb3ce0864621169f557fe07"
+            }
+          ],
+          "activeCardNo": "SFD·202/221",
+          "reviewStatus": "PARTIAL_UNCONTROLLED_CONQUEST_QA_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P008-B005",
+        "DOC-04-P053-B005",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-04-P053-B010",
+        "DOC-04-P053-B011",
+        "DOC-04-P053-B012",
+        "DOC-04-P053-B013",
+        "DOC-04-P061-B009",
+        "DOC-09-P018-B006",
+        "DOC-09-P018-B007",
+        "DOC-09-P018-B008",
+        "DOC-09-P018-B009",
+        "DOC-09-P018-B010",
+        "DOC-09-P018-B011",
+        "DOC-09-P018-B012",
+        "DOC-09-P018-B013",
+        "DOC-09-P018-B014",
+        "DOC-09-P018-B015",
+        "DOC-09-P018-B016",
+        "DOC-09-P018-B017",
+        "DOC-09-P018-B018",
+        "DOC-12-P008-B003",
+        "DOC-13-P014-B003",
+        "DOC-13-P014-B004",
+        "DOC-14-P011-B003",
+        "DOC-14-P011-B004",
+        "DOC-14-P022-B003",
+        "DOC-04-P027-B014",
+        "DOC-04-P027-B016",
+        "DOC-04-P027-B017",
+        "DOC-04-P037-B021",
+        "DOC-04-P038-B001"
+      ],
+      "auditDocument": "docs/UNCONTROLLED_CONQUEST_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/uncontrolled-conquest-2026-10-11",
+      "tests": [
+        "UncontrolledConquestTests",
+        "UncontrolledConquestNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9586,
+        "fullMethods": 6336,
+        "nativeScenarios": 3,
+        "nativeCommands": 5,
+        "journalCommands": 18,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Source leaving-board referent ruling still needs independent authority audit",
+        "All Weaponmaster/other keyword paths",
+        "Global cleanup substep ordering across all entrypoints",
+        "RAD printing legality and future-effective rules",
+        "Dual-window and Windows product acceptance"
+      ]
     }
   ]
 }

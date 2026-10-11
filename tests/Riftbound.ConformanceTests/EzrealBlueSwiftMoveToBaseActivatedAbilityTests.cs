@@ -433,6 +433,14 @@ public sealed class EzrealBlueSwiftMoveToBaseActivatedAbilityTests
             CardObjects = ReplaceCardObject(activated.State.CardObjects, EzrealObjectId, staleSource)
         };
 
+        staleState = staleState with {
+            CardObjects = new Dictionary<string, CardObjectState>(staleState.CardObjects) {
+                ["SWIFT-KEEPER"] = new("SWIFT-KEEPER", cardNo: "OGN·096/298", ownerId: "P1", controllerId: "P1", power: 4, tags: [CardObjectTags.UnitCard]) },
+            PlayerZones = new Dictionary<string, PlayerZones>(staleState.PlayerZones) {
+                ["P1"] = staleState.PlayerZones["P1"] with { Battlefields = [..staleState.PlayerZones["P1"].Battlefields, "SWIFT-KEEPER"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(staleState.ObjectLocations) {
+                ["SWIFT-KEEPER"] = new("P1", "BATTLEFIELD", BattlefieldObjectId) } };
+
         var p1Pass = await engine.ResolveAsync(
             staleState,
             new PlayerIntent($"intent-ezreal-{scenario}-p1-pass", "P1", CommandTypes.PassPriority),

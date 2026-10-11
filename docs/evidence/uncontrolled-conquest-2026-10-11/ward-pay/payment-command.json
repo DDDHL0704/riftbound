@@ -1,0 +1,1 @@
+{"cmdType":"PAY_COST","paymentId":"TRIGGER-WARD:ordered-conquest-damage-3-BF-UNIT-0","paymentWindow":"TRIGGER_TARGET_COST","paymentChoiceIds":["PAY"],"promptId":"conquest-regression:4:P1:PAY_COST,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER","snapshotTick":4}

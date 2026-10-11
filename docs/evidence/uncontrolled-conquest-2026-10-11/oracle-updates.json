@@ -1,0 +1,71 @@
+{
+  "authority": [
+    "DOC-04 190.4.c",
+    "DOC-04 323.6 before 323.8",
+    "DOC-14-P022-B003"
+  ],
+  "earlierCheck": {
+    "total": 9448,
+    "failed": 19,
+    "passed": 9429,
+    "failedCases": [
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageStaleRawPromptAfterNextContestStartsRecordsRejectedJournalWithoutMutation",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79BattlefieldStaticRoamAllowsPreciseBattlefieldMovement",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageRejectsAcceptedCommandReplayWithoutMutation",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageStalePromptReplayAfterNextContestStartsRejectsWithoutMutation",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation",
+      "Riftbound.ConformanceTests.EzrealBlueSwiftMoveToBaseActivatedAbilityTests.EzrealStackResolutionNoEffectsWhenSourceStopsBeingControlledOrPublicBeforeResolution(scenario: \"face-down\")",
+      "Riftbound.ConformanceTests.BoardTaskQueueFoundationTests.PreciseRoamPreservesDestinationCasingAndQueuesOnlyDestinationContestTasks",
+      "Riftbound.ConformanceTests.BoardTaskQueueFoundationTests.CleanupLoopRepeatsWhenDestroyedHostCreatesUnattachedEquipmentCandidate",
+      "Riftbound.ConformanceTests.OfficialUnitEntryTriggerTests.MovementSpellChecksTheEffectControllerInsteadOfTheUnitController(actor: \"P1\", moves: False)",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection(method: \"destroy\")",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79BilgewaterBullyWithBoonCanUseRoam",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysSpiritFireDestroyingBattlefieldUnitsTotalPowerFour",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstDeathLedgerBelongsToControllerAndDoesNotDependOnObserverBeingPresent",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBoneSkewerOpponentHandUnitStunned",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection(method: \"cost\")",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticKeywordGrantsMultipleNonCombatKeywordsToMatchingFriendlyUnits",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.PermissionIncludesLaterStandbyButExpiresAtActualTurnTransition",
+      "Riftbound.ConformanceTests.OfficialUnitEntryTriggerTests.MovementSpellChecksTheEffectControllerInsteadOfTheUnitController(actor: \"P2\", moves: True)",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection(method: \"damage\")"
+    ]
+  },
+  "changes": [
+    {
+      "files": [
+        "OfficialInformationPermissionTests.cs",
+        "BattleDamageAssignmentLifecycleTests.cs",
+        "EzrealBlueSwiftMoveToBaseActivatedAbilityTests.cs"
+      ],
+      "reason": "Standby or face-down privacy/legality scenarios must retain a public friendly occupant to keep battlefield control. Add keeper units; retain original secrecy, replay and ability-no-effect assertions."
+    },
+    {
+      "files": [
+        "DeathObserverAuditTests.cs",
+        "OfficialUnitEntryTriggerTests.cs"
+      ],
+      "reason": "Tests directly reconstruct subsequent occupied boards; restore the intended battlefield controller in the fixture to avoid unintentionally entering a new contest."
+    },
+    {
+      "files": [
+        "BoardTaskQueueFoundationTests.cs",
+        "ConformanceFixtureRunnerTests.cs"
+      ],
+      "reason": "Last friendly unit leaving or dying releases control; assert the additional event and uncontrolled final status while preserving movement and queue assertions."
+    },
+    {
+      "files": [
+        "Fixtures/p2-preflight-play-spirit-fire-destroy-total-power-four.fixture.json"
+      ],
+      "reason": "The surviving keeper had power and location but no unit tag, owner or controller. Supply explicit unit identity instead of relying on legacy zone inference."
+    },
+    {
+      "files": [
+        "Fixtures/p2-preflight-play-bone-skewer-opponent-hand-unit-stunned.fixture.json"
+      ],
+      "reason": "Empty battlefield loses former control before the newly played opponent unit starts the showdown. Add ordered event assertion; preserve existing card, effect and prompt assertions."
+    }
+  ],
+  "removedTests": [],
+  "validation": "Final full 9586/9586 passed; no cases or methods removed or renamed."
+}

@@ -55,6 +55,9 @@ public sealed partial class CoreRuleEngine
                 playerId, battlefieldId, resolutionTick)).Concat(CaptureIvernTriggers(playerZones, cardObjects,
                 playerId, battlefieldId, resolutionTick)).Concat(CaptureLegendConquest(playerZones, cardObjects,
                 playerId, battlefieldId, assignedOverkillDamageToEnemyUnits, resolutionTick)).ToArray();
+        if (conqueredRealBattlefield)
+            recastTriggers = recastTriggers.Concat(CaptureConquestDamage(state, state with {PlayerZones=playerZones,CardObjects=cardObjects},
+                playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield

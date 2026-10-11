@@ -209,6 +209,7 @@
       "UNIT_PLAYED_TO_BATTLEFIELD",
       "STATUS_EFFECT_APPLIED",
       "STACK_ITEM_RESOLVED",
+      "BATTLEFIELD_CONTROL_LOST",
       "BATTLEFIELD_CONTESTED",
       "SPELL_DUEL_STARTED"
     ],
@@ -284,6 +285,13 @@
       },
       {
         "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "BATTLEFIELD_CONTROL_LOST",
+        "payload": {
+          "battlefieldObjectId": "BF",
+          "previousControllerId": "P1"
+        }
       },
       {
         "kind": "BATTLEFIELD_CONTESTED"

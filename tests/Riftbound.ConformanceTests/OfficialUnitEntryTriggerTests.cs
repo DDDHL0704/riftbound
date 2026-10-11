@@ -84,6 +84,7 @@ public sealed class OfficialUnitEntryTriggerTests
         var entered=await Act(Position(),"P1",new PlayCardCommand("C","OGN·219/298",[]));
         var finished=await Top(entered.State);var s=finished.State;
         s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects){
+            ["BF"]=s.CardObjects["BF"] with {ControllerId="P1"},
             ["ATT"]=new("ATT",cardNo:"OGN·219/298",ownerId:"P1",controllerId:"P1",power:4,tags:[CardObjectTags.UnitCard]),
             ["MOVE"]=new("MOVE",cardNo:"OGN·168/298",ownerId:actor,controllerId:actor,tags:[CardObjectTags.SpellCard])},
             PlayerZones=new Dictionary<string,PlayerZones>(s.PlayerZones){

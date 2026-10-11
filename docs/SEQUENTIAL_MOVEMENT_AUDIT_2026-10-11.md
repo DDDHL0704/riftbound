@@ -21,3 +21,5 @@ Godot 构建零警告、零错误。四个生产交互场景覆盖返回基地�
 DOC-09 第 18 页的虚空来袭／永恩 QA 同时依赖永恩征服技能。DOC-12 第 8 页及 DOC-13 第 14–15 页的勘误将旧“开放战场”改为“未受控制的战场”，检查征服前一刻控制状态。该技能将在后续共享征服批次处理，本批不把该 QA 或永恩整卡标记为完成。Radiance 印次及未来生效规则继续独立追踪。
 
 证据：[来源](evidence/sequential-movement-2026-10-11/sources.json)、[验证](evidence/sequential-movement-2026-10-11/validation.json)、[用例对账](evidence/sequential-movement-2026-10-11/case-parity.json)、[方法对账](evidence/sequential-movement-2026-10-11/method-parity.json)、[旧预期变更](evidence/sequential-movement-2026-10-11/oracle-updates.json)。
+
+后续记录：虚空来袭／永恩关联 QA 已由 [未受控制战场征服批次](UNCONTROLLED_CONQUEST_AUDIT_2026-10-11.md) 补齐；永恩的其他关键词和来源离场数值裁定仍不在本批认证范围内。

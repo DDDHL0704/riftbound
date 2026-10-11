@@ -1,0 +1,383 @@
+{
+  "focus3": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 18.2,
+    "total": 5,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.46
+      }
+    ]
+  },
+  "focus5": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 18.65,
+    "total": 76,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 76,
+        "passed": 76,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.69
+      }
+    ]
+  },
+  "focus7": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 18.44,
+    "total": 30,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 30,
+        "passed": 30,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.89
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 413.15,
+    "total": 9586,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 215.59
+      },
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 216.01
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 224.29
+      },
+      {
+        "shard": "rules",
+        "total": 9451,
+        "passed": 9451,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 88.09
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 409.66
+      }
+    ]
+  },
+  "native": {
+    "scenarios": [
+      {
+        "scenario": "plain",
+        "nativeCommands": 1,
+        "commands": 6,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "8bf82aa166adb4bb2cebb00f4d7af2db02a31d40159bcb19fa41c9ad349f2fad",
+          "expectedStateHash": "8bf82aa166adb4bb2cebb00f4d7af2db02a31d40159bcb19fa41c9ad349f2fad",
+          "errors": []
+        }
+      },
+      {
+        "scenario": "ward-decline",
+        "nativeCommands": 2,
+        "commands": 5,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "07e50b42a41d6e4b74cc0dcae72940f6b01820ffef6c81bea6e8291106e3ccc7",
+          "expectedStateHash": "07e50b42a41d6e4b74cc0dcae72940f6b01820ffef6c81bea6e8291106e3ccc7",
+          "errors": []
+        }
+      },
+      {
+        "scenario": "ward-pay",
+        "nativeCommands": 2,
+        "commands": 7,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "dcc38e86f08a04a73d2c7618479c97fdbce0a6035668c345169f88013d360ba6",
+          "expectedStateHash": "dcc38e86f08a04a73d2c7618479c97fdbce0a6035668c345169f88013d360ba6",
+          "errors": []
+        }
+      }
+    ],
+    "productionCommands": 5,
+    "journalCommands": 18,
+    "mode": "Godot headless production ActionBar and PromptInteractionController, three target and Ward scenarios; full journal starts at movement, then both focus passes, target, payment and priority passes. Not dual-window visual or Windows product evidence"
+  },
+  "initialRed": {
+    "total": 5,
+    "failed": 5,
+    "passed": 0,
+    "source": "var/qa/uncontrolled-conquest/focus2/focus/results.trx",
+    "note": "Corrected concrete fixture conditions first; these failures then reproduce missing control release, precise source location and variant registration. Initial red also had fixture setup defects."
+  },
+  "earlierCheck": {
+    "total": 9448,
+    "failed": 19,
+    "passed": 9429,
+    "failedCases": [
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageStaleRawPromptAfterNextContestStartsRecordsRejectedJournalWithoutMutation",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79BattlefieldStaticRoamAllowsPreciseBattlefieldMovement",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageRejectsAcceptedCommandReplayWithoutMutation",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageStalePromptReplayAfterNextContestStartsRejectsWithoutMutation",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation",
+      "Riftbound.ConformanceTests.EzrealBlueSwiftMoveToBaseActivatedAbilityTests.EzrealStackResolutionNoEffectsWhenSourceStopsBeingControlledOrPublicBeforeResolution(scenario: \"face-down\")",
+      "Riftbound.ConformanceTests.BoardTaskQueueFoundationTests.PreciseRoamPreservesDestinationCasingAndQueuesOnlyDestinationContestTasks",
+      "Riftbound.ConformanceTests.BoardTaskQueueFoundationTests.CleanupLoopRepeatsWhenDestroyedHostCreatesUnattachedEquipmentCandidate",
+      "Riftbound.ConformanceTests.OfficialUnitEntryTriggerTests.MovementSpellChecksTheEffectControllerInsteadOfTheUnitController(actor: \"P1\", moves: False)",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection(method: \"destroy\")",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79BilgewaterBullyWithBoonCanUseRoam",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysSpiritFireDestroyingBattlefieldUnitsTotalPowerFour",
+      "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstDeathLedgerBelongsToControllerAndDoesNotDependOnObserverBeingPresent",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBoneSkewerOpponentHandUnitStunned",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection(method: \"cost\")",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79FriendlyFilteredStaticKeywordGrantsMultipleNonCombatKeywordsToMatchingFriendlyUnits",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.PermissionIncludesLaterStandbyButExpiresAtActualTurnTransition",
+      "Riftbound.ConformanceTests.OfficialUnitEntryTriggerTests.MovementSpellChecksTheEffectControllerInsteadOfTheUnitController(actor: \"P2\", moves: True)",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.DeathCapturesControllerThenRevealsHandAndGrantsOnlyFieldInspection(method: \"damage\")"
+    ]
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.88\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nUNCONTROLLED_CONQUEST_PASS: 5 production target and Ward commands\n",
+  "artifacts": [
+    {
+      "path": "var/qa/uncontrolled-conquest/check/check/results.trx",
+      "sha256": "9f2ffbdf42d9699a084501febf73e49fca03cf76b2b46417c41a18bdaf904021"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/check/plan.json",
+      "sha256": "877944ff90e768d523e8b4ece8cf597c6e305a37109ea77d47fad6bf0097c236"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/diag/focus/results.trx",
+      "sha256": "42907ee706092bde0970203764898492823bb69ba79b441aa375ebe396f46dff"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/diag/plan.json",
+      "sha256": "03aeda808d97deb2d056c8605cf5c76f2f1b69335cb3ddb843e3a1ee707fce8e"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus/focus/results.trx",
+      "sha256": "af441fc61ee506183897edfb74c6fd138f783fb675f1dcf558076056a8eec2a1"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus/plan.json",
+      "sha256": "e6f42da98aa7cf2e096c69fd6be48c35483b4d4d867bacbc2758025720813949"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus2/focus/results.trx",
+      "sha256": "152ed16aecfa8f5e4442bd5ba7be390190bf8a2828a0f8d89914f5c350f86950"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus2/plan.json",
+      "sha256": "19d24bd4f4137ed102e9010484245a85c8a87c5e350113ff3107e7a2a1ac4c80"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus3/focus/results.trx",
+      "sha256": "bf0bc39a5028944078a98a0faae4030e0283299bb090be46a328b08fff944f53"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus3/plan.json",
+      "sha256": "5e4272f41a5f870440e8073355797d197fcf0f8ca676b959efd396432990432e"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus3/summary.json",
+      "sha256": "98b46e3fdf2f293c2e3f26e979c93d433a4ab0fea322a0cb9dee4e70b76c0b3d"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus4/focus/results.trx",
+      "sha256": "df23056a4c28bbade86f24d65dc7707ca3a617d7718f1248748324f1097beb34"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus4/plan.json",
+      "sha256": "b72ae76447f3a98c00d2df843baeb2195b740799cd4d0713dcda043b44d4daf5"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus5/focus/results.trx",
+      "sha256": "b8b1a557038e38a634fd17b1d460c9392f97e2eab759950c0e74e29acfc90069"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus5/plan.json",
+      "sha256": "7c8dc5503a1559fea9489b961c9e07e5944bc9d18b9e195f7ec5e7defdbc0b03"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus5/summary.json",
+      "sha256": "022e8668f09f85ec6c6e2897d44187ea16fda21dc61616235a556690d850425c"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus6/focus/results.trx",
+      "sha256": "9d6329f853509d784d8562d2f84c57a5fef3a3b24a732db71dd318b104f48a94"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus6/plan.json",
+      "sha256": "87c07ec99a2581c227c45bc8c10ae33377dd78fe656230f3f1b18f19f24e790e"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus7/focus/results.trx",
+      "sha256": "c13795435463a97b6576e4ec5cb1d255b5ae2fb3599e5ede9591cbf8e2e20a65"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus7/plan.json",
+      "sha256": "5508ebea5d7851884c6d291f0f80585359514e8b166f203c21cc8f6aa812d605"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/focus7/summary.json",
+      "sha256": "a820c6616194d7df6448b1f22925d6a658efcccbe046589fb87479762634b11a"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/full/games-1/results.trx",
+      "sha256": "87d068d6ca2a4bcb1e590c1845bdd5e3258e824ecf51662de61a6923d7a494cb"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/full/games-2/results.trx",
+      "sha256": "7a905543fa96917c62e57cc61d4aee7199d13c0936a3960a32f15738dc4927a7"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/full/games-3/results.trx",
+      "sha256": "6260edf729fd9bcf4b5ba0a2b320b28d1484c1ed55785262241255aed93aacf4"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/full/games-4/results.trx",
+      "sha256": "2c80c48a8136db34e600b52e473b10fdd03dc56ec7b7471a3b5010c47dae091e"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/full/plan.json",
+      "sha256": "edd165f5c12a341c62535a79809321a8e7c094513884b98f3ed18c1a30196ff9"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/full/rules/results.trx",
+      "sha256": "03c558a9b1a82d5d7cc5ec115f5264f77c3e5986bf2d962511a9419014f0f575"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/full/summary.json",
+      "sha256": "6f85216450cd6340c3bc7a27fd2c62d83464c702ef0ba82c978461da2412296d"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/plain/replay.json",
+      "sha256": "a9e48dd79c211c723a40ac361102995fc6b79d3fb27e65fc24f9b7622f8ce444"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/plain/result-snapshot.json",
+      "sha256": "bb6696aad0ae89814421bdd73d08ccab33c29d854dc567df2ca1468519a3850f"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/plain/target-command.json",
+      "sha256": "b5e5505f484e4fe89cbc846324fcd6e9c156675c8c288d718baa5582b19bc81f"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/plain/target-prompt.json",
+      "sha256": "f12484ec19f3506067d51fa1a55cda7242387c75558707bc46314d1bcf3c4030"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/plain/target-snapshot.json",
+      "sha256": "441ca77765d608986c17945c2c8bffbdca888950c55546cba2e2f1aa05eef728"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-decline/payment-command.json",
+      "sha256": "41217b526c93e9ef52188c6afc5ccc64cb7b342bf06ef496105444d01e81e84c"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-decline/payment-prompt.json",
+      "sha256": "b992edf6592c9455942b265936b5d56693f46cbb496191561778fb8b98c08054"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-decline/payment-snapshot.json",
+      "sha256": "163c9f17e2d7bb38f872755bd33b21ead2a1457bb0d317e9e8fc340d50446d8d"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-decline/replay.json",
+      "sha256": "6c55901a4a382955c446a62149aeb4009270eac8741918f6cd6da25b165704db"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-decline/result-snapshot.json",
+      "sha256": "c0c7a699a3338f1b1cd5a41111ea62ed4e30d8cae4a3739fef7c6c82ce77585c"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-decline/target-command.json",
+      "sha256": "b5e5505f484e4fe89cbc846324fcd6e9c156675c8c288d718baa5582b19bc81f"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-decline/target-prompt.json",
+      "sha256": "f12484ec19f3506067d51fa1a55cda7242387c75558707bc46314d1bcf3c4030"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-decline/target-snapshot.json",
+      "sha256": "2ff76e5e9f6cf2471f7911981681e22706f7baccf84fb927734269ed935cd1c2"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-pay/payment-command.json",
+      "sha256": "2ddc2211caf0b952af27bbf9078387ade59f314a01df2705c773653950fee761"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-pay/payment-prompt.json",
+      "sha256": "b992edf6592c9455942b265936b5d56693f46cbb496191561778fb8b98c08054"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-pay/payment-snapshot.json",
+      "sha256": "163c9f17e2d7bb38f872755bd33b21ead2a1457bb0d317e9e8fc340d50446d8d"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-pay/replay.json",
+      "sha256": "71c92004a80e8471fc75b10a99082331eb1b5d2ead1698829e91a0fb88d6e143"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-pay/result-snapshot.json",
+      "sha256": "f613ca1e5123771f6d40e4bb5f6c02c9115ffa970d87822164b1f8e53cf03ad5"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-pay/target-command.json",
+      "sha256": "b5e5505f484e4fe89cbc846324fcd6e9c156675c8c288d718baa5582b19bc81f"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-pay/target-prompt.json",
+      "sha256": "f12484ec19f3506067d51fa1a55cda7242387c75558707bc46314d1bcf3c4030"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/native/ward-pay/target-snapshot.json",
+      "sha256": "2ff76e5e9f6cf2471f7911981681e22706f7baccf84fb927734269ed935cd1c2"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/red/focus/results.trx",
+      "sha256": "436a776e72341c8eecdc869e6d4506b8436afece06e4af338da0ede6846a3474"
+    },
+    {
+      "path": "var/qa/uncontrolled-conquest/red/plan.json",
+      "sha256": "51c9dc7372ccd38e0a8a5f47b115e77c662b47ed3f91f4eb199011e04a449b4e"
+    }
+  ]
+}

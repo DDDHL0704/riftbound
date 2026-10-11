@@ -1,0 +1,24 @@
+{
+  "baseline": 6319,
+  "current": 6336,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.UncontrolledConquestNativeTests.ProductionTargetAndWardChoicesRestoreAndReplayFromInitialMovement",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.DamageReadsCurrentPowerAfterResponseAndKeepsTriggerController",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.DamageUsesSharedPreventionAndReplacement",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.EnemyControlledBattlefieldCombatDoesNotMeetUncontrolledCondition",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.EveryCurrentPrintingConfirmsEnemyBaseTargetBeforeResponse",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.HoldActivationCannotInventAnUncontrolledConquest",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.HostileTakeoverOfSoleOccupantMatchesOfficialQa",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.InvalidPlayerTargetOrMandatoryDeclineIsAtomic",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.LethalSkillDamageUsesOwnerCorrectDestructionCleanup",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.MultipleConqueringSourcesConfirmIndependentTargetsBeforeResponses",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.NoLegalEnemyBaseTargetRemovesUnconfirmedAbility",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.NonpositiveCurrentPowerDoesNotDealDamage",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.OfficialVoidAssaultQaClearsPreviousEnemyControlBeforeConquering",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.OpponentsTurnConquestStillBelongsToTheConqueringUnitController",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.RecoveryRejectsForgedConquestAndChoiceButPreservesConfirmedTarget",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.ResolutionRechecksBaseTargetAndObjectIdentity",
+    "Riftbound.ConformanceTests.UncontrolledConquestTests.WardCanBePaidOrDeclinedBeforeAnyResponse"
+  ]
+}

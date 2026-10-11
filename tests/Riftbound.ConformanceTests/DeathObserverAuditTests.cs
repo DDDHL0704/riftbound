@@ -100,7 +100,7 @@ public sealed class DeathObserverAuditTests
         var first=await Open(NoReplacement());
         Assert.Equal(1,first.State.DeathLedger.Counts["P2"]);
         var s=Source(first.State,"OGN·118/298");
-        s=s with { CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) { ["D"]=s.CardObjects["D"] with { Damage=1,Power=2,ObjectGeneration=1,Tags=[CardObjectTags.UnitCard] } },
+        s=s with { CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) { ["BF"]=s.CardObjects["BF"] with {ControllerId="P2"}, ["D"]=s.CardObjects["D"] with { Damage=1,Power=2,ObjectGeneration=1,Tags=[CardObjectTags.UnitCard] } },
             PlayerZones=new Dictionary<string,PlayerZones>(s.PlayerZones) {
                 ["P1"]=s.PlayerZones["P1"] with { Hand=["AOE"],Graveyard=[] },
                 ["P2"]=s.PlayerZones["P2"] with { Graveyard=[],Battlefields=["BF","D"] } },

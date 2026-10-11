@@ -5884,7 +5884,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var defenders = defenderObjectIds ?? [BulwarkDefenderObjectId, BackRowDefenderObjectId];
         var p2Battlefields = defenders
             .Concat(includeShadowResponse ? [ShadowObjectId] : [])
-            .Concat(includeHiddenStandby ? [HiddenBattlefieldObjectId, HiddenStandbyObjectId] : [])
+            .Concat(includeHiddenStandby ? [HiddenBattlefieldObjectId, "P2-HIDDEN-KEEPER", HiddenStandbyObjectId] : [])
             .Distinct(StringComparer.Ordinal)
             .ToArray();
         return new MatchState(
@@ -5989,6 +5989,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         if (includeHiddenStandby)
         {
             cardObjects[HiddenBattlefieldObjectId] = Battlefield(HiddenBattlefieldObjectId, "P2");
+            cardObjects["P2-HIDDEN-KEEPER"] = Unit("P2-HIDDEN-KEEPER", "P2", power: 4, cardNo: "OGN·096/298");
             cardObjects[HiddenStandbyObjectId] = new CardObjectState(
                 HiddenStandbyObjectId,
                 cardNo: null,
@@ -6036,6 +6037,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         if (includeHiddenStandby)
         {
             objectLocations[HiddenBattlefieldObjectId] = new("P2", "BATTLEFIELD", HiddenBattlefieldObjectId);
+            objectLocations["P2-HIDDEN-KEEPER"] = new("P2", "BATTLEFIELD", HiddenBattlefieldObjectId);
             objectLocations[HiddenStandbyObjectId] = new("P2", "BATTLEFIELD", HiddenBattlefieldObjectId);
         }
 

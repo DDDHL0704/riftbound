@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-spirit-fire-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302199,
     "turnNumber": 199,
@@ -34,24 +37,44 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 3,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
-        "hand": ["P1-SPELL-SPIRIT-FIRE"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
+        "hand": [
+          "P1-SPELL-SPIRIT-FIRE"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [
@@ -62,18 +85,45 @@
         ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "objectLocations": {
-      "BF": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
-      "P2-SPIRIT-FIRE-UNIT-001": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
-      "P2-SPIRIT-FIRE-UNIT-002": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
-      "P2-SPIRIT-FIRE-KEEPER-001": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" }
+      "BF": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-SPIRIT-FIRE-UNIT-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-SPIRIT-FIRE-UNIT-002": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-SPIRIT-FIRE-KEEPER-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      }
     },
     "cardObjects": {
-      "BF": { "cardNo": "OGN·296/298", "ownerId": "P2", "controllerId": "P2", "tags": ["CARD_TYPE:BATTLEFIELD"] },
+      "BF": {
+        "cardNo": "OGN·296/298",
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ]
+      },
       "P2-SPIRIT-FIRE-UNIT-001": {
         "damage": 0,
         "power": 2,
@@ -90,7 +140,12 @@
         "damage": 0,
         "power": 5,
         "untilEndOfTurnEffects": [],
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
       }
     }
   },
@@ -102,7 +157,10 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-SPIRIT-FIRE",
         "cardNo": "OGN·256/298",
-        "targetObjectIds": ["P2-SPIRIT-FIRE-UNIT-001", "P2-SPIRIT-FIRE-UNIT-002"]
+        "targetObjectIds": [
+          "P2-SPIRIT-FIRE-UNIT-001",
+          "P2-SPIRIT-FIRE-UNIT-002"
+        ]
       }
     },
     {
@@ -133,7 +191,9 @@
       "UNIT_DESTROYED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "tick": 1,
@@ -152,13 +212,22 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-SPIRIT-FIRE",
           "cardNo": "OGN·256/298",
-          "targetObjectIds": ["P2-SPIRIT-FIRE-UNIT-001", "P2-SPIRIT-FIRE-UNIT-002"],
+          "targetObjectIds": [
+            "P2-SPIRIT-FIRE-UNIT-001",
+            "P2-SPIRIT-FIRE-UNIT-002"
+          ],
           "effectKind": "SPIRIT_FIRE_DESTROY_BATTLEFIELD_UNITS_TOTAL_POWER_4"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "UNIT_DESTROYED",
         "tick": 3,
@@ -183,8 +252,12 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 199,
@@ -197,17 +270,31 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "graveyard": ["P1-SPELL-SPIRIT-FIRE"]
+          "graveyard": [
+            "P1-SPELL-SPIRIT-FIRE"
+          ]
         },
         "P2": {
-          "battlefields": ["BF", "P2-SPIRIT-FIRE-KEEPER-001"],
-          "graveyard": ["P2-SPIRIT-FIRE-UNIT-001", "P2-SPIRIT-FIRE-UNIT-002"]
+          "battlefields": [
+            "BF",
+            "P2-SPIRIT-FIRE-KEEPER-001"
+          ],
+          "graveyard": [
+            "P2-SPIRIT-FIRE-UNIT-001",
+            "P2-SPIRIT-FIRE-UNIT-002"
+          ]
         }
       },
       "stackItems": [],
@@ -221,8 +308,18 @@
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

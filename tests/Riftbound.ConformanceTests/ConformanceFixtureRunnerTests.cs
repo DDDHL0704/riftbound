@@ -39907,7 +39907,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(moveResult.Accepted, moveResult.ErrorMessage);
-        var moveEvent = Assert.Single(moveResult.Events);
+        Assert.Equal(new[] {"UNIT_MOVED_TO_BATTLEFIELD", "BATTLEFIELD_CONTROL_LOST"}, moveResult.Events.Select(e => e.Kind));
+        var moveEvent = Assert.Single(moveResult.Events, e => e.Kind == "UNIT_MOVED_TO_BATTLEFIELD");
         Assert.Equal("UNIT_MOVED_TO_BATTLEFIELD", moveEvent.Kind);
         Assert.Equal(CardCombatKeywordNames.Roam, moveEvent.Payload["movementKeyword"]);
         Assert.DoesNotContain(CardCombatKeywordNames.Roam, moveResult.State.CardObjects["P1-SPEEDING-MECH-ROAMER"].Tags);
@@ -41917,7 +41918,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
-        var moveEvent = Assert.Single(result.Events);
+        Assert.Equal(new[] {"UNIT_MOVED_TO_BATTLEFIELD", "BATTLEFIELD_CONTROL_LOST"}, result.Events.Select(e => e.Kind));
+        var moveEvent = Assert.Single(result.Events, e => e.Kind == "UNIT_MOVED_TO_BATTLEFIELD");
         Assert.Equal("UNIT_MOVED_TO_BATTLEFIELD", moveEvent.Kind);
         Assert.Equal("游走", moveEvent.Payload["movementKeyword"]);
         Assert.Equal("BATTLEFIELD:P1-BATTLEFIELD-WIND-HILL", moveEvent.Payload["origin"]);
@@ -41955,7 +41957,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        var moveEvent = Assert.Single(result.Events);
+        Assert.Equal(new[] {"UNIT_MOVED_TO_BATTLEFIELD", "BATTLEFIELD_CONTROL_LOST"}, result.Events.Select(e => e.Kind));
+        var moveEvent = Assert.Single(result.Events, e => e.Kind == "UNIT_MOVED_TO_BATTLEFIELD");
         Assert.Equal("UNIT_MOVED_TO_BATTLEFIELD", moveEvent.Kind);
         Assert.Equal("游走", moveEvent.Payload["movementKeyword"]);
         Assert.Equal("BATTLEFIELD:P1-BILGEWATER-DOCK", moveEvent.Payload["origin"]);

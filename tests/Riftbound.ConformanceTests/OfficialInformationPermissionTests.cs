@@ -43,7 +43,7 @@ public sealed class OfficialInformationPermissionTests
         var done = await Complete();
         var state = done.State with { CardObjects = new Dictionary<string, CardObjectState>(done.State.CardObjects) {
             ["LATER"] = done.State.CardObjects["STANDBY-X"] with { ObjectId = "LATER", CardNo = "UNL-139/219" } },
-            PlayerZones = new Dictionary<string, PlayerZones>(done.State.PlayerZones) { ["P2"] = done.State.PlayerZones["P2"] with { Battlefields = ["BF2", "STANDBY-X", "LATER"] } },
+            PlayerZones = new Dictionary<string, PlayerZones>(done.State.PlayerZones) { ["P2"] = done.State.PlayerZones["P2"] with { Battlefields = ["BF2", "KEEPER", "STANDBY-X", "LATER"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(done.State.ObjectLocations) { ["LATER"] = new("P2", "BATTLEFIELD", "BF2") } };
         Assert.Contains("LATER", View(state, "P1"));
         var next = await Act(state, "P1", new EndTurnCommand());
@@ -185,11 +185,12 @@ public sealed class OfficialInformationPermissionTests
             CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
                 ["MALZ"] = new("MALZ", cardNo: "OGN·113/298", ownerId: "P1", controllerId: "P1", power: 3, tags: [CardObjectTags.UnitCard]),
                 ["V"] = new("V", cardNo: "UNL-053/219", ownerId: "P2", controllerId: "P1", power: 0, tags: [CardObjectTags.UnitCard]),
+                ["KEEPER"] = new("KEEPER", cardNo: "OGN·096/298", ownerId: "P2", controllerId: "P2", power: 20, tags: [CardObjectTags.UnitCard]),
                 ["STANDBY-X"] = new("STANDBY-X", cardNo: "UNL-013/219", ownerId: "P2", controllerId: "P2", isFaceDown: true, tags: [CardObjectTags.SpellCard, CardObjectTags.Standby]) },
             PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) { ["P1"] = s.PlayerZones["P1"] with { Base = ["MALZ", "V"] },
-                ["P2"] = s.PlayerZones["P2"] with { Battlefields = ["BF2", "STANDBY-X"] } },
+                ["P2"] = s.PlayerZones["P2"] with { Battlefields = ["BF2", "KEEPER", "STANDBY-X"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) {
-                ["MALZ"] = new("P1", "BASE"), ["V"] = new("P1", "BASE"), ["STANDBY-X"] = new("P2", "BATTLEFIELD", "BF2") } };
+                ["KEEPER"] = new("P2", "BATTLEFIELD", "BF2"), ["MALZ"] = new("P1", "BASE"), ["V"] = new("P1", "BASE"), ["STANDBY-X"] = new("P2", "BATTLEFIELD", "BF2") } };
     }
     internal static async Task<ResolutionResult> Destroy(MatchState s, string method = "cost")
     {
