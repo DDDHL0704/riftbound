@@ -14,6 +14,8 @@ public sealed class ArmamentMightTests
                 ["HOST"]=s.CardObjects["HOST"] with {Power=power},
                 ["GEAR"]=new("GEAR",cardNo:gear,ownerId:"P1",controllerId:"P1",tags:[CardObjectTags.EquipmentCard,CardEquipmentKeywordNames.Weapon],attachedToObjectId:attached?"HOST":null)},
             RunePools=new Dictionary<string,RunePool>(s.RunePools) {["P1"]=new(20,20)}};
+        if (attached && gear == "SFD·059/221") s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
+            ["GEAR"] = s.CardObjects["GEAR"] with { AttachmentRevision = 1, AttachedRuleText = new(new("HOST", 0), unit, 1) } } };
         return At(At(s,"HOST","P1","BASE"),"GEAR","P1","BASE");
     }
     internal static int Might(MatchState s)=>CurrentPowerTargetTests.Snapshot(s).GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty("HOST").GetProperty("effectivePower").GetInt32();
@@ -111,7 +113,7 @@ public sealed class ArmamentMightTests
     public void EveryCurrentArmamentPrintAddsItsOfficialBaseBonusOnlyWhileAttached(string card,int bonus)
     {
         var s=Position(card,attached:true);Assert.Equal(4+bonus,Might(s));PublicRecovery(s);Restore(s);
-        s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {["GEAR"]=s.CardObjects["GEAR"] with {AttachedToObjectId=null}}};
+        s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {["GEAR"]=s.CardObjects["GEAR"] with {AttachedToObjectId=null,AttachedRuleText=null}}};
         Assert.Equal(4,Might(s));PublicRecovery(s);Restore(s);
     }
     [Fact]

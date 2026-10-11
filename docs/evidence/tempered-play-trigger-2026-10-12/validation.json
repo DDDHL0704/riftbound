@@ -1,5 +1,5 @@
 {
-  "status": "LOCAL_SCOPED_PASS_CI_REPAIR_PENDING",
+  "status": "SCOPED_LOCAL_AND_EXACT_HEAD_FULL_CI_PASS",
   "batchCheck": {
     "evidence": "var/qa/tempered-play-trigger/check1",
     "passed": 9874,
@@ -39,12 +39,18 @@
   "currentFullCI": {
     "firstRun": 38171321238,
     "firstHead": "11449a4f0a95392508bd50f37ccea0c534d41037",
-    "result": "FAILED_INCOMPLETE",
+    "result": "REPAIRED_RETRY_PASSED",
     "failedGameCases": [
       "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesOrnnFriendlyEquipmentStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash"
     ],
     "repairFocusPassed": 3,
-    "retry": "Pending follow-up commit"
+    "retry": "Pending follow-up commit",
+    "retryRunId": 38173386988,
+    "retryHead": "14fbde04e4bb118d1337bd9948e53f90f53bd0fb",
+    "passedDistinctCases": 10012,
+    "discoveredMethods": 6543,
+    "caseAndMethodParityVerified": true,
+    "evidence": "docs/evidence/tempered-play-trigger-2026-10-12/ci-readback.json"
   },
   "wholeCardCertification": false,
   "copiedAbilityInstances": "Not in this batch",

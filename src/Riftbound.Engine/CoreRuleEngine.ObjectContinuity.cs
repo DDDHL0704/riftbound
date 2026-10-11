@@ -30,6 +30,24 @@ public sealed partial class CoreRuleEngine
             changed = true;
         }
 
+        // Ending an attachment removes its granted text. Reattaching preserves
+        // the equipment object but creates a fresh text revision at the event.
+        foreach (var gear in cards.Values.Where(c => c.AttachedRuleText is not null || c.AttachmentRevision > 0).ToArray())
+        {
+            var copy = gear.AttachedRuleText;
+            if (copy is not null && cards.TryGetValue(copy.Unit.ObjectId, out var host)
+                && before.CardObjects.TryGetValue(host.ObjectId, out var oldHost)
+                && copy.Unit.Generation == oldHost.ObjectGeneration && host.ObjectGeneration != oldHost.ObjectGeneration
+                && !AttachedRuleTextRules.Field(before, host.ObjectId) && AttachedRuleTextRules.Field(after, host.ObjectId))
+                copy = copy with { Unit = copy.Unit with { Generation = host.ObjectGeneration } };
+            var revised = gear with { AttachedRuleText = copy,
+                AttachmentRevision = AttachedRuleTextRules.Field(after, gear.ObjectId) ? gear.AttachmentRevision : 0 };
+            if (copy is not null && !AttachedRuleTextRules.Bound(after with { CardObjects = cards }, revised))
+                revised = revised with { AttachedRuleText = null };
+            if (revised == gear) continue;
+            cards[gear.ObjectId] = revised; changed = true;
+        }
+
         var previousItems = before.StackItems.ToDictionary(item => item.StackItemId, StringComparer.Ordinal);
         var stack = after.StackItems.Select(item =>
         {

@@ -1,0 +1,62 @@
+{
+  "productionCommands": 30,
+  "scenarios": 3,
+  "allRawCommandsAccepted": true,
+  "eventsAndFinalHashReplay": true,
+  "currentPrivateAndPublicRecoveryAtEveryStep": true,
+  "pairedVisibleClients": false,
+  "windowsNetworkAcceptance": false,
+  "logs": {
+    "godotBuild": {
+      "exitCode": 0,
+      "stdout": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.72\n"
+    },
+    "headlessGodot": {
+      "exitCode": 0,
+      "stdout": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nATTACHED_RULE_TEXT_PASS: 30 production commands\n"
+    },
+    "nativeBackend": {
+      "exitCode": 0,
+      "stdout": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll (.NETCoreApp,Version=v10.0)的测试运行\n总共 1 个测试文件与指定模式相匹配。\n结果文件: /Users/dinghaolin/MyProjects/riftbound/var/qa/attached-rule-text/native-backend2/results.trx\n\n已通过! - 失败:     0，通过:     3，已跳过:     0，总计:     3，持续时间: 5 s - Riftbound.ConformanceTests.dll (net10.0)\n"
+    },
+    "neighborHeadlessProofs": [
+      {
+        "scene": "TemperedPlay",
+        "exitCode": 0,
+        "stdout": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTEMPERED_PLAY_PASS: 20 production play, confirmation, rune, payment and response commands\n",
+        "stderr": ""
+      },
+      {
+        "scene": "AzirMovement",
+        "exitCode": 0,
+        "stdout": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nAZIR_MOVEMENT_PASS: 18 production ability and response commands\n",
+        "stderr": ""
+      },
+      {
+        "scene": "LegendAttachment",
+        "exitCode": 0,
+        "stdout": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nLEGEND_ATTACHMENT_PASS: 15 production legend, payment and response commands\n",
+        "stderr": ""
+      },
+      {
+        "scene": "FaceOff",
+        "exitCode": 0,
+        "stdout": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nFACE_OFF_PASS: two production play commands\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "neighborBackend": {
+    "results": "var/qa/attached-rule-text/native-final/results.trx",
+    "passed": 16,
+    "failed": 0,
+    "stdout": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll (.NETCoreApp,Version=v10.0)的测试运行\n总共 1 个测试文件与指定模式相匹配。\n结果文件: /Users/dinghaolin/MyProjects/riftbound/var/qa/attached-rule-text/native-final/results.trx\n\n已通过! - 失败:     0，通过:    16，已跳过:     0，总计:    16，持续时间: 4 s - Riftbound.ConformanceTests.dll (net10.0)\n",
+    "covers": [
+      "AttachedRuleText",
+      "TemperedPlay",
+      "AzirMovement",
+      "LegendAttachment",
+      "FaceOff"
+    ]
+  }
+}

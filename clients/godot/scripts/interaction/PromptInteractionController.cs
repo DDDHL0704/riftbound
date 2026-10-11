@@ -406,7 +406,7 @@ internal sealed class PromptInteractionController
     {
         if (string.IsNullOrWhiteSpace(_selectedActionName)
             || !_actions.TryGetValue(_selectedActionName, out var action)) return null;
-        if (action.Option.Name is not ("ACTIVATE_ABILITY" or "LEGEND_ACT")
+        if (action.Option.Name is not ("ACTIVATE_ABILITY" or "LEGEND_ACT" or "PLAY_CARD")
             || !_selectedChoiceByStep.TryGetValue(0, out var sourceId)) return action;
 
         // The server supplies source-specific costs and targets. The candidate's
@@ -415,14 +415,18 @@ internal sealed class PromptInteractionController
         if (!json.RootElement.TryGetProperty("metadata", out var metadata)
             || !metadata.TryGetProperty("sourceRequirements", out var requirements)
             || requirements.ValueKind != JsonValueKind.Array) return action;
+        if (action.Option.Name == "PLAY_CARD") return PlayCardAction(action, sourceId, requirements);
         var prefix = new List<PromptStep> { action.Steps.First(s => s.Role == "source") };
         string? selectedMode = null;
-        if (action.Option.Name == "LEGEND_ACT")
+        var copiedInstances = requirements.EnumerateArray().Any(r => r.GetProperty("sourceObjectId").GetString() == sourceId
+            && r.TryGetProperty("abilityInstanceId", out var copyId) && copyId.ValueKind == JsonValueKind.String);
+        if (action.Option.Name == "LEGEND_ACT" || copiedInstances)
         {
             var allowedModes = requirements.EnumerateArray().Where(r => r.GetProperty("sourceObjectId").GetString() == sourceId)
-                .Select(r => r.GetProperty("abilityId").GetString()).ToHashSet(StringComparer.Ordinal);
+                .Select(r => r.TryGetProperty("abilityChoiceId", out var choiceId) ? choiceId.GetString()
+                    : r.GetProperty("abilityId").GetString()).ToHashSet(StringComparer.Ordinal);
             var mode = action.Steps.First(s => s.Role == "mode");
-            mode = mode with { Choices = mode.Choices.Where(c => allowedModes.Contains(c.Id)).ToArray() };
+            mode = mode with { Index = prefix.Count, Required = true, Choices = mode.Choices.Where(c => allowedModes.Contains(c.Id)).ToArray() };
             prefix.Add(mode);
             if (!_selectedChoiceByStep.TryGetValue(mode.Index, out selectedMode) || !allowedModes.Contains(selectedMode))
                 return action with { Steps = prefix };
@@ -430,7 +434,9 @@ internal sealed class PromptInteractionController
         foreach (var requirement in requirements.EnumerateArray())
         {
             if (requirement.GetProperty("sourceObjectId").GetString() != sourceId) continue;
-            if (selectedMode is not null && requirement.GetProperty("abilityId").GetString() != selectedMode) continue;
+            var requirementMode = requirement.TryGetProperty("abilityChoiceId", out var choiceId) ? choiceId.GetString()
+                : requirement.GetProperty("abilityId").GetString();
+            if (selectedMode is not null && requirementMode != selectedMode) continue;
             var steps = new List<PromptStep>(prefix);
             var minimum = requirement.GetProperty("minTargetCount").GetInt32();
             var maximum = requirement.GetProperty("maxTargetCount").GetInt32();
@@ -471,6 +477,53 @@ internal sealed class PromptInteractionController
             return action with { Steps = steps };
         }
         return action;
+    }
+
+    private PromptActionModel PlayCardAction(PromptActionModel action, string sourceId, JsonElement requirements)
+    {
+        var rows = requirements.EnumerateArray().Where(r => r.GetProperty("sourceObjectId").GetString() == sourceId).ToArray();
+        if (rows.Length == 0) return action;
+        var steps = new List<PromptStep> { action.Steps.First(s => s.Role == "source") };
+        var allowedModes = rows.Select(r => r.TryGetProperty("mode", out var mode) ? mode.GetString() : null).ToHashSet(StringComparer.Ordinal);
+        string? selectedMode = null;
+        if (action.Steps.FirstOrDefault(s => s.Role == "mode") is { } modeStep
+            && modeStep.Choices.Any(c => allowedModes.Contains(c.Id)))
+        {
+            modeStep = modeStep with { Index = steps.Count, Required = !allowedModes.Contains(null),
+                Choices = modeStep.Choices.Where(c => allowedModes.Contains(c.Id)).ToArray() };
+            steps.Add(modeStep);
+            if (_selectedChoiceByStep.TryGetValue(modeStep.Index, out var modeId) && allowedModes.Contains(modeId)) selectedMode = modeId;
+            else if (modeStep.Required) return action with { Steps = steps };
+        }
+        var requirement = rows.FirstOrDefault(r => (r.TryGetProperty("mode", out var mode) ? mode.GetString() : null) == selectedMode);
+        if (requirement.ValueKind == JsonValueKind.Undefined) requirement = rows[0];
+        var minimum = requirement.GetProperty("minTargetCount").GetInt32();
+        var maximum = requirement.GetProperty("maxTargetCount").GetInt32();
+        for (var targetIndex = 0; targetIndex < maximum; targetIndex++)
+        {
+            var choices = new List<PromptChoice>();
+            var index = steps.Count;
+            if (requirement.TryGetProperty("targetChoicesByIndex", out var targets)
+                && targets.TryGetProperty(targetIndex.ToString(), out var targetChoices))
+                foreach (var choice in targetChoices.EnumerateArray())
+                {
+                    var id = choice.GetProperty("id").GetString()!;
+                    choices.Add(new("target", id, choice.GetProperty("label").GetString() ?? id, [id], index));
+                }
+            steps.Add(new(index, "target", $"目标 {targetIndex + 1}", targetIndex < minimum, choices));
+        }
+        foreach (var original in action.Steps.Where(s => s.Role is "destination" or "optionalCost"))
+        {
+            var key = original.Role == "destination" ? "destinationChoices" : "optionalCostChoices";
+            if (!requirement.TryGetProperty(key, out var choices) || choices.ValueKind != JsonValueKind.Array) continue;
+            var index = steps.Count;
+            var filtered = choices.EnumerateArray().Select(choice => {
+                var id = choice.GetProperty("id").GetString()!;
+                return new PromptChoice(original.Role, id, choice.GetProperty("label").GetString() ?? id, [id], index);
+            }).ToArray();
+            if (filtered.Length > 0) steps.Add(original with { Index = index, Choices = filtered });
+        }
+        return action with { Steps = steps };
     }
 
     private PromptStep? CurrentStep()

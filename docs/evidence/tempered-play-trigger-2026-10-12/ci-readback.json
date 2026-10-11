@@ -1,0 +1,138 @@
+{
+  "runId": 38173386988,
+  "headSha": "14fbde04e4bb118d1337bd9948e53f90f53bd0fb",
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38173386988",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "rules",
+      "conclusion": "success"
+    },
+    {
+      "name": "desktop (macos-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "desktop (windows-latest)",
+      "conclusion": "success"
+    }
+  ],
+  "artifact": "var/qa/tempered-play-trigger/ci-retry",
+  "summary": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 1309.87,
+    "total": 10012,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 825.69
+      },
+      {
+        "shard": "games-2",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 833.52
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 848.95
+      },
+      {
+        "shard": "rules",
+        "total": 9873,
+        "passed": 9873,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 322.8
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 1207.94
+      }
+    ]
+  },
+  "parity": {
+    "priorHead": "1072318d16f741f78714976321bb42b32fe3f231",
+    "priorDistinctCases": 9977,
+    "currentDistinctCases": 10012,
+    "missingCases": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedWeaponmasterMidgamePaysReferencedCostAndReplaysThroughScoreVictory(card: \"SFD·008/221\")",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedWeaponmasterMidgamePaysReferencedCostAndReplaysThroughScoreVictory(card: \"SFD·119/221\")",
+      "Riftbound.ConformanceTests.TemperedPlayNativeTests.ProductionPlayConfirmationResourceAndResponseCommandsRecoverAndReplayExactly(scenario: \"axe\")",
+      "Riftbound.ConformanceTests.TemperedPlayNativeTests.ProductionPlayConfirmationResourceAndResponseCommandsRecoverAndReplayExactly(scenario: \"colored-rune\")",
+      "Riftbound.ConformanceTests.TemperedPlayNativeTests.ProductionPlayConfirmationResourceAndResponseCommandsRecoverAndReplayExactly(scenario: \"decline\")",
+      "Riftbound.ConformanceTests.TemperedPlayNativeTests.ProductionPlayConfirmationResourceAndResponseCommandsRecoverAndReplayExactly(scenario: \"jax\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ANewGenerationCannotBeUsedAsTheChosenEquipmentOrPlayedUnit(id: \"GEAR\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ANewGenerationCannotBeUsedAsTheChosenEquipmentOrPlayedUnit(id: \"HOST\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ActualAzirTokenPlayCapturesItsGrantAndUsesTheSameKeywordConfirmationAndAttachment",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ActualTakeUpResponseChangesTheMightUsedByTheReferencedEquipCost",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.DynamicManaDiscountReferencesThePlayedUnitsCurrentMight",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.EquipmentIsChosenForTheTriggerAfterPlayRatherThanAsAPlayCost(card: \"SFD·008/221\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.EquipmentIsChosenForTheTriggerAfterPlayRatherThanAsAPlayCost(card: \"SFD·119/221\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.InabilityToPayKeepsTheOldHostAndDoesNotCreateAttachmentObservers",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.MissingColoredPowerOpensARecoverableInstructionPaymentAndCannotBeFreelyDeclinedOnceFunded",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PlayingWithoutPreselectedEquipmentStillCapturesAnIndependentOptionalTrigger(card: \"SFD·008/221\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PlayingWithoutPreselectedEquipmentStillCapturesAnIndependentOptionalTrigger(card: \"SFD·119/221\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"cost-selection\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"effect\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"gear-generation\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"inability\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"missing-context\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"repeat\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"source-confirmed\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"source-generation\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation(forgery: \"target-list\")",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedDestructionCostAllowsAnyFriendlyUnitIncludingTheUnchosenHost(destroyHost: False)",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedDestructionCostAllowsAnyFriendlyUnitIncludingTheUnchosenHost(destroyHost: True)",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedEquipCostReducesOnlyGenericPowerAndIsPaidAfterResponses(gear: \"SFD·022/221\", red: 1, generic: 0)",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedEquipCostReducesOnlyGenericPowerAndIsPaidAfterResponses(gear: \"SFD·056/221\", red: 0, generic: 0)",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedEquipCostReducesOnlyGenericPowerAndIsPaidAfterResponses(gear: \"SFD·186/221\", red: 0, generic: 0)",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedExperienceCostIsNeverRemovedByGenericPowerDiscount(xp: 0)",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedExperienceCostIsNeverRemovedByGenericPowerDiscount(xp: 2)",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedGraveyardCostRecyclesExactlyTwoCardsAndPaysColoredPower",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ThePlayedUnitIsNotAChosenTargetAndKeepsItsIndependentAttachmentAfterControlChanges"
+    ],
+    "priorDiscoveredMethods": 6527,
+    "currentDiscoveredMethods": 6543,
+    "missingMethods": [],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedWeaponmasterMidgamePaysReferencedCostAndReplaysThroughScoreVictory",
+      "Riftbound.ConformanceTests.TemperedPlayNativeTests.ProductionPlayConfirmationResourceAndResponseCommandsRecoverAndReplayExactly",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ANewGenerationCannotBeUsedAsTheChosenEquipmentOrPlayedUnit",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ActualAzirTokenPlayCapturesItsGrantAndUsesTheSameKeywordConfirmationAndAttachment",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ActualTakeUpResponseChangesTheMightUsedByTheReferencedEquipCost",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.DynamicManaDiscountReferencesThePlayedUnitsCurrentMight",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.EquipmentIsChosenForTheTriggerAfterPlayRatherThanAsAPlayCost",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.InabilityToPayKeepsTheOldHostAndDoesNotCreateAttachmentObservers",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.MissingColoredPowerOpensARecoverableInstructionPaymentAndCannotBeFreelyDeclinedOnceFunded",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PlayingWithoutPreselectedEquipmentStillCapturesAnIndependentOptionalTrigger",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.PrivateRecoveryRejectsForgedKeywordBindingsAndCostContinuation",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedDestructionCostAllowsAnyFriendlyUnitIncludingTheUnchosenHost",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedEquipCostReducesOnlyGenericPowerAndIsPaidAfterResponses",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedExperienceCostIsNeverRemovedByGenericPowerDiscount",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ReferencedGraveyardCostRecyclesExactlyTwoCardsAndPaysColoredPower",
+      "Riftbound.ConformanceTests.TemperedPlayTriggerAuditTests.ThePlayedUnitIsNotAChosenTargetAndKeepsItsIndependentAttachmentAfterControlChanges"
+    ]
+  },
+  "completeSuiteCoverage": true,
+  "pairedVisibleClients": false,
+  "windowsNetworkAcceptance": false
+}

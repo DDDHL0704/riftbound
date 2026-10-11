@@ -35,7 +35,9 @@ public static class GameCommandJsonMapper
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "abilityId"),
                 TextArray(cmd, "targetObjectIds"),
-                TextArray(cmd, "optionalCosts")),
+                TextArray(cmd, "optionalCosts")) {
+                    AbilityInstanceId = cmd.TryGetProperty("abilityInstanceId", out var instanceField)
+                        && instanceField.ValueKind != JsonValueKind.Null ? instanceField.GetString() : null },
             "LEGEND_ACT" => new LegendActCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "abilityId"),

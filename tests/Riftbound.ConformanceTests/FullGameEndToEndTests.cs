@@ -25044,6 +25044,8 @@ public sealed partial class FullGameEndToEndTests
                 choiceWindow = chooseCards.ChoiceWindow,
                 chosenObjectIds = chooseCards.ChosenObjectIds ?? []
             }),
+            ActivateAbilityCommand { AbilityInstanceId: not null } copiedAbility => JsonSerializer.SerializeToElement(
+                copiedAbility, copiedAbility.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web)),
             ActivateAbilityCommand activateAbility => JsonSerializer.SerializeToElement(new
             {
                 cmdType = activateAbility.CmdType,

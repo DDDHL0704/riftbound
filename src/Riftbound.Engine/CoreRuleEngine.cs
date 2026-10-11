@@ -6095,6 +6095,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (string.Equals(command.AbilityId, BattlefieldUnitGainExperienceAbilityId, StringComparison.Ordinal))
         {
+            if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId))
+                return RejectWithCorePrompts(state, "此技能没有所选复制实例。", ErrorCodes.InvalidTarget);
             return ResolveBattlefieldUnitGainExperienceAbility(state, intent, command);
         }
 
@@ -6105,6 +6107,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 "当前启动技能路径尚未由服务端开放。",
                 ErrorCodes.UnsupportedCommand);
         }
+        if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId) && !ability.SupportsCopiedRuleText)
+            return RejectWithCorePrompts(state, "此技能的复制实例尚未开放。", ErrorCodes.UnsupportedCommand);
 
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.MalzaharResourceAbilityId, StringComparison.Ordinal))
         {
@@ -7338,10 +7342,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
+        if (!AttachedRuleTextRules.SelectActivatedInstance(state, sourceState, ability, command.AbilityInstanceId, out var instance))
+            return RejectWithCorePrompts(state, "所选技能实例已失效。", ErrorCodes.InvalidTarget);
         var oncePerTurnEffectId = P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(
             intent.PlayerId,
             command.SourceObjectId,
-            sourceState.ObjectGeneration);
+            sourceState.ObjectGeneration, instance.Origin is null ? null : instance.Id);
         if (state.UntilEndOfTurnEffects.Contains(oncePerTurnEffectId, StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
@@ -7477,7 +7483,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             behaviorOptionalCosts) {
             AzirMovement = new(new(command.SourceObjectId, sourceState.ObjectGeneration),
                 string.IsNullOrWhiteSpace(selectedArmamentObjectId) ? null
-                    : new(selectedArmamentObjectId, state.CardObjects[selectedArmamentObjectId].ObjectGeneration)),
+                    : new(selectedArmamentObjectId, state.CardObjects[selectedArmamentObjectId].ObjectGeneration), instance.Origin, instance.Origin is not null),
             TargetGenerations = new Dictionary<string, long>(StringComparer.Ordinal) {
                 [targetObjectId] = state.CardObjects[targetObjectId].ObjectGeneration }
         };
@@ -15183,6 +15189,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         keywordBonus += TemporaryCombatKeywordRules.Amount(cardObject, combatKeyword);
+        keywordBonus += CopiedRuleTextKeywordAmount(state, cardObject, combatKeyword);
 
         keywordBonus += ResolveBattlefieldIsolatedDefenderKeywordModifier(
             state,
@@ -15218,6 +15225,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         => ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, zones, id, card)
             + ResolveSourceParticipantCountPowerStaticAuraBonus(state, zones, id, card)
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
+            + CopiedRuleTextPowerContributions(state, card).Sum(c => c.Delta)
             + ArmamentMightContributions(state, zones, card).Sum(c => c.Delta)
             + ResolveBattlefieldPowerStaticAuraBonus(state, zones, battlefieldId, card)
             + ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(state, zones, id, card);
@@ -24417,6 +24425,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!IsEnemyFieldObject(state, playerId, objectId) || !state.CardObjects.TryGetValue(objectId, out var card)
             || card.IsFaceDown || card.Tags.Contains(CardObjectTags.Standby)) return 0;
         return CardResourceKeywordRules.SpellshieldTaxFromTags(card.Tags)
+            + CopiedRuleTextKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveSourceObjectResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveFriendlyFilteredUnitsResourceKeywordAmount(state, state.PlayerZones, objectId, card, CardResourceKeywordNames.Spellshield);
     }

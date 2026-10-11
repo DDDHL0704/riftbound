@@ -22905,7 +22905,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
-        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or "ATTACHED_ARMAMENT_BASE_MIGHT")
+        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
             .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "continuousEffects", out var effects))
@@ -22914,7 +22914,7 @@ public static class MatchRecoveryValidator
                 if (!TryReadObjectString(payload, "effectId", out var id) || string.IsNullOrWhiteSpace(id)) continue;
                 if (!expected.TryGetValue(id, out var effect))
                 {
-                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or "ATTACHED_ARMAMENT_BASE_MIGHT")
+                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
                         errors.Add($"{label} unexpected dynamic power aura");
                     continue;
                 }
@@ -22932,6 +22932,14 @@ public static class MatchRecoveryValidator
                 foreach (var (key, value) in strings)
                     if (!TryReadObjectString(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
+                if (effect.EffectKind is "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
+                    foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
+                        ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],
+                        ["targetDependencyObjectIds"] = effect.TargetDependencyObjectIds ?? [],
+                        ["participantDependencyObjectIds"] = effect.ParticipantDependencyObjectIds ?? [],
+                        ["participantObjectIds"] = effect.ParticipantObjectIds ?? [] })
+                        if (!TryReadObjectStringList(payload, key, out var actual) || !actual.SequenceEqual(value))
+                            errors.Add($"{label} copied rule text aura {key} differs from authoritative state");
             }
         if (!seen.SetEquals(expected.Keys)) errors.Add($"{label} dynamic power aura set differs from authoritative state");
     }
@@ -23396,6 +23404,8 @@ public static class MatchRecoveryValidator
 
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
+        foreach (var card in state.CardObjects.Values)
+            if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow != CoreRuleEngine.TemperedPaymentWindow))
             errors.Add("invalid referenced equipment experience cost");

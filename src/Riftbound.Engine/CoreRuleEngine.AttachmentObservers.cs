@@ -84,6 +84,18 @@ public sealed partial class CoreRuleEngine
         if (metadata is not null) foreach (var pair in metadata) payload[pair.Key] = pair.Value;
         events.Add(new("EQUIPMENT_ATTACHED", "武装贴附至单位", payload));
         CaptureAttachmentObservers(zones, cards, unitId, gearId, actor, events);
+        // Vendetta FAQ: attachment is observed first; the subsequent replacement
+        // instruction creates one fresh printed text instance for this armament.
+        if (AttachedRuleTextRules.CopiesPrintedText(gear.CardNo) && AttachedRuleTextRules.Face(unit) is { } face
+            && CopyCharacteristics.HasFace(face))
+        {
+            var revision = checked(gear.AttachmentRevision + 1);
+            cards[gearId] = cards[gearId] with { AttachmentRevision = revision,
+                AttachedRuleText = new(new(unit.ObjectId, unit.ObjectGeneration), face, revision) };
+            events.Add(new("RULE_TEXT_COPIED", "贴附后复制单位的印刷技能文字", new Dictionary<string, object?> {
+                ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId, ["sourceCardNo"] = face,
+                ["revision"] = revision, ["reason"] = "ATTACH_THEN_COPY_PRINTED_RULE_TEXT" }));
+        }
         return true;
     }
 

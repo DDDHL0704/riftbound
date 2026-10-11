@@ -1,7 +1,9 @@
 using Riftbound.Contracts;
+using System.Text.Json.Serialization;
 namespace Riftbound.Engine;
 
-public sealed record BeginningRecycleContext(string CardNo, long SourceGeneration, int Count, bool Completed = false);
+public sealed record BeginningRecycleContext(string CardNo, long SourceGeneration, int Count, bool Completed = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -17,15 +19,20 @@ public sealed partial class CoreRuleEngine
         var queue = state.TriggerQueue.ToList();
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
-            var count = BeginningRecycleCount(source.CardNo);
-            if (count == 0 || source.ControllerId != state.TurnPlayerId || source.IsFaceDown
+            if (source.ControllerId != state.TurnPlayerId || source.IsFaceDown
                 || source.Tags.Contains(CardObjectTags.Standby) || !source.Tags.Contains(CardObjectTags.UnitCard)
                 || !IsObjectOnField(state.PlayerZones, source.ObjectId)
                 || !IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, source.ObjectId)) continue;
-            var trigger = new TriggerQueueItemState($"beginning-recycle-{state.TurnNumber}-{state.Tick}-{source.ObjectId}",
-                source.ControllerId, source.ObjectId, BeginningRecycleEffect, "TURN_START_BEGAN")
-                { SourceCardNo = source.CardNo, BeginningRecycle = new(source.CardNo!, source.ObjectGeneration, count) };
-            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            foreach (var instance in AttachedRuleTextRules.Instances(state, source))
+            {
+                var count = BeginningRecycleCount(instance.CardNo);
+                if (count == 0) continue;
+                var suffix = instance.Origin is null ? "" : "-" + instance.Id;
+                var trigger = new TriggerQueueItemState($"beginning-recycle-{state.TurnNumber}-{state.Tick}-{source.ObjectId}{suffix}",
+                    source.ControllerId, source.ObjectId, BeginningRecycleEffect, "TURN_START_BEGAN")
+                    { SourceCardNo = instance.CardNo, BeginningRecycle = new(instance.CardNo, source.ObjectGeneration, count, Origin: instance.Origin) };
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
         }
         return state with { TriggerQueue = queue };
     }
@@ -36,6 +43,7 @@ public sealed partial class CoreRuleEngine
             : effect == BeginningRecycleEffect && !context.Completed && context.SourceGeneration >= 0
                 && !string.IsNullOrWhiteSpace(source) && context.Count > 0 && BeginningRecycleCount(context.CardNo) == context.Count
                 && (cardNo is null || cardNo == context.CardNo) && controller == state.TurnPlayerId
+                && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo)
                 && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "SCORE";
 
     private static StackResolutionResult BeginGraveyardRecycle(MatchState state, StackItemState item)

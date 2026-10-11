@@ -58,5 +58,5 @@
     ]
   },
   "localRepairWorkspaceIncludesFollowingAttachedRuleTextChanges": true,
-  "exactCommittedHeadVerification": "Pending new CI"
+  "exactCommittedHeadVerification": "14fbde04 full CI 38173386988 passed, all prior cases and methods retained"
 }

@@ -1,8 +1,11 @@
 using Riftbound.Contracts;
+using System.Text.Json.Serialization;
 
 namespace Riftbound.Engine;
 
-public sealed record AzirMovementContext(ObjectBinding Source, ObjectBinding? Equipment = null);
+public sealed record AzirMovementContext(ObjectBinding Source, ObjectBinding? Equipment = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopiedInstance = false);
 
 public sealed partial class CoreRuleEngine
 {
@@ -24,6 +27,8 @@ public sealed partial class CoreRuleEngine
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, item.CardNo)
             || !state.Seats.ContainsKey(item.ControllerId) || item.SourceConfirmed || item.EffectRepeatCount != 1
             || item.RepeatExecutions is not null || context.Source.ObjectId != item.SourceObjectId || !BindingValid(context.Source)
+            || context.CopiedInstance != (context.Origin is not null)
+            || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, item.SourceObjectId, context.Source.Generation, item.CardNo!)
             || item.TargetObjectIds.Count != 1 || item.TargetObjectIds[0] == item.SourceObjectId
             || item.TargetGenerations is not { Count: 1 } bindings
             || !bindings.TryGetValue(item.TargetObjectIds[0], out var generation)

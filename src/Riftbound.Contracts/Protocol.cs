@@ -200,7 +200,11 @@ public sealed record ActivateAbilityCommand(
     string SourceObjectId,
     string AbilityId,
     IReadOnlyList<string> TargetObjectIds,
-    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ACTIVATE_ABILITY");
+    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ACTIVATE_ABILITY")
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? AbilityInstanceId { get; init; }
+}
 
 public sealed record LegendActCommand(
     string SourceObjectId,

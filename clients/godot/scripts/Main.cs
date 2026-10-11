@@ -1808,8 +1808,7 @@ public partial class Main : Control
             {
                 if (requirement.ValueKind == JsonValueKind.Object
                     && string.Equals(ReadString(requirement, "sourceObjectId"), sourceObjectId, StringComparison.Ordinal)
-                    && (string.IsNullOrWhiteSpace(selectedMode) || string.IsNullOrWhiteSpace(ReadString(requirement, "abilityId"))
-                        || string.Equals(ReadString(requirement, "abilityId"), selectedMode, StringComparison.Ordinal)))
+                    && RequirementMatchesMode(requirement, selectedMode))
                 {
                     return requirement;
                 }
@@ -1821,8 +1820,7 @@ public partial class Main : Control
             {
                 if (requirement.Value.ValueKind == JsonValueKind.Object
                     && string.Equals(ReadString(requirement.Value, "sourceObjectId"), sourceObjectId, StringComparison.Ordinal)
-                    && (string.IsNullOrWhiteSpace(selectedMode) || string.IsNullOrWhiteSpace(ReadString(requirement.Value, "abilityId"))
-                        || string.Equals(ReadString(requirement.Value, "abilityId"), selectedMode, StringComparison.Ordinal)))
+                    && RequirementMatchesMode(requirement.Value, selectedMode))
                 {
                     return requirement.Value;
                 }
@@ -1830,6 +1828,15 @@ public partial class Main : Control
         }
 
         return null;
+    }
+
+    private static bool RequirementMatchesMode(JsonElement requirement, string? selectedMode)
+    {
+        if (string.IsNullOrWhiteSpace(selectedMode)) return true;
+        var key = requirement.TryGetProperty("abilityChoiceId", out _) ? "abilityChoiceId"
+            : requirement.TryGetProperty("abilityId", out _) ? "abilityId" : "mode";
+        return !requirement.TryGetProperty(key, out _)
+            || string.Equals(ReadString(requirement, key), selectedMode, StringComparison.Ordinal);
     }
 
     private static object? MetadataTemplateValue(JsonElement binding, JsonElement? metadata)

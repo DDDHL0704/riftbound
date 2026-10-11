@@ -23,7 +23,7 @@ internal static class EquipTestDriver
             result = session is null
                 ? await new CoreRuleEngine().ResolveAsync(result.State, new("equip-pass-" + result.State.Tick, player!, CommandTypes.PassPriority), command, default)
                 : await session.SubmitAsync(player!, "equip-pass-" + result.State.Tick, command,
-                    JsonSerializer.SerializeToElement(command), default);
+                    JsonSerializer.SerializeToElement(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web)), default);
             Assert.True(result.Accepted, result.ErrorMessage); events.AddRange(result.Events);
         }
         return result with { Events = events };

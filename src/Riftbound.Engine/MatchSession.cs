@@ -456,6 +456,10 @@ public sealed record PowerModifierLedgerEntry
 
 public sealed record CardObjectState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public AttachedRuleTextState? AttachedRuleText { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public long AttachmentRevision { get; init; }
     // The live battlefield object retains its identity; this links the replaced
     // physical card kept in exile under a separate inventory id (CN 438).
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -2055,6 +2059,32 @@ public sealed record MatchState
         {
             var objectId = entry.Key;
             var cardObject = entry.Value;
+            foreach (var copy in CoreRuleEngine.CopiedRuleTextPowerContributions(state, cardObject))
+            {
+                effects.Add(new ContinuousEffectState($"COPIED_RULE_POWER:{copy.Instance.Id}:{copy.Index}", "OBJECT",
+                    ContinuousEffectLayers.StaticAura, "WHILE_ARMAMENT_ATTACHED", objectId, objectId,
+                    copy.Delta, cardObject.Power, cardObject.Power + copy.Delta, "ATTACHED_RULE_TEXT_POWER",
+                    copy.Instance.CardNo, "CoreRuleEngine.CopiedRuleTextPowerContributions", true, LayerEngineFoundationResiduals(),
+                    Condition: copy.Kind, Lifecycle: "RECOMPUTED_FROM_CURRENT_COPIED_PRINTED_INSTANCE",
+                    ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [objectId, copy.Instance.Origin!.Equipment.ObjectId],
+                    TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+            }
+            foreach (var copy in AttachedRuleTextRules.Copies(state, cardObject))
+                foreach (var keyword in new[] { CardResourceKeywordNames.Spellshield, CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast })
+                {
+                    var amount = CoreRuleEngine.CopiedRuleTextKeywordAmount(state, cardObject, copy, keyword);
+                    if (amount == 0) continue;
+                    // This static projection describes the active attached
+                    // grant. The copied text instance itself is persisted on
+                    // the armament, independently of this diagnostic aura.
+                    effects.Add(new ContinuousEffectState($"COPIED_RULE_KEYWORD:{copy.Id}:{keyword}", "OBJECT",
+                        ContinuousEffectLayers.StaticAura, "WHILE_ARMAMENT_ATTACHED", objectId, objectId,
+                        0, cardObject.Power, cardObject.Power, "ATTACHED_RULE_TEXT_KEYWORD", copy.CardNo,
+                        "CoreRuleEngine.CopiedRuleTextKeywordAmount", true, LayerEngineFoundationResiduals(),
+                        Condition: $"{keyword}:{amount}", Lifecycle: "CURRENT_COPIED_PRINTED_KEYWORD_INSTANCE",
+                        ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [objectId, copy.Origin!.Equipment.ObjectId],
+                        TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+                }
             foreach (var sourceObjectKeywordEffect in BuildSourceObjectKeywordStaticAuraEffects(state, objectId, cardObject))
             {
                 effects.Add(sourceObjectKeywordEffect);
@@ -4169,7 +4199,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { GrantedTags = state.GrantedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
+            state.ObjectGeneration) { AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -6901,7 +6931,8 @@ internal static class ActionPromptBuilder
         IReadOnlyDictionary<string, int>? SpellshieldTaxPowerByTargetObjectId = null,
         bool RenataGoldExtraManaAvailable = false,
         int BonusMana = 0,
-        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>? AzirArmamentReattachChoicesByTargetObjectId = null);
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>? AzirArmamentReattachChoicesByTargetObjectId = null,
+        string? AbilityInstanceId = null, string? CopyEquipmentObjectId = null);
 
     private sealed record LegendActionPromptRequirement(
         string SourceObjectId,
@@ -8752,6 +8783,10 @@ internal static class ActionPromptBuilder
             && !string.Equals(action, "WAIT", StringComparison.Ordinal)
             && hasRequiredChoices;
         var commandTemplate = CommandTemplateFor(action);
+        if (action == CommandTypes.ActivateAbility && commandTemplate is not null
+            && ActivateAbilitySourceRequirements(state, playerId).Any(r => r.AbilityInstanceId is not null))
+            commandTemplate = commandTemplate with { Bindings = commandTemplate.Bindings
+                .Append(RequirementMetadataBinding("abilityInstanceId", required: false, "abilityInstanceId")).ToArray() };
         var selectionSteps = SelectionStepsFor(
             requiresSourceChoices,
             requiresTargetChoices,
@@ -10066,10 +10101,6 @@ internal static class ActionPromptBuilder
                 || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted)
                 || P4ActivatedAbilityCatalog.IsBlueSentinelResourceAbility(ability.AbilityId)
                 || ability.Kind == "TRIGGERED_RESOURCE"
-                || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId, StringComparison.Ordinal)
-                    && state.UntilEndOfTurnEffects.Contains(
-                        P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(playerId, sourceObjectId, cardObject.ObjectGeneration),
-                        StringComparer.Ordinal))
                 || (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.EzrealBlueSwiftMoveAbilityId, StringComparison.Ordinal)
                     && !IsPromptEzrealBlueSwiftMoveSource(state, playerId, sourceObjectId, cardObject)))
             {
@@ -10129,7 +10160,7 @@ internal static class ActionPromptBuilder
                 runePool,
                 paymentResourcePowerByTrait);
 
-            requirements.Add(new ActivateAbilityPromptRequirement(
+            var requirement = new ActivateAbilityPromptRequirement(
                 sourceObjectId,
                 cardObject.CardNo ?? ability.SourceCardNo,
                 ability.AbilityId,
@@ -10164,7 +10195,17 @@ internal static class ActionPromptBuilder
                 spellshieldTaxPowerByTargetObjectId,
                 renataGoldExtraManaAvailable,
                 renataGoldExtraManaAvailable ? P4ActivatedAbilityCatalog.GoldTokenRenataBonusMana : 0,
-                azirArmamentReattachChoicesByTargetObjectId));
+                azirArmamentReattachChoicesByTargetObjectId);
+            foreach (var instance in AttachedRuleTextRules.ActivatedInstances(state, cardObject, ability))
+            {
+                var copyId = instance.Origin is null ? null : instance.Id;
+                if (ability.AbilityId == P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId
+                    && state.UntilEndOfTurnEffects.Contains(P4ActivatedAbilityCatalog.AzirSwiftSwapUsedThisTurnEffectId(
+                        playerId, sourceObjectId, cardObject.ObjectGeneration, copyId), StringComparer.Ordinal)) continue;
+                requirements.Add(requirement with { AbilityInstanceId = copyId, CopyEquipmentObjectId = instance.Origin?.Equipment.ObjectId,
+                    AbilityLabel = copyId is null ? requirement.AbilityLabel
+                        : $"{requirement.AbilityLabel}（{ObjectChoice(state, instance.Origin!.Equipment.ObjectId, "copied printed rules text").Label}复制技能）" });
+            }
         }
 
         if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
@@ -13428,7 +13469,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<ActionPromptChoiceDto>? ActivateAbilityModeChoices(MatchState state, string playerId)
     {
         var choices = ActivateAbilitySourceRequirements(state, playerId)
-            .GroupBy(requirement => requirement.AbilityId, StringComparer.Ordinal)
+            .GroupBy(requirement => requirement.AbilityInstanceId ?? requirement.AbilityId, StringComparer.Ordinal)
             .Select(group => new ActionPromptChoiceDto(
                 group.Key,
                 group.First().AbilityLabel,
@@ -15789,6 +15830,12 @@ internal static class ActionPromptBuilder
             ["unsupportedReason"] = requirement.UnsupportedReason
         };
 
+        if (requirement.AbilityInstanceId is not null)
+        {
+            view["abilityInstanceId"] = requirement.AbilityInstanceId;
+            view["abilityChoiceId"] = requirement.AbilityInstanceId;
+            view["copyEquipmentObjectId"] = requirement.CopyEquipmentObjectId;
+        }
         if (P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var resourceAbility)
             && resourceAbility.IsResourceSkill && resourceAbility.ReactionSpeed)
         {

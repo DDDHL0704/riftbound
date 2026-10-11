@@ -34,7 +34,8 @@ public sealed record P4ActivatedAbilityDefinition(
     bool IgnorePlayManaCost = false,
     bool RecycleUnplayedLookedCards = false,
     string PlayCardFilter = "",
-    bool SwiftSpeed = false);
+    bool SwiftSpeed = false,
+    bool SupportsCopiedRuleText = false);
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -411,11 +412,11 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: false,
             0,
             AppliesSpellshieldTargetTax: false,
-            "Printed Azir Swift movements and chosen optional armament use shared movement and attachment actions, ordinary responses and continuous object bindings. Copied ability instances remain separately open.",
+            "Printed Azir Swift movements and chosen optional armament use shared movement and attachment actions; copied instances preserve independent once-per-turn use and captured attachment origins.",
             PowerCostByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
             {
                 [RuneTrait.Green] = AzirSwiftSwapGreenPowerCost
-            }, SwiftSpeed: true),
+            }, SwiftSpeed: true, SupportsCopiedRuleText: true),
         new(
             GatekeeperMaduliMoveAbilityId,
             GatekeeperMaduliCardNo,
@@ -638,10 +639,10 @@ public static class P4ActivatedAbilityCatalog
             : [sourceCardNo];
     }
 
-    public static string AzirSwiftSwapUsedThisTurnEffectId(string playerId, string sourceObjectId, long generation = 0)
+    public static string AzirSwiftSwapUsedThisTurnEffectId(string playerId, string sourceObjectId, long generation = 0, string? instanceId = null)
     {
         // The printed ability belongs to this continuous object, regardless of its controller.
-        return $"{AzirSwiftSwapUsedThisTurnEffectPrefix}{sourceObjectId}:{generation}";
+        return $"{AzirSwiftSwapUsedThisTurnEffectPrefix}{sourceObjectId}:{generation}" + (instanceId is null ? "" : ":" + instanceId);
     }
 
     public static string AzirArmamentReattachOptionalCostId(string equipmentObjectId)
