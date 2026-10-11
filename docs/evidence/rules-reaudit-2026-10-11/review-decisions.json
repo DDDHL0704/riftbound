@@ -608,6 +608,84 @@
         "Future-effective rules",
         "Dual-window and Windows product acceptance"
       ]
+    },
+    {
+      "id": "movement-opponent-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Opponent-performed movement observers over a simultaneous movement action, post-event source location, captured actor and shared draw. Not complete keyword or legacy movement certification.",
+      "subjects": [
+        {
+          "id": "OGN-158/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31383,
+              "cardNo": "OGN·158/298",
+              "name": "沃利贝尔",
+              "sha256": "23481bf1544a193c5a2c47df1fe47b5af27ec34e71a92b801ad163045adf0532"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-158-298",
+              "cardNo": "OGN-158/298",
+              "name": "Volibear",
+              "sha256": "0511e65982b0d988c80fa0a3d2e9ba8bb13d91dd0686e9aceb43981e48d7ce25"
+            }
+          ],
+          "activeCardNo": "OGN·158/298",
+          "reviewStatus": "PARTIAL_OPPONENT_MOVEMENT_VERIFIED"
+        },
+        {
+          "id": "OGN-158A/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31384,
+              "cardNo": "OGN·158a/298",
+              "name": "沃利贝尔",
+              "sha256": "ac9bb3c7558c787fbf0bb98a6842c2a213e90bad823fc94f5cdaa51343c384d1"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-158a-298",
+              "cardNo": "OGN-158a/298",
+              "name": "Volibear",
+              "sha256": "e770ec53d3cc03bf3c7105f04e4ad781c4a8418fdfa822373c6c40a4910470dd"
+            }
+          ],
+          "activeCardNo": "OGN·158a/298",
+          "reviewStatus": "PARTIAL_OPPONENT_MOVEMENT_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P017-B019",
+        "DOC-04-P059-B007",
+        "DOC-04-P060-B007",
+        "DOC-04-P085-B017"
+      ],
+      "auditDocument": "docs/OPPONENT_MOVEMENT_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/movement-opponent-2026-10-11",
+      "tests": [
+        "OpponentMovementTests",
+        "OpponentMovementNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9509,
+        "fullMethods": 6294,
+        "checkCases": 9374,
+        "nativeScenarios": 4,
+        "nativeCommands": 4,
+        "journalCommands": 20,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Volibear/Merchant QA full alternate-player movement command chain",
+        "Legacy abstract movement and swaps",
+        "Battle Command actor and chosen unit/destination",
+        "Other printed keywords",
+        "Future-effective rules",
+        "Dual-window and Windows product acceptance"
+      ]
     }
   ]
 }

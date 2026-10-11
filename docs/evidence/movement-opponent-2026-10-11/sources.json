@@ -1,0 +1,489 @@
+{
+  "cards": [
+    {
+      "card": {
+        "id": 31383,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·158/298",
+        "cardName": "沃利贝尔",
+        "subTitle": "雄浑巨力",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "沃利贝尔",
+        "region": "弗雷尔卓德",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "{{坚守3}}（如果我是防守方，则{{S}}+3。）\n{{壁垒}}（我在战斗中首先承担伤害。）\n每当对手移动单位到我不在的其他战场时，你抽一张牌。（基地不算作战场。）",
+        "flavorText": "“神从不乞求。我们看上什么就拿走什么。”",
+        "energy": 12,
+        "returnEnergy": 2,
+        "power": 10,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/007fd8351c474606bdd19ce8caeca778.png",
+        "backImage": "",
+        "listSort": 322,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "imageFile": "OGN-158-298.png",
+      "imageSha256": "d1596be34cfa0a0e768140a2008993a70ef6daf74af09b0c4960797ea9f255b6",
+      "english": {
+        "id": "ogn-158-298",
+        "collectorNumber": 158,
+        "name": "Volibear",
+        "subtitle": "Imposing",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "OGN",
+            "label": "Origins"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "OGN-158/298",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "rare",
+            "label": "Rare",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+              "dimensions": {
+                "width": 429,
+                "height": 425,
+                "aspectRatio": 1.0094117647058825
+              },
+              "colors": {
+                "primary": "#B881A9",
+                "secondary": "#332932",
+                "label": "#804570"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "body",
+              "label": "Body",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#221A11",
+                  "secondary": "#F9EADC",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bcb15f95f4a72f8b070a3b1cd54e6482fe1a4b3e-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Volibear, Imposing. [Shield 3] (+3 [S] while I'm a defender.)\n[Tank] (I must be assigned combat damage first.)\nWhen an opponent moves to a battlefield other than mine, draw 1. (Bases are not battlefield.)",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#101720",
+            "secondary": "#DCF5F9",
+            "label": "#000000"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "envarstudio",
+              "label": "Envar Studio",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Shield 3] (+3 :rb_might: while I'm a defender.)<br />[Tank] (I must be assigned combat damage first.)<br />When an opponent moves to a battlefield other than mine, draw 1. (Bases are not battlefield.)</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 12,
+            "label": "12"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 10,
+            "label": "10",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 2,
+            "label": "2",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Volibear",
+            "Freljord"
+          ]
+        }
+      }
+    },
+    {
+      "card": {
+        "id": 31384,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·158a/298",
+        "cardName": "沃利贝尔",
+        "subTitle": "雄浑巨力",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "沃利贝尔",
+        "region": "弗雷尔卓德",
+        "tag": "",
+        "artist": "Wild Rift Splash Team",
+        "cardEffect": "{{坚守3}}（如果我是防守方，则{{S}}+3。）\n{{壁垒}}（我在战斗中首先承担伤害。）\n每当对手移动单位到我不在的其他战场时，你抽一张牌。（基地不算作战场。）",
+        "flavorText": "“神从不乞求。我们看上什么就拿走什么。”",
+        "energy": 12,
+        "returnEnergy": 2,
+        "power": 10,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/266568e2068b42408ff48025903469e4.png",
+        "backImage": "",
+        "listSort": 321,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "imageFile": "OGN-158a-298.png",
+      "imageSha256": "83b737e486d1533b831c56c25b0b8565332027002397c6621200d58e17c95eed",
+      "english": {
+        "id": "ogn-158a-298",
+        "collectorNumber": 158,
+        "name": "Volibear",
+        "subtitle": "Imposing",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "OGN",
+            "label": "Origins"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ],
+          "superType": [
+            {
+              "id": "champion",
+              "label": "Champion",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "OGN-158a/298",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "showcase",
+            "label": "Showcase",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+              "dimensions": {
+                "width": 376,
+                "height": 426,
+                "aspectRatio": 0.8826291079812206
+              },
+              "colors": {
+                "primary": "#B89D3B",
+                "secondary": "#333229",
+                "label": "#4F472B"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "body",
+              "label": "Body",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#221A11",
+                  "secondary": "#F9EADC",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/faceb90b6a46e79eadba43871b8cffe1ec5037a7-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Volibear, Imposing. [Shield 3] (+3 [S] while I'm a defender.)\n[Tank] (I must be assigned combat damage first.)\nWhen an opponent moves to a battlefield other than mine, draw 1. (Bases are not battlefield.)",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#33231A",
+            "secondary": "#F9E4DC",
+            "label": "#040201"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "wildriftsplashteam",
+              "label": "Wild Rift Splash Team",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Shield 3] (+3 :rb_might: while I'm a defender.)<br />[Tank] (I must be assigned combat damage first.)<br />When an opponent moves to a battlefield other than mine, draw 1. (Bases are not battlefield.)</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 12,
+            "label": "12"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 10,
+            "label": "10",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "power": {
+          "label": "Power",
+          "value": {
+            "id": 2,
+            "label": "2",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Volibear",
+            "Freljord"
+          ]
+        }
+      }
+    }
+  ],
+  "rules": [
+    "DOC-04-P017-B019",
+    "DOC-04-P059-B007",
+    "DOC-04-P060-B007",
+    "DOC-04-P085-B017"
+  ],
+  "qa": [
+    "DOC-15-P003-B014",
+    "DOC-15-P003-B015",
+    "DOC-15-P003-B016",
+    "DOC-15-P003-B017"
+  ],
+  "design": "Event-level inference from current core 144.3 plus actor-level card text; source position judged after event under 383.2.c. Individual source triggers remain per moved unit. Cross-player QA remains pending actual alternate-player movement path.",
+  "authority": [
+    {
+      "id": "DOC-04",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "updated": "2026-07-17",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-15",
+      "title": "起源系列 裁判FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/裁判FAQ_251023.pdf",
+      "sha256": "4e960816dd71ffb110e6d37d66d628eb5f7bb3b771192af5975e7164087e2203",
+      "updated": "2025-10-24",
+      "effectiveDate": null
+    }
+  ]
+}

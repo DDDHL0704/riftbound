@@ -4,7 +4,8 @@ namespace Riftbound.Engine;
 
 public sealed record MovedUnitFact(string ObjectId, long Generation, string ControllerId, string MovingPlayerId,
     ObjectLocationState Origin, ObjectLocationState Destination);
-public sealed record MovementObserverContext(string CardNo, string Kind, long SourceGeneration, MovedUnitFact Unit);
+public sealed record MovementObserverContext(string CardNo, string Kind, long SourceGeneration, MovedUnitFact Unit,
+    IReadOnlyList<MovedUnitFact>? MovementBatch = null, ObjectLocationState? SourceLocation = null);
 internal sealed record CapturedMovementObserver(string SourceId, string ControllerId, MovementObserverContext Context);
 
 public sealed partial class CoreRuleEngine
@@ -13,19 +14,39 @@ public sealed partial class CoreRuleEngine
     private const string CapturedMovementEvent = "INTERNAL_MOVEMENT_OBSERVERS";
     private const string MovementResourceKind = "MOVEMENT_RESOURCE";
 
-    internal static bool ValidMovementObserver(MovementObserverContext c, string effect, string controller, string source, string? cardNo = null)
-        => effect == MovementObserverEffect && c.SourceGeneration >= 0 && (cardNo is null || cardNo == c.CardNo)
-            && c.Unit is { Generation: >= 0 } unit && !string.IsNullOrWhiteSpace(unit.ObjectId)
+    private static bool ValidMovedUnitFact(MovedUnitFact? unit)
+        => unit is { Generation: >= 0 } && !string.IsNullOrWhiteSpace(unit.ObjectId)
             && !string.IsNullOrWhiteSpace(unit.ControllerId) && !string.IsNullOrWhiteSpace(unit.MovingPlayerId)
             && unit.Origin is not null && unit.Destination is not null && unit.Origin != unit.Destination
             && unit.Origin.PlayerId == unit.ControllerId && unit.Destination.PlayerId == unit.ControllerId
-            && unit.Origin.Zone is "BASE" or "BATTLEFIELD" && unit.Destination.Zone is "BASE" or "BATTLEFIELD"
-            && (c.Kind != TriggerKinds.BattlefieldUnitMovedAwayPowerModifier
-                ? source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
-                    && UnitMovedTriggerSpecRules.MovementTriggers(c.CardNo).Any(t => t.Kind == c.Kind && UnitMovedTriggerSpecRules.MatchesMovement(t, unit))
-                : c.Kind == TriggerKinds.BattlefieldUnitMovedAwayPowerModifier && unit.Origin.Zone == "BATTLEFIELD"
-                    && source == unit.Origin.BattlefieldObjectId
-                    && BattlefieldTriggerSpecRules.TryGetTrigger(c.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out _));
+            && unit.Origin.Zone is "BASE" or "BATTLEFIELD" && unit.Destination.Zone is "BASE" or "BATTLEFIELD";
+
+    internal static bool ValidMovementObserver(MovementObserverContext c, string effect, string controller, string source, string? cardNo = null)
+    {
+        if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(controller)
+            || effect != MovementObserverEffect || c.SourceGeneration < 0 || cardNo is not null && cardNo != c.CardNo
+            || !ValidMovedUnitFact(c.Unit)) return false;
+        var unit = c.Unit;
+        if (c.Kind == TriggerKinds.OpponentMovedToOtherBattlefieldDraw)
+        {
+            if (c.MovementBatch is not { Count: > 0 } batch || c.SourceLocation is not { } location
+                || location.PlayerId != controller || location.Zone is not ("BASE" or "BATTLEFIELD")
+                || location.Zone == "BATTLEFIELD" && string.IsNullOrWhiteSpace(location.BattlefieldObjectId)
+                || unit.Destination.Zone != "BATTLEFIELD" || string.IsNullOrWhiteSpace(unit.Destination.BattlefieldObjectId)
+                || unit.MovingPlayerId == controller || location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId == unit.Destination.BattlefieldObjectId
+                || !batch.Contains(unit) || batch.Any(f => !ValidMovedUnitFact(f))
+                || batch.Select(f => f.ObjectId).Distinct(StringComparer.Ordinal).Count() != batch.Count
+                || !UnitMovedTriggerSpecRules.MovementTriggers(c.CardNo).Any(UnitMovedTriggerSpecRules.IsOpponentMovementDrawTrigger)) return false;
+            var sourceMove = batch.FirstOrDefault(f => f.ObjectId == source);
+            return sourceMove is null || sourceMove.Generation == c.SourceGeneration && sourceMove.Destination == location;
+        }
+        if (c.MovementBatch is not null || c.SourceLocation is not null) return false;
+        return c.Kind != TriggerKinds.BattlefieldUnitMovedAwayPowerModifier
+            ? source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
+                && UnitMovedTriggerSpecRules.MovementTriggers(c.CardNo).Any(t => t.Kind == c.Kind && UnitMovedTriggerSpecRules.MatchesMovement(t, unit))
+            : unit.Origin.Zone == "BATTLEFIELD" && source == unit.Origin.BattlefieldObjectId
+                && BattlefieldTriggerSpecRules.TryGetTrigger(c.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out _);
+    }
 
     internal static bool ValidMovementDiscardChoice(MatchState state)
     {
@@ -49,38 +70,62 @@ public sealed partial class CoreRuleEngine
                 TriggerKinds.UnitMovedCreateDormantGold => "：移动后打出休眠金币",
                 TriggerKinds.UnitMovedCreateUnitToken => "：移动后打出单位指示物",
                 TriggerKinds.UnitMovedDiscardDraw => "：移动后弃牌再抽牌",
+                TriggerKinds.OpponentMovedToOtherBattlefieldDraw => "：对手移动到其他战场后抽牌",
                 TriggerKinds.UnitMovedDraw => "：移动后抽牌",
                 TriggerKinds.UnitMovedGainExperience => "：移动后获得经验",
                 TriggerKinds.UnitMovedPowerModifier => "：离开战场后本回合增加战力",
                 _ => "：离开此处的单位本回合战力 +1" });
 
-    // Call with the state at this movement, before cleanup or later instructions.
-    // Moving player, unit controller and battlefield controller are distinct facts.
-    private static GameEvent CaptureMovementObservers(MatchState before, string unitId, string movingPlayer,
+    private static MovedUnitFact? CaptureMovedUnitFact(MatchState before, string unitId, string movingPlayer,
         string destinationZone, string? destinationField = null)
     {
+        if (!before.CardObjects.TryGetValue(unitId, out var unit) || !unit.Tags.Contains(CardObjectTags.UnitCard)
+            || unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby)
+            || FindFieldObjectLocation(before.PlayerZones, unitId) is not { } field) return null;
+        var origin = before.ObjectLocations.GetValueOrDefault(unitId) ?? new(field.PlayerId, field.Zone);
+        var destination = new ObjectLocationState(field.PlayerId, destinationZone, destinationField);
+        return origin == destination ? null : new(unitId, unit.ObjectGeneration, field.PlayerId, movingPlayer, origin, destination);
+    }
+
+    private static GameEvent CaptureMovementObservers(MatchState before, string unitId, string movingPlayer,
+        string destinationZone, string? destinationField = null)
+        => CaptureMovementBatchObservers(before, CaptureMovedUnitFact(before, unitId, movingPlayer, destinationZone, destinationField) is { } unit ? [unit] : []);
+
+    // A movement instruction is captured once. Self triggers remain per unit; actor
+    // triggers use the source's location after every simultaneous relocation (383.2.c).
+    private static GameEvent CaptureMovementBatchObservers(MatchState before, IReadOnlyList<MovedUnitFact> units)
+    {
         var observers = new List<CapturedMovementObserver>();
-        if (before.CardObjects.TryGetValue(unitId, out var unit) && unit.Tags.Contains(CardObjectTags.UnitCard)
-            && !unit.IsFaceDown && !unit.Tags.Contains(CardObjectTags.Standby)
-            && FindFieldObjectLocation(before.PlayerZones, unitId) is { } field)
+        foreach (var fact in units)
         {
-            var origin = before.ObjectLocations.GetValueOrDefault(unitId) ?? new(field.PlayerId, field.Zone);
-            var destination = new ObjectLocationState(field.PlayerId, destinationZone, destinationField);
-            var fact = new MovedUnitFact(unitId, unit.ObjectGeneration, field.PlayerId, movingPlayer, origin, destination);
-            if (origin != destination)
+            var unit = before.CardObjects[fact.ObjectId];
+            foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(unit.CardNo)
+                .Where(t => t.TargetScope == TriggerTargetScopes.SourceUnit && UnitMovedTriggerSpecRules.MatchesMovement(t, fact)))
+                observers.Add(new(unit.ObjectId, fact.ControllerId, new(unit.CardNo!, spec.Kind, unit.ObjectGeneration, fact)));
+            if (P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, unit.CardNo))
+                observers.Add(new(unit.ObjectId, fact.ControllerId, new(unit.CardNo!, MovementResourceKind, unit.ObjectGeneration, fact)));
+            if (BattlefieldLocalRules.AtUnit(before, unit.ObjectId) is { } battlefield
+                && BattlefieldTriggerSpecRules.TryGetTrigger(battlefield.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out var bar))
             {
-                foreach (var spec in UnitMovedTriggerSpecRules.MovementTriggers(unit.CardNo).Where(t => UnitMovedTriggerSpecRules.MatchesMovement(t, fact)))
-                    observers.Add(new(unitId, field.PlayerId, new(unit.CardNo!, spec.Kind, unit.ObjectGeneration, fact)));
-                if (P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId(P4ActivatedAbilityCatalog.JhinMoveResourceAbilityId, unit.CardNo))
-                    observers.Add(new(unitId, field.PlayerId, new(unit.CardNo!, MovementResourceKind, unit.ObjectGeneration, fact)));
-                if (BattlefieldLocalRules.AtUnit(before, unitId) is { } battlefield
-                    && BattlefieldTriggerSpecRules.TryGetTrigger(battlefield.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out var bar))
-                {
-                    // CN 190.6: uncontrolled battlefield skills are handled by the turn player.
-                    var controller = before.BattlefieldStates.GetValueOrDefault(battlefield.ObjectId)?.ControllerId ?? before.TurnPlayerId;
-                    observers.Add(new(battlefield.ObjectId, controller, new(battlefield.CardNo!, bar.Kind, battlefield.ObjectGeneration, fact)));
-                }
+                var controller = before.BattlefieldStates.GetValueOrDefault(battlefield.ObjectId)?.ControllerId ?? before.TurnPlayerId;
+                observers.Add(new(battlefield.ObjectId, controller, new(battlefield.CardNo!, bar.Kind, battlefield.ObjectGeneration, fact)));
             }
+        }
+        foreach (var source in before.CardObjects.Values)
+        {
+            if (source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard) || source.Tags.Contains(CardObjectTags.Standby)
+                || FindFieldObjectLocation(before.PlayerZones, source.ObjectId) is not { } field) continue;
+            var specs = UnitMovedTriggerSpecRules.MovementTriggers(source.CardNo).Where(UnitMovedTriggerSpecRules.IsOpponentMovementDrawTrigger).ToArray();
+            if (specs.Length == 0) continue;
+            var after = units.FirstOrDefault(f => f.ObjectId == source.ObjectId)?.Destination
+                ?? before.ObjectLocations.GetValueOrDefault(source.ObjectId) ?? new(field.PlayerId, field.Zone);
+            if (after.Zone == "BATTLEFIELD" && string.IsNullOrWhiteSpace(after.BattlefieldObjectId)) continue;
+            foreach (var group in units.Where(f => f.MovingPlayerId != field.PlayerId
+                && f.Destination.Zone == "BATTLEFIELD" && !string.IsNullOrWhiteSpace(f.Destination.BattlefieldObjectId)
+                && (after.Zone != "BATTLEFIELD" || after.BattlefieldObjectId != f.Destination.BattlefieldObjectId))
+                .GroupBy(f => (f.MovingPlayerId, f.Destination.BattlefieldObjectId)))
+                foreach (var spec in specs)
+                    observers.Add(new(source.ObjectId, field.PlayerId, new(source.CardNo!, spec.Kind, source.ObjectGeneration, group.First(), units.ToArray(), after)));
         }
         return new(CapturedMovementEvent, "捕获移动时的技能来源", new Dictionary<string, object?> { ["observers"] = observers.ToArray() });
     }
@@ -97,7 +142,7 @@ public sealed partial class CoreRuleEngine
             foreach (var observer in (CapturedMovementObserver[])ev.Payload["observers"]!)
             {
                 var resource = observer.Context.Kind == MovementResourceKind;
-                var trigger = new TriggerQueueItemState($"movement-{result.State.Tick}-{index}-{observer.SourceId}-{observer.Context.Kind}",
+                var trigger = new TriggerQueueItemState($"movement-{result.State.Tick}-{index}-{observer.SourceId}-{observer.Context.Kind}-{observer.Context.Unit.ObjectId}",
                     observer.ControllerId, observer.SourceId,
                     resource ? P4ActivatedAbilityCatalog.JhinMoveResourceAbilityEffectKind : MovementObserverEffect,
                     observer.Context.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD") { MovementObserver = resource ? null : observer.Context, SourceCardNo = observer.Context.CardNo };
@@ -129,7 +174,7 @@ public sealed partial class CoreRuleEngine
         if (context.Kind == TriggerKinds.UnitMovedDiscardDraw)
             return ResolveDiscardDrawStackItem(state, item, unitSpec!.DiscardCount!.Value, unitSpec.DrawCount!.Value,
                 context.Kind, context.Kind, TriggerTimings.UnitMoved);
-        if (context.Kind == TriggerKinds.UnitMovedDraw)
+        if (context.Kind is TriggerKinds.UnitMovedDraw or TriggerKinds.OpponentMovedToOtherBattlefieldDraw)
         {
             var draw = ResolveLastBreathDrawStackItem(state, item, unitSpec!.DrawCount!.Value);
             return draw with { Events = draw.Events.Select(e => e.Kind == "TRIGGER_RESOLVED" ? events[0] : e).ToArray() };

@@ -36,7 +36,7 @@ internal static class UnitMovedTriggerSpecRules
             ? triggers.Where(IsImplementedMovementTrigger).ToArray() : [];
 
     public static bool IsImplementedMovementTrigger(TriggerSpec trigger)
-        => IsUnitMovedCreateDormantGoldTrigger(trigger)
+        => IsUnitMovedCreateDormantGoldTrigger(trigger) || IsOpponentMovementDrawTrigger(trigger)
             || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit
                 && (IsMovementUnitTokenTrigger(trigger)
                     || trigger.Kind == TriggerKinds.UnitMovedDiscardDraw && trigger.DiscardCount > 0 && trigger.DrawCount > 0
@@ -44,6 +44,11 @@ internal static class UnitMovedTriggerSpecRules
                     || trigger.Kind == TriggerKinds.UnitMovedGainExperience && trigger.ExperienceCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedPowerModifier && trigger.PowerDelta > 0
                         && trigger.Duration == TriggerDurations.UntilEndOfTurn);
+
+    public static bool IsOpponentMovementDrawTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.OpponentMovedToOtherBattlefieldDraw && trigger.Timing == TriggerTimings.UnitMoved
+            && trigger.TargetScope == TriggerTargetScopes.MovedUnit && trigger.DrawCount > 0
+            && trigger.MovementDestinationZone == "BATTLEFIELD";
 
     public static bool IsMovementUnitTokenTrigger(TriggerSpec trigger)
         => trigger.Kind == TriggerKinds.UnitMovedCreateUnitToken && trigger.CreatedTokenCount > 0

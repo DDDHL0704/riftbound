@@ -1144,6 +1144,13 @@ public static class TriggerParser
                 CreatedTokenPower: ParseChineseNumber(movedSprite.Groups[2].Value), CreatedTokenName: "精灵",
                 CreatedTokenDestination: TriggerTokenDestinations.MovementOrigin, CreatedTokenExhausted: true, CreatedTokenKeywords: ["瞬息"]);
 
+        var opponentMovedDraw = Regex.Match(segment,
+            @"^每当对手移动单位到我不在的其他战场时，你抽([0-9一两二三四五六七八九十]+)张牌。?(?:（基地不算作战场。）)?$", RegexOptions.CultureInvariant);
+        if (opponentMovedDraw.Success)
+            return new TriggerSpec(TriggerKinds.OpponentMovedToOtherBattlefieldDraw, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.MovedUnit, DrawCount: ParseChineseNumber(opponentMovedDraw.Groups[1].Value),
+                MovementDestinationZone: "BATTLEFIELD");
+
         var movedDiscardDraw = Regex.Match(segment,
             @"^(?:每当|当)我移动时，弃置([0-9一两二三四五六七八九十]+)张手牌，然后抽([0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
         if (movedDiscardDraw.Success)

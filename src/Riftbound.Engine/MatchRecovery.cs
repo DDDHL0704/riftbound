@@ -22877,6 +22877,10 @@ public static class MatchRecoveryValidator
         return true;
     }
 
+    private static bool ValidMovementPlayers(MatchState state, MovementObserverContext context)
+        => (context.MovementBatch ?? [context.Unit]).All(unit => state.Seats.ContainsKey(unit.ControllerId)
+            && state.Seats.ContainsKey(unit.MovingPlayerId));
+
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
@@ -22884,12 +22888,12 @@ public static class MatchRecoveryValidator
             if (trigger.MovementObserver is { } movement
                 ? !CoreRuleEngine.ValidMovementObserver(movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId)
                     || trigger.TriggeredByEventKind != (movement.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD")
-                    || !state.Seats.ContainsKey(movement.Unit.ControllerId) || !state.Seats.ContainsKey(movement.Unit.MovingPlayerId)
+                    || !ValidMovementPlayers(state, movement)
                 : trigger.EffectKind == CoreRuleEngine.MovementObserverEffect) errors.Add("invalid captured movement observer");
         foreach (var item in state.StackItems)
             if (item.MovementObserver is { } movement
                 ? !CoreRuleEngine.ValidMovementObserver(movement, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
-                    || !state.Seats.ContainsKey(movement.Unit.ControllerId) || !state.Seats.ContainsKey(movement.Unit.MovingPlayerId)
+                    || !ValidMovementPlayers(state, movement)
                 : item.EffectKind == CoreRuleEngine.MovementObserverEffect) errors.Add("invalid captured movement observer stack");
         if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
         if (state.DeathLedger is null || state.DeathLedger.Counts is null || state.DeathLedger.TurnNumber < 0

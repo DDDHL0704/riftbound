@@ -83,8 +83,9 @@ public sealed partial class CoreRuleEngine
             foreach (var equipment in move.Equipment) locations[equipment] = new(intent.PlayerId, destinationZone, destinationBattlefieldId);
         }
 
-        foreach (var move in moves)
-            events.Add(CaptureMovementObservers(state, move.Id, intent.PlayerId, destinationZone, destinationBattlefieldId));
+        events.Add(CaptureMovementBatchObservers(state, moves
+            .Select(move => CaptureMovedUnitFact(state, move.Id, intent.PlayerId, destinationZone, destinationBattlefieldId))
+            .OfType<MovedUnitFact>().ToArray()));
         var cleanup = RunStateBasedCleanupLoop(state, zones, cards,
             new StackItemState($"move-group-{state.Tick + 1}", intent.PlayerId, ids[0], "MOVE_UNIT", targetObjectIds: ids),
             pools, objectLocations: locations, destroyedUnitOwnerIdsAlreadyThisTurn: state.DestroyedUnitOwnerIdsThisTurn);

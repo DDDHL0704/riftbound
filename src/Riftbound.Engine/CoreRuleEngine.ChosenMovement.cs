@@ -47,14 +47,16 @@ public sealed partial class CoreRuleEngine
         var toBase = destination.StartsWith("BASE:", StringComparison.Ordinal);
         var destinationZone = toBase ? "BASE" : "BATTLEFIELD";
         var field = toBase ? null : destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal) ? destination[12..] : null;
-        // All selected units relocate before downstream cleanup/contest processing.
-        foreach (var id in ids)
+        var before = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
+        var movable = ids.Where(id => IsUnitMovementDestination(before, id, destination)
+            && MovementRestrictionRules.CanMove(cards.GetValueOrDefault(id), item.ControllerId)
+            && !(toBase && BattlefieldLocalRules.PreventsMoveToBase(before, id))).ToArray();
+        var captured = CaptureMovementBatchObservers(before, movable
+            .Select(id => CaptureMovedUnitFact(before, id, item.ControllerId, destinationZone, field))
+            .OfType<MovedUnitFact>().ToArray());
+        // Facts and observers are immutable before any of the shared dictionaries mutate.
+        foreach (var id in movable)
         {
-            var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
-            if (!IsUnitMovementDestination(current, id, destination)
-                || !MovementRestrictionRules.CanMove(cards.GetValueOrDefault(id), item.ControllerId)
-                || (toBase && BattlefieldLocalRules.PreventsMoveToBase(current, id))) continue;
-            var movementObservation = CaptureMovementObservers(current, id, item.ControllerId, destinationZone, field);
             var origin = FindFieldObjectLocation(zones, id)!.Value;
             var equipment = AttachedEquipmentObjectIds(cards, id);
             RemoveFieldObjectFromLocation(zones, origin.PlayerId, origin.Zone, id);
@@ -68,9 +70,9 @@ public sealed partial class CoreRuleEngine
                     ["destinationZone"] = destinationZone, ["destination"] = destination, ["battlefieldObjectId"] = field,
                     ["simultaneousSourceObjectIds"] = ids
                 }));
-            events.Add(movementObservation);
             events.AddRange(MoveAttachedEquipmentWithHost(zones, equipment, origin.PlayerId, id, destinationZone));
             foreach (var gear in equipment) locations[gear] = new(origin.PlayerId, destinationZone, field);
         }
+        events.Add(captured);
     }
 }

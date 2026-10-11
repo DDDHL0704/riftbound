@@ -1,0 +1,348 @@
+{
+  "focus2": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 20.09,
+    "total": 120,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 120,
+        "passed": 120,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.31
+      }
+    ]
+  },
+  "focus3": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 21.34,
+    "total": 129,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 129,
+        "passed": 129,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.7
+      }
+    ]
+  },
+  "focus4": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.56,
+    "total": 22,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 22,
+        "passed": 22,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.65
+      }
+    ]
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 87.76,
+    "total": 9374,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9374,
+        "passed": 9374,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 84.31
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 415.31,
+    "total": 9509,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 210.82
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 212.49
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 216.03
+      },
+      {
+        "shard": "rules",
+        "total": 9374,
+        "passed": 9374,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 87.16
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 411.84
+      }
+    ]
+  },
+  "native": {
+    "scenarios": [
+      {
+        "scenario": "OGN-158-298-forward",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "3e4926e9d3d9e096dfb874f4706874ce294184e36d246dda96da3d863ef83241",
+          "expectedStateHash": "3e4926e9d3d9e096dfb874f4706874ce294184e36d246dda96da3d863ef83241",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "OGN-158-298-reverse",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "3e4926e9d3d9e096dfb874f4706874ce294184e36d246dda96da3d863ef83241",
+          "expectedStateHash": "3e4926e9d3d9e096dfb874f4706874ce294184e36d246dda96da3d863ef83241",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "OGN-158a-298-forward",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "c9c7dd4eebacdd4bc2866d76c8fd264445a03f5b0c232e1aa0a0e1eb021fd2d8",
+          "expectedStateHash": "c9c7dd4eebacdd4bc2866d76c8fd264445a03f5b0c232e1aa0a0e1eb021fd2d8",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "OGN-158a-298-reverse",
+        "native": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "c9c7dd4eebacdd4bc2866d76c8fd264445a03f5b0c232e1aa0a0e1eb021fd2d8",
+          "expectedStateHash": "c9c7dd4eebacdd4bc2866d76c8fd264445a03f5b0c232e1aa0a0e1eb021fd2d8",
+          "errors": []
+        },
+        "commands": 5
+      }
+    ],
+    "productionCommands": 4,
+    "journalCommands": 20,
+    "mode": "Godot headless production trigger order controls; not dual-window visual or Windows product evidence"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.81\n",
+  "godotRuns": {
+    "rift-movement-opponent-native.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nMOVEMENT_OBSERVER_ORDER_PASS: 4 mixed movement-trigger production order commands\n"
+  },
+  "artifacts": [
+    {
+      "path": "var/qa/movement-opponent/check/check/results.trx",
+      "sha256": "b487b76c1f14c52604d3b6bdb688e7c40b68d7258517c9f1a0faa30245824a3b"
+    },
+    {
+      "path": "var/qa/movement-opponent/check/plan.json",
+      "sha256": "2baa62542417211bd2f77288da4547f70401f619b35549a9c897cf23c81c55fe"
+    },
+    {
+      "path": "var/qa/movement-opponent/check/summary.json",
+      "sha256": "145f60e1366890260562c07d502f47fedc00ce34a5f152e06b2702d609faf150"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus1/focus/results.trx",
+      "sha256": "7307509ba239ca60cc1bb90dd9ca5fdfb45c457847c6b23ebf74c9d55d0793eb"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus1/plan.json",
+      "sha256": "d6863f9333a0ec18070863b0cdfd34a94221c63cb4b851a2484d1646a9ae453b"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus2/focus/results.trx",
+      "sha256": "46a890c07483e5bb11d878478598d6264ef199b732a6a384d9ae975b250e638e"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus2/plan.json",
+      "sha256": "7945db671cfe74e3a49ad1838918f3f4102f34e09b2c0e4a405a1cf4a18fcc72"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus2/summary.json",
+      "sha256": "d8c27ac27e896fdd6df52c28971fe87de1869175981d0301e715bcfd4de8657f"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus3/focus/results.trx",
+      "sha256": "e120ada31df4ee47cc2b801ea929dee4cc0f8d509b6fd9068f9748b51f74d0b3"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus3/plan.json",
+      "sha256": "46dcc727556c0188543d08f2b2e2ab9f984e177ea15fb71edbf5269c9c448b74"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus3/summary.json",
+      "sha256": "813259ea91715fa01bd0cbb0712ee31e0522e26f1ce6a10e35b6d32841ac0945"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus4/focus/results.trx",
+      "sha256": "770f36099a53433141c9a48e13489dee62eb733d7993dd4481a524c8a5128f45"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus4/plan.json",
+      "sha256": "05d4fba2fe15bbd5b23150d2bd788949ea6b5a02d38d1118a82d7abc49c4e841"
+    },
+    {
+      "path": "var/qa/movement-opponent/focus4/summary.json",
+      "sha256": "208e4375c90d68be1eb3c612022da3ac5a696620e496668122f647bfd2e6cf9f"
+    },
+    {
+      "path": "var/qa/movement-opponent/full/games-1/results.trx",
+      "sha256": "81aa825f31fd2cb579fa30d86a9e428a2caeeac40b5353bee9f2c0ce40fd4c10"
+    },
+    {
+      "path": "var/qa/movement-opponent/full/games-2/results.trx",
+      "sha256": "5758bd3a8cd0d9eab70b043b911655a4989b3b33a78989fa9148e40a06570630"
+    },
+    {
+      "path": "var/qa/movement-opponent/full/games-3/results.trx",
+      "sha256": "7c8ffbf4056b3394ae27eec1e7ba972e8ec60817f134e15dd94102ab517fc2ed"
+    },
+    {
+      "path": "var/qa/movement-opponent/full/games-4/results.trx",
+      "sha256": "16babc8c1329ccabb87a6f7c3e2753efd727e19736788805b27542d3a00a09e9"
+    },
+    {
+      "path": "var/qa/movement-opponent/full/plan.json",
+      "sha256": "23c1ec1368a76acebde4f8577961d2c4ec2878ec7a80ba4bc6faa65b9f87719e"
+    },
+    {
+      "path": "var/qa/movement-opponent/full/rules/results.trx",
+      "sha256": "547a3816939f9b04af71a1f6b944194a8306cdbdbf6e2bd6bf8ac67d566b58cf"
+    },
+    {
+      "path": "var/qa/movement-opponent/full/summary.json",
+      "sha256": "b3e475fb0648fd6862986e820087142b2e7f053260b689dbade4260fceb1007f"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-forward/case.json",
+      "sha256": "42f842e6f4b98ff89e90f1503a375f1e57fd7ebefb0664a6d02b824c9181d488"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-forward/command.json",
+      "sha256": "25c904b7623cd698eee1872cb4954484bd205d82b7e9d55eee5fcffebdb394e9"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-forward/prompt.json",
+      "sha256": "24a07909e8fd0f6a39feb08088b57b6324138bf36f70f3ddb707c9a067c87147"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-forward/replay.json",
+      "sha256": "7301ff6671c475710e7fb07f0df131b9b3bbad001313bd0a1f89bb6acfa673a7"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-forward/snapshot.json",
+      "sha256": "a0254ee09d9ff0a116f7a9346c4906fdd65ed06c15dfd5e5215ac42bd4530793"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-reverse/case.json",
+      "sha256": "c126b62178d7de323d0df61f4a838a852e0ba7c6f827623224e78aba3eafc833"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-reverse/command.json",
+      "sha256": "a677c1a7a4985f66fa284893ac5a8cf736ed50618da7c55d9ca21dfb7b373352"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-reverse/prompt.json",
+      "sha256": "24a07909e8fd0f6a39feb08088b57b6324138bf36f70f3ddb707c9a067c87147"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-reverse/replay.json",
+      "sha256": "7301ff6671c475710e7fb07f0df131b9b3bbad001313bd0a1f89bb6acfa673a7"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158-298-reverse/snapshot.json",
+      "sha256": "a0254ee09d9ff0a116f7a9346c4906fdd65ed06c15dfd5e5215ac42bd4530793"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-forward/case.json",
+      "sha256": "42f842e6f4b98ff89e90f1503a375f1e57fd7ebefb0664a6d02b824c9181d488"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-forward/command.json",
+      "sha256": "25c904b7623cd698eee1872cb4954484bd205d82b7e9d55eee5fcffebdb394e9"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-forward/prompt.json",
+      "sha256": "24a07909e8fd0f6a39feb08088b57b6324138bf36f70f3ddb707c9a067c87147"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-forward/replay.json",
+      "sha256": "047245675265899e2affd470a9acd7db60a94fa75c5055e39d70e0fb12be1016"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-forward/snapshot.json",
+      "sha256": "2d15207ee65d3e2e961d7cd6042404f7186ea5b0d4966769b076cb8f6b50718e"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-reverse/case.json",
+      "sha256": "c126b62178d7de323d0df61f4a838a852e0ba7c6f827623224e78aba3eafc833"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-reverse/command.json",
+      "sha256": "a677c1a7a4985f66fa284893ac5a8cf736ed50618da7c55d9ca21dfb7b373352"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-reverse/prompt.json",
+      "sha256": "24a07909e8fd0f6a39feb08088b57b6324138bf36f70f3ddb707c9a067c87147"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-reverse/replay.json",
+      "sha256": "047245675265899e2affd470a9acd7db60a94fa75c5055e39d70e0fb12be1016"
+    },
+    {
+      "path": "var/qa/movement-opponent/native/OGN-158a-298-reverse/snapshot.json",
+      "sha256": "2d15207ee65d3e2e961d7cd6042404f7186ea5b0d4966769b076cb8f6b50718e"
+    },
+    {
+      "path": "var/qa/movement-opponent/red/focus/results.trx",
+      "sha256": "e4190897f6ef4ff22130d5a6c9ec532be4cec7879d22e2c30d4e7cf40c9d2de2"
+    },
+    {
+      "path": "var/qa/movement-opponent/red/plan.json",
+      "sha256": "f61e7b17fd85bd4adbf2bfb2c1be3e40ab185b1d740f342b42ab164de2d67d02"
+    }
+  ]
+}
