@@ -1,0 +1,43 @@
+{
+  "status": "LOCAL_SCOPED_PASS_CI_PENDING",
+  "batchCheck": {
+    "evidence": "var/qa/tempered-play-trigger/check1",
+    "passed": 9874,
+    "failed": 1,
+    "resolvedBy": {
+      "evidence": "var/qa/tempered-play-trigger/check-repair-games1",
+      "passed": 41,
+      "failed": 0,
+      "seconds": 20.12,
+      "repairedCases": [
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost(fixtureFileName: \"p2-preflight-play-armed-assaulter-no-optional-hast\"···, sourceObjectId: \"P1-UNIT-ARMED-ASSAULTER\", expectedPower: 6, expectedTags: \"CARD_TYPE:UNIT|急速|百炼\")"
+      ]
+    },
+    "testAssemblySha256": "c6663eb4c73e17d066abdd4f29bad4ac7e21ceb9f2cbc8692db3916eb9bda2e1",
+    "sameAssemblyVerified": true,
+    "compositeDistinctPassed": 9879,
+    "ordinaryDistinctPassed": 9873,
+    "affectedGameCases": [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedWeaponmasterMidgamePaysReferencedCostAndReplaysThroughScoreVictory(card: \"SFD·008/221\")",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedWeaponmasterMidgamePaysReferencedCostAndReplaysThroughScoreVictory(card: \"SFD·119/221\")",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameRejectsPoroForgeLegendAttachArmamentWithoutControlledForgeAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPoroForgeLegendAttachArmamentAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+    ],
+    "basis": "Only one JSON fixture detailed event oracle changed after check; no engine/test-source changes. Same-binary composite pass, not a repeated check/full execution."
+  },
+  "native": {
+    "headlessGodot": true,
+    "productionCommands": 20,
+    "backendScenarios": 4,
+    "fullEventsAndStateHashReplay": true,
+    "pairedVisibleClients": false,
+    "windowsNativeAndNetwork": false
+  },
+  "seededMidgameToScoreVictoryGames": 2,
+  "currentFullCI": "Pending commit",
+  "wholeCardCertification": false,
+  "copiedAbilityInstances": "Not in this batch",
+  "allCardRuleAudit": "Still in progress"
+}

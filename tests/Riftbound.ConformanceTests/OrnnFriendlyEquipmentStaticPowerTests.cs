@@ -102,7 +102,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertOrnnStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -1288,7 +1288,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         ResolutionResult result,
         string? expectedStackItem = null)
     {
-        return PermanentConfirmationAssert.Entry(result, OrnnObjectId, true, expectedStackItem);
+        return TemperedTestDriver.Entry(result, OrnnObjectId, expectedStackItem);
     }
 
     private static async Task<ResolutionResult> ResolveTopStackAsync(

@@ -603,6 +603,7 @@ public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string
 public sealed record StackItemState
 {
     public AttachmentObserverContext? AttachmentObserver { get; init; }
+    public TemperedContext? Tempered { get; init; }
     public LegendAttachmentContext? LegendAttachment { get; init; }
     public AzirMovementContext? AzirMovement { get; init; }
     public EquipContext? Equip { get; init; }
@@ -738,6 +739,7 @@ public sealed record StackItemState
 public sealed record TriggerQueueItemState
 {
     public AttachmentObserverContext? AttachmentObserver { get; init; }
+    public TemperedContext? Tempered { get; init; }
     public ReflexiveCopyContext? ReflexiveCopy { get; init; }
     public UnitEntryTriggerContext? UnitEntryContext { get; init; }
 
@@ -833,6 +835,9 @@ public sealed record PendingPaymentState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ResolvingStackItemId { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ExperienceCost { get; init; }
+
     public string PaymentId { get; init; }
 
     public string PaymentWindow { get; init; }
@@ -850,6 +855,13 @@ public sealed record PendingPaymentState
     public string Reason { get; init; }
 
     public IReadOnlyList<string> PaymentResourceActionIds { get; init; }
+
+    internal Dictionary<string, object?> CostView()
+    {
+        var view = new Dictionary<string, object?> { ["mana"] = ManaCost, ["power"] = PowerCost, ["powerByTrait"] = PowerCostByTrait };
+        if (ExperienceCost > 0) view["experience"] = ExperienceCost;
+        return view;
+    }
 
     private static string Normalize(string? value)
     {
@@ -4179,7 +4191,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { AttachmentObserver = item.AttachmentObserver, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4193,7 +4205,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { AttachmentObserver = item.AttachmentObserver, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -4216,7 +4228,7 @@ public sealed record MatchState
             pendingPayment.PowerCostByTrait,
             pendingPayment.LegalPaymentChoiceIds,
             pendingPayment.Reason,
-            pendingPayment.PaymentResourceActionIds) { ResolvingStackItemId = pendingPayment.ResolvingStackItemId };
+            pendingPayment.PaymentResourceActionIds) { ResolvingStackItemId = pendingPayment.ResolvingStackItemId, ExperienceCost = pendingPayment.ExperienceCost };
     }
 
     private static PendingHandChoiceState? NormalizePendingHandChoice(PendingHandChoiceState? pendingHandChoice)
@@ -5263,6 +5275,7 @@ public sealed record ResolutionResult(
             view["abilityLabel"] = "每个位置至多一名敌方单位受到伤害";
         }
         if (!hiddenSource && item.AttachmentObserver is not null) view["abilityLabel"] = "贴附武装：支付费用后双方响应，结算时抽牌";
+        if (!hiddenSource && item.Tempered is not null) view["abilityLabel"] = "百炼：双方响应后支付装配费用并贴附武装";
         if (!hiddenSource && item.LegendAttachment is not null) view["abilityLabel"] = "传奇技能：双方响应后贴附武装";
         if (!hiddenSource && item.Equip is not null) view["abilityLabel"] = "装配：结算时贴附至目标单位";
         if (item.BeginningRecycle is not null) {
@@ -5506,14 +5519,7 @@ public sealed record ResolutionResult(
     }
 
     private static Dictionary<string, object?> BuildPaymentCostView(PendingPaymentState payment)
-    {
-        return new Dictionary<string, object?>
-        {
-            ["mana"] = payment.ManaCost,
-            ["power"] = payment.PowerCost,
-            ["powerByTrait"] = payment.PowerCostByTrait
-        };
-    }
+        => payment.CostView();
 
     private static Dictionary<string, object?> BuildContinuousEffectSnapshotView(ContinuousEffectState effect)
     {
@@ -6798,7 +6804,6 @@ internal static class ActionPromptBuilder
     private const string StandbyReactionModeLabel = "作为反应打出";
     private const string StandbyReactionDestination = "STACK";
     private const int BaseWinningScore = 8;
-    private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
 
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitBaseZone = "BASE";
@@ -8771,15 +8776,15 @@ internal static class ActionPromptBuilder
             var cards = AnnotatePromptChoiceObjectIds(PendingCardChoiceDtos(state, cardChoice));
             var steps = new List<ActionPromptSelectionStepDto>();
             for (var index = 0; index < cardChoice.MaxCount; index++)
-                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? cardChoice.EffectKind == CoreRuleEngine.BattlefieldStartDrawEffect ? "选择支付摧毁费用的单位；不选则放弃" : cardChoice.EffectKind == "HOLD_LEBLANC_DISCARD" ? "弃置所选手牌并横置传奇；不选则放弃" : "横置所选传奇；不选则放弃" : cardChoice.ChoiceWindow == CoreRuleEngine.OptionalTriggerWindow ? cardChoice.EffectKind == "HOLD_CHANNEL_OPTIONAL" ? "确认召出符文；不选则放弃" : "选择换回原战场；不选则保留草丛" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择技能目标" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
+                AddSelectionStep(steps, "target", cardChoice.ChoiceWindow == CoreRuleEngine.TemperedConfirmationWindow ? "选择你的武装；不选则放弃百炼" : cardChoice.ChoiceWindow == CoreRuleEngine.TemperedCostWindow ? "选择支付装配费用的卡牌" : cardChoice.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "选择替换来源；不选则保留次数" : cardChoice.ChoiceWindow == "INSIGHT" ? $"第 {index + 1} 张回收牌；不选则保留" : cardChoice.ChoiceWindow == "INSIGHT_ORDER" ? $"牌库顶第 {index + 1} 张" : cardChoice.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? cardChoice.EffectKind == CoreRuleEngine.BattlefieldStartDrawEffect ? "选择支付摧毁费用的单位；不选则放弃" : cardChoice.EffectKind == "HOLD_LEBLANC_DISCARD" ? "弃置所选手牌并横置传奇；不选则放弃" : "横置所选传奇；不选则放弃" : cardChoice.ChoiceWindow == CoreRuleEngine.OptionalTriggerWindow ? cardChoice.EffectKind == "HOLD_CHANNEL_OPTIONAL" ? "确认召出符文；不选则放弃" : "选择换回原战场；不选则保留草丛" : cardChoice.EffectKind == CoreRuleEngine.ReflexiveCopyEffect ? "选择此战场的复制对象" : cardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION" ? cardChoice.RequiredCount == 0 ? "选择目标；不选则放弃技能" : "选择技能目标" : $"第 {index + 1} 张卡牌", index < cardChoice.RequiredCount, cards);
             selectionSteps = steps;
         }
         if (action == CommandTypes.PayCost && state.PendingPayment is { } payment && payment.PlayerId == playerId
-            && (payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
+            && (payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
         {
             var steps = new List<ActionPromptSelectionStepDto>();
-            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : "选择替换对象与支付方式，或不替换" : "支付或放弃此效果", true,
-                payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
+            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
+                payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
             selectionSteps = steps;
             commandTemplate = CommandTemplate(CommandTypes.PayCost,
                 CandidateMetadataBinding("paymentId", required: true, metadataKeys: ["paymentId"]),
@@ -8788,7 +8793,7 @@ internal static class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,
@@ -12297,12 +12302,6 @@ internal static class ActionPromptBuilder
             && CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary(behavior.CardNo);
     }
 
-    private static bool IsTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
-    {
-        return behavior.PlaysSourceToBaseAsUnit
-            && CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo);
-    }
-
     private static int PromptMinimumManaCost(
         MatchState state, string playerId, CardBehaviorDefinition behavior,
         string? sourceObjectId = null, int additionalMana = 0)
@@ -14177,11 +14176,6 @@ internal static class ActionPromptBuilder
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
 
-        if (IsTemperedOptionalAttachRepresentative(behavior))
-        {
-            choices.AddRange(TemperedOptionalAttachChoices(state, playerId));
-        }
-
         if (CanPromptSourceStealEnemyEquipmentOptionalCost(
                 state,
                 playerId,
@@ -14323,38 +14317,6 @@ internal static class ActionPromptBuilder
         choices.AddRange(PrintedPowerChoices(behavior));
         choices.AddRange(paymentResourceChoices);
         return choices;
-    }
-
-    private static IReadOnlyList<ActionPromptChoiceDto> TemperedOptionalAttachChoices(
-        MatchState state,
-        string playerId)
-    {
-        return ControlledBoardObjects(state, playerId)
-            .Where(objectId => IsPromptTemperedOptionalAttachChoice(state, playerId, objectId))
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .Select(objectId =>
-            {
-                var choice = ObjectChoice(state, objectId, "implemented tempered optional attach");
-                return new ActionPromptChoiceDto(
-                    $"{TemperedOptionalAttachPrefix}{objectId}",
-                    $"百炼装配：{choice.Label}",
-                    choice.Reason);
-            })
-            .ToArray();
-    }
-
-    private static bool IsPromptTemperedOptionalAttachChoice(
-        MatchState state,
-        string playerId,
-        string objectId)
-    {
-        return TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
-            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
-            && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment(cardObject.CardNo)
-            && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && !cardObject.IsFaceDown
-            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
     private static bool CanPromptSourceStealEnemyEquipmentOptionalCost(
@@ -15431,14 +15393,7 @@ internal static class ActionPromptBuilder
     }
 
     private static Dictionary<string, object?> PendingPaymentCostView(PendingPaymentState payment)
-    {
-        return new Dictionary<string, object?>
-        {
-            ["mana"] = payment.ManaCost,
-            ["power"] = payment.PowerCost,
-            ["powerByTrait"] = payment.PowerCostByTrait
-        };
-    }
+        => payment.CostView();
 
     private static IReadOnlyList<ActionPromptChoiceDto> PendingPaymentChoiceDtos(MatchState state, PendingPaymentState payment)
     {
@@ -15592,6 +15547,8 @@ internal static class ActionPromptBuilder
 
     private static string PaymentChoiceLabel(string choiceId)
     {
+        if (choiceId == "PAY") return "支付费用";
+        if (choiceId == "UNABLE_TO_PAY") return "无法支付，武装留在原处";
         const string spendManaPrefix = "SPEND_MANA:";
         const string spendPowerPrefix = "SPEND_POWER:";
         if (choiceId.StartsWith(spendManaPrefix, StringComparison.Ordinal))

@@ -1,0 +1,25 @@
+{
+  "files": [
+    "p2-preflight-play-stout-poro-no-optional-assemble.fixture.json",
+    "p2-preflight-play-sfd-lucian-no-optional-assemble.fixture.json",
+    "p2-preflight-play-sentinel-adept-no-optional-assemble.fixture.json",
+    "p2-preflight-play-akshan-no-optional-assemble-no-orange-extra.fixture.json",
+    "p2-preflight-play-sfd-yone-no-optional-assemble.fixture.json",
+    "p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json",
+    "p2-preflight-play-battle-chef-no-optional-assemble.fixture.json",
+    "p2-preflight-play-sfd-119-jax-alt-a-no-optional-assemble.fixture.json",
+    "p2-preflight-play-sfd-yone-precon-no-optional-assemble.fixture.json",
+    "p2-preflight-play-master-bingwen-no-optional-assemble.fixture.json",
+    "p2-preflight-play-sfd-lucian-alt-a-no-optional-assemble.fixture.json",
+    "p4-play-armed-assaulter-haste-ready.fixture.json",
+    "p2-preflight-play-sfd-119-jax-no-optional-assemble.fixture.json",
+    "p2-preflight-play-sfd-ornn-alt-a-no-optional-assemble-spellshield2.fixture.json",
+    "p2-preflight-play-sfd-yone-promo-no-optional-assemble.fixture.json",
+    "p2-preflight-play-armed-assaulter-no-optional-haste.fixture.json",
+    "p2-preflight-play-unl-stout-poro-keyword-unit.fixture.json"
+  ],
+  "count": 17,
+  "removedFixtureIds": [],
+  "basis": "DOC-04 821; independent optional trigger with no legal Weapon",
+  "preserved": "Source identity, unit tags/power/exhaustion, paid card and Haste costs, zones, scores, prompts; separate non-keyword play triggers remain responsive"
+}

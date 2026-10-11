@@ -33,8 +33,9 @@ public sealed class TemperedEquipmentOptionalAttachTests
             requirement["optionalCostChoices"]);
 
         Assert.Equal(
-            [TemperedAttachCost(LongSwordObjectId), TemperedAttachCost(SpinningAxeObjectId)],
+            Array.Empty<string>(),
             optionalCostChoices.Select(choice => choice.Id).ToArray());
+        TemperedTestDriver.AssertPromptGearChoices(state, SentinelObjectId, SentinelCardNo, LongSwordObjectId, SpinningAxeObjectId);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             requirement["targetChoicesByIndex"]));
         Assert.Equal(0, Assert.IsType<int>(requirement["minTargetCount"]));
@@ -70,8 +71,9 @@ public sealed class TemperedEquipmentOptionalAttachTests
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             requirement["optionalCostChoices"]);
         Assert.Equal(
-            [TemperedAttachCost(LongSwordObjectId), TemperedAttachCost(SpinningAxeObjectId)],
+            Array.Empty<string>(),
             optionalCostChoices.Select(choice => choice.Id).ToArray());
+        TemperedTestDriver.AssertPromptGearChoices(state, SentinelObjectId, SentinelCardNo, LongSwordObjectId, SpinningAxeObjectId);
 
         Assert.False(p2Prompt.Actionable);
         Assert.Equal(state.Tick, p2Prompt.SnapshotTick);
@@ -94,11 +96,12 @@ public sealed class TemperedEquipmentOptionalAttachTests
         var played = await PlaySentinelAdeptAsync(engine, state, optionalCosts);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(1, played.State.Tick);
+        Assert.Equal(2, played.State.Tick);
         Assert.Equal(new RunePool(0, 0), played.State.RunePools["P1"]);
         var stackItem = Assert.Single(played.State.StackItems);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Equal(optionalCosts, stackItem.OptionalCosts);
+        Assert.Equal(new[] { SpinningAxeObjectId }, stackItem.TargetObjectIds);
+        Assert.Empty(stackItem.OptionalCosts);
+        Assert.NotNull(stackItem.Tempered);
         Assert.DoesNotContain(SentinelObjectId, played.State.PlayerZones["P1"].Hand);
 
         var p1Pass = await PassPriorityAsync(engine, played.State, "P1", "intent-tempered-p1-pass");
@@ -119,8 +122,8 @@ public sealed class TemperedEquipmentOptionalAttachTests
         Assert.Equal(SentinelObjectId, attachedEvent.Payload["attachedToObjectId"]);
         Assert.Equal(SpinningAxeCardNo, attachedEvent.Payload["equipmentCardNo"]);
         Assert.Equal(SentinelCardNo, attachedEvent.Payload["unitCardNo"]);
-        Assert.Equal("TEMPERED_OPTIONAL_ATTACH", attachedEvent.Payload["reason"]);
-        Assert.Equal(optionalCosts, Assert.IsType<string[]>(attachedEvent.Payload["optionalCosts"]));
+        Assert.Equal("PLAYED_UNIT_WEAPONMASTER", attachedEvent.Payload["reason"]);
+        Assert.Equal(SentinelObjectId, attachedEvent.Payload["sourceObjectId"]);
     }
 
     [Fact]
@@ -128,6 +131,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
     {
         var engine = new CoreRuleEngine();
         var state = BuildTemperedState();
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(3, 0, new Dictionary<string, int> { [RuneTrait.Red] = 1 }) } };
         var optionalCosts = new[] { TemperedAttachCost(LongSwordObjectId) };
 
         var played = await PlaySentinelAdeptAsync(engine, state, optionalCosts);
@@ -145,7 +149,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
             gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
         Assert.Equal(LongSwordObjectId, attachedEvent.Payload["equipmentObjectId"]);
         Assert.Equal(LongSwordCardNo, attachedEvent.Payload["equipmentCardNo"]);
-        Assert.Equal(optionalCosts, Assert.IsType<string[]>(attachedEvent.Payload["optionalCosts"]));
+        Assert.Equal(SentinelObjectId, attachedEvent.Payload["sourceObjectId"]);
     }
 
     [Fact]
@@ -156,7 +160,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        IReadOnlyList<string> optionalCosts = [TemperedAttachCost(SpinningAxeObjectId)];
+        IReadOnlyList<string> optionalCosts = [];
         var command = new PlayCardCommand(
             SentinelObjectId,
             SentinelCardNo,
@@ -190,7 +194,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertSentinelStackPriorityState(accepted, optionalCosts);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -332,8 +336,9 @@ public sealed class TemperedEquipmentOptionalAttachTests
         var state = BuildTemperedState();
 
         var played = await PlaySentinelAdeptAsync(engine, state);
-        var p1Pass = await PassPriorityAsync(engine, played.State, "P1", "intent-tempered-no-optional-p1-pass");
-        var p2Pass = await PassPriorityAsync(engine, p1Pass.State, "P2", "intent-tempered-no-optional-p2-pass");
+        var p2Pass = played;
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Null(p2Pass.State.PendingCardChoice);
 
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
@@ -400,15 +405,14 @@ public sealed class TemperedEquipmentOptionalAttachTests
         MatchState state,
         IReadOnlyList<string>? optionalCosts = null)
     {
-        return await engine.ResolveAsync(
+        return await TemperedTestDriver.PlayFixtureAsync(engine,
             state,
             new PlayerIntent("intent-tempered-sentinel-play", "P1", CommandTypes.PlayCard),
             new PlayCardCommand(
                 SentinelObjectId,
                 SentinelCardNo,
                 [],
-                OptionalCosts: optionalCosts),
-            CancellationToken.None);
+                OptionalCosts: optionalCosts));
     }
 
     private static async Task<ResolutionResult> PassPriorityAsync(
@@ -590,7 +594,7 @@ public sealed class TemperedEquipmentOptionalAttachTests
         IReadOnlyList<string> optionalCosts,
         string? expectedStackItem = null)
     {
-        return PermanentConfirmationAssert.Entry(result, SentinelObjectId, true, expectedStackItem);
+        return TemperedTestDriver.Entry(result, SentinelObjectId, expectedStackItem);
     }
 
     private static CardObjectState UnitCard(

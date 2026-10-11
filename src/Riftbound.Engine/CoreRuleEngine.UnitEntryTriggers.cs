@@ -35,6 +35,7 @@ public sealed partial class CoreRuleEngine
             ?? ev.Payload.GetValueOrDefault("unitObjectId") as string
             ?? ev.Payload.GetValueOrDefault("targetObjectId") as string;
         if (id is null || !cards.TryGetValue(id, out var entered) || !entered.Tags.Contains(CardObjectTags.UnitCard)) return ev;
+        ev = CaptureTempered(ev, zones, cards, entered);
         var player = ev.Payload.GetValueOrDefault("playedByPlayerId") as string
             ?? ev.Payload.GetValueOrDefault("playerId") as string ?? entered.ControllerId;
         if (player is null) return ev;

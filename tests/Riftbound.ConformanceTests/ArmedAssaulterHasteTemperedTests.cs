@@ -26,7 +26,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
             .ToArray();
 
         Assert.Equal(
-            [TemperedAttachCost(SpinningAxeObjectId), TemperedAttachCost(SecondSpinningAxeObjectId), HasteOptionalCostNames.HasteReady],
+            [HasteOptionalCostNames.HasteReady],
             optionalCostChoices);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             requirement["targetChoicesByIndex"]));
@@ -42,8 +42,9 @@ public sealed class ArmedAssaulterHasteTemperedTests
             .ToArray();
 
         Assert.Equal(
-            [TemperedAttachCost(SpinningAxeObjectId), TemperedAttachCost(SecondSpinningAxeObjectId)],
+            Array.Empty<string>(),
             wrongTraitChoices);
+        TemperedTestDriver.AssertPromptGearChoices(state, ArmedAssaulterObjectId, ArmedAssaulterCardNo, SpinningAxeObjectId, SecondSpinningAxeObjectId);
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         Assert.True(p1Prompt.Actionable);
         Assert.Contains(CommandTypes.PlayCard, p1Prompt.Actions);
         Assert.Equal(
-            [TemperedAttachCost(SpinningAxeObjectId), TemperedAttachCost(SecondSpinningAxeObjectId), HasteOptionalCostNames.HasteReady],
+            [HasteOptionalCostNames.HasteReady],
             optionalCostChoiceIds);
         Assert.False(p2Prompt.Actionable);
         Assert.DoesNotContain(CommandTypes.PlayCard, p2Prompt.Actions);
@@ -102,13 +103,14 @@ public sealed class ArmedAssaulterHasteTemperedTests
         Assert.Equal(0, played.State.RunePools["P1"].Mana);
         Assert.Equal(0, played.State.RunePools["P1"].PowerByTrait.GetValueOrDefault(RedPower));
         var stackItem = Assert.Single(played.State.StackItems);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Equal(optionalCosts, stackItem.OptionalCosts);
+        Assert.Equal(new[] { SpinningAxeObjectId }, stackItem.TargetObjectIds);
+        Assert.Empty(stackItem.OptionalCosts);
+        Assert.NotNull(stackItem.Tempered);
         var costEvent = Assert.Single(played.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(6, costEvent.Payload["baseManaCost"]);
         Assert.Equal(7, costEvent.Payload["totalManaCost"]);
         Assert.Equal(2, costEvent.Payload["totalPowerCost"]);
-        Assert.Equal(optionalCosts, Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal(new[] { HasteOptionalCostNames.HasteReady }, Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
         Assert.Equal(2, powerByTrait[RuneTrait.Red]);
 
@@ -126,7 +128,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         var attachEvent = Assert.Single(resolved.Events, IsTemperedAttachEvent);
         Assert.Equal(SpinningAxeObjectId, attachEvent.Payload["equipmentObjectId"]);
         Assert.Equal(ArmedAssaulterObjectId, attachEvent.Payload["attachedToObjectId"]);
-        Assert.Equal(optionalCosts, Assert.IsType<string[]>(attachEvent.Payload["optionalCosts"]));
+        Assert.Equal(ArmedAssaulterObjectId, attachEvent.Payload["sourceObjectId"]);
     }
 
     [Fact]
@@ -134,13 +136,13 @@ public sealed class ArmedAssaulterHasteTemperedTests
     {
         var engine = new CoreRuleEngine();
         var state = BuildArmedAssaulterState(mana: 7, redPower: 1);
-        var optionalCosts = new[] { TemperedAttachCost(SpinningAxeObjectId), HasteOptionalCostNames.HasteReady };
+        var optionalCosts = new[] { HasteOptionalCostNames.HasteReady };
         var command = ArmedAssaulterCommand(optionalCosts);
 
         var played = await PlayArmedAssaulterAsync(engine, state, command);
 
         Assert.True(played.Accepted, played.ErrorMessage);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK"], played.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var postAcceptanceHash = MatchStateHasher.Hash(played.State);
         var postAcceptanceRunePool = played.State.RunePools["P1"];
         var postAcceptanceHand = played.State.PlayerZones["P1"].Hand.ToArray();
@@ -169,7 +171,8 @@ public sealed class ArmedAssaulterHasteTemperedTests
         Assert.Equal(postAcceptanceEquipment, replay.State.CardObjects[SpinningAxeObjectId]);
         Assert.Equal(postAcceptanceUnitLocation, replay.State.ObjectLocations[ArmedAssaulterObjectId]);
         var stackItem = Assert.Single(replay.State.StackItems);
-        Assert.Equal(optionalCosts, stackItem.OptionalCosts);
+        Assert.Empty(stackItem.OptionalCosts);
+        Assert.NotNull(stackItem.Tempered);
         Assert.Null(replay.State.CardObjects[SpinningAxeObjectId].AttachedToObjectId);
     }
 
@@ -181,7 +184,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        var optionalCosts = new[] { TemperedAttachCost(SpinningAxeObjectId), HasteOptionalCostNames.HasteReady };
+        var optionalCosts = new[] { HasteOptionalCostNames.HasteReady };
         var command = ArmedAssaulterCommand(optionalCosts);
 
         var prompt = session.PromptFor("P1");
@@ -207,7 +210,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "TRIGGERS_MOVED_TO_STACK"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertArmedAssaulterStackPriorityState(accepted, optionalCosts);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -468,7 +471,8 @@ public sealed class ArmedAssaulterHasteTemperedTests
         MatchState state,
         IReadOnlyList<string> optionalCosts)
     {
-        return await PlayArmedAssaulterAsync(engine, state, ArmedAssaulterCommand(optionalCosts));
+        return await TemperedTestDriver.PlayFixtureAsync(engine, state,
+            new("intent-armed-assaulter-play", "P1", CommandTypes.PlayCard), ArmedAssaulterCommand(optionalCosts));
     }
 
     private static async Task<ResolutionResult> PlayArmedAssaulterAsync(
@@ -551,7 +555,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
         IReadOnlyList<string> optionalCosts,
         string? expectedStackItem = null)
     {
-        return PermanentConfirmationAssert.Entry(result, ArmedAssaulterObjectId, true, expectedStackItem);
+        return TemperedTestDriver.Entry(result, ArmedAssaulterObjectId, expectedStackItem);
     }
 
     private static async Task<ResolutionResult> ResolveTopStackAsync(
@@ -744,7 +748,7 @@ public sealed class ArmedAssaulterHasteTemperedTests
     private static bool IsTemperedAttachEvent(GameEvent gameEvent)
     {
         return string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "TEMPERED_OPTIONAL_ATTACH", StringComparison.Ordinal);
+            && string.Equals(gameEvent.Payload["reason"] as string, "PLAYED_UNIT_WEAPONMASTER", StringComparison.Ordinal);
     }
 
     private static bool UnitEventIsExhausted(GameEvent gameEvent)

@@ -78,8 +78,11 @@ public sealed class OfficialLegendTokenTests
         var done = await Choose(pending.State, "Z1");
         Assert.Equal(2, Tokens(done.State).Length);
         Assert.All(Tokens(done.State), t => Assert.Equal(hiddenRenata, t.IsExhausted));
-        Assert.Equal(2, done.State.TriggerQueue.Count); Assert.All(done.State.TriggerQueue, t => Assert.NotNull(t.UnitEntryContext)); Restore(done.State);
-        done = await Act(done.State, "P2", new OrderTriggersCommand(OrderedTriggerIds: done.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
+        Assert.Equal(4, done.State.TriggerQueue.Count);
+        Assert.Equal(2, done.State.TriggerQueue.Count(t => t.UnitEntryContext is not null));
+        Assert.Equal(2, done.State.TriggerQueue.Count(t => t.Tempered is not null)); Restore(done.State);
+        done = await Act(done.State, "P1", new OrderTriggersCommand(OrderedTriggerIds: done.State.TriggerQueue
+            .OrderByDescending(t => t.ControllerId, StringComparer.Ordinal).ThenBy(t => t.TriggerId, StringComparer.Ordinal).Select(t => t.TriggerId).ToArray()));
         done = await Top(done.State); done = await Top(done.State);
         Assert.All(Tokens(done.State), t => Assert.Contains("STUNNED", t.UntilEndOfTurnEffects)); Restore(done.State);
     }

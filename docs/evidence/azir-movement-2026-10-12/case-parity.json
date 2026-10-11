@@ -22,7 +22,7 @@
     "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAzirMidgameMovesEquipmentAndReplaysThroughScoreVictory"
   ],
   "ordinaryCasesBefore": 9808,
-  "ordinaryCasesAfter": 9842,
+  "ordinaryCasesAfter": 9840,
   "removedOrdinaryCases": [],
   "addedOrdinaryCases": [
     "Riftbound.ConformanceTests.AzirMovementAuditTests.AProhibitedMoveDoesNotCancelTheOtherMoveOrChosenAttachment(restricted: \"HOST\")",
@@ -56,9 +56,11 @@
     "Riftbound.ConformanceTests.AzirMovementNativeTests.ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery(scenario: \"move-attach\")",
     "Riftbound.ConformanceTests.AzirMovementNativeTests.ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery(scenario: \"move-decline\")",
     "Riftbound.ConformanceTests.AzirMovementNativeTests.ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery(scenario: \"opponent-focus\")",
-    "Riftbound.ConformanceTests.AzirMovementNativeTests.ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery(scenario: \"same-location\")",
-    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash",
-    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+    "Riftbound.ConformanceTests.AzirMovementNativeTests.ProductionMovementAndChosenArmamentCommandsReplayWithExactEventsAndRecovery(scenario: \"same-location\")"
   ],
-  "distinctCasesExecutedAtThisBatch": 9844
+  "distinctCasesExecutedAtThisBatch": 9844,
+  "fullCICasesBefore": 9943,
+  "fullCICasesAfter": 9977,
+  "fullCIAddedCases": 34,
+  "fullCIRemovedCases": []
 }

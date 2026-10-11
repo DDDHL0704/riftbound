@@ -1,4 +1,5 @@
 using Riftbound.CardCatalog;
+using System.Text.RegularExpressions;
 
 namespace Riftbound.Engine;
 
@@ -6,7 +7,9 @@ internal static class OfficialPrintedTimingRules
 {
     private static readonly Lazy<IReadOnlySet<string>> PlayTriggers = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
-            .Where(card => card.CardEffect.Split('。', '\n').Any(clause =>
+            // Weaponmaster has an independently captured trigger. Its reminder
+            // must not also create the legacy permanent play-ability item.
+            .Where(card => Regex.Replace(card.CardEffect, @"\{\{百炼\}\}[（(][^）)]*[）)]", "{{百炼}}").Split('。', '\n').Any(clause =>
                 !clause.Contains("作为额外费用", StringComparison.Ordinal)
                 && (clause.Contains("当你打出我", StringComparison.Ordinal)
                     || clause.Contains("当你打出此牌", StringComparison.Ordinal)

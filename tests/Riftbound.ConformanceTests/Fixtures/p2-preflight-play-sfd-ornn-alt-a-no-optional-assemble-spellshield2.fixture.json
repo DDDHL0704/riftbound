@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "docs/evidence/tempered-play-trigger-2026-10-12/sources.json",
+      "locator": "DOC-04 359.2, 821.1c, 821.1c6; DOC-13 P21",
+      "note": "Weaponmaster is an independent optional play trigger. These fixtures have no legal friendly Weapon, so its unconfirmed trigger is removed; the reminder does not create an additional permanent play-ability item. Preserve source tags, exhaustion, costs, final zones and existing print identities."
     }
   ],
   "roomId": "p2-preflight-sfd-085a-ornn-room",
@@ -80,21 +85,18 @@
         "cardNo": "SFD·085a/221",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-sfd-085a-ornn-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-sfd-085a-ornn-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "TRIGGERS_MOVED_TO_STACK",
+      "TRIGGER_NOT_CONFIRMED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

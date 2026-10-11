@@ -38,8 +38,9 @@ public sealed class JaxTemperedOptionalAttachTests
             requirement["optionalCostChoices"]);
 
         Assert.Equal(
-            [TemperedAttachCost(SpinningAxeObjectId)],
+            Array.Empty<string>(),
             optionalCostChoices.Select(choice => choice.Id).ToArray());
+        TemperedTestDriver.AssertPromptGearChoices(state, JaxObjectId, jaxCardNo, SpinningAxeObjectId);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             requirement["targetChoicesByIndex"]));
         Assert.Equal(0, Assert.IsType<int>(requirement["minTargetCount"]));
@@ -60,8 +61,9 @@ public sealed class JaxTemperedOptionalAttachTests
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.Equal(1, played.State.RunePools["P1"].Mana);
         var stackItem = Assert.Single(played.State.StackItems);
-        Assert.Empty(stackItem.TargetObjectIds);
-        Assert.Equal(optionalCosts, stackItem.OptionalCosts);
+        Assert.Equal(new[] { SpinningAxeObjectId }, stackItem.TargetObjectIds);
+        Assert.Empty(stackItem.OptionalCosts);
+        Assert.NotNull(stackItem.Tempered);
         Assert.DoesNotContain(JaxObjectId, played.State.PlayerZones["P1"].Hand);
 
         var resolved = await ResolveTopStackAsync(engine, played.State);
@@ -83,7 +85,7 @@ public sealed class JaxTemperedOptionalAttachTests
         var session = new MatchSession(state, new CoreRuleEngine(), journal);
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
-        IReadOnlyList<string> optionalCosts = [TemperedAttachCost(SpinningAxeObjectId)];
+        IReadOnlyList<string> optionalCosts = [];
         var command = new PlayCardCommand(
             JaxObjectId,
             JaxCardNo,
@@ -422,21 +424,21 @@ public sealed class JaxTemperedOptionalAttachTests
         string jaxCardNo,
         IReadOnlyList<string>? optionalCosts = null)
     {
-        return await engine.ResolveAsync(
+        return await TemperedTestDriver.PlayFixtureAsync(engine,
             state,
             new PlayerIntent("intent-jax-tempered-play", "P1", CommandTypes.PlayCard),
             new PlayCardCommand(
                 JaxObjectId,
                 jaxCardNo,
                 [],
-                OptionalCosts: optionalCosts),
-            CancellationToken.None);
+                OptionalCosts: optionalCosts));
     }
 
     private static async Task<ResolutionResult> ResolveTopStackAsync(
         CoreRuleEngine engine,
         MatchState state)
     {
+        if (state.StackItems.Count == 0) return new(true, null, state, [], ResolutionResult.BuildSnapshots(state), ResolutionResult.BuildPrompts(state));
         var p1Pass = await PassPriorityAsync(engine, state, "P1", "intent-jax-tempered-p1-pass");
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
 
@@ -470,8 +472,8 @@ public sealed class JaxTemperedOptionalAttachTests
         Assert.Equal(JaxObjectId, attachedEvent.Payload["attachedToObjectId"]);
         Assert.Equal(SpinningAxeCardNo, attachedEvent.Payload["equipmentCardNo"]);
         Assert.Equal(jaxCardNo, attachedEvent.Payload["unitCardNo"]);
-        Assert.Equal("TEMPERED_OPTIONAL_ATTACH", attachedEvent.Payload["reason"]);
-        Assert.Equal(optionalCosts, Assert.IsType<string[]>(attachedEvent.Payload["optionalCosts"]));
+        Assert.Equal("PLAYED_UNIT_WEAPONMASTER", attachedEvent.Payload["reason"]);
+        Assert.Equal(JaxObjectId, attachedEvent.Payload["sourceObjectId"]);
     }
 
     private static PendingPaymentState AssertJaxPaymentOpen(ResolutionResult result)
@@ -590,7 +592,7 @@ public sealed class JaxTemperedOptionalAttachTests
         IReadOnlyList<string> optionalCosts,
         string? expectedStackItem = null)
     {
-        return PermanentConfirmationAssert.Entry(result, JaxObjectId, true, expectedStackItem);
+        return TemperedTestDriver.Entry(result, JaxObjectId, expectedStackItem);
     }
 
     private static MatchState BuildTemperedJaxState(

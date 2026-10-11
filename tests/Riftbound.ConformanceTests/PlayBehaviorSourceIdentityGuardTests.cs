@@ -221,9 +221,12 @@ public sealed class PlayBehaviorSourceIdentityGuardTests
         Assert.DoesNotContain("AkshanOrangeExtraEquipmentStealSourceEffectKind", matchSessionSource, StringComparison.Ordinal);
         Assert.DoesNotContain("AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("AKSHAN_NO_OPTIONAL_ASSEMBLE_NO_EXTRA_PLAY_UNIT", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("HasHasteReadyEntryCost(behavior)", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo)", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo)", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(behavior, optionalCosts)", coreRuleEngineSource, StringComparison.Ordinal);
+        var temperedSource = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.Tempered.cs"));
+        Assert.Contains("CardBehaviorRegistry.TryGetByCardNo(cardNo", temperedSource, StringComparison.Ordinal);
+        Assert.Contains("CardEquipmentKeywordNames.Tempered", temperedSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TEMPERED_ATTACH:", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("TEMPERED_ATTACH:", matchSessionSource, StringComparison.Ordinal);
         Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerCost", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("behavior.SourceStealEnemyEquipmentAdditionalPowerTrait", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("behavior.SourceStealEnemyEquipmentOptionalCostPrefix", coreRuleEngineSource, StringComparison.Ordinal);

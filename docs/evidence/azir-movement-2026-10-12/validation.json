@@ -125,6 +125,14 @@
     "evidence": "var/qa/azir-movement/red1"
   },
   "wholeCardCertification": false,
-  "currentFullCI": "Pending after this commit; no repeated local full matrix",
+  "currentFullCI": {
+    "status": "PASSED",
+    "runId": 38164546398,
+    "headSha": "1072318d16f741f78714976321bb42b32fe3f231",
+    "uniqueCases": 9977,
+    "previousCasesRetained": 9943,
+    "newCases": 34,
+    "seconds": 1327.21
+  },
   "boundary": "Two seeded midgame-to-score-victory games, headless production Godot buttons, private and P1/P2/spectator recovery. Real paired clients, Windows visual/network and copied ability instances remain open."
 }

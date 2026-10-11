@@ -1,0 +1,19 @@
+{
+  "headlessGodot": true,
+  "commands": 20,
+  "scenarioCommandCounts": {
+    "axe": 4,
+    "decline": 2,
+    "colored-rune": 7,
+    "jax": 7
+  },
+  "build": {
+    "exitCode": 0,
+    "stdout": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.87\n"
+  },
+  "ui": {
+    "exitCode": 0,
+    "stdout": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTEMPERED_PLAY_PASS: 20 production play, confirmation, rune, payment and response commands\n"
+  },
+  "scope": "Production Main command templates, PromptInteractionController and ActionBar button signals. No real paired-window or Windows visual/network claim."
+}

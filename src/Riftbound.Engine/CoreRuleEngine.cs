@@ -32,7 +32,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string MoveUnitRoamKeyword = "游走";
     private const string BaronNestMoveStaticPermission = "BARON_NEST_MOVE_STATIC";
     private const string AssembleEquipmentUnsupportedMessage = "当前装备装配路径尚未由服务端开放。";
-    private const string TemperedOptionalAttachPrefix = "TEMPERED_ATTACH:";
     private const string SourceStealEnemyEquipmentMarkerPrefix = "SOURCE_STOLEN_EQUIPMENT_BY:";
     private const string LegacyAkshanStolenEquipmentMarkerPrefix = "AKSHAN_STOLEN_BY:";
     private const string LegacyAkshanStealEnemyEquipmentReason = "AKSHAN_ORANGE_EXTRA_EQUIPMENT_STEAL";
@@ -166,8 +165,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))));
-            var collected = RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
-                QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))));
+            var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
+                QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))))));
             return ValueTask.FromResult(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state, collected)))))));
         }
@@ -566,6 +565,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Select(choiceId => choiceId.Trim())
             .ToArray();
         var legalChoices = pendingPayment.LegalPaymentChoiceIds.ToHashSet(StringComparer.Ordinal);
+        if (pendingPayment.PaymentWindow == TemperedPaymentWindow)
+            return ResolveTemperedPayment(state, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.PaymentWindow == TriggerCostWindow)
             return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.PaymentWindow == TriggerTargetCostWindow)
@@ -3582,6 +3583,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION") return ResolveTriggerTargetConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER") return ResolveInsightChoice(state, pendingChoice, submittedObjectIds);
@@ -3765,7 +3768,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { AttachmentObserver = trigger.AttachmentObserver, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -4671,9 +4674,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
-        var assembleManaCost = AssembleEquipmentManaCost(state, assembleProfile, targetState);
-        var assembleAnyPowerCost = AssembleEquipmentAnyPowerCost(assembleProfile);
-        var assemblePowerCostByTrait = AssembleEquipmentPowerCostByTrait(assembleProfile);
+        var amounts = EquipmentCosts(state, assembleProfile, targetState);
+        var assembleManaCost = amounts.Mana;
+        var assembleAnyPowerCost = amounts.GenericPower;
+        var assemblePowerCostByTrait = amounts.PowerByTrait;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (!AreRecycleRunePaymentResourceActionsRequired(
                 currentPool,
@@ -4694,20 +4698,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentWindow,
             intent.PlayerId,
             command.SourceObjectId);
-        var paymentPlan = new PaymentCostRules.PaymentPlan(
-            paymentId,
-            paymentWindow,
-            intent.PlayerId,
-            baseManaCost: assembleProfile.ManaCost,
-            totalManaCost: assembleManaCost,
-            genericPowerCost: assembleAnyPowerCost,
-            totalPowerCost: assembleAnyPowerCost + assemblePowerCostByTrait.Values.Sum(),
-            powerCostByTrait: assemblePowerCostByTrait,
-            experienceCost: assembleProfile.ExperienceCost,
-            optionalCostIds: behaviorOptionalCosts,
-            paymentResourceActionIds: paymentResourceActions,
-            reason: "ASSEMBLE_EQUIPMENT",
-            sourceObjectId: command.SourceObjectId);
+        var paymentPlan = EquipmentPaymentPlan(amounts, assembleProfile, paymentId, paymentWindow,
+            intent.PlayerId, command.SourceObjectId, behaviorOptionalCosts, paymentResourceActions);
         var paymentEvents = new List<GameEvent>();
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -24868,41 +24860,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (TryBuildArmedAssaulterHasteTemperedOptionalAttachCost(
-                state,
-                playerId,
-                normalizedOptionalCosts,
-                behavior,
-                out var armedAssaulterHasteExtraManaCost,
-                out var armedAssaulterHasteExtraPowerCost,
-                out var armedAssaulterHasteExtraPowerCostByTrait))
-        {
-            extraManaCost = armedAssaulterHasteExtraManaCost;
-            extraPowerCost = armedAssaulterHasteExtraPowerCost;
-            extraPowerCostByTrait = armedAssaulterHasteExtraPowerCostByTrait;
-            return true;
-        }
-
-        if (TryBuildTemperedSourceStealEnemyEquipmentOptionalCost(
-                state,
-                playerId,
-                normalizedOptionalCosts,
-                behavior,
-                out var temperedSourceStealEnemyEquipmentExtraPowerCostByTrait))
-        {
-            extraPowerCostByTrait = temperedSourceStealEnemyEquipmentExtraPowerCostByTrait;
-            return true;
-        }
-
-        if (TryBuildTemperedOptionalAttachCost(
-                state,
-                playerId,
-                normalizedOptionalCosts,
-                behavior))
-        {
-            return true;
-        }
-
         if (TryBuildSourceStealEnemyEquipmentOptionalCost(
                 state,
                 playerId,
@@ -25114,124 +25071,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static bool TryBuildArmedAssaulterHasteTemperedOptionalAttachCost(
-        MatchState state,
-        string playerId,
-        IReadOnlyList<string> normalizedOptionalCosts,
-        CardBehaviorDefinition behavior,
-        out int extraManaCost,
-        out int extraPowerCost,
-        out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
-    {
-        extraManaCost = 0;
-        extraPowerCost = 0;
-        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
-        if (!IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(behavior)
-            || normalizedOptionalCosts.Count != 2
-            || normalizedOptionalCosts.Count(optionalCost =>
-                string.Equals(optionalCost, HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)) != 1
-            || normalizedOptionalCosts.Any(optionalCost =>
-                !string.Equals(optionalCost, HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)
-                && !TryParseTemperedOptionalAttachCost(optionalCost, out _)))
-        {
-            return false;
-        }
-
-        var equipmentObjectIds = normalizedOptionalCosts
-            .Select(optionalCost => TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
-                ? equipmentObjectId
-                : string.Empty)
-            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        if (equipmentObjectIds.Length != 1
-            || !IsLegalTemperedOptionalAttachChoice(state, playerId, equipmentObjectIds[0])
-            || !CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(
-                [HasteOptionalCostNames.HasteReady],
-                behavior,
-                out var hasteExtraManaCost,
-                out var hasteExtraPowerCost,
-                out var hasteExtraPowerTrait))
-        {
-            return false;
-        }
-
-        extraManaCost = hasteExtraManaCost;
-        if (string.IsNullOrWhiteSpace(hasteExtraPowerTrait))
-        {
-            extraPowerCost = hasteExtraPowerCost;
-        }
-        else
-        {
-            extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
-            {
-                [hasteExtraPowerTrait] = hasteExtraPowerCost
-            };
-        }
-
-        return true;
-    }
-
-    private static bool TryBuildTemperedSourceStealEnemyEquipmentOptionalCost(
-        MatchState state,
-        string playerId,
-        IReadOnlyList<string> normalizedOptionalCosts,
-        CardBehaviorDefinition behavior,
-        out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
-    {
-        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
-        var requiredTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
-        if (!IsTemperedOptionalAttachRepresentative(behavior)
-            || !HasSourceStealEnemyEquipmentOptionalCost(behavior)
-            || string.IsNullOrWhiteSpace(requiredTrait)
-            || normalizedOptionalCosts.Count != 2)
-        {
-            return false;
-        }
-
-        var temperedEquipmentObjectIds = normalizedOptionalCosts
-            .Select(optionalCost => TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
-                ? equipmentObjectId
-                : string.Empty)
-            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        var stolenEquipmentObjectIds = normalizedOptionalCosts
-            .Select(optionalCost => TryParseSourceStealEnemyEquipmentOptionalCost(optionalCost, behavior, out var equipmentObjectId)
-                ? equipmentObjectId
-                : string.Empty)
-            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        if (temperedEquipmentObjectIds.Length != 1
-            || stolenEquipmentObjectIds.Length != 1
-            || !IsLegalTemperedOptionalAttachChoice(state, playerId, temperedEquipmentObjectIds[0])
-            || !IsLegalAkshanStealEquipmentChoice(state, playerId, stolenEquipmentObjectIds[0]))
-        {
-            return false;
-        }
-
-        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
-        {
-            [requiredTrait] = behavior.SourceStealEnemyEquipmentAdditionalPowerCost
-        };
-        return true;
-    }
-
-    private static bool TryBuildTemperedOptionalAttachCost(
-        MatchState state,
-        string playerId,
-        IReadOnlyList<string> normalizedOptionalCosts,
-        CardBehaviorDefinition behavior)
-    {
-        return IsTemperedOptionalAttachRepresentative(behavior)
-            && normalizedOptionalCosts.Count == 1
-            && TryParseTemperedOptionalAttachCost(
-                normalizedOptionalCosts[0],
-                out var equipmentObjectId)
-            && IsLegalTemperedOptionalAttachChoice(state, playerId, equipmentObjectId);
-    }
-
     private static bool TryBuildSourceStealEnemyEquipmentOptionalCost(
         MatchState state,
         string playerId,
@@ -25311,18 +25150,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return true;
-    }
-
-    private static bool TryParseTemperedOptionalAttachCost(string optionalCost, out string equipmentObjectId)
-    {
-        equipmentObjectId = string.Empty;
-        if (!optionalCost.StartsWith(TemperedOptionalAttachPrefix, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        equipmentObjectId = optionalCost[TemperedOptionalAttachPrefix.Length..].Trim();
-        return !string.IsNullOrWhiteSpace(equipmentObjectId);
     }
 
     private static bool TryParseSourceStealEnemyEquipmentOptionalCost(
@@ -26445,19 +26272,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && CardEquipmentKeywordRules.HasAgileDirectPlayAttachRepresentativeBoundary(behavior.CardNo);
     }
 
-    private static bool IsTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
-    {
-        return behavior.PlaysSourceToBaseAsUnit
-            && CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo);
-    }
-
-    private static bool IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(CardBehaviorDefinition behavior)
-    {
-        return behavior.PlaysSourceToBaseAsUnit
-            && HasHasteReadyEntryCost(behavior)
-            && CardEquipmentKeywordRules.HasTemperedOptionalAttachRepresentativeBoundary(behavior.CardNo);
-    }
-
     private static bool HasSourceStealEnemyEquipmentOptionalCost(CardBehaviorDefinition behavior)
     {
         var powerTrait = RuneTrait.Normalize(behavior.SourceStealEnemyEquipmentAdditionalPowerTrait);
@@ -26465,34 +26279,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && behavior.SourceStealEnemyEquipmentAdditionalPowerCost > 0
             && !string.IsNullOrWhiteSpace(powerTrait)
             && !string.IsNullOrWhiteSpace(behavior.SourceStealEnemyEquipmentOptionalCostPrefix);
-    }
-
-    private static bool IsLegalTemperedOptionalAttachChoice(
-        MatchState state,
-        string playerId,
-        string equipmentObjectId)
-    {
-        return IsLegalTemperedOptionalAttachChoice(
-            state.PlayerZones,
-            state.CardObjects,
-            playerId,
-            equipmentObjectId);
-    }
-
-    private static bool IsLegalTemperedOptionalAttachChoice(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        string equipmentObjectId)
-    {
-        var location = FindFieldObjectLocation(playerZones, equipmentObjectId);
-        return location is not null
-            && string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
-            && cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
-            && CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment(equipmentState.CardNo)
-            && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            && !equipmentState.IsFaceDown
-            && SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId);
     }
 
     private static bool IsLegalAkshanStealEquipmentChoice(
@@ -26930,6 +26716,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
     {
+        if (stackItem.Tempered is not null) return ResolveTempered(state, stackItem);
         if (stackItem.AzirMovement is not null) return ResolveAzirMovement(state, stackItem);
         if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
@@ -27201,12 +26988,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
                 return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
-
-            if (TryAttachTemperedOptionalEquipmentToSource(
-                    state, playerZones, cardObjects, behavior, stackItem, events, out var temperedLocations))
-            {
-                resolvedObjectLocations = temperedLocations;
-            }
 
             if (TryResolveSourceStealEnemyEquipment(
                 state, playerZones, cardObjects, behavior, stackItem, events, out var stolenLocations))
@@ -32224,24 +32005,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.SourceObjectId, gear.ObjectId, targetId, "AGILE_DIRECT_PLAY_ATTACH", events, out locations);
     }
 
-    private static bool TryAttachTemperedOptionalEquipmentToSource(
-        MatchState state, Dictionary<string, PlayerZones> playerZones, Dictionary<string, CardObjectState> cardObjects,
-        CardBehaviorDefinition behavior, StackItemState stackItem, List<GameEvent> events,
-        out IReadOnlyDictionary<string, ObjectLocationState> locations)
-    {
-        locations = state.ObjectLocations;
-        var gearId = TemperedOptionalAttachEquipmentObjectId(stackItem.OptionalCosts);
-        if (!IsTemperedOptionalAttachRepresentative(behavior) || string.IsNullOrWhiteSpace(gearId)
-            || !playerZones.TryGetValue(stackItem.ControllerId, out var zones) || !zones.Base.Contains(stackItem.SourceObjectId)
-            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var unit) || unit.IsFaceDown
-            || unit.CardNo != behavior.CardNo || !unit.Tags.Contains(CardObjectTags.UnitCard)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(unit, stackItem.ControllerId)
-            || !IsLegalTemperedOptionalAttachChoice(playerZones, cardObjects, stackItem.ControllerId, gearId)) return false;
-        return TryAttachEquipment(playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
-            stackItem.SourceObjectId, gearId, unit.ObjectId, "TEMPERED_OPTIONAL_ATTACH", events, out locations,
-            new Dictionary<string, object?> { ["unitCardNo"] = unit.CardNo, ["optionalCosts"] = stackItem.OptionalCosts.ToArray() });
-    }
-
     private static bool TryResolveSourceStealEnemyEquipment(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -32491,18 +32254,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = reason
                 }));
         }
-    }
-
-    private static string TemperedOptionalAttachEquipmentObjectId(IReadOnlyList<string> optionalCosts)
-    {
-        var equipmentObjectIds = optionalCosts
-            .Select(optionalCost => TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
-                ? equipmentObjectId
-                : string.Empty)
-            .Where(equipmentObjectId => !string.IsNullOrWhiteSpace(equipmentObjectId))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        return equipmentObjectIds.Length == 1 ? equipmentObjectIds[0] : string.Empty;
     }
 
     private static IReadOnlyList<string> ResolveConditionalSourceUnitTags(
@@ -33058,20 +32809,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> optionalCosts)
     {
-        return CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(behavior, optionalCosts)
-            || (IsArmedAssaulterHasteTemperedOptionalAttachRepresentative(behavior)
-                && optionalCosts.Count == 2
-                && optionalCosts.Count(optionalCost =>
-                    string.Equals(optionalCost, HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)) == 1
-                && optionalCosts.Count(optionalCost =>
-                    TryParseTemperedOptionalAttachCost(optionalCost, out var equipmentObjectId)
-                    && !string.IsNullOrWhiteSpace(equipmentObjectId)) == 1);
+        return CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(behavior, optionalCosts);
     }
 
     private static bool HasHasteReadyEntryCost(CardBehaviorDefinition behavior)
-    {
-        return behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0;
-    }
+        => behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0;
 
     private static void PlaySourceUnitToBattlefield(
         Dictionary<string, PlayerZones> playerZones,

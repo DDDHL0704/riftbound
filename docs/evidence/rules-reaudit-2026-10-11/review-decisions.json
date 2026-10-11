@@ -4587,6 +4587,757 @@
       ],
       "evidence": "docs/evidence/azir-movement-2026-10-12/validation.json",
       "wholeCardCertification": false
+    },
+    {
+      "id": "tempered-play-trigger-2026-10-12",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Single printed Weaponmaster and captured Azir Sand Soldier grant: independent played trigger, target choice, response, referenced Equip costs and actual attachment. Copied instances and whole cards remain open.",
+      "subjects": [
+        {
+          "id": "SFD-002/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33074,
+              "cardNo": "SFD·002/221",
+              "name": "武装强袭者",
+              "sha256": "22f93aa563e1ae66c6f1ff86058c1e6697da66005499161e31de9ce7db5a640e"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-002-221",
+              "cardNo": "SFD-002/221",
+              "name": "Armed Assailant",
+              "sha256": "2efd75bf802fb90cabd192a2d52f193a36a49dbffc63e265f57b0df654eb7026"
+            }
+          ],
+          "activeCardNo": "SFD·002/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-008/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33080,
+              "cardNo": "SFD·008/221",
+              "name": "哨兵好手",
+              "sha256": "4b17709b5917d8fed9c99f6df45abf52f188f129e8dd0a352b6531b6fd611e9f"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-008-221",
+              "cardNo": "SFD-008/221",
+              "name": "Sentinel Adept",
+              "sha256": "4cf95ddf55d22dc176c1ff9ad044c603d4ad02802a6291213d8c8688cce7b46d"
+            }
+          ],
+          "activeCardNo": "SFD·008/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-085/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33167,
+              "cardNo": "SFD·085/221",
+              "name": "奥恩",
+              "sha256": "8019a64a3bbe5e61fefa42ad95eefb9274fe7c89b94fcc35cf6483b7e6055f5c"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-085-221",
+              "cardNo": "SFD-085/221",
+              "name": "Ornn",
+              "sha256": "61261463205726578dd6191b2fa8498731c14653aa10158970d10c657d0bf5ea"
+            }
+          ],
+          "activeCardNo": "SFD·085/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-085A/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33168,
+              "cardNo": "SFD·085a/221",
+              "name": "奥恩",
+              "sha256": "9f73c0114e25b38b71a76c29e9565bdafaccd4a666e39f506a5973ca632a449c"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-085a-221",
+              "cardNo": "SFD-085a/221",
+              "name": "Ornn",
+              "sha256": "b0606b0a819c0eb699adb098c2a512531d1e4a4bc385b01d4a6ac7b2ddbf283f"
+            }
+          ],
+          "activeCardNo": "SFD·085a/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-092/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33177,
+              "cardNo": "SFD·092/221",
+              "name": "战斗厨神",
+              "sha256": "74d0783731bca9ee0ea3588a9384ebd445d627e1fa0a41dc204ddce86a678f19"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-092-221",
+              "cardNo": "SFD-092/221",
+              "name": "Combat Chef",
+              "sha256": "75f4ab50e04ede3a2a3195bf98bd2a3d55fe15b27f2643435672774f8acb7b68"
+            }
+          ],
+          "activeCardNo": "SFD·092/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-099/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33184,
+              "cardNo": "SFD·099/221",
+              "name": "壮壮魄罗",
+              "sha256": "38b5e99f9fffd12a1724caab09d343f05a7c709bb2f4c855fdd59ff51d35a2db"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-099-221",
+              "cardNo": "SFD-099/221",
+              "name": "Veteran Poro",
+              "sha256": "d5ea1ed9d450c31cc4c9c9fbf8111d800458c1b01957cc15e5131e6d873bd103"
+            }
+          ],
+          "activeCardNo": "SFD·099/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-109/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33194,
+              "cardNo": "SFD·109/221",
+              "name": "阿克尚",
+              "sha256": "b0e6c82c1e166d78a27064c844e77d303ae0e0f5e0fb67f3fea843a4515bbb9f"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-109-221",
+              "cardNo": "SFD-109/221",
+              "name": "Akshan",
+              "sha256": "4012d881e2e4ebfd296a94e75ad020a55aa0daf5f96442c8457002b47febb6cc"
+            }
+          ],
+          "activeCardNo": "SFD·109/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-113/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33199,
+              "cardNo": "SFD·113/221",
+              "name": "卢锡安",
+              "sha256": "5d5f7d3e633facb4c633fafa47d6d4e746993f3f792e8947113f44be3e25ee8f"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-113-221",
+              "cardNo": "SFD-113/221",
+              "name": "Lucian",
+              "sha256": "f422dc67390b7ea08521c04e5c75ab88a29c79520fd869e21b3f604484a5892c"
+            }
+          ],
+          "activeCardNo": "SFD·113/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-113A/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33200,
+              "cardNo": "SFD·113a/221",
+              "name": "卢锡安",
+              "sha256": "6403a007df6560196189150876ffd0b793c863bbda9d3a4067762dba62a95d83"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-113a-221",
+              "cardNo": "SFD-113a/221",
+              "name": "Lucian",
+              "sha256": "45c3d4e1d76908d235f2332e9cb8a22646314330d1c1de24a90bdb89adcbe63e"
+            }
+          ],
+          "activeCardNo": "SFD·113a/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-116/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34847,
+              "cardNo": "SFD·116/221",
+              "name": "永恩",
+              "sha256": "c6d4056cd9300c6d72c84a7fd077503b4ad6c6e248e9c6ac07a7cfbeaa6aaa49"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-116-221",
+              "cardNo": "SFD-116/221",
+              "name": "Yone",
+              "sha256": "7271f44bbb27c2de9c17dc438c6499fe9f8291fb29ea047cccdcfeac34d87a82"
+            }
+          ],
+          "activeCardNo": "SFD·116/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-119/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33207,
+              "cardNo": "SFD·119/221",
+              "name": "贾克斯",
+              "sha256": "77c2abb39b4b29ae5fbb12a9c5fbec6b0cb7df5e9a2ebe93a6199db88c48e8c3"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-119-221",
+              "cardNo": "SFD-119/221",
+              "name": "Jax",
+              "sha256": "c773fc1ec2cb6de0ed58e72161a7d43f60ec12d2f3818fb5c3f344c08c2625c3"
+            }
+          ],
+          "activeCardNo": "SFD·119/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-119A/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33208,
+              "cardNo": "SFD·119a/221",
+              "name": "贾克斯",
+              "sha256": "2eb66d6fb707583f9b4008cf3b4f135b8ee17d1bdc60e945b5a1f5d41bde2339"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-119a-221",
+              "cardNo": "SFD-119a/221",
+              "name": "Jax",
+              "sha256": "8922467ee7faf84f4b4113cbbd8aaaf94550346233a634adcf5e8d2aadadee66"
+            }
+          ],
+          "activeCardNo": "SFD·119a/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-127/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33217,
+              "cardNo": "SFD·127/221",
+              "name": "炳文大师",
+              "sha256": "88d90df53f49a707013d84e7601abdadea50fef6665a7adde19a6721fb2f2c06"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-127-221",
+              "cardNo": "SFD-127/221",
+              "name": "Master Bingwen",
+              "sha256": "65e895695792a97880524a12dcfa32296de78ea89c2cea00ab65a815172edbc7"
+            }
+          ],
+          "activeCardNo": "SFD·127/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-197/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33296,
+              "cardNo": "SFD·197/221",
+              "name": "沙漠皇帝",
+              "sha256": "81b6f16460edc17e890dfba74c8fa8c980f2e470f5b252c22650fa5d5d2aa5ce"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-197-221",
+              "cardNo": "SFD-197/221",
+              "name": "Emperor of the Sands",
+              "sha256": "4ffbbe1cf576c85f8b466c4c2813605ad2d1acd4824339391ebaa97b07a43d83"
+            }
+          ],
+          "activeCardNo": "SFD·197/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-233*/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34849,
+              "cardNo": "SFD·233*/221",
+              "name": "永恩",
+              "sha256": "59259ceee9977245ebcee11db7587162efa7ea8cdb57f76629c7590db04b87ea"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-233-star-221",
+              "cardNo": "SFD-233*/221",
+              "name": "Yone",
+              "sha256": "79cd14fa6226470b66d657da2d878b6793c24e4729d103ec0d57a22f83185b80"
+            }
+          ],
+          "activeCardNo": "SFD·233*/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-233/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34848,
+              "cardNo": "SFD·233/221",
+              "name": "永恩",
+              "sha256": "4cc062fb01521c21afd0a8324b0b3ac03c575725fe3624f7edd9f05b0cd0b28c"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-233-221",
+              "cardNo": "SFD-233/221",
+              "name": "Yone",
+              "sha256": "360bb57b936ea0b47e082c682fb721965a7532c42bf85a96bfc1836ff70f88fa"
+            }
+          ],
+          "activeCardNo": "SFD·233/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-247/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33358,
+              "cardNo": "SFD·247/221",
+              "name": "沙漠皇帝",
+              "sha256": "88a189dda3ba47c53ec8f9127442fb153cdf0e0624235dfdb25b99e1dc1240af"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-247-221",
+              "cardNo": "SFD-247/221",
+              "name": "Emperor of the Sands",
+              "sha256": "d1f9a086034bc534af044bcae3ac7e179ac042d7363cf864b617fc6ff735a2fd"
+            }
+          ],
+          "activeCardNo": "SFD·247/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "UNL-223/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34776,
+              "cardNo": "UNL-223/219",
+              "name": "壮壮魄罗",
+              "sha256": "5457fb26abe09093b70e836064b315090fa505c6c4e88029f90b9207e22cb0ba"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-223-219",
+              "cardNo": "UNL-223/219",
+              "name": "Veteran Poro",
+              "sha256": "e280febef83f9ce74b173b9535cb2924ff0962bdff121b8f8eb6acdb8e6dcaa2"
+            }
+          ],
+          "activeCardNo": "UNL-223/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        }
+      ],
+      "rules": [
+        {
+          "id": "DOC-04-P030-B020",
+          "document": "DOC-04",
+          "page": 30,
+          "clauseAnchors": [
+            "204.3"
+          ],
+          "text": "204.3.          指示中的费用: 此类费用 属于法术或技能结算的一部分,通常以“[执行 X],以此[执行 Y]”的形式出现。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P030-B021",
+          "document": "DOC-04",
+          "page": 30,
+          "clauseAnchors": [
+            "204.3.a"
+          ],
+          "text": "204.3.a.             当指示中的费用作为触发式技能效果的第一部分出现时,该费用被视为该触发式技能的基础费用。必须支\n                     付该费用才能确认该触发式技能。\n                           举例:“狂热粉丝”是一张单位牌,其描述为:“当我防守时,你可以选择摧毁我,以此将一名进\n                           攻方单位移动到其基地。”其控制者必须摧毁“狂热粉丝”,才能在结算链上对该技能进行确认。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P030-B022",
+          "document": "DOC-04",
+          "page": 30,
+          "clauseAnchors": [
+            "204.3.b"
+          ],
+          "text": "204.3.b.             当指示中的费用出现在法术、主动技能,或者触发式技能的后半部分时,则是在结算该法术或技能的过程\n                     中,才须支付该费用,以获得相应效果。\n                           举例:“弹幕时间”是一张法术牌,其描述为:“支付任意数量的[A],以此对一处战场上的所有敌\n                           方单位造成等同于该数量的伤害。”该法术结算时,其控制者可支付任意数量的[A]作为费用,对\n                           一处战场上的所有敌方单位造成等同于该数量的伤害作为效果。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P059-B011",
+          "document": "DOC-04",
+          "page": 59,
+          "clauseAnchors": [
+            "383.3.a"
+          ],
+          "text": "383.3.a.          如果触发式技能的效果开头为“你可以选择”或“该玩家可以选择”,则其来源的控制者将在确认阶段选择是\n                  否执行该触发式技能。\n                        举例:“控潮者”拥有“当你打出我时,你可以选择另一处位置受你控制的一名单位,然后把我移\n                        动到其所在位置,再将其移动到我原来的位置”的效果。其中的“你可以选择”出现在效果的开\n                        头,因此该选择代表是否执行该触发式技能。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P059-B012",
+          "document": "DOC-04",
+          "page": 59,
+          "clauseAnchors": [
+            "383.3.a.1"
+          ],
+          "text": "383.3.a.1.              当“可以选择”以这种形式出现时,其所表示的选择仅为是否执行该触发式技能。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P059-B013",
+          "document": "DOC-04",
+          "page": 59,
+          "clauseAnchors": [
+            "383.3.a.2"
+          ],
+          "text": "383.3.a.2.              如果该触发式技能的控制者在确认阶段选择不执行该触发式技能,则该技能将从结算链中移\n                        除,并视为未触发。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P060-B001",
+          "document": "DOC-04",
+          "page": 60,
+          "clauseAnchors": [
+            "383.3.a.3"
+          ],
+          "text": "383.3.a.3.              当“你可以选择”或“该玩家可以选择”出现在触发式技能效果的后半部分时,则该选择将在结算阶\n                        段决定。\n                               举例:“奥恩 - 铁匠”的描述为:“当你打出我时,或当我据守一处战场时,查看你主牌\n                               堆顶部的四张牌。你可以选择从中展示一件装备,并抽取该卡牌。然后回收其余的卡\n                               牌。”其中的“你可以选择”并非出现在效果的开头部分,因此该决定将在结算阶段做\n                               出。该技能始终会被确认并放入结算链。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P060-B002",
+          "document": "DOC-04",
+          "page": 60,
+          "clauseAnchors": [
+            "383.3.b"
+          ],
+          "text": "383.3.b.           如果触发式技能包含指示中的费用,且该费用位于效果的开头部分,或紧跟在效果开头部分出现的“你可\n                   以选择”或“该玩家可以选择”之后,则该费用将视为该触发式技能的基础费用。\n                        举例:“艾克 - 溯时洄光”的描述为:“[绝念][>] 回收我,以此让你的所有符文变为活跃状态。”在\n                        此情况下,“回收我,以此让你的所有符文变为活跃状态”便是出现在技能效果开头部分的指示中\n                        的费用,因此“回收我”被视为该触发式技能的基础费用。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P060-B004",
+          "document": "DOC-04",
+          "page": 60,
+          "clauseAnchors": [
+            "383.3.b.1"
+          ],
+          "text": "383.3.b.1.              必须支付此费用,才能确认将该触发式技能加入结算链。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B001",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821"
+          ],
+          "text": "821.         百炼",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B002",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1"
+          ],
+          "text": "821.1.            [百炼]是一种触发式技能关键词。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B003",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.a"
+          ],
+          "text": "821.1.a.               [百炼]会出现在单位上。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B004",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.b"
+          ],
+          "text": "821.1.b.               [百炼]是一种打出效果,它会选择一件你控制的[武装],并允许你以减少后的费用支付其[装配]费用(无\n                       视[装配]技能的常规时点),将该[武装]贴附于拥有[百炼]的单位之上。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B005",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.c"
+          ],
+          "text": "821.1.c.               [百炼]为以下功能的简称:“当你打出我时,你可以选择一张你控制的带有[武装]标签的卡牌。其规则文本\n                       的必要部分若当前处于未激活状态,则不再视为未激活。支付其[装配]技能的费用(减少[A]),将其贴\n                       附于此单位。”\n                            想获取更多有关信息,请查阅规则 716.贴附。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B006",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.c.1"
+          ],
+          "text": "821.1.c.1.                  无论武装是否拥有[装配]技能,[百炼]都可以选择该武装。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B007",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.c.2"
+          ],
+          "text": "821.1.c.2.                  [装配]技能的费用按如下方式确定:视同该[装配]技能被激活并选择了拥有[百炼]技能的单位,\n                            同时将所有改变[装配]费用的技能对费用的调整一并考虑在内。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B008",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.c.3"
+          ],
+          "text": "821.1.c.3.                  如果所选卡牌的[装配]费用不包含[A],则该费用仍可以支付,但不会减少。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B009",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.c.4"
+          ],
+          "text": "821.1.c.4.                  如果所选卡牌没有[装配]费用,则无法支付。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B010",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.c.5"
+          ],
+          "text": "821.1.c.5.                  如果无法支付所选卡牌的[装配]费用,或者无法将其从当前的顶部卡牌上卸除,又或者无法将\n                            其贴附于拥有[百炼]技能的单位之上,则该卡牌将停留在当前位置,保持贴附于其原本贴附的\n                            对象上。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B011",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.c.6"
+          ],
+          "text": "821.1.c.6.                  [装配]技能未以此方式激活,且拥有[百炼]技能的单位也未被选择。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B012",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.c.7"
+          ],
+          "text": "821.1.c.7.        若有多个[百炼],则其分别触发,并每次可选择不同的目标。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B013",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.1.d"
+          ],
+          "text": "821.1.d.               如果你用多个[百炼]选择了同一个目标,每一个都将分开单独结算。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B014",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.2"
+          ],
+          "text": "821.2.            [百炼]在场上时没有任何功能。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-04-P121-B015",
+          "document": "DOC-04",
+          "page": 121,
+          "clauseAnchors": [
+            "821.3"
+          ],
+          "text": "821.3.            [百炼],以及单位是否拥有[百炼],是单位的一个特性,其他游戏效果可以检查或引用该特性。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-13-P021-B006",
+          "document": "DOC-13",
+          "page": 21,
+          "clauseAnchors": [],
+          "text": "带有[百炼]关键词的卡牌\n问:“百炼”的提示文本写的是“你可以选择”,但从核心规则来看,似乎是强制执行的。\n到底要听哪一边呢?\n哇,你的眼好尖呐!“百炼”这个关键词的设计初衷,从头至尾都是“可选”的。核心规则使\n用的语言结构似乎暗示了强制指定目标,但实际上是提示文本更加准确。是否使用这个技\n能,永远是玩家自己的选择。我们之后会调整与此相关的语言结构,大家放心吧。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        }
+      ],
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.Tempered.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.EquipmentCosts.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs"
+      ],
+      "tests": [
+        "TemperedPlayTriggerAuditTests",
+        "TemperedPlayNativeTests",
+        "FullGameEndToEndTests.AuditedWeaponmasterMidgamePaysReferencedCostAndReplaysThroughScoreVictory"
+      ],
+      "evidence": "docs/evidence/tempered-play-trigger-2026-10-12/validation.json",
+      "wholeCardCertification": false
     }
   ]
 }

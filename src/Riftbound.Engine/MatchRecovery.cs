@@ -23333,7 +23333,7 @@ public static class MatchRecoveryValidator
             && !CoreRuleEngine.ValidTriggerChoice(state, confirmation)) errors.Add("invalid trigger confirmation");
 
         if (state.PendingPayment is { } payment
-            && (payment.PaymentWindow is not (CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.TriggerTargetCostWindow) && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
+            && (payment.PaymentWindow is not (CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.TriggerTargetCostWindow or CoreRuleEngine.TemperedPaymentWindow) && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
             && !CoreRuleEngine.ValidInsightPayment(state, payment)) errors.Add("invalid Insight payment continuation");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.InsightContext is { } captured
@@ -23396,6 +23396,9 @@ public static class MatchRecoveryValidator
 
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
+        if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
+            || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow != CoreRuleEngine.TemperedPaymentWindow))
+            errors.Add("invalid referenced equipment experience cost");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
                 || !CoreRuleEngine.ValidAttachmentGenerations(state, item.AttachmentObserver, item.SourceObjectId)
@@ -23406,8 +23409,21 @@ public static class MatchRecoveryValidator
                 || !CoreRuleEngine.ValidAttachmentGenerations(state, item.AttachmentObserver, item.SourceObjectId)
                 || item.AttachmentObserver is not null && item.TriggeredByEventKind != "EQUIPMENT_ATTACHED")
                 errors.Add("invalid captured attachment trigger");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TemperedConfirmationWindow } temperedChoice
+            && !CoreRuleEngine.ValidTemperedChoice(state, temperedChoice)) errors.Add("invalid weaponmaster confirmation");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.TemperedCostWindow } temperedCost
+            && !CoreRuleEngine.ValidTemperedCostChoice(state, temperedCost)) errors.Add("invalid weaponmaster cost choice");
+        if (state.PendingPayment is { PaymentWindow: CoreRuleEngine.TemperedPaymentWindow } temperedPayment
+            && !CoreRuleEngine.ValidTemperedPayment(state, temperedPayment)) errors.Add("invalid weaponmaster payment");
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidTempered(state, item.Tempered, item.EffectKind, item.ControllerId, item.SourceObjectId, item.SourceCardNo)
+                || item.Tempered is { } capturedTempered && (capturedTempered.Equipment is not null || capturedTempered.Costs is not null
+                    || capturedTempered.UnableToPay || item.TriggeredByEventKind is not ("UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED")))
+                errors.Add("invalid captured weaponmaster trigger");
         foreach (var item in state.StackItems)
         {
+            if (!CoreRuleEngine.ValidTemperedStack(state, item))
+                errors.Add("invalid captured weaponmaster ability");
             if (!CoreRuleEngine.ValidAzirMovement(state, item)) errors.Add("invalid captured Azir movement");
             if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
         }

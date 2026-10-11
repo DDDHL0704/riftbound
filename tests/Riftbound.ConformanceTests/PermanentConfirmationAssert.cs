@@ -13,6 +13,13 @@ internal static class PermanentConfirmationAssert
         var events = played.Events.ToList();
         for (var i = 0; result.State.StackItems.Count > 0 && i < 20; i++)
         {
+            if (result.State.PendingCardChoice?.ChoiceWindow == "TEMPERED_CONFIRMATION")
+            {
+                var declined = await TemperedTestDriver.ConfirmAsync(engine, result);
+                events.AddRange(declined.Events.Skip(result.Events.Count));
+                result = declined;
+                continue;
+            }
             result = await engine.ResolveAsync(result.State,
                 new($"confirmation-pass-{result.State.Tick}-{i}", result.State.PriorityPlayerId!, CommandTypes.PassPriority),
                 new PassPriorityCommand(), default);
@@ -37,8 +44,16 @@ internal static class PermanentConfirmationAssert
         Assert.False(result.State.CardObjects[sourceId].IsFaceDown);
         if (hasPlayAbility)
         {
-            Assert.True(Assert.Single(result.State.StackItems).SourceConfirmed);
-            Assert.Equal("P1", result.State.PriorityPlayerId);
+            if (result.State.StackItems.Any(i => i.Tempered is not null))
+            {
+                TemperedTestDriver.Entry(result, sourceId);
+                foreach (var item in result.State.StackItems.Where(i => i.Tempered is null)) Assert.True(item.SourceConfirmed);
+            }
+            else
+            {
+                Assert.True(Assert.Single(result.State.StackItems).SourceConfirmed);
+                Assert.Equal("P1", result.State.PriorityPlayerId);
+            }
         }
         else
         {

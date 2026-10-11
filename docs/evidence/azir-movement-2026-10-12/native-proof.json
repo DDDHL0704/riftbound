@@ -1,0 +1,9 @@
+{
+  "client": "Godot 4.7.2 mono",
+  "mode": "headless production ActionBar and Main command template",
+  "commands": 18,
+  "uiStdout": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nAZIR_MOVEMENT_PASS: 18 production ability and response commands\n",
+  "buildStdout": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.31\n",
+  "exitCode": 0,
+  "proofSource": "clients/godot/scripts/debug/AzirMovementInteractionProof.cs"
+}
