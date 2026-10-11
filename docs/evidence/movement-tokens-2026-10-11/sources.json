@@ -1,0 +1,950 @@
+{
+  "cn": [
+    {
+      "id": 31460,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·222/298",
+      "cardName": "诺克萨斯鼓手",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "崔法利",
+      "artist": "Six More Vodka",
+      "cardEffect": "当我移动到一处战场时，在此处打出一名1{{S}}的“随从”（它也位于此战场）。",
+      "flavorText": "在诺克萨斯，就连军乐团都很能打。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "OGS",
+        "OGN(英雄预组 维克托)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 英雄预组 维克托",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/bb562d185fb74ead99de1b60e7fe9429.png",
+      "backImage": "",
+      "listSort": 245,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33276,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "SFD·179/221",
+      "cardName": "卡银娜·薇蕊泽",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "祖安",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{黄色}}，让我以活跃状态进场。）\n当我移动到一处战场时，在此处打出三名1{{S}}的“随从”。",
+      "flavorText": "“我告诉过他们，每一项成就都有代价。我只是没告诉他们，这代价由谁买单。”",
+      "energy": 7,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/22337673d54f48a286a03ac1adc0fcec.png",
+      "backImage": "",
+      "listSort": 797,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34616,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-082/219",
+      "cardName": "莉莉娅",
+      "subTitle": "仙灵小鹿",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "莉莉娅",
+      "region": "艾欧尼亚",
+      "tag": "仙灵",
+      "artist": "Envar Studio",
+      "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{蓝色}}，让我以活跃状态进场。）\n当我移动时，在我移动的起点位置打出一名3{{S}}的“精灵”，它拥有{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "flavorText": "",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260328/98efdd06b76646a0b8a73a7cbdc9f953.webp",
+      "backImage": "",
+      "listSort": 1408,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34617,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-082a/219",
+      "cardName": "莉莉娅",
+      "subTitle": "仙灵小鹿",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "莉莉娅",
+      "region": "艾欧尼亚",
+      "tag": "仙灵",
+      "artist": "League Splash Team",
+      "cardEffect": "{{急速}}\n当我移动时，在我移动的起点位置打出一名3{{S}}的“精灵”，它拥有{{瞬息}}。",
+      "flavorText": "",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260328/c949c894474d420491caa7184776a281.webp",
+      "backImage": "",
+      "listSort": 1407,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "en": [
+    {
+      "id": "sfd-179-221",
+      "collectorNumber": 179,
+      "name": "Corinna Veraza",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "SFD-179/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "epic",
+          "label": "Epic",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+            "dimensions": {
+              "width": 455,
+              "height": 419,
+              "aspectRatio": 1.0859188544152745
+            },
+            "colors": {
+              "primary": "#B8794C",
+              "secondary": "#332F29",
+              "label": "#604634"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "order",
+            "label": "Order",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8bb1b193a8e1adc26ca28e1a21da8d1e2f5d2f72-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#14120A",
+                "secondary": "#FFF7D6",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6b0f55aee4b4f9d0074c808e0fff00dcb7e35377-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Corina Veraza. [Accelerate] (You may pay [1][C] as an additional cost to have me enter ready.)\nWhen I move to a battlefield, play three 1 [S] Recruit unit tokens here.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#373C1E",
+          "secondary": "#F9F6DC",
+          "label": "#0D0F04"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "sixmorevodka",
+            "label": "Six More Vodka",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Accelerate] (You may pay :rb_energy_1::rb_rune_order: as an additional cost to have me enter ready.)<br />When I move to a battlefield, play three 1 :rb_might: Recruit unit tokens here.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 7,
+          "label": "7"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 6,
+          "label": "6",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Zaun"
+        ]
+      }
+    },
+    {
+      "id": "unl-082-219",
+      "collectorNumber": 82,
+      "name": "Lillia",
+      "subtitle": "Fae Fawn",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "UNL",
+          "label": "Unleashed"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "UNL-082/219",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "rare",
+          "label": "Rare",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+            "dimensions": {
+              "width": 429,
+              "height": 425,
+              "aspectRatio": 1.0094117647058825
+            },
+            "colors": {
+              "primary": "#B881A9",
+              "secondary": "#332932",
+              "label": "#804570"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/65d0af5361b335a7e65c7aa03a099fc0de3431e6-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Lillia, Fae Fawn. [Accelerate] (You may pay [1][C] as an additional cost to have me enter ready.)\nWhen I move from a location, play a 3 [S] Sprite unit token with [Temporary] there. (Kill it at the start of its controller's Beginning Phase, before scoring.)",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#160F1F",
+          "secondary": "#F5D6FF",
+          "label": "#050505"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "envarstudio",
+            "label": "Envar Studio",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Accelerate] (You may pay :rb_energy_1::rb_rune_mind: as an additional cost to have me enter ready.)<br />When I move from a location, play a 3 :rb_might: Sprite unit token with [Temporary] there. (Kill it at the start of its controller's Beginning Phase, before scoring.)</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 3,
+          "label": "3"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 3,
+          "label": "3",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Fae",
+          "Lillia",
+          "Ionia"
+        ]
+      }
+    },
+    {
+      "id": "unl-082a-219",
+      "collectorNumber": 82,
+      "name": "Lillia",
+      "subtitle": "Fae Fawn",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "UNL",
+          "label": "Unleashed"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "UNL-082a/219",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "rare",
+          "label": "Rare",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+            "dimensions": {
+              "width": 429,
+              "height": 425,
+              "aspectRatio": 1.0094117647058825
+            },
+            "colors": {
+              "primary": "#B881A9",
+              "secondary": "#332932",
+              "label": "#804570"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b06072002316a5b86f11750bbe21e9dfb94be08d-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Lillia, Fae Fawn. [Accelerate]\nWhen I move from a location, play a 3 [S] Sprite unit token with [Temporary] there.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#16202C",
+          "secondary": "#F9DCE3",
+          "label": "#000000"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "leaguesplashteam",
+            "label": "League Splash Team",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Accelerate]<br />When I move from a location, play a 3 :rb_might: Sprite unit token with [Temporary] there.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 3,
+          "label": "3"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 3,
+          "label": "3",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Fae",
+          "Lillia",
+          "Ionia"
+        ]
+      }
+    },
+    {
+      "id": "ogn-222-298",
+      "collectorNumber": 222,
+      "name": "Noxian Drummer",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-222/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "order",
+            "label": "Order",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8bb1b193a8e1adc26ca28e1a21da8d1e2f5d2f72-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#14120A",
+                "secondary": "#FFF7D6",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/45a69adf92b6951c8c8fa974273c22aade312068-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Noxian Drummer. When I move to a battlefield, play a 1 [S] Recruit unit token here. (It is also at the battlefield.)",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#553F2B",
+          "secondary": "#F9F0DC",
+          "label": "#2D1B0B"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "sixmorevodka",
+            "label": "Six More Vodka",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>When I move to a battlefield, play a 1 :rb_might: Recruit unit token here. (It is also at the battlefield.)</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 3,
+          "label": "3"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 3,
+          "label": "3",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Trifarian",
+          "Noxus"
+        ]
+      }
+    }
+  ],
+  "images": [
+    {
+      "cardNo": "OGN·222/298",
+      "url": "https://cdn.playloltcg.com/lol/card/20250731/bb562d185fb74ead99de1b60e7fe9429.png",
+      "path": "var/official/2026-10-11/movement-tokens/OGN-222-298.png",
+      "sha256": "1fc0513a48c7e07f08681efbebcbea69673ce692ecc376795335b1dda950c416"
+    },
+    {
+      "cardNo": "SFD·179/221",
+      "url": "https://cdn.playloltcg.com/lol/card/20251217/22337673d54f48a286a03ac1adc0fcec.png",
+      "path": "var/official/2026-10-11/movement-tokens/SFD-179-221.png",
+      "sha256": "66e354676f019e2415b4b6cd3c31b45152778d9cc464ba1c758e8bc08c41f610"
+    },
+    {
+      "cardNo": "UNL-082/219",
+      "url": "https://cdn.playloltcg.com/lol/card/20260328/98efdd06b76646a0b8a73a7cbdc9f953.webp",
+      "path": "var/official/2026-10-11/movement-tokens/UNL-082-219.webp",
+      "sha256": "441f13736f9718757713891a42304fbc5d2c50300286ed23377d7d4f1b6ad68a"
+    },
+    {
+      "cardNo": "UNL-082a/219",
+      "url": "https://cdn.playloltcg.com/lol/card/20260328/c949c894474d420491caa7184776a281.webp",
+      "path": "var/official/2026-10-11/movement-tokens/UNL-082a-219.webp",
+      "sha256": "e8d8195ca674ce0266bba6b98291e78e1affeb0e68971b0140d3f650d9eedc3c"
+    }
+  ],
+  "visualReview": "All four CN images inspected; printed costs, might, keywords and movement clauses match structured CN catalog.",
+  "rules": {
+    "359.3.f.2": "Here checks source information during instruction execution.",
+    "359.3.f.3": "Explicit Lillia example captures original location at trigger time, unaffected by source moving off board before resolution.",
+    "187.1": "Recruit token: 1 might, Minion tag, no domain.",
+    "187.2": "Sprite token: 3 might, Fae tag, Temporary, no domain."
+  },
+  "ruleRecords": [
+    {
+      "id": "DOC-04-P026-B009",
+      "document": "DOC-04",
+      "page": 26,
+      "clauseAnchors": [
+        "187.1"
+      ],
+      "text": "187.1.            1[M]的“随从”,指的是战力为 1,具有“随从”标签,无特性的单位指示物。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P026-B010",
+      "document": "DOC-04",
+      "page": 26,
+      "clauseAnchors": [
+        "187.2"
+      ],
+      "text": "187.2.            拥有[瞬息]的 3[M]“精灵”,指的是战力为 3,具有“仙灵”标签以及[瞬息]关键词,无特性的单位指示物。\n                        想获取更多有关信息,请查阅规则 816.瞬息。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P053-B007",
+      "document": "DOC-04",
+      "page": 53,
+      "clauseAnchors": [
+        "359.3.f.2"
+      ],
+      "text": "359.3.f.2.          以此方式在指示中引用的信息,会在该指示执行时进行检查。\n                         举例:\n                         一名玩家将“亚索 - 迷途怅惘”移动至受敌方占据的战场,并在该处发起战斗。对手反\n                         应“亚索 - 迷途怅惘”的进攻触发技能,从待命状态打出“战或逃”并指定亚索为目标,\n                         将亚索移回基地。当进攻触发结算时,“此处”已不再是战斗进行的战场,于是进攻触\n                         发的目标指定失效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P053-B009",
+      "document": "DOC-04",
+      "page": 53,
+      "clauseAnchors": [
+        "359.3.f.2.a"
+      ],
+      "text": "359.3.f.2.a.             当引用检查与目标相关的指示执行信息时,如果该目标不合法,则该引用将返回\n                         “无”的结果,且与其相关的所有指示将被无视。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P053-B010",
+      "document": "DOC-04",
+      "page": 53,
+      "clauseAnchors": [
+        "359.3.f.3"
+      ],
+      "text": "359.3.f.3.          某些触发式技能所使用的信息,引用自该技能的触发条件。该信息会在满足触发条件时进行检\n                    查。\n                         举例:“莉莉娅 - 仙灵小鹿”的描述为:“当我从一处位置移动时,在该处打出一名拥有\n                         [瞬息]的 3[M]‘精灵’指示物。”如果莉莉娅移动至一处战场,则她的触发式技能会被加\n                         入结算链,并在此时记录她的移动起点。如果她因有玩家反应该结算链上的触发式技\n                         能而被移动到了非场地区域,也不会影响在触发式技能结算时打出“精灵”指示物的位\n                         置。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P053-B011",
+      "document": "DOC-04",
+      "page": 53,
+      "clauseAnchors": [
+        "359.3.f.3.a"
+      ],
+      "text": "359.3.f.3.a.             对于延迟触发式技能,除非另有说明,否则信息会在触发式技能被创建时受到引用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P053-B012",
+      "document": "DOC-04",
+      "page": 53,
+      "clauseAnchors": [
+        "359.3.f.3.b"
+      ],
+      "text": "359.3.f.3.b.             对于关联技能,如果其引用了关联触发式技能中的信息,并且有明确说明,则可以从\n                         关联触发式技能的触发条件中引用该信息。\n                               举例:娅希拉的描述为:“当我据守一处战场时,在你的下一个主阶段开始\n                               时,你可以选择将一名敌方单位移动到此战场。”该延迟触发式技能中的“此\n                               战场”指的是她据守的战场,因此会在生成该触发式技能时从该触发条件中\n                               引用该战场。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ]
+}

@@ -157,6 +157,7 @@ public static class TriggerKinds
         "UNIT_CONQUEST_RECYCLE_FRIENDLY_PLAY_GRAVEYARD_MECHANICAL_UNIT";
     public const string SourceUnitPlayedPlayLowCostGraveyardSpellRecycle =
         "SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
+    public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
     public const string UnitMovedPowerModifier = "UNIT_MOVED_POWER_MODIFIER";
@@ -296,6 +297,8 @@ public static class TriggerMoveDestinations
 
 public static class TriggerTokenDestinations
 {
+    public const string MovementOrigin = "MOVEMENT_ORIGIN";
+    public const string SourceLocation = "SOURCE_LOCATION";
     public const string OwnerBase = "OWNER_BASE";
     public const string Battlefield = "BATTLEFIELD";
 }

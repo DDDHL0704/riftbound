@@ -31,6 +31,7 @@ public sealed partial class CoreRuleEngine
         => OfficialCardSourceIdentityGroups.DisplayName(c.CardNo)
             + (c.Kind switch {
                 TriggerKinds.UnitMovedCreateDormantGold => "：移动后打出休眠金币",
+                TriggerKinds.UnitMovedCreateUnitToken => "：移动后打出单位指示物",
                 TriggerKinds.UnitMovedDraw => "：移动后抽牌",
                 TriggerKinds.UnitMovedGainExperience => "：移动后获得经验",
                 TriggerKinds.UnitMovedPowerModifier => "：离开战场后本回合增加战力",
@@ -100,6 +101,14 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { BuildTriggerResolvedEvent(new(item.StackItemId, item.ControllerId,
             item.SourceObjectId, item.EffectKind, TriggerTimings.UnitMoved) { MovementObserver = context }) };
         var unitSpec = UnitMovedTriggerSpecRules.MovementTriggers(context.CardNo).FirstOrDefault(t => t.Kind == context.Kind);
+        if (context.Kind == TriggerKinds.UnitMovedCreateUnitToken)
+        {
+            if (!TryMovementTokenInstruction(state, item, out var instruction))
+                return NoopStackResolutionResult(state) with { Events = events };
+            var created = CreateUnitTokenBatch(state, item, instruction.FactoryCardNo,
+                instruction.Count + AdditionalUnitTokens(item), false, instruction.Location.BattlefieldObjectId, context.Kind);
+            return created with { Events = events.Concat(created.Events).ToArray() };
+        }
         if (context.Kind == TriggerKinds.UnitMovedDraw)
         {
             var draw = ResolveLastBreathDrawStackItem(state, item, unitSpec!.DrawCount!.Value);

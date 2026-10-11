@@ -38,10 +38,19 @@ internal static class UnitMovedTriggerSpecRules
     public static bool IsImplementedMovementTrigger(TriggerSpec trigger)
         => IsUnitMovedCreateDormantGoldTrigger(trigger)
             || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit
-                && (trigger.Kind == TriggerKinds.UnitMovedDraw && trigger.DrawCount > 0
+                && (IsMovementUnitTokenTrigger(trigger)
+                    || trigger.Kind == TriggerKinds.UnitMovedDraw && trigger.DrawCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedGainExperience && trigger.ExperienceCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedPowerModifier && trigger.PowerDelta > 0
                         && trigger.Duration == TriggerDurations.UntilEndOfTurn);
+
+    public static bool IsMovementUnitTokenTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitMovedCreateUnitToken && trigger.CreatedTokenCount > 0
+            && trigger.CreatedTokenExhausted == true
+            && trigger.CreatedTokenDestination is TriggerTokenDestinations.MovementOrigin or TriggerTokenDestinations.SourceLocation
+            && (trigger.CreatedTokenName == "随从" && trigger.CreatedTokenPower == 1
+                || trigger.CreatedTokenName == "精灵" && trigger.CreatedTokenPower == 3
+                    && trigger.CreatedTokenKeywords?.Contains("瞬息") == true);
 
     public static bool MatchesMovement(TriggerSpec trigger, MovedUnitFact unit)
         => (trigger.MovementOriginZone is null || trigger.MovementOriginZone == unit.Origin.Zone)

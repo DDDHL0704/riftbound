@@ -30,3 +30,5 @@
 证据：[来源及卡图核对](evidence/movement-benefits-2026-10-11/sources.json)、[验证记录](evidence/movement-benefits-2026-10-11/validation.json)、[用例对账](evidence/movement-benefits-2026-10-11/case-parity.json)、[方法对账](evidence/movement-benefits-2026-10-11/method-parity.json)、[源码哈希](evidence/movement-benefits-2026-10-11/source-hashes.json)。
 
 其余移动家族、每回合计数、可选费用、跟随、原位置创建及互换仍待逐项审计；四张卡的所有出牌费用／关键词／比赛合法性没有因本批自动获得整卡认证。
+
+交付提交 `f53bdde93e8af0c288948f3e0d774e17d4cbaa96` 已推送 main 并读回相同远端 SHA；CI run `38119541776` 的 rules、desktop (macos-latest)、desktop (windows-latest) 均为 success。CI 桌面任务不能替代实际双窗口产品验收。

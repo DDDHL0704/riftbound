@@ -67,9 +67,9 @@ public sealed class MovementSimpleTriggerTests
         var s = moved.State;
         s = s with {
             PlayerZones = new Dictionary<string, PlayerZones>(s.PlayerZones) { ["P2"] = s.PlayerZones["P2"] with {
-                Battlefields = s.PlayerZones["P2"].Battlefields.Where(id => id != "D").ToArray(), Graveyard = [..s.PlayerZones["P2"].Graveyard, "D"] } },
-            ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { ["D"] = new("P2", "GRAVEYARD") },
-            CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["D"] = s.CardObjects["D"] with { ObjectGeneration = 1 } } };
+                Battlefields = s.PlayerZones["P2"].Battlefields.Where(id => id != "D").ToArray() }, ["P1"] = s.PlayerZones["P1"] with { Graveyard = [..s.PlayerZones["P1"].Graveyard, "D"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(s.ObjectLocations) { ["D"] = new("P1", "GRAVEYARD") },
+            CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) { ["D"] = s.CardObjects["D"] with { ObjectGeneration = 1, ControllerId = "P1" } } };
         Restore(s); var done = await Top(s);
         if (card == "SFD·048/221") Assert.Contains("DRAW-TOP", done.State.PlayerZones["P2"].Hand);
         else Assert.Equal(card == "UNL-115/219" ? 1 : 2, done.State.PlayerExperience["P2"]);

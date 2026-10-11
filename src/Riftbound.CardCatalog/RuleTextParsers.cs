@@ -1129,6 +1129,21 @@ public static class TriggerParser
                 CreatedTokenKeywords: ["反应"]);
         }
 
+        var movedRecruit = Regex.Match(segment,
+            @"^当我移动到一处战场时，在此处打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的“随从”(?:（它也位于此战场）)?。?$", RegexOptions.CultureInvariant);
+        if (movedRecruit.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedCreateUnitToken, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: ParseChineseNumber(movedRecruit.Groups[1].Value),
+                CreatedTokenPower: ParseChineseNumber(movedRecruit.Groups[2].Value), CreatedTokenName: "随从",
+                CreatedTokenDestination: TriggerTokenDestinations.SourceLocation, CreatedTokenExhausted: true, MovementDestinationZone: "BATTLEFIELD");
+        var movedSprite = Regex.Match(segment,
+            @"^当我移动时，在我移动的起点位置打出([0-9一两二三四五六七八九十]+)名([0-9一两二三四五六七八九十]+)\{\{S\}\}的“精灵”，它拥有\{\{瞬息\}\}。?$", RegexOptions.CultureInvariant);
+        if (movedSprite.Success)
+            return new TriggerSpec(TriggerKinds.UnitMovedCreateUnitToken, TriggerTimings.UnitMoved, segment,
+                TargetScope: TriggerTargetScopes.SourceUnit, CreatedTokenCount: ParseChineseNumber(movedSprite.Groups[1].Value),
+                CreatedTokenPower: ParseChineseNumber(movedSprite.Groups[2].Value), CreatedTokenName: "精灵",
+                CreatedTokenDestination: TriggerTokenDestinations.MovementOrigin, CreatedTokenExhausted: true, CreatedTokenKeywords: ["瞬息"]);
+
         var movedDraw = Regex.Match(segment,
             @"^(?:每当|当)我移动时，抽([0-9一两二三四五六七八九十]+)张牌。?$", RegexOptions.CultureInvariant);
         if (movedDraw.Success)

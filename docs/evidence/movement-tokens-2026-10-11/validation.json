@@ -1,0 +1,464 @@
+{
+  "focus1": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 21.61,
+    "total": 67,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 67,
+        "passed": 67,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.89
+      }
+    ]
+  },
+  "focus2": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.73,
+    "total": 54,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 54,
+        "passed": 54,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.29
+      }
+    ]
+  },
+  "focus3": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.16,
+    "total": 42,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 42,
+        "passed": 42,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.87
+      }
+    ]
+  },
+  "focus5": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 19.27,
+    "total": 72,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 72,
+        "passed": 72,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.89
+      }
+    ]
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 95.92,
+    "total": 9326,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 9326,
+        "passed": 9326,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 85.24
+      }
+    ]
+  },
+  "full": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 412.29,
+    "total": 9459,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 213.5
+      },
+      {
+        "shard": "games-3",
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 213.7
+      },
+      {
+        "shard": "games-2",
+        "total": 44,
+        "passed": 44,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 215.59
+      },
+      {
+        "shard": "rules",
+        "total": 9324,
+        "passed": 9324,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 86.06
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 408.75
+      }
+    ]
+  },
+  "native": {
+    "scenarios": [
+      {
+        "scenario": "OGN-222-298/accept",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "83cd5c39cde34b147d61ef209331d89daec47db48b0d9b8ef1c1b88da3ee253f",
+          "expectedStateHash": "83cd5c39cde34b147d61ef209331d89daec47db48b0d9b8ef1c1b88da3ee253f",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "OGN-222-298/decline",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "cab97ef39a969129071d546a3f414456e94a8b27418cf239454512591d173902",
+          "expectedStateHash": "cab97ef39a969129071d546a3f414456e94a8b27418cf239454512591d173902",
+          "errors": []
+        },
+        "commands": 3
+      },
+      {
+        "scenario": "SFD-179-221/accept",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "b16ff3383bce5b3931310d446a6d2c0af0d97fa9f8484daed0c6890fa4932272",
+          "expectedStateHash": "b16ff3383bce5b3931310d446a6d2c0af0d97fa9f8484daed0c6890fa4932272",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "SFD-179-221/decline",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "a2213c2379a43bfb0ced8d6fff4cd2547fb9ea20ac459ca9e42c8960df7ae5a6",
+          "expectedStateHash": "a2213c2379a43bfb0ced8d6fff4cd2547fb9ea20ac459ca9e42c8960df7ae5a6",
+          "errors": []
+        },
+        "commands": 5
+      },
+      {
+        "scenario": "UNL-082-219/accept",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "cb166d1175a9907502001aca15c1e7b2a6b9c6fb52fc8d04c36bbc11179a8ba3",
+          "expectedStateHash": "cb166d1175a9907502001aca15c1e7b2a6b9c6fb52fc8d04c36bbc11179a8ba3",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "UNL-082-219/decline",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "f14978125258c9dab0a8d3ee98c17ec5d55ad7ac3ab1d499f7421a19e57984da",
+          "expectedStateHash": "f14978125258c9dab0a8d3ee98c17ec5d55ad7ac3ab1d499f7421a19e57984da",
+          "errors": []
+        },
+        "commands": 3
+      },
+      {
+        "scenario": "UNL-082a-219/accept",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "26859b0a1bc2b21ef673266b280edf969ae58745068f25386f0e6719c5825813",
+          "expectedStateHash": "26859b0a1bc2b21ef673266b280edf969ae58745068f25386f0e6719c5825813",
+          "errors": []
+        },
+        "commands": 4
+      },
+      {
+        "scenario": "UNL-082a-219/decline",
+        "nativeCommandUsed": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "f6c5b45665578030e247313a7a50e7475955c68596cef5f3a02a9cf255672dfa",
+          "expectedStateHash": "f6c5b45665578030e247313a7a50e7475955c68596cef5f3a02a9cf255672dfa",
+          "errors": []
+        },
+        "commands": 3
+      }
+    ],
+    "productionCommands": 8,
+    "journalCommands": 30,
+    "mode": "Godot headless production token replacement controls; not dual-window visual or Windows product evidence"
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.82\n",
+  "godotRuns": {
+    "rift-movement-tokens-native-UNL-082-219.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTOKEN_REPLACEMENT_INTERACTION_PASS: chosen source order, explicit decline, production commands\n",
+    "rift-movement-tokens-native-SFD-179-221.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTOKEN_REPLACEMENT_INTERACTION_PASS: chosen source order, explicit decline, production commands\n",
+    "rift-movement-tokens-native-UNL-082a-219.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTOKEN_REPLACEMENT_INTERACTION_PASS: chosen source order, explicit decline, production commands\n",
+    "rift-movement-tokens-native-OGN-222-298.log": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nTOKEN_REPLACEMENT_INTERACTION_PASS: chosen source order, explicit decline, production commands\n"
+  },
+  "artifacts": [
+    {
+      "path": "var/qa/movement-tokens/check/check/results.trx",
+      "sha256": "de81fcff57c116b00defaddddc80d6b4293aee6b0841c53fb56b6b62c5afa11e"
+    },
+    {
+      "path": "var/qa/movement-tokens/check/plan.json",
+      "sha256": "5b8a670591f8239aebebb5f4987544a374299f693fe7645b61b397ceacf434ec"
+    },
+    {
+      "path": "var/qa/movement-tokens/check/summary.json",
+      "sha256": "8d5f29dbba03eb1b70ade256c2880cf0912ef0a1ba0f14464092f19ca6232659"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus1/focus/results.trx",
+      "sha256": "f196b9f54234fd59792da0e7a8d3f07ad9c767513eeb6f411d938fdc6451edc2"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus1/plan.json",
+      "sha256": "72307f4615fa484b945b499be8225d59d55a15b6cb7a1d6947225dcb4bc46d9f"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus1/summary.json",
+      "sha256": "6e28b457b2f929086eb5643f8589454a6f7716f9a866b3d79a61619ed465527d"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus2/focus/results.trx",
+      "sha256": "5f34b23388df7e216b454f1de9559ce66797462f62334ac1c80e5983431c93d6"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus2/plan.json",
+      "sha256": "f113f9b624499d2c508a759f7cd2345be68b72097574c38a7d6f1fee1cbeb5c2"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus2/summary.json",
+      "sha256": "8bc7292e3c530485528e6b92ac3487d8dbe056a1ff6b49d9f82e3c74db996a49"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus3/focus/results.trx",
+      "sha256": "08e0090a848244e6283b9fa6dab65cdaddb9c9b14bb7e092389bf2ee9f664b56"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus3/plan.json",
+      "sha256": "917fe0cc133d704ae0323e3d76a56262e87e643324066c436dfd66ba44028402"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus3/summary.json",
+      "sha256": "aa477665295a02634422fd7d54b49252f9bd65c9703c9517d3bc2d0413350571"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus5/focus/results.trx",
+      "sha256": "143a2c2d8c5d7acbc5df94119be13d6a521f66fced03bee53cc18e8facac8542"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus5/plan.json",
+      "sha256": "1f69bb3e8fd693d9a1867ae27e8fd067280f229d416d929683ec7b650f2c87aa"
+    },
+    {
+      "path": "var/qa/movement-tokens/focus5/summary.json",
+      "sha256": "3790389367ac6f92d928bfcb844c856bba66300102049917ac968001c5bd9f7c"
+    },
+    {
+      "path": "var/qa/movement-tokens/full/games-1/results.trx",
+      "sha256": "c0c2ab2a7892821977445c30f48b892dfed874f214bf2b3d25ca72db1c54d85d"
+    },
+    {
+      "path": "var/qa/movement-tokens/full/games-2/results.trx",
+      "sha256": "f6e25e800e3c9c6bf57d12a6c5ccc823a0e43a33ac036eff10fd41682c60fa93"
+    },
+    {
+      "path": "var/qa/movement-tokens/full/games-3/results.trx",
+      "sha256": "619c42e98b6f8d360ffbe3da3f2cc6e5f1aa9f8646016b33ee3d3a8f160b9090"
+    },
+    {
+      "path": "var/qa/movement-tokens/full/games-4/results.trx",
+      "sha256": "44c4ad0203753a73a5eb6300daf8d43d8bf9ebe7287b2080f4cbcd63f68a6ce1"
+    },
+    {
+      "path": "var/qa/movement-tokens/full/plan.json",
+      "sha256": "b3755c9339b01bac088272542b5ae1c1817bd2e51d5eece916dcb09bf46088a3"
+    },
+    {
+      "path": "var/qa/movement-tokens/full/rules/results.trx",
+      "sha256": "c6fe5dff77973e999ddb61f6fecec4faae33a9befb5876b51bdb8316d3b2d634"
+    },
+    {
+      "path": "var/qa/movement-tokens/full/summary.json",
+      "sha256": "c7a5e9862a66681b081d63ec9dc576254bd16353c80902ac051251570df22be7"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/OGN-222-298/accept/native-command.json",
+      "sha256": "698d6450eca76d25420f7a473730d7a8a342faa8a65c315f847de9a05107bec6"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/OGN-222-298/accept/prompt.json",
+      "sha256": "1a328cd662d3fdbfd9cf161b22041558da0725ac94eaff9df59d39a8d4f49bb1"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/OGN-222-298/accept/replay.json",
+      "sha256": "d4ab17b8deba281bf95230285f743e171fb4847f7dae40fc8a40b3bdcb9abd6c"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/OGN-222-298/accept/snapshot.json",
+      "sha256": "63fd30f0e6917573812e66503b1be1298dc79b299291a164965abf66908f12e6"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/OGN-222-298/decline/native-command.json",
+      "sha256": "94be29722f52684e66b609be6027f9bacf3366128b68a67391f1440c65162adf"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/OGN-222-298/decline/prompt.json",
+      "sha256": "1a328cd662d3fdbfd9cf161b22041558da0725ac94eaff9df59d39a8d4f49bb1"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/OGN-222-298/decline/replay.json",
+      "sha256": "d123f4e6909c29b064752a238c81d109166f2fe236598314cdad3cd0a2ceeddb"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/OGN-222-298/decline/snapshot.json",
+      "sha256": "63fd30f0e6917573812e66503b1be1298dc79b299291a164965abf66908f12e6"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/SFD-179-221/accept/native-command.json",
+      "sha256": "698d6450eca76d25420f7a473730d7a8a342faa8a65c315f847de9a05107bec6"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/SFD-179-221/accept/prompt.json",
+      "sha256": "dd1c65d1c3d403bc3c44c7def46561d69feed3aed662484bd8c4d706daa5e456"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/SFD-179-221/accept/replay.json",
+      "sha256": "05b2ae51a9934dc7ab13e3a2324feee946ea5e9ebdea5a49433d22b230990652"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/SFD-179-221/accept/snapshot.json",
+      "sha256": "4509e0a4d9938ed96d5b22ab8f158714d3ffe7e18d5e01212c78007b0e310c58"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/SFD-179-221/decline/native-command.json",
+      "sha256": "94be29722f52684e66b609be6027f9bacf3366128b68a67391f1440c65162adf"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/SFD-179-221/decline/prompt.json",
+      "sha256": "dd1c65d1c3d403bc3c44c7def46561d69feed3aed662484bd8c4d706daa5e456"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/SFD-179-221/decline/replay.json",
+      "sha256": "04ebf419f7f03b674a2eaba0335c582e6b3dfb644d4ae19181eca53abdb4492a"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/SFD-179-221/decline/snapshot.json",
+      "sha256": "4509e0a4d9938ed96d5b22ab8f158714d3ffe7e18d5e01212c78007b0e310c58"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082-219/accept/native-command.json",
+      "sha256": "698d6450eca76d25420f7a473730d7a8a342faa8a65c315f847de9a05107bec6"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082-219/accept/prompt.json",
+      "sha256": "244cd1574d84d39ba08a161920847cebb743a24d62ebabfe2c70f9686c420c4e"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082-219/accept/replay.json",
+      "sha256": "2c80b817ab951451376a0e19011708e7ddf4ab4dcd01734813ae4cee5c6c703b"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082-219/accept/snapshot.json",
+      "sha256": "e3c8401bf2e798dff7a82d8680506736b2c48d83956f27c44561756c54bf1065"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082-219/decline/native-command.json",
+      "sha256": "94be29722f52684e66b609be6027f9bacf3366128b68a67391f1440c65162adf"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082-219/decline/prompt.json",
+      "sha256": "244cd1574d84d39ba08a161920847cebb743a24d62ebabfe2c70f9686c420c4e"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082-219/decline/replay.json",
+      "sha256": "8640c1797a4089a1aea28b4ced17fc45d4f2a2f0d006a66dfc90e645c0d9e313"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082-219/decline/snapshot.json",
+      "sha256": "e3c8401bf2e798dff7a82d8680506736b2c48d83956f27c44561756c54bf1065"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082a-219/accept/native-command.json",
+      "sha256": "698d6450eca76d25420f7a473730d7a8a342faa8a65c315f847de9a05107bec6"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082a-219/accept/prompt.json",
+      "sha256": "097cadd4dd7724d2bfdc43ca812969db18ba1a732d412091591fb624fd36f0d0"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082a-219/accept/replay.json",
+      "sha256": "1ba22356905b73750ab1150029e19cc7f7d59758fcf263c07d6a39152936add1"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082a-219/accept/snapshot.json",
+      "sha256": "13347bfde1c6486386756ee6aaa734eb004627b2619e9ff469314a4d38f18f16"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082a-219/decline/native-command.json",
+      "sha256": "94be29722f52684e66b609be6027f9bacf3366128b68a67391f1440c65162adf"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082a-219/decline/prompt.json",
+      "sha256": "097cadd4dd7724d2bfdc43ca812969db18ba1a732d412091591fb624fd36f0d0"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082a-219/decline/replay.json",
+      "sha256": "800bd4bc5ea47c029cc1b09654f1ce34ba26d93cc4eeea97cfa120aaa8d18f38"
+    },
+    {
+      "path": "var/qa/movement-tokens/native/UNL-082a-219/decline/snapshot.json",
+      "sha256": "13347bfde1c6486386756ee6aaa734eb004627b2619e9ff469314a4d38f18f16"
+    },
+    {
+      "path": "var/qa/movement-tokens/red/focus/results.trx",
+      "sha256": "8273f7d67e5a57a110649a6015b09a47d30fae9ae8cbf6711a189d1a7ad0c37a"
+    },
+    {
+      "path": "var/qa/movement-tokens/red/plan.json",
+      "sha256": "3fde3e62941c7f356a6d97e1e4599274a8610a5d7b61f1462b362abb51dad9b3"
+    }
+  ]
+}

@@ -330,6 +330,164 @@
         "Complete payment and keyword certification",
         "Dual-window and Windows product acceptance"
       ]
+    },
+    {
+      "id": "movement-tokens-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Movement trigger, resolution-time source location versus captured origin, created count and shared replacement continuation. Token tag definition repair remains queued; not whole-card certification.",
+      "subjects": [
+        {
+          "id": "OGN-222/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31460,
+              "cardNo": "OGN·222/298",
+              "name": "诺克萨斯鼓手",
+              "sha256": "749aa83aacbceb29d0444df4a4166a920c9a20342b8389452501666a135e0e16"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-222-298",
+              "cardNo": "OGN-222/298",
+              "name": "Noxian Drummer",
+              "sha256": "1b8b8fde073d6f352b34d8563393fd5cf97f026862ae018024d0ec682160e373"
+            }
+          ],
+          "activeCardNo": "OGN·222/298",
+          "reviewStatus": "PARTIAL_MOVEMENT_CREATION_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementTokens.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs"
+          ],
+          "tests": [
+            "MovementTokenTests",
+            "MovementTokenNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-tokens-2026-10-11"
+          ]
+        },
+        {
+          "id": "SFD-179/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33276,
+              "cardNo": "SFD·179/221",
+              "name": "卡银娜·薇蕊泽",
+              "sha256": "ce34528d7062ca65c62afee802edf28ee5f609384f957169fcd932d7fec3dd19"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-179-221",
+              "cardNo": "SFD-179/221",
+              "name": "Corinna Veraza",
+              "sha256": "f618fcf71ef1cff33c3b8031f93855b08fa92d7eaf3533d46e2acb47e79873b7"
+            }
+          ],
+          "activeCardNo": "SFD·179/221",
+          "reviewStatus": "PARTIAL_MOVEMENT_CREATION_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementTokens.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs"
+          ],
+          "tests": [
+            "MovementTokenTests",
+            "MovementTokenNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-tokens-2026-10-11"
+          ]
+        },
+        {
+          "id": "UNL-082/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34616,
+              "cardNo": "UNL-082/219",
+              "name": "莉莉娅",
+              "sha256": "1cc299ad07fec88dfc3cfd5ecae4c5d0702c872beda224c3beae4d9a79ffa9d7"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-082-219",
+              "cardNo": "UNL-082/219",
+              "name": "Lillia",
+              "sha256": "d1d5b70dc3166aeb953705225b16d135f941c8e070cc279143295d8d9832fd6b"
+            }
+          ],
+          "activeCardNo": "UNL-082/219",
+          "reviewStatus": "PARTIAL_MOVEMENT_CREATION_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementTokens.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs"
+          ],
+          "tests": [
+            "MovementTokenTests",
+            "MovementTokenNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-tokens-2026-10-11"
+          ]
+        },
+        {
+          "id": "UNL-082A/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34617,
+              "cardNo": "UNL-082a/219",
+              "name": "莉莉娅",
+              "sha256": "b64d182bf662b82c95f3237b1ab1dff782de0babc356a2a05d76cb74e5fa1e21"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-082a-219",
+              "cardNo": "UNL-082a/219",
+              "name": "Lillia",
+              "sha256": "476bd8a4c6ba5c83abb0c17c151f75b29fa990db0261db9edd2da7af9bdf4b2d"
+            }
+          ],
+          "activeCardNo": "UNL-082a/219",
+          "reviewStatus": "PARTIAL_MOVEMENT_CREATION_VERIFIED",
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.MovementTokens.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs"
+          ],
+          "tests": [
+            "MovementTokenTests",
+            "MovementTokenNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/movement-tokens-2026-10-11"
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B010",
+        "DOC-04-P026-B009",
+        "DOC-04-P026-B010"
+      ],
+      "auditDocument": "docs/MOVEMENT_TOKENS_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/movement-tokens-2026-10-11",
+      "validation": {
+        "fullCases": 9459,
+        "fullMethods": 6270,
+        "checkCases": 9326,
+        "nativeScenarios": 8,
+        "nativeCommands": 8,
+        "journalCommands": 30,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Full token tag definitions",
+        "Other movement observer families",
+        "Published future-effective rules",
+        "Dual-window and Windows product acceptance"
+      ]
     }
   ]
 }
