@@ -1,0 +1,165 @@
+[
+  {
+    "name": "song",
+    "action": "ASSEMBLE_EQUIPMENT",
+    "source": "GEAR",
+    "targets": [
+      "HOST"
+    ],
+    "costs": [
+      "ASSEMBLE_GREEN"
+    ],
+    "reverseTriggers": false
+  },
+  {
+    "name": "song-pass-1",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "song-pass-2",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "mode-1",
+    "action": "CHOOSE_CARDS",
+    "source": null,
+    "targets": [
+      "CHANNEL_RUNE"
+    ],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "resolve-1-pass-1",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "resolve-1-pass-2",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "sword",
+    "action": "ASSEMBLE_EQUIPMENT",
+    "source": "SWORD",
+    "targets": [
+      "HOST"
+    ],
+    "costs": [
+      "ASSEMBLE_RED"
+    ],
+    "reverseTriggers": false
+  },
+  {
+    "name": "sword-pass-1",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "sword-pass-2",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "order",
+    "action": "ORDER_TRIGGERS",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": true
+  },
+  {
+    "name": "mode-2",
+    "action": "CHOOSE_CARDS",
+    "source": null,
+    "targets": [
+      "GRANT_BOON"
+    ],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "targets-2",
+    "action": "CHOOSE_CARDS",
+    "source": null,
+    "targets": [
+      "HOST"
+    ],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "mode-3",
+    "action": "CHOOSE_CARDS",
+    "source": null,
+    "targets": [
+      "READY_RUNES"
+    ],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "targets-3",
+    "action": "CHOOSE_CARDS",
+    "source": null,
+    "targets": [
+      "MR1",
+      "MR2"
+    ],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "resolve-2-pass-1",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "resolve-2-pass-2",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "resolve-3-pass-1",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  },
+  {
+    "name": "resolve-3-pass-2",
+    "action": "PASS_PRIORITY",
+    "source": null,
+    "targets": [],
+    "costs": [],
+    "reverseTriggers": false
+  }
+]

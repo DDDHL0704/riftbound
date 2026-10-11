@@ -75,12 +75,13 @@ public sealed partial class CoreRuleEngine
         // Confirm pending items in insertion order, regardless of which rule family
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(i =>
-            i.Tempered is { Equipment: null } || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
+            NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
             || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false });
         if (item is null) return result;
+        if (NeedsAttachmentModeConfirmation(item)) return PrepareAttachmentMode(result, item);
         if (item.Tempered is not null) return PrepareTempered(result, item);
         if (item.LocationDamage is not null) return PrepareLocationDamage(result, item);
         if (item.ReflexiveDuel is not null) return PrepareReflexiveDuelTarget(result, item);

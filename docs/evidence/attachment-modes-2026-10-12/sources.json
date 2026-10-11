@@ -1,0 +1,898 @@
+{
+  "date": "2026-10-12",
+  "cards": [
+    {
+      "id": "RAD-179/167",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 38301,
+          "cardNo": "RAD·179/167",
+          "name": "厄斐琉斯",
+          "sha256": "8bee2348eb7ce5b63bf9d462ccf7c391edec4452d204e509fee3c0ef4e2f4b41"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "rad-179-167",
+          "cardNo": "RAD-179/167",
+          "name": "Aphelios",
+          "sha256": "00202ea23223591d23831037d7ae63d98c50ff1bf1c11b130518a9adcd107546"
+        }
+      ],
+      "activeCardNo": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    },
+    {
+      "id": "SFD-011/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33083,
+          "cardNo": "SFD·011/221",
+          "name": "取放自如",
+          "sha256": "ed0aea75f39a356cbffa5ca4fd07de31162f153176b1ff2cbc347c0984e671dc"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-011-221",
+          "cardNo": "SFD-011/221",
+          "name": "Angle Shot",
+          "sha256": "ddc9e908a675f7126114e4e716663c483f960602ef1e651b04cf38148b8dbaf2"
+        }
+      ],
+      "activeCardNo": "SFD·011/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    },
+    {
+      "id": "SFD-022/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33095,
+          "cardNo": "SFD·022/221",
+          "name": "长剑",
+          "sha256": "525398fcf07c509fca8df5437fdc215061f452ae45f4fcd9d7164590f206e3e3"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-022-221",
+          "cardNo": "SFD-022/221",
+          "name": "Long Sword",
+          "sha256": "309ca4cce39e660e570c7438ff16bf36aff5b77b48fdc134f5602acd334179bc"
+        }
+      ],
+      "activeCardNo": "SFD·022/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    },
+    {
+      "id": "SFD-049/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33125,
+          "cardNo": "SFD·049/221",
+          "name": "厄斐琉斯",
+          "sha256": "dad4aa1ef8306234bf6a79a8b355548f22fe48740a9fb9f5f90ccd0737ffbc09"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-049-221",
+          "cardNo": "SFD-049/221",
+          "name": "Aphelios",
+          "sha256": "ca281827d21ef2f77e695510b8e2fe70f359a3039452d04d101392577a2fa11f"
+        }
+      ],
+      "activeCardNo": "SFD·049/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    },
+    {
+      "id": "SFD-059/221",
+      "sources": [
+        {
+          "language": "zh-CN",
+          "sourceId": 33139,
+          "cardNo": "SFD·059/221",
+          "name": "斯弗尔尚歌",
+          "sha256": "e2454b481f73df3e42fae199b5e21d199db3c0739b22c836f70d734389664a8b"
+        },
+        {
+          "language": "en-US",
+          "sourceId": "sfd-059-221",
+          "cardNo": "SFD-059/221",
+          "name": "Svellsongur",
+          "sha256": "75506eceadb637a5be97bcf4abfaa12ba98c875c16c1f058641ef1cc54dbaee1"
+        }
+      ],
+      "activeCardNo": "SFD·059/221",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": [],
+      "nativeEvidence": []
+    }
+  ],
+  "rules": [
+    {
+      "id": "DOC-04-P040-B003",
+      "document": "DOC-04",
+      "page": 40,
+      "clauseAnchors": [
+        "337.1.b"
+      ],
+      "text": "337.1.b.               结算链项目会按照被添加到结算链的顺序进行确认。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B010",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.3"
+      ],
+      "text": "383.3.       条件 满足时,触发式技能 就会和主动技能 一样行动,被放置到结算链 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B011",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.3.a"
+      ],
+      "text": "383.3.a.          如果触发式技能的效果开头为“你可以选择”或“该玩家可以选择”,则其来源的控制者将在确认阶段选择是\n                  否执行该触发式技能。\n                        举例:“控潮者”拥有“当你打出我时,你可以选择另一处位置受你控制的一名单位,然后把我移\n                        动到其所在位置,再将其移动到我原来的位置”的效果。其中的“你可以选择”出现在效果的开\n                        头,因此该选择代表是否执行该触发式技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B012",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.3.a.1"
+      ],
+      "text": "383.3.a.1.              当“可以选择”以这种形式出现时,其所表示的选择仅为是否执行该触发式技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B013",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.3.a.2"
+      ],
+      "text": "383.3.a.2.              如果该触发式技能的控制者在确认阶段选择不执行该触发式技能,则该技能将从结算链中移\n                        除,并视为未触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B001",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.a.3"
+      ],
+      "text": "383.3.a.3.              当“你可以选择”或“该玩家可以选择”出现在触发式技能效果的后半部分时,则该选择将在结算阶\n                        段决定。\n                               举例:“奥恩 - 铁匠”的描述为:“当你打出我时,或当我据守一处战场时,查看你主牌\n                               堆顶部的四张牌。你可以选择从中展示一件装备,并抽取该卡牌。然后回收其余的卡\n                               牌。”其中的“你可以选择”并非出现在效果的开头部分,因此该决定将在结算阶段做\n                               出。该技能始终会被确认并放入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B002",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.b"
+      ],
+      "text": "383.3.b.           如果触发式技能包含指示中的费用,且该费用位于效果的开头部分,或紧跟在效果开头部分出现的“你可\n                   以选择”或“该玩家可以选择”之后,则该费用将视为该触发式技能的基础费用。\n                        举例:“艾克 - 溯时洄光”的描述为:“[绝念][>] 回收我,以此让你的所有符文变为活跃状态。”在\n                        此情况下,“回收我,以此让你的所有符文变为活跃状态”便是出现在技能效果开头部分的指示中\n                        的费用,因此“回收我”被视为该触发式技能的基础费用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B004",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.b.1"
+      ],
+      "text": "383.3.b.1.              必须支付此费用,才能确认将该触发式技能加入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B005",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.c"
+      ],
+      "text": "383.3.c.           触发式技能 可以在任意玩家的回合中放置到结算链 ,无论闭环状态 或开环状态 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B006",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.d"
+      ],
+      "text": "383.3.d.           如果同一时间有多个触发式技能被触发,则由控制技能的玩家选择它们放置到结算链的顺序。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B007",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.d.1"
+      ],
+      "text": "383.3.d.1.              如果同时触发的多个触发式技能由多个不同玩家控制,则从回合玩家开始,随后按照回合顺\n                        序 ,每名玩家依次将自己的触发式技能 放置到结算链 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B008",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.e"
+      ],
+      "text": "383.3.e.           部分触发式技能的触发限制为“每回合限一次”或“每回合限 N 次”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B009",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.e.1"
+      ],
+      "text": "383.3.e.1.              此类触发式技能每回合只会执行指定次数。若其触发条件已满足,但该技能已执行指定次数,\n                        则不会触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B010",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.e.2"
+      ],
+      "text": "383.3.e.2.              如果触发式技能效果的开头部分指示“你可以选择”或“该玩家可以选择”,则其控制者可以选择是\n                        否执行该技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B011",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.e.2.a"
+      ],
+      "text": "383.3.e.2.a.                   在触发式技能的确认阶段,控制该触发式技能的玩家可以选择执行该技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P060-B012",
+      "document": "DOC-04",
+      "page": 60,
+      "clauseAnchors": [
+        "383.3.e.2.b"
+      ],
+      "text": "383.3.e.2.b.                   如果选择不执行,则该技能将从结算链中移除。\n                                   举例:一名玩家控制的单位的部分描述为“每回合限一次,当一名敌方单位\n                                   被摧毁时,你可以选择将其放逐。”当一名敌方“随从”指示物被摧毁时,该\n                                   触发式技能将进入结算链。如果该玩家在确认阶段选择不执行该技能,则\n                                   该技能将从结算链中移除。当“强强魄罗”在本回合的后期被摧毁时,该玩家\n                                   可以选择触发该技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P093-B008",
+      "document": "DOC-04",
+      "page": 93,
+      "clauseAnchors": [
+        "477.1.b"
+      ],
+      "text": "477.1.b.                复制效果会在本效果层中执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P093-B009",
+      "document": "DOC-04",
+      "page": 93,
+      "clauseAnchors": [
+        "477.1.b.1"
+      ],
+      "text": "477.1.b.1.                     如果一个游戏物体成为另一个物体的复制体,则其所有可复制特质会根据指向该复制体的游戏\n                               效果,对原始游戏物体的特质进行替换或添加。这项操作会在本效果层中执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P093-B010",
+      "document": "DOC-04",
+      "page": 93,
+      "clauseAnchors": [
+        "477.1.b.1.a"
+      ],
+      "text": "477.1.b.1.a.                         可复制的特质包括:\n                                          名称\n                                           超类型\n                                           类型\n                                           标签\n                                           费用\n                                           特性\n                                           规则文本",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P093-B011",
+      "document": "DOC-04",
+      "page": 93,
+      "clauseAnchors": [
+        "477.1.b.1.b"
+      ],
+      "text": "477.1.b.1.b.                         复制效果会复制游戏物体的可复制特质。默认情况下,可复制特质是游戏物体卡面上\n                                     印刷的特质。当游戏物体成为某对象的复制体时,它的可复制特质将更新为新获得的\n                                     特质。\n                                           举例:一名玩家触发了“乐芙兰 - 诡术妖姬”的据守效果,并打出一个“映像”\n                                           指示物,使其成为“诚实掮客”的复制体。该玩家随后打出“镜花水月”,将\n                                           “映像”指示物指定为目标。当“镜花水月”的“映像”指示物被打出时,会复制\n                                           原始“映像”指示物的所有可复制特质——而目前,这些特质也就是它复制的\n                                           “诚实掮客”所拥有的特质。该玩家场上会有三个名为“诚实掮客”的单位,其\n                                           中两个是带有瞬息的指示物复制体。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P094-B001",
+      "document": "DOC-04",
+      "page": 94,
+      "clauseAnchors": [
+        "477.1.b.2"
+      ],
+      "text": "477.1.b.2.                 某些游戏效果可能会指定复制卡牌的特定特质。在这种情况下,只有游戏效果中指定的特质会\n                           被复制。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B010",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.1"
+      ],
+      "text": "719.1.           所有贴附于此卡牌的卡牌,只要保持贴附状态,其效果文本就会被添加到此卡牌的规则文本中。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B001",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "如果对手的“阿克尚 - 放浪不羁”偷走了我已装配的“可疑的眼镜”,此时会发生什么?如果对手\n想复制厄斐琉斯,此时会发生什么?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B002",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "如果“可疑的眼镜”原本贴附在一个单位上,则装配此牌的单位会失去其复制效果。随后,阿克尚\n会成为其控制者所选择的一名友方单位的复制体。如果他成为厄斐琉斯的复制体,则厄斐琉斯的\n技能也不会触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B003",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "这里还需要进一步说明。在“化神争锋”规则更新中,我们进一步明确了“可疑的眼镜”和“斯弗尔尚\n歌”等效果的运作方式;它们属于替换效果,会将“武装贴附到一名单位上”的事件,替换为“武装贴\n附到一名单位上”事件外加其效果中指定的其他事件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B004",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "以“斯弗尔尚歌”为例,由此引发的事件将会是:\n     贴附 → 复制装配此牌的单位的技能文本到“斯弗尔尚歌”的效果文本,在“斯弗尔尚歌”贴附",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B005",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "期间持续生效",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B006",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "针对“可疑的眼镜”,由此引发的事件将会是:\n     贴附 → 选择一名友方单位,装配此牌的单位变为所选单位的复制体,在“可疑的眼镜”贴附\n     期间持续生效",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B007",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "以上事件并不是同时发生的。先执行贴附事件,然后再执行替换效果所指示的其他事件。因此,\n“铸魂淬炼”常见问题解答中的相关答复已不再适用:如果你将“斯弗尔尚歌”装配给厄斐琉斯,他的\n技能将不会触发两次。因为在贴附事件执行时,“斯弗尔尚歌”尚未获得被复制效果的技能描述。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B008",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "同理,如果阿克尚从对手处夺走了“可疑的眼镜”,该卡牌会先贴附在他身上,然后才让他成为其\n他单位的复制体。如果阿克尚的控制者选择让他成为厄斐琉斯的复制体,那么等阿克尚获得新的\n触发式技能时,已经检查不到先前的贴附事件了,因为该事件已经执行完毕。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P006-B009",
+      "document": "DOC-06",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "相关规则:369.1.、370.1.b.1.、370.1.a.2.",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P007-B001",
+      "document": "DOC-06",
+      "page": 7,
+      "clauseAnchors": [],
+      "text": "我的“黄沙士兵”装配了“可疑的眼镜”,并成为了“阿兹尔 - 飞升者”的复制体。如果我激活复制\n所得的阿兹尔的主动技能后,用其他效果卸除“可疑的眼镜”,再将其贴附到同一个“黄沙士兵”\n上,并再次让其成为同一个“阿兹尔 - 飞升者”的复制体,此时会发生什么?我可以再次使用该\n主动技能吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P007-B002",
+      "document": "DOC-06",
+      "page": 7,
+      "clauseAnchors": [],
+      "text": "可以。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P007-B003",
+      "document": "DOC-06",
+      "page": 7,
+      "clauseAnchors": [],
+      "text": "每次复制所得的技能,都会被视为不同的技能实例。在整个过程中,游戏物体始终保持不变,因\n此“黄沙士兵”在变化期间会保留其身上的所有临时调整,但是其复制的规则文本会成为一个新的\n技能实例。这与“斯弗尔尚歌”的情况类似:如果将“斯弗尔尚歌”卸除,再重新贴附到同一名单位,\n那么其复制所得的技能便相当于被“刷新”了。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P007-B004",
+      "document": "DOC-06",
+      "page": 7,
+      "clauseAnchors": [],
+      "text": "在战斗伤害分配步骤中,如果我的 4[M]单位本回合内同时受到“忍法!气合盾”和“莲花陷阱”的\n影响,而对手有一名 4[M]防守方单位,此时会发生什么?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P007-B005",
+      "document": "DOC-06",
+      "page": 7,
+      "clauseAnchors": [],
+      "text": "你可以决定自己单位上的替换效果按照哪种顺序执行。如果先执行“忍法!气合盾”,你的单位不\n会受到任何伤害,且该单位仍会剩余 3 点伤害的抵挡效果。如果先执行“莲花陷阱”,你的单位会\n受到 1 点伤害,且该单位不会剩余任何的抵挡效果。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P007-B006",
+      "document": "DOC-06",
+      "page": 7,
+      "clauseAnchors": [],
+      "text": "在“化神争锋”规则更新中,我们简化了战斗中适用于伤害的替换效果的处理方式。具体而言,所\n有原本会在造成战斗伤害时生效的替换效果,现在都会改为在战斗伤害分配步骤中生效。此前,\n“忍法!气合盾”或“反击风暴”等抵挡效果就已经采用了这种处理方式,以避免出现一些奇怪的极端\n情况。而现在,伤害提升的替换效果也会在伤害分配步骤中生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P007-B007",
+      "document": "DOC-06",
+      "page": 7,
+      "clauseAnchors": [],
+      "text": "相关规则:465.2.c.4.a.、465.2.c.5.",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-13-P019-B001",
+      "document": "DOC-13",
+      "page": 19,
+      "clauseAnchors": [],
+      "text": "问:“厄斐琉斯 - 出尘”有个技能是当我给他贴附武装时,让\n我“从以下中选择一个本回合未选过的效果”。如果我给他贴\n附“斯弗尔尚歌”,他来得及获得这个技能的第二份复制效果\n并让两次效果都触发吗?如果来得及,我必须要选不同的效\n果吗?\n他确实来得及获得该技能的第二份复制效果,并且它也会触\n发。关于限制条件:“一个本回合未选过的效果”是针对每一个\n技能实例独立判定的。也就是说,你可以为原来的技能和新复\n制的技能选择同一个选项,但你需要分开记清楚每个技能各自\n用过了哪些选项。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-13-P019-B002",
+      "document": "DOC-13",
+      "page": 19,
+      "clauseAnchors": [],
+      "text": "降低战力的卡牌\n问:我听说以后削减战力的卡牌不会再写着“不得低于 1”了。那像“‘敲’诈”这种“起源”系\n列的卡牌也会被勘误吗?\n不会。这只是从“铸魂淬炼”系列开始实施的新设计方针,而“起源”系列的卡牌将保留其原\n本的功能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-13-P019-B003",
+      "document": "DOC-13",
+      "page": 19,
+      "clauseAnchors": [],
+      "text": "问:这是不是说,现在单位的战力可以降到 0 甚至是负数了?\n其实单位的战力一直都能降到 0 或更低,只不过实际操作起来极其困难而已。举个例\n子:假设有一个随从位于“崔法利兵营”,它会拥有 2 点战力\n(1 点自带的基础战力,+1 点兵营加成)。如果它被“‘敲’诈”\n命中,“‘敲’诈”会以-1 战力进行“快照”,将随从的战力降至 1。\n如果该随从随后离开崔法利兵营,它将失去+1 战力加成,最\n终变为 0 点战力。鉴于在“铸魂淬炼”系列的卡牌中这种情况会\n变得很常见,我们建议大家温习一下关于“战力不高于 0 的单\n位”的规则。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-13-P019-B004",
+      "document": "DOC-13",
+      "page": 19,
+      "clauseAnchors": [],
+      "text": "问:战力不高于 0 的单位会自动被摧毁吗?\n不会,单位即使战力为 0(甚至更低!)也能存留在场上。只\n要受到任何伤害,它们就会被摧毁。但由于“0 点”不被视为有\n效的伤害数值,因此你需要对战力不高于 0 的单位起码造成 1\n点伤害,才能将其摧毁。我们明白这听起来有点怪,但这能确\n保像“封冻”这类卡牌只能用于削弱单位,而无法直接将单位摧\n毁——这对我们来说很重要。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P021-B001",
+      "document": "DOC-14",
+      "page": 21,
+      "clauseAnchors": [],
+      "text": "Q:本回合我方【薇恩 - 追猎\n者】征服战场后返回了手牌,该战\n                      A:不可以。\n场变为了开放战场,我方能否将\n【栖息的冥龙】打出到该战场?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P021-B002",
+      "document": "DOC-14",
+      "page": 21,
+      "clauseAnchors": [],
+      "text": "Q:【厄斐琉斯 - 出尘】技能效\n果不同模式的选择,是技能确认时      A:确认时选择。\n 选择,还是技能结算时选择?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P021-B003",
+      "document": "DOC-14",
+      "page": 21,
+      "clauseAnchors": [],
+      "text": "我方贴附有武装 A 和武装 B 的\n                    A1:可以选择,但这\n【寻宝猎人】和我方【阿兹尔 -\n                    并不会造成任何移动,\n  飞升者】在同一处位置。\n                    所以【寻宝猎人】的技\n                     能不会触发。\nQ1:【阿兹尔 - 飞升者】能否选\n择【寻宝猎人】并触发其移动时技\n                    A2:不可以。你必须\n       能?\n                    在技能确认时选取一名\n                    单位,若其身上贴附有\nQ2:【阿兹尔 - 飞升者】选择\n                    武装,则你必须选取其\n【寻宝猎人】后,能否在技能结算\n                    中一件武装作为目标。\n时再决定贴附武装 A 或武装 B?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P021-B004",
+      "document": "DOC-14",
+      "page": 21,
+      "clauseAnchors": [],
+      "text": "我方只控制一名单位和一件武装,\n该单位已在之前回合贴附了该武\n       装。\n                      A1:可以。\nQ1:我方打出【取放自如】,可以\n选择以该单位和该武装为目标吗?       A2:不会。\n Q2:如果该武装是【残暴之\n力】,该单位本回合会额外获得战\n     力+2 吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P024-B001",
+      "document": "DOC-14",
+      "page": 24,
+      "clauseAnchors": [],
+      "text": "Q:为【厄斐琉斯 - 出尘】贴附\n【斯弗尔尚歌】时,能否触发【斯\n                     A:可以。\n弗尔尚歌】复制的【厄斐琉斯 -\n     出尘】技能?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P024-B002",
+      "document": "DOC-14",
+      "page": 24,
+      "clauseAnchors": [],
+      "text": "Q:贴附有两件【斯弗尔尚歌】的\n【奥恩 - 熔铸之神】是<法盾 6>    A:是。\n       吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P024-B003",
+      "document": "DOC-14",
+      "page": 24,
+      "clauseAnchors": [],
+      "text": "Q:我为 1 名单位贴附【布甲】\n后,再为该单位贴附【斯弗尔尚\n歌】,【斯弗尔尚歌】可以复制该      A:不可以。\n单位因【布甲】获得的【坚守 2】\n       吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P024-B004",
+      "document": "DOC-14",
+      "page": 24,
+      "clauseAnchors": [],
+      "text": "Q:我打出【顺劈】选择 1 名单位\n并结算后,为该单位贴附【斯弗尔\n尚歌】,【斯弗尔尚歌】可以复制      A:不可以。\n该单位因【顺劈】获得的【强攻\n      3】吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P043-B006",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.3"
+      ],
+      "text": "355.3.       如果是用列表列出了多种模式可供选择的法术和技能,则在此时做出相应选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P043-B017",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.8"
+      ],
+      "text": "355.8.       要将法术或技能放置到结算链,必须为其所有目标做出有效的选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P043-B018",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.9"
+      ],
+      "text": "355.9.       当目标满足以下所有要求时,即视为一个有效的选择:",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P043-B019",
+      "document": "DOC-04",
+      "page": 43,
+      "clauseAnchors": [
+        "355.9.a"
+      ],
+      "text": "355.9.a.            其为场地内的常驻牌或符文、结算链上的法术或技能、某名玩家或某个区域、或是被明确或隐含地指向位\n                    于其它区域的上述对象。\n                         举例:“摧毁一名单位”即以场上的一名单位为目标。\n                         举例:“从你的废牌堆中回收一名单位”即指定你废牌堆中的一张单位卡牌为目标。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P044-B003",
+      "document": "DOC-04",
+      "page": 44,
+      "clauseAnchors": [
+        "355.9.b"
+      ],
+      "text": "355.9.b.          其满足所有目标选取的限制条件。\n                       举例:只有当一名单位充分满足相应条件时,如法术描述中的“战场上的单位”、“敌方单位”、\n                       “你控制的单位”或“战力为 4 或以上的单位”,才能被视为该法术的有效目标。\n                       举例:一名具有“我无法被敌方法术和技能选作目标”效果的单位,无法成为任何敌方法术或技能\n                       的有效目标,即使它符合其他目标选取的限制条件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P044-B005",
+      "document": "DOC-04",
+      "page": 44,
+      "clauseAnchors": [
+        "355.10"
+      ],
+      "text": "355.10.       在法术、主动技能或触发式技能的文本中提及的游戏物体、玩家或区域均被视为目标,除非出现下列任一情况:",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P044-B006",
+      "document": "DOC-04",
+      "page": 44,
+      "clauseAnchors": [
+        "355.10.a"
+      ],
+      "text": "355.10.a.         其位于信息状态为非公开的区域中。\n                       举例:“让一名传奇变为活跃状态”是以一名传奇为目标,因为传奇区域属于公开区域。\n                       举例:“让你废牌堆里的一名单位返回手牌”是以你的废牌堆中的一名单位为目标,因为你的废牌\n                       堆属于公开区域。\n                       举例:“你可以选择从手牌中打出一名单位,无视费用”不会指定你手牌中的单位牌为目标,因为\n                       你的手牌不属于公开区域。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P045-B001",
+      "document": "DOC-04",
+      "page": 45,
+      "clauseAnchors": [
+        "355.10.d"
+      ],
+      "text": "355.10.d.         其为按照自身特性由流程自动选定,而不是由法术或技能的控制者选定。\n                         举例:“摧毁一处战场上的所有单位”以一处战场为目标,而不以任意单位为目标。\n                         举例:“摧毁所有战场上的单位”不视为目标选取。\n                         举例:“摧毁一名单位。让其控制者抽两张牌”只以该单位为目标,而不以其控制者为目标。\n                         举例:“让你的传奇变为活跃状态”不视为目标选取,因为你只能拥有一名传奇。\n                         举例:“让一名友方传奇变为活跃状态”以一名传奇为目标,因为在 2v2 游戏中存在两名友方传\n                         奇。\n                         举例:“回收你废牌堆中的所有卡牌”不视为目标选取,因为此效果会影响所有卡牌,且你只拥有\n                         一个废牌堆。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P046-B001",
+      "document": "DOC-04",
+      "page": 46,
+      "clauseAnchors": [
+        "355.13"
+      ],
+      "text": "355.13.            如果卡牌指示玩家选择“任意数量”或“最多”一定数量的游戏物体并对其施加效果,则该玩家可以从可用目标中选择任\n                   意数量(包括 0)。如果选择了 0 为数量,则该法术或技能可以在没有任何目标的情况下打出。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P046-B013",
+      "document": "DOC-04",
+      "page": 46,
+      "clauseAnchors": [
+        "355.15"
+      ],
+      "text": "355.15.            除非法术或技能另有说明,否则经过此步骤后,这些选择将无法更改。\n                        想获取更多有关信息,请查阅规则 750.另做选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P050-B005",
+      "document": "DOC-04",
+      "page": 50,
+      "clauseAnchors": [
+        "359.3.e.1"
+      ],
+      "text": "359.3.e.1.        即使部分或所有目标不合法,法术依旧会进行结算。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P051-B001",
+      "document": "DOC-04",
+      "page": 51,
+      "clauseAnchors": [
+        "359.3.e.7"
+      ],
+      "text": "359.3.e.7.     如果一张法术卡牌开始结算时,指示的所有目标均处于无效或不可用状态,则该指示不会执\n               行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P051-B002",
+      "document": "DOC-04",
+      "page": 51,
+      "clauseAnchors": [
+        "359.3.e.8"
+      ],
+      "text": "359.3.e.8.     如果指示拥有多个目标,且法术卡牌开始结算时并非所有目标均处于无效或不可用状态,则该\n               卡牌会正常执行,只对适用且有效的目标产生效果。\n                    举例:“星芒凝汇”的效果为“对最多两名单位各造成 6 点伤害”。即使这些单位中有一\n                    名单位在法术开始前变为不可用状态,该指示仍会执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P078-B003",
+      "document": "DOC-04",
+      "page": 78,
+      "clauseAnchors": [
+        "430.3"
+      ],
+      "text": "430.3.            如果符文牌堆中的符文数量不足,则尽可能召出所有可用的符文。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "DOC-01",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则（10.16生效）",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "updated": "2026-10-10",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-04",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "updated": "2026-07-17",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-06",
+      "title": "化神争锋系列 官方FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+      "updated": "2026-08-14",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-13",
+      "title": "铸魂淬炼系列 官方FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf",
+      "sha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01",
+      "updated": "2026-01-14",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-14",
+      "title": "铸魂淬炼系列 裁判FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+      "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+      "updated": "2026-01-14",
+      "effectiveDate": null
+    }
+  ],
+  "livePrimarySources": [
+    {
+      "url": "https://playriftbound.com/en-us/news/rules-and-releases/vendetta-rules-faq-and-clarifications/",
+      "readDate": "2026-10-12",
+      "conclusion": "Attach precedes the added copy instruction; detached and reattached copied text is a new ability instance."
+    }
+  ],
+  "visualChecks": [
+    {
+      "document": "DOC-14",
+      "page": 21,
+      "image": "/tmp/rift-attachment-modes-14-p21.png",
+      "checked": "Aphelios modes are chosen during confirmation"
+    }
+  ],
+  "scope": "Shared attachment modal trigger and separate per-instance used-mode ledger. Current attach-then-copy FAQ overrides old same-attachment double-trigger answer; independent per-instance choice restriction is retained. RAD print remains outside current active engine catalog and is tracked, not silently certified.",
+  "currentSourceRefresh": "docs/evidence/rules-reaudit-2026-10-12/live-readback.json; current card fields and rule texts match the cited 2026-10-11 immutable corpus"
+}

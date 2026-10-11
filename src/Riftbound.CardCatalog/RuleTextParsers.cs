@@ -321,6 +321,8 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var hasAttachmentModes = TryParseAttachmentModes(text, out var attachmentModes);
+        if (hasAttachmentModes) triggers.Add(attachmentModes);
         var hasBattlefieldConquerRevealRecycleTrigger =
             TryParseBattlefieldConquerRevealRecycle(text, out var battlefieldConquerRevealRecycleTrigger);
         if (hasBattlefieldConquerRevealRecycleTrigger)
@@ -410,6 +412,7 @@ public static class TriggerParser
         }
 
         triggers.AddRange(TargetParser.SplitRulesText(text)
+            .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)
                 || segment.Contains("打出我时", StringComparison.Ordinal)
@@ -439,6 +442,32 @@ public static class TriggerParser
             .ToArray());
 
         return triggers.ToArray();
+    }
+
+    private static bool TryParseAttachmentModes(string text, out TriggerSpec trigger)
+    {
+        trigger = default!;
+        var match = Regex.Match(text,
+            @"当你为我贴附一件武装时，(?:从以下中选择一个本回合未选过的效果|选择一个在本回合内未选过的效果)\s*[—-]\s*(?<options>[\s\S]+)",
+            RegexOptions.CultureInvariant);
+        if (!match.Success) return false;
+        var modes = new List<TriggerModeSpec>();
+        foreach (var line in match.Groups["options"].Value.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var option = line.Trim().TrimStart('-').Trim();
+            var ready = Regex.Match(option, @"^让([0-9一两二三四五六七八九十]+)枚符文变为活跃状态。?$", RegexOptions.CultureInvariant);
+            var call = Regex.Match(option, @"^召出([0-9一两二三四五六七八九十]+)枚休眠的?符文。?$", RegexOptions.CultureInvariant);
+            var boon = Regex.Match(option, @"^给予一名友方单位(?:\{\{增益\}\}|增益)。?$", RegexOptions.CultureInvariant);
+            if (ready.Success) modes.Add(new("READY_RUNES", option, RuneReadyCount: ParseChineseNumber(ready.Groups[1].Value)));
+            else if (call.Success) modes.Add(new("CHANNEL_RUNE", option, RuneCallCount: ParseChineseNumber(call.Groups[1].Value)));
+            else if (boon.Success) modes.Add(new("GRANT_BOON", option, BoonCount: 1, TargetScope: TriggerTargetScopes.ControlledUnitOnField));
+            else return false;
+        }
+        if (modes.Count == 0 || modes.Select(m => m.Id).Distinct(StringComparer.Ordinal).Count() != modes.Count) return false;
+        trigger = new(TriggerKinds.UnitArmamentAttachedChooseUnusedMode, TriggerTimings.UnitArmamentAttached,
+            match.Value, "Attachment modal effects are chosen at confirmation and tracked separately for each printed/copied instance each turn.",
+            Modes: modes, DistinctModesPerTurn: true);
+        return true;
     }
 
     private static bool TryParseSourceUnitPlayedPlayLowCostGraveyardSpellRecycle(

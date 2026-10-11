@@ -7763,6 +7763,39 @@
         "docs/evidence/copied-attachment-observers-2026-10-12/native-validation.json"
       ],
       "wholeCardCertification": false
+    },
+    {
+      "id": "ATTACHMENT-MODES-2026-10-12",
+      "status": "SCOPED_LOCAL_PASS_FULL_CI_PENDING",
+      "scope": "Printed attachment modal trigger with confirmation-time choice, selected public targets, per-continuous-source and copied-origin used modes, independent copied ability confirmation and resolution. Whole cards are not certified.",
+      "subjects": [
+        "SFD-049/221",
+        "SFD-059/221"
+      ],
+      "rules": [
+        "DOC-14-P021-B002",
+        "DOC-13-P019-B001",
+        "DOC-06 p6-7 override of old same-attachment copy answer",
+        "DOC-04 337.1.b,355.3,355.8,355.12,355.15,359.3.e.7-8"
+      ],
+      "implementation": [
+        "TriggerModeSpec",
+        "TriggerParser.TryParseAttachmentModes",
+        "CoreRuleEngine.AttachmentModes.cs",
+        "AttachmentObserverContext",
+        "MatchState.RuleTextModeUses"
+      ],
+      "tests": [
+        "AttachmentModeTests",
+        "AttachmentModeNativeTests",
+        "FullGameEndToEndTests.AuditedAttachmentModesMidgameConfirmsTargetsAndReplaysThroughScoreVictory"
+      ],
+      "evidence": [
+        "docs/ATTACHMENT_MODE_AUDIT_2026-10-12.md",
+        "docs/evidence/attachment-modes-2026-10-12/validation.json",
+        "docs/evidence/attachment-modes-2026-10-12/native-validation.json"
+      ],
+      "wholeCardCertification": false
     }
   ]
 }

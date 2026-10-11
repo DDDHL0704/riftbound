@@ -1,0 +1,20 @@
+[
+  {
+    "id": "AZIR-CONFIRMATION-EQUIPMENT-TARGET",
+    "status": "OPEN_SOURCE_REVIEW",
+    "source": "DOC-14-P021-B003 and DOC-04 355.12/383.3.a.3",
+    "finding": "A unit with attached armaments requires an equipment reference chosen at confirmation; the optional action must be distinguished from that mandatory reference. Existing code stores the equipment as an optional-cost selection and omits it from TargetObjectIds. Needs a focused authority and executable reconstruction."
+  },
+  {
+    "id": "SPELL-OR-ABILITY-COUNTER-TARGET",
+    "status": "OPEN_REPRO_REQUIRED",
+    "source": "Current official SFD·045/221 and UNL-106/219 plus CoreRuleEngine.IsStackSpellItem",
+    "finding": "The official text permits ability targets, while the shared StackSpell classifier only accepts registered spell behaviors. Captured trigger effects require executable reproduction and a shared type/target policy."
+  },
+  {
+    "id": "MULTIPLE-COPIED-MODE-UI-IDENTITY",
+    "status": "OPEN_UX_SCOPE",
+    "source": "Production attachment-mode interaction proof",
+    "finding": "Modes have Chinese labels and independent command identities. Multiple copies still need an unambiguous user-visible origin label beyond backend instance identity."
+  }
+]

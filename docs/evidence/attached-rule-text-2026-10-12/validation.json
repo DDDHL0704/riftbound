@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_LOCAL_PASS_FULL_CI_PENDING",
+  "status": "SCOPED_LOCAL_AND_EXACT_HEAD_FULL_CI_PASS",
   "profiles": {
     "focus": {
       "status": "PASSED",
@@ -100,7 +100,14 @@
   "compositeDistinctPassed": 9913,
   "seededMidgameToScoreVictory": 2,
   "nativeEvidence": "native-validation.json",
-  "currentFullCI": "Pending commit and exact-head run",
+  "currentFullCI": {
+    "runId": 38175922945,
+    "headSha": "ff5d43044bb8047480e8b3dbc92c8e70bb7eb48e",
+    "passedDistinctCases": 10046,
+    "discoveredMethods": 6559,
+    "caseAndMethodParityVerified": true,
+    "evidence": "docs/evidence/attached-rule-text-2026-10-12/ci-readback.json"
+  },
   "wholeCardCertification": false,
   "allCardRuleAudit": "IN_PROGRESS",
   "remaining": [

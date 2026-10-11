@@ -23405,6 +23405,10 @@ public static class MatchRecoveryValidator
 
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
+        if (!CoreRuleEngine.ValidRuleTextModeLedger(state)) errors.Add("invalid printed text instance mode-use ledger");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.AttachmentModeTargetWindow } modeChoice
+            && !CoreRuleEngine.ValidAttachmentModeChoice(state, modeChoice)) errors.Add("invalid attachment mode confirmation");
+        if (state.StackItems.Any(item => !CoreRuleEngine.ValidConfirmedAttachmentMode(state, item))) errors.Add("invalid confirmed attachment mode");
         foreach (var card in state.CardObjects.Values)
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
@@ -23413,7 +23417,8 @@ public static class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
                 || !CoreRuleEngine.ValidAttachmentGenerations(state, item.AttachmentObserver, item.SourceObjectId)
-                || item.AttachmentObserver is not null && (item.SourceConfirmed || item.TargetObjectIds.Count != 0))
+                || item.AttachmentObserver is not null && (item.SourceConfirmed
+                    || item.AttachmentObserver.References is null && item.TargetObjectIds.Count != 0))
                 errors.Add("invalid captured attachment observer");
         foreach (var item in state.TriggerQueue)
             if (!CoreRuleEngine.ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId)
@@ -26281,7 +26286,8 @@ public static class MatchRecoveryValidator
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
+            if (authoritativeState.PendingCardChoice.ChoiceWindow != CoreRuleEngine.AttachmentModeWindow)
+                ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",
                 authoritativeState.PendingCardChoice.LegalObjectIds,
                 knownObjectIds,

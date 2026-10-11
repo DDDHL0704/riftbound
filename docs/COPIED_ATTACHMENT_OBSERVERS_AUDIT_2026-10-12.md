@@ -11,3 +11,5 @@
 一次 check 执行 9,924 用例，其中 9,920 通过，四个拒绝测试仅因精确诊断白名单未包含新合法 EQUIPMENT_ATTACHED 失败。只更新共享期望常量，保留伪造事件拒绝及精确错误断言；其四个引用测试与其他匹配项共 7 个 focus 全部通过，前后 engine DLL SHA 相同。本地组合去重 9,926 用例；上一提交 9,907 本地 check 身份全部保留，本批新增 17 个普通用例与两个完整对局，发现 6,567 方法。没有重复完整回归或省略失败用例。
 
 见 [validation.json](evidence/copied-attachment-observers-2026-10-12/validation.json)、[原生命令验证](evidence/copied-attachment-observers-2026-10-12/native-validation.json) 与 [来源](evidence/copied-attachment-observers-2026-10-12/sources.json)。厄斐琉斯模式触发、其他复制消费者和全部卡牌认证仍开放。
+
+精确提交 `a59d5954` 完整 CI 已读回：规则、Windows、macOS 全部成功；10,065 个唯一用例全部通过，6,567 个方法；上一提交全部 10,046 个用例／6,559 个方法保留，新增 19 用例／8 方法。耗时 1366.99 秒。证据：`docs/evidence/copied-attachment-observers-2026-10-12/ci-readback.json`。未据此认证全部卡牌或可见双客户端／Windows 联机。

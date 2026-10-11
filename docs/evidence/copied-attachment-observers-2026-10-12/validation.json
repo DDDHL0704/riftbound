@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_COMPOSITE_LOCAL_PASS_FULL_CI_PENDING",
+  "status": "SCOPED_COMPOSITE_LOCAL_AND_EXACT_HEAD_FULL_CI_PASS",
   "batchCheck": {
     "evidence": "var/qa/copied-attachment-observers/check1",
     "counters": {
@@ -111,7 +111,18 @@
   "seededMidgameToScoreVictory": 2,
   "productionNativeCommands": 57,
   "nativeEvidence": "native-validation.json",
-  "currentFullCI": "Pending follow-up commit; previous ff5d4304 CI 38175922945 is still running",
+  "currentFullCI": {
+    "runId": 38177642350,
+    "headSha": "a59d5954ca2ed91e31f11f95ba446180bb8abd61",
+    "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38177642350",
+    "status": "completed",
+    "conclusion": "success",
+    "artifact": "var/qa/copied-attachment-observers/ci-a59d5954",
+    "distinctPassedCases": 10065,
+    "discoveredMethods": 6567,
+    "seconds": 1366.99,
+    "priorCasesAndMethodsRetained": true
+  },
   "wholeCardCertification": false,
   "remaining": [
     "Aphelios modal attachment ability and per-instance mode history",

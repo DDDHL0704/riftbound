@@ -1,0 +1,137 @@
+{
+  "runId": 38175922945,
+  "headSha": "ff5d43044bb8047480e8b3dbc92c8e70bb7eb48e",
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38175922945",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "rules",
+      "conclusion": "success"
+    },
+    {
+      "name": "desktop (macos-latest)",
+      "conclusion": "success"
+    },
+    {
+      "name": "desktop (windows-latest)",
+      "conclusion": "success"
+    }
+  ],
+  "artifact": "var/qa/attached-rule-text/ci",
+  "summary": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 1278.97,
+    "total": 10046,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 48,
+        "passed": 48,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 808.54
+      },
+      {
+        "shard": "games-2",
+        "total": 46,
+        "passed": 46,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 812.76
+      },
+      {
+        "shard": "games-3",
+        "total": 46,
+        "passed": 46,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 855.65
+      },
+      {
+        "shard": "rules",
+        "total": 9905,
+        "passed": 9905,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 304.34
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 1170.93
+      }
+    ]
+  },
+  "parity": {
+    "priorHead": "14fbde04e4bb118d1337bd9948e53f90f53bd0fb",
+    "priorDistinctCases": 10012,
+    "currentDistinctCases": 10046,
+    "missingCases": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.AttachedRuleTextNativeTests.ProductionPrintedTextAndInstanceSelectionsRecoverAndReplay(scenario: \"azir\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextNativeTests.ProductionPrintedTextAndInstanceSelectionsRecoverAndReplay(scenario: \"might\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextNativeTests.ProductionPrintedTextAndInstanceSelectionsRecoverAndReplay(scenario: \"reset\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.ActualDetachRemovesCopiedTextAndReattachmentCreatesOneFreshInstance",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.AllPublicViewsRejectForgedCopiedRuleContributions(key: \"condition\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.AllPublicViewsRejectForgedCopiedRuleContributions(key: \"powerDelta\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.AllPublicViewsRejectForgedCopiedRuleContributions(key: \"sourceDependencyObjectIds\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.AllPublicViewsRejectForgedCopiedRuleContributions(key: \"sourcePath\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CopiedMechanicalFanTextDoesNotDoubleAnAlreadyDoubledBonus",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CopiedMundoBeginningTextQueuesSeparateMandatoryTriggers",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CurrentRecoveryRejectsForgedAttachedPrintedText(change: \"epoch\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CurrentRecoveryRejectsForgedAttachedPrintedText(change: \"face\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CurrentRecoveryRejectsForgedAttachedPrintedText(change: \"gear\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CurrentRecoveryRejectsForgedAttachedPrintedText(change: \"generation\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CurrentRecoveryRejectsForgedAttachedPrintedText(change: \"missing\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CurrentRecoveryRejectsForgedAttachedPrintedText(change: \"revision\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CurrentRecoveryRejectsForgedAttachedPrintedText(change: \"unit\")",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.EachCopiedBeginningResolvesAgainstTheRemainingGraveyardWithItsOwnResponseWindow",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.SongsCopyOnlyPrintedMundoTextAndGrowLinearly(songs: 1, expected: 8)",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.SongsCopyOnlyPrintedMundoTextAndGrowLinearly(songs: 3, expected: 10)",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.TwoSongsGiveOrnnThreeIndependentWardInstances",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.ActualDetachAndReattachRefreshOnlyTheCopiedAbilityAndRejectTheOldInstanceId",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.NativeAndCopiedActivationPaySeparatelyAndEachCanBeUsedOnlyOnce",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.PrivateRecoveryRejectsForgedCopiedActivatedOrigins(change: \"card\")",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.PrivateRecoveryRejectsForgedCopiedActivatedOrigins(change: \"equipment-generation\")",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.PrivateRecoveryRejectsForgedCopiedActivatedOrigins(change: \"flag\")",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.PrivateRecoveryRejectsForgedCopiedActivatedOrigins(change: \"origin\")",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.PrivateRecoveryRejectsForgedCopiedActivatedOrigins(change: \"revision\")",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.PrivateRecoveryRejectsForgedCopiedActivatedOrigins(change: \"unit-generation\")",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.ServerOffersNativeAndCopiedActivatedAbilityAsSeparateInstances",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.TwoArmamentsCreateIndependentCopiedInstances",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.UsingNativeOnceDoesNotConsumeTheCopiedInstance",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"OGN·109/298\")",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"SFD·050/221\")"
+    ],
+    "priorMethods": 6543,
+    "currentMethods": 6559,
+    "missingMethods": [],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.AttachedRuleTextNativeTests.ProductionPrintedTextAndInstanceSelectionsRecoverAndReplay",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.ActualDetachRemovesCopiedTextAndReattachmentCreatesOneFreshInstance",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.AllPublicViewsRejectForgedCopiedRuleContributions",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CopiedMechanicalFanTextDoesNotDoubleAnAlreadyDoubledBonus",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CopiedMundoBeginningTextQueuesSeparateMandatoryTriggers",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.CurrentRecoveryRejectsForgedAttachedPrintedText",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.EachCopiedBeginningResolvesAgainstTheRemainingGraveyardWithItsOwnResponseWindow",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.SongsCopyOnlyPrintedMundoTextAndGrowLinearly",
+      "Riftbound.ConformanceTests.AttachedRuleTextTests.TwoSongsGiveOrnnThreeIndependentWardInstances",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.ActualDetachAndReattachRefreshOnlyTheCopiedAbilityAndRejectTheOldInstanceId",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.NativeAndCopiedActivationPaySeparatelyAndEachCanBeUsedOnlyOnce",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.PrivateRecoveryRejectsForgedCopiedActivatedOrigins",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.ServerOffersNativeAndCopiedActivatedAbilityAsSeparateInstances",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.TwoArmamentsCreateIndependentCopiedInstances",
+      "Riftbound.ConformanceTests.CopiedActivatedAbilityTests.UsingNativeOnceDoesNotConsumeTheCopiedInstance",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory"
+    ]
+  },
+  "completeSuiteCoverage": true,
+  "pairedVisibleClients": false,
+  "windowsNetworkAcceptance": false
+}

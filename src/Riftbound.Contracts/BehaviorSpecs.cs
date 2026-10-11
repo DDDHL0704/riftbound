@@ -185,6 +185,8 @@ public static class TriggerKinds
         "UNIT_BOON_GRANTED_READY_SELF";
     public const string UnitArmamentAttachedPayDraw =
         "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
+    public const string UnitArmamentAttachedChooseUnusedMode =
+        "UNIT_ARMAMENT_ATTACHED_CHOOSE_UNUSED_MODE";
     public const string UnitControlledUnitPowerfulPayPowerReady =
         "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     public const string UnitAttackPayPowerModifier =
@@ -489,6 +491,9 @@ public sealed record TargetSpec(
     string Text,
     bool Optional = false);
 
+public sealed record TriggerModeSpec(string Id, string Label,
+    int? RuneReadyCount = null, int? RuneCallCount = null, int? BoonCount = null, string? TargetScope = null);
+
 public sealed record TriggerSpec(
     string Kind,
     string Timing,
@@ -574,7 +579,11 @@ public sealed record TriggerSpec(
     string? EffectKind = null,
     string? MovementOriginZone = null,
     string? MovementDestinationZone = null,
-    int? OwnBeginningDrawCount = null);
+    int? OwnBeginningDrawCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyList<TriggerModeSpec>? Modes = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? DistinctModesPerTurn = null);
 
 public sealed record ReplacementSpec(
     string Kind,

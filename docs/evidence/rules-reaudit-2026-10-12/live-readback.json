@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-12",
+  "status": "CURRENT_PRIMARY_SOURCE_REFRESH_PASS_WITH_KNOWN_REPORTED_COUNT_GAP",
+  "cards": {
+    "chineseDistinct": 1459,
+    "englishReported": 1389,
+    "englishInitialRaw": 1381,
+    "englishInitialDuplicates": {
+      "ogn-197a-298": 2
+    },
+    "englishDistinctCurrent": 1381,
+    "englishReportedGap": 8,
+    "englishSSRRaw": 1381,
+    "englishSSRDistinct": 1379,
+    "rechecks": [
+      {
+        "offset": 1000,
+        "limit": 100,
+        "returned": 98,
+        "newIds": []
+      },
+      {
+        "offset": 1100,
+        "limit": 100,
+        "returned": 100,
+        "newIds": [
+          "sfd-230-star-221"
+        ]
+      }
+    ],
+    "previousUnreturnedIds": [],
+    "unionDistinct": 1711,
+    "active": 1009,
+    "outsideActive": 702,
+    "missingActive": [],
+    "deltas": {
+      "zh-CN": {
+        "added": [],
+        "unreturned": [],
+        "changed": []
+      },
+      "en-US": {
+        "added": [],
+        "unreturned": [],
+        "changed": []
+      }
+    }
+  },
+  "qa": {
+    "entries": 1459,
+    "fieldPresent": 1459,
+    "nonempty": 0,
+    "note": "Null or empty listing QA never certifies absence of official document FAQ."
+  },
+  "rules": {
+    "chinesePDFs": 16,
+    "changedPDFBytes": [],
+    "globalRecords": 20,
+    "errors": [],
+    "changedGlobalText": [],
+    "changedGlobalMetadata": [],
+    "futureEffectiveCoreDate": "2026-10-16",
+    "currentAuthority": "DOC-04 July core plus applicable latest FAQ/errata; do not enable future October 16 core prematurely."
+  },
+  "sourceArtifacts": [
+    {
+      "path": "data/official/upstream/2026-10-12/diff.json",
+      "sha256": "49ba24ac27df6d1e4c3990580bd1ca56e4aeda1ca84f22701edc434f73c80976"
+    },
+    {
+      "path": "data/official/upstream/2026-10-12/card-catalog.zh-CN.json",
+      "sha256": "9784cd4d153b6fac6ae780bef2b95797c9030222fb69a778517c74c3b3318490"
+    },
+    {
+      "path": "data/official/upstream/2026-10-12/card-qa.zh-CN.json",
+      "sha256": "61aa090499a52554605896fb6ab2d84989d42d39754b37a2c06f97456ae90a80"
+    },
+    {
+      "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+      "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+    },
+    {
+      "path": "data/official/upstream/2026-10-12/global-rules-sources.json",
+      "sha256": "972d7d268d2198565dd0a0df21821610c31b2e75c5e07a406cedde0e312f000c"
+    },
+    {
+      "path": "data/official/upstream/2026-10-12/rules-manifest.json",
+      "sha256": "3159cb279c6bf3c50ca1c3a99335e6f1dc343ef4cbf3a6f18ab68dec0e1d4302"
+    }
+  ],
+  "rawGalleryArtifacts": [
+    {
+      "path": "var/official/2026-10-12/global/gallery-api-04.json",
+      "sha256": "1dcb64effb8c22a22d547858bb3fd5ff64eca9884257c41da9a9b098c8e379ea"
+    },
+    {
+      "path": "var/official/2026-10-12/global/gallery-recheck-1000.json",
+      "sha256": "353850e0a2657badfc740514b47ddc9fbfe1924f13dac341786d5343be6e606a"
+    },
+    {
+      "path": "var/official/2026-10-12/global/gallery-api-05.json",
+      "sha256": "6d2e5a40e19ee3ae33f7d3c5d524db06180aef656b552ea53c34890eb08aafb4"
+    },
+    {
+      "path": "var/official/2026-10-12/global/gallery-api-02.json",
+      "sha256": "371ce7a3622e67aee2e0bf16a7405f8478a853f9d8f40a7018cd4f32cb764521"
+    },
+    {
+      "path": "var/official/2026-10-12/global/gallery-api-03.json",
+      "sha256": "e417d180aec9d777c0401baa987a7e396e1432e73f318a04c160d6eaaa9a9cbd"
+    },
+    {
+      "path": "var/official/2026-10-12/global/gallery-api-00.json",
+      "sha256": "44cb948e72a06785b548ec54c8330a9dc18a22ccfacf46abe1dfad230e6baada"
+    },
+    {
+      "path": "var/official/2026-10-12/global/gallery-recheck-1100.json",
+      "sha256": "c37f2df2b9bb5f3783439b3ae7e410fe606ad0d57174c265b2ab939de5aa837a"
+    },
+    {
+      "path": "var/official/2026-10-12/global/gallery-api-01.json",
+      "sha256": "3a1ed05454b1aa0319e200bec4665f16343e3d153e74473fbf13987f14dc8748"
+    },
+    {
+      "path": "var/official/2026-10-12/global/gallery-api-06.json",
+      "sha256": "d09dc2cd9dc559747bd36858f7d67a0c079ebbe54ddccf654a9325094072160d"
+    }
+  ],
+  "semanticLedger": "docs/evidence/rules-reaudit-2026-10-11; unchanged card texts and rule texts allow retaining source-linked reviews without rebuilding unchanged inventories",
+  "wholeCardCertification": false,
+  "completeSuiteCoverage": false,
+  "remaining": "The 8-count official gallery metadata gap remains exposed; current fetched identities have not all been semantically audited or rebuilt/tested."
+}

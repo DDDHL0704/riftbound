@@ -7,7 +7,9 @@ namespace Riftbound.Engine;
 public sealed record AttachmentObserverContext(string CardNo, long SourceGeneration,
     ObjectBinding Equipment, string EquipmentCardNo, string AttachingPlayerId,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopiedInstance = false);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopiedInstance = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Mode = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ObjectBinding>? References = null);
 internal sealed record CapturedAttachmentObserver(string SourceId, string ControllerId, AttachmentObserverContext Context);
 
 public sealed partial class CoreRuleEngine
@@ -25,7 +27,7 @@ public sealed partial class CoreRuleEngine
                 && context.Equipment is { Generation: >= 0 } equipment && !string.IsNullOrWhiteSpace(equipment.ObjectId)
                 && source != equipment.ObjectId && !string.IsNullOrWhiteSpace(source)
                 && controller == context.AttachingPlayerId && !string.IsNullOrWhiteSpace(controller)
-                && (cardNo is null || cardNo == context.CardNo) && AttachmentDrawSpec(context.CardNo) is not null
+                && (cardNo is null || cardNo == context.CardNo) && ValidAttachmentModeShape(context)
                 && context.CopiedInstance == (context.Origin is not null)
                 && OfficialArmamentCatalog.Find(context.EquipmentCardNo) is not null;
 
@@ -46,7 +48,7 @@ public sealed partial class CoreRuleEngine
             || EffectiveFieldControllerId(zones, unitId, unit) != actor
             || OfficialArmamentCatalog.Find(gear.CardNo) is null) return;
         var observers = AttachedRuleTextRules.Instances(zones, cards, unit)
-            .Where(instance => AttachmentDrawSpec(instance.CardNo) is not null)
+            .Where(instance => AttachmentDrawSpec(instance.CardNo) is not null || AttachmentModeSpec(instance.CardNo) is not null)
             .Select(instance => new CapturedAttachmentObserver(unitId, actor,
                 new(instance.CardNo, unit.ObjectGeneration, new(gearId, gear.ObjectGeneration), gear.CardNo!, actor,
                     instance.Origin, instance.Origin is not null))).ToArray();
@@ -141,6 +143,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveAttachmentObserver(MatchState state, StackItemState item)
     {
+        if (AttachmentModeSpec(item.CardNo) is not null) return ResolveAttachmentMode(state, item);
         if (!ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
             || item.TriggerCost is null) throw new InvalidOperationException("Invalid captured attachment draw trigger.");
         var draw = ResolveLastBreathDrawStackItem(state, item, AttachmentDrawSpec(item.CardNo)!.DrawCount!.Value);
