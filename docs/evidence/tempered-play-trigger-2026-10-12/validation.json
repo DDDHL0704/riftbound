@@ -1,5 +1,5 @@
 {
-  "status": "LOCAL_SCOPED_PASS_CI_PENDING",
+  "status": "LOCAL_SCOPED_PASS_CI_REPAIR_PENDING",
   "batchCheck": {
     "evidence": "var/qa/tempered-play-trigger/check1",
     "passed": 9874,
@@ -36,7 +36,16 @@
     "windowsNativeAndNetwork": false
   },
   "seededMidgameToScoreVictoryGames": 2,
-  "currentFullCI": "Pending commit",
+  "currentFullCI": {
+    "firstRun": 38171321238,
+    "firstHead": "11449a4f0a95392508bd50f37ccea0c534d41037",
+    "result": "FAILED_INCOMPLETE",
+    "failedGameCases": [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesOrnnFriendlyEquipmentStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash"
+    ],
+    "repairFocusPassed": 3,
+    "retry": "Pending follow-up commit"
+  },
   "wholeCardCertification": false,
   "copiedAbilityInstances": "Not in this batch",
   "allCardRuleAudit": "Still in progress"

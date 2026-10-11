@@ -1,0 +1,62 @@
+{
+  "runId": 38171321238,
+  "headSha": "11449a4f0a95392508bd50f37ccea0c534d41037",
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38171321238",
+  "status": "completed",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "name": "desktop (windows-latest)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "rules",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "desktop (macos-latest)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "availableTrx": [
+    {
+      "file": "var/qa/tempered-play-trigger/ci-failed/games-4/results.trx",
+      "total": 48,
+      "passed": 48,
+      "failedCases": []
+    },
+    {
+      "file": "var/qa/tempered-play-trigger/ci-failed/games-2/results.trx",
+      "total": 45,
+      "passed": 44,
+      "failedCases": [
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesOrnnFriendlyEquipmentStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash"
+      ]
+    }
+  ],
+  "completeSuiteCoverage": false,
+  "cause": "General full-game play helper returned at the newly independent Weaponmaster card choice; movement driver then saw an unfinished chain.",
+  "repair": "Explicit CHOOSE_CARDS with an empty legal selection declines Weaponmaster, preserving journal, gameplay and victory/replay assertions.",
+  "localRepair": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 22.52,
+    "total": 3,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 11.64
+      }
+    ]
+  },
+  "localRepairWorkspaceIncludesFollowingAttachedRuleTextChanges": true,
+  "exactCommittedHeadVerification": "Pending new CI"
+}

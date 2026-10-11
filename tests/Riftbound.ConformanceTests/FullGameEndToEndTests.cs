@@ -21793,6 +21793,18 @@ public sealed partial class FullGameEndToEndTests
                 return includesPlayAbility || includesCompletionTriggers ? result with { Events = events } : result;
             }
 
+            // These general play/move scenarios do not opt into Weaponmaster.
+            // Decline through the real confirmation command and journal rather
+            // than returning an unfinished chain to the movement driver.
+            if (result.State.PendingCardChoice is { ChoiceWindow: "TEMPERED_CONFIRMATION" } tempered)
+            {
+                var decline = new ChooseCardsCommand(tempered.ChoiceId, tempered.ChoiceWindow, []);
+                result = await session.SubmitAsync(tempered.PlayerId, $"{intentPrefix}-decline-tempered-{index}",
+                    decline, RawCommand(decline), CancellationToken.None);
+                AssertAccepted(result); AssertNoHiddenZoneLeak(result);
+                events.AddRange(result.Events); includesCompletionTriggers = true;
+                continue;
+            }
             if (result.State.PendingCardChoice is not null) return result;
             includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null
                 || item.ReflexiveCopy is not null || item.UnitEntryContext is not null
