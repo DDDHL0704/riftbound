@@ -20,7 +20,7 @@ public sealed class EdgeOfNightAssembleGuardTests
             ["ASSEMBLE_PURPLE"]);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(
             "P1-UNIT-ASSEMBLE-TARGET",
@@ -29,7 +29,8 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Contains("P1-UNIT-ASSEMBLE-TARGET", result.State.PlayerZones["P1"].Base);
         Assert.Empty(result.State.StackItems);
         Assert.Null(result.State.PendingPayment);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        // Resolving the stack also cleans up the deliberately unattached battlefield equipment fixture.
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED", "EQUIPMENT_RECALLED_TO_BASE"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
 
         var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal("P1-EQUIPMENT-EDGE-OF-NIGHT", costPaidEvent.Payload["sourceObjectId"]);
@@ -61,9 +62,11 @@ public sealed class EdgeOfNightAssembleGuardTests
             new PlayerIntent("intent-edge-of-night-assemble-first", "P1", CommandTypes.AssembleEquipment),
             command,
             CancellationToken.None);
+        assembled = await EquipTestDriver.FinishAsync(assembled);
 
         Assert.True(assembled.Accepted, assembled.ErrorMessage);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], assembled.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        // Resolving the stack also cleans up the deliberately unattached battlefield equipment fixture.
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED", "EQUIPMENT_RECALLED_TO_BASE"], assembled.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(1, CountEvents(assembled.Events, "COST_PAID"));
         Assert.Equal(1, CountEvents(assembled.Events, "EQUIPMENT_ATTACHED"));
         Assert.Equal(new RunePool(0, 0), assembled.State.RunePools["P1"]);
@@ -156,8 +159,11 @@ public sealed class EdgeOfNightAssembleGuardTests
             staleRawCommand,
             CancellationToken.None);
 
+        var activation = assembled;
+        assembled = await EquipTestDriver.FinishAsync(assembled, session);
         Assert.True(assembled.Accepted, assembled.ErrorMessage);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], assembled.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        // Resolving the stack also cleans up the deliberately unattached battlefield equipment fixture.
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED", "EQUIPMENT_RECALLED_TO_BASE"], assembled.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(new RunePool(0, 0), assembled.State.RunePools["P1"]);
         Assert.Equal(
             "P1-UNIT-ASSEMBLE-TARGET",
@@ -167,19 +173,21 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Equal("IDLE", assembled.State.PendingTaskQueue.Phase);
         Assert.Empty(assembled.State.PendingTaskQueue.Tasks);
         var postAssembleHash = MatchStateHasher.Hash(assembled.State);
-        var acceptedPromptsHash = MatchStateHasher.HashValue(assembled.Prompts);
-        var acceptedSnapshotsHash = MatchStateHasher.HashValue(assembled.Snapshots);
+        var acceptedPromptsHash = MatchStateHasher.HashValue(activation.Prompts);
+        var acceptedSnapshotsHash = MatchStateHasher.HashValue(activation.Snapshots);
         var postAssembleAuthoritativePromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(assembled.State));
         var postAssembleAuthoritativeSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(assembled.State));
-        var acceptedJournalEntry = Assert.Single(journal.Entries);
+        Assert.Equal(3, journal.Entries.Count);
+        var acceptedJournalEntry = journal.Entries[0];
+        Assert.All(journal.Entries.Skip(1), entry => Assert.Equal(CommandTypes.PassPriority, entry.CommandType));
         Assert.Equal(state.RoomId, acceptedJournalEntry.RoomId);
         Assert.Equal("P1", acceptedJournalEntry.PlayerId);
         Assert.Equal(firstClientIntentId, acceptedJournalEntry.ClientIntentId);
         Assert.Equal(CommandTypes.AssembleEquipment, acceptedJournalEntry.CommandType);
         Assert.True(acceptedJournalEntry.Accepted);
         Assert.Null(acceptedJournalEntry.ErrorMessage);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], acceptedJournalEntry.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.Equal(postAssembleHash, MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED"], acceptedJournalEntry.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(MatchStateHasher.Hash(activation.State), MatchStateHasher.Hash(acceptedJournalEntry.AuthoritativeState));
         Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Prompts));
         Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(acceptedJournalEntry.Snapshots));
         Assert.True(acceptedJournalEntry.RawCommand.HasValue);
@@ -224,8 +232,8 @@ public sealed class EdgeOfNightAssembleGuardTests
                 source => string.Equals(source.Id, "P1-EQUIPMENT-EDGE-OF-NIGHT", StringComparison.Ordinal));
         }
 
-        Assert.Equal(2, journal.Entries.Count);
-        var rejectedJournalEntry = journal.Entries[1];
+        Assert.Equal(4, journal.Entries.Count);
+        var rejectedJournalEntry = journal.Entries[3];
         Assert.Equal(state.RoomId, rejectedJournalEntry.RoomId);
         Assert.Equal("P1", rejectedJournalEntry.PlayerId);
         Assert.Equal(staleClientIntentId, rejectedJournalEntry.ClientIntentId);
@@ -270,7 +278,7 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Empty(duplicateReplay.State.StackItems);
         Assert.Equal(assembled.State.PendingTaskQueue.Phase, duplicateReplay.State.PendingTaskQueue.Phase);
         Assert.Equal(assembled.State.PendingTaskQueue.Tasks, duplicateReplay.State.PendingTaskQueue.Tasks);
-        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(4, journal.Entries.Count);
 
         var conflict = await session.SubmitAsync(
             "P1",
@@ -299,7 +307,7 @@ public sealed class EdgeOfNightAssembleGuardTests
         Assert.Empty(conflict.State.StackItems);
         Assert.Equal(assembled.State.PendingTaskQueue.Phase, conflict.State.PendingTaskQueue.Phase);
         Assert.Equal(assembled.State.PendingTaskQueue.Tasks, conflict.State.PendingTaskQueue.Tasks);
-        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(4, journal.Entries.Count);
         Assert.DoesNotContain(journal.Entries, entry =>
             entry.RawCommand is { } entryRaw
             && entryRaw.TryGetProperty("clientNote", out var clientNote)
@@ -697,11 +705,12 @@ public sealed class EdgeOfNightAssembleGuardTests
         string targetObjectId,
         IReadOnlyList<string> optionalCosts)
     {
-        return await engine.ResolveAsync(
+        var activated = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-edge-of-night-assemble", "P1", CommandTypes.AssembleEquipment),
             new AssembleEquipmentCommand(sourceObjectId, targetObjectId, optionalCosts),
             CancellationToken.None);
+        return await EquipTestDriver.FinishAsync(activated);
     }
 
     private static async Task<ResolutionResult> PlayEdgeOfNightAsync(

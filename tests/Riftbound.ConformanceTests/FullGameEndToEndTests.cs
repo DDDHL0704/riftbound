@@ -1,13 +1,19 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Riftbound.ConformanceTests;
 
 public sealed class FullGameEndToEndTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public FullGameEndToEndTests(ITestOutputHelper output) => _output = output;
+
     private const string JhinLegendCardNo = "UNL-181/219";
     private const string JhinChampionCardNo = "UNL-022/219";
     private const string RumbleLegendCardNo = "SFD·181/221";
@@ -315,17 +321,29 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(replayDecks, deck => deck.Decklist.Battlefields.Contains(FortifiedPositionBattlefieldDefendGrantSteadfastCardNo, StringComparer.Ordinal));
         Assert.Contains(replayDecks, deck => deck.Decklist.Battlefields.Contains(BandleTreeBattlefieldCardNo, StringComparer.Ordinal));
 
-        foreach (var p1Deck in replayDecks)
-        {
-            foreach (var p2Deck in replayDecks.Where(deck => !string.Equals(deck.Id, p1Deck.Id, StringComparison.Ordinal)))
+        var pairs = replayDecks.SelectMany(p1 => replayDecks
+            .Where(p2 => !string.Equals(p2.Id, p1.Id, StringComparison.Ordinal))
+            .Select(p2 => (P1: p1, P2: p2, Id: $"{p1.Id}-vs-{p2.Id}"))).ToArray();
+        Assert.Equal(replayDecks.Count * (replayDecks.Count - 1), pairs.Length);
+        var completed = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
+        // Each pair owns its session, state, RNG and journal. Bound concurrency so
+        // process shards can still share the machine; every original pair is retained.
+        await Parallel.ForEachAsync(pairs,
+            new ParallelOptions { MaxDegreeOfParallelism = Math.Min(2, Environment.ProcessorCount) },
+            async (pair, _) =>
             {
-                await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
-                    $"b0-full-game-preconstructed-catalog-replay-room-{p1Deck.Id}-vs-{p2Deck.Id}",
-                    $"b0-full-preconstructed-catalog-replay-score-{p1Deck.Id}-vs-{p2Deck.Id}",
-                    p1Deck.Decklist,
-                    p2Deck.Decklist);
-            }
-        }
+                var hash = await AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+                    $"b0-full-game-preconstructed-catalog-replay-room-{pair.Id}",
+                    $"b0-full-preconstructed-catalog-replay-score-{pair.Id}",
+                    pair.P1.Decklist,
+                    pair.P2.Decklist);
+                Assert.True(completed.TryAdd(pair.Id, hash), $"Duplicate matrix pair: {pair.Id}");
+            });
+        Assert.Equal(pairs.Select(p => p.Id).Order(StringComparer.Ordinal), completed.Keys.Order(StringComparer.Ordinal));
+        _output.WriteLine("PRECONSTRUCTED_MATRIX " + JsonSerializer.Serialize(new {
+            seed = LowCurveReplaySeed, deckCount = replayDecks.Count, pairCount = pairs.Length,
+            completed = completed.OrderBy(p => p.Key, StringComparer.Ordinal).ToDictionary(p => p.Key, p => p.Value)
+        }));
     }
 
     [Fact]
@@ -5843,7 +5861,7 @@ public sealed class FullGameEndToEndTests
         return result;
     }
 
-    private static async ValueTask AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
+    private static async ValueTask<string> AssertFullGameScoreVictoryActionLogReplaysToFinalStateHashAsync(
         string roomId,
         string scoreIntentPrefix,
         OfficialDecklist p1Deck,
@@ -5880,6 +5898,7 @@ public sealed class FullGameEndToEndTests
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         AssertScoreVictory(result);
+        return replay.ReplayedStateHash!;
     }
 
     private static async ValueTask AssertActionLogReplaysToFinalStateHashAsync(

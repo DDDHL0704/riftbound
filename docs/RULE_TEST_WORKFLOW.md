@@ -11,6 +11,7 @@
 | `python3 scripts/test-rules.py focus recast` | 重打、效果出牌、征服、相关费用与触发案例 | 修改对应规则时快速迭代 |
 | `python3 scripts/test-rules.py focus payment` | 费用、符文、资源、金币和法盾案例 | 修改支付逻辑时 |
 | `python3 scripts/test-rules.py focus --match OfficialMechanicalRecastTests` | 明确指定的测试名；可重复 `--match` | 复现及修复具体问题 |
+| `python3 scripts/test-rules.py focus --include-games --match PreconstructedCatalogDecks` | 显式选取匹配的完整对局，仍校验实际方法覆盖 | 只需复核特定完整对局或测量瓶颈时 |
 | `python3 scripts/test-rules.py check` | 完整非 FullGameEndToEnd 测试集，加两条指定完整对局冒烟 | 一个连贯批次的默认收尾检查 |
 | `python3 scripts/test-rules.py full` | 所有实时发现的测试，并行分进程执行 | 广泛跨规则改动、集成与发布验收、CI |
 
@@ -23,7 +24,7 @@
 1. 只做一次增量构建和测试发现；执行分片时使用 `--no-build --no-restore`。没有盲目复用旧测试通过结果，也没有绕过编译。
 2. 主要瓶颈是 `FullGameEndToEndTests` 中同一测试类串行运行的完整对局。全量将该类按方法分到独立进程，其他测试保持原来的 xUnit 类间并发。
 3. 用实际 TRX 耗时平衡进程；无本机历史时使用 `scripts/rule-test-timings.json`。耗时数据只影响调度，不控制测试是否纳入；新增测试即使没有历史耗时也必须执行。
-4. 默认并发不超过 4 个进程，可用 `--jobs 2` 降低机器负载。完整预组交叉对局仍作为一个完整用例运行，没有删对局、减少随机种子、删除断言或缩短获胜／回放检查。
+4. 默认并发不超过 4 个进程，可用 `--jobs 2` 降低机器负载。完整预组交叉对局仍保留同一测试身份；其全部双向配对最多两场并行，每场独立状态、固定原种子、journal、胜利与回放检查。实际完成配对集合必须与全部期望配对完全相等，TRX 输出每场最终状态哈希。没有删对局、减少随机种子或删除断言。
 5. 开发过程中 `focus` → 批次 `check` → 必要时 `full`；CI 仍执行完整测试。不要为同一个无变化的工作区反复跑完整矩阵。
 
 ## 防止提速掩盖失败
@@ -53,3 +54,5 @@ python3 scripts/test-rules.py full --jobs 4 \
 过滤表达式采用 [.NET 官方支持的测试筛选机制](https://learn.microsoft.com/en-us/dotnet/core/testing/selective-unit-tests)。所有命令以参数数组启动，不经 shell 拼接。
 
 本次实测和限制见 [性能验证记录](RULE_TEST_SPEED_2026-10-09.md)。
+
+2026-10-12 用户再次明确要求缩短完整回归等待：执行上述分层入口，连贯批次默认一次 `check`，全量仅用于广泛影响、集成或最终验收；CI 始终全量。单个矩阵的并行实测记录在 [本轮提速记录](RULE_TEST_SPEED_2026-10-12.md)。`focus` 默认继续排除完整对局，只有显式 `--include-games` 才允许匹配的完整对局进入计划。

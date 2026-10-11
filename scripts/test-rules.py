@@ -67,15 +67,15 @@ def load_weights(path):
     return weights
 
 
-def plan(methods, profile, jobs, tokens, weights):
+def plan(methods, profile, jobs, tokens, weights, include_games=False):
     if profile == 'focus':
-        selected = {name for name in methods if not name.startswith(FULL_CLASS)
+        selected = {name for name in methods if (include_games or not name.startswith(FULL_CLASS))
                     and any(token.casefold() in name.casefold() for token in tokens)}
         if not selected:
             raise ValueError('No tests match; a zero-test success is forbidden.')
         expression = '(' + '|'.join('FullyQualifiedName~' + token for token in tokens) + ')'
         return [{'name': 'focus', 'methods': selected,
-                 'filter': expression + '&FullyQualifiedName!~' + FULL_CLASS}]
+                 'filter': expression if include_games else expression + '&FullyQualifiedName!~' + FULL_CLASS}]
     ordinary = {name for name in methods if not name.startswith(FULL_CLASS)}
     if profile == 'check':
         smoke = {name for name in methods if name.startswith(FULL_CLASS) and name.rsplit('.', 1)[-1] in SMOKE}
@@ -132,6 +132,7 @@ def main():
     parser.add_argument('profile', choices=['focus', 'check', 'full'], nargs='?', default='check')
     parser.add_argument('domain', nargs='?', choices=sorted(DOMAINS))
     parser.add_argument('--match', action='append', default=[], help='Additional test-name token for focus; repeatable')
+    parser.add_argument('--include-games', action='store_true', help='Explicitly allow matched full-game tests in focus')
     parser.add_argument('--jobs', type=int, default=min(4, os.cpu_count() or 1))
     parser.add_argument('--timings', type=Path, help='Prior TRX or timing JSON, used only to balance full shards')
     parser.add_argument('--expect-trx', type=Path, help='Full benchmark only: require exact case parity with this baseline')
@@ -143,6 +144,8 @@ def main():
         parser.error('Use 1..16 jobs; focus requires a domain or --match.')
     if args.profile != 'focus' and tokens:
         parser.error('Domains and --match apply only to focus; refusing to ignore a requested filter.')
+    if args.include_games and args.profile != 'focus':
+        parser.error('--include-games applies only to focus.')
     if any(not re.fullmatch(r'[A-Za-z0-9_.]+', token) for token in tokens):
         parser.error('Filter tokens allow letters, numbers, underscores and dots only.')
     if args.expect_trx and args.profile != 'full':
@@ -171,8 +174,9 @@ def main():
         # Timing history affects balancing only, never membership or pass reuse.
         candidates = sorted((PROJECT / 'TestResults').glob('*full*.trx'), key=lambda p: p.stat().st_mtime, reverse=True)
         timings = candidates[0] if candidates else ROOT / 'scripts/rule-test-timings.json'
-    shards = plan(methods, args.profile, args.jobs, tokens, load_weights(timings))
+    shards = plan(methods, args.profile, args.jobs, tokens, load_weights(timings), args.include_games)
     document = {'profile': args.profile, 'discoveredMethods': len(methods), 'jobs': args.jobs,
+                'includeGames': args.include_games,
                 'testAssemblySha256': hashlib.sha256((PROJECT / 'bin/Debug/net10.0/Riftbound.ConformanceTests.dll').read_bytes()).hexdigest(),
                 'timings': str(timings) if timings else None,
                 'shards': [{**s, 'methods': sorted(s['methods'])} for s in shards]}

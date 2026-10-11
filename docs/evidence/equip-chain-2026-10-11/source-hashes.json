@@ -1,0 +1,66 @@
+[
+  {
+    "path": "clients/godot/scripts/debug/ArmamentMightInteractionProof.cs",
+    "sha256": "fdc6d76f2d53c21d83cdf58480f1fe4aac4b138c60c2eb28545e5f7078e8cfaa"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.Equip.cs",
+    "sha256": "9e5a7877080ef80839704284d1e070b1668a615c6d6004f99d915cd593588ecf"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "4a339d01a92e5002c5a137e6c7118c2e98c07daec4b75c628ac060ffda4fdf47"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "4e29a92dfcf8edb2ec47b667f20c53a72d0120fa380973f7289b835041f65107"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "89a27b808c398c7d5269a76cf7836be5fde81acad8c685be1c98ecbb6b10d3d9"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ArmamentMightNativeTests.cs",
+    "sha256": "8fab904e652676dcddc36255e9fa73356f3ded573f4c2f8d9198c9ea16d933c4"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ArmamentMightTests.cs",
+    "sha256": "864fffefeb3d85744cca1cdb78aa7a19da92d01105ea4521a23e423e004f4d2b"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "d632f99749c5f3a03323323ff7fc78e103fff6ac3b27d439fbf9d1d20c663356"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/EdgeOfNightAssembleGuardTests.cs",
+    "sha256": "1c52c29695199cbc132511e2eab4bb671eae7a2bf7b3981d94f9371c95ac528f"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/EquipChainTests.cs",
+    "sha256": "d37003fd4ac3434250194097b949626945a450a82e0bc758bf361977f46ee9c2"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/EquipTestDriver.cs",
+    "sha256": "3adfe8c38eda4d5f5c446397ef2e58e82f0b4a388a8f6a83cf97a76040080a41"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-assemble-equipment-long-sword-attach.fixture.json",
+    "sha256": "df01b5c3f67cc7e71f2e0bfa3616d6e4931e6963ca823813726f35ffd178717f"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/p5-equipment-state-assemble-long-sword-owner-controller.fixture.json",
+    "sha256": "d0784730a783d275936fa473a0fbbaca6121d2bf7a37fc2f5c1dcf383463c238"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+    "sha256": "388e4dce5e79ed6acab7e56024c4591c5fa1680fe6e8b88c2940a55f27350956"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+    "sha256": "80ff7b5be609330aea23ab02be187338efd60fb965bfbf0d62247c622e602997"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "sha256": "48061ae97deca3c1901eb097e1940b6cd54e2514d5ab45c3524513683788d299"
+  }
+]

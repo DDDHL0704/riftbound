@@ -1651,7 +1651,7 @@ public sealed class TriggerPaymentTests
         MatchState state,
         CoreRuleEngine? engine = null)
     {
-        return await (engine ?? new CoreRuleEngine()).ResolveAsync(
+        var activated = await (engine ?? new CoreRuleEngine()).ResolveAsync(
             state,
             new PlayerIntent("intent-jax-assemble", "P1", CommandTypes.AssembleEquipment),
             new AssembleEquipmentCommand(
@@ -1659,6 +1659,7 @@ public sealed class TriggerPaymentTests
                 "P1-JAX",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        return await EquipTestDriver.FinishAsync(activated);
     }
 
     private static async Task<ResolutionResult> ResolveFioraPowerfulReadyTriggerAsync(

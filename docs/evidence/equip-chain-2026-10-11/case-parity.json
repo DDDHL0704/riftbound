@@ -1,0 +1,25 @@
+{
+  "baseline": 9883,
+  "current": 9900,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.EquipChainTests.ActualFlashMovesTheHostBeforeEquipAttachesAtItsNewLocation",
+    "Riftbound.ConformanceTests.EquipChainTests.ActualGaleCanRemoveTheHostBeforeEquipGrantsMightAndCostsStayPaid",
+    "Riftbound.ConformanceTests.EquipChainTests.ActualTakeUpResponseCanAttachEarlyThenEquipReattachesOrDoesNothing(sameHost: False)",
+    "Riftbound.ConformanceTests.EquipChainTests.ActualTakeUpResponseCanAttachEarlyThenEquipReattachesOrDoesNothing(sameHost: True)",
+    "Riftbound.ConformanceTests.EquipChainTests.DestroyCostQueuesLastBreathAboveEquipWithoutLosingItsDraw",
+    "Riftbound.ConformanceTests.EquipChainTests.EquipAttachmentChangesLocationWithoutMovingOrExhausting",
+    "Riftbound.ConformanceTests.EquipChainTests.EquipDoesNotAttachToAReplacementObjectOrOpponentControlledHost(change: \"source-generation\")",
+    "Riftbound.ConformanceTests.EquipChainTests.EquipDoesNotAttachToAReplacementObjectOrOpponentControlledHost(change: \"target-control\")",
+    "Riftbound.ConformanceTests.EquipChainTests.EquipDoesNotAttachToAReplacementObjectOrOpponentControlledHost(change: \"target-generation\")",
+    "Riftbound.ConformanceTests.EquipChainTests.EquipPaysThenWaitsForBothPlayersBeforeAttaching",
+    "Riftbound.ConformanceTests.EquipChainTests.EquipSourceControlChangeDoesNotChangeTheCapturedAbilityController",
+    "Riftbound.ConformanceTests.EquipChainTests.HextechGauntletCostUsesCurrentMightIncludingOtherArmaments",
+    "Riftbound.ConformanceTests.EquipChainTests.RecoveryRejectsForgedPrivateEquipContinuation(change: \"card\")",
+    "Riftbound.ConformanceTests.EquipChainTests.RecoveryRejectsForgedPrivateEquipContinuation(change: \"generation\")",
+    "Riftbound.ConformanceTests.EquipChainTests.RecoveryRejectsForgedPrivateEquipContinuation(change: \"missing\")",
+    "Riftbound.ConformanceTests.EquipChainTests.SpectatorCannotHideOrSubstituteAStillPublicEquipTarget(fake: \"FORGED\")",
+    "Riftbound.ConformanceTests.EquipChainTests.SpectatorCannotHideOrSubstituteAStillPublicEquipTarget(fake: \"HIDDEN\")"
+  ],
+  "allPassed": true
+}

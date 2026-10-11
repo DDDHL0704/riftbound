@@ -36,6 +36,17 @@ class RuleRunnerTests(unittest.TestCase):
         shards=runner.plan({small,runner.FULL_CLASS+'Recast'},'focus',4,['recast'],{})
         self.assertEqual({small},shards[0]['methods'])
 
+    def test_explicit_game_focus_runs_only_matching_methods_and_checks_coverage(self):
+        game=runner.FULL_CLASS+'PreconstructedCatalogDecks'
+        methods={game,runner.FULL_CLASS+'OtherGame',runner.PREFIX+'Rules.OtherRule'}
+        shard=runner.plan(methods,'focus',4,['PreconstructedCatalogDecks'],{},include_games=True)[0]
+        self.assertEqual({game},shard['methods'])
+        self.assertNotIn('FullyQualifiedName!~',shard['filter'])
+        row=ET.Element('result',testName=game,outcome='Passed')
+        runner.verify([row],dict(total=1,passed=1,failed=0,notExecuted=0),shard['methods'])
+        with self.assertRaises(ValueError):
+            runner.verify([row],dict(total=1,passed=1,failed=0,notExecuted=0),methods)
+
     def test_check_requires_named_smoke_tests(self):
         with self.assertRaises(ValueError):runner.plan({runner.PREFIX+'A.Test'},'check',4,[],{})
 

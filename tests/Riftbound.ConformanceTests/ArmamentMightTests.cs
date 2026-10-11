@@ -22,6 +22,7 @@ public sealed class ArmamentMightTests
     {
         var s=Position();Assert.Equal(4,Might(s));
         var attached=await Act(s,"P1",new AssembleEquipmentCommand("GEAR","HOST",["ASSEMBLE_RED"]));
+        attached=await EquipTestDriver.FinishAsync(attached);
         Assert.Equal(6,Might(attached.State));Assert.Equal(4,attached.State.CardObjects["HOST"].Power);Restore(attached.State);PublicRecovery(attached.State);
     }
     [Fact]
@@ -153,6 +154,7 @@ public sealed class ArmamentMightTests
             CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {["GEAR"]=s.CardObjects["GEAR"] with {Tags=[CardObjectTags.EquipmentCard]}}};
         var play=await Act(s,"P1",new PlayCardCommand("GEAR","SFD·086/221",[]));Assert.Contains(CardEquipmentKeywordNames.Weapon,play.State.CardObjects["GEAR"].Tags);
         var attached=await Act(play.State,"P1",new AssembleEquipmentCommand("GEAR","HOST",["ASSEMBLE_BLUE"]));
+        attached=await EquipTestDriver.FinishAsync(attached);
         Assert.Equal(6,Might(attached.State));Restore(attached.State);PublicRecovery(attached.State);
     }
 

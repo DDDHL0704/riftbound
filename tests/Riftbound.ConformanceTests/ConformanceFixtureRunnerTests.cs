@@ -56801,11 +56801,12 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(
@@ -56870,6 +56871,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -56928,6 +56930,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -56986,6 +56989,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57044,6 +57048,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57102,6 +57107,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_GREEN"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57160,6 +57166,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_GREEN"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57218,6 +57225,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_GREEN"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57276,11 +57284,12 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_BLUE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Null(result.ErrorCode);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-CLOTH-ARMOR", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(
@@ -57346,6 +57355,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_BLUE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57404,6 +57414,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_BLUE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57462,6 +57473,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_BLUE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57520,6 +57532,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_GREEN"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57578,6 +57591,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_GREEN"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57636,6 +57650,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_GREEN"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57694,6 +57709,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_PURPLE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57752,6 +57768,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ORANGE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57810,6 +57827,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ORANGE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57868,6 +57886,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ORANGE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57926,6 +57945,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ORANGE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -57984,6 +58004,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ORANGE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58042,6 +58063,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ORANGE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58100,6 +58122,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ORANGE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58158,6 +58181,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_PURPLE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58216,6 +58240,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_PURPLE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58274,6 +58299,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_PURPLE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58332,6 +58358,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_YELLOW"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58390,6 +58417,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_YELLOW"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58448,6 +58476,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_YELLOW"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58500,6 +58529,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ANY_POWER"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58558,6 +58588,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ANY_POWER"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58616,6 +58647,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ANY_POWER"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58668,6 +58700,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_ANY_POWER"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -58720,6 +58753,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
@@ -58772,6 +58806,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_BLUE"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
@@ -58834,6 +58869,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_GREEN"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
@@ -58886,6 +58922,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-UNKNOWN-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -58944,6 +58981,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
@@ -58952,7 +58990,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             "P1-UNIT-ASSEMBLE-TARGET",
             result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
     }
 
     [Fact]
@@ -59028,13 +59066,13 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(1, accepted.State.Tick);
         Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
         Assert.Empty(accepted.State.RunePools["P1"].PowerByTrait);
         Assert.Equal([equipmentObjectId, unitObjectId], accepted.State.PlayerZones["P1"].Base);
-        Assert.Equal(unitObjectId, accepted.State.CardObjects[equipmentObjectId].AttachedToObjectId);
-        Assert.Empty(accepted.State.StackItems);
+        Assert.Null(accepted.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.Single(accepted.State.StackItems);
         Assert.DoesNotContain(accepted.Prompts["P1"].Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, equipmentObjectId, StringComparison.Ordinal)));
@@ -59069,11 +59107,11 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(acceptedEventsHash, MatchStateHasher.HashValue(replay.Events));
         Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
         Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED"], replay.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(new RunePool(0, 0), replay.State.RunePools["P1"]);
         Assert.Empty(replay.State.RunePools["P1"].PowerByTrait);
         Assert.Equal([equipmentObjectId, unitObjectId], replay.State.PlayerZones["P1"].Base);
-        Assert.Equal(unitObjectId, replay.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.Null(replay.State.CardObjects[equipmentObjectId].AttachedToObjectId);
         Assert.DoesNotContain(replay.Prompts["P1"].Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, equipmentObjectId, StringComparison.Ordinal)));
@@ -59103,7 +59141,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(0, 0), conflict.State.RunePools["P1"]);
         Assert.Empty(conflict.State.RunePools["P1"].PowerByTrait);
         Assert.Equal([equipmentObjectId, unitObjectId], conflict.State.PlayerZones["P1"].Base);
-        Assert.Equal(unitObjectId, conflict.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.Null(conflict.State.CardObjects[equipmentObjectId].AttachedToObjectId);
         Assert.DoesNotContain(conflict.Prompts["P1"].Candidates ?? [], candidate =>
             string.Equals(candidate.Action, CommandTypes.AssembleEquipment, StringComparison.Ordinal)
             && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, equipmentObjectId, StringComparison.Ordinal)));
@@ -59112,6 +59150,10 @@ public sealed class ConformanceFixtureRunnerTests
             entry.RawCommand is { } entryRaw
             && entryRaw.TryGetProperty("clientNote", out var clientNote)
             && string.Equals(clientNote.GetString(), "changed-payload", StringComparison.Ordinal));
+        var completed = await EquipTestDriver.FinishAsync(accepted, session);
+        Assert.Equal(unitObjectId, completed.State.CardObjects[equipmentObjectId].AttachedToObjectId);
+        Assert.Equal(accepted.State.RunePools["P1"], completed.State.RunePools["P1"]);
+        Assert.Empty(completed.State.StackItems);
     }
 
     [Fact]
@@ -59166,11 +59208,12 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED", "RECYCLE_RUNE:P1-RUNE-RED-ASSEMBLE-PAYMENT"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
         Assert.Equal(
-            ["RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "EQUIPMENT_ATTACHED"],
+            ["RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"],
             result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(
@@ -59245,9 +59288,10 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
         Assert.Empty(result.State.PlayerZones["P2"].Base);
 
@@ -59318,6 +59362,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -59383,15 +59428,16 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-CONTROLLED-OPPONENT-OWNED-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(
             "P1-CONTROLLED-OPPONENT-OWNED-TARGET",
             result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
         Assert.Equal("P2", result.State.CardObjects["P1-CONTROLLED-OPPONENT-OWNED-TARGET"].OwnerId);
         Assert.Equal("P1", result.State.CardObjects["P1-CONTROLLED-OPPONENT-OWNED-TARGET"].ControllerId);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
     }
 
     [Fact]
@@ -59441,6 +59487,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -59501,6 +59548,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -59547,6 +59595,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -59588,6 +59637,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-MISSING",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -59632,6 +59682,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -59675,6 +59726,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -59732,12 +59784,13 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["SPEND_EXPERIENCE:1"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
-        Assert.Equal(2, result.Events.Count);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(7, result.Events.Count);
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(0, result.State.PlayerExperience["P1"]);
         Assert.Equal(["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
         Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", result.State.CardObjects["P1-EQUIPMENT-SHEPHERDS-HEIRLOOM"].AttachedToObjectId);
@@ -59750,7 +59803,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, costPaidPayload["power"]);
         Assert.Equal(1, costPaidPayload["experience"]);
         Assert.Equal(["SPEND_EXPERIENCE:1"], Assert.IsAssignableFrom<IEnumerable<string>>(costPaidPayload["optionalCosts"]));
-        var attachPayload = result.Events[1].Payload;
+        var attachPayload = Assert.Single(result.Events, e => e.Kind == "EQUIPMENT_ATTACHED").Payload;
         Assert.Equal("UNL-158/219", attachPayload["equipmentCardNo"]);
         Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", attachPayload["attachedToObjectId"]);
 
@@ -59769,6 +59822,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["SPEND_EXPERIENCE:1"]),
             CancellationToken.None);
+        insufficientResult = await EquipTestDriver.FinishAsync(insufficientResult);
 
         Assert.False(insufficientResult.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, insufficientResult.ErrorCode);
@@ -59840,11 +59894,12 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_YELLOW", "DESTROY_FRIENDLY_UNIT:P1-UNIT-ASSEMBLE-COST"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
-        Assert.Equal(["COST_PAID", "UNIT_DESTROYED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["COST_PAID", "UNIT_DESTROYED", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(
             ["P1-EQUIPMENT-BLADE-RUINED-KING", "P1-UNIT-ASSEMBLE-TARGET"],
@@ -59880,6 +59935,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_YELLOW", "DESTROY_FRIENDLY_UNIT:P1-UNIT-ASSEMBLE-TARGET"]),
             CancellationToken.None);
+        sameTargetResult = await EquipTestDriver.FinishAsync(sameTargetResult);
         Assert.False(sameTargetResult.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, sameTargetResult.ErrorCode);
         Assert.Empty(sameTargetResult.Events);
@@ -59897,6 +59953,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_YELLOW"]),
             CancellationToken.None);
+        missingDestroyCostResult = await EquipTestDriver.FinishAsync(missingDestroyCostResult);
         Assert.False(missingDestroyCostResult.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, missingDestroyCostResult.ErrorCode);
         Assert.Empty(missingDestroyCostResult.Events);
@@ -59972,11 +60029,12 @@ public sealed class ConformanceFixtureRunnerTests
                     "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-002"
                 ]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
-        Assert.Equal([ "COST_PAID", "CARDS_RECYCLED", "EQUIPMENT_ATTACHED" ], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal([ "COST_PAID", "CARDS_RECYCLED", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED" ], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-LAST-RITES", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
@@ -60018,6 +60076,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_PURPLE", "RECYCLE_GRAVEYARD_CARD:P1-LAST-RITES-RECYCLE-001"]),
             CancellationToken.None);
+        missingRecycleCostResult = await EquipTestDriver.FinishAsync(missingRecycleCostResult);
 
         Assert.False(missingRecycleCostResult.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, missingRecycleCostResult.ErrorCode);
@@ -60074,11 +60133,12 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_3_ANY_POWER"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
         Assert.Null(result.ErrorCode);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
-        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(3, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(
             "P1-UNIT-ASSEMBLE-TARGET",
@@ -60107,6 +60167,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_3_ANY_POWER"]),
             CancellationToken.None);
+        insufficientManaResult = await EquipTestDriver.FinishAsync(insufficientManaResult);
 
         Assert.False(insufficientManaResult.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, insufficientManaResult.ErrorCode);
@@ -60151,6 +60212,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -60202,6 +60264,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -60251,6 +60314,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -60299,6 +60363,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-EQUIPMENT-ASSEMBLE-NON-UNIT-TARGET",
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -60348,6 +60413,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 ["ECHO"]),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -60395,6 +60461,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-ASSEMBLE-TARGET",
                 []),
             CancellationToken.None);
+        result = await EquipTestDriver.FinishAsync(result);
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
@@ -60421,7 +60488,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(3, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(
@@ -60443,7 +60510,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(3, result.FinalState.Tick);
         Assert.Equal("P1", result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].OwnerId);
         Assert.Equal("P1", result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].ControllerId);
         Assert.Equal(

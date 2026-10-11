@@ -1,0 +1,273 @@
+{
+  "focus4": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 39.95,
+    "total": 277,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 277,
+        "passed": 277,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.96
+      }
+    ]
+  },
+  "focus5": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 40.27,
+    "total": 19,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.95
+      }
+    ]
+  },
+  "suiteCheckpoint": {
+    "status": "PASSED_COMBINED_CHECKPOINT",
+    "cases": 9900,
+    "methods": 6489,
+    "partialRun": "var/qa/equip-chain/full1",
+    "remainingMatrix": "var/qa/rules-test-speed-2026-10-12/matrix1",
+    "interruptedRunNotRelabelled": true,
+    "testAssemblyChangedOnlyForMatrixParallelization": true,
+    "productionAssemblies": [
+      {
+        "path": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Api.dll",
+        "sha256": "0d88e15ed4cbe4be20b8f0545dad2ec3adc9745a28e16ce7b2351484e7ef3e1a",
+        "lastModifiedBeforeOriginalPlan": true
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+        "sha256": "e9c908d5ace933ddc1ba6a65d6f3d6a6047b1868afd10e77ea9992e0eaa04af8",
+        "lastModifiedBeforeOriginalPlan": true
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Contracts.dll",
+        "sha256": "e93d751a29c6cbfe1b05b8b54928af0c6704a0abbed028c784f2d17f0ff5d0bc",
+        "lastModifiedBeforeOriginalPlan": true
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Engine.dll",
+        "sha256": "7b3587a0d850760abdb9a172c30b9525950be2d2fbc560da058e55e9dd79091c",
+        "lastModifiedBeforeOriginalPlan": true
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Persistence.dll",
+        "sha256": "81e3cae00a8d4b6549d2cdc04826e74f7db6fdda9facdc34233e8cbfb511b985",
+        "lastModifiedBeforeOriginalPlan": true
+      }
+    ]
+  },
+  "native": {
+    "results": {
+      "long-sword": {
+        "nativeCommands": 3,
+        "commands": 3,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "ec756879c4e70238cad6d382d336b6b2951095991cab0fc08a0816fc7496493f",
+          "expectedStateHash": "ec756879c4e70238cad6d382d336b6b2951095991cab0fc08a0816fc7496493f",
+          "errors": []
+        }
+      },
+      "world-atlas": {
+        "nativeCommands": 3,
+        "commands": 3,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "da05450cda5f84a0ab9afd713cd9b559baff569433c5a7e36f0b40f9fd4cdb00",
+          "expectedStateHash": "da05450cda5f84a0ab9afd713cd9b559baff569433c5a7e36f0b40f9fd4cdb00",
+          "errors": []
+        }
+      }
+    },
+    "mode": "Godot headless production ActionBar: assemble and both response passes, 6 commands. Private and player/spectator public recovery after every accepted command; deterministic event and final-state replay."
+  },
+  "godotBuild": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:02.98\n",
+  "godotRun": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nARMAMENT_MIGHT_PASS: 6 production assemble and response commands\n",
+  "artifacts": [
+    {
+      "path": "var/qa/equip-chain/check1/check/results.trx",
+      "sha256": "e8fbc8e0915846fac75b414244a50fe9958d50ebdd687d89a72463760e03eb0d"
+    },
+    {
+      "path": "var/qa/equip-chain/check1/plan.json",
+      "sha256": "73b09ff7af0291b03b2f4a77bef98719b2fbf91fe198f959a9d08aafea599bde"
+    },
+    {
+      "path": "var/qa/equip-chain/focus1/focus/results.trx",
+      "sha256": "2517069bba951e9e066eab71372799e8d9e46478cc7fab4f284aaa4cf600fc73"
+    },
+    {
+      "path": "var/qa/equip-chain/focus1/plan.json",
+      "sha256": "d59612c095ea828f260618377283e6e258883aa3bed0b098ee71ed1d0e3a7019"
+    },
+    {
+      "path": "var/qa/equip-chain/focus2/focus/results.trx",
+      "sha256": "51289890f31adad4c79a52168369d56ff9a8ffe2fe8f632ee3a8225639c7eea5"
+    },
+    {
+      "path": "var/qa/equip-chain/focus2/plan.json",
+      "sha256": "411b6e3a83a4e7a71d3cd16ec0eabb16bb5398fb84fbb1747689344d1069ee14"
+    },
+    {
+      "path": "var/qa/equip-chain/focus3/focus/results.trx",
+      "sha256": "2abc34f324b1af46aac05009b33029633913ef5387c0c1689c961a59508bd5c5"
+    },
+    {
+      "path": "var/qa/equip-chain/focus3/plan.json",
+      "sha256": "c9cf97410547d9470e5b2a062fa9d6e562e0a4893068784e1655809f089f6f00"
+    },
+    {
+      "path": "var/qa/equip-chain/focus4/focus/results.trx",
+      "sha256": "201ed3f771320edad51a82ee3107cfc5dae683dacaaccd0fd2ef7f0e3f9184da"
+    },
+    {
+      "path": "var/qa/equip-chain/focus4/plan.json",
+      "sha256": "ebbc54a38d415bf94c34f539f10570a05aaa4f762f4e6bbe362dec38478622ae"
+    },
+    {
+      "path": "var/qa/equip-chain/focus4/summary.json",
+      "sha256": "ebceb89c7876efd68d5343437d8e2d0e3eb93d387c4cdb2aa422d7b321e71486"
+    },
+    {
+      "path": "var/qa/equip-chain/focus5/focus/results.trx",
+      "sha256": "2ddfe724b184da237f02ae8ab6e2be6a53d7329ed3bc9edb45979488ddc427d4"
+    },
+    {
+      "path": "var/qa/equip-chain/focus5/plan.json",
+      "sha256": "08e962a4a4b2239db39d64cbf93f35f72e49502e875204e815bf6ef0b53625e0"
+    },
+    {
+      "path": "var/qa/equip-chain/focus5/summary.json",
+      "sha256": "b69f5fa7c096b00dc03bcfad8c58e5372ad58e61d0deffb48db62a176c1ff7d1"
+    },
+    {
+      "path": "var/qa/equip-chain/full1/games-2/results.trx",
+      "sha256": "2cb2ca0b89a301b8bc590ff467e4dd5de505232d3daa8d5bc0ab024155182641"
+    },
+    {
+      "path": "var/qa/equip-chain/full1/games-3/results.trx",
+      "sha256": "64a946d74af05b0fdee72d1bfb2839e2f503dbd1e137953d8342aeb74ace30a4"
+    },
+    {
+      "path": "var/qa/equip-chain/full1/games-4/results.trx",
+      "sha256": "15423a7d393b763c0a6fd700d91f757db1790c9730f3b2e5c00ac70074fbfbc4"
+    },
+    {
+      "path": "var/qa/equip-chain/full1/plan.json",
+      "sha256": "3b23f4cb3f49bb4be2e1f0fef3ad61ac7c29f5587d12271e24c0f0de21b9f91f"
+    },
+    {
+      "path": "var/qa/equip-chain/full1/rules/results.trx",
+      "sha256": "78a49b09579285c4107e69770f05beb9ddf8af3de7faa1f6aed388a3a5f685ed"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/assemble-command.json",
+      "sha256": "eaa7fbcdd6008707830a25e84318c70504ca2d11d349506891ff5b2503a246a5"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/assemble-prompt.json",
+      "sha256": "352925f14438d2461ca17bd378a02445da52ae00e59ce5cb9b36fd5abf3b786f"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/assemble-snapshot.json",
+      "sha256": "466eb66413b260811870112f31df77f5a44b4c09d001e1e9ba7631e17a0c3cfc"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/pass-1-command.json",
+      "sha256": "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/pass-1-prompt.json",
+      "sha256": "5a192cb1779a830ae3155ef722fbc82b7e56070bc3814994cd2348eb5dff4f1b"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/pass-1-snapshot.json",
+      "sha256": "0990e57884014b83221e3fd23e73b2c4071ead742f601f73d2c9d42c10fb3fde"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/pass-2-command.json",
+      "sha256": "2339b65139be1d8b8e7abab72e3882ea4e7a16bdcc2f99bc69a0d35481ed00f5"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/pass-2-prompt.json",
+      "sha256": "7f7fff2ca947c536863ead114093aa0360a85d8c2f809690f55937403942c691"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/pass-2-snapshot.json",
+      "sha256": "8a0927be551afef372c549cc19af4b1ba53860beccc363e3fc92bcf154b5d658"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/replay.json",
+      "sha256": "8d7fbc565d673cd08b4de9b419d35c24850a29fdc88fccd772482daffb765d7f"
+    },
+    {
+      "path": "var/qa/equip-chain/native/long-sword/result-snapshot.json",
+      "sha256": "4ea3c1361a6770def1672d5b5ce10165c5aab2eb43cca88226df1841082d736f"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/assemble-command.json",
+      "sha256": "e0096db74ecb3145c1ea086da2437f5cd767eed52f9deeefb87089ccecb87fc3"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/assemble-prompt.json",
+      "sha256": "ae654a85e578b36325c49c2404aff5e4f6d8a775d01735bfa7ca4b750b997008"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/assemble-snapshot.json",
+      "sha256": "d092679b33618c1856ddc3905615292a10f207e5ad60f194e9be37b6f059917f"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/pass-1-command.json",
+      "sha256": "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/pass-1-prompt.json",
+      "sha256": "6e140497685099fc8593e479e135bdb9fa7113315ebbcfbaca20e80225140e37"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/pass-1-snapshot.json",
+      "sha256": "7f633662bafc02ae9087ffa94e8c5214b3fd4d82329bfbaa458fc28f0c254fa0"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/pass-2-command.json",
+      "sha256": "2339b65139be1d8b8e7abab72e3882ea4e7a16bdcc2f99bc69a0d35481ed00f5"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/pass-2-prompt.json",
+      "sha256": "5cc177bba804efac0cea30b401bf4f135137abd92d5781bbba0b1fa9a342a0bc"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/pass-2-snapshot.json",
+      "sha256": "4f7d02f01e5e31f9c6eeb42a5b1ac152bffbf5d75235f4eb6c9d85d26872000c"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/replay.json",
+      "sha256": "52850fbd707b88355f6b527eafcc43870408baefaef063f3caf958eea11a15c5"
+    },
+    {
+      "path": "var/qa/equip-chain/native/world-atlas/result-snapshot.json",
+      "sha256": "b3956d2460f2f31fc4a0626b79c6ff723b6c1983bd5d0fc246a719baf599ecf8"
+    },
+    {
+      "path": "var/qa/equip-chain/red/focus/results.trx",
+      "sha256": "43f8c79b3c2d95ca6e9473e520e4d02b23a615244485e441809c09aaba8ffe6e"
+    },
+    {
+      "path": "var/qa/equip-chain/red/plan.json",
+      "sha256": "9991225d41d06b2a0aa09a45274910d2fb9ed3de0bf938fc7b7dba173f435725"
+    }
+  ]
+}

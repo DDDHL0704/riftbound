@@ -7311,9 +7311,10 @@ public sealed class GameHubJoinTests
             }));
 
         Assert.Empty(attachClients.CallerClient.Errors);
-        var events = EventsFor(attachClients);
+        var completed = await CompleteEquipThroughHubAsync(registry, roomId);
+        var events = EventsFor(attachClients).Concat(completed.Events).ToArray();
         Assert.Equal(
-            ["RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "EQUIPMENT_ATTACHED"],
+            ["RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"],
             events.Select(gameEvent => gameEvent.Kind).ToArray());
         var recycleEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         Assert.Equal("ASSEMBLE_EQUIPMENT", recycleEvent.Payload["paymentWindow"]);
@@ -7324,7 +7325,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(paymentId, Assert.IsType<string>(recycleEvent.Payload["paymentId"]));
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
 
-        var snapshot = SnapshotFor(attachClients, "P1");
+        var snapshot = SnapshotFor(completed.Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.DoesNotContain(paymentRuneObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
@@ -7396,7 +7397,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
         var acceptedEvents = EventsFor(acceptedClients);
         Assert.Equal(
-            ["RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "EQUIPMENT_ATTACHED"],
+            ["RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED"],
             acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedRecycleEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         Assert.Equal("ASSEMBLE_EQUIPMENT", acceptedRecycleEvent.Payload["paymentWindow"]);
@@ -7407,9 +7408,9 @@ public sealed class GameHubJoinTests
         Assert.Equal(acceptedPaymentId, Assert.IsType<string>(acceptedRecycleEvent.Payload["paymentId"]));
         var acceptedPaymentResourceActions = Assert.IsType<string[]>(acceptedCostEvent.Payload["paymentResourceActions"]);
         Assert.Equal([paymentResourceAction], acceptedPaymentResourceActions);
-        var acceptedAttachEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
-        Assert.Equal(equipmentObjectId, acceptedAttachEvent.Payload["equipmentObjectId"]);
-        Assert.Equal(targetObjectId, acceptedAttachEvent.Payload["attachedToObjectId"]);
+        var acceptedAttachEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Equal(equipmentObjectId, acceptedAttachEvent.Payload["sourceObjectId"]);
+        Assert.Equal(new[]{targetObjectId}, Assert.IsType<string[]>(acceptedAttachEvent.Payload["targetObjectIds"]));
         Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
         Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
         var acceptedSnapshot = SnapshotFor(acceptedClients, "P1");
@@ -7419,7 +7420,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(2, Assert.IsType<int>(acceptedP1Zones["runeDeckCount"]));
         var acceptedObjects = Assert.IsType<Dictionary<string, object?>>(acceptedP1["objects"]);
         var acceptedEquipment = Assert.IsType<Dictionary<string, object?>>(acceptedObjects[equipmentObjectId]);
-        Assert.Equal(targetObjectId, Assert.IsType<string>(acceptedEquipment["attachedToObjectId"]));
+        Assert.Null(acceptedEquipment["attachedToObjectId"]);
         var acceptedRunePool = Assert.IsType<Dictionary<string, object?>>(acceptedP1["runePool"]);
         var acceptedPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(acceptedRunePool["powerByTrait"]);
         Assert.DoesNotContain(RuneTrait.Red, acceptedPowerByTrait.Keys);
@@ -7477,9 +7478,9 @@ public sealed class GameHubJoinTests
         Assert.Equal(acceptedCostEvent.Payload["paymentWindow"], replayCostEvent.Payload["paymentWindow"]);
         Assert.Equal(acceptedCostEvent.Payload["paymentId"], replayCostEvent.Payload["paymentId"]);
         Assert.Equal(acceptedPaymentResourceActions, Assert.IsType<string[]>(replayCostEvent.Payload["paymentResourceActions"]));
-        var replayAttachEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
-        Assert.Equal(acceptedAttachEvent.Payload["equipmentObjectId"], replayAttachEvent.Payload["equipmentObjectId"]);
-        Assert.Equal(acceptedAttachEvent.Payload["attachedToObjectId"], replayAttachEvent.Payload["attachedToObjectId"]);
+        var replayAttachEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Equal(acceptedAttachEvent.Payload["sourceObjectId"], replayAttachEvent.Payload["sourceObjectId"]);
+        Assert.Equal(Assert.IsType<string[]>(acceptedAttachEvent.Payload["targetObjectIds"]), Assert.IsType<string[]>(replayAttachEvent.Payload["targetObjectIds"]));
         Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
         Assert.Equal(acceptedClients.GroupClient.Prompts.Count, replayClients.GroupClient.Prompts.Count);
         Assert.Equal(
@@ -7572,6 +7573,14 @@ public sealed class GameHubJoinTests
         var currentRunePool = Assert.IsType<Dictionary<string, object?>>(currentP1["runePool"]);
         var currentPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(currentRunePool["powerByTrait"]);
         Assert.DoesNotContain(RuneTrait.Red, currentPowerByTrait.Keys);
+        var completed = await CompleteEquipThroughHubAsync(registry, roomId);
+        var attachment = Assert.Single(completed.Events, e => e.Kind == "EQUIPMENT_ATTACHED");
+        Assert.Equal(equipmentObjectId, attachment.Payload["equipmentObjectId"]);
+        Assert.Equal(targetObjectId, attachment.Payload["attachedToObjectId"]);
+        var finalPlayer = PlayerView(SnapshotFor(completed.Clients, "P1"), "P1");
+        var finalObjects = Assert.IsType<Dictionary<string, object?>>(finalPlayer["objects"]);
+        Assert.Equal(targetObjectId, Assert.IsType<Dictionary<string, object?>>(finalObjects[equipmentObjectId])["attachedToObjectId"]);
+        Assert.Equal(acceptedJournalCount + 2, journal.Entries.Count);
     }
 
     [Fact]
@@ -7622,14 +7631,15 @@ public sealed class GameHubJoinTests
             }));
 
         Assert.Empty(attachClients.CallerClient.Errors);
-        var events = EventsFor(attachClients);
+        var completed = await CompleteEquipThroughHubAsync(registry, roomId);
+        var events = EventsFor(attachClients).Concat(completed.Events).ToArray();
         Assert.Equal(
-            ["COST_PAID", "EQUIPMENT_ATTACHED"],
+            ["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"],
             events.Select(gameEvent => gameEvent.Kind).ToArray());
         var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(1, costEvent.Payload["experience"]);
 
-        var snapshot = SnapshotFor(attachClients, "P1");
+        var snapshot = SnapshotFor(completed.Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         Assert.Equal(0, Assert.IsType<int>(p1["experience"]));
         var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
@@ -7687,9 +7697,10 @@ public sealed class GameHubJoinTests
             }));
 
         Assert.Empty(attachClients.CallerClient.Errors);
-        var events = EventsFor(attachClients);
+        var completed = await CompleteEquipThroughHubAsync(registry, roomId);
+        var events = EventsFor(attachClients).Concat(completed.Events).ToArray();
         Assert.Equal(
-            ["COST_PAID", "UNIT_DESTROYED", "EQUIPMENT_ATTACHED"],
+            ["COST_PAID", "UNIT_DESTROYED", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"],
             events.Select(gameEvent => gameEvent.Kind).ToArray());
         var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(
@@ -7699,7 +7710,7 @@ public sealed class GameHubJoinTests
         var destroyedEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
         Assert.Equal("ADDITIONAL_COST", destroyedEvent.Payload["reason"]);
 
-        var snapshot = SnapshotFor(attachClients, "P1");
+        var snapshot = SnapshotFor(completed.Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.DoesNotContain(costObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
@@ -7763,9 +7774,10 @@ public sealed class GameHubJoinTests
             }));
 
         Assert.Empty(attachClients.CallerClient.Errors);
-        var events = EventsFor(attachClients);
+        var completed = await CompleteEquipThroughHubAsync(registry, roomId);
+        var events = EventsFor(attachClients).Concat(completed.Events).ToArray();
         Assert.Equal(
-            ["COST_PAID", "CARDS_RECYCLED", "EQUIPMENT_ATTACHED"],
+            ["COST_PAID", "CARDS_RECYCLED", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"],
             events.Select(gameEvent => gameEvent.Kind).ToArray());
         var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(
@@ -7778,7 +7790,7 @@ public sealed class GameHubJoinTests
         Assert.Equal("ADDITIONAL_COST", recycleEvent.Payload["reason"]);
         Assert.Equal(2, recycleEvent.Payload["count"]);
 
-        var snapshot = SnapshotFor(attachClients, "P1");
+        var snapshot = SnapshotFor(completed.Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
@@ -7841,15 +7853,16 @@ public sealed class GameHubJoinTests
             }));
 
         Assert.Empty(attachClients.CallerClient.Errors);
-        var events = EventsFor(attachClients);
-        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var completed = await CompleteEquipThroughHubAsync(registry, roomId);
+        var events = EventsFor(attachClients).Concat(completed.Events).ToArray();
+        Assert.Equal(["COST_PAID", "ABILITY_ACTIVATED", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "EQUIPMENT_ATTACHED"], events.Select(gameEvent => gameEvent.Kind).ToArray());
         var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(1, costEvent.Payload["mana"]);
         Assert.Equal(3, costEvent.Payload["baseManaCost"]);
         Assert.Equal(2, costEvent.Payload["targetPowerManaReduction"]);
         Assert.Equal(1, costEvent.Payload["power"]);
 
-        var snapshot = SnapshotFor(attachClients, "P1");
+        var snapshot = SnapshotFor(completed.Clients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
         var equipment = Assert.IsType<Dictionary<string, object?>>(p1Objects[equipmentObjectId]);
@@ -17352,6 +17365,22 @@ public sealed class GameHubJoinTests
     {
         return Assert.IsType<ActionPromptDto>(
             Assert.Single(clients.GroupClient.Prompts, message => string.Equals(message.PlayerId, playerId, StringComparison.Ordinal)).Payload);
+    }
+
+    private static async Task<(IReadOnlyList<GameEvent> Events, RecordingHubClients Clients)> CompleteEquipThroughHubAsync(
+        InMemoryMatchSessionRegistry registry, string roomId)
+    {
+        var events = new List<GameEvent>();
+        var clients = new RecordingHubClients();
+        foreach (var (player, connection) in new[]{("P1", "connection-1"), ("P2", "connection-2")})
+        {
+            clients = new RecordingHubClients();
+            await CreateHub(clients, new RecordingGroupManager(), connection, registry)
+                .SubmitIntent(roomId, player, "equip-response-" + player, JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
+            Assert.Empty(clients.CallerClient.Errors);
+            events.AddRange(EventsFor(clients));
+        }
+        return (events, clients);
     }
 
     private static IReadOnlyList<GameEvent> EventsFor(RecordingHubClients clients)

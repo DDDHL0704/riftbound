@@ -602,6 +602,7 @@ public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string
 
 public sealed record StackItemState
 {
+    public EquipContext? Equip { get; init; }
     public IReadOnlyList<string>? MovementDestinations { get; init; }
     public TriggerCostReceipt? TriggerCost { get; init; }
     public TokenEntryPlan? TokenEntryPlan { get; init; }
@@ -4174,7 +4175,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -5257,6 +5258,7 @@ public sealed record ResolutionResult(
             view["locationDamage"] = item.LocationDamage;
             view["abilityLabel"] = "每个位置至多一名敌方单位受到伤害";
         }
+        if (!hiddenSource && item.Equip is not null) view["abilityLabel"] = "装配：结算时贴附至目标单位";
         if (item.BeginningRecycle is not null) {
             view["beginningRecycle"] = item.BeginningRecycle;
             view["abilityLabel"] = "开始阶段：从废牌堆回收三张牌";
@@ -11882,7 +11884,7 @@ internal static class ActionPromptBuilder
                         runePool,
                         assembleProfile,
                         paymentResourcePowerByTrait,
-                        AssembleEquipmentManaCost(assembleProfile, targetState))))
+                        AssembleEquipmentManaCost(state, assembleProfile, targetState))))
             .Select(objectId => ObjectChoice(state, objectId, "implemented controlled unit host"))
             .ToArray();
     }
@@ -12039,7 +12041,7 @@ internal static class ActionPromptBuilder
                 runePool,
                 assembleProfile,
                 paymentResourcePowerByTrait,
-                AssembleEquipmentManaCost(assembleProfile, targetState)));
+                AssembleEquipmentManaCost(state, assembleProfile, targetState)));
     }
 
     private static AssembleEquipmentProfile? AssembleEquipmentProfileForObject(MatchState state, string objectId)
@@ -12093,7 +12095,7 @@ internal static class ActionPromptBuilder
             .Where(choice => state.CardObjects.ContainsKey(choice.Id))
             .ToDictionary(
                 choice => choice.Id,
-                choice => AssembleEquipmentManaCost(assembleProfile, state.CardObjects[choice.Id]),
+                choice => AssembleEquipmentManaCost(state, assembleProfile, state.CardObjects[choice.Id]),
                 StringComparer.Ordinal);
     }
 
@@ -12106,7 +12108,7 @@ internal static class ActionPromptBuilder
             .Where(choice => state.CardObjects.ContainsKey(choice.Id))
             .ToDictionary(
                 choice => choice.Id,
-                choice => AssembleEquipmentTargetPowerManaReduction(assembleProfile, state.CardObjects[choice.Id]),
+                choice => AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, state.CardObjects[choice.Id]),
                 StringComparer.Ordinal);
     }
 
@@ -12230,16 +12232,16 @@ internal static class ActionPromptBuilder
         return string.IsNullOrWhiteSpace(assembleProfile.PowerTrait);
     }
 
-    private static int AssembleEquipmentManaCost(AssembleEquipmentProfile assembleProfile, CardObjectState targetState)
+    private static int AssembleEquipmentManaCost(MatchState state, AssembleEquipmentProfile assembleProfile, CardObjectState targetState)
     {
-        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(assembleProfile, targetState));
+        return Math.Max(0, assembleProfile.ManaCost - AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState));
     }
 
     private static int AssembleEquipmentTargetPowerManaReduction(
-        AssembleEquipmentProfile assembleProfile,
+        MatchState state, AssembleEquipmentProfile assembleProfile,
         CardObjectState targetState)
     {
-        return assembleProfile.ReduceManaCostByTargetPower ? Math.Max(0, targetState.Power) : 0;
+        return assembleProfile.ReduceManaCostByTargetPower ? CoreRuleEngine.ResolveCurrentFieldUnitPower(state, targetState) : 0;
     }
 
     private static bool IsImplementedAssembleEquipmentTarget(MatchState state, string playerId, string objectId)

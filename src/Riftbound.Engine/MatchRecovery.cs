@@ -23397,6 +23397,8 @@ public static class MatchRecoveryValidator
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
         foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidEquipContext(item)) errors.Add("invalid captured equip ability");
+        foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidBattlefieldStart(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
                 || item.BattlefieldStart is not null && (item.TargetObjectIds.Count != 0 || item.SourceConfirmed))
                 errors.Add("invalid captured battlefield start ability");
@@ -27277,6 +27279,7 @@ public static class MatchRecoveryValidator
             ValidateSpectatorSnapshotStackObjectReferences(
                 spectatorReplayFrame.SpectatorSnapshot.Stack,
                 BuildAuthoritativeStateKnownObjectIds(authoritativeState),
+                authoritativeState,
                 errors);
             ValidateSpectatorSnapshotStackAuthoritativeKeySet(
                 spectatorReplayFrame.SpectatorSnapshot.Stack,
@@ -31074,6 +31077,7 @@ public static class MatchRecoveryValidator
     private static void ValidateSpectatorSnapshotStackObjectReferences(
         IReadOnlyList<object?> stackItems,
         IReadOnlySet<string> knownObjectIds,
+        MatchState authoritativeState,
         List<string> errors)
     {
         for (var index = 0; index < stackItems.Count; index++)
@@ -31099,7 +31103,11 @@ public static class MatchRecoveryValidator
                 stackItem,
                 "targetObjectIds",
                 $"spectator replay frame snapshot stack item {stackItemLabel} target object id",
-                knownObjectIds,
+                // A chosen target can leave the public field before its skill resolves.
+                // The keyed authoritative comparison below still requires exact redaction.
+                authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original
+                    && VisibleObjectIdsForSpectator(authoritativeState, original.TargetObjectIds).Contains("HIDDEN")
+                        ? knownObjectIds.Append("HIDDEN").ToHashSet(StringComparer.Ordinal) : knownObjectIds,
                 "object registry",
                 errors);
         }

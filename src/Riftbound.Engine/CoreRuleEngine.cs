@@ -4831,7 +4831,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
-        var assembleManaCost = AssembleEquipmentManaCost(assembleProfile, targetState);
+        var assembleManaCost = AssembleEquipmentManaCost(state, assembleProfile, targetState);
         var assembleAnyPowerCost = AssembleEquipmentAnyPowerCost(assembleProfile);
         var assemblePowerCostByTrait = AssembleEquipmentPowerCostByTrait(assembleProfile);
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
@@ -4915,45 +4915,29 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var playerExperience = paymentCommit.PlayerExperience;
+        var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
+        var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
+        cardObjects[command.SourceObjectId] = equipmentWithIdentity;
+        cardObjects[command.TargetObjectId] = targetWithIdentity;
+        var equipItem = new StackItemState($"ASSEMBLE_EQUIPMENT:{command.SourceObjectId}:{state.Tick + 1}",
+            intent.PlayerId, command.SourceObjectId, EquipEffect, assembleProfile.CardNo, [command.TargetObjectId],
+            optionalCosts: optionalCosts, targetGenerations: new Dictionary<string, long> { [command.TargetObjectId] = targetState.ObjectGeneration })
+            { Equip = new(assembleProfile.CardNo, equipmentState.ObjectGeneration) };
         var destroyedAdditionalCostOwnerIds = new List<string>();
         var assembleRemovalEvents = new List<GameEvent>();
+        var costTriggers = new List<TriggerQueueItemState>();
         if (destroyedAdditionalCostTargetObjectIds.Count > 0)
         {
-            var assembleStackItem = new StackItemState(
-                $"ASSEMBLE_EQUIPMENT:{command.SourceObjectId}:{state.Tick + 1}",
-                intent.PlayerId,
-                command.SourceObjectId,
-                "ASSEMBLE_EQUIPMENT",
-                assembleProfile.CardNo,
-                [command.TargetObjectId],
-                optionalCosts: optionalCosts);
-            using (var costReplacements = PrepareDestructionReplacements(state with { PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, destroyedAdditionalCostTargetObjectIds))
-            {
-                assembleRemovalEvents.AddRange(costReplacements.Events);
-                foreach (var additionalCostTargetObjectId in destroyedAdditionalCostTargetObjectIds.Where(id => !costReplacements.Replaced.Contains(id)))
-                {
-                    if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, additionalCostTargetObjectId, out var removalResult))
-                    {
-                        return RejectWithCorePrompts(
-                            state,
-                            AssembleEquipmentUnsupportedMessage,
-                            ErrorCodes.UnsupportedCommand);
-                    }
-
-                    assembleRemovalEvents.AddRange(BuildFieldRemovalEvents(
-                        assembleProfile.DisplayName,
-                        assembleStackItem,
-                        additionalCostTargetObjectId,
-                        removalResult,
-                        "ADDITIONAL_COST"));
-                    if (removalResult.WasDestroyed)
-                    {
-                        destroyedAdditionalCostOwnerIds.Add(removalResult.OwnerPlayerId);
-                    }
-                }
-
-            }
-
+            var removal = ResolveFieldDestructions(state with { PlayerExperience = playerExperience }, playerZones, cardObjects,
+                equipItem, new HashSet<string>(), state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(StringComparer.Ordinal), runePools,
+                objectLocations: objectLocations, explicitDestroyObjectIds: destroyedAdditionalCostTargetObjectIds.ToHashSet(StringComparer.Ordinal),
+                explicitDestroyReason: "ADDITIONAL_COST");
+            if (removal.Events.Count == 0)
+                return RejectWithCorePrompts(state, "无法支付装配所需的摧毁费用。", ErrorCodes.InvalidTarget);
+            assembleRemovalEvents.AddRange(removal.Events);
+            destroyedAdditionalCostOwnerIds.AddRange(removal.DestroyedUnitOwnerIds);
+            costTriggers.AddRange(removal.TriggerQueue);
+            runePools = removal.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
             objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         }
 
@@ -4972,14 +4956,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         }
 
-        var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
-        var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
-        cardObjects[command.SourceObjectId] = equipmentWithIdentity with
-        {
-            AttachedToObjectId = command.TargetObjectId
-        };
-        cardObjects[command.TargetObjectId] = targetWithIdentity;
-
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -4992,7 +4968,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
                 destroyedAdditionalCostOwnerIds),
-            PassedPriorityPlayerIds = []
+            PassedPriorityPlayerIds = [],
+            ActivePlayerId = intent.PlayerId,
+            PriorityPlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            StackItems = state.StackItems.Append(equipItem).ToArray(),
+            TriggerQueue = state.TriggerQueue.Concat(costTriggers).ToArray()
         };
         var events = new List<GameEvent>(paymentEvents);
         events.Add(
@@ -5008,7 +4989,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = assembleManaCost,
                     ["baseManaCost"] = assembleProfile.ManaCost,
-                    ["targetPowerManaReduction"] = AssembleEquipmentTargetPowerManaReduction(assembleProfile, targetWithIdentity),
+                    ["targetPowerManaReduction"] = AssembleEquipmentTargetPowerManaReduction(state, assembleProfile, targetState),
                     ["power"] = assembleProfile.PowerCost,
                     ["experience"] = assembleProfile.ExperienceCost,
                     ["sourceObjectId"] = command.SourceObjectId,
@@ -5020,42 +5001,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })));
         events.AddRange(assembleRemovalEvents);
         events.AddRange(assembleRecycleEvents);
-        events.Add(
-            new(
-                "EQUIPMENT_ATTACHED",
-                $"{intent.PlayerId} 装配{assembleProfile.DisplayName}",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = command.SourceObjectId,
-                    ["equipmentObjectId"] = command.SourceObjectId,
-                    ["unitObjectId"] = command.TargetObjectId,
-                    ["controllerId"] = intent.PlayerId,
-                    ["ownerId"] = intent.PlayerId,
-                    ["attachedToObjectId"] = command.TargetObjectId,
-                    ["equipmentCardNo"] = string.IsNullOrWhiteSpace(equipmentWithIdentity.CardNo) ? assembleProfile.CardNo : equipmentWithIdentity.CardNo,
-                    ["targetPower"] = targetWithIdentity.Power,
-                    ["optionalCosts"] = optionalCosts.ToArray(),
-                    ["paymentResourceActions"] = paymentResourceActions.ToArray()
-                }));
-
-        PendingPaymentState? pendingPayment = null;
-        if (TryOpenJaxWeaponAttachPaymentWindow(
-                playerZones,
-                cardObjects,
-                intent.PlayerId,
-                command.TargetObjectId,
-                command.SourceObjectId,
-                state.Tick + 1,
-                events,
-                out var jaxPendingPayment))
-        {
-            pendingPayment = jaxPendingPayment;
-        }
-
-        nextState = nextState with
-        {
-            PendingPayment = pendingPayment
-        };
+        events.Add(new("ABILITY_ACTIVATED", "激活装配技能", new Dictionary<string, object?> {
+            ["playerId"] = intent.PlayerId, ["sourceObjectId"] = command.SourceObjectId,
+            ["targetObjectId"] = command.TargetObjectId, ["effectKind"] = EquipEffect }));
+        events.Add(new("STACK_ITEM_ADDED", "装配技能进入结算链，双方可响应", new Dictionary<string, object?> {
+            ["stackItemId"] = equipItem.StackItemId, ["controllerId"] = intent.PlayerId,
+            ["sourceObjectId"] = command.SourceObjectId, ["cardNo"] = equipItem.CardNo,
+            ["targetObjectIds"] = equipItem.TargetObjectIds.ToArray(), ["effectKind"] = EquipEffect }));
 
         return new ResolutionResult(
             true,
@@ -5321,16 +5273,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return string.IsNullOrWhiteSpace(profile.PowerTrait) ? profile.PowerCost : 0;
     }
 
-    private static int AssembleEquipmentManaCost(AssembleEquipmentProfile profile, CardObjectState targetState)
+    private static int AssembleEquipmentManaCost(MatchState state, AssembleEquipmentProfile profile, CardObjectState targetState)
     {
-        return Math.Max(0, profile.ManaCost - AssembleEquipmentTargetPowerManaReduction(profile, targetState));
+        return Math.Max(0, profile.ManaCost - AssembleEquipmentTargetPowerManaReduction(state, profile, targetState));
     }
 
     private static int AssembleEquipmentTargetPowerManaReduction(
-        AssembleEquipmentProfile profile,
+        MatchState state, AssembleEquipmentProfile profile,
         CardObjectState targetState)
     {
-        return profile.ReduceManaCostByTargetPower ? Math.Max(0, targetState.Power) : 0;
+        return profile.ReduceManaCostByTargetPower ? ResolveCurrentFieldUnitPower(state, targetState) : 0;
     }
 
     private static CardObjectState WithFieldIdentityDefaults(CardObjectState cardObject, string playerId)
@@ -27340,6 +27292,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
     {
+        if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
         if (stackItem.ReflexiveCopy is not null) return ResolveReflexiveCopy(state, stackItem);
         if (stackItem.DeathRevealContext is not null) return stackItem.CompletedHandExecutions > 0 ? NoopStackResolutionResult(state) : BeginRevealedHandChoice(state, stackItem, DeathRevealChoiceSpec);

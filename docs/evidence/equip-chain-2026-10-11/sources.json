@@ -1,0 +1,1133 @@
+{
+  "status": "VERIFIED_SCOPED_EQUIP_CHAIN",
+  "rules": [
+    {
+      "id": "DOC-04-P057-B015",
+      "document": "DOC-04",
+      "page": 57,
+      "clauseAnchors": [
+        "377"
+      ],
+      "text": "377.         主动技能 是一种可重复效果,带有一定费用。这类技能也要经过加入结算链、进行结算的过程,与打出卡牌 的过程类似。\n                    想获取更多有关信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B001",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.1"
+      ],
+      "text": "377.1.           主动技能 的卡牌文本格式为:费用 + 冒号 + 具体效果。\n                      例如:“[2]:抽一张牌。”就是一个主动技能。其费用为 2 点法力。其效果为抽一张牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B002",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.2"
+      ],
+      "text": "377.2.           卡牌文本会以“使用”或“打出”字眼来指代主动技能的激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B003",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.2.a"
+      ],
+      "text": "377.2.a.              如果触发条件包含“使用”或“打出”主动技能,那么当该主动技能结算时即满足此条件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B004",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.2.b"
+      ],
+      "text": "377.2.b.              如果主动技能存在一定的“使用”或“打出”条件,则必须满足该条件才能激活此技能。\n                           举例:“绵绵魄罗”的描述为:“打出两个 1[M]的‘战鹰’单位指示物,它们拥有[法盾]。我必须位于\n                           战场上才能使用此技能。”绵绵魄罗必须位于战场上才能激活该技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B005",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3"
+      ],
+      "text": "377.3.           主动技能 会使用结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B006",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.a"
+      ],
+      "text": "377.3.a.              宣告激活技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B007",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.a.1"
+      ],
+      "text": "377.3.a.1.                 技能会进入结算链,但因为没有专门代表该技能的卡牌,所以需要玩家自行记录此时结算链为\n                           闭环状态 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B008",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.b"
+      ],
+      "text": "377.3.b.              继续执行结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B009",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.b.1"
+      ],
+      "text": "377.3.b.1.                 遵循规则 398. “打出或激活技能”中的步骤。此技能将变为待处理的结算链项目。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B010",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.b.2"
+      ],
+      "text": "377.3.b.2.                 对手可依规则进行响应,此过程如同有卡牌进入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B011",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "377.3.b.3"
+      ],
+      "text": "377.3.b.3.                 如果没有采取进一步行动,则开始执行该主动技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B012",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "378"
+      ],
+      "text": "378.         主动技能 的控制玩家可以选择是否将其激活,以及将其激活的时机。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B013",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "379"
+      ],
+      "text": "379.         主动技能会出现在游戏物体和部分法术卡牌上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B014",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "380"
+      ],
+      "text": "380.         大部分情况下,只有当单位位于场地上时才能激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P058-B015",
+      "document": "DOC-04",
+      "page": 58,
+      "clauseAnchors": [
+        "381"
+      ],
+      "text": "381.         所有主动技能都只能在控制玩家的回合和开环状态下激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P079-B021",
+      "document": "DOC-04",
+      "page": 79,
+      "clauseAnchors": [
+        "434"
+      ],
+      "text": "434.         贴附",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P079-B022",
+      "document": "DOC-04",
+      "page": 79,
+      "clauseAnchors": [
+        "434.1"
+      ],
+      "text": "434.1.            贴附 指的是将场上的两张卡牌连接在一起,从而以某种方式结合它们效果的行动。这将导致一张或多张卡牌变为已\n                  贴附 状态,并使至少一张卡牌成为顶部卡牌 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B002",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.a"
+      ],
+      "text": "434.1.a.               贴附 会同时影响两张卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B003",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.a.1"
+      ],
+      "text": "434.1.a.1.                  其中一张卡牌被指定贴附到其他卡牌上,从而变为已贴附状态。另一张卡牌则成为顶部卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B004",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.b"
+      ],
+      "text": "434.1.b.               实际操作形式为:将顶部卡牌放置在另一张或另外多张卡牌之上,露出已贴附卡牌的所有效果文本和战力\n                       加成 ,但遮挡住已贴附 卡牌的其余部分。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B005",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.b.1"
+      ],
+      "text": "434.1.b.1.                  如果顶部卡牌贴附了一张以上的卡牌,则在堆叠时,应保证所有效果文本框和战力加成均清晰\n                            可见。已贴附卡牌的顺序不影响效果的应用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B006",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.c"
+      ],
+      "text": "434.1.c.               所有已贴附卡牌的效果文本,都会被添加到顶部卡牌的规则文本中。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B007",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.d"
+      ],
+      "text": "434.1.d.               顶部卡牌 的战力,会按照其所有已贴附 卡牌的战力加成 进行调整。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B008",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.e"
+      ],
+      "text": "434.1.e.               贴附 一张或多张卡牌会导致这些卡牌卡面上印刷的规则文本 在其贴附 期间变为未激活 状态。\n                            想获取更多有关信息,请查阅规则 716.贴附。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B009",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.f"
+      ],
+      "text": "434.1.f.               将一张卡牌贴附到新的顶部卡牌会导致其从当前已贴附的任何卡牌上卸除。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B010",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.g"
+      ],
+      "text": "434.1.g.               将一张卡牌贴附到其当前的顶部卡牌不会产生任何效果。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B011",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.1.h"
+      ],
+      "text": "434.1.h.               如果游戏效果指示一名玩家将一张卡牌贴附到其当前的顶部卡牌,则不会发生任何其他事情。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B012",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.2"
+      ],
+      "text": "434.2.            贴附 是一种限定行动 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B013",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.2.a"
+      ],
+      "text": "434.2.a.               玩家只能在游戏效果的指示下贴附卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B014",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.3"
+      ],
+      "text": "434.3.            贴附 卡牌这一行动本身并不包含选择目标或指定目标。然而,执行贴附 卡牌行动的游戏效果 可能会选择或指定目\n                  标。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B015",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.4"
+      ],
+      "text": "434.4.            当一张卡牌贴附于另一张卡牌时,其位置将变为与新的顶部卡牌相同。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B016",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.4.a"
+      ],
+      "text": "434.4.a.               这个行为不属于移动。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B017",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "434.5"
+      ],
+      "text": "434.5.            将一张卡牌贴附到另一张卡牌上,只会使相应卡牌变为已贴附卡牌和顶部卡牌,并使已贴附的卡牌改变位置,除此\n                  之外不会改变这两张卡牌的其他状态。\n                       举例:将一个处于休眠状态的装备贴附到一个单位上,不会使该装备变为活跃状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B018",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435"
+      ],
+      "text": "435.         卸除",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B019",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1"
+      ],
+      "text": "435.1.            卸除 指的是让两张当前因贴附 而相连的卡牌断开连接的行动。这会导致其中一张卡牌不再处于已贴附 状态,并可能\n                  导致另一张卡牌不再是顶部卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B020",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1.a"
+      ],
+      "text": "435.1.a.               卸除 仅对当前已贴附 于另一张卡牌的卡牌生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B021",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1.a.1"
+      ],
+      "text": "435.1.a.1.                  如果游戏效果指示玩家卸除一张当前并未贴附于任何对象的卡牌,则该操作不会产生任何效\n                            果。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B022",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1.b"
+      ],
+      "text": "435.1.b.               当一张或多张卡牌被卸除时,它们将不再处于已贴附状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B023",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1.b.1"
+      ],
+      "text": "435.1.b.1.                  在实际操作中,这些卡牌应不再放置于其先前所贴附的那张顶部卡牌下方。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B024",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1.b.2"
+      ],
+      "text": "435.1.b.2.                  在此之后,如果顶部卡牌下方不再有任何已贴附的卡牌,则它将不再是顶部卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B025",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1.c"
+      ],
+      "text": "435.1.c.               被卸除的卡牌,其效果文本将变为未激活状态,而其规则文本将不再处于未激活状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B026",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1.d"
+      ],
+      "text": "435.1.d.               顶部卡牌 的规则文本 中,将不再包含被卸除 卡牌的效果文本 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P080-B027",
+      "document": "DOC-04",
+      "page": 80,
+      "clauseAnchors": [
+        "435.1.e"
+      ],
+      "text": "435.1.e.               顶部卡牌 的战力,将不再按照被卸除 卡牌的战力加成 进行调整。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P081-B001",
+      "document": "DOC-04",
+      "page": 81,
+      "clauseAnchors": [
+        "435.2"
+      ],
+      "text": "435.2.              卸除 是一种限定行动 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P081-B002",
+      "document": "DOC-04",
+      "page": 81,
+      "clauseAnchors": [
+        "435.2.a"
+      ],
+      "text": "435.2.a.                 玩家只能在游戏效果的指示下卸除卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P081-B003",
+      "document": "DOC-04",
+      "page": 81,
+      "clauseAnchors": [
+        "435.3"
+      ],
+      "text": "435.3.              卸除 卡牌这一行动本身并不包含选择目标或指定目标。然而,需要玩家执行卸除卡牌行动的游戏效果 可能会选择或\n                    指定目标。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P081-B004",
+      "document": "DOC-04",
+      "page": 81,
+      "clauseAnchors": [
+        "435.4"
+      ],
+      "text": "435.4.              当一张卡牌从顶部卡牌上卸除时,其位置与其卸除前所贴附的顶部卡牌位置相同。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P081-B005",
+      "document": "DOC-04",
+      "page": 81,
+      "clauseAnchors": [
+        "435.4.a"
+      ],
+      "text": "435.4.a.                 如果被卸除的卡牌是装备,且此操作导致其出现在战场上,则它将在下一次清理时被召回。\n                             想获取更多有关信息,请查阅规则 318.清理。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P081-B006",
+      "document": "DOC-04",
+      "page": 81,
+      "clauseAnchors": [
+        "435.4.b"
+      ],
+      "text": "435.4.b.                 如果已贴附卡牌是因为顶部卡牌从场地区域移动到了非场地区域而被卸除,那么该已贴附卡牌被卸除后\n                         的位置,将是该顶部卡牌在离开场地区域、前往非场地区域前所在的最后一个位置。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P103-B011",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718"
+      ],
+      "text": "718.       已贴附 是指卡牌通过贴附的方式与另一张卡牌连接的状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P103-B012",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.1"
+      ],
+      "text": "718.1.          在被卸除之前,卡牌将一直保持此状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P103-B013",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.2"
+      ],
+      "text": "718.2.          处于此状态时,该卡牌卡面上印刷的规则文本为未激活状态。\n                     想获取更多有关信息,请查阅规则 720.未激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P103-B014",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.3"
+      ],
+      "text": "718.3.          处于此状态时,该卡牌效果文本中的技能将被添加至顶部卡牌的规则文本中。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P103-B015",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.4"
+      ],
+      "text": "718.4.          处于此状态时,该卡牌的战力加成将按所示数值对顶部卡牌的战力作出调整。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B001",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5"
+      ],
+      "text": "718.5.           处于此状态时,已贴附卡牌仍然具有作为场上卡牌的所有属性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B002",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.a"
+      ],
+      "text": "718.5.a.              已贴附 卡牌在贴附 期间仍保有所有类型 和标签 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B003",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.b"
+      ],
+      "text": "718.5.b.              已贴附 卡牌在贴附 期间仍然可以被游戏效果选定或指定为目标。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B004",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.c"
+      ],
+      "text": "718.5.c.         已贴附 卡牌不能与其贴附 的最顶层卡牌 分开移动。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B005",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.d"
+      ],
+      "text": "718.5.d.         一张卡牌同一时间只能贴附于一张顶部卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B006",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.e"
+      ],
+      "text": "718.5.e.         已贴附 卡牌的控制者 可能与其顶部卡牌 的控制者不同。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B007",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.f"
+      ],
+      "text": "718.5.f.              顶部卡牌控制权 的变更不会影响已贴附 卡牌的控制权 ,反之亦然。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B008",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.g"
+      ],
+      "text": "718.5.g.              已贴附 卡牌仍会将其效果文本 中的技能添加到顶部卡牌 的规则文本 中,并根据其战力加成 对顶部卡牌 的\n                      战力 作出调整。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B009",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719"
+      ],
+      "text": "719.       顶部卡牌 是指有一张或多张卡牌通过贴附 动作与其相连的卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B010",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.1"
+      ],
+      "text": "719.1.           所有贴附于此卡牌的卡牌,只要保持贴附状态,其效果文本就会被添加到此卡牌的规则文本中。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B011",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.2"
+      ],
+      "text": "719.2.           当不再有任何卡牌贴附于此卡牌时,它将不再是顶部卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B012",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.3"
+      ],
+      "text": "719.3.           顶部卡牌 和所有贴附于它的卡牌 均位于同一位置。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B013",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.3.a"
+      ],
+      "text": "719.3.a.              当顶部卡牌变更位置时,所有已贴附卡牌会随之变更位置。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B014",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.4"
+      ],
+      "text": "719.4.           顶部卡牌 的休眠 和活跃 状态不会影响或改变已贴附 卡牌的状态,反之亦然。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B015",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.4.a"
+      ],
+      "text": "719.4.a.              除位置、已贴附状态和顶部卡牌状态外,其他所有状态均适用此规则。\n                           举例:如果顶部卡牌进入晕眩状态,不会影响任何已贴附卡牌的状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B017",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.5"
+      ],
+      "text": "719.5.           当顶部卡牌从场地区域移动到非场地区域时,所有已贴附卡牌将从此卡牌上卸除,并留在当前区域。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P104-B018",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "719.5.a"
+      ],
+      "text": "719.5.a.              对区域变更的顶部卡牌拥有控制权的玩家,将决定这些卡牌卸除的顺序,并因此决定因卸除而产生的任何\n                      相关效果的顺序。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B017",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "818"
+      ],
+      "text": "818.         装配",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B018",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "818.1"
+      ],
+      "text": "818.1.            [装配]是一种主动技能关键词。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B019",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "818.1.a"
+      ],
+      "text": "818.1.a.               [装配]会出现在带有[武装]标签的装备上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B020",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "818.1.b"
+      ],
+      "text": "818.1.b.               激活[装配]需要支付费用,支付费用后,将拥有[装配]的卡牌贴附于选定的单位。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B021",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "818.1.b.1"
+      ],
+      "text": "818.1.b.1.                  [装配]所选定的单位视为目标。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B022",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "818.1.b.2"
+      ],
+      "text": "818.1.b.2.                  选定的单位将成为贴附行动后的顶部卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P118-B023",
+      "document": "DOC-04",
+      "page": 118,
+      "clauseAnchors": [
+        "818.1.c"
+      ],
+      "text": "818.1.c.              [装配]的格式为“装配[费用]”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B001",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.1.c.1"
+      ],
+      "text": "818.1.c.1.                  如果为此技能支付费用或做出选择导致触发式技能触发,则这些触发式技能将以待处理状态放\n                            入结算链,且位于该技能之上。\n                                 想获取更多有关信息,请查阅规则 376.主动技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B002",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.1.c.2"
+      ],
+      "text": "818.1.c.2.                  [装配]关键词为以下功能的简称:“支付[费用]:将此装备贴附到你控制的一名单位上。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B003",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.1.c.3"
+      ],
+      "text": "818.1.c.3.                  [装配]费用可能包含资源费用和非资源费用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B004",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.1.c.4"
+      ],
+      "text": "818.1.c.4.                  [装配]技能也可能包含改变[装配]费用的文本。支付该技能的费用、需要判定卡牌的[装配]费用\n                            时,均需考虑此类文本。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B005",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.1.c.5"
+      ],
+      "text": "818.1.c.5.                  [装配]技能可能包含改变[装配]技能时机或目标选取的文本。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B006",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.2"
+      ],
+      "text": "818.2.            当此关键词引发的贴附行动完成后,被选定的单位即视为配装拥有此技能的装备。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B007",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.2.a"
+      ],
+      "text": "818.2.a.               这是一个其他游戏效果和触发式技能可以引用的事件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B008",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.3"
+      ],
+      "text": "818.3.            配装(已配有武装) 是指顶部卡牌 被一张或多张[武装 ]卡牌贴附 的状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B009",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.3.a"
+      ],
+      "text": "818.3.a.               配装 是与[武装 ]的已贴附 状态同步发生的状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B010",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.3.b"
+      ],
+      "text": "818.3.b.               只要有一张或多张已贴附卡牌是[武装],顶部卡牌就处于配装状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B011",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.3.c"
+      ],
+      "text": "818.3.c.               配装 状态表示顶部卡牌 拥有一张贴附 于其上、带[装配 ]技能的卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B012",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.4"
+      ],
+      "text": "818.4.            多个[装配]等同于多个主动技能,可以通过支付相应费用分别激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B013",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.5"
+      ],
+      "text": "818.5.            [装配],以及装备是否拥有[装配],是装备的一个特性,其他游戏效果可以检查或引用该特性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P119-B014",
+      "document": "DOC-04",
+      "page": 119,
+      "clauseAnchors": [
+        "818.5.a"
+      ],
+      "text": "818.5.a.               即使装备的规则文本处于未激活状态,该装备是否拥有[装配]仍可被引用。\n                           想获取更多有关信息,请查阅规则 716.贴附。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P019-B021",
+      "document": "DOC-04",
+      "page": 19,
+      "clauseAnchors": [
+        "151.2"
+      ],
+      "text": "151.2.            装备 的主动技能 ,可以在控制该技能的玩家回合的主阶 段、且该回合处于开环状态 期间随时执行,但不可在法术对\n                  决 期间执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ]
+}

@@ -37,6 +37,10 @@ public sealed class ArmamentMightNativeTests
         var result = new ResolutionResult(true,null,initial,[],ResolutionResult.BuildSnapshots(initial),ResolutionResult.BuildPrompts(initial));
         Assert.Equal(4,ArmamentMightTests.Might(initial));
         result = await Submit("P1",Native("assemble",result,"P1",new AssembleEquipmentCommand("GEAR","HOST",[cost])));
+        Assert.Null(result.State.CardObjects["GEAR"].AttachedToObjectId);Assert.Equal(4,ArmamentMightTests.Might(result.State));
+        result = await Submit("P1",Native("pass-1",result,"P1",new PassPriorityCommand()));
+        Assert.Null(result.State.CardObjects["GEAR"].AttachedToObjectId);
+        result = await Submit("P2",Native("pass-2",result,"P2",new PassPriorityCommand()));
         Assert.Equal("HOST",result.State.CardObjects["GEAR"].AttachedToObjectId);Assert.Equal(6,ArmamentMightTests.Might(result.State));
         Assert.Equal(4,result.State.CardObjects["HOST"].Power);
         var commands = journal.Entries.Select(e=>new RecoveredCommand(e.PlayerId,e.ClientIntentId,e.CommandType,e.RawCommand,e.StartedTick,e.CompletedTick,e.StartedEventSequence,e.CompletedEventSequence,e.Accepted,e.ErrorMessage)).ToArray();
