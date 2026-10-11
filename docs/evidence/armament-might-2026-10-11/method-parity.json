@@ -1,0 +1,21 @@
+{
+  "baseline": 6464,
+  "current": 6478,
+  "removed": [],
+  "added": [
+    "Riftbound.ConformanceTests.ArmamentMightNativeTests.ProductionAssemblyProjectsCurrentMightAndReplays",
+    "Riftbound.ConformanceTests.ArmamentMightTests.CompletePublicRecoveryRejectsForgedDynamicAuraValues",
+    "Riftbound.ConformanceTests.ArmamentMightTests.DestroyingActualArmamentRemovesBonusAndCanKillDamagedHost",
+    "Riftbound.ConformanceTests.ArmamentMightTests.EveryCurrentArmamentPrintAddsItsOfficialBaseBonusOnlyWhileAttached",
+    "Riftbound.ConformanceTests.ArmamentMightTests.ExistingDynamicMightProjectionPassesCompletePublicRecoveryValidation",
+    "Riftbound.ConformanceTests.ArmamentMightTests.InactiveOrUnrelatedArmamentCannotIncreaseMight",
+    "Riftbound.ConformanceTests.ArmamentMightTests.MechFanDoublesTheArmamentsBaseBonus",
+    "Riftbound.ConformanceTests.ArmamentMightTests.OfficialArmamentBonusChangesTargetCostPreviewEligibility",
+    "Riftbound.ConformanceTests.ArmamentMightTests.OpponentControlledAttachedArmamentStillIncreasesHostsMight",
+    "Riftbound.ConformanceTests.ArmamentMightTests.PublicRecoveryRejectsForgedArmamentContribution",
+    "Riftbound.ConformanceTests.ArmamentMightTests.RealDetachSpellRemovesBonusButKeepsArmamentOnField",
+    "Riftbound.ConformanceTests.ArmamentMightTests.RealLongSwordAssemblyAddsPrintedBonusWithoutChangingHostBase",
+    "Riftbound.ConformanceTests.ArmamentMightTests.WorldAtlasOfficialWeaponIdentitySurvivesRealPlayAndAssembly",
+    "Riftbound.ConformanceTests.ArmamentMightTests.ZeroAndSingleCardDynamicAurasPassPublicRecovery"
+  ]
+}

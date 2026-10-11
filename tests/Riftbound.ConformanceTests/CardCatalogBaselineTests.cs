@@ -246,7 +246,9 @@ public sealed class CardCatalogBaselineTests
         Assert.True(report.StatusCounts[EquipmentKeywordProfileStatuses.ImplementedRepresentative] > 0);
 
         var equipment = Assert.Single(report.Families, family => string.Equals(family.Family, "equipment", StringComparison.Ordinal));
-        Assert.True(equipment.StatusCounts[EquipmentKeywordProfileStatuses.ImplementedRepresentative] > 0);
+        // All recognized armaments retain deferred breadth until their full effect boxes and timing are audited.
+        Assert.Equal(0, equipment.StatusCounts.GetValueOrDefault(EquipmentKeywordProfileStatuses.ImplementedRepresentative));
+        Assert.Contains(specs, spec => CardEquipmentKeywordRules.BuildProfile(spec, null).HasImplementedRepresentativeEquipmentStateBoundary);
         Assert.True(equipment.StatusCounts[EquipmentKeywordProfileStatuses.RecognizedDeferred] > 0);
         Assert.NotEmpty(equipment.DeferredCards);
         Assert.All(

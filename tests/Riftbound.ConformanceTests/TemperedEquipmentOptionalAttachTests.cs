@@ -502,7 +502,8 @@ public sealed class TemperedEquipmentOptionalAttachTests
                     controllerId: "P1"),
                 ["P1-WRONG-CARD-EQUIPMENT"] = new(
                     "P1-WRONG-CARD-EQUIPMENT",
-                    cardNo: "SFD·190/221",
+                    // Hearthfire Cloak is a real armament; Zhonya is the non-armament negative control.
+                    cardNo: "OGN·077/298",
                     tags: [CardObjectTags.EquipmentCard],
                     ownerId: "P1",
                     controllerId: "P1"),

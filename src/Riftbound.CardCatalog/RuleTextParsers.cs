@@ -2395,6 +2395,13 @@ public static class StaticAbilityParser
 
         foreach (var segment in TargetParser.SplitRulesText(text))
         {
+            if (segment.Contains("贴附在我身上的每件武装提供双倍基础战力加成", StringComparison.Ordinal))
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.AttachedArmamentBaseMightMultiplier,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Armament base bonus replacement is applied by the shared continuous Might layer.", Amount: 2));
+                continue;
+            }
             if (segment.Contains("你的指示物以活跃状态进场", StringComparison.Ordinal))
             {
                 staticSpecs.Add(new StaticAbilitySpec(
@@ -2831,7 +2838,7 @@ public static class StaticAuraParser
         {
             if (segment.Contains("提升我的战力，数值等同于你废牌堆的卡牌数量", StringComparison.Ordinal))
             {
-                auras.Add(new StaticAuraSpec(StaticAuraKinds.SourceObjectPower, StaticAuraLayer,
+                auras.Add(new StaticAuraSpec(StaticAuraKinds.SourceGraveyardCountPower, StaticAuraLayer,
                     "WHILE_SOURCE_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SourceObject,
                     StaticAuraParticipantScopes.SourceObject, 1, segment, BehaviorImplementationStatuses.Unimplemented,
                     "Current controller graveyard count is recomputed by the shared power layer.", PowerMultiplierZone: "GRAVEYARD"));

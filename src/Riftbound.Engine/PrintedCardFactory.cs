@@ -67,6 +67,8 @@ internal static class PrintedCardFactory
             tags.Add("CARD_TYPE:BATTLEFIELD");
         }
 
+        if (OfficialArmamentCatalog.Find(card.CardNo) is not null) tags.Add(CardEquipmentKeywordNames.Weapon);
+
         if (!string.IsNullOrWhiteSpace(card.CardCategoryName))
         {
             tags.Add($"CARD_CATEGORY:{card.CardCategoryName.Trim()}");

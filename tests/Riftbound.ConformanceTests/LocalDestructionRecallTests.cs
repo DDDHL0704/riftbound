@@ -214,6 +214,8 @@ public sealed class LocalDestructionRecallTests
     public async Task RecallKeepsAttachedArmamentWithHostWithoutMovingOrChangingItsState(string family,bool exhausted)
     {
         var s=family=="local" ? PositionFor() : NoReplacement();
+        // Long Sword now grants its official +2. Keep the intended lower-Might recall precondition.
+        if(family=="local") s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects){["S"]=s.CardObjects["S"] with {Power=6}}};
         if(family=="gear") s=Gear(s);
         if(family=="sett") s=s with {RunePools=new Dictionary<string,RunePool>(s.RunePools){["P2"]=new(7,1)}};
         if(family=="temporary") s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects){["D"]=s.CardObjects["D"] with {UntilEndOfTurnEffects=["RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN"]}}};

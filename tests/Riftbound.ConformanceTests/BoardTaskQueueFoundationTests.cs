@@ -1461,7 +1461,8 @@ public sealed class BoardTaskQueueFoundationTests
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 ["BF-1"] = Battlefield("BF-1", "P1"),
-                ["P1-LETHAL-HOST"] = Unit("P1-LETHAL-HOST", "P1", damage: 3, power: 3),
+                // Include Edge of Night's official attached bonus when making the host lethal.
+                ["P1-LETHAL-HOST"] = Unit("P1-LETHAL-HOST", "P1", damage: 5, power: 3),
                 ["P1-ATTACHED-EQUIPMENT"] = new(
                     "P1-ATTACHED-EQUIPMENT",
                     cardNo: "SFD·139/221",

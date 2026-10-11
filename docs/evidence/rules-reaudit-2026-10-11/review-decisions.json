@@ -2439,6 +2439,834 @@
         "Other beginning families and future/outside-active cards",
         "Paired-client/Windows visual/network acceptance"
       ]
+    },
+    {
+      "id": "armament-might-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Official separate armament data; attached base Might, Mechanical Fan multiplier and authoritative dynamic public recovery. Full lower effect boxes and Equip chain timing remain open.",
+      "subjects": [
+        {
+          "id": "SFD-009/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33081,
+              "cardNo": "SFD·009/221",
+              "name": "锯齿短匕",
+              "sha256": "5bcc9e7bf963791cc1d9f25195365020cf51c9b49aa835518581e43d748d8c79"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-009-221",
+              "cardNo": "SFD-009/221",
+              "name": "Serrated Dirk",
+              "sha256": "e08f362e97ad1e959c2c02082f96e4b074c8afd2a3a584e4e0bc3658a56051ff"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-016/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33088,
+              "cardNo": "SFD·016/221",
+              "name": "反曲之弓",
+              "sha256": "96e0680de8e7dfa3deb533672081f4d6ad5464e50385f7580e65e12b689c84f7"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-016-221",
+              "cardNo": "SFD-016/221",
+              "name": "Recurve Bow",
+              "sha256": "cc8686dc3de3c0600c1d6fd72f7026d70883b601b7411cb9da5dfc3615c700ed"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-022/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33095,
+              "cardNo": "SFD·022/221",
+              "name": "长剑",
+              "sha256": "525398fcf07c509fca8df5437fdc215061f452ae45f4fcd9d7164590f206e3e3"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-022-221",
+              "cardNo": "SFD-022/221",
+              "name": "Long Sword",
+              "sha256": "309ca4cce39e660e570c7438ff16bf36aff5b77b48fdc134f5602acd334179bc"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-030/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33106,
+              "cardNo": "SFD·030/221",
+              "name": "阿瑞昂的陨落",
+              "sha256": "e16eb0cf00ac70d98ead7c3c118ce2c8d2a4b7f7a51f401d1289a88256f65358"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-030-221",
+              "cardNo": "SFD-030/221",
+              "name": "Skyfall of Areion",
+              "sha256": "fca1cfc2e9ea77ea1b86faa630b81c6e9d0577c31dfa331be6779409362721d8"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-033/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33109,
+              "cardNo": "SFD·033/221",
+              "name": "多兰之盾",
+              "sha256": "7b8891ee8265dbb37915997018a65de9d7882ba9545d64d2c9f2aa617bb18499"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-033-221",
+              "cardNo": "SFD-033/221",
+              "name": "Doran's Shield",
+              "sha256": "09ae79f799e900bd8c1ee9758369942801083b0005579d6341818a17ce41f17b"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-042/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33118,
+              "cardNo": "SFD·042/221",
+              "name": "残暴之力",
+              "sha256": "f594b1f7828b26b14089d8bda12136b60ba8c3218fd9b62ac8291bf81fe18e42"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-042-221",
+              "cardNo": "SFD-042/221",
+              "name": "Brutalizer",
+              "sha256": "cc57f3b52810d12edd47a4a867d608a63a3064ca9c03f9904be41a64791b3b93"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-051/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33128,
+              "cardNo": "SFD·051/221",
+              "name": "守护天使",
+              "sha256": "40424a33303f31e8ca50531e699ce064556a03ebe33c8bc19e0af2c8426d4ab4"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-051-221",
+              "cardNo": "SFD-051/221",
+              "name": "Guardian Angel",
+              "sha256": "b277e1362d4acdc0edb177a444fca4e299ae9a39b2016233dbe1af0eb4113869"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-056/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33134,
+              "cardNo": "SFD·056/221",
+              "name": "斯特拉克的挑战护手",
+              "sha256": "e5c6163fb65a936a7cdc34f07d5418e9cb195b0ac2b506ecbbe587d656982840"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-056-221",
+              "cardNo": "SFD-056/221",
+              "name": "Sterak's Gage",
+              "sha256": "2dc6536c537668bcfd13bbf06f1e297baf5ff8256e6b23af5fe420b2d1449bb8"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-059/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33139,
+              "cardNo": "SFD·059/221",
+              "name": "斯弗尔尚歌",
+              "sha256": "e2454b481f73df3e42fae199b5e21d199db3c0739b22c836f70d734389664a8b"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-059-221",
+              "cardNo": "SFD-059/221",
+              "name": "Svellsongur",
+              "sha256": "75506eceadb637a5be97bcf4abfaa12ba98c875c16c1f058641ef1cc54dbaee1"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-064/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33144,
+              "cardNo": "SFD·064/221",
+              "name": "布甲",
+              "sha256": "e076ac896f7e47092b25a17130d4eac7dabd35281cda2ea9563df0d187796d7e"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-064-221",
+              "cardNo": "SFD-064/221",
+              "name": "Cloth Armor",
+              "sha256": "41551dc7e3749bafe3d7e2346ec6cfcfff796fd25f4602b446f40e747bd2939f"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-073/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33153,
+              "cardNo": "SFD·073/221",
+              "name": "海克斯注力刚壁",
+              "sha256": "74e25f39ea864a99361e2091a16f3710d8971cdf2ef93e7a023e593301d05933"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-073-221",
+              "cardNo": "SFD-073/221",
+              "name": "Experimental Hexplate",
+              "sha256": "0b51af8d8035361f19c8adc0ae53d5082e60a5d9f8de24a72307e851fe579954"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-086/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33169,
+              "cardNo": "SFD·086/221",
+              "name": "云游图鉴",
+              "sha256": "9962942dde15c8446e36cc5d0343c67ceb40518a8999e2d0f1b14d38e4453738"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-086-221",
+              "cardNo": "SFD-086/221",
+              "name": "World Atlas",
+              "sha256": "36d44bcca8870fbb6d137e57b79cf630708ac90ad38ba3187a6704a163d803bc"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-090/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33175,
+              "cardNo": "SFD·090/221",
+              "name": "Z型驱动",
+              "sha256": "4e3bb91cced6ad7304a32cd1cdbaf10d56a05c8bdaa98910e70490bc9d1d53ec"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-090-221",
+              "cardNo": "SFD-090/221",
+              "name": "The Zero Drive",
+              "sha256": "794e59fc8072115099d55cf7a0f03ce0d0a74b6940fe83562db2e47814bee9f4"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-095/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33180,
+              "cardNo": "SFD·095/221",
+              "name": "多兰之刃",
+              "sha256": "a5d2e5eea1c543f771d839b927bd9868bbd79e9447f825966c7e10c57b3e6721"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-095-221",
+              "cardNo": "SFD-095/221",
+              "name": "Doran's Blade",
+              "sha256": "6a43f54a8e5a7361eeb3913431bdc256f8c98930586c26b0746ab9aae46cc4cd"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-102/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33187,
+              "cardNo": "SFD·102/221",
+              "name": "海克斯饮魔刀",
+              "sha256": "4df5ef59f7a2586fa692abc006da8ff21afdab3a96bffe7b71ccadc41e02db6e"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-102-221",
+              "cardNo": "SFD-102/221",
+              "name": "Hexdrinker",
+              "sha256": "8e0978e2307f97c8122c73d9ce006993686d6f455c215a10d4be8a07f5e237e4"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-108/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33193,
+              "cardNo": "SFD·108/221",
+              "name": "狂徒铠甲",
+              "sha256": "b502f58ebc6014e9e7bec015c57aa8fed4c32a5fd27b0eaeb28ca278e9f85657"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-108-221",
+              "cardNo": "SFD-108/221",
+              "name": "Warmog's Armor",
+              "sha256": "d2cb7a1c4302b9a4393acddf42404d31196804566efea393fa16e28c035bd892"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-115/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33202,
+              "cardNo": "SFD·115/221",
+              "name": "三相之力",
+              "sha256": "a7883f20eea03bfe885c24eacfbb6aaedf3d31965f53fbed84afbc316aa86e67"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-115-221",
+              "cardNo": "SFD-115/221",
+              "name": "Trinity Force",
+              "sha256": "26adae1f2157d295fa02bf1b93e7cc0702a27c784e042ec6c217764118883eb3"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-118/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33205,
+              "cardNo": "SFD·118/221",
+              "name": "碎骨棒",
+              "sha256": "cb14ac935eecb3b97bea20d5e715575eb7a0301b710f9bfb2de1388b4939ab83"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-118-221",
+              "cardNo": "SFD-118/221",
+              "name": "Boneshiver",
+              "sha256": "c808e6eb20f16875f1a0350170ef77a0fc99d7c2b6947c77b0f2077ab9f86464"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-118A/221-P",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33206,
+              "cardNo": "SFD·118a/221·P",
+              "name": "碎骨棒",
+              "sha256": "527326888388866f4ee8d3e1c27806aeaf4916600eb0e38fc742c059b548febd"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-124/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33214,
+              "cardNo": "SFD·124/221",
+              "name": "多兰之戒",
+              "sha256": "110392ea55d55fd725ac64e5cf1089c6e1c5b02502fbfeb58169aae0be001107"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-124-221",
+              "cardNo": "SFD-124/221",
+              "name": "Doran's Ring",
+              "sha256": "8181122c6722b12a213d4318162a7b73c6ee8d83a1d5a13822e91f17492ace81"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-133/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33223,
+              "cardNo": "SFD·133/221",
+              "name": "轻灵之靴",
+              "sha256": "ad70071de27c870b56b0820d2be8f90afc8935c454b5fbe8e839b9ee6da2a34b"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-133-221",
+              "cardNo": "SFD-133/221",
+              "name": "Boots of Swiftness",
+              "sha256": "8a6f63bdfbb1e9b2bc368677f988f067f6ccd42b0e7ffb34d63f0bd1c21cef8b"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-134/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33224,
+              "cardNo": "SFD·134/221",
+              "name": "萃取",
+              "sha256": "7f0ec3a474853303ee2e66e3db8acf115e6259d73858d302ad6d0e31a6420fda"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-134-221",
+              "cardNo": "SFD-134/221",
+              "name": "Cull",
+              "sha256": "42bf83434dc4a420d7b59440d292676f7dac9a00b79c524862ae1f66d555762e"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-139/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33229,
+              "cardNo": "SFD·139/221",
+              "name": "夜之锋刃",
+              "sha256": "9dfbde73c93fc7238d93a044c98a0367bf67e7f2a81a8b6df89d4afe0ac3aadf"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-139-221",
+              "cardNo": "SFD-139/221",
+              "name": "Edge of Night",
+              "sha256": "8e49e335526febe0e290525bfd3c6b0bdb20fff76310f7ad9bd6deed8b11a45e"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-150/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33244,
+              "cardNo": "SFD·150/221",
+              "name": "临终仪式",
+              "sha256": "5c1d11ba6e2dc235cbec85dc59c0a6526869bb4ab68430e3b2e5ab2ea398abe2"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-150-221",
+              "cardNo": "SFD-150/221",
+              "name": "Last Rites",
+              "sha256": "216168060b7b3456455f7963d9b000f98a6267f76784f4614344ff6e87ff8f46"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-153/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33247,
+              "cardNo": "SFD·153/221",
+              "name": "先锋之眼",
+              "sha256": "8e1c5c1a3fb9926165cf41975a3e1d6ee2e7f8117ac748f78fab4ead4042a84b"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-153-221",
+              "cardNo": "SFD-153/221",
+              "name": "Eye of the Herald",
+              "sha256": "9b2778a0dddf23a07aa48a8c2cb3f9995c88ea1b959510d0d96f78887ae8750a"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-161/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33255,
+              "cardNo": "SFD·161/221",
+              "name": "暴风大剑",
+              "sha256": "b9ac933185c009499dde09239f712546a6b6036ed8d57fb40d13f47a1f096a2d"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-161-221",
+              "cardNo": "SFD-161/221",
+              "name": "B.F. Sword",
+              "sha256": "b774c089f4fc7c8e6490d3176b9a6d2e4a20339138497709bd4afb46610fb11a"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-172/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33268,
+              "cardNo": "SFD·172/221",
+              "name": "神圣剪刀",
+              "sha256": "1547ff66a2798e57b55b1688cd0fae5feb5728566f3ca0ae22ea34667814a067"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-172-221",
+              "cardNo": "SFD-172/221",
+              "name": "Sacred Shears",
+              "sha256": "f38bcccdc66bd8a99ff78051e1ffe083a81f021eaed50c36b197ac1665cb0cc7"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-178/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33275,
+              "cardNo": "SFD·178/221",
+              "name": "破败王者之刃",
+              "sha256": "9e331ba7aa84eac94ff9fc0277e9f95ed7bd85908d63fbab698c6e4b0ab648c7"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-178-221",
+              "cardNo": "SFD-178/221",
+              "name": "Blade of the Ruined King",
+              "sha256": "e1a094edc79e70a7a2e560040cefc5a356fed778d0bf4d97460f014e0beee99c"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-186/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33284,
+              "cardNo": "SFD·186/221",
+              "name": "旋转飞斧",
+              "sha256": "db7cb33e77ae0d81e5a83d7e981c7962999e40331c7c635754428aa282b97e75"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-186-221",
+              "cardNo": "SFD-186/221",
+              "name": "Spinning Axe",
+              "sha256": "84612d78c6eb076a17f99139bfd96079baebffc3e1c0206d30fb935a7d48c41e"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-190/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33288,
+              "cardNo": "SFD·190/221",
+              "name": "炉火斗篷",
+              "sha256": "3854ec82adf1ea3c90af4e041f2bbf74e01a180dc1fa1bc228faa73ca643420a"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-190-221",
+              "cardNo": "SFD-190/221",
+              "name": "Forgefire Cape",
+              "sha256": "30a49ac9b93cee1dfb7bd07adb474b3cb1cdf301fe674053d656c3e59a31f55d"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-191/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33289,
+              "cardNo": "SFD·191/221",
+              "name": "灭世者的死亡之冠",
+              "sha256": "83bcd6eda65aac77d9bbb500e567a848de87780bdb4382c819f68279a59b2df8"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-191-221",
+              "cardNo": "SFD-191/221",
+              "name": "Rabadon's Deathcrown",
+              "sha256": "701d606519ae65b7ee01e1468b7011f21a8b1d69c1df65ea699210fb115be50e"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-192/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33290,
+              "cardNo": "SFD·192/221",
+              "name": "舒瑞娅的安魂曲",
+              "sha256": "6a981f79a57585ac56400c9da9da1d90abcd3b99076f9293b9a879c1f84e99b6"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-192-221",
+              "cardNo": "SFD-192/221",
+              "name": "Shurelya's Requiem",
+              "sha256": "9a4483e64d24456db9e3a10c5bcd7db41f4a5d42ec2d0341528a0eea05a40b12"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "UNL-019/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34542,
+              "cardNo": "UNL-019/219",
+              "name": "枯萎战斧",
+              "sha256": "766c381624ecca4c0fcea4e7f24dce49aa4dd521ec8fc0eb98dc269ca81ee1e7"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-019-219",
+              "cardNo": "UNL-019/219",
+              "name": "Blighted Battleaxe",
+              "sha256": "c62cce130fc34d133171a7568ca5028a34d1349a907c2d9dea6afb6dbd359c63"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "UNL-039/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34567,
+              "cardNo": "UNL-039/219",
+              "name": "灵魂之剑",
+              "sha256": "35983c09d5bc4b023a086050d2d8e1e1df9390d81938194ad7e9c8a5bb4c786f"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-039-219",
+              "cardNo": "UNL-039/219",
+              "name": "Soul Sword",
+              "sha256": "baa9340fae378083b80662f8929690607d9e929b1fe2be3ab56003845721c034"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "UNL-096/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34634,
+              "cardNo": "UNL-096/219",
+              "name": "猎人的宽刃刀",
+              "sha256": "9e8032e5d48f071dc2ec4138c4fa2822520456f3bdf4dbabffb07cb51225a0e9"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-096-219",
+              "cardNo": "UNL-096/219",
+              "name": "Hunter's Machete",
+              "sha256": "cb64c2c195a8e3b03e81a25794ca5f83117fd8a7340bcfbb8c7a0be3ce3b9258"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "UNL-158/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34706,
+              "cardNo": "UNL-158/219",
+              "name": "牧人的传家宝",
+              "sha256": "73c44ef7868d0fea5d99f8f18cb547af686191b45f42df2ad83bcb3a7d47cbc3"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-158-219",
+              "cardNo": "UNL-158/219",
+              "name": "Shepherd's Heirloom",
+              "sha256": "a55d2f3b206e6a5192511e749129d68725d0592cc26615c23ff7033ff1c83f20"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "UNL-188/219",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34741,
+              "cardNo": "UNL-188/219",
+              "name": "海克斯科技护手",
+              "sha256": "edb77bd682758a345f5e3f4503c3beec43a174b168bd605077e73e609e835516"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-188-219",
+              "cardNo": "UNL-188/219",
+              "name": "Hextech Gauntlets",
+              "sha256": "d6748584e320409d7432212567b1421b276aedd502fec28e8a538f863c60545a"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "SFD-068/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33148,
+              "cardNo": "SFD·068/221",
+              "name": "机械迷",
+              "sha256": "a0edd245167173004fef3530eb8a3052c83b9ed03b1c0d136f96307f768eab26"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-068-221",
+              "cardNo": "SFD-068/221",
+              "name": "Gearhead",
+              "sha256": "cd3c8d8c8f9fa5823ad7adc80851d52b4f355c54734f3033cc2151f0c4d031a6"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        },
+        {
+          "id": "OGN-109/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31327,
+              "cardNo": "OGN·109/298",
+              "name": "蒙多医生",
+              "sha256": "5aa8593fbc66d32037ab96c54ec3a8d2455bbe78805cdf4e2182555715becba2"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-109-298",
+              "cardNo": "OGN-109/298",
+              "name": "Dr. Mundo",
+              "sha256": "642e89bbaba5618d675dea3c1c672a2b4b591a94757d5cdc53b7e9391c1e2186"
+            }
+          ],
+          "reviewStatus": "PARTIAL_ARMAMENT_BASE_MIGHT_AND_PUBLIC_RECOVERY_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P103-B011",
+        "DOC-04-P103-B012",
+        "DOC-04-P103-B013",
+        "DOC-04-P103-B014",
+        "DOC-04-P103-B015",
+        "DOC-04-P104-B001",
+        "DOC-04-P104-B002",
+        "DOC-04-P104-B003",
+        "DOC-04-P104-B004",
+        "DOC-04-P104-B005",
+        "DOC-04-P104-B006",
+        "DOC-04-P104-B007",
+        "DOC-04-P104-B008",
+        "DOC-04-P104-B020",
+        "DOC-04-P104-B021",
+        "DOC-04-P105-B001",
+        "DOC-04-P105-B002",
+        "DOC-04-P105-B003",
+        "DOC-04-P105-B004",
+        "DOC-04-P105-B005",
+        "DOC-04-P105-B006",
+        "DOC-04-P105-B007",
+        "DOC-04-P105-B008",
+        "DOC-04-P105-B009",
+        "DOC-04-P105-B010",
+        "DOC-04-P105-B011"
+      ],
+      "auditDocument": "docs/ARMAMENT_MIGHT_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/armament-might-2026-10-11",
+      "tests": [
+        "ArmamentMightTests",
+        "ArmamentMightNativeTests",
+        "MundoBeginningNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9883,
+        "fullMethods": 6478,
+        "nativeCommands": 5,
+        "journalCommands": 6,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Equip activated chain response and cost-trigger timing",
+        "All remaining lower-box abilities including Sfur Song copying",
+        "Other beginning families and future/outside-active cards",
+        "Paired-client/Windows visual/network acceptance"
+      ]
     }
   ]
 }

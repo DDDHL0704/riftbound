@@ -167,7 +167,7 @@ public static class CardEquipmentKeywordRules
             || (isEquipmentCard && HasOwnKeywordLine(spec, CardEquipmentKeywordNames.Agile));
         var hasTempered = HasExactKeyword(sourceUnitTags, CardEquipmentKeywordNames.Tempered)
             || HasOwnKeywordLine(spec, CardEquipmentKeywordNames.Tempered);
-        var hasWeapon = HasExactKeyword(sourceEquipmentTags, CardEquipmentKeywordNames.Weapon);
+        var hasWeapon = OfficialArmamentCatalog.Find(spec.CardNo) is not null || HasExactKeyword(sourceEquipmentTags, CardEquipmentKeywordNames.Weapon);
         var hasAnyEquipmentKeyword = hasAssemble
             || hasAgile
             || hasTempered
@@ -332,7 +332,7 @@ public static class CardEquipmentKeywordRules
         return behavior is not null
             && IsEquipmentCard(spec)
             && behavior.PlaysSourceToBaseAsEquipment
-            && HasExactKeyword(ParseDelimitedValues(behavior.SourceEquipmentTags), CardEquipmentKeywordNames.Weapon)
+            && (OfficialArmamentCatalog.Find(spec.CardNo) is not null || HasExactKeyword(ParseDelimitedValues(behavior.SourceEquipmentTags), CardEquipmentKeywordNames.Weapon))
             && AssembleEquipmentProfileCatalog.HasImplementedRepresentative(spec.CardNo);
     }
 

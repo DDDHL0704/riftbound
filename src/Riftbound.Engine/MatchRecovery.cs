@@ -6453,6 +6453,7 @@ public static class MatchRecoveryValidator
     private static bool IsKnownContinuousEffectDuration(string value)
     {
         return string.Equals(value, "UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            || string.Equals(value, "WHILE_ARMAMENT_ATTACHED", StringComparison.Ordinal)
             || string.Equals(value, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
             || string.Equals(value, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal)
             || string.Equals(value, "WHILE_SOURCE_BATTLEFIELD_AND_PARTICIPANT_AT_BATTLEFIELD", StringComparison.Ordinal)
@@ -15821,6 +15822,12 @@ public static class MatchRecoveryValidator
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
                 && string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal))
             {
+                if (effectKind == StaticAuraKinds.SourceGraveyardCountPower)
+                {
+                    ValidateContinuousEffectStaticAuraExpectedEffectId(effectLabel, effectId,
+                        $"STATIC_AURA:SOURCE_GRAVEYARD_POWER:{sourceObjectId}", "graveyard aura effect id", errors);
+                    return;
+                }
                 if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
                 {
                     ValidateContinuousEffectStaticAuraExpectedEffectId(
@@ -16196,6 +16203,19 @@ public static class MatchRecoveryValidator
         {
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal))
             {
+                if (effectKind == StaticAuraKinds.SourceGraveyardCountPower)
+                {
+                    if (sourceCardNo is null || !StaticAuraSpecRules.GetStaticAuras(sourceCardNo)
+                        .Any(a => a.Kind == effectKind && a.PowerMultiplierZone == "GRAVEYARD"))
+                        errors.Add($"{effectLabel} graveyard aura requires a matching official source");
+                    ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath,
+                        "StaticAuraSpecRules.SourceObjectPowerDelta", "graveyard aura source path", errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition,
+                        "SOURCE_PUBLIC_FIELD_UNIT", "graveyard aura condition", errors);
+                    ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle,
+                        "RECOMPUTED_FROM_CURRENT_CONTROLLER_GRAVEYARD", "graveyard aura lifecycle", errors);
+                    return;
+                }
                 if (string.Equals(effectKind, StaticAuraKinds.SourceObjectPower, StringComparison.Ordinal))
                 {
                     ValidateContinuousEffectStaticAuraSourceObjectPowerSourceCardSpecConsistency(
@@ -17241,7 +17261,8 @@ public static class MatchRecoveryValidator
 
         if (string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal))
         {
-            if (!string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
+            if (!string.Equals(duration, "WHILE_ARMAMENT_ATTACHED", StringComparison.Ordinal)
+                && !string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
                 && !string.Equals(
                     duration,
                     "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD",
@@ -17295,6 +17316,7 @@ public static class MatchRecoveryValidator
         }
 
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal)
+            && !string.Equals(duration, "WHILE_ARMAMENT_ATTACHED", StringComparison.Ordinal)
             && !string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
             && !string.Equals(duration, "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StringComparison.Ordinal))
         {
@@ -17395,6 +17417,11 @@ public static class MatchRecoveryValidator
         {
             return;
         }
+
+        // A graveyard-count aura is not a fixed delta per field participant.
+        // ValidateDynamicPowerAuraViews checks its exact amount
+        // against the current authoritative effect, including zero.
+        if (effectKind == StaticAuraKinds.SourceGraveyardCountPower) return;
 
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
         {
@@ -22827,6 +22854,7 @@ public static class MatchRecoveryValidator
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateDynamicPowerAuraViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBeginningRecycleViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBeginningDrawViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateEphemeralStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -22873,6 +22901,39 @@ public static class MatchRecoveryValidator
             }
             catch (JsonException) { errors.Add($"{label} invalid per-location damage context"); }
         }
+    }
+
+    private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
+    {
+        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or "ATTACHED_ARMAMENT_BASE_MIGHT")
+            .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "continuousEffects", out var effects))
+            foreach (var payload in effects)
+            {
+                if (!TryReadObjectString(payload, "effectId", out var id) || string.IsNullOrWhiteSpace(id)) continue;
+                if (!expected.TryGetValue(id, out var effect))
+                {
+                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or "ATTACHED_ARMAMENT_BASE_MIGHT")
+                        errors.Add($"{label} unexpected dynamic power aura");
+                    continue;
+                }
+                seen.Add(id);
+                var scalars = new Dictionary<string, int> { ["powerDelta"] = effect.PowerDelta,
+                    ["basePower"] = effect.BasePower, ["effectivePower"] = effect.EffectivePower };
+                foreach (var (key, value) in scalars)
+                    if (!TryReadObjectInt(payload, key, out var actual) || actual != value)
+                        errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
+                var strings = new Dictionary<string, string?> { ["sourceObjectId"] = effect.SourceObjectId,
+                    ["targetObjectId"] = effect.TargetObjectId, ["sourceCardNo"] = effect.SourceCardNo,
+                    ["effectKind"] = effect.EffectKind, ["sourcePath"] = effect.SourcePath,
+                    ["scope"] = effect.Scope, ["layer"] = effect.Layer, ["duration"] = effect.Duration,
+                    ["condition"] = effect.Condition, ["lifecycle"] = effect.Lifecycle };
+                foreach (var (key, value) in strings)
+                    if (!TryReadObjectString(payload, key, out var actual) || actual != value)
+                        errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
+            }
+        if (!seen.SetEquals(expected.Keys)) errors.Add($"{label} dynamic power aura set differs from authoritative state");
     }
 
     private static void ValidateBeginningRecycleViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
@@ -27200,6 +27261,7 @@ public static class MatchRecoveryValidator
         {
             ValidateDamageMarkerViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBeginningDrawViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
+            ValidateDynamicPowerAuraViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBeginningRecycleViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateEphemeralStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateGrantedTagViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");

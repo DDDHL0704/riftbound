@@ -2043,6 +2043,16 @@ public sealed record MatchState
                 effects.Add(sourceObjectKeywordEffect);
             }
 
+            foreach (var bonus in CoreRuleEngine.ArmamentMightContributions(state, state.PlayerZones, cardObject))
+            {
+                effects.Add(new ContinuousEffectState($"ARMAMENT_MIGHT:{bonus.SourceId}:{objectId}", "OBJECT",
+                    ContinuousEffectLayers.StaticAura, "WHILE_ARMAMENT_ATTACHED", objectId, bonus.SourceId,
+                    bonus.Delta, cardObject.Power, cardObject.Power + bonus.Delta, "ATTACHED_ARMAMENT_BASE_MIGHT",
+                    bonus.SourceCardNo, "CoreRuleEngine.ArmamentMightContributions", true, LayerEngineFoundationResiduals(),
+                    Condition: "PUBLIC_ARMAMENT_ATTACHED_TO_PUBLIC_UNIT", Lifecycle: "RECOMPUTED_FROM_CURRENT_ATTACHMENT_AND_HOST",
+                    ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [bonus.SourceId],
+                    TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+            }
             foreach (var sourceObjectPowerEffect in BuildSourceObjectPowerStaticAuraEffects(state, objectId, cardObject))
             {
                 effects.Add(sourceObjectPowerEffect);

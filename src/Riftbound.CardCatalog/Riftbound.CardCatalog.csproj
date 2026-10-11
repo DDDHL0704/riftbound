@@ -7,5 +7,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="../../data/official/card-catalog.zh-CN.json" Link="data/official/card-catalog.zh-CN.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../data/official/armaments.json" Link="data/official/armaments.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

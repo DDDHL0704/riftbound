@@ -56,7 +56,9 @@ public sealed class EquipmentKeywordRepresentativeBoundaryGuardTests
         Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·056/221"));
         Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·064/221"));
         Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·186/221"));
-        Assert.False(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·190/221"));
+        // Official armament metadata covers exclusive equipment too.
+        Assert.True(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("SFD·190/221"));
+        Assert.False(CardEquipmentKeywordRules.CanBeTemperedOptionalAttachEquipment("OGN·077/298"));
         Assert.True(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·085/221"));
         Assert.True(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·085a/221"));
         Assert.False(CardEquipmentKeywordRules.HasFriendlyEquipmentStaticPowerRepresentativeBoundary("SFD·033/221"));

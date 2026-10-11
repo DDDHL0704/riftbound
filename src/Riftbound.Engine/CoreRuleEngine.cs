@@ -1,3 +1,4 @@
+using Riftbound.CardCatalog;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
@@ -5405,8 +5406,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool IsArmamentPlayBehavior(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsEquipment
-            && ParseDelimitedValues(behavior.SourceEquipmentTags)
-                .Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal);
+            && (OfficialArmamentCatalog.Find(behavior.CardNo) is not null || ParseDelimitedValues(behavior.SourceEquipmentTags)
+                .Contains(CardEquipmentKeywordNames.Weapon, StringComparer.Ordinal));
     }
 
     private static string BuildPlayedArmamentThisTurnEffectId(string playerId)
@@ -15535,6 +15536,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         => ResolvePublicFieldFriendlyPowerStaticAuraBonus(state, zones, id, card)
             + ResolveSourceParticipantCountPowerStaticAuraBonus(state, zones, id, card)
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
+            + ArmamentMightContributions(state, zones, card).Sum(c => c.Delta)
             + ResolveBattlefieldPowerStaticAuraBonus(state, zones, battlefieldId, card)
             + ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(state, zones, id, card);
 
@@ -32801,6 +32803,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             Tags = existingState.Tags
                 .Concat([CardObjectTags.EquipmentCard])
                 .Concat(ParseDelimitedValues(behavior.SourceEquipmentTags))
+                .Concat(OfficialArmamentCatalog.Find(behavior.CardNo) is not null ? new[] { CardEquipmentKeywordNames.Weapon } : [])
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()

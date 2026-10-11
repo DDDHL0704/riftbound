@@ -324,6 +324,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
     public const string SourceUnitEnterReady = "SOURCE_UNIT_ENTER_READY";
@@ -367,6 +368,7 @@ public static class StaticAuraKinds
     public const string FriendlyFieldEquipmentCountToSourceUnitPower =
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
+    public const string SourceGraveyardCountPower = "SOURCE_GRAVEYARD_COUNT_POWER";
     public const string SourceObjectFilteredPower = "SOURCE_OBJECT_FILTERED_POWER";
     public const string SourceObjectFilteredKeyword = "SOURCE_OBJECT_FILTERED_KEYWORD";
     public const string SourceObjectLevelKeyword = "SOURCE_OBJECT_LEVEL_KEYWORD";

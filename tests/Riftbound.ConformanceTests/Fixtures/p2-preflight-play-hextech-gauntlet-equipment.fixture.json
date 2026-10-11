@@ -9,6 +9,7 @@
   "catalogVersion": "official-2026-04-27",
   "seed": 2603302299,
   "rulesEvidence": [
+    {"source": "data/official/armaments.json", "locator": "2026-10-11 official EN mightBonus/effect and CN card images", "note": "Correct weapon identity including exclusive armaments and World Atlas; retain every entry/event/final-state assertion."},
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-188/219 海克斯科技护手",
@@ -113,7 +114,7 @@
           "equipmentName": "海克斯科技护手",
           "destinationZone": "BASE",
           "tags": [
-            "CARD_TYPE:EQUIPMENT"
+            "CARD_TYPE:EQUIPMENT", "武装"
           ]
         }
       }
@@ -136,7 +137,7 @@
         "P1-EQUIPMENT-HEXTECH-GAUNTLET": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false

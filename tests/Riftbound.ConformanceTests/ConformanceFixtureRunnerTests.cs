@@ -10167,7 +10167,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.FinalState.CardObjects["P1-SHURELYA-BASE-UNIT-001"].IsExhausted);
         Assert.False(result.FinalState.CardObjects["P1-SHURELYA-BATTLEFIELD-UNIT-001"].IsExhausted);
         Assert.True(result.FinalState.CardObjects["P2-SHURELYA-BASE-UNIT-001"].IsExhausted);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-SHURELYAS-REQUIEM"].Tags);
+        Assert.Equal([CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon], result.FinalState.CardObjects["P1-EQUIPMENT-SHURELYAS-REQUIEM"].Tags);
     }
 
     [Fact]
@@ -12075,7 +12075,7 @@ public sealed class ConformanceFixtureRunnerTests
     public Task CoreRuleEnginePlaysWanderersGuidebookEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-wanderers-guidebook-equipment.fixture.json",
-            "P1-EQUIPMENT-WANDERERS-GUIDEBOOK");
+            "P1-EQUIPMENT-WANDERERS-GUIDEBOOK", expectedTags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon]);
 
     [Fact]
     public Task CoreRuleEngineRejectsWanderersGuidebookWhenTargetsAreProvided() =>
@@ -14261,7 +14261,7 @@ public sealed class ConformanceFixtureRunnerTests
     public Task CoreRuleEnginePlaysHearthfireCloakEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-hearthfire-cloak-equipment.fixture.json",
-            "P1-EQUIPMENT-HEARTHFIRE-CLOAK");
+            "P1-EQUIPMENT-HEARTHFIRE-CLOAK", expectedTags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon]);
 
     [Fact]
     public Task CoreRuleEngineRejectsHearthfireCloakWhenTargetsAreProvided() =>
@@ -14300,7 +14300,7 @@ public sealed class ConformanceFixtureRunnerTests
     public Task CoreRuleEnginePlaysRabadonsDeathcapEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-rabadons-deathcap-equipment.fixture.json",
-            "P1-EQUIPMENT-RABADONS-DEATHCAP");
+            "P1-EQUIPMENT-RABADONS-DEATHCAP", expectedTags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon]);
 
     [Fact]
     public Task CoreRuleEngineRejectsRabadonsDeathcapWhenTargetsAreProvided() =>
@@ -15304,7 +15304,7 @@ public sealed class ConformanceFixtureRunnerTests
     public Task CoreRuleEnginePlaysHextechGauntletEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-hextech-gauntlet-equipment.fixture.json",
-            "P1-EQUIPMENT-HEXTECH-GAUNTLET");
+            "P1-EQUIPMENT-HEXTECH-GAUNTLET", expectedTags: [CardObjectTags.EquipmentCard, CardEquipmentKeywordNames.Weapon]);
 
     [Fact]
     public Task CoreRuleEngineRejectsHextechGauntletWhenTargetsAreProvided() =>

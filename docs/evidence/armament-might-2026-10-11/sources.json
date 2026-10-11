@@ -1,0 +1,231 @@
+{
+  "status": "VERIFIED_SCOPED_BASE_MIGHT_AND_PUBLIC_RECOVERY",
+  "inventory": "docs/evidence/rules-reaudit-2026-10-11/armament-field-gap.json",
+  "rules": [
+    {
+      "id": "DOC-04-P103-B011",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718"
+      ]
+    },
+    {
+      "id": "DOC-04-P103-B012",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P103-B013",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.2"
+      ]
+    },
+    {
+      "id": "DOC-04-P103-B014",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.3"
+      ]
+    },
+    {
+      "id": "DOC-04-P103-B015",
+      "document": "DOC-04",
+      "page": 103,
+      "clauseAnchors": [
+        "718.4"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B001",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B002",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B003",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.b"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B004",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.c"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B005",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.d"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B006",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.e"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B007",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.f"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B008",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "718.5.g"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B020",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "721"
+      ]
+    },
+    {
+      "id": "DOC-04-P104-B021",
+      "document": "DOC-04",
+      "page": 104,
+      "clauseAnchors": [
+        "721.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B001",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "721.2"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B002",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "722"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B003",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "722.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B004",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "722.2"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B005",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "723"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B006",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "724"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B007",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "725"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B008",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "725.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B009",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "725.2"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B010",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "725.3"
+      ]
+    },
+    {
+      "id": "DOC-04-P105-B011",
+      "document": "DOC-04",
+      "page": 105,
+      "clauseAnchors": [
+        "725.4"
+      ]
+    }
+  ],
+  "imageChecks": [
+    {
+      "path": "var/official/2026-10-11/armament/33109.png",
+      "sha256": "1903c6596fa495e38a9ce2b2688119c246c7348ba72685b9547ebf341a5e0c13",
+      "purpose": "Doran Shield lower box +1 and Tank"
+    },
+    {
+      "path": "var/official/2026-10-11/armament/33169.png",
+      "sha256": "d2301c3ba352ee6db2af74379d430c5998a6abc8e719ff6622f945dfebace4f5",
+      "purpose": "World Atlas weapon identity and +2 despite missing CN tag"
+    },
+    {
+      "path": "var/official/2026-10-11/armament/33206.png",
+      "sha256": "cb97e58e5bf012b491c2e424efe71bc66b8f38ed30abef29b4228dd382221846",
+      "purpose": "CN-only Boneshiver alternate +2"
+    }
+  ]
+}

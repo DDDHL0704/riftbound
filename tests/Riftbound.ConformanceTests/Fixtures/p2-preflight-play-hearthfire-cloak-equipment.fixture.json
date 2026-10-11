@@ -9,6 +9,7 @@
   "catalogVersion": "official-2026-04-27",
   "seed": 2603302293,
   "rulesEvidence": [
+    {"source": "data/official/armaments.json", "locator": "2026-10-11 official EN mightBonus/effect and CN card images", "note": "Correct weapon identity including exclusive armaments and World Atlas; retain every entry/event/final-state assertion."},
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·190/221 炉火斗篷",
@@ -123,7 +124,7 @@
           "equipmentName": "炉火斗篷",
           "destinationZone": "BASE",
           "tags": [
-            "CARD_TYPE:EQUIPMENT"
+            "CARD_TYPE:EQUIPMENT", "武装"
           ]
         }
       }
@@ -154,7 +155,7 @@
         "P1-EQUIPMENT-HEARTHFIRE-CLOAK": {
           "damage": 0,
           "power": 0,
-          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
           "isExhausted": false

@@ -20,7 +20,7 @@ public sealed class MundoBeginningNativeTests
         async Task<ResolutionResult> Submit(string player, GameCommand command) {
             var result = await session.SubmitAsync(player, "mundo-native-" + journal.Entries.Count, command,
                 JsonSerializer.SerializeToElement(command, command.GetType(), json), default);
-            Assert.True(result.Accepted, result.ErrorMessage); Restore(result.State); return result;
+            Assert.True(result.Accepted, result.ErrorMessage); Restore(result.State); ArmamentMightTests.PublicRecovery(result.State); return result;
         }
         GameCommand Native(string name, ResolutionResult state, string player, GameCommand fallback) {
             var prompt = session.PromptFor(player); Export(name + "-prompt.json", prompt); Export(name + "-snapshot.json", state.Snapshots[player]);
