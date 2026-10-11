@@ -1,0 +1,8 @@
+{
+  "red": "Four initial cases failed without a beginning trigger stack. First implementation test used forbidden HIDDEN redaction sentinel as an object ID; renamed fixture ID to STANDBY-CARD while preserving strict recovery.",
+  "legacyAssertions": "No existing methods removed or renamed. Old Jinx scenario now assigns the real legend type and drains actual responses before all original two-draw/zone/winner assertions. Source identity guard still forbids duplicated card-number helpers and asserts shared LegendIdentityCatalog in the new BeginningDraw domain, rather than requiring a removed CoreRuleEngine.cs constant.",
+  "boundaries": [
+    "Mushroom source/condition departure and Jinx source/hand growth tests reconstruct response states. Actual hand reduction is separately tested through production native Flash and MatchSession.",
+    "Other beginning families including Mundo, Sprite Queen, Gutter Palace, Shard of Undoing and future/outside-active cards remain open."
+  ]
+}

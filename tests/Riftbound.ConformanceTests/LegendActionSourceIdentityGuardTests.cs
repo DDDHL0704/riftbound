@@ -113,7 +113,10 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.DoesNotContain("IsJinxLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsPowerfulUnitRuneLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("RumbleLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("JinxLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        var beginningSource = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.BeginningDraw.cs"));
+        Assert.Contains("LegendIdentityCatalog.JinxLegendIdentityId", beginningSource, StringComparison.Ordinal);
+        Assert.Contains("LegendCardHasIdentity", beginningSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsJinxLegendCardNo", beginningSource, StringComparison.Ordinal);
         Assert.Contains("PowerfulUnitRuneLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LegendCardHasIdentity", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);

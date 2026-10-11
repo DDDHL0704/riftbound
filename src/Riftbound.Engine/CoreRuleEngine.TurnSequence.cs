@@ -46,6 +46,7 @@ public sealed partial class CoreRuleEngine
                     state = state with { PlayerScores = NormalizeScoresForSeats(state), TurnStartStep = "SCORE" };
                     state = QueueEphemeralStartAbilities(state, events);
                     state = QueueBattlefieldStartAbilities(state, events);
+                    state = QueueBeginningDrawAbilities(state, events);
                     break;
                 case "SCORE":
                     var firstScore = ApplyBattlefieldFirstTurnScore(state, player);
@@ -86,16 +87,6 @@ public sealed partial class CoreRuleEngine
                     state = state with { PlayerZones = zones, PlayerScores = draw.PlayerScores, RngCursor = draw.RngCursor,
                         WinnerPlayerId = draw.WinnerPlayerId, Status = draw.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
                         ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), TurnStartStep = "MAIN" };
-                    // This existing Jinx family is kept separate from Hold. Its full start-trigger ordering is audited separately.
-                    if (state.WinnerPlayerId is null && TryGetJinxTurnStartDrawCardNo(zones, cards, player, out var jinx))
-                    {
-                        events.Add(new("LEGEND_TRIGGER_RESOLVED", "暴走萝莉抽牌", new Dictionary<string, object?> {
-                            ["playerId"] = player, ["legendCardNo"] = jinx, ["trigger"] = "JINX_TURN_START_DRAW_IF_HAND_BELOW_TWO" }));
-                        var extra = ApplyDrawToPlayer(state, zones, state.PlayerScores, player, 1, state.RngCursor, events);
-                        state = state with { PlayerZones = zones, PlayerScores = extra.PlayerScores, RngCursor = extra.RngCursor,
-                            WinnerPlayerId = extra.WinnerPlayerId, Status = extra.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
-                            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
-                    }
                     break;
                 case "MAIN":
                     var pools = ClearRunePools(state).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);

@@ -105,7 +105,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string TeemoLegendManaCostToken = "SPEND_MANA:1";
     private const int AzirLegendManaCost = 1;
     private const string AzirLegendManaCostToken = "SPEND_MANA:1";
-    private const string JinxLegendIdentityId = LegendIdentityCatalog.JinxLegendIdentityId;
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
@@ -3924,7 +3923,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds: [],
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -22885,33 +22884,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ]);
     }
 
-    private static bool TryGetJinxTurnStartDrawCardNo(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string cardNo)
-    {
-        cardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(JinxLegendIdentityId);
-        if (!playerZones.TryGetValue(playerId, out var zones)
-            || zones.Hand.Count >= 2)
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.LegendZone)
-        {
-            if (cardObjects.TryGetValue(objectId, out var legendState)
-                && LegendCardHasIdentity(legendState.CardNo, JinxLegendIdentityId))
-            {
-                cardNo = legendState.CardNo
-                    ?? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(JinxLegendIdentityId);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private static IReadOnlyList<GameEvent> ReadyRunesForAnnieAtTurnEnd(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -27388,6 +27360,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.ReflexiveDuel is not null) return ResolveReflexiveDuel(state, stackItem);
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
+        if (stackItem.BeginningDraw is not null) return ResolveBeginningDraw(state, stackItem);
         if (stackItem.EphemeralStart is not null) return ResolveEphemeralStart(state, stackItem);
         if (stackItem.BattlefieldStart is not null) return ResolveBattlefieldStart(state, stackItem);
         if (stackItem.HeldContext is not null) return ResolveHeldStackItem(state, stackItem);

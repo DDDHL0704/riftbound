@@ -35898,6 +35898,9 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        Assert.Single(result.State.StackItems);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        result = await TurnSequenceTestDriver.Complete(result);
         Assert.Equal("P1", result.State.ActivePlayerId);
         Assert.Equal("P1", result.State.TurnPlayerId);
         Assert.Equal(MatchStatuses.InProgress, result.State.Status);
@@ -70133,6 +70136,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-LEGEND-JINX"] = new(
                     "P1-LEGEND-JINX",
                     cardNo: "FND-251/298",
+                    tags: ["CARD_TYPE:LEGEND"],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-JINX-DRAW-001"] = new(

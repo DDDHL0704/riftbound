@@ -2158,6 +2158,177 @@
         "Other granted/inactive text families and other LastBreath effects",
         "Paired-client/Windows visual/network acceptance"
       ]
+    },
+    {
+      "id": "beginning-draw-2026-10-11",
+      "status": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "Jinx resolution hand condition versus Mushroom trigger-only facedown condition, beginning response before scoring, captured source, independent ordering, four Jinx prints, recovery and native reaction.",
+      "subjects": [
+        {
+          "id": "OGN-251/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31493,
+              "cardNo": "OGN·251/298",
+              "name": "暴走萝莉",
+              "sha256": "13c0ee52d3854e6acda483b533cd9621e533862e68c7a79459d375310d2da48e"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-251-298",
+              "cardNo": "OGN-251/298",
+              "name": "Loose Cannon",
+              "sha256": "cb6d683175179a1ecf9ccf9cf3abb82b59b273cc05515db775eb46b66ca63a27"
+            }
+          ],
+          "reviewStatus": "PARTIAL_BEGINNING_DRAW_VERIFIED"
+        },
+        {
+          "id": "OGN-301/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31549,
+              "cardNo": "OGN·301/298",
+              "name": "暴走萝莉",
+              "sha256": "27a2cb1fa8674c2a941e8f36c4640e777e732cbe1b6c929b24313761ebfa1270"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-301-298",
+              "cardNo": "OGN-301/298",
+              "name": "Loose Cannon",
+              "sha256": "8db5bfec44bb06473635db325dc89efc45156d5aa059de4df5deb37f4ce12460"
+            }
+          ],
+          "reviewStatus": "PARTIAL_BEGINNING_DRAW_VERIFIED"
+        },
+        {
+          "id": "OGN-301*/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31550,
+              "cardNo": "OGN·301*/298",
+              "name": "暴走萝莉",
+              "sha256": "780cfc163435d0edc75e587d70c0e56ce1262233535b8ce6281ff605cb3be2f3"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-301-star-298",
+              "cardNo": "OGN-301*/298",
+              "name": "Loose Cannon",
+              "sha256": "bbda469c5a5a54cd9711e87845536fae24d6d24f7a8672b3a28641821298a0a9"
+            }
+          ],
+          "reviewStatus": "PARTIAL_BEGINNING_DRAW_VERIFIED"
+        },
+        {
+          "id": "FND-251/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31577,
+              "cardNo": "FND-251/298",
+              "name": "暴走萝莉",
+              "sha256": "75f9cdf0fd6236f610dccb0b5bd94684714781bacd0580a362143eb7aeb41b16"
+            }
+          ],
+          "reviewStatus": "PARTIAL_BEGINNING_DRAW_VERIFIED"
+        },
+        {
+          "id": "OGN-101/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31319,
+              "cardNo": "OGN·101/298",
+              "name": "蘑菇袋",
+              "sha256": "df8529b3ff951b812c9e90b453ae6b02536ef5fef586a4dabc46fb166deeda75"
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-101-298",
+              "cardNo": "OGN-101/298",
+              "name": "Mushroom Pouch",
+              "sha256": "4348808a09148c5ffa286cd28aa3d786e937d3033c442d5ef6bb3b6bb65f81e6"
+            }
+          ],
+          "reviewStatus": "PARTIAL_BEGINNING_DRAW_VERIFIED"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-01-P062-B001",
+        "DOC-01-P062-B002",
+        "DOC-01-P062-B003",
+        "DOC-01-P062-B004",
+        "DOC-01-P062-B005",
+        "DOC-01-P062-B006",
+        "DOC-01-P062-B007",
+        "DOC-01-P062-B008",
+        "DOC-01-P062-B009",
+        "DOC-01-P062-B010",
+        "DOC-01-P062-B011",
+        "DOC-01-P062-B012",
+        "DOC-01-P062-B013",
+        "DOC-04-P059-B001",
+        "DOC-04-P059-B002",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B004",
+        "DOC-04-P059-B005",
+        "DOC-04-P059-B006",
+        "DOC-04-P059-B007",
+        "DOC-04-P059-B008",
+        "DOC-04-P059-B009",
+        "DOC-04-P059-B010",
+        "DOC-04-P059-B011",
+        "DOC-04-P059-B012",
+        "DOC-04-P059-B013",
+        "DOC-09-P012-B001",
+        "DOC-09-P012-B002",
+        "DOC-09-P012-B003",
+        "DOC-09-P012-B004",
+        "DOC-09-P012-B005",
+        "DOC-09-P012-B006",
+        "DOC-09-P012-B007",
+        "DOC-09-P012-B008",
+        "DOC-09-P012-B009",
+        "DOC-09-P012-B010",
+        "DOC-09-P012-B011",
+        "DOC-09-P012-B012",
+        "DOC-09-P012-B013",
+        "DOC-09-P012-B014",
+        "DOC-09-P012-B015",
+        "DOC-09-P012-B016",
+        "DOC-09-P012-B017",
+        "DOC-09-P012-B018",
+        "DOC-09-P012-B019",
+        "DOC-09-P012-B020",
+        "DOC-09-P012-B021",
+        "DOC-09-P012-B022",
+        "DOC-11-P004-B001",
+        "DOC-11-P004-B002",
+        "DOC-11-P004-B003"
+      ],
+      "auditDocument": "docs/BEGINNING_DRAW_AUDIT_2026-10-11.md",
+      "evidence": "docs/evidence/beginning-draw-2026-10-11",
+      "tests": [
+        "BeginningDrawTests",
+        "BeginningDrawNativeTests"
+      ],
+      "validation": {
+        "fullCases": 9797,
+        "fullMethods": 6447,
+        "nativeCommands": 5,
+        "journalCommands": 6,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Other beginning families and future/outside-active cards",
+        "Actual source departure and standby reveal card flows in these response-state scenarios",
+        "Paired-client/Windows visual/network acceptance"
+      ]
     }
   ]
 }

@@ -1,0 +1,1445 @@
+{
+  "status": "VERIFIED_SCOPED_BEGINNING_DRAW",
+  "cards": [
+    {
+      "id": 31319,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "OGN·101/298",
+      "cardName": "蘑菇袋",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Polar Engine Studio",
+      "cardEffect": "在你的回合开始阶段，如果你在战场上控制着一张正面朝下的待命牌，则抽一张牌。",
+      "flavorText": "“班德尔斥候永远有备而来。”\n——提莫",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(英雄预组 维克托)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 维克托",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/c7969c8058974bf08282d637abfc6aad.png",
+      "backImage": "",
+      "listSort": 386,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31493,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "OGN·251/298",
+      "cardName": "暴走萝莉",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "purple"
+      ],
+      "hero": "金克丝",
+      "region": "",
+      "tag": "",
+      "artist": "Sugar Free",
+      "cardEffect": "在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(英雄预组 金克丝)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 金克丝",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/d03e4a32810c474fbd7fbaed0c4ec583.png",
+      "backImage": "",
+      "listSort": 212,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31549,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "OGN·301/298",
+      "cardName": "暴走萝莉",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "purple"
+      ],
+      "hero": "金克丝",
+      "region": "",
+      "tag": "",
+      "artist": "Sean Yang",
+      "cardEffect": "在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250801/6b880ba9fcad44dfb51b77019eea9c18.png",
+      "backImage": "",
+      "listSort": 156,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31550,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "OGN·301*/298",
+      "cardName": "暴走萝莉",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "purple"
+      ],
+      "hero": "金克丝",
+      "region": "",
+      "tag": "",
+      "artist": "Sean Yang",
+      "cardEffect": "在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "runemaster_mark",
+      "extendRarityName": "签名超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250801/8ef8d8705d6a48449ea98c3cd1a876e5.png",
+      "backImage": "",
+      "listSort": 155,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31577,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "FND-251/298",
+      "cardName": "暴走萝莉",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "purple"
+      ],
+      "hero": "金克丝",
+      "region": "",
+      "tag": "",
+      "artist": "-",
+      "cardEffect": "在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [],
+      "productNameList": [],
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250810/79739028e67b4882919387898b3f7489.png",
+      "backImage": "",
+      "listSort": 128,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31590,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGS·011/024",
+      "cardName": "闪现",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Sugar Free",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n将最多两名友方单位从战场上移动到基地。",
+      "flavorText": "这不叫逃跑，这叫战术性转移。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGS"
+      ],
+      "productNameList": [
+        "起源 试炼之地"
+      ],
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/d16981dcbd884d3b89c2a259725a491f.png",
+      "backImage": "",
+      "listSort": 540,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "englishCards": [
+    {
+      "id": "ogn-301-star-298",
+      "collectorNumber": 301,
+      "name": "Loose Cannon",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "legend",
+            "label": "Legend",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-301*/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "showcase",
+          "label": "Showcase",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+            "dimensions": {
+              "width": 376,
+              "height": 426,
+              "aspectRatio": 0.8826291079812206
+            },
+            "colors": {
+              "primary": "#B89D3B",
+              "secondary": "#333229",
+              "label": "#4F472B"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "fury",
+            "label": "Fury",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#1A0D0E",
+                "secondary": "#F9DCDE",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          },
+          {
+            "id": "chaos",
+            "label": "Chaos",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#100B16",
+                "secondary": "#EDD6FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/30bed82f66ce9e4eae260d029d92c9d8cb1588ab-1488x2078.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Legend: Loose Cannon. At start of your Beginning Phase, draw 1 if you have one or fewer cards in your hand.",
+        "dimensions": {
+          "width": 1488,
+          "height": 2078,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#341A2F",
+          "secondary": "#F9DCE9",
+          "label": "#050105"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "seanyang",
+            "label": "Sean Yang",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>At start of your Beginning Phase, draw 1 if you have one or fewer cards in your hand.</p>"
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Jinx"
+        ]
+      }
+    },
+    {
+      "id": "ogn-301-298",
+      "collectorNumber": 301,
+      "name": "Loose Cannon",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "legend",
+            "label": "Legend",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-301/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "showcase",
+          "label": "Showcase",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+            "dimensions": {
+              "width": 376,
+              "height": 426,
+              "aspectRatio": 0.8826291079812206
+            },
+            "colors": {
+              "primary": "#B89D3B",
+              "secondary": "#333229",
+              "label": "#4F472B"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "fury",
+            "label": "Fury",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#1A0D0E",
+                "secondary": "#F9DCDE",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          },
+          {
+            "id": "chaos",
+            "label": "Chaos",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#100B16",
+                "secondary": "#EDD6FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8a7dbbed04133926e58843f1d586f51178ef2ebd-1488x2078.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Legend: Loose Cannon. At start of your Beginning Phase, draw 1 if you have one or fewer cards in your hand.",
+        "dimensions": {
+          "width": 1488,
+          "height": 2078,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#2C162C",
+          "secondary": "#F9DCE5",
+          "label": "#000000"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "seanyang",
+            "label": "Sean Yang",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>At start of your Beginning Phase, draw 1 if you have one or fewer cards in your hand.</p>"
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Jinx"
+        ]
+      }
+    },
+    {
+      "id": "ogn-251-298",
+      "collectorNumber": 251,
+      "name": "Loose Cannon",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "legend",
+            "label": "Legend",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-251/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "rare",
+          "label": "Rare",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+            "dimensions": {
+              "width": 429,
+              "height": 425,
+              "aspectRatio": 1.0094117647058825
+            },
+            "colors": {
+              "primary": "#B881A9",
+              "secondary": "#332932",
+              "label": "#804570"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "fury",
+            "label": "Fury",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#1A0D0E",
+                "secondary": "#F9DCDE",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          },
+          {
+            "id": "chaos",
+            "label": "Chaos",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#100B16",
+                "secondary": "#EDD6FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f57c14381b126e9f5a7b5bc4913151cb24c14fc3-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Legend: Loose Cannon. At start of your Beginning Phase, draw 1 if you have one or fewer cards in your hand.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#211122",
+          "secondary": "#F9DCDF",
+          "label": "#000000"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "sugarfree",
+            "label": "Sugar Free",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>At start of your Beginning Phase, draw 1 if you have one or fewer cards in your hand.</p>"
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Jinx"
+        ]
+      }
+    },
+    {
+      "id": "ogn-101-298",
+      "collectorNumber": 101,
+      "name": "Mushroom Pouch",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "gear",
+            "label": "Gear",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ee2664a6dfe767b7e8b4b08ed04611e019d2c166-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-101/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ef5b3125fda91c0d0a02b7e6dfb7d3d5bafa8bd0-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Gear: Mushroom Pouch. At the start of your Beginning Phase, if you control a facedown card at a battlefield, draw 1.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#3D4623",
+          "secondary": "#F9F4DC",
+          "label": "#161B07"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "polarenginestudio",
+            "label": "Polar Engine Studio",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>At the start of your Beginning Phase, if you control a facedown card at a battlefield, draw 1.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      }
+    }
+  ],
+  "documents": [
+    {
+      "id": "DOC-01",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则（10.16生效）",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "updated": "2026-10-10",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-04",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "updated": "2026-07-17",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-09",
+      "title": "破限系列 裁判FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "updated": "2026-05-11",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-11",
+      "title": "破限系列 官方FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/破限系列 官方FAQ.pdf",
+      "sha256": "202ecb8a94af03af024daefcf677991c50db00afeeb36cf2c4b72683b623bd70",
+      "updated": "2026-04-30",
+      "effectiveDate": null
+    }
+  ],
+  "rules": [
+    {
+      "id": "DOC-01-P062-B001",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [],
+      "text": "“在你回合结束时,让两枚符文变为活跃状态。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B002",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [],
+      "text": "“每回合首次,当我移动时,你可以选择让一个其他休眠的物体变为活跃状态(包括传奇和符文)。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B003",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.1.a"
+      ],
+      "text": "383.1.a.          标识着触发式技能的表述并不一定总是出现在句子或技能描述的开头。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B004",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.1.b"
+      ],
+      "text": "383.1.b.          如果某个技能的触发条件是“(第)N 次”发生某事,而该条件同时多次得到满足,则控制者需要从中选择\n                  一次作为触发的时机。该技能只会在选中的时机触发一次。\n                        举例:“残响之魂”的描述为:“每回合首次,当你的另一名友方单位被摧毁时,抽一张牌。”该技\n                        能在本回合尚未触发过。其他两名友方单位同时被摧毁(比如说因为受到战斗伤害)。“残响之\n                        魂”的控制者可以从这两次被摧毁事件中选择一次来触发其技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B005",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2"
+      ],
+      "text": "383.2.       触发式技能 具有条件 和效果 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B006",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.a"
+      ],
+      "text": "383.2.a.          条件 是指包含“当 /每当 ......时 ”、“在 ......时 ”,或者“(第) N 次 ”的子句。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B007",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.a.1"
+      ],
+      "text": "383.2.a.1.              如果某个附加条件分句紧跟在条件之后,则只有该附加条件成立时,该条件才视为满足。此类\n                        条件分句属于触发条件的一部分,而非效果的一部分。\n                                举例:“娑娜 - 清心谐律”的描述为:“在你回合结束时,如果我位于战场上,则让最多\n                                四枚友方符文变为活跃状态。”虽然一到回合结束步骤就会满足她的触发式技能条\n                                件,但只有她在触发条件满足时位于战场上时,她的触发式技能才会进入结算链。如\n                                果她因该触发式技能受到反应而被移出战场,该技能仍会结算。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B008",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [],
+      "text": "举例:“暴走萝莉”的描述为:“在你的回合开始阶段,如果你的手牌不足两张,则再抽\n                                一张牌。”英文版中的“如果你的手牌不足两张”这一条件分句并非紧跟在触发条件之\n                                后,因此它属于效果的一部分,而非条件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B009",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.b"
+      ],
+      "text": "383.2.b.          效果 是指不属于条件 部分的指示 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B010",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c"
+      ],
+      "text": "383.2.c.          触发条件 会在可能引发它的事件处理完毕后再进行判定。除非该条件 检查的是该触发式技能来源的离场事\n                  件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B011",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c.1"
+      ],
+      "text": "383.2.c.1.              假如一个游戏物体拥有一个只在特定区域才能生效的触发式技能,如果它在触发条件满足的同\n                        时进入了该特定区域,则技能会在判定后随即触发。\n                                举例:“不朽凤凰”的技能描述为“当你使用法术摧毁一名单位时,你可以选择支付[1]和\n                                [C],以此从废牌堆中将我打出。”当你用法术摧毁一个单位后,即便被法术摧毁的单\n                                位就是“不朽凤凰”,但只要“不朽凤凰”位于你的废牌堆中,该技能就会立即触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B012",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c.2"
+      ],
+      "text": "383.2.c.2.              不过,如果一个游戏物体在触发条件满足的同时离开了使该触发效果生效的区域,则其触发条\n                        件 将被视为判定失败。\n                                举例:“维克托 - 领袖”的技能描述为“如果我在场上,则每当你的另一名非‘随从’单位\n                                被摧毁时,打出一名 1[M]的‘随从’单位指示物到你的基地。”当你控制的另一名非随从\n                                单位被摧毁后,如果维克托在战场上,则该技能会立即触发。如果维克托和你控制的\n                                另一名非随从单位在同一个游戏行动期间被摧毁(例如由于“过载能量”造成的伤害导\n                                致二者同时在清理步骤中被摧毁),则该技能不会触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P062-B013",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c.3"
+      ],
+      "text": "383.2.c.3.              如果一个游戏物体拥有以该游戏物体离开场上为条件的触发式技能,那么该触发式技能会在该\n                        游戏物体 改变区域之前立即进行处理。\n                                举例:如果一个游戏物体拥有[绝念]技能(该技能会在该游戏物体被摧毁时触发),\n                                则会在该游戏物体被摧毁这一事件期间、于该游戏物体放入废牌堆之前,就处理该技\n                                能并将它置于结算链上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B001",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.1.b"
+      ],
+      "text": "383.1.b.          如果某个技能的触发条件是“(第)N 次”发生某事,而该条件同时多次得到满足,则控制者需要从中选择\n                  一次作为触发的时机。该技能只会在选中的时机触发一次。\n                        举例:“残响之魂”的描述为:“每回合首次,当你的另一名友方单位被摧毁时,抽一张牌。”该技\n                        能在本回合尚未触发过。其他两名友方单位同时被摧毁(比如说因为受到战斗伤害)。“残响之\n                        魂”的控制者可以从这两次被摧毁事件中选择一次来触发其技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B002",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.2"
+      ],
+      "text": "383.2.       触发式技能 具有条件 和效果 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B003",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.2.a"
+      ],
+      "text": "383.2.a.          条件 是指包含“当 /每当 ......时 ”、“在 ......时 ”,或者“(第) N 次 ”的子句。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B004",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.2.a.1"
+      ],
+      "text": "383.2.a.1.              如果某个附加条件分句紧跟在条件之后,则只有该附加条件成立时,该条件才视为满足。此类\n                        条件分句属于触发条件的一部分,而非效果的一部分。\n                                举例:“娑娜 - 清心谐律”的描述为:“在你回合结束时,如果我位于战场上,则让最多\n                                四枚友方符文变为活跃状态。”虽然一到回合结束步骤就会满足她的触发式技能条件,\n                                但只有她在触发条件满足时位于战场上时,她的触发式技能才会进入结算链。如果她\n                                因该触发式技能受到反应而被移出战场,该技能仍会结算。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B005",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [],
+      "text": "举例:“暴走萝莉”的描述为:“在你的回合开始阶段,如果你的手牌不足两张,则再抽\n                                一张牌。”英文版中的“如果你的手牌不足两张”这一条件分句并非紧跟在触发条件之\n                                后,因此它属于效果的一部分,而非条件。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B006",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.2.b"
+      ],
+      "text": "383.2.b.          效果 是指不属于条件 部分的指示 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B007",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.2.c"
+      ],
+      "text": "383.2.c.          触发条件 会在可能引发它的事件处理完毕后再进行判定。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B008",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.2.c.1"
+      ],
+      "text": "383.2.c.1.              假如一个游戏物体拥有一个只在特定区域才能生效的触发式技能,如果它在触发条件满足的同\n                        时进入了该特定区域,则技能会在判定后随即触发。\n                                举例:“不朽凤凰”的技能描述为“当你使用法术摧毁一名单位时,你可以选择支付[1]和\n                                [C],以此从废牌堆中将我打出。”当你用法术摧毁一个单位后,即便被法术摧毁的单\n                                位就是“不朽凤凰”,但只要“不朽凤凰”位于你的废牌堆中,该技能就会立即触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B009",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.2.c.2"
+      ],
+      "text": "383.2.c.2.              不过,如果一个游戏物体在触发条件满足的同时离开了使该触发效果生效的区域,则其触发条\n                        件 将被视为判定失败。\n                                举例:“维克托 - 领袖”的技能描述为“如果我在场上,则每当你的另一名非‘随从’单位\n                                被摧毁时,打出一名 1[M]的‘随从’单位指示物到你的基地。”当你控制的另一名非随从\n                                单位被摧毁后,如果维克托在战场上,则该技能会立即触发。如果维克托和你控制的\n                                另一名非随从单位在同一个游戏行动期间被摧毁(例如由于“过载能量”造成的伤害导\n                                致二者同时在清理步骤中被摧毁),则该技能不会触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B010",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.3"
+      ],
+      "text": "383.3.       条件 满足时,触发式技能 就会和主动技能 一样行动,被放置到结算链 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B011",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.3.a"
+      ],
+      "text": "383.3.a.          如果触发式技能的效果开头为“你可以选择”或“该玩家可以选择”,则其来源的控制者将在确认阶段选择是\n                  否执行该触发式技能。\n                        举例:“控潮者”拥有“当你打出我时,你可以选择另一处位置受你控制的一名单位,然后把我移\n                        动到其所在位置,再将其移动到我原来的位置”的效果。其中的“你可以选择”出现在效果的开\n                        头,因此该选择代表是否执行该触发式技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B012",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.3.a.1"
+      ],
+      "text": "383.3.a.1.              当“可以选择”以这种形式出现时,其所表示的选择仅为是否执行该触发式技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-04-P059-B013",
+      "document": "DOC-04",
+      "page": 59,
+      "clauseAnchors": [
+        "383.3.a.2"
+      ],
+      "text": "383.3.a.2.              如果该触发式技能的控制者在确认阶段选择不执行该触发式技能,则该技能将从结算链中移\n                        除,并视为未触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B001",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "卡牌图片                         中英文文本                               当前版本结算方式",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B002",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "前半部分<当我进攻时>为触发条件,后半部分\n               中文文本:当我进攻时,如果此处有处于活跃状态\n                                                           <如果此处有处于活跃状态的敌方单位,则让\n               的敌方单位,则让我在本回合内战力+2。\n                                                           我在本回合内战力+2。>将会成为已确认的结",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B003",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "算链流程。\n               英文文本:When I attack, give me +2 [M] this",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B004",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "turn if there is a ready enemy unit here.\n                                                           因此【沙丘亚龙】的技能在触发时不会检查此\n               注:【沙丘亚龙】中英文卡牌文本有过勘误(上述\n                                                           处是否有处于活跃状态的敌方单位,而是会在\n               为勘误后文本)。\n                                                           结算时执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B005",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "前半部分<在你的回合开始阶段>为触发条件,\n               中文文本:在你的回合开始阶段,如果你的手牌不\n                                                           后半部分<如果你的手牌不足两张,则再抽一\n               足两张,则再抽一张牌。\n                                                           张牌。>将会成为已确认的结算链流程。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B006",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "英文文本:At start of your Beginning Phase,\n                                                           因此【金克丝 - 暴走萝莉】的技能在触发时\n               draw 1 if you have one or fewer cards in\n                                                           不会检查你的手牌是否不足两张,而是会在结\n               your hand.\n                                                           算时执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B007",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "前半部分<当你打出我时>为触发条件,后半部",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B008",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "分<如果你的其他单位的总计战力不低于 5,\n               中文文本:当你打出我时,如果你的其他单位的总\n                                                           则抽一张牌。>将会成为已确认的结算链流\n               计战力不低于 5,则抽一张牌。\n                                                           程。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B009",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "英文文本:When you play me, draw 1 if your\n                                                           因此【均衡门徒】的技能在触发时不会检查你\n               other units have total Might 5 or more.\n                                                           的其他单位总计战力是否不低于 5,而是会在",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B010",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "结算时执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B011",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "中文文本:打出我时,从“鸟类”、“猫科”、",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B012",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "“犬形”或“魄罗\"属性标签中选择一个。我获得该 前半部分<当我征服或据守一处战场时>为触发",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B013",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "属性标签。当我征服或据守一处战场时,如果你的 条件,后半部分<如果你的单位合计具有以下",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B014",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "单位合计具有以下所有属性标签,则你获得 1 分一 所有属性标签,则你获得 1 分一“鸟类”、",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B015",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "“鸟类”、“猫科”、“犬形“和”魄罗”。                        “猫科”、“犬形“和”魄罗”。>将会成为",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B016",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "已确认的结算链流程。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B017",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "英文文本:As you play me, choose Bird,",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B018",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "Cat, Dog, or Poro. I gain that tag.         因此【艾翁 - 万物之友】的技能在触发时不",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B019",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "When I conquer or hold, score 1 point if    会检查你的单位是否合计具有所有属性标签,",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B020",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "your units have all of the following tags   而是会在结算时执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B021",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "among them — Bird, Cat, Dog, and Poro.",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-09-P012-B022",
+      "document": "DOC-09",
+      "page": 12,
+      "clauseAnchors": [],
+      "text": "5. 260511 新增卡牌 Q&A\n此部分根据设计师最新回复确认并编写。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P004-B001",
+      "document": "DOC-11",
+      "page": 4,
+      "clauseAnchors": [],
+      "text": "“艾克 - 溯时洄光”的描述为:“[绝念][>] 回收我,以此让你的所有符文变为活跃状态。”绝念\n   是“当我被摧毁后,......”这一功能的简称。应用到上述顺序里就变成“当我被摧毁后,回收\n   我,以此让你的所有符文变为活跃状态”。这里的“回收我,以此......”是一个指示中的费\n   用,出现在按上述顺序所预期的位置上,因此当它被放入结算链时,就会成为该技能的基\n   础费用,而不是技能效果。该技能可以拆分为“当我被摧毁后,回收我,以此”和“让你的所\n   有符文变为活跃状态”两个部分。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P004-B002",
+      "document": "DOC-11",
+      "page": 4,
+      "clauseAnchors": [],
+      "text": "如果上述任一要素在卡牌上出现的位置比预期位置靠后,则不能应用这套判定逻辑。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P004-B003",
+      "document": "DOC-11",
+      "page": 4,
+      "clauseAnchors": [],
+      "text": "金克丝的传奇卡牌“暴走萝莉”的描述为:“在你的回合开始阶段,如果你的手牌不足两张,\n   则再抽一张牌。”英文版中的条件分句“如果你的手牌不足两张”并未出现在按上述顺序所预\n   期的位置上,因此被视为是效果的一部分,而不是条件。该技能可以拆分为:“在你的开\n   始阶段开始时(中文译文中‘在你的回合开始阶段’的部分)”和“如果你的手牌不足两张,则\n   抽一张牌。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "effectiveBoundary": "DOC04 current, DOC01 future effective Oct16; current Jinx Chinese ambiguity resolved by official English and DOC09/DOC11 FAQ."
+}
