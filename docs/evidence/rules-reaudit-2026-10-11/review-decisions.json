@@ -9321,7 +9321,7 @@
     },
     {
       "id": "sunken-temple-might-2026-10-13",
-      "status": "SCOPED_CHECK_NATIVE_AND_TWO_FULL_GAME_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "status": "SCOPED_CHECK_NATIVE_TWO_FULL_GAME_AND_FIXED_COMMIT_FULL_PASS",
       "scope": "Exact CN SFD·218/221 conquest-time current Might, shared public numeric history, leading optional cost and independent response; no whole-card certification",
       "subjects": [
         {
@@ -9445,12 +9445,225 @@
         "checkMethods": 6623
       },
       "exclusions": [
-        "Fixed-commit full CI and whole card/all-layer/conquest semantics",
+        "Whole card/all-layer/conquest semantics",
         "Historical input and result jointly changed require trusted full action/event replay; no full security certification",
         "17 Powerful whole-card identities, becoming Mighty and highest-Might consumers",
         "All 1738 whole-card identities, 14293 rule records and eight EN source gaps",
         "Native combat assignment/ordering scope, visible paired match, Windows real runtime and actual PostgreSQL",
         "EN source references retain prior snapshot boundary, no EN live refresh/certification"
+      ],
+      "fixedCommitFullCi": "docs/evidence/sunken-temple-2026-10-13/full-ci-2b203010.json"
+    },
+    {
+      "id": "becomes-mighty-2026-10-13",
+      "status": "SCOPED_COMMAND_BOUNDARY_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Exact four CN Fiora printings: command-boundary current-Might crossing, independent printed/copied skill instances, optional cost/response and recovery; no whole-card or complete instantaneous-event certification",
+      "subjects": [
+        {
+          "id": "SFD-180/221",
+          "activeCardNo": "SFD·180/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33277,
+              "cardNo": "SFD·180/221",
+              "name": "菲奥娜",
+              "sha256": "efda83123f391b1224fbdb7c8e02e0a9599458e3bb4d2dcc2d2cbd7b5a2139e8",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-180-221",
+              "cardNo": "SFD-180/221",
+              "name": "Fiora",
+              "sha256": "3f55fc8fe530ad50eda1a770b9798f37aab4abf19c0477d7074ad1b3fe7d39d3",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact four CN Fiora printings: command-boundary current-Might crossing, independent printed/copied skill instances, optional cost/response and recovery; no whole-card or complete instantaneous-event certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/becomes-mighty-2026-10-13/validation.json"
+        },
+        {
+          "id": "SFD-180A/221",
+          "activeCardNo": "SFD·180a/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33278,
+              "cardNo": "SFD·180a/221",
+              "name": "菲奥娜",
+              "sha256": "c18996e917fa0d5c2df82789adfdf1e684ab26e80c1bc301ef7a6e348f641b37",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-180a-221",
+              "cardNo": "SFD-180a/221",
+              "name": "Fiora",
+              "sha256": "bf87489da91a33407cfdc494b4efaba461ef836427f0e93e3d6f553a77f55363",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact four CN Fiora printings: command-boundary current-Might crossing, independent printed/copied skill instances, optional cost/response and recovery; no whole-card or complete instantaneous-event certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/becomes-mighty-2026-10-13/validation.json"
+        },
+        {
+          "id": "SFD-205/221",
+          "activeCardNo": "SFD·205/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33304,
+              "cardNo": "SFD·205/221",
+              "name": "无双剑姬",
+              "sha256": "7a5e09030d03648c7c3a56dcc2ba487dd9c69850d7495fdd5cf66ab266fd6354",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-205-221",
+              "cardNo": "SFD-205/221",
+              "name": "Grand Duelist",
+              "sha256": "cfe0a7ecff2d18d51859bad2b3f5119f9daa1cf2f5246529282f075ef736f7d7",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact four CN Fiora printings: command-boundary current-Might crossing, independent printed/copied skill instances, optional cost/response and recovery; no whole-card or complete instantaneous-event certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/becomes-mighty-2026-10-13/validation.json"
+        },
+        {
+          "id": "SFD-251/221",
+          "activeCardNo": "SFD·251/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33362,
+              "cardNo": "SFD·251/221",
+              "name": "无双剑姬",
+              "sha256": "6bef60d71802703cf3ee0a5c4901f6632a8589fc55141e7e86746971f175f1eb",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-251-221",
+              "cardNo": "SFD-251/221",
+              "name": "Grand Duelist",
+              "sha256": "3c864aa09d6357004577865509d95ed4f10e5ac2f9fbde4a83f34d47ae79fb8f",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact four CN Fiora printings: command-boundary current-Might crossing, independent printed/copied skill instances, optional cost/response and recovery; no whole-card or complete instantaneous-event certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/becomes-mighty-2026-10-13/validation.json"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P055-B017",
+        "DOC-04-P055-B019",
+        "DOC-04-P056-B001",
+        "DOC-04-P072-B009",
+        "DOC-04-P076-B005",
+        "DOC-04-P093-B002",
+        "DOC-04-P102-B011",
+        "DOC-04-P102-B012",
+        "DOC-04-P102-B013",
+        "DOC-04-P102-B014",
+        "DOC-04-P102-B015",
+        "DOC-04-P102-B016",
+        "DOC-04-P102-B017"
+      ],
+      "auditDocument": "docs/MIGHTY_TRANSITION_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/becomes-mighty-2026-10-13/validation.json",
+        "docs/evidence/becomes-mighty-2026-10-13/live-readback.json",
+        "docs/evidence/becomes-mighty-2026-10-13/adjacent-source-refresh.json",
+        "docs/evidence/becomes-mighty-2026-10-13/copy-entry-source-refresh.json",
+        "docs/evidence/becomes-mighty-2026-10-13/response-source-refresh.json",
+        "docs/evidence/becomes-mighty-2026-10-13/source-parity.json",
+        "docs/evidence/becomes-mighty-2026-10-13/mighty-rule-records.json",
+        "docs/evidence/becomes-mighty-2026-10-13/red-evidence.json",
+        "docs/evidence/becomes-mighty-2026-10-13/powerful-source-queue.json",
+        "docs/evidence/becomes-mighty-2026-10-13/godot-execution.json"
+      ],
+      "tests": [
+        "MightyTransitionTests",
+        "MightyTransitionNativeTests",
+        "TriggerPaymentTests.SfdFiora",
+        "LegendActionSourceIdentityGuardTests",
+        "ConformanceFixtureRunnerTests.P79LegendTriggerPowerfulUnitCallsRuneAndExhaustsLegend"
+      ],
+      "validation": {
+        "nativeProductionCommands": 20,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "checkCases": 10397,
+        "checkMethods": 6634
+      },
+      "exclusions": [
+        "Intra-resolution repeated crossings, becoming-Mighty event replacement and all numeric-layer/dependency/timestamp semantics",
+        "Whole cards, remaining Mighty consumers (including Volibear and Kadregrin) and source gaps",
+        "Historical input and result jointly altered require trusted full action/event replay",
+        "Visible paired matches, Windows real runtime and real PostgreSQL",
+        "EN sources retain snapshot references and are not freshly certified"
       ]
     }
   ]

@@ -1,0 +1,142 @@
+{
+  "status": "SCOPED_COMMAND_BOUNDARY_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "scope": "Exact four CN Fiora printings: command-boundary current-Might crossing, independent printed/copied skill instances, optional cost/response and recovery; no whole-card or complete instantaneous-event certification",
+  "verifiedAtUtc": "2026-10-12T18:47:46.862441+00:00",
+  "wholeCardCertification": false,
+  "fixedCommitFullCiRequired": true,
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/12",
+  "native": [
+    {
+      "branch": "unit-pay",
+      "accepted": 6,
+      "staleRejected": 1,
+      "finalHash": "19ea1d71e28ef447477eb78e1369c3d66c230bf25ce2169918948ca4c16fa3c1",
+      "native": true,
+      "replay": "docs/evidence/becomes-mighty-2026-10-13/native/unit-pay/replay.json"
+    },
+    {
+      "branch": "unit-decline",
+      "accepted": 4,
+      "staleRejected": 1,
+      "finalHash": "4c040e152dbbe8f4e84ca44163c5880fc1511502ae0ea13222b28e0587006517",
+      "native": true,
+      "replay": "docs/evidence/becomes-mighty-2026-10-13/native/unit-decline/replay.json"
+    },
+    {
+      "branch": "legend-pay",
+      "accepted": 6,
+      "staleRejected": 1,
+      "finalHash": "00134f7776a880363bdbf4bf1299470735aba5a345b454c23bd5950c5e2ac44d",
+      "native": true,
+      "replay": "docs/evidence/becomes-mighty-2026-10-13/native/legend-pay/replay.json"
+    },
+    {
+      "branch": "legend-decline",
+      "accepted": 4,
+      "staleRejected": 1,
+      "finalHash": "01f2f1ce95fa69ec7fd58b511de169fa4e25be57900d2415787af5f1e2a9cc97",
+      "native": true,
+      "replay": "docs/evidence/becomes-mighty-2026-10-13/native/legend-decline/replay.json"
+    }
+  ],
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 118.49,
+    "total": 10397,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10397,
+        "passed": 10397,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 114.2
+      }
+    ]
+  },
+  "adjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 84.65,
+    "total": 3390,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 3390,
+        "passed": 3390,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 71.61
+      }
+    ]
+  },
+  "parity": {
+    "oldCasesPreserved": 10366,
+    "oldMethodsPreserved": 6623,
+    "currentCases": 10397,
+    "currentMethods": 6634,
+    "addedCases": [
+      "Riftbound.ConformanceTests.MightyTransitionNativeTests.ProductionAssemblyOptionalCostAndResponsesReplay(branch: \"legend-decline\")",
+      "Riftbound.ConformanceTests.MightyTransitionNativeTests.ProductionAssemblyOptionalCostAndResponsesReplay(branch: \"legend-pay\")",
+      "Riftbound.ConformanceTests.MightyTransitionNativeTests.ProductionAssemblyOptionalCostAndResponsesReplay(branch: \"unit-decline\")",
+      "Riftbound.ConformanceTests.MightyTransitionNativeTests.ProductionAssemblyOptionalCostAndResponsesReplay(branch: \"unit-pay\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ARealDetachResponseDoesNotRecheckAnEarnedMightyCondition",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ARealReturnResponsePreservesTheSkillAndDoesNotReadyANewIncarnation(returned: \"FIORA\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ARealReturnResponsePreservesTheSkillAndDoesNotReadyANewIncarnation(returned: \"HOST\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned",
+      "Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: \"SFD·180/221\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: \"SFD·180a/221\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.EveryPrintedOrCopiedSkillInstanceQueuesIndependently(copied: False)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.EveryPrintedOrCopiedSkillInstanceQueuesIndependently(copied: True)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.LegendExhaustionIsOptionalAndChannelingWaitsForResponses(card: \"SFD·205/221\", accept: False)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.LegendExhaustionIsOptionalAndChannelingWaitsForResponses(card: \"SFD·205/221\", accept: True)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.LegendExhaustionIsOptionalAndChannelingWaitsForResponses(card: \"SFD·251/221\", accept: False)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.LegendExhaustionIsOptionalAndChannelingWaitsForResponses(card: \"SFD·251/221\", accept: True)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.PublicRecoveryRejectsSelfConsistentButUnrecordedHistoricalInput",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ReadyCostConfirmsBeforeResponsesAndDecliningLeavesUnitExhausted(card: \"SFD·180/221\", pay: False)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ReadyCostConfirmsBeforeResponsesAndDecliningLeavesUnitExhausted(card: \"SFD·180/221\", pay: True)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ReadyCostConfirmsBeforeResponsesAndDecliningLeavesUnitExhausted(card: \"SFD·180a/221\", pay: False)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ReadyCostConfirmsBeforeResponsesAndDecliningLeavesUnitExhausted(card: \"SFD·180a/221\", pay: True)",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts(field: \"after\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts(field: \"before\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts(field: \"choices\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts(field: \"cost\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts(field: \"instance\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts(field: \"private-frame\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts(field: \"source-generation\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts(field: \"unit-generation\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: \"SFD·205/221\")",
+      "Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: \"SFD·251/221\")"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.MightyTransitionNativeTests.ProductionAssemblyOptionalCostAndResponsesReplay",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ARealDetachResponseDoesNotRecheckAnEarnedMightyCondition",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ARealReturnResponsePreservesTheSkillAndDoesNotReadyANewIncarnation",
+      "Riftbound.ConformanceTests.MightyTransitionTests.AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned",
+      "Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger",
+      "Riftbound.ConformanceTests.MightyTransitionTests.EveryPrintedOrCopiedSkillInstanceQueuesIndependently",
+      "Riftbound.ConformanceTests.MightyTransitionTests.LegendExhaustionIsOptionalAndChannelingWaitsForResponses",
+      "Riftbound.ConformanceTests.MightyTransitionTests.PublicRecoveryRejectsSelfConsistentButUnrecordedHistoricalInput",
+      "Riftbound.ConformanceTests.MightyTransitionTests.ReadyCostConfirmsBeforeResponsesAndDecliningLeavesUnitExhausted",
+      "Riftbound.ConformanceTests.MightyTransitionTests.RecoveryRejectsForgedCrossingIdentityInputsOrCosts",
+      "Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment"
+    ],
+    "missingCases": [],
+    "missingMethods": [],
+    "duplicates": 0
+  },
+  "checkTrxSha256": "da780916e9f0d11d84b3cb502a5275288646c5f9588199565a469fc5f328d811",
+  "testAssemblySha256": "ae453a9f93aa0a6f300222e2d9c062c7b1bb26dbf6242566adcde5cbc2c6ee6e",
+  "fullPlanMethodCount": 6775,
+  "allPriorFullMethodsRetained": true,
+  "fullCiExpectedCases": 10546,
+  "fullCiExpectedMethods": 6775,
+  "toolTests": {
+    "count": 24,
+    "status": "PASSED",
+    "logSha256": "33dcccba35b0d97248b80ea7552be9dc11f9c659f4d38bbe72225b68edfc4fa3"
+  }
+}

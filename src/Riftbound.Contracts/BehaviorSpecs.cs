@@ -190,6 +190,8 @@ public static class TriggerKinds
         "UNIT_ARMAMENT_ATTACHED_CHOOSE_UNUSED_MODE";
     public const string UnitControlledUnitPowerfulPayPowerReady =
         "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
+    public const string ControlledUnitBecamePowerfulExhaustCallRune =
+        "CONTROLLED_UNIT_BECAME_POWERFUL_EXHAUST_CALL_RUNE";
     public const string UnitAttackPayPowerModifier =
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";

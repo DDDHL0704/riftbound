@@ -1,0 +1,62 @@
+[
+  {
+    "path": "clients/godot/scripts/debug/MightyTransitionInteractionProof.cs",
+    "sha256": "c23aa6b8fe0ad871ba16bf3b783f0f7c4c5c706003638007e241b664f9edffed"
+  },
+  {
+    "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+    "sha256": "f4e4d2093c428f47f4419fb0ce1e7eaf4c78e399c596df4e339250dddf4d2d34"
+  },
+  {
+    "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+    "sha256": "be1cd03bdc1779175d839f471d19eadf1358633a71394841d8ee7cda233840b5"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+    "sha256": "a1177e0cb801f29d88e7372435b15d793d321c8634d07f75fecb82df952e299e"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.MightyTransitions.cs",
+    "sha256": "db73542d6811db65199f52484700d358ef2dffa737be87b58ba150894d8a515d"
+  },
+  {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "1cf96b2a30ae608e8e2d53c2fc7cfe38a103cb02583df966d00ee4f1e95e8a6f"
+  },
+  {
+    "path": "src/Riftbound.Engine/LegendIdentityCatalog.cs",
+    "sha256": "f204a9854a6b34941a2b43df4bf73b5f410f7053c3e0945ff2e64a7d3cbb57c6"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "a186adf23715637d8d46de6d30d8cb901037b52a15ebb31bd93238a652b5456c"
+  },
+  {
+    "path": "src/Riftbound.Engine/MatchSession.cs",
+    "sha256": "6980386571990f4c375fe9cde22d28913551d59042c98f7ca97e485ed28ae995"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "sha256": "9bf75650e21c98110ff46c0b1fb00e8a8704d1e4cd53bff2489d3aeca7d6d083"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/LegendActionSourceIdentityGuardTests.cs",
+    "sha256": "8f53b4e31fc1c3177fd9e2e77f4c88cda89afce16205d83bd84dac0023fd6dc4"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "sha256": "fe6620e3d0edbbef3daab946e2afe25b8b9edc1450f8fef16b6bc5dea32ae381"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MightyTransitionNativeTests.cs",
+    "sha256": "2004b00f514bde80575e56c7c14a7432740989c56e47b2b46137b483db82abe4"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/MightyTransitionTests.cs",
+    "sha256": "f14479b358bc2a52928c70679dfa7e277da43a130514beccfc7fc52d6cdd3acc"
+  },
+  {
+    "path": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+    "sha256": "241018d30f006598aedb3f7529dd0c21745f111ed7df6dccd8e10a43ba0d9ac8"
+  }
+]

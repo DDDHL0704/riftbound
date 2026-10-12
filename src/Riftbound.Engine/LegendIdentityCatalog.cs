@@ -36,7 +36,7 @@ public static class LegendIdentityCatalog
             [AnnieLegendIdentityId] = ["OGS·017/024"],
             [JinxLegendIdentityId] = ["FND-251/298"],
             [RumbleLegendIdentityId] = ["SFD·181/221"],
-            [PowerfulUnitRuneLegendIdentityId] = ["FND-249/298", "SFD·205/221"],
+            [PowerfulUnitRuneLegendIdentityId] = ["FND-249/298"],
             [SettLegendIdentityId] = ["OGN·269/298"],
             [ViLegendIdentityId] = ["UNL-187/219"],
             [VexLegendIdentityId] = ["UNL-193/219"],

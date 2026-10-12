@@ -1,0 +1,74 @@
+[
+  {
+    "cardNo": "SFD·180/221",
+    "sourceId": 33277,
+    "sha256": "efda83123f391b1224fbdb7c8e02e0a9599458e3bb4d2dcc2d2cbd7b5a2139e8",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·180a/221",
+    "sourceId": 33278,
+    "sha256": "c18996e917fa0d5c2df82789adfdf1e684ab26e80c1bc301ef7a6e348f641b37",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·205/221",
+    "sourceId": 33304,
+    "sha256": "7a5e09030d03648c7c3a56dcc2ba487dd9c69850d7495fdd5cf66ab266fd6354",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·251/221",
+    "sourceId": 33362,
+    "sha256": "6bef60d71802703cf3ee0a5c4901f6632a8589fc55141e7e86746971f175f1eb",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·056/221",
+    "sourceId": 33134,
+    "sha256": "06687064f27735c7f0202bfe116c6c222604af854254459de3b312ac771f81f8",
+    "unchanged": true
+  },
+  {
+    "cardNo": "OGN·053/298",
+    "sourceId": 31265,
+    "sha256": "aa32846015b47bcf248d1d2a1294ae5f37d72393bfbf05f97916b10024f4c979",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·022/221",
+    "sourceId": 33095,
+    "sha256": "490cc7d14a1d8305a0329521183cf3eec744e57dd9f18af0622384534d98cd27",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·167/221",
+    "sourceId": 33261,
+    "sha256": "e5f07ce7d6088c153abe0a1602790c81a39cf5cc8b8fcf8ea6e2c460165d9374",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·059/221",
+    "sourceId": 33139,
+    "sha256": "2146ff16f353ba13fa9c3081a9403980f290ce160b95df6e03cbe35da077f9fa",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·175/221",
+    "sourceId": 33271,
+    "sha256": "732e4da96326c2fa934d629e9a6dbc0524ec7fa498b0310fcf1d341411662496",
+    "unchanged": true
+  },
+  {
+    "cardNo": "OGN·104/298",
+    "sourceId": 31322,
+    "sha256": "df738b50fe097df422cf9ea04a509108432a0ab4ee99684865ff968c1dbdf21f",
+    "unchanged": true
+  },
+  {
+    "cardNo": "SFD·011/221",
+    "sourceId": 33083,
+    "sha256": "52a2aabee1fc38e2326ac62163298b979dc7e0756717b9b09a22be8269649642",
+    "unchanged": true
+  }
+]

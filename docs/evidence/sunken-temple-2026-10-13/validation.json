@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_CHECK_NATIVE_AND_TWO_FULL_GAME_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_CHECK_NATIVE_TWO_FULL_GAME_AND_FIXED_COMMIT_FULL_PASS",
   "verifiedAtUtc": "2026-10-12T17:53:58.422333+00:00",
   "scope": "Exact CN SFD·218/221 conquest-time current Might, shared public numeric history, leading optional cost and independent response; no whole-card certification",
   "semanticCoverageCertified": false,
@@ -205,5 +205,7 @@
     "status": "PASSED",
     "count": 24,
     "logSha256": "742e729f37709d8df37286958e45856bf4638db9758de76989d3f359261ab683"
-  }
+  },
+  "fixedCommitFullCi": "docs/evidence/sunken-temple-2026-10-13/full-ci-2b203010.json",
+  "fixedCommitFullCiVerified": true
 }

@@ -1,0 +1,32 @@
+{
+  "baselineCommit": "2b203010855181c85c84c5303b60de982e46d00b",
+  "trx": "var/qa/becomes-mighty-20261013/red/focus/results.trx",
+  "sha256": "6ecbd0be90dc5fc6c6212a692e75ec2a8d0e82c7400b8417732b05a4e1c419c7",
+  "results": [
+    {
+      "test": "Riftbound.ConformanceTests.MightyTransitionTests.AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned",
+      "outcome": "Failed",
+      "message": "Assert.Null() Failure: Value is not null\nExpected: null\nActual:   PendingPaymentState { ResolvingStackItemId = , ExperienceCost = 0, PaymentId = TRIGGER_PAYMENT:3:P1:FIORA, PaymentWindow = TRIGGER_PAYMENT, PlayerId = P1, ManaCost = 0, PowerCost = 0, PowerCostByTrait = System.Collections.Generic.Dictionary`2[System.String,System.Int32], LegalPaymentChoiceIds = System.String[], Reason = SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY|FIORA|HOST, PaymentResourceActionIds = System.String[] }"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: \"SFD·180a/221\")",
+      "outcome": "Failed",
+      "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: \"SFD·251/221\")",
+      "outcome": "Failed",
+      "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: \"SFD·205/221\")",
+      "outcome": "Failed",
+      "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: \"SFD·180/221\")",
+      "outcome": "Failed",
+      "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+    }
+  ]
+}

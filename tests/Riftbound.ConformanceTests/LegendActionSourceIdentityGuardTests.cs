@@ -197,7 +197,7 @@ public sealed class LegendActionSourceIdentityGuardTests
             ["SFD·181/221", "SFD·240/221"],
             LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.RumbleLegendIdentityId));
         AssertSourceCardNosEquivalent(
-            ["FND-249/298", "OGN·249/298", "OGN·300/298", "OGN·300*/298", "SFD·205/221", "SFD·251/221"],
+            ["FND-249/298", "OGN·249/298", "OGN·300/298", "OGN·300*/298"],
             LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.PowerfulUnitRuneLegendIdentityId));
         AssertSourceCardNosEquivalent(
             ["OGN·269/298", "OGN·310/298", "OGN·310*/298"],
@@ -233,7 +233,7 @@ public sealed class LegendActionSourceIdentityGuardTests
             ["UNL-181/219", "UNL-226/219", "UNL-226*/219"],
             LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.JhinLegendIdentityId));
         Assert.Equal("UNL-183/219", LegendIdentityCatalog.PrimarySourceCardNoForIdentity(LegendIdentityCatalog.RengarLegendIdentityId));
-        Assert.True(LegendIdentityCatalog.IsSourceCardNoForIdentity(
+        Assert.False(LegendIdentityCatalog.IsSourceCardNoForIdentity(
             LegendIdentityCatalog.PowerfulUnitRuneLegendIdentityId,
             "SFD·251/221"));
         Assert.False(LegendIdentityCatalog.IsSourceCardNoForIdentity(

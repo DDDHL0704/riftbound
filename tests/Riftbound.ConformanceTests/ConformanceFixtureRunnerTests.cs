@@ -45932,6 +45932,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(p1PassResult.Accepted);
         Assert.True(p2PassResult.Accepted);
         Assert.Contains("P1-GAI-BEAST", p2PassResult.State.PlayerZones["P1"].Base);
+        if (legendCardNo == "SFD·205/221") {
+            // Printed Mighty outside play is already Mighty; entering alone is
+            // not the below-five crossing required by current CN rule 709.
+            Assert.Contains("P1-RUNE-POWERFUL-001", p2PassResult.State.PlayerZones["P1"].RuneDeck);
+            Assert.DoesNotContain("P1-RUNE-POWERFUL-001", p2PassResult.State.PlayerZones["P1"].Base);
+            Assert.False(p2PassResult.State.CardObjects[legendObjectId].IsExhausted);
+            Assert.DoesNotContain(p2PassResult.Events, e => e.Kind is "RUNES_CALLED" or "LEGEND_EXHAUSTED");
+            Assert.Null(p2PassResult.State.PendingCardChoice); Assert.Empty(p2PassResult.State.StackItems); return;
+        }
         Assert.Contains("P1-RUNE-POWERFUL-001", p2PassResult.State.PlayerZones["P1"].Base);
         Assert.Empty(p2PassResult.State.PlayerZones["P1"].RuneDeck);
         Assert.True(p2PassResult.State.CardObjects[legendObjectId].IsExhausted);

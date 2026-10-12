@@ -12,7 +12,8 @@ public sealed class TriggerPaymentTests
     private const string VayneTrigger = TriggerKinds.UnitConquestPayReturnSelfToHand;
     private const string IcevaleTrigger = "ICEVALE_ARCHER_ATTACK_PAY_1_POWER_MINUS_1";
     private const string JaxTrigger = "JAX_WEAPON_ATTACH_PAY_1_DRAW_1";
-    private const string FioraTrigger = "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
+    private const string FioraTrigger = "MIGHTY_TRANSITION_READY";
+    private const string FioraPaymentWindow = "MIGHTY_SKILL_COST";
     private const string TriggerPaymentWindow = "TRIGGER_PAYMENT";
     private const string PayOneMana = "SPEND_MANA:1";
     private const string PayOneYellowPower = "SPEND_POWER:yellow:1";
@@ -52,7 +53,8 @@ public sealed class TriggerPaymentTests
             "src",
             "Riftbound.Engine",
             "CoreRuleEngine.cs");
-        var source = File.ReadAllText(coreRuleEnginePath) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.AttachmentObservers.cs"));
+        var source = File.ReadAllText(coreRuleEnginePath) + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.AttachmentObservers.cs"))
+            + File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.MightyTransitions.cs"));
 
         Assert.DoesNotContain("IsSfdFioraPowerfulReadyCardNo", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SfdFioraPowerfulReadyCardNo", source, StringComparison.Ordinal);
@@ -1345,12 +1347,16 @@ public sealed class TriggerPaymentTests
             CancellationToken.None);
 
         Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.True(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.DoesNotContain(paid.Events, e => e.Kind == "UNIT_READIED");
+        var resolved = await OfficialGraveyardRecastTests.Top(paid.State);
+        paid = resolved with { Events = paid.Events.Concat(resolved.Events).ToArray() };
         Assert.Null(paid.State.PendingPayment);
         Assert.False(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
         Assert.Empty(paid.State.RunePools["P1"].PowerByTrait);
         var costEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(payment.PaymentId, costEvent.Payload["paymentId"]);
-        Assert.Equal(TriggerPaymentWindow, costEvent.Payload["paymentWindow"]);
+        Assert.Equal(FioraPaymentWindow, costEvent.Payload["paymentWindow"]);
         Assert.Equal(FioraTrigger, costEvent.Payload["reason"]);
         Assert.Equal(0, Assert.IsType<int>(costEvent.Payload["totalManaCost"]));
         Assert.Equal(1, Assert.IsType<int>(costEvent.Payload["totalPowerCost"]));
@@ -1438,6 +1444,10 @@ public sealed class TriggerPaymentTests
             CancellationToken.None);
 
         Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.True(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.DoesNotContain(paid.Events, e => e.Kind == "UNIT_READIED");
+        var resolved = await OfficialGraveyardRecastTests.Top(paid.State);
+        paid = resolved with { Events = paid.Events.Concat(resolved.Events).ToArray() };
         Assert.Null(paid.State.PendingPayment);
         Assert.False(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
         Assert.Empty(paid.State.RunePools["P1"].PowerByTrait);
@@ -1507,6 +1517,10 @@ public sealed class TriggerPaymentTests
             CancellationToken.None);
 
         Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.True(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
+        Assert.DoesNotContain(paid.Events, e => e.Kind == "UNIT_READIED");
+        var resolved = await OfficialGraveyardRecastTests.Top(paid.State);
+        paid = resolved with { Events = paid.Events.Concat(resolved.Events).ToArray() };
         Assert.Null(paid.State.PendingPayment);
         Assert.False(paid.State.CardObjects["P1-FIORA-TARGET"].IsExhausted);
         Assert.DoesNotContain("P1-FIORA-YELLOW-RUNE", paid.State.PlayerZones["P1"].Base);
@@ -1514,7 +1528,7 @@ public sealed class TriggerPaymentTests
         Assert.Empty(paid.State.RunePools["P1"].PowerByTrait);
         var recycledEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         Assert.Equal(payment.PaymentId, recycledEvent.Payload["paymentId"]);
-        Assert.Equal(TriggerPaymentWindow, recycledEvent.Payload["paymentWindow"]);
+        Assert.Equal(FioraPaymentWindow, recycledEvent.Payload["paymentWindow"]);
         Assert.Equal(RuneTrait.Yellow, recycledEvent.Payload["trait"]);
         var powerEvent = Assert.Single(paid.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
         Assert.Equal(payment.PaymentId, powerEvent.Payload["paymentId"]);
@@ -1545,35 +1559,16 @@ public sealed class TriggerPaymentTests
             "unnecessary-resource" => new[] { paymentResourceAction, PayOneYellowPower },
             _ => new[] { paymentResourceAction, PayOneYellowPower }
         };
-        var paymentState = caseName switch
-        {
-            "stale-target" => opened.State with
-            {
-                CardObjects = new Dictionary<string, CardObjectState>(opened.State.CardObjects, StringComparer.Ordinal)
-                {
-                    ["P1-FIORA-TARGET"] = opened.State.CardObjects["P1-FIORA-TARGET"] with
-                    {
-                        Power = 4
-                    }
-                }
-            },
-            "stale-source" => opened.State with
-            {
-                PlayerZones = new Dictionary<string, PlayerZones>(opened.State.PlayerZones, StringComparer.Ordinal)
-                {
-                    ["P1"] = opened.State.PlayerZones["P1"] with
-                    {
-                        Base = opened.State.PlayerZones["P1"].Base
-                            .Where(objectId => !string.Equals(objectId, "P1-SFD-FIORA", StringComparison.Ordinal))
-                            .ToArray(),
-                        Graveyard = opened.State.PlayerZones["P1"].Graveyard
-                            .Concat(["P1-SFD-FIORA"])
-                            .ToArray()
-                    }
-                }
-            },
-            _ => opened.State
-        };
+        // Stale captured identities are invalid; a later Might reduction or
+        // source departure does not erase an independently earned skill.
+        var paymentState = opened.State;
+        if (caseName is "stale-target" or "stale-source") {
+            var item = Assert.Single(opened.State.StackItems); var captured = item.MightySkill!;
+            captured = caseName == "stale-target"
+                ? captured with { Unit = captured.Unit with { Generation = captured.Unit.Generation + 1 } }
+                : captured with { Source = captured.Source with { Generation = captured.Source.Generation + 1 } };
+            paymentState = opened.State with { StackItems = [item with { MightySkill = captured }] };
+        }
 
         var result = await engine.ResolveAsync(
             paymentState,
@@ -1869,7 +1864,7 @@ public sealed class TriggerPaymentTests
     {
         var payment = result.State.PendingPayment;
         Assert.NotNull(payment);
-        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Equal(FioraPaymentWindow, payment.PaymentWindow);
         Assert.Equal("P1", payment.PlayerId);
         Assert.Equal(0, payment.ManaCost);
         Assert.Equal(0, payment.PowerCost);
@@ -1897,7 +1892,7 @@ public sealed class TriggerPaymentTests
             promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
         Assert.Equal(payment.PaymentId, Assert.IsType<string>(metadata["paymentId"]));
-        Assert.Equal(TriggerPaymentWindow, Assert.IsType<string>(metadata["paymentWindow"]));
+        Assert.Equal(FioraPaymentWindow, Assert.IsType<string>(metadata["paymentWindow"]));
         var cost = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["cost"]);
         Assert.Equal(0, Assert.IsType<int>(cost["mana"]));
         var costPowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(cost["powerByTrait"]);

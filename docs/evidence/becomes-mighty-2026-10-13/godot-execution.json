@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+    "--headless",
+    "--path",
+    "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+    "res://scenes/debug/MightyTransitionInteractionProof.tscn",
+    "--",
+    "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/becomes-mighty-20261013/native"
+  ],
+  "executedAtUtc": "2026-10-12T18:34:38.993800+00:00",
+  "exitCode": 0,
+  "output": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nMIGHTY_TRANSITION_PASS: 20 production assemble, optional cost and response commands\n",
+  "outputSha256": "7585137718ea3e17d83d48e220c79c9d02f46bea2c6f1084dadf49ef14b4d4f1"
+}

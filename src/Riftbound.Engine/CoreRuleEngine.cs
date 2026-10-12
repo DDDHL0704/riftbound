@@ -107,7 +107,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string AzirLegendManaCostToken = "SPEND_MANA:1";
     private const string LilliaLegendAbilityId = LegendActionAbilityCatalog.LilliaLegendAbilityId;
     private const int LilliaLegendBaseManaCost = 4;
-    private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
     private const string LucianLegendIdentityId = LegendIdentityCatalog.LucianLegendIdentityId;
     private const string MasterYiLevelLegendIdentityId = LegendIdentityCatalog.MasterYiLevelLegendIdentityId;
@@ -170,6 +169,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))))));
             collected = RecordBattleDuelRoles(state, collected);
+            collected = RecordMightyTransitions(state, collected);
             return ValueTask.FromResult(RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))));
@@ -572,6 +572,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var legalChoices = pendingPayment.LegalPaymentChoiceIds.ToHashSet(StringComparer.Ordinal);
         if (pendingPayment.PaymentWindow == TemperedPaymentWindow)
             return ResolveTemperedPayment(state, pendingPayment, submittedChoices, paymentChoiceIds.Count);
+        if (pendingPayment.PaymentWindow == MightyCostWindow)
+            return ResolveMightySkillPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.PaymentWindow == TriggerCostWindow)
             return ResolveTriggerCostPayment(state, intent, pendingPayment, submittedChoices, paymentChoiceIds.Count);
         if (pendingPayment.PaymentWindow == TriggerTargetCostWindow)
@@ -779,22 +781,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state,
                 "PAY_COST 包含非法触发支付选项。",
                 ErrorCodes.InvalidTarget);
-        }
-
-        if (TryReadSfdFioraPowerfulReadyPaymentContext(
-                pendingPayment,
-                out var fioraEffectKind,
-                out var fioraSourceObjectId,
-                out var fioraTargetObjectId))
-        {
-            return ResolveSfdFioraPowerfulReadyTriggerPayment(
-                state,
-                intent,
-                pendingPayment,
-                submittedChoices,
-                fioraEffectKind,
-                fioraSourceObjectId,
-                fioraTargetObjectId);
         }
 
         if (!string.Equals(
@@ -1527,170 +1513,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
 
 
-    private static ResolutionResult ResolveSfdFioraPowerfulReadyTriggerPayment(
-        MatchState state,
-        PlayerIntent intent,
-        PendingPaymentState pendingPayment,
-        IReadOnlyList<string> submittedChoices,
-        string effectKind,
-        string sourceObjectId,
-        string targetObjectId)
-    {
-        var playerZones = NormalizeZonesForSeats(state);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        if (!TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, intent.PlayerId, sourceObjectId, out var trigger)
-            || !string.Equals(RuntimeTriggerEffectKind(trigger), effectKind, StringComparison.Ordinal)
-            || !TryGetControlledVisibleFieldUnit(
-                playerZones,
-                cardObjects,
-                targetObjectId,
-                intent.PlayerId,
-                out var targetState)
-            || targetState.Power < trigger.RequiredPowerThreshold.GetValueOrDefault())
-        {
-            return RejectWithCorePrompts(
-                state,
-                "当前触发支付窗口的菲奥娜或强力单位已不可用。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var submittedPaymentResourceActions = submittedChoices
-            .Where(IsPaymentResourceActionId)
-            .ToArray();
-        if (!TryExtractRecycleRunePaymentResourceActions(
-                state,
-                intent.PlayerId,
-                submittedPaymentResourceActions,
-                out var behaviorOptionalCosts,
-                out var paymentResourceActions,
-                out var recycledRuneObjectIds)
-            || behaviorOptionalCosts.Count > 0)
-        {
-            return RejectWithCorePrompts(
-                state,
-                "PAY_COST 包含非法支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (recycledRuneObjectIds.Any(runeObjectId =>
-                !state.CardObjects.TryGetValue(runeObjectId, out var runeState)
-                || string.IsNullOrWhiteSpace(runeState.CardNo)))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "PAY_COST 包含非法支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var existingPool)
-            ? existingPool
-            : RunePool.Empty;
-        if (!AreRecycleRunePaymentResourceActionsRequired(
-                currentPool,
-                state.CardObjects,
-                recycledRuneObjectIds,
-                pendingPayment.PowerCost,
-                pendingPayment.PowerCostByTrait))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "PAY_COST 包含不必要的支付资源动作。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var paymentPlan = BuildPendingPaymentPlan(
-            pendingPayment,
-            intent.PlayerId,
-            effectKind,
-            sourceObjectId,
-            paymentResourceActions: paymentResourceActions);
-        var paymentEvents = new List<GameEvent>();
-        var runePools = ApplyRecycleRunePaymentResourceActions(
-            state.RunePools,
-            playerZones,
-            cardObjects,
-            objectLocations,
-            intent.PlayerId,
-            recycledRuneObjectIds,
-            paymentEvents,
-            pendingPayment.PaymentWindow,
-            pendingPayment.PaymentId);
-
-        var paymentCommit = PaymentCostRules.TryCommitPayment(paymentPlan, runePools);
-        if (!paymentCommit.Accepted)
-        {
-            return RejectWithCorePrompts(
-                state,
-                paymentCommit.ErrorMessage ?? "支付窗口资源不足。",
-                ErrorCodes.InsufficientCost);
-        }
-
-        runePools = paymentCommit.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var wasExhausted = targetState.IsExhausted;
-        cardObjects[targetObjectId] = targetState with
-        {
-            IsExhausted = false
-        };
-
-        var events = new List<GameEvent>(paymentEvents);
-        events.AddRange([
-            new(
-                "COST_PAID",
-                $"{intent.PlayerId} 支付菲奥娜强力触发费用",
-                PaymentCostRules.BuildCostPaidPayload(
-                    paymentPlan,
-                    runePools,
-                    null,
-                    new Dictionary<string, object?>
-                    {
-                        ["mana"] = pendingPayment.ManaCost,
-                        ["power"] = pendingPayment.PowerCost,
-                        ["powerByTrait"] = pendingPayment.PowerCostByTrait,
-                        ["paymentChoiceIds"] = submittedChoices.ToArray(),
-                        ["recycledRuneObjectIds"] = recycledRuneObjectIds.ToArray(),
-                        ["reason"] = effectKind,
-                        ["targetObjectId"] = targetObjectId
-                    })),
-            new(
-                "TRIGGER_RESOLVED",
-                $"{intent.PlayerId} 的菲奥娜使强力单位活跃",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["trigger"] = effectKind,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["targetObjectId"] = targetObjectId,
-                    ["paymentId"] = pendingPayment.PaymentId,
-                    ["paymentWindow"] = pendingPayment.PaymentWindow
-                }),
-            new(
-                "UNIT_READIED",
-                $"{targetObjectId} 变为活跃状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["targetObjectId"] = targetObjectId,
-                    ["wasExhausted"] = wasExhausted,
-                    ["isExhausted"] = false,
-                    ["reason"] = effectKind
-                })
-        ]);
-        events.Add(BuildPaymentWindowClosedEvent(pendingPayment, intent.PlayerId, declined: false));
-
-        var nextState = state with
-        {
-            Tick = state.Tick + 1,
-            RunePools = runePools,
-            PlayerZones = playerZones,
-            CardObjects = cardObjects,
-            ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones),
-            PendingPayment = null
-        };
-        return BuildAcceptedResolutionAfterPaymentWindowClosed(nextState, state, events, intent.PlayerId);
-    }
-
     private static ResolutionResult ResolveTriggerPaymentDecline(
         MatchState state,
         PlayerIntent intent,
@@ -1819,16 +1641,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             payload["battlefieldId"] = battlefieldId;
             payload["sourceObjectId"] = sourceObjectId;
             payload["targetObjectId"] = targetObjectId;
-        }
-        else if (TryReadSfdFioraPowerfulReadyPaymentContext(
-                     pendingPayment,
-                     out effectKind,
-                     out sourceObjectId,
-                     out var fioraTargetObjectId))
-        {
-            payload["trigger"] = effectKind;
-            payload["sourceObjectId"] = sourceObjectId;
-            payload["targetObjectId"] = fioraTargetObjectId;
         }
 
         return payload;
@@ -2122,51 +1934,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
 
 
-
-    private static string BuildSfdFioraPowerfulReadyPaymentReason(
-        string effectKind,
-        string sourceObjectId,
-        string targetObjectId)
-    {
-        return string.Join(
-            '|',
-            effectKind,
-            sourceObjectId,
-            targetObjectId);
-    }
-
-    private static bool TryReadSfdFioraPowerfulReadyPaymentContext(
-        PendingPaymentState pendingPayment,
-        out string effectKind,
-        out string sourceObjectId,
-        out string targetObjectId)
-    {
-        effectKind = string.Empty;
-        sourceObjectId = string.Empty;
-        targetObjectId = string.Empty;
-        if (!string.Equals(pendingPayment.PaymentWindow, TriggerPaymentWindow, StringComparison.Ordinal)
-            || string.IsNullOrWhiteSpace(pendingPayment.Reason))
-        {
-            return false;
-        }
-
-        var parts = pendingPayment.Reason.Split('|', StringSplitOptions.None);
-        if (parts.Length != 3
-            || !UnitTriggerPaymentSpecRules.TryGetTriggerByEffectKind(
-                parts[0],
-                UnitTriggerPaymentSpecRules.IsUnitControlledUnitPowerfulPayPowerReadyTrigger,
-                out _)
-            || string.IsNullOrWhiteSpace(parts[1])
-            || string.IsNullOrWhiteSpace(parts[2]))
-        {
-            return false;
-        }
-
-        effectKind = parts[0];
-        sourceObjectId = parts[1];
-        targetObjectId = parts[2];
-        return true;
-    }
 
     private static ResolutionResult ResolveAssignCombatDamageRuntime(
         MatchState state,
@@ -3401,6 +3168,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "SPELL_TRIGGER_CONFIRMATION") return ResolveSpellTriggerConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "TRIGGER_CONFIRMATION") return ResolveTriggerTargetConfirmation(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER") return ResolveInsightChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == MightyChoiceWindow) return ResolveMightySkillChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow is TriggerCostWindow or OptionalTriggerWindow) return ResolveTriggerCostChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TokenReplacementWindow) return ResolveTokenReplacementChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "RECYCLE_FOR_EFFECT_PLAY") return ResolveRecyclingChoice(state, pendingChoice, submittedObjectIds);
@@ -3583,7 +3351,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -18437,246 +18205,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
 
 
-    private static bool TryOpenSfdFioraPowerfulReadyPaymentWindowFromEvents(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, RunePool> runePools,
-        List<GameEvent> events,
-        long paymentTick,
-        out PendingPaymentState? pendingPayment)
-    {
-        pendingPayment = null;
-        foreach (var gameEvent in events)
-        {
-            if (!TryReadPowerTransitionEvent(gameEvent, out var targetObjectId, out var previousPower, out var resultingPower)
-                || previousPower >= PowerfulUnitPowerThreshold
-                || resultingPower < PowerfulUnitPowerThreshold
-                || !TryGetVisibleFieldUnitControllerId(
-                    playerZones,
-                    cardObjects,
-                    targetObjectId,
-                    out var controllerId))
-            {
-                continue;
-            }
-
-            return TryOpenSfdFioraPowerfulReadyPaymentWindow(
-                playerZones,
-                cardObjects,
-                runePools,
-                controllerId,
-                targetObjectId,
-                previousPower,
-                resultingPower,
-                paymentTick,
-                events,
-                out pendingPayment);
-        }
-
-        return false;
-    }
-
-    private static bool TryOpenSfdFioraPowerfulReadyPaymentWindow(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, RunePool> runePools,
-        string playerId,
-        string targetObjectId,
-        int previousPower,
-        int resultingPower,
-        long paymentTick,
-        List<GameEvent> events,
-        out PendingPaymentState? pendingPayment)
-    {
-        pendingPayment = null;
-        if (previousPower >= PowerfulUnitPowerThreshold
-            || resultingPower < PowerfulUnitPowerThreshold
-            || !TryGetControlledVisibleFieldUnit(playerZones, cardObjects, targetObjectId, playerId, out _))
-        {
-            return false;
-        }
-
-        var sourceObjectId = playerZones.TryGetValue(playerId, out var zones)
-            ? zones.Base
-                .Concat(zones.Battlefields)
-                .Where(objectId => TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, playerId, objectId, out _))
-                .OrderBy(objectId => objectId, StringComparer.Ordinal)
-                .FirstOrDefault()
-            : null;
-        if (string.IsNullOrWhiteSpace(sourceObjectId))
-        {
-            return false;
-        }
-        if (!TryGetSfdFioraPowerfulReadySource(cardObjects, playerZones, playerId, sourceObjectId, out var trigger)
-            || previousPower >= trigger.RequiredPowerThreshold.GetValueOrDefault()
-            || resultingPower < trigger.RequiredPowerThreshold.GetValueOrDefault())
-        {
-            return false;
-        }
-        var powerCost = trigger.PowerCost.GetValueOrDefault();
-        var powerCostTrait = trigger.PowerCostTrait ?? RuneTrait.Yellow;
-        var effectKind = RuntimeTriggerEffectKind(trigger);
-
-        var paymentId = PaymentCostRules.BuildPaymentId(
-            paymentTick,
-            TriggerPaymentWindow,
-            playerId,
-            sourceObjectId: sourceObjectId,
-            reason: effectKind);
-        var powerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
-        {
-            [powerCostTrait] = powerCost
-        };
-        var paymentResourceActionIds = SfdFioraPowerfulReadyPaymentResourceActionIds(
-            playerZones,
-            cardObjects,
-            runePools,
-            playerId,
-            powerCostByTrait);
-        pendingPayment = new PendingPaymentState(
-            paymentId,
-            TriggerPaymentWindow,
-            playerId,
-            powerCostByTrait: powerCostByTrait,
-            legalPaymentChoiceIds: [SpendOneYellowPowerPaymentChoiceId, DeclinePaymentChoiceId],
-            reason: BuildSfdFioraPowerfulReadyPaymentReason(effectKind, sourceObjectId, targetObjectId),
-            paymentResourceActionIds: paymentResourceActionIds);
-        events.Add(new GameEvent(
-            "PAYMENT_WINDOW_OPENED",
-            $"{playerId} 的菲奥娜等待支付黄色符能使强力单位活跃",
-            new Dictionary<string, object?>
-            {
-                ["paymentId"] = paymentId,
-                ["paymentWindow"] = TriggerPaymentWindow,
-                ["playerId"] = playerId,
-                ["trigger"] = effectKind,
-                ["sourceObjectId"] = sourceObjectId,
-                ["targetObjectId"] = targetObjectId,
-                ["previousPower"] = previousPower,
-                ["resultingPower"] = resultingPower,
-                ["mana"] = 0,
-                ["power"] = 0,
-                ["powerByTrait"] = powerCostByTrait,
-                ["cost"] = new Dictionary<string, object?>
-                {
-                    ["mana"] = 0,
-                    ["power"] = 0,
-                    ["powerByTrait"] = powerCostByTrait
-                },
-                ["paymentChoices"] = new[] { SpendOneYellowPowerPaymentChoiceId, DeclinePaymentChoiceId },
-                ["paymentResourceActions"] = paymentResourceActionIds.ToArray(),
-                ["reason"] = effectKind
-            }));
-        return true;
-    }
-
-    private static IReadOnlyList<string> SfdFioraPowerfulReadyPaymentResourceActionIds(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, RunePool> runePools,
-        string playerId,
-        IReadOnlyDictionary<string, int> powerCostByTrait)
-    {
-        var currentPool = runePools.TryGetValue(playerId, out var runePool)
-            ? runePool
-            : RunePool.Empty;
-        if (CanPayPowerCost(currentPool, 0, powerCostByTrait)
-            || !playerZones.TryGetValue(playerId, out var zones))
-        {
-            return [];
-        }
-
-        return zones.Base
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var runeState)
-                && !string.IsNullOrWhiteSpace(runeState.CardNo)
-                && runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-                && SourceObjectControlledByPlayerOrLegacyOwned(runeState, playerId)
-                && !runeState.IsFaceDown
-                && TryGetRuneTrait(runeState, out var runeTrait)
-                && string.Equals(runeTrait, RuneTrait.Yellow, StringComparison.Ordinal))
-            .Select(objectId => $"{RecycleRunePaymentOptionalCostPrefix}{objectId}")
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(choiceId => choiceId, StringComparer.Ordinal)
-            .ToArray();
-    }
-
-    private static bool TryReadPowerTransitionEvent(
-        GameEvent gameEvent,
-        out string targetObjectId,
-        out int previousPower,
-        out int resultingPower)
-    {
-        targetObjectId = string.Empty;
-        previousPower = 0;
-        resultingPower = 0;
-        if (!TryGetPayloadString(gameEvent, "targetObjectId", out targetObjectId)
-            || !TryGetPayloadInt(gameEvent, "resultingPower", out resultingPower))
-        {
-            return false;
-        }
-
-        if (string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
-            && TryGetPayloadInt(gameEvent, "powerDelta", out var boonPowerDelta))
-        {
-            previousPower = resultingPower - boonPowerDelta;
-            return true;
-        }
-
-        if (string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
-            && TryGetPayloadInt(gameEvent, "appliedPowerDelta", out var appliedPowerDelta))
-        {
-            previousPower = resultingPower - appliedPowerDelta;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool TryGetSfdFioraPowerfulReadySource(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        string playerId,
-        string sourceObjectId,
-        out TriggerSpec trigger)
-    {
-        trigger = default!;
-        if (!cardObjects.TryGetValue(sourceObjectId, out var candidate))
-        {
-            return false;
-        }
-
-        return UnitTriggerPaymentSpecRules.TryGetTrigger(
-                candidate.CardNo,
-                UnitTriggerPaymentSpecRules.IsUnitControlledUnitPowerfulPayPowerReadyTrigger,
-                out trigger)
-            && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !candidate.IsFaceDown
-            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-            && IsObjectOnField(playerZones, sourceObjectId);
-    }
-
-    private static bool TryGetControlledVisibleFieldUnit(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string objectId,
-        string playerId,
-        out CardObjectState objectState)
-    {
-        objectState = default!;
-        if (!cardObjects.TryGetValue(objectId, out var candidate))
-        {
-            return false;
-        }
-
-        objectState = candidate;
-        return candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !candidate.IsFaceDown
-            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
-            && IsObjectOnField(playerZones, objectId);
-    }
-
     private static bool TryGetVisibleFieldUnitControllerId(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -21016,16 +20544,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && queuedTriggers.Length == 0)
             {
                 pendingPayment = stackResolution.PendingPayment;
-                if (pendingPayment is null)
-                {
-                    TryOpenSfdFioraPowerfulReadyPaymentWindowFromEvents(
-                        resolvedPlayerZones,
-                        resolvedCardObjects,
-                        resolvedRunePools,
-                        stackResolutionEvents,
-                        state.Tick + 1,
-                        out pendingPayment);
-                }
             }
 
             var returnsToSpellDuel = pendingHandChoice is null
@@ -26486,6 +26004,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.LocationDamage is not null) return ResolveLocationDamage(state, stackItem);
         if (stackItem.ReflexiveDuel is not null) return ResolveReflexiveDuel(state, stackItem);
         if (stackItem.UnitConquest is not null) return ResolveConquestDamage(state, stackItem);
+        if (stackItem.MightySkill is not null) return ResolveMightySkill(state, stackItem);
         if (stackItem.BattlefieldConquestMight is not null) return ResolveBattlefieldConquestMight(state, stackItem);
         if (stackItem.LegendConquest is not null) return ResolveLegendConquest(state, stackItem);
         if (stackItem.BeginningRecycle is not null) return BeginGraveyardRecycle(state, stackItem);

@@ -1263,6 +1263,17 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var legendBecameMightyRune = Regex.Match(segment,
+            @"当你的一名单位变为\{\{强力\}\}时，你可以选择让我变为休眠状态，以此召出一枚休眠的符文(?:。?（战力达到([0-9一两二三四五六七八九十]+)或以上时，即为强力单位。）)?。?$",
+            RegexOptions.CultureInvariant);
+        if (legendBecameMightyRune.Success)
+            return new TriggerSpec(TriggerKinds.ControlledUnitBecamePowerfulExhaustCallRune,
+                TriggerTimings.ControlledUnitBecamePowerful, segment,
+                "Capture a current-Might crossing; exhaust the source at confirmation, then respond before channeling.",
+                TargetScope: TriggerTargetScopes.ControlledUnitOnField, ExhaustsSource: true,
+                RuneCallCount: 1, RequiredPowerThreshold: legendBecameMightyRune.Groups[1].Success
+                    ? ParseChineseNumber(legendBecameMightyRune.Groups[1].Value) : PowerfulUnitPowerThreshold, Optional: true);
+
         var unitControlledUnitPowerfulPayReadyMatch = Regex.Match(
             segment,
             @"当你控制的一名单位变为\{\{强力\}\}时，你可以选择支付\{\{([^}]+)\}\}，以此让其变为活跃状态(?:。?（战力达到([0-9一两二三四五六七八九十]+)或以上时，即为强力单位。）)?。?$",

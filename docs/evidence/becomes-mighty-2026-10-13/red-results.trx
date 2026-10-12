@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="eaaa74fb-002c-4d10-be6b-28c87c5d1f6b" name="@Mac-mini 2026-10-13 02:02:12" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-13T02:02:12.8918330+08:00" queuing="2026-10-13T02:02:12.8918330+08:00" start="2026-10-13T02:02:07.6366350+08:00" finish="2026-10-13T02:02:14.1612780+08:00" />
+  <TestSettings name="default" id="aa42cc46-ad97-4bad-8d5a-dcad73c4d1fc">
+    <Deployment runDeploymentRoot="_Mac-mini_2026-10-13_02_02_12" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="89472f3d-b279-4458-a9f4-eb7a4922d9ef" testId="cfde9251-e05d-0536-8203-ba6138f150fd" testName="Riftbound.ConformanceTests.MightyTransitionTests.AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned" computerName="Mac-mini" duration="00:00:01.3265657" startTime="2026-10-13T02:02:14.1375870+08:00" endTime="2026-10-13T02:02:14.1375870+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="89472f3d-b279-4458-a9f4-eb7a4922d9ef">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Null() Failure: Value is not null
+Expected: null
+Actual:   PendingPaymentState { ResolvingStackItemId = , ExperienceCost = 0, PaymentId = TRIGGER_PAYMENT:3:P1:FIORA, PaymentWindow = TRIGGER_PAYMENT, PlayerId = P1, ManaCost = 0, PowerCost = 0, PowerCostByTrait = System.Collections.Generic.Dictionary`2[System.String,System.Int32], LegalPaymentChoiceIds = System.String[], Reason = SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY|FIORA|HOST, PaymentResourceActionIds = System.String[] }</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyTransitionTests.AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned() in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs:line 54
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="99f51eb5-81d7-4005-b434-ca35b6a00201" testId="3846bb16-9b1e-5f42-272c-69b9b057ee72" testName="Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: &quot;SFD·180a/221&quot;)" computerName="Mac-mini" duration="00:00:04.0638820" startTime="2026-10-13T02:02:12.7435680+08:00" endTime="2026-10-13T02:02:12.7435760+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="99f51eb5-81d7-4005-b434-ca35b6a00201">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(String source) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs:line 28
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="5256a38a-ddd1-4d68-90f1-cff0dfdfc220" testId="7924595a-a3ef-01b3-1ff0-789949d40566" testName="Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: &quot;SFD·251/221&quot;)" computerName="Mac-mini" duration="00:00:00.0345433" startTime="2026-10-13T02:02:12.7952650+08:00" endTime="2026-10-13T02:02:12.7952650+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5256a38a-ddd1-4d68-90f1-cff0dfdfc220">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(String legend) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs:line 44
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="d0674c97-6536-468a-a78a-9c2516ef438f" testId="decbe03d-7441-3632-2958-345bbfb2ff3c" testName="Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: &quot;SFD·205/221&quot;)" computerName="Mac-mini" duration="00:00:00.0154437" startTime="2026-10-13T02:02:12.8107640+08:00" endTime="2026-10-13T02:02:12.8107640+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d0674c97-6536-468a-a78a-9c2516ef438f">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(String legend) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs:line 44
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c2db5edb-7b40-489d-8a6e-2577afbd970f" testId="b89a98cb-c148-3552-9c97-58f2a96448af" testName="Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: &quot;SFD·180/221&quot;)" computerName="Mac-mini" duration="00:00:00.0191458" startTime="2026-10-13T02:02:12.7604570+08:00" endTime="2026-10-13T02:02:12.7604570+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c2db5edb-7b40-489d-8a6e-2577afbd970f">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure
+Expected: True
+Actual:   False</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(String source) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs:line 28
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Riftbound.ConformanceTests.MightyTransitionTests.AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="cfde9251-e05d-0536-8203-ba6138f150fd">
+      <Execution id="89472f3d-b279-4458-a9f4-eb7a4922d9ef" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyTransitionTests" name="AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: &quot;SFD·180a/221&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="3846bb16-9b1e-5f42-272c-69b9b057ee72">
+      <Execution id="99f51eb5-81d7-4005-b434-ca35b6a00201" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyTransitionTests" name="EquippingAcrossFiveCreatesThePrintedReadyTrigger" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: &quot;SFD·251/221&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="7924595a-a3ef-01b3-1ff0-789949d40566">
+      <Execution id="5256a38a-ddd1-4d68-90f1-cff0dfdfc220" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyTransitionTests" name="TheLegendObservesBecomingMightyThroughEquipment" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: &quot;SFD·180/221&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="b89a98cb-c148-3552-9c97-58f2a96448af">
+      <Execution id="c2db5edb-7b40-489d-8a6e-2577afbd970f" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyTransitionTests" name="EquippingAcrossFiveCreatesThePrintedReadyTrigger" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: &quot;SFD·205/221&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="decbe03d-7441-3632-2958-345bbfb2ff3c">
+      <Execution id="d0674c97-6536-468a-a78a-9c2516ef438f" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyTransitionTests" name="TheLegendObservesBecomingMightyThroughEquipment" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="cfde9251-e05d-0536-8203-ba6138f150fd" executionId="89472f3d-b279-4458-a9f4-eb7a4922d9ef" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3846bb16-9b1e-5f42-272c-69b9b057ee72" executionId="99f51eb5-81d7-4005-b434-ca35b6a00201" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7924595a-a3ef-01b3-1ff0-789949d40566" executionId="5256a38a-ddd1-4d68-90f1-cff0dfdfc220" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="decbe03d-7441-3632-2958-345bbfb2ff3c" executionId="d0674c97-6536-468a-a78a-9c2516ef438f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b89a98cb-c148-3552-9c97-58f2a96448af" executionId="c2db5edb-7b40-489d-8a6e-2577afbd970f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="5" executed="5" passed="0" failed="5" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.9)
+[xUnit.net 00:00:00.11]   Discovering: Riftbound.ConformanceTests
+[xUnit.net 00:00:00.69]   Discovered:  Riftbound.ConformanceTests
+[xUnit.net 00:00:00.70]   Starting:    Riftbound.ConformanceTests
+[xUnit.net 00:00:04.78]       Assert.True() Failure
+[xUnit.net 00:00:04.78]       Expected: True
+[xUnit.net 00:00:04.78]       Actual:   False
+[xUnit.net 00:00:04.78]       Stack Trace:
+[xUnit.net 00:00:04.78]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs(28,0): at Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(String source)
+[xUnit.net 00:00:04.78]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:04.80]       Assert.True() Failure
+[xUnit.net 00:00:04.80]       Expected: True
+[xUnit.net 00:00:04.80]       Actual:   False
+[xUnit.net 00:00:04.80]       Stack Trace:
+[xUnit.net 00:00:04.80]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs(28,0): at Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(String source)
+[xUnit.net 00:00:04.80]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:04.83]       Assert.True() Failure
+[xUnit.net 00:00:04.83]       Expected: True
+[xUnit.net 00:00:04.83]       Actual:   False
+[xUnit.net 00:00:04.83]       Stack Trace:
+[xUnit.net 00:00:04.83]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs(44,0): at Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(String legend)
+[xUnit.net 00:00:04.83]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:04.85]       Assert.True() Failure
+[xUnit.net 00:00:04.85]       Expected: True
+[xUnit.net 00:00:04.85]       Actual:   False
+[xUnit.net 00:00:04.85]       Stack Trace:
+[xUnit.net 00:00:04.85]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs(44,0): at Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(String legend)
+[xUnit.net 00:00:04.85]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:06.18]       Assert.Null() Failure: Value is not null
+[xUnit.net 00:00:06.18]       Expected: null
+[xUnit.net 00:00:06.18]       Actual:   PendingPaymentState { ResolvingStackItemId = , ExperienceCost = 0, PaymentId = TRIGGER_PAYMENT:3:P1:FIORA, PaymentWindow = TRIGGER_PAYMENT, PlayerId = P1, ManaCost = 0, PowerCost = 0, PowerCostByTrait = System.Collections.Generic.Dictionary`2[System.String,System.Int32], LegalPaymentChoiceIds = System.String[], Reason = SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY|FIORA|HOST, PaymentResourceActionIds = System.String[] }
+[xUnit.net 00:00:06.18]       Stack Trace:
+[xUnit.net 00:00:06.18]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/MightyTransitionTests.cs(54,0): at Riftbound.ConformanceTests.MightyTransitionTests.AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned()
+[xUnit.net 00:00:06.18]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:06.18]   Finished:    Riftbound.ConformanceTests
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T02:02:12.7419530+08:00">
+        <Text>[xUnit.net 00:00:04.78]     Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: "SFD·180a/221") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T02:02:12.8941580+08:00">
+        <Text>[xUnit.net 00:00:04.80]     Riftbound.ConformanceTests.MightyTransitionTests.EquippingAcrossFiveCreatesThePrintedReadyTrigger(source: "SFD·180/221") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T02:02:12.8942140+08:00">
+        <Text>[xUnit.net 00:00:04.83]     Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: "SFD·251/221") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T02:02:12.8942340+08:00">
+        <Text>[xUnit.net 00:00:04.85]     Riftbound.ConformanceTests.MightyTransitionTests.TheLegendObservesBecomingMightyThroughEquipment(legend: "SFD·205/221") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T02:02:14.1376130+08:00">
+        <Text>[xUnit.net 00:00:06.18]     Riftbound.ConformanceTests.MightyTransitionTests.AStoredFourAlreadyAtCurrentSixDoesNotBecomeMightyAgainWhenBooned [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>
