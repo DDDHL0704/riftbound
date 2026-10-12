@@ -1,0 +1,132 @@
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+import unittest
+
+spec = importlib.util.spec_from_file_location('ci_scope', Path(__file__).parents[1] / 'ci-change-scope.py')
+scope = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(scope)
+
+
+class ScopeTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.repo = Path(self.temp.name)
+        self.git('init', '-q')
+        self.git('config', 'user.name', 'Scope Test')
+        self.git('config', 'user.email', 'scope@example.invalid')
+        self.write('README.md', 'original\n')
+        self.base = self.commit()
+
+    def git(self, *args):
+        return subprocess.check_output(['git', *args], cwd=self.repo, stderr=subprocess.PIPE).decode().strip()
+
+    def write(self, name, text):
+        path = self.repo / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+
+    def commit(self):
+        self.git('add', '--all')
+        self.git('commit', '-qm', 'scope fixture')
+        return self.git('rev-parse', 'HEAD')
+
+    def decision(self, base=None):
+        return scope.decide('push', {'before': base or self.base},
+                            self.git('rev-parse', 'HEAD'), self.repo)
+
+    def test_real_documentation_diff_uses_light_scope_and_records_inputs(self):
+        self.write('README.md', 'new policy\n')
+        head = self.commit()
+        result = self.decision()
+        self.assertFalse(result['full'])
+        self.assertEqual(head, result['headSha'])
+        self.assertEqual(self.base, result['baseSha'])
+        self.assertEqual(['README.md'], [c['path'] for c in result['changes']])
+
+    def test_unknown_inputs_never_inherit_a_markdown_or_directory_exemption(self):
+        paths = ['src/Rule.cs', 'docs/DEPLOYMENT.md', 'docs/NewPolicy.md',
+                 'docs/evidence/ledger.json', 'data/official/card-catalog.json',
+                 'tests/Fixtures/example.json', 'clients/godot/README.md',
+                 'scripts/test-rules.py', '.github/workflows/native-desktop.yml']
+        for path in paths:
+            with self.subTest(path=path):
+                self.write(path, 'changed\n')
+                self.write('README.md', path+'\n')
+                head = self.commit()
+                self.assertTrue(self.decision()['full'])
+                self.git('reset', '--hard', self.base)
+                self.assertNotEqual(self.base, head)
+
+    def test_rename_is_checked_at_both_paths(self):
+        self.git('mv', 'README.md', 'unreviewed.md')
+        self.commit()
+        result = self.decision()
+        self.assertTrue(result['full'])
+        self.assertEqual({'README.md', 'unreviewed.md'}, {c['path'] for c in result['changes']})
+        self.assertEqual({'A', 'D'}, {c['status'] for c in result['changes']})
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX mode and symlink changes')
+    def test_documentation_symlink_and_executable_mode_require_full(self):
+        path = self.repo / 'README.md'
+        path.chmod(0o755)
+        self.commit()
+        self.assertTrue(self.decision()['full'])
+        self.git('reset', '--hard', self.base)
+        path.unlink()
+        path.symlink_to('external-input.md')
+        self.commit()
+        self.assertTrue(self.decision()['full'])
+
+    def test_unknown_base_empty_diff_and_mismatched_checkout_require_full(self):
+        head = self.git('rev-parse', 'HEAD')
+        for base in ['0'*40, '1'*40, 'invalid', head, None, 42]:
+            with self.subTest(base=base):
+                self.assertTrue(scope.decide('push', {'before': base}, head, self.repo)['full'])
+        self.assertTrue(scope.decide('push', {'before': self.base}, '2'*40, self.repo)['full'])
+
+    def test_force_push_with_nonancestor_base_requires_full(self):
+        self.write('README.md', 'old branch\n')
+        old = self.commit()
+        self.git('reset', '--hard', self.base)
+        self.write('README.md', 'replacement branch\n')
+        self.commit()
+        self.assertTrue(self.decision(old)['full'])
+
+    def test_pr_base_is_used_and_manual_gate_always_runs_full(self):
+        self.write('README.md', 'policy\n')
+        head = self.commit()
+        event = {'pull_request': {'base': {'sha': self.base}}}
+        self.assertFalse(scope.decide('pull_request', event, head, self.repo)['full'])
+        self.assertTrue(scope.decide('workflow_dispatch', event, head, self.repo)['full'])
+
+    def test_malformed_events_and_raw_diff_fail_closed(self):
+        head = self.git('rev-parse', 'HEAD')
+        for event in [None, [], {'pull_request': None}, {'pull_request': {'base': []}}]:
+            with self.subTest(event=event):
+                self.assertTrue(scope.decide('pull_request', event, head, self.repo)['full'])
+        for raw in [b':100644 100644 x y M\0README.md\0',
+                    b':100644 100644 abc def R100\0README.md\0next.md\0',
+                    b'broken', b'\xff\0']:
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                scope.parse_changes(raw)
+
+    def test_cli_unreadable_event_emits_full_in_github_output(self):
+        event = self.repo / 'event.json'
+        event.write_text('invalid json')
+        output = self.repo / 'scope.json'
+        github_output = self.repo / 'github-output'
+        subprocess.run(['python3', str(Path(scope.__file__)), '--event', str(event),
+                        '--head', self.base, '--output', str(output),
+                        '--github-output', str(github_output)], check=True,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertTrue(json.loads(output.read_text())['full'])
+        self.assertEqual('full=true\n', github_output.read_text())
+
+
+if __name__ == '__main__':
+    unittest.main()

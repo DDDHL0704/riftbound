@@ -98,7 +98,9 @@ def plan(methods, profile, jobs, tokens, weights, include_games=False):
     coverage = Counter(n for shard in shards for n in shard['methods'])
     if set(coverage) != methods or any(count != 1 for count in coverage.values()):
         raise ValueError('Full plan must assign every discovered method exactly once.')
-    return sorted(shards, key=lambda s: -s['estimatedSeconds'])
+    # Ordinary rules provide broad failure feedback. Keep the longest game in
+    # the first wave as well, without changing membership or the job limit.
+    return sorted(shards, key=lambda s: (s['name'] != 'rules', -s['estimatedSeconds']))
 
 
 def verify(rows, counters, expected):

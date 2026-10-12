@@ -34,7 +34,7 @@
 
 ## 旧测试迁移
 
-`docs/evidence/printed-power-fixture-migration.json` 逐项记录 467 个 JSON 局面的 471 条卡面费用补充。`scripts/audit/migrate-printed-power-fixtures.py` 只处理预计成功的普通出牌命令；保留原有卡牌效果与最终资源预期，更新明确断言的支付总额。不会在运行时自动补钱或绕过费用。
+`docs/evidence/printed-power-fixture-migration.json` 逐项记录 467 个 JSON 局面的 471 条卡面费用补充。the completed one-shot migration (commit `ee1cac25`; its removed script is recoverable from Git as `scripts/audit/migrate-printed-power-fixtures.py`) 只处理预计成功的普通出牌命令；保留原有卡牌效果与最终资源预期，更新明确断言的支付总额。不会在运行时自动补钱或绕过费用。
 
 C# 效果测试通过显式预算或 `PrintedCostFixture.Add` 准备指定计划出牌的符能；受影响的中盘脚本在开局 fixture 中准备手牌预算。拒绝测试继续验证原状态不变。旧“彩虹不能支付指定特性”的负例改成正例，错误特性、所有者、资源窗口、重复资源及不足费用的防御用例继续保留。
 

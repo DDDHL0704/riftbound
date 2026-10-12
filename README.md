@@ -1,32 +1,18 @@
 # 符文战场双人对战平台
 
-Godot .NET 原生桌面客户端（macOS / Windows）与 .NET 权威服务端。玩家提交操作意图，后端判断合法性、支付费用、结算效果和计分；客户端只显示服务端提供的局面、合法候选和结果。
+Godot .NET 原生 macOS / Windows 客户端与 .NET 服务端。玩家提交意图，服务端裁定合法性、费用、结算和计分；React DevUi 用于调试与协议验证。
 
-## 当前状态
+当前为 **NOT READY**。开发先读 [当前状态](docs/PROJECT_STATUS.md)、[项目治理](docs/PROJECT_GOVERNANCE.md) 和 [测试工作流](docs/RULE_TEST_WORKFLOW.md)。历史 CURRENT/P 阶段记录不再充当任务调度或规则认证。
 
-正式双人对战采用中国区官方规则与禁限牌。当前仍为开发版本，**NOT READY**，尚未达到全部官方规则、全部卡牌和双平台实机验收完成的标准。
+2026-10-12 最近来源刷新取得 CN 1,459、EN 1,381 个印次，16 份中文 PDF 和 20 份全球来源；英文报告总数仍比返回数多 8 项。完整索引含 1,711 个卡牌身份和 14,293 条规则/示例/QA，逐项语义认证仍未完成。来源快照不自动表示官网此刻未变，见 [刷新记录](docs/OFFICIAL_SOURCE_REFRESH_2026-10-12.md)。
 
-- 原生大厅、预组选择、匹配/房间、换牌、牌桌、卡牌详情、公共牌堆浏览、群组移动、出牌费用选择、整方战斗伤害分配及网络恢复已接入后端。
-- macOS universal 与 Windows x86_64 完整包可以导出；macOS 已从源码目录外启动并验证若干实连操作，Windows 仍缺少实机运行证据。macOS 使用本地 ad-hoc 签名，尚未发行签名、公证或部署公网后端。
-- 2026-10-05 官方资料快照包含 1,414 条卡牌和 13 份规则、FAQ、勘误及禁卡文档。运行卡池仍为原 1,009 条；新增卡牌需完成共享规则能力和验证后才能开放。
-- 最近保存的后端一致性回归为 2026-10-05 的 9,372/9,372，零失败、零跳过，见 [本轮验收清单](docs/evidence/native-iteration-2026-10-05/acceptance.json)。这证明现有测试通过，不能替代对全部官方条款和卡牌的逐项审核。
-- React DevUi 用于调试与协议回归，当前产品交付目标是原生客户端。
+代码基线 59656042 的 [完整 CI](https://github.com/DDDHL0704/riftbound/actions/runs/38199241988) 已通过 10,201 用例、6,625 方法及 110 个双向牌组配对。macOS/Windows 构建与网络恢复成功；可见双客户端、Windows 实机、真实 PostgreSQL 和全量官方语义仍有独立验收缺口。该结果仅属于指定基线，后续改动须记录自己的验证范围。
 
-最新牌桌变更、截图与验收见 [原生牌桌重构记录](docs/NATIVE_TABLE_REBUILD_2026-10-04.md)，此前平台交付见 [原生交付记录](docs/NATIVE_DELIVERY_2026-10-04.md)。GitHub 原生 CI 已编写，尚缺运行证据；此前记录的 workflow 推送权限问题在本轮规划中未重新验证。
+## 本地运行
 
-2026-10-08 牌面可读性更新：手牌、英雄、基地与战场单位按用途放大，我方基地固定在手牌上方，空战场收紧；悬停可看加大的侧边预览，右键查看完整卡牌和文字。三种窗口尺寸的原生操作检查通过，macOS 两个实际窗口已恢复原局，截图与验证边界见 [可读性验收](docs/evidence/card-readability-2026-10-08/acceptance.json)。
+环境需要 .NET 10 SDK、Godot .NET 4.7.2（客户端目标 net8.0），导出需要同版本模板。本机路径可由 scripts/dev-env.sh 加入 PATH，其他机器按实际安装配置。
 
-2026-10-08 战场可见性修复：战场移出整桌纵向滚动容器，双方单位在各自战场内左右分区；基地、符文按钮和手牌留白收紧，确认操作及重连提示出现时调整手牌占高。补上满场卡牌不被祖先容器纵向裁切的检查，并修正本机 headless 模式误用方形画布的问题；此前尺寸标签不能证明实际目标高度下战场完整可见。本轮三种窗口比例、出牌面板、行动确认及断线提示检查通过；macOS 双客户端恢复到原对局且后端完整状态一致，见 [战场可见性验收](docs/evidence/battlefield-visibility-2026-10-08/acceptance.json)。
-
-本批按成品牌桌样式与直接操作、普通出牌确认与反馈、效果再次打出、完整对局及双平台验收四步推进，任务、参考截图和完成标准见 [2026-10-05 迭代计划](docs/NEXT_NATIVE_PLAY_ITERATION_2026-10-05.md)。共享费用与权威预览已完成的部分沿用 [实施记录](docs/UNIFIED_PLAY_ITERATION_2026-10-04.md)。
-
-[本轮实现与验收](docs/NATIVE_ITERATION_2026-10-05.md)：牌桌、普通确认、三个效果再次打出、两场 macOS 整局；Windows 与复杂规则边界见未完成项。
-
-## 本地运行原生客户端
-
-环境需要 .NET 10 SDK、Godot .NET 4.7.2（客户端目标 net8.0）。导出还需要同版本 Godot 模板。本机已有工具可由 `scripts/dev-env.sh` 加入 PATH；其他机器按自身安装路径配置。
-
-启动本地内存后端：
+启动内存后端：
 
 ```sh
 source scripts/dev-env.sh
@@ -36,43 +22,41 @@ ConnectionStrings__Riftbound="" \
 dotnet run --project src/Riftbound.Api
 ```
 
-在另一个终端启动原生客户端，将 `RIFTBOUND_GODOT_BIN` 设为 Godot .NET 可执行文件的实际路径：
+另一个终端启动客户端：
 
 ```sh
 source scripts/dev-env.sh
-dotnet build clients/godot/Riftbound.GodotClient.csproj
+dotnet build clients/godot/Riftbound.GodotClient.csproj -m:1
 "$RIFTBOUND_GODOT_BIN" --path clients/godot -- \
   --riftbound-server=http://127.0.0.1:5088
 ```
 
-启动两个客户端并使用不同身份，可在同一房间对战。客户端操作、隔离身份及实连测试说明见 [Godot README](clients/godot/README.md)。
+双客户端使用不同身份。操作、连接与导出说明见 [Godot README](clients/godot/README.md)，Windows 分发须包含 ZIP 中 EXE 与完整相邻运行时目录。
 
-## 构建和验证
+## 开发与验证
 
 ```sh
-source scripts/dev-env.sh
-dotnet test tests/Riftbound.ConformanceTests
-clients/godot/tools/export-desktop.sh macOS
-clients/godot/tools/export-desktop.sh windows
+python3 scripts/test-rules.py focus combat
+python3 scripts/test-rules.py check
+python3 scripts/test-rules.py full --plan-only
+python3 -m unittest discover -s scripts/tests -v
+python3 scripts/audit/check-project-governance.py
 ```
 
-导出脚本使用 `RIFTBOUND_GODOT_BIN`，产物在 `clients/godot/exports/`。Windows 必须分发 ZIP 内的 EXE 及相邻完整运行时目录。构建成功不代表跨平台交互或全部规则已验收。
+规则开发用 focus 和相邻域，连贯批次一次 check；完整 CI 在固定提交上后台运行。最终候选仍须完整回归与相应原生验收。明确治理文档白名单可走轻量 CI；数据、fixture、脚本、构建配置及未知范围默认完整验证。轻量通过不表示执行了规则或打包测试。
 
-## 项目结构与规则证据
+## 项目结构
 
 | 路径 | 职责 |
 |---|---|
-| `clients/godot` | 原生桌面客户端、导出与原生测试工具 |
-| `src/Riftbound.Contracts` | 命令、事件、快照及提示协议 |
-| `src/Riftbound.Engine` | 权威规则、串行命令、区域、结算链与回放状态 |
-| `src/Riftbound.Api` | ASP.NET Core + SignalR、身份、房间和匹配 |
-| `src/Riftbound.Persistence` | PostgreSQL 日志持久化 |
-| `src/Riftbound.CardCatalog` | 官方资料加载、规则文本与 BehaviorSpec |
-| `src/Riftbound.DevUi` | 调试界面、协议和实连回归工具 |
-| `tests/Riftbound.ConformanceTests` | 官方规则依据、命令结算、投影与回放测试 |
-| `data/official/upstream/2026-10-04` | 最新中国区来源清单、SHA-256、卡牌差异和条款审核清单 |
-| `docs` | 规则证据、当前实施记录及历史阶段记录 |
+| clients/godot | 原生桌面、命令适配与打包 |
+| src/Riftbound.Contracts | 命令、事件、快照和提示 |
+| src/Riftbound.CardCatalog | 官方卡池与解析元数据 |
+| src/Riftbound.Engine | 共享裁定、结算、投影、回放与恢复 |
+| src/Riftbound.Persistence | PostgreSQL journal 与恢复 |
+| src/Riftbound.Api | HTTP/SignalR、身份、房间和匹配 |
+| src/Riftbound.DevUi | 调试与协议验证 |
+| tests/Riftbound.* / scripts/tests | 行为证据与验证工具检查 |
+| data/official / docs/evidence | 有版本的来源快照和限定证据 |
 
-继续开发时先读 [原生交付记录](docs/NATIVE_DELIVERY_2026-10-04.md)、[规则权威](docs/rules-authority-and-audit.md)、[证据索引](docs/rules-evidence-index.md) 和 [服务端审核](docs/CURRENT_SERVER_RULE_AUDIT.md)。规则以中国区官网卡面和正式 PDF 为准；旧 Java 行为与历史 fixture 只能作为对照。通用机制必须在共享引擎中实现，并验证隐藏信息、持久化/回放和拒绝操作不变性。
-
-`CURRENT_P7_STATUS.md`、`CURRENT_P7_9_STATUS.md` 和早期 Web 重建计划保留历史记录，不能作为当前原生产品或全规则完成证明。测试 fixture 格式见 [格式说明](docs/conformance-fixture-format.md)。
+任务与规格统一使用 [GitHub Issues](https://github.com/DDDHL0704/riftbound/issues)，词汇见 [GLOSSARY](GLOSSARY.md)。9 月及更早规则默认未重新认证，按当前适用官方来源逐项整改。后续页面使用 frontend-design 与 Product Design，并重新取得参考截图；本轮没有页面改动，也不创建新 Goal。

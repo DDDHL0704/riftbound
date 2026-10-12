@@ -1,53 +1,74 @@
 # Riftbound Project Agent Guide
 
-## Development Lifecycle
+## Current scope and entry points
 
-- This project is in active development toward the final native desktop product. Intermediate development versions are not a compatibility target.
-- Replace obsolete implementations and remove dead branches when the final design supersedes them. Do not add migrations, fallback paths, or duplicated logic solely to load old development matches, snapshots, or protocols.
-- Development matches may be restarted when gameplay semantics change. Keep diagnostics needed to investigate defects; do not rewrite accepted action history to make it pass a new rule engine.
-- Current-version reconnect, persistence validation, hidden-information protection, and server authority remain product requirements. Removing historical compatibility must not weaken these guarantees.
+- Work in this repository, /Users/dinghaolin/MyProjects/riftbound. The product is the Godot .NET macOS / Windows client with a server-authoritative engine; React DevUi is a debug and protocol client.
+- Read docs/PROJECT_STATUS.md, docs/PROJECT_GOVERNANCE.md and the relevant part of docs/RULE_TEST_WORKFLOW.md first. Then read only the source manifest, scoped audit and tests relevant to the change.
+- Old CURRENT_*, P-stage and coordination documents are historical records, not active tasks, write locks or rule certification. Do not load giant cumulative lists to recover current work.
+- The old official-audit Goal was deleted. This round does not create a replacement Goal; configuration or cleanup approval is not approval to create one.
 
-## Rule Authority
+## Development lifecycle
 
-- Treat the official PDF set, `data/official`, Riot official pages, and `playloltcg` card text as the only rule authorities.
-- Community sites, GitHub projects, Stitch output, Tabletop Simulator mats, and old Java behavior are references only. They can inspire UI, workflow, tooling, or regression fixtures, but they cannot override official rules.
-- Before changing gameplay behavior, read the matching entry in `docs/rules-authority-and-audit.md` and `docs/rules-evidence-index.md`. Add or update evidence when a new rule surface is implemented.
-- Generic mechanics must be implemented in the shared rule engine. Do not patch a single card when the behavior is a keyword, timing window, payment source, battlefield lifecycle, trigger family, or zone/information rule.
+- Intermediate development versions are not compatibility targets. Replace obsolete implementations rather than adding migrations/fallbacks for old development matches or protocols.
+- Keep current-version reconnect, persistence validation, hidden-information protection and server authority. Never rewrite accepted action history to make a new engine pass.
+- Delete only with evidence of an obsolete purpose or unused runtime path; account for tests and references. Date, file length, duplicate bytes or zero incoming links alone are insufficient.
 
-## Project Map
+## Rule authority and trust
 
-- `src/Riftbound.Engine`: authoritative gameplay state, prompts, legality, command handling, rule domains, and snapshots.
-- `src/Riftbound.Contracts`: protocol shared by API, clients, tests, and Dev UI. Keep this typed and version-aware.
-- `src/Riftbound.Api`: hubs, HTTP endpoints, scenario seeding, static Dev UI hosting, and development CORS.
-- `src/Riftbound.DevUi`: React battlefield client. It renders server snapshots and prompts; it must not decide rules locally.
-- `tests/Riftbound.*`: conformance, engine, API, and regression gates.
-- `docs`: rule authority, evidence, handoff, audits, and implementation contracts.
-- `Mods`: Tabletop Simulator and community playmat references. Use for spatial/layout inference only.
+- Official regional card text, rules, FAQ/QA, errata and restriction documents are authorities. Record URL, content hash, publication/effective dates, language, region and exact scope.
+- Downloaded data/official is a snapshot, not proof that the live site is unchanged. Refresh applicable official sources before gameplay changes; mark inaccessible/future-effective versions explicitly.
+- September and earlier rule implementations and green/coverage claims have no default trust. Re-certify the exact scope against current applicable official sources. Keep October scoped evidence within its stated scope.
+- Community platforms, TTS, old Java and generated planning documents are references only. Registration, implemented, RepresentativeRulePass, counts and CI green do not certify whole-card semantics.
+- Generic keywords, timing, costs, zones/information, lifecycle and triggers belong in shared engine flow. Avoid card-specific bypasses.
+- Preserve the full source universe and unresolved items. Complete certification needs every applicable card/rule/QA item, source gaps, executable evidence and required native gates closed.
 
-## Engine Work
+## Project map
 
-- Model each gameplay feature as protocol -> engine primitive -> event/snapshot -> conformance test.
-- Preserve hidden information boundaries in snapshots. The UI should never receive opponent hand order, deck order, unrevealed rune identity, or face-down standby identity.
-- Prompts must expose only legal choices and safe summaries. The frontend submits intents with prompt/tick identity; the server remains the judge.
-- When using old fixtures, keep the distinction between `legacyOracle`, official-rule expected behavior, and current engine evidence.
+- src/Riftbound.Contracts: shared commands, events, snapshots and prompts.
+- src/Riftbound.CardCatalog: official catalog and parsed metadata; metadata is not certification.
+- src/Riftbound.Engine: legality, shared gameplay flow, serialized commands, projection, replay and recovery.
+- src/Riftbound.Persistence: PostgreSQL journal and recovery adapters.
+- src/Riftbound.Api: HTTP/SignalR, rooms, matchmaking and process composition.
+- clients/godot: native rendering, command adapters and packaging.
+- src/Riftbound.DevUi: debug/protocol rendering and browser verification.
+- tests/Riftbound.*, scripts/tests: behavioral and verification guardrails.
+- data/official, docs/evidence: source snapshots and bounded evidence.
 
-## Frontend Work
+## Engine and client contracts
 
-- The battle desktop follows a TTS-style table layout, but the rules decide what each zone means.
-- Zone coordinates live in `src/Riftbound.DevUi/src/components/match/tabletopLayoutData.json` and are checked by `npm --prefix src/Riftbound.DevUi run check:tabletop-layout`.
-- The rune deck size is fixed at 12. The UI may display remaining count, drawn rune slots, and revealed rune cards supplied by the server, but it must not infer hidden rune identities.
-- Battlefield control, score state, legal actions, pending tasks, and prompts must be rendered from server snapshots/events. Do not derive them from card placement alone.
-- If a design reference conflicts with these constraints, keep the rule contract and adapt the visual design.
+- Trace protocol -> shared rule -> event/snapshot -> real command test. Keep rejection-state invariance and action/event/state replay evidence.
+- Prompts expose legal, safe choices; clients submit intent with prompt/tick identity. Clients never decide payment, damage, control, trigger order or victory.
+- Protect opponent hand/deck order, unrevealed rune identities and face-down standby identities in every projection, prompt and log.
+- Distinguish legacy fixtures from official expected behavior. Preserve meaningful assertions and Theory rows during refactors.
+- Recovery security tests retain independent expected checks; reusing production derivation as the expected value is insufficient.
 
-## Validation
+## Validation and delivery
 
-- Historical green tests and registry status are not proof of complete official card behavior. Re-audit expectations against official text; use real battlefield identities, both players, control changes, and unrelated-location counterexamples for spatial effects. Track unresolved behavior explicitly in `docs/BATTLEFIELD_SCOPE_AUDIT_2026-10-08.md`.
+- Develop with python3 scripts/test-rules.py focus <domain> and affected adjacent tests. Run one check at a coherent batch end. Use full for broad changes, integration and final acceptance; do not repeat it for an unchanged input.
+- Code CI retains the complete suite and packaging gates. Ordinary rules start in the first wave; all methods/cases and the full preconstructed matrix remain.
+- Only an explicit reviewed documentation path list may use light CI. Official data, fixture, build configuration, scripts, unknown paths and uncertain diffs default to full.
+- CI verifies a fixed commit; continue the next batch independently. Local parallel verification uses a fixed separate checkout. Do not edit or rebuild the source/bin being tested.
+- Record commit/input hashes, source versions, profile, environment, TRX and matrix identities. An earlier full run is a baseline, not current-HEAD evidence.
+- Native controls, network/reconnect, visible paired clients, Windows runtime and database execution are separate gates. Returning without a database connection is not database validation.
+- Run git diff --check and appropriate checks before each coherent commit/push. Do not create a full-regression bookkeeping loop for documentation-only evidence updates.
+- Never mark READY or complete the official audit from a local batch or all-green tests.
 
-- Frontend quick gate: `npm --prefix src/Riftbound.DevUi run build`.
-- Frontend visual/accessibility gate: `npm --prefix src/Riftbound.DevUi run qa:appshots`.
-- Browser smoke: `npm --prefix src/Riftbound.DevUi run smoke:chrome`.
-- Rule development uses `python3 scripts/test-rules.py focus <domain>` first (domains: recast, payment, triggers, combat, recovery); use `focus --match <TestClassOrMethod>` for other focused work. Add the affected cross-domain tests when needed. This is feedback for the current change, not whole-product acceptance.
-- Use `python3 scripts/test-rules.py check` at a coherent batch boundary. It covers the non-full-game suite and named complete-game smoke cases. Do not mechanically repeat the entire suite after every local correction.
-- Run `python3 scripts/test-rules.py full` for broad changes spanning rule domains, integration/release gates, or failures that indicate wider impact. CI retains the complete suite. Full runs are balanced across isolated processes, verify method coverage, and preserve every discovered test; never reduce assertions or silently skip tests to make a gate faster.
-- Native control, network/reconnect, full two-client, packaging and Windows acceptance remain separate gates; backend test profiles do not replace them. Commands, scope and evidence are documented in `docs/RULE_TEST_WORKFLOW.md`.
-- Run `git diff --check` before handoff. Do not call the project ready unless the relevant documented gates have actually passed.
+## Future page design
+
+- Future page design uses frontend-design and Product Design. Audit current screenshots first; preserve existing product styles for scoped maintenance.
+- Use Rift Atlas, Untap.in and Riftbound TTS as design references; refresh relevant screenshots before comparison. They are not rule authorities.
+- This round does not modify game pages. References and requirements are in docs/PROJECT_GOVERNANCE.md.
+
+## Agent skills
+
+### Issue tracker
+
+Track audit problems, changes and specs in GitHub Issues for DDDHL0704/riftbound. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the five canonical triage labels with one category and one state per triaged issue. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` and `docs/adr/`, created when terms or decisions are resolved. See `docs/agents/domain.md`.

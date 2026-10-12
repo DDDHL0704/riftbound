@@ -9,18 +9,59 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: native-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: '1'
   DOTNET_NOLOGO: '1'
 
 jobs:
+  scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      full: ${{ steps.select.outputs.full }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 2
+      - name: Verification safeguards
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Determine scope from fixed Git inputs
+        id: select
+        run: >-
+          python3 scripts/ci-change-scope.py
+          --event "$GITHUB_EVENT_PATH" --head "$GITHUB_SHA"
+          --output var/qa/ci-scope/decision.json --github-output "$GITHUB_OUTPUT"
+      - name: Source-index and governance integrity
+        run: python3 scripts/audit/check-project-governance.py --output var/qa/ci-scope/governance.json
+      - name: Check committed diff formatting
+        run: |
+          python3 - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+          decision = json.loads(Path('var/qa/ci-scope/decision.json').read_text())
+          base, head = decision['baseSha'], decision['headSha']
+          available = base and subprocess.run(['git', 'cat-file', '-e', base+'^{commit}'],
+                                              stderr=subprocess.DEVNULL).returncode == 0
+          command = ['git', 'diff', '--check', base, head] if available else ['git', 'show', '--format=', '--check', head]
+          subprocess.run(command, check=True)
+          PY
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: verification-scope
+          path: var/qa/ci-scope/
+          retention-days: 30
+
   rules:
+    needs: scope
+    # A failed or missing selector must not silently skip the complete suite.
+    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    concurrency:
+      group: rules-${{ github.ref }}-${{ github.sha }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
@@ -55,12 +96,17 @@ jobs:
           retention-days: 7
 
   desktop:
+    needs: scope
+    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
+    concurrency:
+      group: desktop-${{ github.ref }}-${{ github.sha }}-${{ matrix.os }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6

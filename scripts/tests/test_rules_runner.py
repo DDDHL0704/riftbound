@@ -7,6 +7,18 @@ spec=importlib.util.spec_from_file_location('rules_runner',Path(__file__).parent
 runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
 
 class RuleRunnerTests(unittest.TestCase):
+    def test_full_starts_ordinary_rules_and_longest_game_in_first_wave(self):
+        ordinary=runner.PREFIX+'Rules.EarlyFailure'
+        longest=runner.FULL_CLASS+'LongMatrix'
+        methods={ordinary,longest,*(runner.FULL_CLASS+str(i) for i in range(12))}
+        shards=runner.plan(methods,'full',4,[],{longest:1000})
+        self.assertEqual('rules',shards[0]['name'])
+        self.assertEqual({ordinary},shards[0]['methods'])
+        self.assertEqual({longest},shards[1]['methods'])
+        assigned=[name for shard in shards for name in shard['methods']]
+        self.assertEqual(methods,set(assigned))
+        self.assertEqual(len(methods),len(assigned))
+
     def test_full_assigns_every_method_once_including_new_untimed_tests(self):
         ordinary=runner.PREFIX+'NewRuleTests.NewCase'
         methods={ordinary,*(runner.FULL_CLASS+str(i) for i in range(9))}

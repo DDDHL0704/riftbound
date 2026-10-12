@@ -1,0 +1,139 @@
+{
+  "status": "EXACT_HEAD_FULL_CI_AND_PARITY_VERIFIED",
+  "verifiedAtUtc": "2026-10-12T03:47:42.838206+00:00",
+  "headSha": "5965604252cfae1807f814384f8b449538f2adba",
+  "runId": 38199241988,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38199241988",
+  "jobs": {
+    "desktop (windows-latest)": "success",
+    "rules": "success",
+    "desktop (macos-latest)": "success"
+  },
+  "summary": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 1358.87,
+    "total": 10201,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-4",
+        "total": 52,
+        "passed": 52,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 855.87
+      },
+      {
+        "shard": "games-2",
+        "total": 49,
+        "passed": 49,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 886.73
+      },
+      {
+        "shard": "games-3",
+        "total": 49,
+        "passed": 49,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 913.0
+      },
+      {
+        "shard": "rules",
+        "total": 10050,
+        "passed": 10050,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 346.02
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 1262.53
+      }
+    ]
+  },
+  "uniqueCases": 10201,
+  "discoveredMethods": 6625,
+  "nonPassedCases": [],
+  "duplicateCases": [],
+  "parity": {
+    "previousCases": 10183,
+    "missingCases": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.BattleStartRoleTests.AUnitArrivingDuringTheDuelGainsItsRoleWithoutRecapturingExistingAttackSkills",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.BattleTriggerOrderStartsWithTheRecordedAttackerWhenItIsNotTheirTurn",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ConfirmedAttackResolvesBeforeOrdinaryFocusAndIsNotRecapturedForCombat",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestEstablishesAttackRolesAndConfirmsTriggersBeforeOrdinaryFocus(card: \"OGN·041/298\", copied: False)",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestEstablishesAttackRolesAndConfirmsTriggersBeforeOrdinaryFocus(card: \"OGN·041/298\", copied: True)",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestEstablishesAttackRolesAndConfirmsTriggersBeforeOrdinaryFocus(card: \"OGN·041a/298\", copied: False)",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestWithoutTriggeredSkillsEstablishesRolesAndKeepsAttackerFocus",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"attacking-seat\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"early-combat\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"false-field\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"focus-seat\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"null-costs\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ShadowUsesTheDefendersSwiftFocusAfterAttackRolesAreEstablished",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ShadowsSwiftAbilityCannotInterruptConfirmedAttackSkills",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"execution\")",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"missing-context\")",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"owner\")",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"stack\")"
+    ],
+    "previousMethods": 6616,
+    "missingMethods": [],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.BattleStartRoleTests.AUnitArrivingDuringTheDuelGainsItsRoleWithoutRecapturingExistingAttackSkills",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.BattleTriggerOrderStartsWithTheRecordedAttackerWhenItIsNotTheirTurn",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ConfirmedAttackResolvesBeforeOrdinaryFocusAndIsNotRecapturedForCombat",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestEstablishesAttackRolesAndConfirmsTriggersBeforeOrdinaryFocus",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestWithoutTriggeredSkillsEstablishesRolesAndKeepsAttackerFocus",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ShadowUsesTheDefendersSwiftFocusAfterAttackRolesAreEstablished",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ShadowsSwiftAbilityCannotInterruptConfirmedAttackSkills",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation"
+    ]
+  },
+  "preconstructedMatrix": {
+    "seed": 424242,
+    "deckCount": 11,
+    "pairCount": 110,
+    "completedPairs": 110,
+    "previousPairCount": 110,
+    "missingOriginalPairs": []
+  },
+  "trxFiles": [
+    {
+      "path": "var/qa/battle-start-roles/ci-final/artifact/games-1/results.trx",
+      "sha256": "c85a2f610fa5a06b59bbf818880097080e810f81c1d696b64ef7884c86572c2b",
+      "passed": 1
+    },
+    {
+      "path": "var/qa/battle-start-roles/ci-final/artifact/games-2/results.trx",
+      "sha256": "1f4dea6cd08d07cafedcc9a2359b2a74717dd665265eb15f2f995ed832ca64aa",
+      "passed": 49
+    },
+    {
+      "path": "var/qa/battle-start-roles/ci-final/artifact/games-3/results.trx",
+      "sha256": "095e3e8776ad6126fdb98bbee0332a248455823271089106203818a61a90bbd5",
+      "passed": 49
+    },
+    {
+      "path": "var/qa/battle-start-roles/ci-final/artifact/games-4/results.trx",
+      "sha256": "e04f9630101bac554bd4a92f041888ec930614b485f32c250d9b06caeac4ab59",
+      "passed": 52
+    },
+    {
+      "path": "var/qa/battle-start-roles/ci-final/artifact/rules/results.trx",
+      "sha256": "1440708b25af520f38c611159a7e7b67e71db0cc66219cb0833657fbf55e6f8b",
+      "passed": 10050
+    }
+  ],
+  "scope": "Exact earlier code commit; not whole official semantic coverage or native/Windows runtime acceptance.",
+  "parityVerificationScope": "Independent follow-up inspected actual TRX case/method identities and matrix pairs; the preserved runner summary did not itself request a baseline case comparison."
+}
