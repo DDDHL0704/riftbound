@@ -26,4 +26,8 @@ PostgreSQL真实执行、当前候选可见双客户端完整操作和Windows实
 
 ## 本轮准备验证
 
-验证工具24项检查、actionlint、固定快照治理/引用检查和6,625方法的调度成员对照通过；源代码、客户端、C#测试及官方数据没有改动。本轮验证工具/CI改动将以固定提交执行一次完整远端验证。完整结果读回前，前述59656042仍是上一完整基线。
+验证工具24项检查、actionlint、固定快照治理/引用检查和6,625方法的调度成员对照通过；源代码、客户端、C#测试及官方数据没有改动。
+
+准备提交 c379b4a53c701e7516602cbaa342d8ca9d3d96c4 已推送，[CI 38204782987](https://github.com/DDDHL0704/riftbound/actions/runs/38204782987) 在固定提交上执行。scope 任务成功，明确 full=true，来源/治理完整性输出保持 semanticCoverageCertified=false；完整规则与打包结果尚待读回。59656042 仍是上一完整基线。
+
+本次独立文档提交用于验证轻量路径与后台代码回归可以并行，不能把轻量通过记为 full 通过。后续候选 [#1–#5](https://github.com/DDDHL0704/riftbound/issues) 已登记为 enhancement + needs-triage，未启动结构实施或新 Goal。

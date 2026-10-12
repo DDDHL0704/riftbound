@@ -67,7 +67,7 @@ EN 返回 1,381、报告 1,389，8 项缺口仍未解决。10/16 未来生效资
 
 ## 任务和设计约定
 
-已配置 GitHub Issues 与五个默认 triage 状态标签；当前发现队列为空。后续问题按一类（bug/enhancement）与一个状态记录，未选择结构候选不自动启动实施。
+已配置 GitHub Issues 与五个默认 triage 状态标签；配置时发现队列为空。后续问题按一类（bug/enhancement）与一个状态记录。已登记 [共享战斗 #1](https://github.com/DDDHL0704/riftbound/issues/1)、[模板规划 #2](https://github.com/DDDHL0704/riftbound/issues/2)、[命令契约 #3](https://github.com/DDDHL0704/riftbound/issues/3)、[数据库/恢复 #4](https://github.com/DDDHL0704/riftbound/issues/4) 和 [英文来源差异 #5](https://github.com/DDDHL0704/riftbound/issues/5)，均为 enhancement + needs-triage，等待后续逐项选择，不自动启动实施。
 
 后续页面同时使用 frontend-design 与 Product Design；先取当前截图，再重新参考 Rift Atlas、Untap.in 和 Riftbound TTS。历史 Untap 材料没有完整对局截图，不足以得出当前视觉结论。本轮无游戏页面修改，偏好已写入项目约定和本地设计上下文。
 
