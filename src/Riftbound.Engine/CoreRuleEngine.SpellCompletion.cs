@@ -7,7 +7,7 @@ namespace Riftbound.Engine;
 public sealed record CardPlayCostReceipt(int CardMana, int PaidMana);
 public sealed record SpellTriggerContext(string CardNo, string Kind, long SourceGeneration,
     CardPlayCostReceipt Cost, string PlayedObjectId, long PlayedGeneration, string PlayedOwnerId, string PlayedCardNo,
-    string? BattlefieldId = null);
+    string InstanceId, string? BattlefieldId = null, RuleTextInstanceBinding? Origin = null);
 public sealed record LinkedExileGroup(string SourceObjectId, long SourceGeneration, string ControllerId,
     IReadOnlyDictionary<string, long> Objects);
 
@@ -59,6 +59,14 @@ public sealed partial class CoreRuleEngine
             && (context.Kind is TriggerKinds.BattlefieldSpellPowerBonus or TriggerKinds.BattlefieldFriendlySpellDraw
                 ? !string.IsNullOrWhiteSpace(context.BattlefieldId) : context.BattlefieldId is null);
 
+    internal static bool ValidSpellContextSource(MatchState state, SpellTriggerContext context, string sourceId)
+        => AttachedRuleTextRules.ValidCaptured(state, context.Origin, sourceId, context.SourceGeneration, context.CardNo)
+            && (!state.CardObjects.TryGetValue(sourceId, out var source) || context.SourceGeneration <= source.ObjectGeneration)
+            && context.InstanceId == (context.Origin is { } origin
+                ? $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
+                : $"PRINTED:{sourceId}:{context.SourceGeneration}")
+            && (context.Origin is null || context.Kind is TriggerKinds.UnitSpellPlayedPowerModifier or TriggerKinds.UnitHighCostSpellPowerModifier);
+
     private static IReadOnlyList<TriggerQueueItemState> CaptureSpellTriggers(MatchState state,
         StackItemState played, CardBehaviorDefinition behavior, out IReadOnlyList<string> markers, bool targetSelection = false)
     {
@@ -79,10 +87,12 @@ public sealed partial class CoreRuleEngine
                 && source.ControllerId == played.ControllerId;
             var ownUnit = source.ControllerId == played.ControllerId && IsFaceUpNonStandbyUnit(source)
                 && IsObjectOnField(state.PlayerZones, source.ObjectId);
+            foreach (var instance in AttachedRuleTextRules.Instances(state, source))
             foreach (var kind in kinds)
             {
                 if ((kind == TriggerKinds.BattlefieldFriendlySpellDraw) != targetSelection) continue;
-                if (source.CardNo is null || SpellTriggerSpec(source.CardNo, kind) is not { } spec) continue;
+                if (SpellTriggerSpec(instance.CardNo, kind) is not { } spec) continue;
+                if (instance.Origin is not null && kind is not (TriggerKinds.UnitSpellPlayedPowerModifier or TriggerKinds.UnitHighCostSpellPowerModifier)) continue;
                 if (kind is TriggerKinds.UnitSpellPlayedPowerModifier or TriggerKinds.UnitHighCostSpellPowerModifier ? !ownUnit
                     : kind is TriggerKinds.LegendHighCostSpellDrawOne or TriggerKinds.LegendHighCostSpellBanishCompletion ? !ownLegend : field is null) continue;
                 if (played.PlayCost.CardMana < spec.MinimumCardMana.GetValueOrDefault()
@@ -96,9 +106,10 @@ public sealed partial class CoreRuleEngine
                             && BattlefieldLocalRules.AtUnit(state, id)?.ObjectId == source.ObjectId)) continue;
                     effects.Add(BuildBattlefieldFriendlySpellDrawUsedEffectId(played.ControllerId, source.ObjectId));
                 }
-                var context = new SpellTriggerContext(source.CardNo, kind, source.ObjectGeneration,
-                    played.PlayCost, played.SourceObjectId, spell?.ObjectGeneration ?? 0, owner, played.CardNo, field?.ObjectId);
-                queue.Add(new($"spell-completed-{played.StackItemId}-{source.ObjectId}-{kind}", played.ControllerId,
+                var context = new SpellTriggerContext(instance.CardNo, kind, source.ObjectGeneration,
+                    played.PlayCost, played.SourceObjectId, spell?.ObjectGeneration ?? 0, owner, played.CardNo, instance.Id, field?.ObjectId, instance.Origin);
+                var instanceSuffix = instance.Origin is null ? "" : "-" + instance.Id;
+                queue.Add(new($"spell-completed-{played.StackItemId}-{source.ObjectId}-{kind}{instanceSuffix}", played.ControllerId,
                     source.ObjectId, SpellTriggerEffect, targetSelection ? "SPELL_TARGET_CHOSEN" : "SPELL_PLAY_COMPLETED", played.TimingContext) { SpellContext = context });
             }
         }
@@ -112,6 +123,8 @@ public sealed partial class CoreRuleEngine
     private static string[] SpellTriggerChoices(MatchState state, StackItemState item)
     {
         var context = item.SpellContext!;
+        if (!ValidSpellContext(context, item.EffectKind, item.CardNo)
+            || !ValidSpellContextSource(state, context, item.SourceObjectId)) return [];
         if (context.Kind == TriggerKinds.LegendHighCostSpellBanishCompletion)
             return state.PlayerZones[context.PlayedOwnerId].Graveyard.Contains(context.PlayedObjectId)
                 && state.CardObjects.GetValueOrDefault(context.PlayedObjectId)?.ObjectGeneration == context.PlayedGeneration
@@ -166,6 +179,8 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveSpellTrigger(MatchState state, StackItemState item)
     {
         var context = item.SpellContext!;
+        if (!ValidSpellContext(context, item.EffectKind, item.CardNo)
+            || !ValidSpellContextSource(state, context, item.SourceObjectId)) return NoopStackResolutionResult(state);
         var spec = SpellTriggerSpec(context.CardNo, context.Kind)!;
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);

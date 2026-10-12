@@ -23611,6 +23611,7 @@ public static class MatchRecoveryValidator
                 || item.SpellContext is not null || !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
                 || behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)) errors.Add("invalid card play cost receipt");
             if (item.SpellContext is { } context ? !CoreRuleEngine.ValidSpellContext(context, item.EffectKind, item.CardNo)
+                || !CoreRuleEngine.ValidSpellContextSource(state, context, item.SourceObjectId)
                 || !state.Seats.ContainsKey(context.PlayedOwnerId)
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]))
@@ -23618,8 +23619,16 @@ public static class MatchRecoveryValidator
         }
         foreach (var trigger in state.TriggerQueue)
             if (trigger.SpellContext is { } context ? !CoreRuleEngine.ValidSpellContext(context, trigger.EffectKind)
+                || !CoreRuleEngine.ValidSpellContextSource(state, context, trigger.SourceObjectId)
                 || !state.Seats.ContainsKey(context.PlayedOwnerId)
                 : trigger.EffectKind == CoreRuleEngine.SpellTriggerEffect) errors.Add("invalid queued spell completion trigger");
+        var spellInstances = state.StackItems.Where(i => i.SpellContext is not null)
+            .Select(i => (Source: i.SourceObjectId, Context: i.SpellContext!))
+            .Concat(state.TriggerQueue.Where(i => i.SpellContext is not null)
+                .Select(i => (Source: i.SourceObjectId, Context: i.SpellContext!)));
+        if (spellInstances.GroupBy(i => (i.Source, i.Context.SourceGeneration, i.Context.InstanceId,
+                i.Context.Kind, i.Context.PlayedObjectId, i.Context.PlayedGeneration)).Any(group => group.Count() > 1))
+            errors.Add("duplicate spell completion trigger instance");
         if (state.PendingCardChoice is { ChoiceWindow: "SPELL_TRIGGER_CONFIRMATION" } spellChoice
             && !CoreRuleEngine.ValidSpellTriggerChoice(state, spellChoice)) errors.Add("invalid spell trigger confirmation");
         if (state.LinkedExiles.Any(g => string.IsNullOrWhiteSpace(g.SourceObjectId) || g.SourceGeneration < 0

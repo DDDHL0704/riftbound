@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+    "--headless",
+    "--path",
+    "clients/godot",
+    "res://scenes/debug/CopiedSpellInteractionProof.tscn",
+    "--",
+    "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/copied-spell-triggers-20261013/native"
+  ],
+  "exitCode": 0,
+  "executedAtUtc": "2026-10-12T23:13:07.509746+00:00",
+  "output": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nCOPIED_SPELL_INSTANCE_PASS: 31 production spell, original/copied ordering and independent response commands\n",
+  "outputSha256": "5ec1c0ee05bf12f8d73f5c65a484e02bc3bc9ea35d13109149dd28063953e17a",
+  "scope": "Headless production composer, trigger ordering and independent responses; not visible paired full match"
+}

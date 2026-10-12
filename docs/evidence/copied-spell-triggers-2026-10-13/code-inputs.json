@@ -1,0 +1,9 @@
+{
+  "scripts/ci-change-scope.py": "2776e623bbf0bca04dbc333a56693498d86e36bac128d0d5d04247eb01b23f46",
+  "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs": "f47b7d2ace171f46bdbea93d03c9611bb83897047d0a81455daf19725165a2c9",
+  "src/Riftbound.Engine/MatchRecovery.cs": "bd353123bb18365749d7789efad55b565eb1325c66dc152b8feb70efb79364e8",
+  "tests/Riftbound.ConformanceTests/CopiedSpellTriggerTests.cs": "06b5936cc4e22fc4b35f67106c403bed961b6a17a6e8eea1dd2be22dffbfd1ed",
+  "tests/Riftbound.ConformanceTests/CopiedSpellNativeTests.cs": "cb95a9435f2231b47b2a9c8860f1b33eb26dff8a057bf94186e15ed150c17581",
+  "clients/godot/scripts/debug/CopiedSpellInteractionProof.cs": "9b578d6f548c0082e56ca5dcc6814635d34ad56673518f62b347b31ec77534a5",
+  "clients/godot/scenes/debug/CopiedSpellInteractionProof.tscn": "04e25fcd4095c68125da12dd74f656c52066b73fa3064ce8c2d2e869741bda74"
+}

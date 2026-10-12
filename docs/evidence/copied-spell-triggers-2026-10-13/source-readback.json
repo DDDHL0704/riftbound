@@ -1,0 +1,402 @@
+[
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "斯弗尔尚歌",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T23:01:29.812884+00:00",
+    "publishedDate": null,
+    "effectiveDate": null,
+    "responseSha256": "6700ef97af192fa79c5049a4bdc5baa61c8aeb68abbb204bb92d95ff9948a1f0",
+    "records": [
+      {
+        "record": {
+          "id": 33139,
+          "cardCategoryList": [
+            "equipment"
+          ],
+          "cardCategoryNameList": [
+            "装备"
+          ],
+          "cardNo": "SFD·059/221",
+          "cardName": "斯弗尔尚歌",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "green"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "武装",
+          "artist": "Envar Studio",
+          "cardEffect": "{{装配}}{{1}}{{绿色}}（支付{{1}}和{{绿色}}：将此牌贴附到你控制的一名单位上。）\n在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+          "flavorText": "\"只有最伟大的弗雷尔卓德英雄才拥有臻冰做的武器!\"——努努",
+          "energy": 3,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/3fb9c51990c64735b1d613e27e53f2a7.png",
+          "backImage": "",
+          "listSort": 934,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "2146ff16f353ba13fa9c3081a9403980f290ce160b95df6e03cbe35da077f9fa",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "黛安娜",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T23:01:30.227081+00:00",
+    "publishedDate": null,
+    "effectiveDate": null,
+    "responseSha256": "cbcc331c0f31ae617dca1e183dfca16d6877dcef60939f6420c64659c5bfe53a",
+    "records": [
+      {
+        "record": {
+          "id": 37886,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "VEN·183",
+          "cardName": "黛安娜",
+          "subTitle": "超脱凡界",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "巨神峰",
+          "tag": "",
+          "artist": "Naifan Zhang",
+          "cardEffect": "{{伏击}}\n当你打出一个法术时，给予我在本回合内{{S}}+2。",
+          "flavorText": "她们希冀共享这片天空\n大到能让两人共舞\n双手与心交缠\n——曙光赞歌",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "VEN(标准补充包)",
+            "VEN(进阶补充包)"
+          ],
+          "productNameList": [
+            "化神争锋 标准补充包",
+            "化神争锋 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/0d4fa3635acc40c48664256b0aef305b.png",
+          "backImage": "",
+          "listSort": 1800,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "5b90682c0db9dc558fbc0830fa1973a0d9190a9e91d1c6d4651a3e47f9c1859c",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34695,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-149/219",
+          "cardName": "黛安娜",
+          "subTitle": "超脱凡界",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "巨神峰",
+          "tag": "",
+          "artist": "Six More Vodka",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n每当你打出一个法术时，让我本回合内{{S}}+2。",
+          "flavorText": "“我没有退路了。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/2a4d5ff70fd24c9eba1f535670c0ca4a.webp",
+          "backImage": "",
+          "listSort": 1329,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "9a0c87e8073ab07aef1851ab18fa52c7fde3abb47c1944f0fffe9c0e84208363",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34696,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-149a/219",
+          "cardName": "黛安娜",
+          "subTitle": "超脱凡界",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "巨神峰",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "{{伏击}}\n每当你打出一个法术时，让我本回合内{{S}}+2。",
+          "flavorText": "“我没有退路了。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/8d80c79070a14100a67e3bd8f93cdb40.webp",
+          "backImage": "",
+          "listSort": 1328,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "2809b56286e7347a169f6c9a22d0eaaf7ebb7bdad4a98d2ebe5b14aa27411cde",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "拉文布鲁姆学生",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T23:01:30.641407+00:00",
+    "publishedDate": null,
+    "effectiveDate": null,
+    "responseSha256": "1ce7eac195b90ef367431d642cafaf41ffcb416c3b7492aaeade7cf74a486e1e",
+    "records": [
+      {
+        "record": {
+          "id": 31321,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "OGN·103/298",
+          "cardName": "拉文布鲁姆学生",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue"
+          ],
+          "hero": "",
+          "region": "诺克萨斯",
+          "tag": "",
+          "artist": "Polar Engine Studio",
+          "cardEffect": "每当你打出一张法术牌时，让我本回合内{{S}}+1。",
+          "flavorText": "一知半解，最是危险。多学多懂，好处无穷。",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": 2,
+          "productCodeList": [
+            "OGS",
+            "OGN(英雄预组 维克托)",
+            "OGN(标准补充包)",
+            "OGN(进阶补充包)"
+          ],
+          "productNameList": [
+            "起源 试炼之地",
+            "起源 英雄预组 维克托",
+            "起源 标准补充包",
+            "起源 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/9733957b21b2426aa555c919836f566c.png",
+          "backImage": "",
+          "listSort": 384,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "950e1f0b89c0c0545d168039b98ae6d560a6ee47fb91a122d0e4910a7feed1b5",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "拉克丝",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T23:01:31.085447+00:00",
+    "publishedDate": null,
+    "effectiveDate": null,
+    "responseSha256": "c524148077179f769d00efead4574abd6cd7f096763da044821e71b7e1b21d5c",
+    "records": [
+      {
+        "record": {
+          "id": 31585,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "OGS·006/024",
+          "cardName": "拉克丝",
+          "subTitle": "明丽光华",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue"
+          ],
+          "hero": "拉克丝",
+          "region": "德玛西亚",
+          "tag": "",
+          "artist": "Six More Vodka",
+          "cardEffect": "每当你打出费用不低于{{5}}的法术时，让我本回合内{{S}}+3。",
+          "flavorText": "“毫无保留！”",
+          "energy": 6,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "OGS"
+          ],
+          "productNameList": [
+            "起源 试炼之地"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/7712adb1035c413faa35f28c5c38fbfb.png",
+          "backImage": "",
+          "listSort": 545,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "a22c5012f992d20791743410efe4b672163a5750916daa00d6b2a9fd58f63341",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  }
+]

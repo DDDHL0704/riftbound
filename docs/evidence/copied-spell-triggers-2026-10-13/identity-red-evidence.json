@@ -1,0 +1,12 @@
+{
+  "scope": "Duplicate captured rule-instance forgery; illegal assembly fixture is not counted as engine bug",
+  "results": [
+    {
+      "name": "Riftbound.ConformanceTests.CopiedSpellTriggerTests.CurrentRecoveryCannotDuplicateOneCapturedInstanceForTheSameCompletedSpell",
+      "outcome": "Failed",
+      "message": "Assert.NotEmpty() Failure: Collection was empty"
+    }
+  ],
+  "trxSha256": "e05cd061a1c03cce2d2e7756b79e6ecee8ab354d2670fb0cd74422e167710d73",
+  "supersededFixture": "Assembly in closed priority was invalid; replaced by actual SFD011 reaction attachment, not treated as engine defect"
+}
