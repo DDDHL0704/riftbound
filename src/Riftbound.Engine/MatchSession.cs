@@ -1454,6 +1454,9 @@ public sealed record MatchState
         {
             return null;
         }
+        if (CoreRuleEngine.IsInitialBattleDuel(state, out var captured)
+            && !HasBattlefieldSpellDuelCompleted(state, captured.BattlefieldId))
+            return captured.BattlefieldId;
 
         return state.BattlefieldStates.Values
             .Where(battlefield => battlefield.Contested
@@ -1926,7 +1929,8 @@ public sealed record MatchState
             return stateBasedTask;
         }
 
-        if (state.BattleState.IsActive)
+        if (state.BattleState.IsActive && (!CoreRuleEngine.IsInitialBattleDuel(state, out var initialDuel)
+            || HasBattlefieldSpellDuelCompleted(state, initialDuel.BattlefieldId)))
         {
             var activeBattleTask = tasks.FirstOrDefault(task =>
                 string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -4309,7 +4313,7 @@ public sealed record MatchState
             || pendingCardChoice.RequiredCount < 0
             || pendingCardChoice.MaxCount < pendingCardChoice.RequiredCount
             || pendingCardChoice.LegalObjectIds.Count < pendingCardChoice.RequiredCount
-            || pendingCardChoice.ContextObjectIds.Count == 0)
+            || pendingCardChoice.ContextObjectIds.Count == 0 && !CoreRuleEngine.IsEmptyRevealedHandChoice(pendingCardChoice))
         {
             return null;
         }
@@ -4482,9 +4486,10 @@ public sealed record ResolutionResult(
             .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
-        if (controllerIds.Contains(state.TurnPlayerId, StringComparer.Ordinal))
+        var firstPlayer = CoreRuleEngine.BattleRoleOrderingPlayer(state) ?? state.TurnPlayerId;
+        if (controllerIds.Contains(firstPlayer, StringComparer.Ordinal))
         {
-            return state.TurnPlayerId;
+            return firstPlayer;
         }
 
         return OrderTriggerApnapControllerIds(state, controllerIds).FirstOrDefault();
@@ -4600,9 +4605,10 @@ public sealed record ResolutionResult(
             .ToList();
         var ordered = new List<string>();
 
-        if (remaining.Remove(state.TurnPlayerId))
+        var firstPlayer = CoreRuleEngine.BattleRoleOrderingPlayer(state) ?? state.TurnPlayerId;
+        if (remaining.Remove(firstPlayer))
         {
-            ordered.Add(state.TurnPlayerId);
+            ordered.Add(firstPlayer);
         }
 
         foreach (var seatPlayerId in state.Seats
@@ -4692,6 +4698,7 @@ public sealed record ResolutionResult(
     {
         var battle = state.BattleState;
         return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && !CoreRuleEngine.IsBattleAwaitingCombatStart(state)
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             && state.PendingPayment is null
@@ -8681,7 +8688,7 @@ internal static class ActionPromptBuilder
         }
 
         if (string.Equals(type, PromptTypes.StackPriority, StringComparison.Ordinal)
-            && HasOpenBattleResponsePriority(state))
+            && (HasOpenBattleResponsePriority(state) || state.BattleState.IsActive && CoreRuleEngine.IsInitialBattleDuel(state, out _)))
         {
             return FirstNonEmpty(state.BattleState.BattlefieldObjectId);
         }
@@ -8711,6 +8718,9 @@ internal static class ActionPromptBuilder
 
     private static string? RelatedBattleIdFor(MatchState state, string type)
     {
+        if (string.Equals(type, PromptTypes.SpellDuelFocus, StringComparison.Ordinal) && state.BattleState.IsActive)
+            return FirstNonEmpty(state.BattleState.BattleId);
+
         if (string.Equals(type, PromptTypes.BattleDeclaration, StringComparison.Ordinal))
         {
             return FirstNonEmpty(
@@ -8719,7 +8729,7 @@ internal static class ActionPromptBuilder
         }
 
         if (string.Equals(type, PromptTypes.StackPriority, StringComparison.Ordinal)
-            && HasOpenBattleResponsePriority(state))
+            && (HasOpenBattleResponsePriority(state) || state.BattleState.IsActive && CoreRuleEngine.IsInitialBattleDuel(state, out _)))
         {
             return FirstNonEmpty(state.BattleState.BattleId);
         }
@@ -11739,6 +11749,8 @@ internal static class ActionPromptBuilder
         string playerId,
         P4ActivatedAbilityDefinition ability)
     {
+        if (ability.AbilityId == P4ActivatedAbilityCatalog.ShadowStunAbilityId)
+            return CoreRuleEngine.IsShadowBattleResponseWindow(state, playerId);
         if (ability.SwiftSpeed) return CoreRuleEngine.CanActivateSwiftAbility(state, playerId);
         if (ability.IsResourceSkill && ability.ReactionSpeed)
             return CoreRuleEngine.CanActivateReactionResourceSkill(state, playerId);
@@ -15997,7 +16009,7 @@ internal static class ActionPromptBuilder
             view["appliesSpellshieldTargetTax"] = true;
             view["targetScope"] = "enemy-attacking-unit-at-this-battlefield";
             view["statusEffectId"] = "STUNNED";
-            view["timingPolicy"] = "battle-response-priority-representative";
+            view["timingPolicy"] = "swift-open-focus-before-combat-assignment";
             view["stackPolicy"] = "ordinary-stack-item-before-stun";
             view["paymentPolicy"] = "payment-plan-mana-generic-power-spellshield-tax-exhaust-as-cost";
             view["spellshieldTaxPowerByTargetObjectId"] = requirement.SpellshieldTaxPowerByTargetObjectId
@@ -16391,8 +16403,7 @@ internal static class ActionPromptBuilder
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, zonePlayerId)
             && !cardObject.IsFaceDown
-            && !cardObject.IsAttacking
-            && !cardObject.IsDefending
+            && (!cardObject.IsAttacking && !cardObject.IsDefending || CoreRuleEngine.IsEstablishedBattleDuelParticipant(state, objectId))
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 

@@ -128,7 +128,8 @@ public sealed class DestructionOrderTests
         var first = await Act(moved.State, "P1", new PassFocusCommand());
         var second = await Act(first.State, "P2", new PassFocusCommand());
         var battle = await Act(second.State, "P1", new DeclareBattleCommand("BF", ["A"], ["D"], ["COMBAT_ASSIGNMENT"]));
-        return await Top(battle.State);
+        Assert.NotNull(battle.State.PendingRuleChoice);
+        return battle;
     }
     [Theory]
     [InlineData(true)]
@@ -197,9 +198,7 @@ public sealed class DestructionOrderTests
         } };
         var moved = await Act(s, "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []));
         var first = await Act(moved.State, "P1", new PassFocusCommand());
-        var second = await Act(first.State, "P2", new PassFocusCommand());
-        var battle = await Act(second.State, "P1", new DeclareBattleCommand("BF", ["A"], ["D"], ["COMBAT_ASSIGNMENT"]));
-        var spell = await Act(battle.State, "P2", new PlayCardCommand("AOE", "OGN·133/298", []));
+        var spell = await Act(first.State, "P2", new PlayCardCommand("AOE", "OGN·133/298", []));
         var done = await Top(spell.State);
         Assert.Null(done.State.PendingRuleChoice);
         Assert.Contains("D2", done.State.PlayerZones["P2"].Graveyard);

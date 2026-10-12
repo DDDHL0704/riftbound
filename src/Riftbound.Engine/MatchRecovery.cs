@@ -1002,6 +1002,8 @@ public static class MatchRecoveryValidator
         "SPELL_TARGET_CHOSEN",
         "BATTLEFIELD_CONQUERED",
         "BATTLE_DECLARED",
+        "BATTLE_ROLES_ESTABLISHED",
+        "BATTLE_ROLE_ACQUIRED",
         "OBJECT_DESTROYED",
         "UNIT_READY"
     ];
@@ -24173,7 +24175,7 @@ public static class MatchRecoveryValidator
                 $"authoritative state pending card choice {choiceLabel} legal object count {distinctLegalObjectCount} is less than required count {pendingCardChoice.RequiredCount}");
         }
 
-        if (pendingCardChoice.ContextObjectIds.Count == 0)
+        if (pendingCardChoice.ContextObjectIds.Count == 0 && !CoreRuleEngine.IsEmptyRevealedHandChoice(pendingCardChoice))
         {
             errors.Add($"authoritative state pending card choice {choiceLabel} context object count is invalid");
         }

@@ -204,7 +204,7 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.Equal("P2", accepted.State.FocusPlayerId);
         Assert.Equal(new ObjectLocationState("P2", "BATTLEFIELD", "BF-CONTEST"), accepted.State.ObjectLocations["P2-BASE-MOVER"]);
         Assert.Equal(
-            ["UNIT_MOVED_TO_BATTLEFIELD", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["UNIT_MOVED_TO_BATTLEFIELD", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(
             ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
@@ -224,7 +224,7 @@ public sealed class BoardTaskQueueFoundationTests
         Assert.True(acceptedJournalEntry.Accepted);
         Assert.Null(acceptedJournalEntry.ErrorMessage);
         Assert.Equal(
-            ["UNIT_MOVED_TO_BATTLEFIELD", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["UNIT_MOVED_TO_BATTLEFIELD", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             acceptedJournalEntry.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.True(acceptedJournalEntry.RawCommand.HasValue);
         AssertPromptScopedMoveUnitRawCommand(acceptedJournalEntry.RawCommand.Value, command, prompt);
@@ -940,7 +940,7 @@ public sealed class BoardTaskQueueFoundationTests
             task =>
             {
                 Assert.Equal("START_BATTLE", task.Kind);
-                Assert.Equal("WAITING_FOR_SPELL_DUEL", task.Status);
+                Assert.Equal("ACTIVE", task.Status);
                 Assert.Equal(["P1", "P2"], task.ParticipantControllerIds);
                 Assert.Equal(["P1-ROAMER-001", "P2-DEST-DEFENDER"], task.ParticipantObjectIds);
             });
@@ -1829,7 +1829,7 @@ public sealed class BoardTaskQueueFoundationTests
             ["START_SPELL_DUEL", "START_BATTLE"],
             battlefieldTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
         Assert.Equal(
-            ["ACTIVE", "WAITING_FOR_SPELL_DUEL"],
+            ["ACTIVE", "ACTIVE"],
             battlefieldTasks.Select(task => Assert.IsType<string>(task["status"])).ToArray());
         Assert.Equal(
             ["BF-CONTEST", "BF-CONTEST"],

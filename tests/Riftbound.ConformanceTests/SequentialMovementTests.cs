@@ -127,7 +127,8 @@ public sealed class SequentialMovementTests
         Assert.DoesNotContain(second.Prompts["P2"].Candidates??[],c=>c.Action==CommandTypes.DeclareBattle);
         var battle=await Act(second.State,"P1",new DeclareBattleCommand("BF3",["A"],["D"],["COMBAT_ASSIGNMENT"]));
         Assert.Contains(battle.Events,e=>e.Kind=="BATTLE_DECLARED" && Equals(e.Payload["playerId"],"P1"));
-        Assert.True(battle.State.BattleState.IsActive);Assert.Contains("A",battle.State.BattleState.AttackerObjectIds);Assert.Contains("D",battle.State.BattleState.DefenderObjectIds);Assert.True(battle.State.CardObjects["A"].IsAttacking);Restore(battle.State);
+        Assert.True(done.State.BattleState.IsActive);Assert.Contains("A",done.State.BattleState.AttackerObjectIds);Assert.Contains("D",done.State.BattleState.DefenderObjectIds);Assert.True(done.State.CardObjects["A"].IsAttacking);
+        Assert.Contains(battle.Events,e=>e.Kind=="BATTLE_CLOSED");Restore(done.State);Restore(battle.State);
     }
 
     [Theory]

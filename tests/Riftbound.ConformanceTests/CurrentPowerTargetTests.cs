@@ -104,8 +104,9 @@ public sealed class CurrentPowerTargetTests
         var moved=await Act(s,"P1",new MoveUnitCommand("A","BASE","BATTLEFIELD:BF",[]));
         var focus=await Act(moved.State,"P1",new PassFocusCommand());focus=await Act(focus.State,"P2",new PassFocusCommand());
         var battle=await Act(focus.State,"P1",new DeclareBattleCommand("BF",["A"],["D"],["COMBAT_ASSIGNMENT"]));
-        Assert.True(battle.State.BattleState.IsActive);
-        Assert.Equal(defenderBonus?4:2,DisplayPower(battle.State));
+        Assert.True(moved.State.BattleState.IsActive);
+        Assert.Equal(defenderBonus?4:2,DisplayPower(moved.State));
+        Assert.Contains(battle.Events, e => e.Kind == "BATTLE_CLOSED");
         Restore(battle.State);
     }
 

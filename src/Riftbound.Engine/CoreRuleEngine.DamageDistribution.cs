@@ -9,7 +9,8 @@ public sealed record DamageDistributionContext(string CardNo, ObjectBinding Sour
     int InitialDamage, IReadOnlyList<DistributedDamageBonus> InitialBonuses,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? ResolutionDamage = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CombatDamageAssignmentDto>? Assignments = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CombatDamageAssignmentDto>? Assignments = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ReturnFocusPlayerId = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -36,7 +37,8 @@ public sealed partial class CoreRuleEngine
         return bonuses;
     }
 
-    private static TriggerQueueItemState[] CaptureAttackDamageTriggers(MatchState state, IReadOnlyList<string> attackers, string field)
+    private static TriggerQueueItemState[] CaptureAttackDamageTriggers(MatchState state, IReadOnlyList<string> attackers, string field,
+        string timing = TimingStates.NeutralClosed, string? returnFocusPlayer = null)
     {
         var queue = new List<TriggerQueueItemState>();
         foreach (var id in attackers)
@@ -48,9 +50,10 @@ public sealed partial class CoreRuleEngine
                     var location = new ObjectLocationState(source.ControllerId!, "BATTLEFIELD", field);
                     var bonuses = DistributionBonuses(state, source.ControllerId!, location);
                     queue.Add(new TriggerQueueItemState($"attack-damage-{state.Tick + 1}-{id}-{instance.Id}",
-                        source.ControllerId!, id, DistributedDamageEffect, "BATTLE_DECLARED", TimingStates.NeutralClosed) {
+                        source.ControllerId!, id, DistributedDamageEffect, "BATTLE_DECLARED", timing) {
                         DamageDistribution = new(instance.CardNo, new(id, source.ObjectGeneration), location,
-                            checked(spec.DamageAmount!.Value + bonuses.Sum(b => b.Amount)), bonuses, instance.Origin) });
+                            checked(spec.DamageAmount!.Value + bonuses.Sum(b => b.Amount)), bonuses, instance.Origin,
+                            ReturnFocusPlayerId: returnFocusPlayer) });
                 }
         }
         return queue.ToArray();
@@ -136,6 +139,7 @@ public sealed partial class CoreRuleEngine
             || !state.Seats.ContainsKey(controller) || !Binding(context.Source) || context.Source.ObjectId != sourceId || !Location(context.SourceLocation)
             || context.InitialBonuses is null || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, sourceId, context.Source.Generation, context.CardNo)
             || context.Assignments is not null || context.ResolutionDamage is <= 0) return false;
+        if (context.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(context.ReturnFocusPlayerId)) return false;
         foreach (var bonus in context.InitialBonuses)
         {
             if (bonus is null || !Binding(bonus.Source) || bonus.Amount <= 0

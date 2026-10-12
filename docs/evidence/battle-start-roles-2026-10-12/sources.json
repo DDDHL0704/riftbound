@@ -1,0 +1,577 @@
+{
+  "date": "2026-10-12",
+  "sourceCorpus": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+  "currentRefresh": "docs/evidence/rules-reaudit-2026-10-12/live-readback.json",
+  "rules": [
+    {
+      "id": "DOC-04-P088-B001",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B002",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B003",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.b"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B004",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.c"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B005",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.c.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B006",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.c.1.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B007",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.c.1.b"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B008",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.c.2"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B009",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.c.3"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B010",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.c.3.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B011",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.d"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B012",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.e"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B013",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.e.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B014",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.f"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B015",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.f.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B016",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "464.2.g"
+      ]
+    },
+    {
+      "id": "DOC-04-P088-B018",
+      "document": "DOC-04",
+      "page": 88,
+      "clauseAnchors": [
+        "465.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P090-B009",
+      "document": "DOC-04",
+      "page": 90,
+      "clauseAnchors": [
+        "466.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P090-B010",
+      "document": "DOC-04",
+      "page": 90,
+      "clauseAnchors": [
+        "466.1.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P090-B011",
+      "document": "DOC-04",
+      "page": 90,
+      "clauseAnchors": [
+        "466.1.a.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P090-B012",
+      "document": "DOC-04",
+      "page": 90,
+      "clauseAnchors": [
+        "466.1.a.2"
+      ]
+    },
+    {
+      "id": "DOC-04-P090-B013",
+      "document": "DOC-04",
+      "page": 90,
+      "clauseAnchors": [
+        "466.2"
+      ]
+    },
+    {
+      "id": "DOC-04-P090-B014",
+      "document": "DOC-04",
+      "page": 90,
+      "clauseAnchors": [
+        "466.3"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B001",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.3.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B002",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.3.b"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B003",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.3.c"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B004",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.3.d"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B005",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.3.d.1"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B006",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.4"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B007",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.5"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B008",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.5.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B009",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.5.b"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B010",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.5.c"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B011",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.5.d"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B012",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.5.e"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B013",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.6"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B014",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.7"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B015",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.7.a"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B016",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.7.b"
+      ]
+    },
+    {
+      "id": "DOC-04-P091-B017",
+      "document": "DOC-04",
+      "page": 91,
+      "clauseAnchors": [
+        "466.7.c"
+      ]
+    }
+  ],
+  "scope": "Shared initial battle roles, captured registered attack/defend triggers before ordinary focus, late arriving participants and no duplicate declaration triggers. Other legacy attack/defend consumers remain open. Shadow UNL-194 is a Swift skill; it acts through focus and cannot interrupt a closed chain.",
+  "additionalCardSources": [
+    {
+      "id": 34747,
+      "cardCategoryList": [
+        "exclusive_unit"
+      ],
+      "cardCategoryNameList": [
+        "专属单位"
+      ],
+      "cardNo": "UNL-194/219",
+      "cardName": "黑影",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green",
+        "purple"
+      ],
+      "hero": "薇古丝",
+      "region": "暗影岛",
+      "tag": "",
+      "artist": "莺之歌",
+      "cardEffect": "如果你将我打出至一处战场，则我以活跃状态进场。\n{{迅捷>}} 支付{{1}}和{{A}}，{{横置}}：{{眩晕}}一名进攻此处的敌方单位。（使其在本回合内无法造成战斗伤害。）",
+      "flavorText": "“又一个要处理的家伙。黑影，你能解决吗？”\n——薇古丝",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)",
+        "UNL（英雄预组 薇古丝）"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包",
+        "破限系列 英雄预组 薇古丝"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/fb950031c4b6464d84fb55717f017020.webp",
+      "backImage": "",
+      "listSort": 1277,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33126,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·050/221",
+      "cardName": "阿兹尔",
+      "subTitle": "飞升者",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "阿兹尔",
+      "region": "恕瑞玛",
+      "tag": "鸟类",
+      "artist": "Six More Vodka",
+      "cardEffect": "支付{{绿色}}：{{迅捷}} — 选择一个受你控制的单位，将我移动到它的位置，再将它移动到我原来的位置。如果该单位已配有武装，则你可以选择将其中一件武装贴附到我身上。每回合仅可使用一次。",
+      "flavorText": "“挑战恕瑞玛，挑战命运。”",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/52f820dac30846909d5723912f6aadc8.png",
+      "backImage": "",
+      "listSort": 947,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33218,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "SFD·128/221",
+      "cardName": "狂热粉丝",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "当我防守时，你可以选择摧毁我，以此将一名进攻方单位移动到其基地。",
+      "flavorText": "“德莱文说的......朝他们受伤的地方猛打!”",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": 2,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/74fca43d543c4d94abd299a27d36b6b3.png",
+      "backImage": "",
+      "listSort": 855,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 34612,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-079/219",
+      "cardName": "黛安娜",
+      "subTitle": "皎月化身",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "黛安娜",
+      "tag": "巨神峰",
+      "artist": "Six More Vodka",
+      "cardEffect": "当法术对决在此处开始时，你可以选择支付{{1}}，以此进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。（洞察时，查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+      "flavorText": "“追随无伪之光。”",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/c6adebacf49749d2804021a7ee47992f.webp",
+      "backImage": "",
+      "listSort": 1412,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "当法术对决在此处开始时，你可以选择支付{{1}}。若如此做，则进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。（洞察时，查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+      "otherDesc": 0
+    },
+    {
+      "id": 34755,
+      "cardCategoryList": [
+        "exclusive_spell"
+      ],
+      "cardCategoryNameList": [
+        "专属法术"
+      ],
+      "cardNo": "UNL-202/219",
+      "cardName": "虚空来袭",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange",
+        "purple"
+      ],
+      "hero": "卡兹克",
+      "region": "",
+      "tag": "",
+      "artist": "莺之歌",
+      "cardEffect": "移动一名友方单位，然后移动一名敌方单位。（如果它们都移动到一处不受你控制的战场，则你视为进攻方。）",
+      "flavorText": "“如果我把你吃掉的话，能学会如何去死吗？”\n——卡兹克",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/992138a2ecc84f6baa50f513949b3a02.webp",
+      "backImage": "",
+      "listSort": 1269,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "additionalRules": [
+    "DOC-04 p32 308.1.a, p33 313.1.a, p36 316.8.c"
+  ]
+}

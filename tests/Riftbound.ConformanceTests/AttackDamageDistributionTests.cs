@@ -42,9 +42,12 @@ public sealed class AttackDamageDistributionTests
 
     internal static async Task<ResolutionResult> Top(MatchState state)
     {
-        var first = await Act(state, state.PriorityPlayerId!, new PassPriorityCommand());
+        var closingFocus = state.StackItems.Count == 0 && state.FocusPlayerId is not null;
+        var first = await Act(state, closingFocus ? state.FocusPlayerId! : state.PriorityPlayerId!,
+            closingFocus ? new PassFocusCommand() : new PassPriorityCommand());
         Restore(first.State); ArmamentMightTests.PublicRecovery(first.State);
-        var second = await Act(first.State, first.State.PriorityPlayerId!, new PassPriorityCommand());
+        var second = await Act(first.State, closingFocus ? first.State.FocusPlayerId! : first.State.PriorityPlayerId!,
+            closingFocus ? new PassFocusCommand() : new PassPriorityCommand());
         Restore(second.State); ArmamentMightTests.PublicRecovery(second.State);
         return second;
     }
@@ -316,10 +319,7 @@ public sealed class AttackDamageDistributionTests
         initial = At(OfficialHoldSequenceTests.AddUnit(initial, "ALLY", "OGN·001/298", "F", "P1"), "ALLY", "P1", "BASE");
         if (scenario != "defenders-gone") initial = Spell(initial, "SOUL", "SFD·163/221", "P1");
         var current = await Act(initial, "P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
-        while (current.State.FocusPlayerId is not null)
-            current = await Act(current.State, current.State.FocusPlayerId, new PassFocusCommand());
-        current = await Act(current.State, "P1", new DeclareBattleCommand("F", ["HOST"],
-            onlyOneDefender ? ["ENEMY1"] : ["ENEMY1", "ENEMY2", "ENEMY3"], ["COMBAT_ASSIGNMENT"]));
+        Assert.Equal("TRIGGER_CONFIRMATION", current.State.PendingCardChoice!.ChoiceWindow);
         current = await Confirm(current.State, onlyOneDefender ? ["ENEMY1"] : ["ENEMY1", "ENEMY2", "ENEMY3"]);
         if (scenario != "defenders-gone") {
             current = await Top((await Act(current.State, "P1", new PlayCardCommand("SOUL", "SFD·163/221", ["HOST", "ALLY"]))).State);

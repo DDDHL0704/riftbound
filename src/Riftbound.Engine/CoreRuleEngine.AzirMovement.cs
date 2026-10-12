@@ -16,6 +16,7 @@ public sealed partial class CoreRuleEngine
         => state.Status == MatchStatuses.InProgress && state.Phase == MatchPhases.Main
             && state.PendingPayment is null && state.PendingHandChoice is null && state.PendingCardChoice is null
             && state.PendingEffectPlay is null && !ResolutionResult.HasBlockingPendingTaskQueue(state)
+            && !ResolutionResult.HasOpenBattleDamageAssignmentWindow(state)
             && (state.TimingState == TimingStates.NeutralOpen && state.ActivePlayerId == player && state.StackItems.Count == 0
                 || state.TimingState == TimingStates.SpellDuelOpen && state.FocusPlayerId == player
                     && string.IsNullOrWhiteSpace(state.PriorityPlayerId));

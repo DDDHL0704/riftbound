@@ -199,7 +199,8 @@
       "UNIT_MOVED_TO_BATTLEFIELD",
       "UNIT_MOVED_TO_BATTLEFIELD",
       "BATTLEFIELD_CONTESTED",
-      "SPELL_DUEL_STARTED"
+      "SPELL_DUEL_STARTED",
+      "BATTLE_ROLES_ESTABLISHED"
     ],
     "events": [
       {
@@ -264,6 +265,20 @@
         "kind": "SPELL_DUEL_STARTED",
         "payload": {
           "battlefieldObjectId": "BF"
+        }
+      },
+      {
+        "kind": "BATTLE_ROLES_ESTABLISHED",
+        "payload": {
+          "battlefieldId": "BF",
+          "attackingPlayerId": "P2",
+          "attackerObjectIds": [
+            "P2-VOID-ASSAULT-ENEMY-001"
+          ],
+          "defenderObjectIds": [
+            "P1-VOID-ASSAULT-FIELD-KEEPER",
+            "P1-VOID-ASSAULT-FRIENDLY-001"
+          ]
         }
       }
     ],

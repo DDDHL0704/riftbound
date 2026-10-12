@@ -36,7 +36,7 @@ public sealed partial class FullGameEndToEndTests
         var current = await Submit(initial, "P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         for (var index = 0; index < 4 && current.State.FocusPlayerId is not null; index++)
             current = await Submit(current.State, current.State.FocusPlayerId, new PassFocusCommand());
-        current = await Submit(current.State, "P1", new DeclareBattleCommand("F", ["HOST"], ["ENEMY1", "ENEMY2", "ENEMY3"], ["COMBAT_ASSIGNMENT"]));
+        Assert.True(current.State.PendingCardChoice is not null || current.State.TriggerQueue.Count > 0);
         if (scenario == "copied") current = await Submit(current.State, "P1", new OrderTriggersCommand(
             OrderedTriggerIds: Enumerable.Reverse(current.State.TriggerQueue.Select(t => t.TriggerId)).ToArray()));
         while (current.State.PendingCardChoice is { ChoiceWindow: "TRIGGER_CONFIRMATION" } choice)
@@ -60,9 +60,10 @@ public sealed partial class FullGameEndToEndTests
             }
             Assert.Empty(current.State.StackItems); Assert.Equal(9, current.State.CardObjects["HOST"].Power);
         }
+        current = await FinishBattleAfterFocusAsync(session, current, "attack-score-combat-" + scenario);
         var result = await DriveBattleCloseToScoreVictoryAsync(session, current, "attack-score-" + scenario);
         AssertScoreVictory(result); Assert.Equal("P1", result.State.WinnerPlayerId);
-        Assert.Contains(journal.Entries.SelectMany(e => e.Events), e => e.Kind == "BATTLE_DECLARED");
+        Assert.Contains(journal.Entries.SelectMany(e => e.Events), e => e.Kind == "BATTLE_ROLES_ESTABLISHED");
         Assert.Contains(journal.Entries.SelectMany(e => e.Events), e => e.Kind == "BATTLE_CLOSED");
         Assert.Contains(journal.Entries, e => e.CommandType == CommandTypes.EndTurn);
         Assert.Equal(scenario == "countered" ? 0 : scenario == "copied" ? 2 : 1,

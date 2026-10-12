@@ -8076,7 +8076,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(passClients.CallerClient.Errors);
         var events = EventsFor(passClients);
         Assert.Equal(
-            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             events.Select(gameEvent => gameEvent.Kind).ToArray());
         var p1Snapshot = SnapshotFor(passClients, "P1");
         Assert.Equal("SPELL_DUEL_OPEN", p1Snapshot.Timing["timingState"]);

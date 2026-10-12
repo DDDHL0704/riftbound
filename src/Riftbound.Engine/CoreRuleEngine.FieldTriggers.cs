@@ -122,7 +122,7 @@ public sealed partial class CoreRuleEngine
                 FocusPlayerId = insight.ReturnFocusPlayerId, PriorityPlayerId = null, PassedPriorityPlayerIds = [], PassedFocusPlayerIds = [] };
         if (removed.TimingContext == TimingStates.SpellDuelOpen)
         {
-            var focus = removed.FieldContext?.ReturnFocusPlayerId ?? state.FocusPlayerId ?? NextPlayerIdAfter(state, removed.ControllerId);
+            var focus = removed.DamageDistribution?.ReturnFocusPlayerId ?? removed.FieldContext?.ReturnFocusPlayerId ?? state.FocusPlayerId ?? NextPlayerIdAfter(state, removed.ControllerId);
             return state with { TimingState = TimingStates.SpellDuelOpen, ActivePlayerId = focus,
                 FocusPlayerId = focus, PriorityPlayerId = null, PassedPriorityPlayerIds = [], PassedFocusPlayerIds = [] };
         }

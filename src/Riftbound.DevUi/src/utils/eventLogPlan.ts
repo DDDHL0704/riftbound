@@ -60,6 +60,8 @@ export type BuildEventLogPlanInput = {
 };
 
 const eventKindLabels: Record<string, string> = {
+  BATTLE_ROLES_ESTABLISHED: "确立进攻和防守身份",
+  BATTLE_ROLE_ACQUIRED: "单位取得战斗身份",
   INSIGHT_REQUESTED: "请求洞察选择",
   NEXT_SPELL_ECHO_GRANTED: "下个法术获得回响",
   SPELL_PLAY_PROHIBITED: "禁止打出法术",

@@ -496,7 +496,7 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
         Assert.Equal(
-            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Contains("P2-A", accepted.State.PlayerZones["P2"].Graveyard);
         Assert.DoesNotContain("P2-A", accepted.State.PlayerZones["P2"].Battlefields);
@@ -724,7 +724,7 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
         Assert.Equal(
-            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Contains("P2-A", accepted.State.PlayerZones["P2"].Graveyard);
         Assert.DoesNotContain("P2-A", accepted.State.PlayerZones["P2"].Battlefields);
@@ -1177,7 +1177,7 @@ public sealed class SpellDuelBattleStateMachineTests
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(
-            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Contains("P2-A", result.State.PlayerZones["P2"].Graveyard);
         Assert.DoesNotContain("P2-A", result.State.PlayerZones["P2"].Battlefields);
@@ -1217,7 +1217,7 @@ public sealed class SpellDuelBattleStateMachineTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Equal(
-            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal("BF-B", accepted.State.SpellDuelState.BattlefieldObjectId);
         Assert.Equal("task:start-spell-duel:BF-B", accepted.State.PendingTaskQueue.ActiveTaskId);
@@ -1282,7 +1282,7 @@ public sealed class SpellDuelBattleStateMachineTests
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
         Assert.Equal(
-            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED", "BATTLEFIELD_CONTROL_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(TimingStates.SpellDuelOpen, accepted.State.TimingState);
         Assert.Equal("BF-B", accepted.State.SpellDuelState.BattlefieldObjectId);
@@ -1901,7 +1901,7 @@ public sealed class SpellDuelBattleStateMachineTests
             result.State.BattlefieldTasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
                 && string.Equals(task.BattlefieldObjectId, "BF-B", StringComparison.Ordinal));
-        Assert.Equal("WAITING_FOR_SPELL_DUEL", waitingBattleTask.Status);
+        Assert.Equal("ACTIVE", waitingBattleTask.Status);
         Assert.Equal("SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", waitingBattleTask.Reason);
         Assert.DoesNotContain(
             result.State.BattlefieldTasks,
@@ -1928,7 +1928,7 @@ public sealed class SpellDuelBattleStateMachineTests
             ["START_SPELL_DUEL", "START_BATTLE"],
             battlefieldTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
         Assert.Equal(
-            ["ACTIVE", "WAITING_FOR_SPELL_DUEL"],
+            ["ACTIVE", "ACTIVE"],
             battlefieldTasks.Select(task => Assert.IsType<string>(task["status"])).ToArray());
         Assert.Equal(
             ["BF-B", "BF-B"],

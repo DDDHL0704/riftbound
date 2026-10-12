@@ -1,0 +1,186 @@
+{
+  "status": "SCOPED_REBUILT_LOCAL_VERIFICATION_PASS_FULL_CI_REQUIRED",
+  "scope": "Initial roles, captured registered Volibear/Fan attack/defense triggers, attacker-first role-trigger placement, representative late Azir arrival, Shadow Swift window, matching-field battle cleanup and precise empty revealed-hand recovery.",
+  "wholeCardCertification": false,
+  "overallStatus": "IN_PROGRESS_NOT_READY",
+  "batchCheck": {
+    "executed": 10047,
+    "passed": 10006,
+    "failed": 41,
+    "failedCases": [
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageAdvancesNextContestedBattlefieldTask",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageRejectsAcceptedCommandReplayWithoutMutation",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageStalePromptReplayAfterNextContestStartsRejectsWithoutMutation",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalAssignCombatDamageStaleRawPromptAfterNextContestStartsRecordsRejectedJournalWithoutMutation",
+      "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalBattlefieldControlCleanupRemovesIllegalStandbyBeforeAdvancingNextContestedTask",
+      "Riftbound.ConformanceTests.BattlefieldContestBattleTaskGuardTests.DeclareBattleStalePromptReplayAfterNextSpellDuelStartsRejectsWithoutMutation",
+      "Riftbound.ConformanceTests.BattlefieldContestBattleTaskGuardTests.ImmediateDeclareBattleAdvancesNextContestedBattlefieldTaskAfterCurrentBattleCloses",
+      "Riftbound.ConformanceTests.BoardTaskQueueFoundationTests.MoveUnitIntoOccupiedEnemyBattlefieldRejectsAcceptedCommandReplayWithoutMutation",
+      "Riftbound.ConformanceTests.BoardTaskQueueFoundationTests.MoveUnitStalePromptReplayAfterSpellDuelStartsRejectsWithoutMutation",
+      "Riftbound.ConformanceTests.BoardTaskQueueFoundationTests.PreciseRoamPreservesDestinationCasingAndQueuesOnlyDestinationContestTasks",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBattleCommandMoveFriendlyAndOpponentUnit",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysVoidAssaultMoveFriendlyAndEnemyUnit",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEngineStartsBattlefieldSpellDuelAfterStackResolutionLeavesContestedBattlefield",
+      "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P4ActivatedAbilityCatalogExposesRepresentativeSkillDefinitions",
+      "Riftbound.ConformanceTests.CurrentPowerTargetTests.BattleProjectionIncludesRolePowerButStunOnlySuppressesDamage(defenderBonus: False, stunned: False)",
+      "Riftbound.ConformanceTests.CurrentPowerTargetTests.BattleProjectionIncludesRolePowerButStunOnlySuppressesDamage(defenderBonus: True, stunned: False)",
+      "Riftbound.ConformanceTests.CurrentPowerTargetTests.BattleProjectionIncludesRolePowerButStunOnlySuppressesDamage(defenderBonus: True, stunned: True)",
+      "Riftbound.ConformanceTests.DestructionOrderNativeTests.ProductionReplacementDecisionsRestoreAndReplay(branch: \"altar-decline\", selected: \"DECLINE\")",
+      "Riftbound.ConformanceTests.DestructionOrderNativeTests.ProductionReplacementDecisionsRestoreAndReplay(branch: \"altar-pay\", selected: \"ALTAR:D:BF\")",
+      "Riftbound.ConformanceTests.DestructionOrderTests.AltarAtAnotherBattlefieldCannotReplaceDeathsDuringThisBattle",
+      "Riftbound.ConformanceTests.DestructionOrderTests.AltarCanGenerateManaBeforePayingAndKeepsItAfterDeclining",
+      "Riftbound.ConformanceTests.DestructionOrderTests.AltarLetsTheDyingUnitsControllerPayOrDecline(accept: False)",
+      "Riftbound.ConformanceTests.DestructionOrderTests.AltarLetsTheDyingUnitsControllerPayOrDecline(accept: True)",
+      "Riftbound.ConformanceTests.DrawDefenseContinuationTests.NativeTargetCommandsRestoreAndReplayThroughBattleCompletion(scenario: \"fan\")",
+      "Riftbound.ConformanceTests.DrawDefenseContinuationTests.NativeTargetCommandsRestoreAndReplayThroughBattleCompletion(scenario: \"fan-decline\")",
+      "Riftbound.ConformanceTests.OfficialDrawDefenseTests.DianaConfirmationAndResolutionPrecedeFanDefense",
+      "Riftbound.ConformanceTests.OfficialDrawDefenseTests.FanChoosesAndPaysDestructionBeforeResponse(decline: False)",
+      "Riftbound.ConformanceTests.OfficialDrawDefenseTests.FanChoosesAndPaysDestructionBeforeResponse(decline: True)",
+      "Riftbound.ConformanceTests.OfficialDrawDefenseTests.FanResponseThenBattleCompletesWithoutRetriggerOrDeadlock(decline: False)",
+      "Riftbound.ConformanceTests.OfficialDrawDefenseTests.FanResponseThenBattleCompletesWithoutRetriggerOrDeadlock(decline: True)",
+      "Riftbound.ConformanceTests.OfficialDrawDefenseTests.FanWardRequiresGenericPowerAndRejectsBeforeDestroyingSource",
+      "Riftbound.ConformanceTests.OfficialDrawDefenseTests.InvalidConfirmationAndDrawLedgerAreRejectedByRecovery",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.CombatDeathOpensTheDefendersLastBreathAndCompletesBattle",
+      "Riftbound.ConformanceTests.OfficialSettReplacementTests.CombatDamagePausesAndResumesBeforeDeaths",
+      "Riftbound.ConformanceTests.SequentialMovementTests.BothUnitsEnteringUncontrolledBattlefieldMakeCasterTheAttacker",
+      "Riftbound.ConformanceTests.SpellDuelBattleStateMachineTests.ClosingSpellDuelWithCleanupRemovedParticipantSkipsOnlyMatchingBattleAndAdvancesNextTask",
+      "Riftbound.ConformanceTests.SpellDuelBattleStateMachineTests.PassFocusClosingSpellDuelDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation",
+      "Riftbound.ConformanceTests.SpellDuelBattleStateMachineTests.PassFocusSecondPlayerClosingSpellDuelStalePromptReplayRecordsRejectedJournalWithoutMutation",
+      "Riftbound.ConformanceTests.SpellDuelBattleStateMachineTests.SpellDuelFocusStalePromptReplayAfterNextContestStartsRecordsRejectedJournalWithoutMutation",
+      "Riftbound.ConformanceTests.SpellDuelBattleStateMachineTests.SpellDuelFocusStalePromptReplayAfterNextContestStartsRejectsWithoutMutation"
+    ],
+    "repeated": false
+  },
+  "finalFocus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 56.31,
+    "total": 342,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 342,
+        "passed": 342,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 19.43
+      }
+    ]
+  },
+  "selectedGamesAndNativeReadback": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 102.75,
+    "total": 11,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 98.66
+      }
+    ]
+  },
+  "selectedFullGames": {
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationScoreVictoryActionLogReplaysToFinalStateHash": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationThroughServerPrompts": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveStandbyReactionDuringShadowResponseScoreVictoryActionLogReplaysToFinalStateHash": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationActionLogReplaysToFinalStateHash": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedDistributedAttackConfirmsRespondsAllocatesAndReplaysThroughScoreVictory(scenario: \"copied\")": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedDistributedAttackConfirmsRespondsAllocatesAndReplaysThroughScoreVictory(scenario: \"countered\")": "Passed",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedDistributedAttackConfirmsRespondsAllocatesAndReplaysThroughScoreVictory(scenario: \"printed\")": "Passed"
+  },
+  "finalTestAssemblySha256": "eb45f222ec364bfc8026644cf72e17c510eeaf9619034ce2aebaa5b4038e776c",
+  "compositeLocal": {
+    "distinctPassed": 10060,
+    "remainingFailures": [],
+    "mixedAssemblyEvidence": true,
+    "note": "One local check plus specific repaired cases and selected games; this is not a repeated complete regression of the final assembly. The pushed code commit requires full exact-head CI."
+  },
+  "parity": {
+    "previousCheckCases": 10034,
+    "currentCheckCases": 10047,
+    "missingOldCases": [],
+    "addedCheckCases": [
+      "Riftbound.ConformanceTests.BattleStartRoleTests.AUnitArrivingDuringTheDuelGainsItsRoleWithoutRecapturingExistingAttackSkills",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ConfirmedAttackResolvesBeforeOrdinaryFocusAndIsNotRecapturedForCombat",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestEstablishesAttackRolesAndConfirmsTriggersBeforeOrdinaryFocus(card: \"OGN·041/298\", copied: False)",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestEstablishesAttackRolesAndConfirmsTriggersBeforeOrdinaryFocus(card: \"OGN·041/298\", copied: True)",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestEstablishesAttackRolesAndConfirmsTriggersBeforeOrdinaryFocus(card: \"OGN·041a/298\", copied: False)",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ContestWithoutTriggeredSkillsEstablishesRolesAndKeepsAttackerFocus",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"attacking-seat\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"early-combat\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"false-field\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"focus-seat\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.RecoveryRejectsForgedInitialBattleRoleContext(forgery: \"null-costs\")",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ShadowUsesTheDefendersSwiftFocusAfterAttackRolesAreEstablished",
+      "Riftbound.ConformanceTests.BattleStartRoleTests.ShadowsSwiftAbilityCannotInterruptConfirmedAttackSkills"
+    ],
+    "additionalFocusedCases": [
+      "Riftbound.ConformanceTests.BattleStartRoleTests.BattleTriggerOrderStartsWithTheRecordedAttackerWhenItIsNotTheirTurn",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"execution\")",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"missing-context\")",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"owner\")",
+      "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"stack\")"
+    ],
+    "committedTestMethodsInModifiedFiles": 2332,
+    "missingCommittedMethods": [],
+    "changedInlineData": [],
+    "discoveredMethods": 6625
+  },
+  "redEvidence": {
+    "meaningfulRed": [
+      "Real MOVE established roles too late in four new entrypoint checks.",
+      "Attacker P2 while turn player P1 got incorrect trigger ordering priority.",
+      "Real combat death opened an empty revealed-hand choice that disappeared on private JSON roundtrip."
+    ],
+    "invalidRecoveryRedPrecondition": "The initial five forged-context tests failed before mutations due to task status mismatch; not counted as valid forgery red tests. Baseline restoration and all five mutations pass after correction."
+  },
+  "native": {
+    "productionCommands": 17,
+    "scenarios": {
+      "printed": {
+        "commands": 4,
+        "nativeCommands": 4,
+        "replayMatch": true,
+        "stateHash": "66a7acfd51cbcddc48e9ae34b8ddc54e0e00649b8a4c9458ed220ea688c4b894"
+      },
+      "alternate": {
+        "commands": 4,
+        "nativeCommands": 4,
+        "replayMatch": true,
+        "stateHash": "df6cad355337a45547769afe291480e9d3a5bb535943a8eb271ae84276484541"
+      },
+      "copied": {
+        "commands": 9,
+        "nativeCommands": 9,
+        "replayMatch": true,
+        "stateHash": "d30488b13f18fe1013a6dd6d8f9375c3b4be47f14a6cfab713c2cc9529b85402"
+      }
+    },
+    "proof": "ATTACK_DAMAGE_PASS: 17 production trigger confirmation, response and allocation commands",
+    "godotBuild": "PASSED",
+    "devUiBuild": "PASSED",
+    "visiblePairedClients": false
+  },
+  "fullCi": {
+    "status": "REQUIRED_FOR_PUSHED_CODE_COMMIT",
+    "workflow": "Native desktop and China rules",
+    "expectedCases": 10201,
+    "note": "Final run URL and exact-head artifact verification will be saved in var/qa/battle-start-roles/ci-final/verification.json after push. No second local check."
+  },
+  "remaining": [
+    "Existing spell-duel conversion and preserved focus under DOC-04 464.2.c.1.b need a real command chain.",
+    "Other legacy attack/defend consumers, including Icevale Archer payment, remain open.",
+    "All copied defense consumers, controller-owned ordering and the complete late role lifecycle are not certified. Duel-start-only multi-controller ordering needs its own review.",
+    "The full official card/rule/QA semantic audit and English reported-versus-readback count gap remain open.",
+    "Visible paired Mac clients and Windows network acceptance are absent; overall platform remains NOT READY."
+  ],
+  "resumption": "Finish the exact-head CI and then pause at the user request dated 2026-10-12. Do not begin another batch."
+}

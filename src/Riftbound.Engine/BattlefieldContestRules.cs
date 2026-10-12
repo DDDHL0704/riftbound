@@ -7,6 +7,9 @@ internal static class BattlefieldContestRules
 
     public static string Initiator(MatchState state, BattlefieldState battlefield)
     {
+        if (CoreRuleEngine.IsInitialBattleDuel(state, out var captured)
+            && captured.BattlefieldId == battlefield.BattlefieldObjectId)
+            return captured.InitialAttackingPlayerId!;
         var prefix = MarkerPrefix(battlefield.BattlefieldObjectId);
         var recorded = state.UntilEndOfTurnEffects.FirstOrDefault(effect => effect.StartsWith(prefix, StringComparison.Ordinal));
         if (recorded is not null) return recorded[prefix.Length..];

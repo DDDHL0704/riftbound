@@ -9,15 +9,17 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult ResolveBattleResponseWithoutCombatDamage(MatchState state,
         string attackingPlayer, string battlefield, IReadOnlyList<string> originalAttackers,
         IReadOnlyList<string> originalDefenders, IReadOnlyList<string> attackers,
-        IReadOnlyList<string> defenders, IReadOnlyList<GameEvent> priorityEvents)
+        IReadOnlyList<string> defenders, IReadOnlyList<GameEvent> priorityEvents,
+        bool advanceTick = true, bool responsePriorityClosed = true)
     {
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal);
-        var defendingPlayer = originalDefenders.Select(id => cards.GetValueOrDefault(id)?.ControllerId)
+        var defendingPlayer = SeatPlayerIds(state).FirstOrDefault(id => id != attackingPlayer)
+            ?? originalDefenders.Select(id => cards.GetValueOrDefault(id)?.ControllerId)
             .FirstOrDefault(id => !string.IsNullOrWhiteSpace(id));
         var winner = attackers.Count > 0 ? attackingPlayer : defenders.Count > 0 ? defendingPlayer : null;
         var events = priorityEvents.ToList();
-        events.Add(new("BATTLE_RESPONSE_PRIORITY_CLOSED", "双方让过战斗响应优先权，开始结算战斗",
+        if (responsePriorityClosed) events.Add(new("BATTLE_RESPONSE_PRIORITY_CLOSED", "双方让过战斗响应优先权，开始结算战斗",
             new Dictionary<string, object?> { ["battlefieldObjectId"] = battlefield, ["battleId"] = state.BattleState.BattleId,
                 ["attackingPlayerId"] = attackingPlayer, ["declarationContextPreserved"] = true,
                 ["passedPriorityPlayerIds"] = SeatPlayerIds(state), ["combatDamageSkipped"] = true }));
@@ -26,7 +28,7 @@ public sealed partial class CoreRuleEngine
             events.Add(BuildBattleNoResultEvent(zones, cards, battlefield, attackers, defenders, attackingPlayer, defendingPlayer));
         CloseResolvedBattle(zones, cards, battlefield, originalAttackers, originalDefenders, events);
         var settled = state with {
-            Tick = state.Tick + 1, ActivePlayerId = state.TurnPlayerId,
+            Tick = state.Tick + (advanceTick ? 1 : 0), ActivePlayerId = state.TurnPlayerId,
             PlayerZones = zones, CardObjects = cards, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
             TimingState = TimingStates.NeutralOpen, FocusPlayerId = null, PriorityPlayerId = null,
             PassedFocusPlayerIds = [], PassedPriorityPlayerIds = [],

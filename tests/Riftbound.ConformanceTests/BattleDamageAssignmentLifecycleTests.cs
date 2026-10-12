@@ -262,7 +262,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-shadow-assignment-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -273,33 +273,29 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
-        Assert.Equal(PromptTypes.StackPriority, openedResponse.Prompts["P2"].View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, openedResponse.Prompts["P2"].View?.Type);
         var responseCandidate = Assert.Single(
             openedResponse.Prompts["P2"].Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.ActivateAbility, StringComparison.Ordinal));
         Assert.Contains(responseCandidate.Sources ?? [], source => string.Equals(source.Id, ShadowObjectId, StringComparison.Ordinal));
 
-        var p2Pass = await engine.ResolveAsync(
+        var p2Pass = await BattleFocusTestDriver.PassAsync(engine,
             openedResponse.State,
             new PlayerIntent("intent-natural-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Equal(PromptTypes.StackPriority, p2Pass.Prompts["P1"].View?.Type);
+        Assert.Equal(PromptTypes.AssignCombatDamage, p2Pass.Prompts["P1"].View?.Type);
 
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p1Pass = p2Pass;
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.DoesNotContain(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         Assert.True(p1Pass.State.BattleState.IsActive);
@@ -337,7 +333,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-assignment-advancement-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -349,28 +345,24 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Equal($"task:start-battle:{BattlefieldObjectId}", openedResponse.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Equal($"task:start-spell-duel:{BattlefieldObjectId}", openedResponse.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
-        var p2Pass = await engine.ResolveAsync(
+        var p2Pass = await BattleFocusTestDriver.PassAsync(engine,
             openedResponse.State,
             new PlayerIntent("intent-natural-response-assignment-advancement-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Equal(PromptTypes.StackPriority, p2Pass.Prompts["P1"].View?.Type);
+        Assert.Equal(PromptTypes.AssignCombatDamage, p2Pass.Prompts["P1"].View?.Type);
         AssertNextContestedBattlefieldNotAdvanced(p2Pass);
 
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-response-assignment-advancement-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p1Pass = p2Pass;
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p1Pass.State.BattleState.IsActive);
@@ -379,7 +371,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(PromptTypes.AssignCombatDamage, p1Pass.Prompts["P1"].View?.Type);
         Assert.Equal(BattlefieldObjectId, p1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
         var responseClosedIndex = EventIndex(p1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var assignmentOpenedIndex = EventIndex(p1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
@@ -391,7 +383,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             ShadowResponseLegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.DoesNotContain(
             assigned.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -444,7 +437,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         state = state with { CardObjects = cardObjects };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-conquer-ordering-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -456,34 +449,30 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
-        var p2Pass = await engine.ResolveAsync(
+        var p2Pass = await BattleFocusTestDriver.PassAsync(engine,
             openedResponse.State,
             new PlayerIntent("intent-natural-response-conquer-ordering-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Equal(PromptTypes.StackPriority, p2Pass.Prompts["P1"].View?.Type);
+        Assert.Equal(PromptTypes.AssignCombatDamage, p2Pass.Prompts["P1"].View?.Type);
         AssertNextContestedBattlefieldNotAdvanced(p2Pass);
 
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-response-conquer-ordering-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p1Pass = p2Pass;
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p1Pass.State.BattleState.IsActive);
         Assert.Equal(PromptTypes.AssignCombatDamage, p1Pass.Prompts["P1"].View?.Type);
         Assert.Equal(BattlefieldObjectId, p1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
         var responseClosedIndex = EventIndex(p1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var assignmentOpenedIndex = EventIndex(p1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
@@ -495,7 +484,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             ShadowResponseLegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.Equal(2, assigned.State.PlayerExperience["P1"]);
         Assert.DoesNotContain(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
         Assert.DoesNotContain(
@@ -572,7 +562,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         state = state with { CardObjects = cardObjects };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-held-ordering-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -584,34 +574,30 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
-        var p2Pass = await engine.ResolveAsync(
+        var p2Pass = await BattleFocusTestDriver.PassAsync(engine,
             openedResponse.State,
             new PlayerIntent("intent-natural-response-held-ordering-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Equal(PromptTypes.StackPriority, p2Pass.Prompts["P1"].View?.Type);
+        Assert.Equal(PromptTypes.AssignCombatDamage, p2Pass.Prompts["P1"].View?.Type);
         AssertNextContestedBattlefieldNotAdvanced(p2Pass);
 
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-response-held-ordering-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p1Pass = p2Pass;
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p1Pass.State.BattleState.IsActive);
         Assert.Equal(PromptTypes.AssignCombatDamage, p1Pass.Prompts["P1"].View?.Type);
         Assert.Equal(BattlefieldObjectId, p1Pass.Prompts["P1"].View?.RelatedBattlefieldId);
         var responseClosedIndex = EventIndex(p1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var assignmentOpenedIndex = EventIndex(p1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
@@ -627,7 +613,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             ]);
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.Equal(0, assigned.State.PlayerExperience.GetValueOrDefault("P2"));
         Assert.DoesNotContain(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
         Assert.DoesNotContain(
@@ -654,7 +641,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-activation-assignment-advancement-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -666,9 +653,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
         var activated = await engine.ResolveAsync(
@@ -688,7 +675,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-activation-assignment-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -697,7 +684,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-assignment-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -706,8 +693,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
@@ -716,7 +703,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-assignment-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -725,7 +712,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-assignment-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -737,7 +724,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var assignmentOpenedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
@@ -749,7 +736,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             StunnedAttackerShadowResponseAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.DoesNotContain(
             assigned.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -791,7 +779,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId, ShadowObjectId]);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-stunned-assignment-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -802,7 +790,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
         var activated = await engine.ResolveAsync(
@@ -822,7 +810,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-stunned-assignment-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -831,7 +819,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-stunned-assignment-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -840,12 +828,12 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-stunned-assignment-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -854,7 +842,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-stunned-assignment-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -976,7 +964,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         state = state with { CardObjects = cardObjects };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-power-modifier-assignment-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -987,7 +975,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
         var activated = await engine.ResolveAsync(
@@ -1007,7 +995,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-power-modifier-assignment-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1016,7 +1004,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-power-modifier-assignment-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1025,15 +1013,15 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.DoesNotContain("STUNNED", stackP1Pass.State.CardObjects[BulwarkDefenderObjectId].UntilEndOfTurnEffects);
         Assert.Equal(1, stackP1Pass.State.CardObjects[BulwarkDefenderObjectId].Power);
         Assert.Equal(-1, stackP1Pass.State.CardObjects[BulwarkDefenderObjectId].UntilEndOfTurnPowerModifier);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-power-modifier-assignment-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1042,7 +1030,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-power-modifier-assignment-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1167,7 +1155,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         state = state with { CardObjects = cardObjects };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-activation-conquer-ordering-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -1179,9 +1167,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
@@ -1202,7 +1190,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-activation-conquer-ordering-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1211,7 +1199,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-conquer-ordering-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1220,8 +1208,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         var stackResolvedIndex = EventIndex(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
@@ -1231,7 +1219,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackResolvedIndex < abilityResolvedIndex);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-conquer-ordering-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1240,7 +1228,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-conquer-ordering-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1252,7 +1240,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var assignmentOpenedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
@@ -1264,7 +1252,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             StunnedAttackerSecondAttackerConquerAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.Equal(2, assigned.State.PlayerExperience["P1"]);
         Assert.DoesNotContain(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
         Assert.DoesNotContain(
@@ -1341,7 +1330,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         state = state with { CardObjects = cardObjects };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-activation-held-ordering-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -1353,9 +1342,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
@@ -1376,7 +1365,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-activation-held-ordering-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1385,7 +1374,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-held-ordering-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1394,8 +1383,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         var stackResolvedIndex = EventIndex(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
@@ -1405,7 +1394,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackResolvedIndex < abilityResolvedIndex);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-held-ordering-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1414,7 +1403,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-held-ordering-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1426,7 +1415,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var assignmentOpenedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
@@ -1441,7 +1430,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             ]);
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.Equal(0, assigned.State.PlayerExperience.GetValueOrDefault("P2"));
         Assert.DoesNotContain(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
         Assert.DoesNotContain(
@@ -1465,7 +1455,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildNoResultShadowActivationNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-activation-assignment-no-result-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -1477,9 +1467,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
@@ -1500,7 +1490,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-activation-assignment-no-result-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1509,7 +1499,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-assignment-no-result-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1518,8 +1508,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[SecondAttackerObjectId].UntilEndOfTurnEffects);
         var stackResolvedIndex = EventIndex(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
@@ -1529,7 +1519,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackResolvedIndex < abilityResolvedIndex);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-assignment-no-result-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1538,7 +1528,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-assignment-no-result-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1550,7 +1540,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var assignmentOpenedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
@@ -1575,7 +1565,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Empty(Assert.IsType<string[]>(noResultEvent.Payload["survivingDefenderObjectIds"]));
         Assert.DoesNotContain(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
         Assert.DoesNotContain(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.DoesNotContain(
             assigned.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -1627,7 +1618,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(state, HiddenStandbyObjectId);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-activation-cleanup-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -1639,9 +1630,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(openedResponse.State, HiddenStandbyObjectId);
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
@@ -1664,7 +1655,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(activated.State, HiddenStandbyObjectId);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-activation-cleanup-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1673,7 +1664,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-cleanup-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1682,8 +1673,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         var stackResolvedIndex = EventIndex(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
@@ -1694,7 +1685,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertHiddenStandbyIdentityRedactedFromUnauthorizedProjection(stackP1Pass.State, HiddenStandbyObjectId);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-cleanup-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1703,7 +1694,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-cleanup-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1715,7 +1706,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal($"task:start-battle:{BattlefieldObjectId}", responseP1Pass.State.PendingTaskQueue.ActiveTaskId);
         Assert.Equal(PromptTypes.AssignCombatDamage, responseP1Pass.Prompts["P1"].View?.Type);
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var assignmentOpenedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.True(responseClosedIndex < assignmentOpenedIndex);
@@ -1767,7 +1758,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("GRAVEYARD", standbyLocation.Zone);
         Assert.Null(standbyLocation.BattlefieldObjectId);
 
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.DoesNotContain(
             assigned.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -1796,7 +1788,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [BulwarkDefenderObjectId]);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-activation-immediate-advancement-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -1808,9 +1800,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
@@ -1831,7 +1823,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-activation-immediate-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1840,7 +1832,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-immediate-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1849,8 +1841,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         var stackResolvedIndex = EventIndex(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
@@ -1860,7 +1852,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackResolvedIndex < abilityResolvedIndex);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-immediate-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1869,7 +1861,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-immediate-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -1877,7 +1869,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         responseP1Pass = await CombatTestDriver.FinishAsync(responseP1Pass, engine);
-        Assert.False(responseP1Pass.State.BattleState.IsActive);
+        Assert.True(responseP1Pass.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, responseP1Pass.State.BattleState.BattlefieldObjectId);
         Assert.Empty(responseP1Pass.State.StackItems);
         Assert.Contains(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
@@ -1886,7 +1879,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
                 && string.Equals(task.BattlefieldObjectId, BattlefieldObjectId, StringComparison.Ordinal));
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
@@ -1921,7 +1914,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildNestedStandbyReactionBattleResponseState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-nested-standby-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -1933,9 +1926,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
@@ -1959,7 +1952,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("P2", activated.State.PriorityPlayerId);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-nested-standby-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2006,11 +1999,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("STACK", revealed.State.ObjectLocations[StandbyReactionObjectId].Zone);
         Assert.False(revealed.State.CardObjects[StandbyReactionObjectId].IsFaceDown);
         Assert.Equal("P1", revealed.State.PriorityPlayerId);
-        Assert.DoesNotContain(revealed.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+        Assert.DoesNotContain(revealed.Events, gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.DoesNotContain(revealed.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(revealed);
 
-        var standbyP1Pass = await engine.ResolveAsync(
+        var standbyP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             revealed.State,
             new PlayerIntent("intent-natural-response-nested-standby-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2021,7 +2014,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal([shadowStackItem.StackItemId, standbyStackItem.StackItemId], standbyP1Pass.State.StackItems.Select(item => item.StackItemId).ToArray());
         AssertNextContestedBattlefieldNotAdvanced(standbyP1Pass);
 
-        var standbyP2Pass = await engine.ResolveAsync(
+        var standbyP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             standbyP1Pass.State,
             new PlayerIntent("intent-natural-response-nested-standby-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2037,7 +2030,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain("STUNNED", standbyP2Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         AssertNextContestedBattlefieldNotAdvanced(standbyP2Pass);
 
-        var shadowP2Pass = await engine.ResolveAsync(
+        var shadowP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             standbyP2Pass.State,
             new PlayerIntent("intent-natural-response-nested-shadow-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2048,7 +2041,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal([shadowStackItem.StackItemId], shadowP2Pass.State.StackItems.Select(item => item.StackItemId).ToArray());
         AssertNextContestedBattlefieldNotAdvanced(shadowP2Pass);
 
-        var shadowP1Pass = await engine.ResolveAsync(
+        var shadowP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             shadowP2Pass.State,
             new PlayerIntent("intent-natural-response-nested-shadow-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2057,8 +2050,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(shadowP1Pass.Accepted, shadowP1Pass.ErrorMessage);
         Assert.Empty(shadowP1Pass.State.StackItems);
         Assert.True(shadowP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, shadowP1Pass.State.TimingState);
-        Assert.Equal("P2", shadowP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, shadowP1Pass.State.TimingState);
+        Assert.Equal("P1", shadowP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", shadowP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         var shadowResolvedIndex = EventIndex(shadowP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
@@ -2068,7 +2061,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(shadowResolvedIndex < abilityResolvedIndex);
         AssertNextContestedBattlefieldNotAdvanced(shadowP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             shadowP1Pass.State,
             new PlayerIntent("intent-natural-response-nested-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2077,7 +2070,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-nested-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2085,12 +2078,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         responseP1Pass = await CombatTestDriver.FinishAsync(responseP1Pass, engine);
-        Assert.False(responseP1Pass.State.BattleState.IsActive);
+        Assert.True(responseP1Pass.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, responseP1Pass.State.BattleState.BattlefieldObjectId);
         Assert.Empty(responseP1Pass.State.StackItems);
         Assert.Contains(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
@@ -2125,7 +2119,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildMultipleShadowBattleResponseState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-multiple-shadow-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -2137,11 +2131,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
         Assert.Contains(ShadowObjectId, openedResponse.State.BattleState.DefenderObjectIds);
         Assert.Contains(SecondShadowObjectId, openedResponse.State.BattleState.DefenderObjectIds);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.Equal(
             [SecondShadowObjectId, ShadowObjectId],
@@ -2171,7 +2165,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(new RunePool(1, 1), activatedA.State.RunePools["P2"]);
         AssertNextContestedBattlefieldNotAdvanced(activatedA);
 
-        var shadowAStackP2Pass = await engine.ResolveAsync(
+        var shadowAStackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activatedA.State,
             new PlayerIntent("intent-natural-response-multiple-shadow-a-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2181,7 +2175,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("P1", shadowAStackP2Pass.State.PriorityPlayerId);
         AssertNextContestedBattlefieldNotAdvanced(shadowAStackP2Pass);
 
-        var shadowAStackP1Pass = await engine.ResolveAsync(
+        var shadowAStackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             shadowAStackP2Pass.State,
             new PlayerIntent("intent-natural-response-multiple-shadow-a-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2190,20 +2184,24 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(shadowAStackP1Pass.Accepted, shadowAStackP1Pass.ErrorMessage);
         Assert.Empty(shadowAStackP1Pass.State.StackItems);
         Assert.True(shadowAStackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, shadowAStackP1Pass.State.TimingState);
-        Assert.Equal("P2", shadowAStackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, shadowAStackP1Pass.State.TimingState);
+        Assert.Equal("P1", shadowAStackP1Pass.State.FocusPlayerId);
         Assert.True(shadowAStackP1Pass.State.CardObjects[ShadowObjectId].IsExhausted);
         Assert.False(shadowAStackP1Pass.State.CardObjects[SecondShadowObjectId].IsExhausted);
         Assert.Contains("STUNNED", shadowAStackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
+        var secondFocus = await engine.ResolveAsync(shadowAStackP1Pass.State,
+            new PlayerIntent("second-shadow-focus", "P1", CommandTypes.PassFocus), new PassFocusCommand(), default);
+        Assert.True(secondFocus.Accepted, secondFocus.ErrorMessage);
+        Assert.Equal("P2", secondFocus.State.FocusPlayerId);
         Assert.Equal(
             [SecondShadowObjectId],
-            EnabledActivateAbilitySourceIds(shadowAStackP1Pass.Prompts["P2"])
+            EnabledActivateAbilitySourceIds(secondFocus.Prompts["P2"])
                 .Where(sourceId => sourceId is ShadowObjectId or SecondShadowObjectId)
                 .ToArray());
         AssertNextContestedBattlefieldNotAdvanced(shadowAStackP1Pass);
 
         var activatedB = await engine.ResolveAsync(
-            shadowAStackP1Pass.State,
+            secondFocus.State,
             new PlayerIntent("intent-natural-response-multiple-shadow-b", "P2", CommandTypes.ActivateAbility),
             new ActivateAbilityCommand(
                 SecondShadowObjectId,
@@ -2222,7 +2220,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(new RunePool(0, 0), activatedB.State.RunePools["P2"]);
         AssertNextContestedBattlefieldNotAdvanced(activatedB);
 
-        var shadowBStackP2Pass = await engine.ResolveAsync(
+        var shadowBStackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activatedB.State,
             new PlayerIntent("intent-natural-response-multiple-shadow-b-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2232,7 +2230,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("P1", shadowBStackP2Pass.State.PriorityPlayerId);
         AssertNextContestedBattlefieldNotAdvanced(shadowBStackP2Pass);
 
-        var shadowBStackP1Pass = await engine.ResolveAsync(
+        var shadowBStackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             shadowBStackP2Pass.State,
             new PlayerIntent("intent-natural-response-multiple-shadow-b-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2241,8 +2239,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(shadowBStackP1Pass.Accepted, shadowBStackP1Pass.ErrorMessage);
         Assert.Empty(shadowBStackP1Pass.State.StackItems);
         Assert.True(shadowBStackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, shadowBStackP1Pass.State.TimingState);
-        Assert.Equal("P2", shadowBStackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, shadowBStackP1Pass.State.TimingState);
+        Assert.Equal("P1", shadowBStackP1Pass.State.FocusPlayerId);
         Assert.True(shadowBStackP1Pass.State.CardObjects[ShadowObjectId].IsExhausted);
         Assert.True(shadowBStackP1Pass.State.CardObjects[SecondShadowObjectId].IsExhausted);
         Assert.Empty(
@@ -2251,7 +2249,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
                 .ToArray());
         AssertNextContestedBattlefieldNotAdvanced(shadowBStackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             shadowBStackP1Pass.State,
             new PlayerIntent("intent-natural-response-multiple-shadow-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2260,7 +2258,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-multiple-shadow-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2268,12 +2266,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         responseP1Pass = await CombatTestDriver.FinishAsync(responseP1Pass, engine);
-        Assert.False(responseP1Pass.State.BattleState.IsActive);
+        Assert.True(responseP1Pass.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, responseP1Pass.State.BattleState.BattlefieldObjectId);
         Assert.Empty(responseP1Pass.State.StackItems);
         Assert.Contains(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
@@ -2311,7 +2310,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             defenderObjectIds: [ShadowObjectId]);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-stale-target-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -2323,9 +2322,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
@@ -2351,9 +2350,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
         {
             [AttackerObjectId] = activated.State.CardObjects[AttackerObjectId] with { IsAttacking = false }
         };
-        var staleState = activated.State with { CardObjects = staleCardObjects };
+        var staleState = LocalDestructionRecallTests.At(activated.State with { CardObjects = staleCardObjects }, AttackerObjectId, "P1", "BASE");
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             staleState,
             new PlayerIntent("intent-natural-response-stale-target-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2363,7 +2362,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("P1", stackP2Pass.State.PriorityPlayerId);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-stale-target-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2372,8 +2371,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.False(stackP1Pass.State.CardObjects[AttackerObjectId].IsAttacking);
         Assert.DoesNotContain("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         var abilityResolvedIndex = EventIndex(stackP1Pass.Events, gameEvent =>
@@ -2386,7 +2385,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(abilityResolvedIndex < noEffectIndex);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-stale-target-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2395,19 +2394,21 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-stale-target-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
 
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
-        Assert.False(responseP1Pass.State.BattleState.IsActive);
+        Assert.True(responseP1Pass.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, responseP1Pass.State.BattleState.BattlefieldObjectId);
+        Assert.Equal("BASE", responseP1Pass.State.ObjectLocations[AttackerObjectId].Zone);
         Assert.Empty(responseP1Pass.State.StackItems);
         Assert.DoesNotContain(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
@@ -2448,7 +2449,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             state.UntilEndOfTurnEffects);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-activation-completed-current-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -2462,9 +2463,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(openedResponse.State.BattleState.IsActive);
         Assert.DoesNotContain(ShadowObjectId, openedResponse.State.BattleState.AttackerObjectIds);
         Assert.Contains(ShadowObjectId, openedResponse.State.BattleState.DefenderObjectIds);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
@@ -2487,7 +2488,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-activation-completed-current-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2496,7 +2497,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-completed-current-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2505,8 +2506,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.DoesNotContain(ShadowObjectId, stackP1Pass.State.BattleState.AttackerObjectIds);
         Assert.Contains(ShadowObjectId, stackP1Pass.State.BattleState.DefenderObjectIds);
         Assert.True(stackP1Pass.State.CardObjects[ShadowObjectId].IsExhausted);
@@ -2518,7 +2519,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-completed-current-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2527,7 +2528,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-completed-current-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2535,7 +2536,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         responseP1Pass = await CombatTestDriver.FinishAsync(responseP1Pass, engine);
-        Assert.False(responseP1Pass.State.BattleState.IsActive);
+        Assert.True(responseP1Pass.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, responseP1Pass.State.BattleState.BattlefieldObjectId);
         Assert.Empty(responseP1Pass.State.StackItems);
         Assert.Contains(
             BattlefieldTaskMarkers.SpellDuelCompleted(BattlefieldObjectId),
@@ -2565,7 +2567,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         }
 
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
@@ -2607,7 +2609,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(BattlefieldObjectId, initialShadowLocation.BattlefieldObjectId);
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-nonparticipant-location-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -2622,9 +2624,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal([BulwarkDefenderObjectId, ShadowObjectId], openedResponse.State.BattleState.DefenderObjectIds);
         Assert.DoesNotContain(ShadowObjectId, openedResponse.State.BattleState.AttackerObjectIds);
         Assert.Contains(ShadowObjectId, openedResponse.State.BattleState.DefenderObjectIds);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
 
         var activated = await engine.ResolveAsync(
@@ -2649,7 +2651,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-nonparticipant-location-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2658,7 +2660,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-nonparticipant-location-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2670,8 +2672,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal([BulwarkDefenderObjectId, ShadowObjectId], stackP1Pass.State.BattleState.DefenderObjectIds);
         Assert.DoesNotContain(ShadowObjectId, stackP1Pass.State.BattleState.AttackerObjectIds);
         Assert.Contains(ShadowObjectId, stackP1Pass.State.BattleState.DefenderObjectIds);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.True(stackP1Pass.State.CardObjects[ShadowObjectId].IsExhausted);
         Assert.Contains(ShadowObjectId, stackP1Pass.State.PlayerZones["P2"].Battlefields);
         var resolvedShadowLocation = stackP1Pass.State.ObjectLocations[ShadowObjectId];
@@ -2686,7 +2688,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-nonparticipant-location-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2695,7 +2697,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-nonparticipant-location-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -2703,10 +2705,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         responseP1Pass = await CombatTestDriver.FinishAsync(responseP1Pass, engine);
-        Assert.False(responseP1Pass.State.BattleState.IsActive);
+        Assert.True(responseP1Pass.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, responseP1Pass.State.BattleState.BattlefieldObjectId);
         Assert.Empty(responseP1Pass.State.StackItems);
-        Assert.Empty(responseP1Pass.State.BattleState.AttackerObjectIds);
-        Assert.Empty(responseP1Pass.State.BattleState.DefenderObjectIds);
+        Assert.Equal([NextAttackerObjectId], responseP1Pass.State.BattleState.AttackerObjectIds);
+        Assert.Equal([NextDefenderObjectId], responseP1Pass.State.BattleState.DefenderObjectIds);
+        Assert.False(responseP1Pass.State.CardObjects[ShadowObjectId].IsAttacking);
+        Assert.False(responseP1Pass.State.CardObjects[ShadowObjectId].IsDefending);
         Assert.DoesNotContain(ShadowObjectId, responseP1Pass.State.BattleState.AttackerObjectIds);
         Assert.DoesNotContain(ShadowObjectId, responseP1Pass.State.BattleState.DefenderObjectIds);
         Assert.Contains(responseP1Pass.Events, gameEvent =>
@@ -2719,7 +2724,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(BattlefieldObjectId, finalShadowLocation.BattlefieldObjectId);
 
         var responseClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         var battleClosedIndex = EventIndex(responseP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
@@ -2816,7 +2821,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         state = state with { CardObjects = cardObjects };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-context-shadow-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -2828,17 +2833,17 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
         Assert.True(openedResponse.State.BattleState.IsActive);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal([AttackerObjectId], StringList(openedDeclaration.Payload["battlefieldTargetObjectIds"]));
         Assert.True(Assert.IsType<bool>(openedDeclaration.Payload["declarationContextPreserved"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal([AttackerObjectId], StringList(openedPriority.Payload["battlefieldTargetObjectIds"]));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
         Assert.Contains(
@@ -2853,27 +2858,23 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Snapshot));
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(spectatorSnapshot));
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Prompt));
-        Assert.Equal(PromptTypes.StackPriority, p2Prompt.View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, p2Prompt.View?.Type);
         Assert.Equal($"battle:{BattlefieldObjectId}", p2Prompt.View?.RelatedBattleId);
         Assert.Equal(BattlefieldObjectId, p2Prompt.View?.RelatedBattlefieldId);
 
-        var p2Pass = await engine.ResolveAsync(
+        var p2Pass = await BattleFocusTestDriver.PassAsync(engine,
             openedResponse.State,
             new PlayerIntent("intent-natural-context-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
 
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-context-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p1Pass = p2Pass;
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         var closedPriority = Assert.Single(
             p1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal([AttackerObjectId], StringList(closedPriority.Payload["battlefieldTargetObjectIds"]));
         var resumedDeclaration = p1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -2888,9 +2889,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.NotNull(p1Pass.State.PendingPayment);
         Assert.Equal("TRIGGER_PAYMENT", p1Pass.State.PendingPayment?.PaymentWindow);
         Assert.Equal("P1", p1Pass.State.PendingPayment?.PlayerId);
-        Assert.DoesNotContain(
-            p1Pass.State.UntilEndOfTurnEffects,
-            effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
+        BattleFocusTestDriver.AssertCombatStarted(p1Pass.State);
         Assert.True(p1Pass.State.BattleState.IsActive);
         Assert.DoesNotContain(p1Pass.Events, gameEvent => gameEvent.Kind is "DAMAGE_APPLIED" or "BATTLE_CLOSED");
         Assert.NotEqual(PromptTypes.AssignCombatDamage, p1Pass.Prompts["P1"].View?.Type);
@@ -2904,7 +2903,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildBrushReplacementNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-brush-context-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -2915,16 +2914,16 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
         Assert.True(openedResponse.State.BattleState.IsActive);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACEMENT_APPLIED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
@@ -2943,27 +2942,23 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Snapshot));
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(spectatorSnapshot));
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Prompt));
-        Assert.Equal(PromptTypes.StackPriority, p2Prompt.View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, p2Prompt.View?.Type);
         Assert.Equal($"battle:{BattlefieldObjectId}", p2Prompt.View?.RelatedBattleId);
         Assert.Equal(BattlefieldObjectId, p2Prompt.View?.RelatedBattlefieldId);
 
-        var p2Pass = await engine.ResolveAsync(
+        var p2Pass = await BattleFocusTestDriver.PassAsync(engine,
             openedResponse.State,
             new PlayerIntent("intent-natural-brush-context-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
 
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-brush-context-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p1Pass = p2Pass;
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         var closedPriority = Assert.Single(
             p1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = p1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -2987,7 +2982,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildHeldScorePaymentResourceNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-payment-context-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -2998,16 +2993,16 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
         Assert.True(openedResponse.State.BattleState.IsActive);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
@@ -3027,27 +3022,23 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Snapshot));
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(spectatorSnapshot));
         Assert.DoesNotContain("BATTLE_RESPONSE_DECLARATION_CONTEXT", JsonSerializer.Serialize(p2Prompt));
-        Assert.Equal(PromptTypes.StackPriority, p2Prompt.View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, p2Prompt.View?.Type);
         Assert.Equal($"battle:{BattlefieldObjectId}", p2Prompt.View?.RelatedBattleId);
         Assert.Equal(BattlefieldObjectId, p2Prompt.View?.RelatedBattlefieldId);
 
-        var p2Pass = await engine.ResolveAsync(
+        var p2Pass = await BattleFocusTestDriver.PassAsync(engine,
             openedResponse.State,
             new PlayerIntent("intent-natural-payment-context-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
 
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-payment-context-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p1Pass = p2Pass;
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         var closedPriority = Assert.Single(
             p1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = p1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -3075,7 +3066,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-payment-activation-context-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -3086,16 +3077,16 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
         Assert.True(openedResponse.State.BattleState.IsActive);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
@@ -3133,14 +3124,14 @@ public sealed class BattleDamageAssignmentLifecycleTests
             effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
         AssertBattleResponseContextNotLeaked(activated.State, "P2");
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-payment-activation-context-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-payment-activation-context-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3149,8 +3140,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
@@ -3160,14 +3151,14 @@ public sealed class BattleDamageAssignmentLifecycleTests
             effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
         AssertBattleResponseContextNotLeaked(stackP1Pass.State, "P2");
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-payment-activation-context-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-payment-activation-context-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3176,7 +3167,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         var closedPriority = Assert.Single(
             responseP1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = responseP1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -3204,7 +3195,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-recycle-payment-next-contest-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -3217,11 +3208,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         Assert.Contains(
             openedResponse.State.UntilEndOfTurnEffects,
@@ -3248,7 +3239,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertBattleResponseContextNotLeaked(activated.State, "P2");
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-recycle-payment-next-contest-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3256,7 +3247,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-recycle-payment-next-contest-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3265,8 +3256,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
@@ -3274,7 +3265,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertBattleResponseContextNotLeaked(stackP1Pass.State, "P2");
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-recycle-payment-next-contest-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3282,7 +3273,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-recycle-payment-next-contest-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3291,7 +3282,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         var closedPriority = Assert.Single(
             responseP1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = responseP1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -3319,7 +3310,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-payment-unnecessary-recycle-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -3332,11 +3323,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         Assert.Contains(
             openedResponse.State.UntilEndOfTurnEffects,
@@ -3347,7 +3338,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
-        var p2Pass = await engine.ResolveAsync(
+        var p2Pass = await BattleFocusTestDriver.PassAsync(engine,
             openedResponse.State,
             new PlayerIntent("intent-natural-payment-unnecessary-recycle-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3357,17 +3348,13 @@ public sealed class BattleDamageAssignmentLifecycleTests
             p2Pass.State.UntilEndOfTurnEffects,
             effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
 
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-natural-payment-unnecessary-recycle-response-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
+        var p1Pass = p2Pass;
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         p1Pass = await CombatTestDriver.FinishAsync(p1Pass, engine);
         var closedPriority = Assert.Single(
             p1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(["COMBAT_ASSIGNMENT"], StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = p1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -3396,7 +3383,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         };
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-temp-payment-next-contest-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -3409,11 +3396,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         Assert.Contains(
             openedResponse.State.UntilEndOfTurnEffects,
@@ -3440,7 +3427,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertBattleResponseContextNotLeaked(activated.State, "P2");
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-temp-payment-next-contest-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3448,7 +3435,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-temp-payment-next-contest-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3457,8 +3444,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
@@ -3466,7 +3453,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertBattleResponseContextNotLeaked(stackP1Pass.State, "P2");
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-temp-payment-next-contest-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3474,7 +3461,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-temp-payment-next-contest-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3483,7 +3470,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         var closedPriority = Assert.Single(
             responseP1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = responseP1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -3510,7 +3497,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildBrushReplacementActivationNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-brush-activation-context-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -3523,11 +3510,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         var responseCandidate = Assert.Single(
             openedResponse.Prompts["P2"].Candidates ?? [],
@@ -3555,14 +3542,14 @@ public sealed class BattleDamageAssignmentLifecycleTests
             effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
         AssertBattleResponseContextNotLeaked(activated.State, "P2");
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-brush-activation-context-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-brush-activation-context-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3571,8 +3558,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
@@ -3585,14 +3572,14 @@ public sealed class BattleDamageAssignmentLifecycleTests
             effectId => effectId.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal));
         AssertBattleResponseContextNotLeaked(stackP1Pass.State, "P2");
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-brush-activation-context-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-brush-activation-context-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3601,7 +3588,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         var closedPriority = Assert.Single(
             responseP1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = responseP1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -3624,7 +3611,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildBrushReplacementActivationNextContestNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-brush-activation-next-contest-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -3637,11 +3624,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         var responseCandidate = Assert.Single(
             openedResponse.Prompts["P2"].Candidates ?? [],
@@ -3672,7 +3659,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertBattleResponseContextNotLeaked(activated.State, "P2");
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-brush-activation-next-contest-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3680,7 +3667,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-brush-activation-next-contest-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3689,8 +3676,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
@@ -3698,7 +3685,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertBattleResponseContextNotLeaked(stackP1Pass.State, "P2");
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-brush-activation-next-contest-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3706,7 +3693,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-brush-activation-next-contest-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3715,7 +3702,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
         var closedPriority = Assert.Single(
             responseP1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = responseP1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -3738,7 +3725,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildHeldScorePreventionNextContestNaturalStartBattleState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-held-score-prevention-next-contest-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -3751,11 +3738,11 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         var openedDeclaration = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedDeclaration.Payload["optionalCosts"]));
         var openedPriority = Assert.Single(
             openedResponse.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(openedPriority.Payload["optionalCosts"]));
         var responseCandidate = Assert.Single(
             openedResponse.Prompts["P2"].Candidates ?? [],
@@ -3786,7 +3773,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertBattleResponseContextNotLeaked(activated.State, "P2");
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-held-score-prevention-next-contest-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3794,7 +3781,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-held-score-prevention-next-contest-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3803,8 +3790,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
@@ -3812,7 +3799,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertBattleResponseContextNotLeaked(stackP1Pass.State, "P2");
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-held-score-prevention-next-contest-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3820,7 +3807,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-held-score-prevention-next-contest-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -3830,7 +3817,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         responseP1Pass = await CombatTestDriver.FinishAsync(responseP1Pass, engine);
         var closedPriority = Assert.Single(
             responseP1Pass.Events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(optionalCosts, StringList(closedPriority.Payload["optionalCosts"]));
         var resumedDeclaration = responseP1Pass.Events
             .Where(gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal))
@@ -4066,7 +4053,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             LegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.NotEqual(BattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_STEP_STARTED", StringComparison.Ordinal));
         Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNED", StringComparison.Ordinal));
         Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
@@ -4093,7 +4081,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Empty(replay.Events);
         Assert.Equal(acceptedStateHash, MatchStateHasher.Hash(replay.State));
         Assert.Equal(assigned.State.Tick, replay.State.Tick);
-        Assert.False(replay.State.BattleState.IsActive);
+        Assert.True(replay.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, replay.State.BattleState.BattlefieldObjectId);
         Assert.Equal(TimingStates.SpellDuelOpen, replay.State.TimingState);
         Assert.Equal("SPELL_DUEL_TASKS", replay.State.PendingTaskQueue.Phase);
         Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", replay.State.PendingTaskQueue.ActiveTaskId);
@@ -4139,7 +4128,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var accepted = acceptedSteps.DefenderStep;
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
-        Assert.False(accepted.State.BattleState.IsActive);
+        Assert.True(accepted.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, accepted.State.BattleState.BattlefieldObjectId);
         Assert.Contains(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_STEP_STARTED", StringComparison.Ordinal));
         Assert.Contains(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNED", StringComparison.Ordinal));
         Assert.Contains(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
@@ -4250,7 +4240,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var assigned = acceptedSteps.DefenderStep;
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.Equal(TimingStates.SpellDuelOpen, assigned.State.TimingState);
         Assert.Equal("SPELL_DUEL_TASKS", assigned.State.PendingTaskQueue.Phase);
         Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", assigned.State.PendingTaskQueue.ActiveTaskId);
@@ -4410,7 +4401,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var assigned = acceptedSteps.DefenderStep;
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_STEP_STARTED", StringComparison.Ordinal));
         Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "COMBAT_DAMAGE_ASSIGNED", StringComparison.Ordinal));
         Assert.Contains(assigned.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
@@ -4472,7 +4464,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(assigned.State.Tick, replay.State.Tick);
         Assert.Equal(postAssignedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
         Assert.Equal(postAssignedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
-        Assert.False(replay.State.BattleState.IsActive);
+        Assert.True(replay.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, replay.State.BattleState.BattlefieldObjectId);
         Assert.Equal(TimingStates.SpellDuelOpen, replay.State.TimingState);
         Assert.Equal("SPELL_DUEL_TASKS", replay.State.PendingTaskQueue.Phase);
         Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", replay.State.PendingTaskQueue.ActiveTaskId);
@@ -4528,7 +4521,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(assigned.State.Tick, duplicateRejected.State.Tick);
         Assert.Equal(postAssignedPromptsHash, MatchStateHasher.HashValue(duplicateRejected.Prompts));
         Assert.Equal(postAssignedSnapshotsHash, MatchStateHasher.HashValue(duplicateRejected.Snapshots));
-        Assert.False(duplicateRejected.State.BattleState.IsActive);
+        Assert.True(duplicateRejected.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, duplicateRejected.State.BattleState.BattlefieldObjectId);
         Assert.Equal(TimingStates.SpellDuelOpen, duplicateRejected.State.TimingState);
         Assert.Equal("SPELL_DUEL_TASKS", duplicateRejected.State.PendingTaskQueue.Phase);
         Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", duplicateRejected.State.PendingTaskQueue.ActiveTaskId);
@@ -4568,7 +4562,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal(assigned.State.Tick, conflict.State.Tick);
         Assert.Equal(postAssignedPromptsHash, MatchStateHasher.HashValue(conflict.Prompts));
         Assert.Equal(postAssignedSnapshotsHash, MatchStateHasher.HashValue(conflict.Snapshots));
-        Assert.False(conflict.State.BattleState.IsActive);
+        Assert.True(conflict.State.BattleState.IsActive);
+        Assert.Equal(NextBattlefieldObjectId, conflict.State.BattleState.BattlefieldObjectId);
         Assert.Equal(TimingStates.SpellDuelOpen, conflict.State.TimingState);
         Assert.Equal("SPELL_DUEL_TASKS", conflict.State.PendingTaskQueue.Phase);
         Assert.Equal($"task:start-spell-duel:{NextBattlefieldObjectId}", conflict.State.PendingTaskQueue.ActiveTaskId);
@@ -4613,7 +4608,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             LegalAssignments());
 
         Assert.True(assigned.Accepted, assigned.ErrorMessage);
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.NotEqual(BattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.DoesNotContain(
             assigned.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -4698,7 +4694,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Equal("GRAVEYARD", standbyLocation.Zone);
         Assert.Null(standbyLocation.BattlefieldObjectId);
 
-        Assert.False(assigned.State.BattleState.IsActive);
+        Assert.True(assigned.State.BattleState.IsActive);
+        Assert.NotEqual(BattlefieldObjectId, assigned.State.BattleState.BattlefieldObjectId);
         Assert.DoesNotContain(
             assigned.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -4970,7 +4967,8 @@ public sealed class BattleDamageAssignmentLifecycleTests
             CancellationToken.None);
 
         Assert.True(defenderStep.Accepted, defenderStep.ErrorMessage);
-        Assert.False(defenderStep.State.BattleState.IsActive);
+        Assert.True(defenderStep.State.BattleState.IsActive);
+        Assert.NotEqual(BattlefieldObjectId, defenderStep.State.BattleState.BattlefieldObjectId);
 
         return new AssignCombatDamageSessionSteps(
             attackerPrompt,
@@ -5054,7 +5052,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         var state = BuildIcevaleShadowAttackPaymentState();
         var engine = new CoreRuleEngine();
 
-        var openedResponse = await engine.ResolveAsync(
+        var openedResponse = await BattleFocusTestDriver.OpenAsync(engine,
             state,
             new PlayerIntent("intent-natural-response-activation-post-payment-declare-battle", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -5067,9 +5065,9 @@ public sealed class BattleDamageAssignmentLifecycleTests
 
         Assert.True(openedResponse.Accepted, openedResponse.ErrorMessage);
         Assert.True(openedResponse.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, openedResponse.State.TimingState);
-        Assert.Equal("P2", openedResponse.State.PriorityPlayerId);
-        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Equal(TimingStates.SpellDuelOpen, openedResponse.State.TimingState);
+        Assert.Equal("P2", openedResponse.State.FocusPlayerId);
+        Assert.Contains(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DAMAGE_ASSIGNMENT_OPENED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedResponse.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(openedResponse);
@@ -5091,7 +5089,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.Single(activated.State.StackItems);
         AssertNextContestedBattlefieldNotAdvanced(activated);
 
-        var stackP2Pass = await engine.ResolveAsync(
+        var stackP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             activated.State,
             new PlayerIntent("intent-natural-response-activation-post-payment-stack-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -5100,7 +5098,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP2Pass.Accepted, stackP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(stackP2Pass);
 
-        var stackP1Pass = await engine.ResolveAsync(
+        var stackP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-post-payment-stack-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -5109,15 +5107,15 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(stackP1Pass.Accepted, stackP1Pass.ErrorMessage);
         Assert.Empty(stackP1Pass.State.StackItems);
         Assert.True(stackP1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, stackP1Pass.State.TimingState);
-        Assert.Equal("P2", stackP1Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, stackP1Pass.State.TimingState);
+        Assert.Equal("P1", stackP1Pass.State.FocusPlayerId);
         Assert.Contains("STUNNED", stackP1Pass.State.CardObjects[AttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(stackP1Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
         AssertNextContestedBattlefieldNotAdvanced(stackP1Pass);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             stackP1Pass.State,
             new PlayerIntent("intent-natural-response-activation-post-payment-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -5126,7 +5124,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.True(responseP2Pass.Accepted, responseP2Pass.ErrorMessage);
         AssertNextContestedBattlefieldNotAdvanced(responseP2Pass);
 
-        var openedPayment = await engine.ResolveAsync(
+        var openedPayment = await BattleFocusTestDriver.PassAsync(engine,
             responseP2Pass.State,
             new PlayerIntent("intent-natural-response-activation-post-payment-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -5142,7 +5140,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
         AssertNextContestedBattlefieldNotAdvanced(openedPayment);
 
         var responseClosedIndex = EventIndex(openedPayment.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.DoesNotContain(openedPayment.Events, e => e.Kind is "BATTLE_CLOSED" or "DAMAGE_APPLIED" or "BATTLEFIELD_CONTROL_RESOLVED");
         var paymentOpenedIndex = EventIndex(openedPayment.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
@@ -6535,10 +6533,19 @@ public sealed class BattleDamageAssignmentLifecycleTests
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, NextBattlefieldObjectId, StringComparison.Ordinal));
-        Assert.NotEqual(TimingStates.SpellDuelOpen, result.State.TimingState);
-        Assert.NotEqual("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.NotEqual($"task:start-spell-duel:{NextBattlefieldObjectId}", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.NotEqual(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
+        if (result.State.PendingTaskQueue.Phase == "SPELL_DUEL_TASKS")
+        {
+            Assert.Equal(BattlefieldObjectId, result.State.SpellDuelState.BattlefieldObjectId);
+            Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+            Assert.Equal($"task:start-spell-duel:{BattlefieldObjectId}", result.State.PendingTaskQueue.ActiveTaskId);
+            Assert.Equal(BattlefieldObjectId, result.Prompts[(result.State.FocusPlayerId ?? result.State.PriorityPlayerId ?? result.State.ActivePlayerId)!].View?.RelatedBattlefieldId);
+        }
+        else
+        {
+            Assert.NotEqual("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+            Assert.NotEqual(PromptTypes.SpellDuelFocus, result.Prompts["P1"].View?.Type);
+        }
     }
 
     private static void AssertNaturalAssignDamageNextContestPromptQueueAudit(ResolutionResult result)
@@ -6592,7 +6599,7 @@ public sealed class BattleDamageAssignmentLifecycleTests
             ["START_SPELL_DUEL", "START_BATTLE"],
             battlefieldTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
         Assert.Equal(
-            ["ACTIVE", "WAITING_FOR_SPELL_DUEL"],
+            ["ACTIVE", "ACTIVE"],
             battlefieldTasks.Select(task => Assert.IsType<string>(task["status"])).ToArray());
         Assert.Equal(
             [NextBattlefieldObjectId, NextBattlefieldObjectId],

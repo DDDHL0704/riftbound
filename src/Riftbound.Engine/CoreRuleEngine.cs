@@ -169,6 +169,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))));
             var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))))));
+            collected = RecordBattleDuelRoles(state, collected);
             return ValueTask.FromResult(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state, RecordDistributionSourceLocations(state, collected))))))));
         }
@@ -2470,6 +2471,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         var battle = state.BattleState;
         return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && !IsBattleAwaitingCombatStart(state)
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             && state.PendingPayment is null
@@ -3040,6 +3042,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string? BattleAttackingPlayerId(MatchState state, BattleState battle)
     {
+        if (IsInitialBattleDuel(state, out var captured) && captured.BattlefieldId == battle.BattlefieldObjectId)
+            return captured.InitialAttackingPlayerId;
         var attackerControllerIds = battle.AttackerObjectIds
             .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 ? EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject)
@@ -3220,19 +3224,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static string? ResolveOrderTriggersOrderingPlayerId(MatchState state)
-    {
-        var controllerIds = state.TriggerQueue
-            .Select(trigger => trigger.ControllerId)
-            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        if (controllerIds.Contains(state.TurnPlayerId, StringComparer.Ordinal))
-        {
-            return state.TurnPlayerId;
-        }
-
-        return OrderTriggerApnapControllerIds(state, controllerIds).FirstOrDefault();
-    }
+        => ResolutionResult.OrderTriggersOrderingPlayerId(state);
 
     private static bool MatchesLegalApnapResolutionOrder(
         MatchState state,
@@ -3296,9 +3288,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToList();
         var ordered = new List<string>();
 
-        if (remaining.Remove(state.TurnPlayerId))
+        var firstPlayer = BattleRoleOrderingPlayer(state) ?? state.TurnPlayerId;
+        if (remaining.Remove(firstPlayer))
         {
-            ordered.Add(state.TurnPlayerId);
+            ordered.Add(firstPlayer);
         }
 
         foreach (var seatPlayerId in state.Seats
@@ -10595,7 +10588,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "黑影的技能只能在当前战斗响应优先权窗口提交。",
+                "黑影的迅捷技能只能由当前开放行动时机的玩家激活。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -10801,7 +10794,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             ActivePlayerId = intent.PlayerId,
-            TimingState = TimingStates.NeutralClosed,
+            TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed,
             RunePools = runePools,
             PlayerExperience = playerExperience,
             PlayerZones = playerZones,
@@ -10891,15 +10884,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
-    private static bool IsShadowBattleResponseWindow(MatchState state, string playerId)
+    internal static bool IsShadowBattleResponseWindow(MatchState state, string playerId)
     {
-        return state.PendingPayment is null
-            && state.PendingHandChoice is null
-            && !ResolutionResult.HasBlockingPendingTaskQueue(state)
-            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal)
+        return CanActivateSwiftAbility(state, playerId)
             && state.BattleState.IsActive
             && !string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId);
     }
@@ -13292,6 +13279,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         SubmittedCombatDamage? submittedDamage = null)
     {
         var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
+        var establishedBattleDuel = TryReadBattleResponseDeclarationContext(state, battlefieldId, out var establishedContext)
+            && establishedContext.InitialAttackingPlayerId is not null;
+        if (establishedBattleDuel)
+        {
+            openBattleResponsePriority = false;
+            if (NormalizeOptionalCosts(command.OptionalCosts).SequenceEqual(establishedContext.OptionalCosts))
+                command = NormalizeBattleResponseResumeDeclareBattleCommand(state, command);
+        }
         if (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 } currentTask
             && !string.Equals(currentTask.BattlefieldObjectId, battlefieldId, StringComparison.Ordinal))
         {
@@ -13560,7 +13555,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ActivePlayerId = intent.PlayerId, TimingState = TimingStates.NeutralOpen,
                     PriorityPlayerId = null, PassedPriorityPlayerIds = [], FocusPlayerId = null, PassedFocusPlayerIds = [],
                     PendingPayment = attackPayment,
-                    UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(state.UntilEndOfTurnEffects)
+                    UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(MarkBattleCombatStarted(state, optionalCosts, command.BattlefieldTargetObjectIds))
                 };
                 return new(true, null, paymentState, paymentEvents,
                     ResolutionResult.BuildSnapshots(paymentState), BuildCorePrompts(paymentState));
@@ -13582,7 +13577,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PlayerZones = playerZones,
                 CardObjects = cardObjects,
                 ObjectLocations = assignmentObjectLocations,
-                UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(state.UntilEndOfTurnEffects),
+                UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(MarkBattleCombatStarted(state, optionalCosts, command.BattlefieldTargetObjectIds)),
                 PriorityPlayerId = null,
                 PassedPriorityPlayerIds = [],
                 FocusPlayerId = null,
@@ -14740,21 +14735,37 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string[] AttackerObjectIds,
         string[] DefenderObjectIds,
         string[] OptionalCosts,
-        string[] BattlefieldTargetObjectIds);
+        string[] BattlefieldTargetObjectIds)
+    {
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+        public string? InitialFocusPlayerId { get; init; }
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+        public string? InitialAttackingPlayerId { get; init; }
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public bool CombatStarted { get; init; }
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public bool InitialRolesEstablished { get; init; }
+    }
 
     private static string BuildBattleResponseDeclarationContextMarker(
         string battlefieldId,
         IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds,
         IReadOnlyList<string> optionalCosts,
-        IReadOnlyList<string>? battlefieldTargetObjectIds)
+        IReadOnlyList<string>? battlefieldTargetObjectIds,
+        string? initialFocusPlayerId = null,
+        string? initialAttackingPlayerId = null,
+        bool combatStarted = false,
+        bool initialRolesEstablished = false)
     {
         var context = new BattleResponseDeclarationContext(
             battlefieldId,
             attackerObjectIds.ToArray(),
             defenderObjectIds.ToArray(),
             optionalCosts.ToArray(),
-            NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []).ToArray());
+            NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []).ToArray()) {
+                InitialFocusPlayerId = initialFocusPlayerId, InitialAttackingPlayerId = initialAttackingPlayerId,
+                CombatStarted = combatStarted, InitialRolesEstablished = initialRolesEstablished };
         var encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(context)));
         return $"{BattleResponseDeclarationContextPrefix}{encoded}";
     }
@@ -14799,11 +14810,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var parsed = JsonSerializer.Deserialize<BattleResponseDeclarationContext>(json);
             if (parsed is null || string.IsNullOrWhiteSpace(parsed.BattlefieldId)
                 || !state.CardObjects.ContainsKey(parsed.BattlefieldId)
+                || !state.CardObjects[parsed.BattlefieldId].Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)
+                || parsed.OptionalCosts is null || parsed.BattlefieldTargetObjectIds is null
                 || parsed.AttackerObjectIds is not { Length: > 0 } || parsed.DefenderObjectIds is not { Length: > 0 }
                 || parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Distinct(StringComparer.Ordinal).Count()
                     != parsed.AttackerObjectIds.Length + parsed.DefenderObjectIds.Length
                 || parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Any(id => !state.CardObjects.TryGetValue(id, out var unit)
                     || !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                || (parsed.InitialFocusPlayerId is null) != (parsed.InitialAttackingPlayerId is null)
+                || parsed.InitialFocusPlayerId is not null && !state.Seats.ContainsKey(parsed.InitialFocusPlayerId)
+                || parsed.InitialAttackingPlayerId is not null && !state.Seats.ContainsKey(parsed.InitialAttackingPlayerId)
+                || parsed.InitialAttackingPlayerId is not null && parsed.InitialFocusPlayerId != parsed.InitialAttackingPlayerId
+                || parsed.InitialAttackingPlayerId is not null && state.UntilEndOfTurnEffects!.Any(e =>
+                    e?.StartsWith(BattlefieldContestRules.InitiatorPrefix + parsed.BattlefieldId + ":", StringComparison.Ordinal) == true
+                    && e != BattlefieldContestRules.InitiatorPrefix + parsed.BattlefieldId + ":" + parsed.InitialAttackingPlayerId)
+                || parsed.CombatStarted && (!parsed.InitialRolesEstablished || parsed.InitialAttackingPlayerId is null
+                    || !state.UntilEndOfTurnEffects!.Contains(BattlefieldTaskMarkers.SpellDuelCompleted(parsed.BattlefieldId)))
                 || !string.IsNullOrWhiteSpace(battlefieldId) && !string.Equals(parsed.BattlefieldId, battlefieldId, StringComparison.Ordinal))
             {
                 return false;
@@ -14901,7 +14923,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             if (!state.CardObjects.TryGetValue(attackingObjectId, out var attackerState)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(attackerState, intent.PlayerId)
-                || !IsFaceUpUnitForBattle(attackerState))
+                || !IsFaceUpUnitForBattle(attackerState) && !IsEstablishedBattleDuelParticipant(state, attackingObjectId))
             {
                 return false;
             }
@@ -14915,7 +14937,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || !string.Equals(defenderLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
                 || !state.CardObjects.TryGetValue(defenderObjectId, out var defenderState)
                 || !SourceObjectControlledByPlayerOrLegacyOwned(defenderState, defenderLocation.Value.PlayerId)
-                || !IsFaceUpUnitForBattle(defenderState))
+                || !IsFaceUpUnitForBattle(defenderState) && !IsEstablishedBattleDuelParticipant(state, defenderObjectId))
             {
                 return false;
             }
@@ -14938,7 +14960,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var occupants = state.PlayerZones.SelectMany(zone => zone.Value.Battlefields.Select(id => (zone.Key, Id: id)))
                 .Where(entry => IsObjectLocatedAtBattlefield(state, entry.Id, battlefieldId)
                     && state.CardObjects.TryGetValue(entry.Id, out var card)
-                    && IsFaceUpUnitForBattle(card)
+                    && (IsFaceUpUnitForBattle(card) || IsEstablishedBattleDuelParticipant(state, entry.Id))
                     && SourceObjectControlledByPlayerOrLegacyOwned(card, entry.Key))
                 .ToArray();
             attackerObjectIds = attackerObjectIds.Concat(occupants.Where(entry => entry.Key == intent.PlayerId).Select(entry => entry.Id))
@@ -21354,7 +21376,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && string.Equals(resolvedItem.TimingContext, TimingStates.NeutralClosed, StringComparison.Ordinal);
             var nextFocusPlayerId = returnsToSpellDuel
                 ? resolvedItem.InsightContext is { Kind: "DUEL", ReturnFocusPlayerId: not null } insight
-                    ? insight.ReturnFocusPlayerId : resolvedItem.FieldContext?.ReturnFocusPlayerId ?? NextPlayerIdAfter(state, resolvedItem.ControllerId)
+                    ? insight.ReturnFocusPlayerId : resolvedItem.DamageDistribution?.ReturnFocusPlayerId ?? resolvedItem.FieldContext?.ReturnFocusPlayerId ?? NextPlayerIdAfter(state, resolvedItem.ControllerId)
                 : null;
             var nextPriorityPlayerId = returnsToBattleResponse
                 ? BattleResponsePriorityPlayerId(state, resolvedItem.ControllerId)
@@ -21645,13 +21667,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 })
         };
 
+        if (IsInitialBattleDuel(state, out var focusedBattle))
+        {
+            events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload!) {
+                ["battlefieldObjectId"] = focusedBattle.BattlefieldId,
+                ["optionalCosts"] = focusedBattle.OptionalCosts,
+                ["battlefieldTargetObjectIds"] = focusedBattle.BattlefieldTargetObjectIds,
+                ["declarationContextPreserved"] = true
+            } };
+        }
+
         MatchState nextState;
         if (seatPlayerIds.All(passedPlayerIds.Contains))
         {
             var activeBattlefieldSpellDuelTask = state.PendingTaskQueue.Tasks.FirstOrDefault(task =>
                 string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
                 && !string.IsNullOrWhiteSpace(task.BattlefieldObjectId));
-            var completedBattlefieldObjectIds = activeBattlefieldSpellDuelTask?.BattlefieldObjectId is { Length: > 0 } battlefieldObjectId
+            var completedBattlefieldObjectIds = (activeBattlefieldSpellDuelTask?.BattlefieldObjectId ?? state.SpellDuelState.BattlefieldObjectId) is { Length: > 0 } battlefieldObjectId
                 ? new[] { battlefieldObjectId }
                 : Array.Empty<string>();
             var untilEndOfTurnEffects = state.UntilEndOfTurnEffects
@@ -21677,9 +21709,32 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["turnPlayerId"] = state.TurnPlayerId,
                     ["completedBattlefieldObjectIds"] = completedBattlefieldObjectIds
                 }));
+            if (IsInitialBattleDuel(state, out var closingBattle))
+            {
+                var resumed = NormalizeBattleResponseResumeDeclareBattleCommand(nextState,
+                    new DeclareBattleCommand(closingBattle.BattlefieldId, closingBattle.AttackerObjectIds,
+                        closingBattle.DefenderObjectIds, closingBattle.OptionalCosts, closingBattle.BattlefieldTargetObjectIds));
+                var payload = new Dictionary<string, object?>(events[^1].Payload!) {
+                    ["battlefieldObjectId"] = closingBattle.BattlefieldId,
+                    ["optionalCosts"] = resumed.OptionalCosts,
+                    ["battlefieldTargetObjectIds"] = closingBattle.BattlefieldTargetObjectIds,
+                    ["declarationContextPreserved"] = true
+                };
+                events[^1] = events[^1] with { Payload = payload };
+            }
             var cleanupResult = RunStateBasedCleanupAfterSpellDuelClosed(nextState);
             nextState = cleanupResult.State;
             events.AddRange(cleanupResult.Events);
+            if (IsInitialBattleDuel(nextState, out var initialBattle)
+                && completedBattlefieldObjectIds.Contains(initialBattle.BattlefieldId))
+            {
+                var attackers = nextState.BattleState.AttackerObjectIds.Where(id => IsObjectLocatedAtBattlefield(nextState, id, initialBattle.BattlefieldId)).ToArray();
+                var defenders = nextState.BattleState.DefenderObjectIds.Where(id => IsObjectLocatedAtBattlefield(nextState, id, initialBattle.BattlefieldId)).ToArray();
+                if (attackers.Length == 0 || defenders.Length == 0)
+                    return ResolveBattleResponseWithoutCombatDamage(nextState, initialBattle.InitialAttackingPlayerId!, initialBattle.BattlefieldId,
+                        initialBattle.AttackerObjectIds, initialBattle.DefenderObjectIds, attackers, defenders, events,
+                        advanceTick: false, responsePriorityClosed: false);
+            }
             foreach (var completedBattlefieldObjectId in completedBattlefieldObjectIds)
             {
                 if (nextState.PendingTaskQueue.Tasks.Any(task =>
@@ -22055,6 +22110,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             PassedFocusPlayerIds = [],
             PassedPriorityPlayerIds = []
         };
+        nextState = EstablishBattleDuel(nextState, battlefield.BattlefieldObjectId, focusPlayerId);
         var events = new GameEvent[]
         {
             new(

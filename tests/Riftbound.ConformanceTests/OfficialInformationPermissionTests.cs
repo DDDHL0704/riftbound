@@ -93,6 +93,34 @@ public sealed class OfficialInformationPermissionTests
         Assert.DoesNotContain("OGN·097/298", View(done.State, "P1")); Restore(done.State);
     }
 
+    [Theory]
+    [InlineData("owner")]
+    [InlineData("stack")]
+    [InlineData("execution")]
+    [InlineData("missing-context")]
+    public async Task EmptyRevealedHandRecoveryStillRejectsForgedContinuation(string mutation)
+    {
+        var initial = Position();
+        initial = initial with {
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P2"] = initial.PlayerZones["P2"] with { Hand = [], Graveyard = ["U", "SPELL"] } },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                ["U"] = new("P2", "GRAVEYARD"), ["SPELL"] = new("P2", "GRAVEYARD") } };
+        var died = await Destroy(initial);
+        var open = await Top(died.State);
+        Restore(open.State); ArmamentMightTests.PublicRecovery(open.State);
+        var choice = open.State.PendingCardChoice!;
+        Assert.Empty(choice.ContextObjectIds); Assert.Empty(choice.HandContext!.Cards);
+        var forged = mutation switch {
+            "owner" => choice with { HandContext = choice.HandContext with { OwnerId = choice.PlayerId } },
+            "stack" => choice with { HandContext = choice.HandContext with { StackItemId = "absent-stack" } },
+            "execution" => choice with { HandContext = choice.HandContext with { ExecutionIndex = 1 } },
+            _ => choice with { HandContext = null }
+        };
+        Assert.Contains("invalid revealed hand choice continuation",
+            OfficialInsightAndSpellLockTests.Errors(open.State with { PendingCardChoice = forged }));
+    }
+
     [Fact]
     public async Task BanishReplacementDoesNotTriggerLastBreath()
     {
@@ -150,10 +178,11 @@ public sealed class OfficialInformationPermissionTests
         var first = await Act(moved.State, "P1", new PassFocusCommand());
         var second = await Act(first.State, "P2", new PassFocusCommand());
         var response = await Act(second.State, "P1", new DeclareBattleCommand("BF", ["A"], ["D"], ["COMBAT_ASSIGNMENT"]));
-        var death = await Top(response.State);
+        var death = response;
         Assert.Contains("D", death.State.PlayerZones["P2"].Graveyard);
-        Assert.Single(death.State.StackItems, item => item.DeathRevealContext is not null); Restore(death.State);
-        var open = await Top(death.State); Assert.Equal("P2", open.State.PendingCardChoice!.PlayerId);
+        Assert.Single(death.State.StackItems, item => item.DeathRevealContext is not null);
+        Restore(death.State);
+        var open = await Top(death.State); Assert.Equal("P2", open.State.PendingCardChoice!.PlayerId); Restore(open.State);
         var done = await Act(open.State, "P2", new ChooseCardsCommand(open.State.PendingCardChoice.ChoiceId, "REVEALED_HAND_EFFECT", []));
         Assert.Equal(1, done.State.PlayerExperience["P2"]); Assert.False(done.State.BattleState.IsActive);
         Assert.Null(done.State.PendingCardChoice); Assert.Empty(done.State.StackItems); Restore(done.State);

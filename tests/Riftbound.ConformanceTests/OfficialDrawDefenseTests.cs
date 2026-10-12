@@ -110,11 +110,23 @@ public sealed class OfficialDrawDefenseTests
         var state=Fan();state=state with {CardObjects=new Dictionary<string,CardObjectState>(state.CardObjects){["A"]=state.CardObjects["A"] with {CardNo="UNL-079/219"}},
             RunePools=new Dictionary<string,RunePool>(state.RunePools){["P1"]=new(1,0)}};
         var move=await Act(state,"P1",new MoveUnitCommand("A","BASE","BATTLEFIELD:BF",[]));
-        Assert.NotNull(move.State.PendingPayment);Assert.DoesNotContain(move.State.StackItems,i=>i.FieldContext?.Kind=="DEFEND");
-        var paid=await OfficialInsightSourceTests.Pay(move.State,"PAY");var resolved=await Top(paid.State);
-        var one=await Act(resolved.State,"P1",new PassFocusCommand());var two=await Act(one.State,"P2",new PassFocusCommand());
-        var battle=await Act(two.State,"P1",new DeclareBattleCommand("BF",["A"],["D"],["COMBAT_ASSIGNMENT"]));
-        Assert.Equal("DEFEND",battle.State.StackItems.Single().FieldContext!.Kind);Assert.NotNull(battle.State.PendingCardChoice);
+        Assert.Equal(2, move.State.TriggerQueue.Count);
+        Assert.DoesNotContain(move.State.StackItems,i=>i.FieldContext?.Kind=="DEFEND");
+        // Start-duel and role triggers share the initial closed chain. Attacker
+        // confirms first, while defender's skill is on top and resolves first.
+        var ordered = await Act(move.State, "P1", new OrderTriggersCommand(OrderedTriggerIds:
+            move.State.TriggerQueue.OrderBy(t => t.ControllerId == "P2" ? 0 : 1).Select(t => t.TriggerId).ToArray()));
+        Assert.NotNull(ordered.State.PendingPayment);
+        var paid=await OfficialInsightSourceTests.Pay(ordered.State,"PAY");
+        Assert.Equal("DEFEND",paid.State.StackItems.Single(i=>i.FieldContext is not null).FieldContext!.Kind);
+        Assert.NotNull(paid.State.PendingCardChoice);
+        var confirmed = await Choose(paid.State, ["A"]);
+        var fanResolved = await Top(confirmed.State);
+        Assert.Contains("A", fanResolved.State.PlayerZones["P1"].Base);
+        Assert.Single(fanResolved.State.StackItems, i => i.InsightContext is not null);
+        var resolved = await Top(fanResolved.State);
+        Assert.Empty(resolved.State.StackItems); Assert.Equal("P1", resolved.State.FocusPlayerId);
+        Restore(resolved.State);
     }
 
     [Theory]
@@ -183,7 +195,7 @@ public sealed class OfficialDrawDefenseTests
         var waiting = await FanBattle(Fan());
         var confirmed = await Choose(waiting.State, decline ? [] : ["A"]);
         var response = decline ? confirmed : await Top(confirmed.State);
-        var battle = response.State.PriorityPlayerId is null ? response : await Top(response.State);
+        var battle = await FinishFanBattle(response.State.PriorityPlayerId is null ? response : await Top(response.State));
         Assert.Null(battle.State.PendingCardChoice);
         Assert.DoesNotContain(battle.State.StackItems, i=>i.FieldContext?.Kind == "DEFEND");
         Assert.False(battle.State.BattleState.IsActive);
@@ -215,8 +227,34 @@ public sealed class OfficialDrawDefenseTests
             ObjectLocations=new Dictionary<string,ObjectLocationState>(s.ObjectLocations){["G"]=new("P1","BASE")}};
     }
     internal static MatchState Fan(){var s=DeathAndDuelLifecycleTests.State();return s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects){["D"]=s.CardObjects["D"] with {CardNo="SFD·128/221",Power=2}}};}
-    internal static async Task<ResolutionResult> FanBattle(MatchState s)
-    {var m=await Act(s,"P1",new MoveUnitCommand("A","BASE","BATTLEFIELD:BF",[]));var a=await Act(m.State,"P1",new PassFocusCommand());var b=await Act(a.State,"P2",new PassFocusCommand());return await Act(b.State,"P1",new DeclareBattleCommand("BF",["A"],["D"],["COMBAT_ASSIGNMENT"]));}
+    internal static Task<ResolutionResult> FanBattle(MatchState s)
+        => Act(s,"P1",new MoveUnitCommand("A","BASE","BATTLEFIELD:BF",[]));
+
+    internal static async Task<ResolutionResult> FinishFanBattle(ResolutionResult current,
+        Func<string, GameCommand, Task<ResolutionResult>>? submit = null)
+    {
+        var result = current; var events = current.Events.ToList();
+        async Task Submit(string player, GameCommand command) {
+            result = submit is null ? await Act(result.State, player, command) : await submit(player, command);
+            events.AddRange(result.Events); Restore(result.State);
+        }
+        for (var step = 0; step < 4 && result.State.FocusPlayerId is { } focus; step++)
+            await Submit(focus, new PassFocusCommand());
+        if (result.State.BattleState.IsActive && result.State.TimingState == TimingStates.NeutralOpen)
+        {
+            var battle = result.State.BattleState;
+            await Submit(result.State.ActivePlayerId, new DeclareBattleCommand(battle.BattlefieldObjectId!,
+                battle.AttackerObjectIds, battle.DefenderObjectIds, ["COMBAT_ASSIGNMENT"]));
+        }
+        for (var step = 0; step < 4; step++) {
+            var actor = result.Prompts.FirstOrDefault(p => p.Value.EnabledActions().Contains(CommandTypes.AssignCombatDamage)).Key;
+            if (actor is null) break;
+            var prompt = result.Prompts[actor];
+            await Submit(actor, new AssignCombatDamageCommand(prompt.View!.RelatedBattleId!, prompt.View.RelatedBattlefieldId!, CombatTestDriver.Assignments(prompt)));
+        }
+        Assert.False(result.State.BattleState.IsActive);
+        return result with { Events = events.ToArray() };
+    }
     internal static Task<ResolutionResult> Act(MatchState s,string p,GameCommand c)=>OfficialInsightTriggerTests.Act(s,p,c);
     internal static Task<ResolutionResult> Top(MatchState s)=>OfficialInsightTriggerTests.ResolveTop(s);
     internal static Task<ResolutionResult> Choose(MatchState s,string[] ids)=>OfficialInsightTriggerTests.Choose(s,ids);

@@ -155,7 +155,7 @@ public sealed class OfficialSettReplacementTests
         var first = await Act(moved.State,"P1",new PassFocusCommand());
         var second = await Act(first.State,"P2",new PassFocusCommand());
         var battle = await Act(second.State,"P1",new DeclareBattleCommand("BF",["A"],["D"],["COMBAT_ASSIGNMENT"]));
-        var opened = await Top(battle.State); Assert.NotNull(opened.State.PendingRuleChoice); Restore(opened.State);
+        var opened = battle; Assert.NotNull(opened.State.PendingRuleChoice); Restore(opened.State);
         var done = await Choose(opened.State);
         Assert.True(OfficialInsightAndSpellLockTests.Errors(done.State).Count == 0, string.Join("; ",OfficialInsightAndSpellLockTests.Errors(done.State))); Restore(done.State);
         Assert.Contains("D",done.State.PlayerZones["P2"].Base); Assert.Equal(0,done.State.CardObjects["A"].Damage);

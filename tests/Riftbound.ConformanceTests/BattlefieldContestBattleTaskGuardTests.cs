@@ -227,7 +227,8 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             CancellationToken.None);
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
-        Assert.False(accepted.State.BattleState.IsActive);
+        Assert.True(accepted.State.BattleState.IsActive);
+        Assert.NotEqual("BF-1", accepted.State.BattleState.BattlefieldObjectId);
         Assert.DoesNotContain(
             accepted.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -271,7 +272,8 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.Equal(acceptedHash, MatchStateHasher.Hash(replay.State));
         Assert.Equal(acceptedPromptsHash, MatchStateHasher.HashValue(replay.Prompts));
         Assert.Equal(acceptedSnapshotsHash, MatchStateHasher.HashValue(replay.Snapshots));
-        Assert.False(replay.State.BattleState.IsActive);
+        Assert.True(replay.State.BattleState.IsActive);
+        Assert.Equal("BF-2", replay.State.BattleState.BattlefieldObjectId);
         Assert.Equal(TimingStates.SpellDuelOpen, replay.State.TimingState);
         Assert.Equal("P1", replay.State.FocusPlayerId);
         Assert.Equal("SPELL_DUEL_TASKS", replay.State.PendingTaskQueue.Phase);
@@ -363,7 +365,8 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.False(result.State.BattleState.IsActive);
+        Assert.True(result.State.BattleState.IsActive);
+        Assert.NotEqual("BF-1", result.State.BattleState.BattlefieldObjectId);
         Assert.DoesNotContain(
             result.State.PendingTaskQueue.Tasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
@@ -861,7 +864,7 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             result.State.BattlefieldTasks,
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
                 && string.Equals(task.BattlefieldObjectId, "BF-2", StringComparison.Ordinal));
-        Assert.Equal("WAITING_FOR_SPELL_DUEL", waitingBattleTask.Status);
+        Assert.Equal("ACTIVE", waitingBattleTask.Status);
         Assert.Equal("SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", waitingBattleTask.Reason);
         Assert.DoesNotContain(
             result.State.BattlefieldTasks,
@@ -885,7 +888,7 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             ["START_SPELL_DUEL", "START_BATTLE"],
             battlefieldTasks.Select(task => Assert.IsType<string>(task["kind"])).ToArray());
         Assert.Equal(
-            ["ACTIVE", "WAITING_FOR_SPELL_DUEL"],
+            ["ACTIVE", "ACTIVE"],
             battlefieldTasks.Select(task => Assert.IsType<string>(task["status"])).ToArray());
         Assert.Equal(
             ["BF-2", "BF-2"],

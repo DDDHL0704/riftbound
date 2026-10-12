@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_REBUILT_FOCUSED_AND_NATIVE_PASS_EXACT_HEAD_FULL_CI_PENDING",
+  "status": "SCOPED_REBUILT_NATIVE_AND_EXACT_HEAD_FULL_CI_PASS",
   "batchCheck": {
     "total": 10034,
     "passed": 10033,
@@ -203,5 +203,6 @@
         "errors": []
       }
     }
-  }
+  },
+  "exactHeadFullCi": "docs/evidence/attack-damage-distribution-2026-10-12/ci-0703e9ce.json"
 }

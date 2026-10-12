@@ -42,8 +42,7 @@ public sealed class DrawDefenseContinuationTests
         else
         {
             result = await Submit("P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []));
-            result = await Submit("P1", new PassFocusCommand()); result = await Submit("P2", new PassFocusCommand());
-            result = await Submit("P1", new DeclareBattleCommand("BF", ["A"], ["D"], ["COMBAT_ASSIGNMENT"]));
+
         }
         var choice = result.State.PendingCardChoice!;
         Export((gem ? "gem" : "fan") + "-prompt.json", result.Prompts[choice.PlayerId]);
@@ -55,6 +54,7 @@ public sealed class DrawDefenseContinuationTests
         }
         result = await Submit(choice.PlayerId, command);
         for (var i=0; i<8 && result.State.PriorityPlayerId is { } player; i++) result = await Submit(player, new PassPriorityCommand());
+        if (!gem) result = await OfficialDrawDefenseTests.FinishFanBattle(result, Submit);
         Assert.Empty(result.State.StackItems); Assert.Null(result.State.PendingCardChoice); Assert.False(result.State.BattleState.IsActive);
         if (gem) Assert.Equal(6, result.State.CardObjects["V"].Power);
         else if (scenario == "fan") Assert.Contains("A", result.State.PlayerZones["P1"].Base);

@@ -10,7 +10,7 @@ public sealed class DeathAndDuelLifecycleTests
     [Fact]
     public async Task ReactionPermissionCoversEveryRegisteredReactionAndRejectsOrdinaryCardsAndWrongPlayer()
     {
-        var response = await OpenBattle(State());
+        var response = await OpenReactionWindow(State());
         var reactions = CardBehaviorRegistry.GetAll().Where(b => b.CanPlayDuringPriority
             || CardPermissionKeywordRules.HasSourceKeyword(b, CardPermissionKeywordNames.Reaction)).ToArray();
         Assert.NotEmpty(reactions);
@@ -27,7 +27,7 @@ public sealed class DeathAndDuelLifecycleTests
     [Fact]
     public async Task DefenderReactionPreviewAndSubmissionUseTheSameServerWindow()
     {
-        var response = await OpenBattle(State());
+        var response = await OpenReactionWindow(State());
         var request = new PlayCostPreviewRequestDto("response-preview", response.Prompts["P2"].PromptId!, response.State.Tick,
             new PlayCardCommand("SPELL", "OGN·095/298", ["A"]));
         if (Environment.GetEnvironmentVariable("RIFTBOUND_DEATH_DUEL_EVIDENCE") is { Length: > 0 } root
@@ -44,7 +44,9 @@ public sealed class DeathAndDuelLifecycleTests
         };
         var accepted = await session.SubmitAsync("P2", "native-reaction", request.Command, JsonSerializer.SerializeToElement(raw), default);
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
-        Assert.Single(accepted.State.StackItems);
+        Assert.Equal(2, accepted.State.StackItems.Count);
+        Assert.Single(accepted.State.StackItems, item => item.SourceObjectId == "SPELL");
+        Assert.Single(accepted.State.StackItems, item => item.SourceObjectId == "FLASH");
         var duplicate = await session.SubmitAsync("P2", "native-reaction", request.Command, JsonSerializer.SerializeToElement(raw), default);
         Assert.Equal(MatchStateHasher.Hash(accepted.State), MatchStateHasher.Hash(duplicate.State));
         var stale = await session.SubmitAsync("P2", "stale-reaction", request.Command, JsonSerializer.SerializeToElement(raw), default);
@@ -68,8 +70,7 @@ public sealed class DeathAndDuelLifecycleTests
         cards["D"] = cards["D"] with { CardNo = cardNo, Power = 5 };
         cards["A"] = cards["A"] with { Power = 12 };
         var response = await OpenBattle(state with { CardObjects = cards });
-        var first = await Act(response.State, "P2", new PassPriorityCommand());
-        var death = await Act(first.State, "P1", new PassPriorityCommand());
+        var death = await CloseBattle(response.State);
         Assert.Contains(death.Events, e => e.Kind == "TRIGGER_QUEUED");
         Assert.Single(death.State.StackItems);
         SaveEvidence("death", death);
@@ -93,8 +94,7 @@ public sealed class DeathAndDuelLifecycleTests
         var locations = state.ObjectLocations.ToDictionary(x => x.Key, x => x.Value);
         locations["D2"] = new("P2", "BATTLEFIELD", "BF");
         var response = await OpenBattle(state with { CardObjects = cards, PlayerZones = zones, ObjectLocations = locations }, ["D", "D2"]);
-        var first = await Act(response.State, "P2", new PassPriorityCommand());
-        var death = await Act(first.State, "P1", new PassPriorityCommand());
+        var death = await CloseBattle(response.State);
         death = await CombatTestDriver.FinishAsync(death);
         Assert.Equal(2, death.State.TriggerQueue.Count);
         Assert.Contains(death.Prompts["P2"].Candidates!, c => c.Action == "ORDER_TRIGGERS" && c.Enabled);
@@ -143,8 +143,7 @@ public sealed class DeathAndDuelLifecycleTests
     {
         var response = await OpenBattle(State());
         SaveEvidence("battle-response", response);
-        var first = await Act(response.State, "P2", new PassPriorityCommand());
-        var death = await Act(first.State, "P1", new PassPriorityCommand());
+        var death = await CloseBattle(response.State);
         Assert.Contains("D", death.State.PlayerZones["P2"].Graveyard);
         Assert.Contains(death.Events, e => e.Kind == "TRIGGER_QUEUED");
         Assert.Single(death.State.StackItems);
@@ -172,7 +171,8 @@ public sealed class DeathAndDuelLifecycleTests
         Assert.Contains("DRAW", resolved.State.PlayerZones["P2"].Hand);
         Assert.Equal(3, resolved.State.CardObjects["A"].Power);
         Assert.True(resolved.State.BattleState.IsActive);
-        Assert.NotNull(resolved.State.PriorityPlayerId);
+        Assert.Null(resolved.State.PriorityPlayerId);
+        Assert.Equal("P1", resolved.State.FocusPlayerId);
     }
 
     [Fact]
@@ -209,12 +209,30 @@ public sealed class DeathAndDuelLifecycleTests
     private static async Task<ResolutionResult> OpenBattle(MatchState state, string[]? defenders = null)
     {
         var moved = await Act(state, "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []));
-        var first = await Act(moved.State, "P1", new PassFocusCommand());
-        var second = await Act(first.State, "P2", new PassFocusCommand());
-        var response = await Act(second.State, "P1", new DeclareBattleCommand("BF", ["A"], defenders ?? ["D"], ["COMBAT_ASSIGNMENT"]));
+        var response = await Act(moved.State, "P1", new PassFocusCommand());
         Assert.Empty(response.State.StackItems);
-        Assert.Equal("P2", response.State.PriorityPlayerId);
+        Assert.Equal("P2", response.State.FocusPlayerId);
+        Assert.Equal(defenders ?? ["D"], response.State.BattleState.DefenderObjectIds);
         return response;
+    }
+
+    private static async Task<ResolutionResult> OpenReactionWindow(MatchState state)
+    {
+        state = AttackDamageDistributionTests.Spell(state, "FLASH", "OGS·011/024", "P1");
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(20, 20) } };
+        var moved = await Act(state, "P1", new MoveUnitCommand("A", "BASE", "BATTLEFIELD:BF", []));
+        var cast = await Act(moved.State, "P1", new PlayCardCommand("FLASH", "OGS·011/024", ["A"]));
+        var response = await Act(cast.State, "P1", new PassPriorityCommand());
+        Assert.Single(response.State.StackItems); Assert.Equal("P2", response.State.PriorityPlayerId);
+        return response;
+    }
+
+    private static async Task<ResolutionResult> CloseBattle(MatchState state)
+    {
+        var closed = await Act(state, "P2", new PassFocusCommand());
+        var battle = closed.State.BattleState;
+        var declared = await Act(closed.State, "P1", new DeclareBattleCommand("BF", battle.AttackerObjectIds, battle.DefenderObjectIds, ["COMBAT_ASSIGNMENT"]));
+        return await CombatTestDriver.FinishAsync(declared);
     }
 
     private static async Task<ResolutionResult> Act(MatchState state, string player, GameCommand command)

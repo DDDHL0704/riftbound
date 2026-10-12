@@ -53,7 +53,7 @@ public sealed class ShadowActivatedAbilityTests
         Assert.False(Assert.IsType<bool>(requirement["resolvesImmediately"]));
         Assert.Equal("enemy-attacking-unit-at-this-battlefield", requirement["targetScope"]);
         Assert.Equal("STUNNED", requirement["statusEffectId"]);
-        Assert.Equal("battle-response-priority-representative", requirement["timingPolicy"]);
+        Assert.Equal("swift-open-focus-before-combat-assignment", requirement["timingPolicy"]);
         Assert.Equal("ordinary-stack-item-before-stun", requirement["stackPolicy"]);
         Assert.Equal("payment-plan-mana-generic-power-spellshield-tax-exhaust-as-cost", requirement["paymentPolicy"]);
 
@@ -76,8 +76,8 @@ public sealed class ShadowActivatedAbilityTests
         var opened = await OpenNaturalShadowBattleResponseAsync(mana: 1, power: 1);
 
         Assert.True(opened.Accepted, opened.ErrorMessage);
-        Assert.Equal(TimingStates.NeutralClosed, opened.State.TimingState);
-        Assert.Equal("P1", opened.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, opened.State.TimingState);
+        Assert.Equal("P1", opened.State.FocusPlayerId);
         Assert.True(opened.State.BattleState.IsActive);
         Assert.Equal(BattlefieldObjectId, opened.State.BattleState.BattlefieldObjectId);
         Assert.Equal([EnemyAttackerObjectId], opened.State.BattleState.AttackerObjectIds);
@@ -85,12 +85,12 @@ public sealed class ShadowActivatedAbilityTests
         Assert.True(opened.State.CardObjects[EnemyAttackerObjectId].IsAttacking);
         Assert.True(opened.State.CardObjects[FriendlyAttackerObjectId].IsDefending);
         Assert.True(opened.State.CardObjects[ShadowObjectId].IsDefending);
-        Assert.Contains(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
-        Assert.Contains(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+        Assert.Contains(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_ROLES_ESTABLISHED", StringComparison.Ordinal));
+        Assert.Contains(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.DoesNotContain(opened.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
         var p1Prompt = opened.Prompts["P1"];
-        Assert.Equal(PromptTypes.StackPriority, p1Prompt.View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, p1Prompt.View?.Type);
         Assert.Equal(BattlefieldObjectId, p1Prompt.View?.RelatedBattlefieldId);
         Assert.Equal($"battle:{BattlefieldObjectId}", p1Prompt.View?.RelatedBattleId);
         Assert.Contains(CommandTypes.ActivateAbility, p1Prompt.Actions);
@@ -145,22 +145,22 @@ public sealed class ShadowActivatedAbilityTests
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
         Assert.Empty(p2Pass.State.StackItems);
         Assert.True(p2Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, p2Pass.State.TimingState);
-        Assert.Equal("P1", p2Pass.State.PriorityPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, p2Pass.State.TimingState);
+        Assert.Equal("P2", p2Pass.State.FocusPlayerId);
         Assert.True(p2Pass.State.CardObjects[ShadowObjectId].IsExhausted);
         Assert.Contains("STUNNED", p2Pass.State.CardObjects[EnemyAttackerObjectId].UntilEndOfTurnEffects);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "ABILITY_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["abilityId"] as string, P4ActivatedAbilityCatalog.ShadowStunAbilityId, StringComparison.Ordinal));
 
-        var responseP1Pass = await engine.ResolveAsync(
+        var responseP1Pass = await BattleFocusTestDriver.PassAsync(engine,
             p2Pass.State,
             new PlayerIntent("intent-natural-shadow-response-p1-pass", "P1", CommandTypes.PassPriority),
             new PassPriorityCommand(),
             CancellationToken.None);
         Assert.True(responseP1Pass.Accepted, responseP1Pass.ErrorMessage);
 
-        var responseP2Pass = await engine.ResolveAsync(
+        var responseP2Pass = await BattleFocusTestDriver.PassAsync(engine,
             responseP1Pass.State,
             new PlayerIntent("intent-natural-shadow-response-p2-pass", "P2", CommandTypes.PassPriority),
             new PassPriorityCommand(),
@@ -185,7 +185,7 @@ public sealed class ShadowActivatedAbilityTests
 
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
-        Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, prompt.View?.Type);
         Assert.Equal(BattlefieldObjectId, prompt.View?.RelatedBattlefieldId);
         Assert.Equal($"battle:{BattlefieldObjectId}", prompt.View?.RelatedBattleId);
         Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
@@ -213,7 +213,7 @@ public sealed class ShadowActivatedAbilityTests
         Assert.Equal(["ABILITY_ACTIVATED", "UNIT_EXHAUSTED", "COST_PAID", "STACK_ITEM_ADDED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.True(accepted.State.CardObjects[ShadowObjectId].IsExhausted);
         Assert.Equal(new RunePool(0, 0), accepted.State.RunePools["P1"]);
-        Assert.Equal(TimingStates.NeutralClosed, accepted.State.TimingState);
+        Assert.Equal(TimingStates.SpellDuelClosed, accepted.State.TimingState);
         Assert.Equal("P1", accepted.State.PriorityPlayerId);
         Assert.True(accepted.State.BattleState.IsActive);
         Assert.Equal(BattlefieldObjectId, accepted.State.BattleState.BattlefieldObjectId);
@@ -266,7 +266,7 @@ public sealed class ShadowActivatedAbilityTests
             Assert.Equal(accepted.State.ObjectLocations[ShadowObjectId], result.State.ObjectLocations[ShadowObjectId]);
             Assert.Equal(accepted.State.ObjectLocations[EnemyAttackerObjectId], result.State.ObjectLocations[EnemyAttackerObjectId]);
             Assert.Equal(accepted.State.StackItems, result.State.StackItems);
-            Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+            Assert.Equal(TimingStates.SpellDuelClosed, result.State.TimingState);
             Assert.Equal("P1", result.State.PriorityPlayerId);
             Assert.True(result.State.BattleState.IsActive);
             Assert.Equal(BattlefieldObjectId, result.State.BattleState.BattlefieldObjectId);
@@ -435,19 +435,22 @@ public sealed class ShadowActivatedAbilityTests
         var queue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
 
         Assert.Equal("P1", reconnect.PlayerId);
-        Assert.Equal("BATTLE_TASKS", Assert.IsType<string>(queue["phase"]));
-        Assert.Equal($"task:start-battle:{BattlefieldObjectId}", Assert.IsType<string>(queue["activeTaskId"]));
-        Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(queue["phase"]));
+        Assert.Equal($"task:start-spell-duel:{BattlefieldObjectId}", Assert.IsType<string>(queue["activeTaskId"]));
+        Assert.Equal(PromptTypes.SpellDuelFocus, prompt.View?.Type);
         Assert.Equal(BattlefieldObjectId, prompt.View?.RelatedBattlefieldId);
         Assert.Equal($"battle:{BattlefieldObjectId}", prompt.View?.RelatedBattleId);
         Assert.Contains(CommandTypes.ActivateAbility, prompt.Actions);
 
         var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
         var activeTask = Assert.Single(battlefieldTasks, task =>
-            string.Equals(task["kind"] as string, "START_BATTLE", StringComparison.Ordinal)
+            string.Equals(task["kind"] as string, "START_SPELL_DUEL", StringComparison.Ordinal)
             && string.Equals(task["status"] as string, "ACTIVE", StringComparison.Ordinal)
             && string.Equals(task["battlefieldObjectId"] as string, BattlefieldObjectId, StringComparison.Ordinal));
-        Assert.Equal($"battle:{BattlefieldObjectId}", Assert.IsType<string>(activeTask["battleId"]));
+        Assert.Equal($"spell-duel:{BattlefieldObjectId}", Assert.IsType<string>(activeTask["spellDuelId"]));
+        var battleTask = Assert.Single(battlefieldTasks, task =>
+            Equals(task.GetValueOrDefault("kind"), "START_BATTLE") && Equals(task.GetValueOrDefault("battlefieldObjectId"), BattlefieldObjectId));
+        Assert.Equal($"battle:{BattlefieldObjectId}", Assert.IsType<string>(battleTask["battleId"]));
         Assert.Equal(["P1", "P2"], Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantControllerIds"]));
         Assert.Contains(ShadowObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantObjectIds"]));
         Assert.Contains(EnemyAttackerObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(activeTask["participantObjectIds"]));
@@ -499,7 +502,7 @@ public sealed class ShadowActivatedAbilityTests
         Assert.True(result.State.CardObjects[ShadowObjectId].IsExhausted);
         Assert.DoesNotContain("STUNNED", result.State.CardObjects[EnemyAttackerObjectId].UntilEndOfTurnEffects);
         Assert.Equal([ShadowObjectId, FriendlyAttackerObjectId], result.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal(TimingStates.SpellDuelClosed, result.State.TimingState);
         Assert.Equal("P1", result.State.PriorityPlayerId);
         var stackItem = Assert.Single(result.State.StackItems);
         Assert.Equal(P4ActivatedAbilityCatalog.ShadowStunAbilityEffectKind, stackItem.EffectKind);
@@ -825,7 +828,7 @@ public sealed class ShadowActivatedAbilityTests
         CoreRuleEngine? engine = null)
     {
         var state = BuildNaturalShadowStartBattleState(mana, power);
-        return await (engine ?? new CoreRuleEngine()).ResolveAsync(
+        return await BattleFocusTestDriver.OpenAsync(engine ?? new CoreRuleEngine(),
             state,
             new PlayerIntent("intent-natural-shadow-declare-battle", "P2", CommandTypes.DeclareBattle),
             new DeclareBattleCommand(
@@ -926,14 +929,15 @@ public sealed class ShadowActivatedAbilityTests
 
         return scenario switch
         {
-            "wrong-timing" => state with { TimingState = TimingStates.NeutralOpen, PriorityPlayerId = null },
-            "wrong-priority" => state with { PriorityPlayerId = "P2" },
-            "open-main" => state with { TimingState = TimingStates.NeutralOpen, PriorityPlayerId = null },
+            "wrong-timing" => state with { TimingState = TimingStates.NeutralClosed, PriorityPlayerId = null, FocusPlayerId = null },
+            "wrong-priority" => state with { FocusPlayerId = "P2" },
+            "open-main" => state with { TimingState = TimingStates.NeutralOpen, FocusPlayerId = null,
+                CardObjects = state.CardObjects.ToDictionary(e => e.Key, e => e.Value with { IsAttacking = false, IsDefending = false }) },
             "spell-duel" => state with
             {
-                TimingState = TimingStates.SpellDuelOpen,
-                PriorityPlayerId = null,
-                FocusPlayerId = "P1"
+                TimingState = TimingStates.SpellDuelClosed,
+                PriorityPlayerId = "P1",
+                FocusPlayerId = null
             },
             "source-base" => state with
             {
@@ -1042,7 +1046,7 @@ public sealed class ShadowActivatedAbilityTests
             status: MatchStatuses.InProgress,
             turnPlayerId: "P1",
             phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralClosed,
+            timingState: TimingStates.SpellDuelOpen,
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(mana, power),
@@ -1080,7 +1084,7 @@ public sealed class ShadowActivatedAbilityTests
                 ["P2"] = 0
             },
             cardObjects: cardObjects,
-            priorityPlayerId: "P1",
+            focusPlayerId: "P1",
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
                 [BattlefieldObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),

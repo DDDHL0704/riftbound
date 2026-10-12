@@ -41,6 +41,11 @@ public sealed partial class CoreRuleEngine
                 ["cards"] = hand.Keys.Select(id => new { objectId = id, cardNo = state.CardObjects[id].CardNo }).ToArray() })] };
     }
 
+    internal static bool IsEmptyRevealedHandChoice(PendingCardChoiceState choice)
+        => choice.ChoiceWindow == "REVEALED_HAND_EFFECT" && choice.HandContext is { Cards.Count: 0 }
+            && choice.DeckContext is null && choice.ResolvingStackItemId is null
+            && choice.RequiredCount == 0 && choice.MaxCount == 0 && choice.LegalObjectIds.Count == 0;
+
     internal static bool ValidRevealedHandChoice(MatchState state, PendingCardChoiceState choice)
     {
         var top = state.StackItems.LastOrDefault();

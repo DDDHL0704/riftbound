@@ -7870,7 +7870,7 @@
     },
     {
       "id": "ATTACK-DAMAGE-DISTRIBUTION-2026-10-12",
-      "status": "SCOPED_REBUILT_FOCUSED_AND_NATIVE_PASS_EXACT_HEAD_FULL_CI_PENDING",
+      "status": "SCOPED_REBUILT_NATIVE_AND_EXACT_HEAD_FULL_CI_PASS",
       "scope": "Captured declared unit-attack distributed damage instructions and independent copied instances, resolution-only allocation, target continuity and response roster cleanup. Initial battle spell-duel role/trigger timing remains open. No whole-card certification.",
       "subjects": [
         "OGN-041/298",
@@ -7896,7 +7896,8 @@
       ],
       "evidence": [
         "docs/ATTACK_DAMAGE_DISTRIBUTION_AUDIT_2026-10-12.md",
-        "docs/evidence/attack-damage-distribution-2026-10-12/validation.json"
+        "docs/evidence/attack-damage-distribution-2026-10-12/validation.json",
+        "docs/evidence/attack-damage-distribution-2026-10-12/ci-0703e9ce.json"
       ],
       "wholeCardCertification": false,
       "remaining": [
@@ -7905,6 +7906,57 @@
         "Full official corpus semantic rebuild and all remaining attached-rule consumers.",
         "Reentered counter references are restored binding fixtures; actual leave/replay command sequence still needed."
       ]
+    },
+    {
+      "id": "BATTLE-START-ROLES-2026-10-12",
+      "status": "SCOPED_REBUILT_LOCAL_NATIVE_PASS_FULL_CI_REQUIRED",
+      "scope": "Recorded initial roles and captured registered Volibear/Fan role triggers before ordinary focus; attacker-first role trigger placement, representative late Azir arrival, Shadow Swift legality, matching-field cleanup and precise empty revealed-hand restoration. Not a whole battle, whole card or all consumer certification.",
+      "subjects": [
+        "OGN-041/298",
+        "OGN-041a/298",
+        "SFD-128/221",
+        "UNL-194/219",
+        "SFD-050/221",
+        "UNL-079/219",
+        "UNL-202/219"
+      ],
+      "rules": [
+        "DOC-04 464.2.b/c.3/c.3.a/d/e.1/f",
+        "DOC-04 465.1,466",
+        "DOC-04 308.1.a,313.1.a,316.8.c"
+      ],
+      "implementation": [
+        "CoreRuleEngine.BattleStartRoles.cs",
+        "CoreRuleEngine.DamageDistribution.cs",
+        "CoreRuleEngine.FieldTriggers.cs",
+        "BattlefieldContestRules",
+        "shared Swift eligibility",
+        "MatchState pending task selection",
+        "precise empty revealed-hand choice restoration"
+      ],
+      "tests": [
+        "BattleStartRoleTests",
+        "ShadowActivatedAbilityTests",
+        "BattleDamageAssignmentLifecycleTests",
+        "OfficialDrawDefenseTests",
+        "OfficialInformationPermissionTests",
+        "AttackDamageNativeTests",
+        "selected FullGameEndToEndTests"
+      ],
+      "evidence": [
+        "docs/BATTLE_START_ROLES_AUDIT_2026-10-12.md",
+        "docs/evidence/battle-start-roles-2026-10-12/sources.json",
+        "docs/evidence/battle-start-roles-2026-10-12/validation.json"
+      ],
+      "wholeCardCertification": false,
+      "remaining": [
+        "Existing-duel conversion/focus preservation (464.2.c.1.b).",
+        "All legacy attack/defend consumers including Icevale attack payment.",
+        "All copied defense consumers, controller-owned ordering, duel-start-only multi-controller ordering and complete late role continuity.",
+        "Full official card/rule/QA semantic audit and the English source count gap.",
+        "Visible paired Mac clients and Windows network acceptance."
+      ],
+      "pauseAfterBatchRequested": true
     }
   ]
 }

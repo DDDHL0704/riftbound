@@ -5504,7 +5504,7 @@ public sealed partial class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, battleResult);
         Assert.Contains(openedResponse.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
@@ -5537,7 +5537,7 @@ public sealed partial class FullGameEndToEndTests
 
         await AssertActionLogReplaysToFinalStateHashAsync(initialState, journal, result);
         Assert.Contains(openedResponse.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.ActivateAbility, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
@@ -5575,7 +5575,7 @@ public sealed partial class FullGameEndToEndTests
         var hiddenEvent = Assert.Single(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
         Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
         Assert.Contains(openedResponse.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(revealed.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
@@ -5624,7 +5624,7 @@ public sealed partial class FullGameEndToEndTests
         var hiddenEvent = Assert.Single(hidden.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
         Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
         Assert.Contains(openedResponse.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(revealed.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
@@ -5705,9 +5705,9 @@ public sealed partial class FullGameEndToEndTests
                 deck);
 
         Assert.Contains(openedResponse.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
-        Assert.Equal(PromptTypes.StackPriority, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].View?.Type);
-        Assert.Contains(CommandTypes.TapRune, openedResponse.Prompts[openedResponse.State.PriorityPlayerId!].EnabledActions());
+            string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
+        Assert.Equal(PromptTypes.SpellDuelFocus, openedResponse.Prompts[openedResponse.State.FocusPlayerId!].View?.Type);
+        Assert.Contains(CommandTypes.TapRune, openedResponse.Prompts[openedResponse.State.FocusPlayerId!].EnabledActions());
 
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
@@ -5719,7 +5719,7 @@ public sealed partial class FullGameEndToEndTests
         Assert.Contains("STUNNED", stackResolved.State.CardObjects[targetObjectId].UntilEndOfTurnEffects);
 
         Assert.Contains(battleResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_CLOSED", StringComparison.Ordinal));
+            string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Contains(battleResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
         Assert.False(battleResult.State.BattleState.IsActive);
         AssertNoHiddenZoneLeak(openedResponse);
@@ -5738,6 +5738,7 @@ public sealed partial class FullGameEndToEndTests
         for (var turnIndex = 0; turnIndex < 48 && !string.Equals(result.State.Status, MatchStatuses.Finished, StringComparison.Ordinal); turnIndex++)
         {
             result = await ResolveDriverPendingEffectsAsync(session, result, $"{intentPrefix}-triggers-{turnIndex}");
+            result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentPrefix}-pending-assignment-{turnIndex}");
             if (result.State.BattleState.IsActive && result.State.PriorityPlayerId is not null)
             {
                 result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-pending-response-{turnIndex}");
@@ -5751,6 +5752,7 @@ public sealed partial class FullGameEndToEndTests
                 result = await PassOpenSpellDuelAsync(session, result, $"{intentPrefix}-pass-focus-{turnIndex}");
                 scoreEvents += result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
             }
+            result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentPrefix}-focus-completed-assignment-{turnIndex}");
 
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
                 && result.Prompts[result.State.ActivePlayerId].EnabledActions().Contains(CommandTypes.DeclareBattle, StringComparer.Ordinal))
@@ -10579,10 +10581,10 @@ public sealed partial class FullGameEndToEndTests
         var (activated, targetObjectId) = await ActivateCurrentShadowResponseAsync(
             session,
             openedResponse,
-            openedResponse.State.PriorityPlayerId!,
+            (openedResponse.State.FocusPlayerId ?? openedResponse.State.PriorityPlayerId)!,
             "b0-shadow-activate-response");
         var stackResolved = await ResolveCurrentStackOnlyAsync(session, activated, "b0-shadow-resolve-stack");
-        var battleResult = await PassOpenBattleResponseAsync(session, stackResolved, "b0-shadow-pass-returned-response");
+        var battleResult = await FinishBattleAfterFocusAsync(session, stackResolved, "b0-shadow-combat");
         return (session, openedResponse, activated, stackResolved, battleResult, targetObjectId);
     }
 
@@ -10724,7 +10726,7 @@ public sealed partial class FullGameEndToEndTests
         var (activated, targetObjectId) = await ActivateCurrentShadowResponseAsync(
             session,
             openedResponse,
-            openedResponse.State.PriorityPlayerId!,
+            (openedResponse.State.FocusPlayerId ?? openedResponse.State.PriorityPlayerId)!,
             "b0-standby-reaction-activate-shadow");
         var standbyPriority = await PassPriorityUntilAsync(
             session,
@@ -10741,7 +10743,7 @@ public sealed partial class FullGameEndToEndTests
 
         var teemoResolved = await ResolveOneStackItemPassPassAsync(session, revealed, "b0-standby-reaction-resolve-teemo");
         var shadowResolved = await ResolveCurrentStackOnlyAsync(session, teemoResolved, "b0-standby-reaction-resolve-shadow");
-        var battleResult = await PassOpenBattleResponseAsync(session, shadowResolved, "b0-standby-reaction-pass-returned-response");
+        var battleResult = await FinishBattleAfterFocusAsync(session, shadowResolved, "b0-standby-reaction-combat");
         return (session, hidden, openedResponse, activated, revealed, teemoResolved, shadowResolved, battleResult, teemoObjectId, targetObjectId);
     }
 
@@ -11497,7 +11499,7 @@ public sealed partial class FullGameEndToEndTests
         Assert.False(current.State.CardObjects[shadow].IsExhausted);
         current = await MoveBaseUnitToBattlefieldAsync(session, attacker, current,
             BattlefieldDestinationFor(current.State, attacker), "b0-shadow-incoming-attacker");
-        return await PassOpenSpellDuelAsync(session, current, "b0-shadow-incoming-focus");
+        return current;
     }
 
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToShadowResponseAsync(
@@ -11507,6 +11509,17 @@ public sealed partial class FullGameEndToEndTests
         string shadowControllerId)
     {
         var result = current;
+        if (result.State.TimingState == TimingStates.SpellDuelOpen && result.State.BattleState.IsActive)
+        {
+            if (result.State.FocusPlayerId != shadowControllerId)
+            {
+                var passed = await session.SubmitAsync(result.State.FocusPlayerId!, "b0-shadow-offer-defender-focus",
+                    new PassFocusCommand(), RawCommand(new PassFocusCommand()), default);
+                AssertAccepted(passed); result = passed;
+            }
+            Assert.Equal(shadowControllerId, result.State.FocusPlayerId);
+            return result;
+        }
         for (var turnIndex = 0; turnIndex < 12; turnIndex++)
         {
             if (string.Equals(result.State.PendingTaskQueue.Phase, "BATTLE_TASKS", StringComparison.Ordinal)
@@ -15684,7 +15697,7 @@ public sealed partial class FullGameEndToEndTests
             CancellationToken.None);
         if (declared.Accepted)
         {
-            Assert.True(declared.Events.Any(gameEvent => gameEvent.Kind == "BATTLE_RESPONSE_PRIORITY_OPENED"),
+            Assert.True(declared.Events.Any(gameEvent => gameEvent.Kind == "FOCUS_PASSED"),
                 JsonSerializer.Serialize(new { Before = DescribeState(current.State), Shadow = current.State.CardObjects[shadowObjectId],
                     Runes = current.State.PlayerZones[shadowControllerId].Base.Select(id => current.State.CardObjects[id]),
                     Actions = declared.Prompts[shadowControllerId].EnabledActions() }));
@@ -15702,7 +15715,7 @@ public sealed partial class FullGameEndToEndTests
     {
         current = await TapAllAvailableRunesAsync(session, playerId, current, $"{intentId}-response-resources");
         var prompt = current.Prompts[playerId];
-        Assert.Equal(PromptTypes.StackPriority, prompt.View?.Type);
+        Assert.Equal(PromptTypes.SpellDuelFocus, prompt.View?.Type);
         var candidate = EnabledCandidate(prompt, CommandTypes.ActivateAbility)
             ?? throw new InvalidOperationException($"B0 shadow-response driver could not find ACTIVATE_ABILITY for {playerId}.");
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
@@ -15804,6 +15817,24 @@ public sealed partial class FullGameEndToEndTests
                 .Select(entry => entry.Id).Order(StringComparer.Ordinal);
             Assert.Equal(expected, Assert.IsType<string[]>(declaration.Payload[role]).Order(StringComparer.Ordinal));
         }
+    }
+
+    private static async ValueTask<ResolutionResult> FinishBattleAfterFocusAsync(
+        MatchSession session, ResolutionResult current, string prefix)
+    {
+        var closed = await PassOpenSpellDuelAsync(session, current, prefix + "-focus");
+        var result = closed;
+        var player = PlayerWithEnabledCandidate(result, CommandTypes.DeclareBattle);
+        if (player is not null && result.State.BattleState.IsActive)
+        {
+            var battle = result.State.BattleState;
+            var command = new DeclareBattleCommand(battle.BattlefieldObjectId!, battle.AttackerObjectIds, battle.DefenderObjectIds, ["COMBAT_ASSIGNMENT"]);
+            var declared = await session.SubmitAsync(player, prefix + "-combat", command, RawCommand(command), default);
+            AssertAccepted(declared);
+            result = declared with { Events = closed.Events.Concat(declared.Events).ToArray() };
+        }
+        var assigned = await ResolveOpenBattleDamageAssignmentsAsync(session, result, prefix + "-assignment");
+        return assigned with { Events = result.Events.Concat(assigned.Events).Distinct().ToArray() };
     }
 
     private static async ValueTask<ResolutionResult> ResolveOpenBattleDamageAssignmentsAsync(

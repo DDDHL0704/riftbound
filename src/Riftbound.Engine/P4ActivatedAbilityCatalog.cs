@@ -492,8 +492,8 @@ public static class P4ActivatedAbilityCatalog
             ExhaustsSourceAsCost: true,
             0,
             AppliesSpellshieldTargetTax: true,
-            "Stage 4D-03Q opens only Shadow's swift battle-response stun-attacker representative; the broader swift combat response and target-bearing skill family remains deferred.",
-            ReactionSpeed: true),
+            "Shadow's printed Swift skill chooses an enemy attacking here through an ordinary or spell-duel focus window.",
+            SwiftSpeed: true),
         new(
             EnergyChannelResourceAbilityId,
             EnergyChannelCardNo,

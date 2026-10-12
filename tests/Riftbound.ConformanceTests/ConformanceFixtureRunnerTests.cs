@@ -31040,7 +31040,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Equal(8, result.State.Tick);
         Assert.Equal(
-            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED", "BATTLE_ROLES_ESTABLISHED"],
             result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
         Assert.Equal("P2", result.State.ActivePlayerId);
@@ -31059,7 +31059,7 @@ public sealed class ConformanceFixtureRunnerTests
             task =>
             {
                 Assert.Equal("START_BATTLE", task.Kind);
-                Assert.Equal("WAITING_FOR_SPELL_DUEL", task.Status);
+                Assert.Equal("ACTIVE", task.Status);
             });
         Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-spell-duel:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
@@ -33916,7 +33916,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(shadowDefinition.ExhaustsSourceAsCost);
         Assert.Equal(0, shadowDefinition.DamageAmount);
         Assert.True(shadowDefinition.AppliesSpellshieldTargetTax);
-        Assert.True(shadowDefinition.ReactionSpeed);
+        Assert.True(shadowDefinition.SwiftSpeed);
+        Assert.False(shadowDefinition.ReactionSpeed);
     }
 
     [Fact]
