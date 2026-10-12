@@ -11,8 +11,6 @@ public sealed partial class CoreRuleEngine
             || state.PendingHandChoice is not null || state.PendingCardChoice is not null
             || ResolutionResult.HasBlockingPendingTaskQueue(state))
             return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.PhaseNotAllowed, "请先完成当前对局步骤。");
-        if (IsAmbushPlayMode(request.Command.Mode))
-            return PlayCostQuoteDto.Rejected(request, state.Tick, ErrorCodes.UnsupportedCommand, "此特殊打出方式暂不支持费用预览。");
 
         if (CardBehaviorRegistry.TryGetByCardNoAndMode(request.Command.CardNo, request.Command.Mode, out var behavior)
             && CardPermissionKeywordRules.IsSpellPlayProhibited(state, playerId, behavior))

@@ -176,6 +176,8 @@ public sealed record CardBehaviorDefinition(
     int GainExperienceOnPlayPerFriendlyFieldUnit = 0,
     int OptionalExperienceCost = 0,
     int ManaReductionIfExperiencePaid = 0,
+    bool AllowsAmbushToEnemyOccupiedBattlefield = false,
+    bool AllowsPlayAtDestroyedAdditionalCostLocation = false,
     int HasteReadyManaCost = 0,
     int HasteReadyPowerCost = 0,
     string HasteReadyPowerTrait = "",
@@ -6860,7 +6862,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "猫科"),
+            SourceUnitTags: "猫科",
+            AllowsAmbushToEnemyOccupiedBattlefield: true),
         new(
             "UNL-120a/219",
             "雷恩加尔",
@@ -6870,7 +6873,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "猫科"),
+            SourceUnitTags: "猫科",
+            AllowsAmbushToEnemyOccupiedBattlefield: true),
         new(
             "UNL-153/219",
             "腐泥疏浚工",
@@ -7274,7 +7278,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
             SourceUnitTags: "犬形",
-            RequiresDestroyFriendlyTraitUnitAdditionalCost: true),
+            RequiresDestroyFriendlyTraitUnitAdditionalCost: true,
+            AllowsPlayAtDestroyedAdditionalCostLocation: true),
         new(
             "UNL-081/219",
             "赐面守侍",

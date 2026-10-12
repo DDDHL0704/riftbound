@@ -1,0 +1,336 @@
+[
+  {
+    "id": "DOC-04-P005-B017",
+    "document": "DOC-04",
+    "page": 5,
+    "clauseAnchors": [
+      "108.3.d"
+    ],
+    "text": "108.3.d.                选定英雄 可以从此处按照打出卡牌 的正常规则打出。\n                            想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P018-B010",
+    "document": "DOC-04",
+    "page": 18,
+    "clauseAnchors": [
+      "145.2.a"
+    ],
+    "text": "145.2.a.                    这个行动与“打出卡牌”的流程相同。\n                                 想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P020-B001",
+    "document": "DOC-04",
+    "page": 20,
+    "clauseAnchors": [
+      "151.2.a"
+    ],
+    "text": "151.2.a.                 这个行动与“打出卡牌”的流程相同。\n                              想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P025-B014",
+    "document": "DOC-04",
+    "page": 25,
+    "clauseAnchors": [
+      "185.2.a"
+    ],
+    "text": "185.2.a.               如果指示物所属的卡牌类型被打出,则其所属者可以打出该指示物,需按照打出卡牌的正常步骤进行,同\n                       时也要遵守创建出指示物的效果所列明的额外限制或条件。\n                            想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P038-B021",
+    "document": "DOC-04",
+    "page": 38,
+    "clauseAnchors": [
+      "328.1"
+    ],
+    "text": "328.1.            将卡牌、技能和指示物置于此处,作为打出过程的一部分。\n                       想获取更多有关信息,请查阅规则 349.打出过程。\n                       想获取更多有关信息,请查阅规则 360.技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B001",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "329.2"
+    ],
+    "text": "329.2.          在进行至打出卡牌的“检查合法性”步骤之前,所有结算链项目都是处于待处理状态。\n                     想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B022",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "337"
+    ],
+    "text": "337.       步骤 1:确认",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B023",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "337.1"
+    ],
+    "text": "337.1.          如果有至少一个结算链项目处于待处理状态,则其中最早的待处理结算链项目 的控制者必须完成打出该待处理项目",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B001",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [],
+    "text": "的所有步骤,直到其成为已确认项目或离开结算链。\n                       想获取更多有关确认结算链项目的信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B002",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.1.a"
+    ],
+    "text": "337.1.a.               在结算链上对项目进行确认不会让过优先行动权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B003",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.1.b"
+    ],
+    "text": "337.1.b.               结算链项目会按照被添加到结算链的顺序进行确认。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B004",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.2"
+    ],
+    "text": "337.2.            如果在结算链项目完成确认后,该项目为单位、装备或获得资源的技能,则会立即结算——进入步骤 4:结算。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B005",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.3"
+    ],
+    "text": "337.3.            如果在结算链项目完成确认后,仍有待处理的结算链项目,返回步骤 1:确认。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B006",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.4"
+    ],
+    "text": "337.4.            如果在结算链项目完成确认后,结算链上不再有需要确认的项目,则结算链上的下一个项目的控制者将获得优先行\n                  动权 。进入步骤 2:执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B015",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "338.1.a.6"
+    ],
+    "text": "338.1.a.6.                  一张卡牌或主动技能是否符合时机,将在打出卡牌的“检查合法性”步骤中进行判定。\n                                想获取更多有关信息,请查阅规则 349.打出卡牌。\n                                想获取更多有关信息,请查阅规则 398.打出或激活技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B023",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "340.1"
+    ],
+    "text": "340.1.            结算最新的已确认结算链项目 。完整执行其游戏效果。\n                       想获取更多有关法术结算的信息,请查阅规则 349.打出卡牌。\n                       想获取更多有关结算技能的信息,请查阅规则 398.打出或激活技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P042-B008",
+    "document": "DOC-04",
+    "page": 42,
+    "clauseAnchors": [
+      "349"
+    ],
+    "text": "349.         打出卡牌",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P057-B015",
+    "document": "DOC-04",
+    "page": 57,
+    "clauseAnchors": [
+      "377"
+    ],
+    "text": "377.         主动技能 是一种可重复效果,带有一定费用。这类技能也要经过加入结算链、进行结算的过程,与打出卡牌 的过程类似。\n                    想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B019",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "401.1"
+    ],
+    "text": "401.1.              将代表该主动或触发式技能的待处理项目放入结算链。需要强调的是,尽管没有卡牌代表此结算链项目,此操作仍\n                    会创建一个闭环状态。\n                         想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P065-B004",
+    "document": "DOC-04",
+    "page": 65,
+    "clauseAnchors": [
+      "402.2"
+    ],
+    "text": "402.2.            做出此技能所需的全部选择,如目标、模式或其他相关的决定。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P065-B014",
+    "document": "DOC-04",
+    "page": 65,
+    "clauseAnchors": [
+      "403.2"
+    ],
+    "text": "403.2.            将上一步骤中做出的选择所导致的增减应用到费用中。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P065-B015",
+    "document": "DOC-04",
+    "page": 65,
+    "clauseAnchors": [
+      "403.3"
+    ],
+    "text": "403.3.            施加其它必要的增减费效果。\n                         想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P065-B017",
+    "document": "DOC-04",
+    "page": 65,
+    "clauseAnchors": [
+      "404.1"
+    ],
+    "text": "404.1.            支付之前步骤中确定的费用。\n                         想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P066-B002",
+    "document": "DOC-04",
+    "page": 66,
+    "clauseAnchors": [
+      "405.2"
+    ],
+    "text": "405.2.            确保此技能的效果不会创造出非法状态。如果此技能会创造出非法状态,则按卡牌创造非法状态时的方式进行结\n                  算。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B005",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.1"
+    ],
+    "text": "419.1.            玩家打出卡牌,是指将卡牌放置在结算链上并排队等待确认。\n                      想获取更多有关信息,请查阅规则 349.打出卡牌。\n                       想获取更多有关信息,请查阅规则 337.确认。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P114-B001",
+    "document": "DOC-04",
+    "page": 114,
+    "clauseAnchors": [
+      "809.1.d"
+    ],
+    "text": "809.1.d.                此效果会对将拥有此技能的游戏物体选为目标的法术或技能施加强制额外费用。\n                             想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P120-B013",
+    "document": "DOC-04",
+    "page": 120,
+    "clauseAnchors": [
+      "820.2"
+    ],
+    "text": "820.2.            当法术或技能的效果因[回响]而额外执行一次时,所需的选择必须在“打出卡牌”的“做出相关的选择”步骤中的常规时\n                  点做出。\n                         想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P121-B020",
+    "document": "DOC-04",
+    "page": 121,
+    "clauseAnchors": [
+      "822.1.c"
+    ],
+    "text": "822.1.c.              这是一种被动技能,会在打出卡牌的“做出相关的选择”步骤中,为单位可被打出的有效位置增加额外选\n                      项。\n                            想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

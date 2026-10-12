@@ -15676,7 +15676,7 @@ public sealed class GameHubJoinTests
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
         Assert.Equal(
-            ["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-GLOOMY-APOTHECARY"],
+            ["P1-BATTLEFIELD-FRIENDLY-001", "P1-MAIN", "P1-HAND-UNL-GLOOMY-APOTHECARY"],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
     }
 

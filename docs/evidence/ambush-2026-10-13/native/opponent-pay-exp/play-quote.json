@@ -1,0 +1,35 @@
+{
+  "requestId": "e57e47caea084f05af0d5af4d3f6ff26",
+  "promptId": "HOLD-TEST:2:P2:PLAY_CARD,PASS_PRIORITY,SURRENDER",
+  "snapshotTick": 2,
+  "isValid": true,
+  "canPay": true,
+  "message": "\u8D39\u7528\u5DF2\u6838\u5BF9\uFF0C\u53EF\u4EE5\u786E\u8BA4\u6253\u51FA\u3002",
+  "errorCode": null,
+  "cost": {
+    "printedMana": 6,
+    "printedPower": 1,
+    "mana": 3,
+    "genericPower": 0,
+    "powerByTrait": {
+      "yellow": 1
+    },
+    "experience": 3,
+    "availableMana": 20,
+    "availableRainbowPower": 20,
+    "availablePowerByTrait": {},
+    "missingMana": 0,
+    "missingPower": 0,
+    "missingExperience": 0,
+    "remainingMana": 17,
+    "remainingRainbowPower": 19,
+    "remainingPowerByTrait": {},
+    "adjustments": [
+      {
+        "label": "\u6240\u9009\u989D\u5916\u8D39\u7528\u5E26\u6765\u7684\u51CF\u514D",
+        "mana": -3,
+        "power": 0
+      }
+    ]
+  }
+}

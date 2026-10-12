@@ -1,0 +1,45 @@
+{
+  "baseline": "9dfa90ec998a2d914efd786b078aba2b28aba32a",
+  "results": [
+    {
+      "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178/219\", response: True, mode: \"AMBUSH\")",
+      "outcome": "Failed",
+      "message": "此特殊打出方式暂不支持费用预览。"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178a/219\", response: True, mode: \"\")",
+      "outcome": "Failed",
+      "message": "当前选择无法打出，请检查目标、位置和支付资源。"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178/219\", response: False, mode: \"\")",
+      "outcome": "Passed",
+      "message": null
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178a/219\", response: False, mode: \"\")",
+      "outcome": "Passed",
+      "message": null
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178/219\", response: True, mode: \"\")",
+      "outcome": "Failed",
+      "message": "当前选择无法打出，请检查目标、位置和支付资源。"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: \"UNL-178a/219\", response: True, mode: \"AMBUSH\")",
+      "outcome": "Failed",
+      "message": "此特殊打出方式暂不支持费用预览。"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: \"UNL-120a/219\")",
+      "outcome": "Failed",
+      "message": "PLAY_CARD is not allowed in the current timing window."
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: \"UNL-120/219\")",
+      "outcome": "Failed",
+      "message": "PLAY_CARD is not allowed in the current timing window."
+    }
+  ]
+}

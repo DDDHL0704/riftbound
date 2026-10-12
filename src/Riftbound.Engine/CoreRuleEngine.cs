@@ -10,7 +10,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 {
     private const int BaseWinningScore = 8;
     private const string AmbushPlayMode = "AMBUSH";
-    private const string AmbushUnsupportedMessage = "当前伏击出牌路径尚未由服务端开放。";
     private const string StandbyHideDestination = "STANDBY";
     private const string StandbyHideOptionalCost = "STANDBY_A";
     private const string StandbyHideFreeOptionalCost = "STANDBY_FREE";
@@ -168,6 +167,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))));
             var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))))));
+            // New field objects need their current incarnation before role and
+            // Mighty observers capture bindings. The final pass is idempotent
+            // and also binds stack items created by those observers.
+            collected = ApplyObjectContinuity(state, collected);
             collected = RecordBattleDuelRoles(state, collected);
             collected = RecordMightyTransitions(state, collected);
             return ValueTask.FromResult(RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
@@ -3613,11 +3616,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         PlayCardCommand command)
     {
-        if (IsAmbushPlayMode(command.Mode))
-        {
-            return ResolveAmbushPlayCard(state, intent, command);
-        }
-
         if (!TryBuildPlayCardPlan(state, intent, command, out var plan, out var rejection))
         {
             return rejection;
@@ -3787,7 +3785,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["cardNo"] = command.CardNo,
-                    ["mode"] = command.Mode
+                    ["mode"] = command.Mode,
+                    ["destination"] = destination
                 })
         };
         events.AddRange(paymentEvents);
@@ -3984,6 +3983,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
                 }));
 
+        if (behavior.PlaysSourceToBaseAsUnit && AmbushLocationAllowed(state, intent.PlayerId, behavior, destination)) {
+            var afterCosts = state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                ObjectLocations = ReconcileObjectLocations(objectLocations, playerZones), PlayerExperience = playerExperience };
+            if (IsAmbushPlayMode(command.Mode) && !AmbushLocationAllowed(afterCosts, intent.PlayerId, behavior, destination)
+                || !CardPermissionKeywordRules.EvaluatePlayTiming(afterCosts, intent.PlayerId,
+                    AmbushTimingBehavior(afterCosts, intent.PlayerId, behavior, destination)).IsAllowed)
+                return RejectWithCorePrompts(state, "费用支付后伏击的入场位置或反应权限已不合法。", ErrorCodes.InvalidTarget);
+        }
+
         ReturnSourceStolenEquipmentForMissingSources(playerZones, cardObjects, events);
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         nextState = nextState with
@@ -4012,213 +4020,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
-    }
-
-    private static ResolutionResult ResolveAmbushPlayCard(
-        MatchState state,
-        PlayerIntent intent,
-        PlayCardCommand command)
-    {
-        if (!TryBuildMinimalAmbushPlayCardPlan(
-                state,
-                intent,
-                command,
-                out var behavior,
-                out var zones,
-                out var sourceState,
-                out var destination))
-        {
-            return RejectWithCorePrompts(
-                state,
-                AmbushUnsupportedMessage,
-                ErrorCodes.UnsupportedCommand);
-        }
-
-        if (HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "战场效果禁止将单位打出到该战场。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < behavior.ManaCost)
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"Not enough mana to play {behavior.DisplayName} with Ambush.",
-                ErrorCodes.InsufficientCost);
-        }
-
-        var runePools = PayRuneCosts(state, intent.PlayerId, behavior.ManaCost, 0);
-        const string paymentWindow = "PLAY_CARD";
-        var paymentId = PaymentCostRules.BuildPaymentId(
-            state.Tick + 1,
-            paymentWindow,
-            intent.PlayerId,
-            command.SourceObjectId);
-        var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
-        cardObjects[command.SourceObjectId] = sourceState with
-        {
-            CardNo = string.IsNullOrWhiteSpace(sourceState.CardNo) ? behavior.CardNo : sourceState.CardNo,
-            ManaCost = behavior.ManaCost,
-            Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : sourceState.Power
-        };
-
-        var stackItem = new StackItemState(
-            $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
-            intent.PlayerId,
-            command.SourceObjectId,
-            behavior.EffectKind,
-            command.CardNo,
-            [],
-            behavior.DamageAmount,
-            1,
-            [],
-            playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
-            destination: destination,
-            timingContext: StackTimingContextForNewStackItem(state));
-        var nextState = state with
-        {
-            Tick = state.Tick + 1,
-            ActivePlayerId = intent.PlayerId,
-            TimingState = TimingStates.NeutralClosed,
-            RunePools = runePools,
-            PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId),
-            PlayerZones = playerZones,
-            ObjectLocations = objectLocations,
-            CardObjects = cardObjects,
-            PriorityPlayerId = intent.PlayerId,
-            PassedPriorityPlayerIds = [],
-            StackItems = state.StackItems.Concat([stackItem]).ToArray()
-        };
-        var events = new List<GameEvent>
-        {
-            new(
-                "CARD_PLAYED",
-                $"{intent.PlayerId} 以伏击打出{behavior.DisplayName}",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["sourceObjectId"] = command.SourceObjectId,
-                    ["cardNo"] = command.CardNo,
-                    ["mode"] = command.Mode,
-                    ["destination"] = destination
-                }),
-            new(
-                "COST_PAID",
-                $"{intent.PlayerId} 支付 {behavior.ManaCost} 点费用",
-                PaymentCostRules.BuildCostPaidPayload(
-                    paymentId,
-                    paymentWindow,
-                    intent.PlayerId,
-                    runePools,
-                    state.PlayerExperience,
-                    new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["mana"] = behavior.ManaCost,
-                    ["power"] = 0,
-                    ["experience"] = 0,
-                    ["baseMana"] = behavior.ManaCost,
-                    ["optionalCosts"] = Array.Empty<string>()
-                })),
-            new(
-                "STACK_ITEM_ADDED",
-                $"{behavior.DisplayName}加入结算链",
-                new Dictionary<string, object?>
-                {
-                    ["stackItemId"] = stackItem.StackItemId,
-                    ["controllerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["cardNo"] = stackItem.CardNo,
-                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
-                    ["effectKind"] = stackItem.EffectKind,
-                    ["mode"] = command.Mode,
-                    ["destination"] = destination,
-                    ["effectRepeatCount"] = stackItem.EffectRepeatCount,
-                    ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
-                })
-        };
-
-        return ConfirmPlayedPermanent(state, nextState, intent, events);
-    }
-
-    private static bool TryBuildMinimalAmbushPlayCardPlan(
-        MatchState state,
-        PlayerIntent intent,
-        PlayCardCommand command,
-        out CardBehaviorDefinition behavior,
-        out PlayerZones zones,
-        out CardObjectState sourceState,
-        out string destination)
-    {
-        behavior = default!;
-        zones = PlayerZones.Empty;
-        sourceState = default!;
-        destination = string.IsNullOrWhiteSpace(command.Destination) ? string.Empty : command.Destination.Trim();
-
-        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
-            || state.StackItems.Count == 0
-            || !string.Equals(state.PriorityPlayerId, intent.PlayerId, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        if (!string.Equals(
-                destination,
-                $"{MoveUnitBattlefieldZone}:{intent.PlayerId}-MAIN",
-                StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
-        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (targetObjectIds.Count != 0 || optionalCosts.Count != 0)
-        {
-            return false;
-        }
-
-        if (!AmbushInteractionSpecRules.HasAmbush(command.CardNo)
-            || !CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out behavior)
-            || !behavior.PlaysSourceToBaseAsUnit
-            || !HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds))
-        {
-            return false;
-        }
-
-        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var playerZones)
-            || !playerZones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal)
-            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var knownSourceState))
-        {
-            return false;
-        }
-
-        zones = playerZones;
-        sourceState = knownSourceState;
-        if (!string.IsNullOrWhiteSpace(sourceState.CardNo)
-            && !string.Equals(sourceState.CardNo, behavior.CardNo, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        return sourceState.Tags.Contains(CardInteractionKeywordNames.Ambush, StringComparer.Ordinal)
-            && HasFriendlyBattlefieldUnitForAmbush(state, intent.PlayerId);
-    }
-
-    private static bool HasFriendlyBattlefieldUnitForAmbush(MatchState state, string playerId)
-    {
-        return state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Battlefields.Any(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && !cardObject.IsFaceDown
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal));
     }
 
     private static ResolutionResult ResolveAssembleEquipment(
@@ -19742,7 +19543,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         plan = default!;
         rejection = default!;
 
-        if (!CardBehaviorRegistry.TryGetByCardNoAndMode(command.CardNo, command.Mode, out var behavior))
+        if (!CardBehaviorRegistry.TryGetByCardNoAndMode(command.CardNo,
+                IsAmbushPlayMode(command.Mode) ? "" : command.Mode, out var behavior))
         {
             rejection = Reject(
                 state,
@@ -19766,16 +19568,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         behavior = EffectPlayBehavior(state, intent.PlayerId, behavior);
-        var timingDecision = CardPermissionKeywordRules.EvaluatePlayTiming(state, intent.PlayerId, behavior);
-        if (!timingDecision.IsAllowed)
-        {
-            rejection = Reject(
-                state,
-                timingDecision.Reason,
-                ErrorCodes.PhaseNotAllowed);
-            return false;
-        }
-
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
             || !EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal))
         {
@@ -19838,13 +19630,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !IsChosenMovementDestinationAllowed(state, intent.PlayerId, destination, NormalizeTargetObjectIds(command.TargetObjectIds)))
         {
             rejection = Reject(state, "请选择所有目标均可移动至的同一个位置。", ErrorCodes.InvalidTarget);
-            return false;
-        }
-        if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
-            && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
-                && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination)))
-        {
-            rejection = Reject(state, $"{behavior.DisplayName} has unsupported play destination.", ErrorCodes.InvalidTarget);
             return false;
         }
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
@@ -20107,6 +19892,26 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state,
                 $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
                 ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        var ambush = AmbushLocationAllowed(state, intent.PlayerId, behavior, destination, destroyedAdditionalCostTargetObjectIds);
+        if (IsAmbushPlayMode(command.Mode)
+            && (!AmbushInteractionSpecRules.HasAmbush(behavior.CardNo) || !ambush)) {
+            rejection = Reject(state, "伏击需要当前合法的已占据战场。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
+            && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
+                && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
+                && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination))) {
+            rejection = Reject(state, "所选入场位置没有当前有效的出牌权限。", ErrorCodes.InvalidTarget);
+            return false;
+        }
+        var timingDecision = CardPermissionKeywordRules.EvaluatePlayTiming(state, intent.PlayerId,
+            AmbushTimingBehavior(state, intent.PlayerId, behavior, destination, destroyedAdditionalCostTargetObjectIds));
+        if (!timingDecision.IsAllowed) {
+            rejection = Reject(state, timingDecision.Reason, ErrorCodes.PhaseNotAllowed);
             return false;
         }
 

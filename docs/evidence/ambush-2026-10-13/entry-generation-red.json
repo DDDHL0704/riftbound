@@ -1,0 +1,8 @@
+{
+  "scope": "Intermediate shared Ambush flow; entry current-Might observer captured old generation before continuity",
+  "test": "Riftbound.ConformanceTests.AmbushPermissionTests.APrintedFourUnitEnteringTheBarracksUsesItsCurrentMightAndEnteredGeneration",
+  "outcome": "Failed",
+  "message": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+  "trxSha256": "9b899b226d2bb12cc906f24dc062920ccc8daad80604492e0251014e2e2e1281",
+  "wholeCardReviewed": false
+}

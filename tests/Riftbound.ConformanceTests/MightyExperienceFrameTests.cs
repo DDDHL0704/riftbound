@@ -103,14 +103,16 @@ public sealed class MightyExperienceFrameTests
         var response = await new CoreRuleEngine().ResolveAsync(paid.State, new("poppy-response", "P1", CommandTypes.PlayCard),
             new PlayCardCommand("POPPY", "UNL-178/219", [], Destination: "BATTLEFIELD:F", Mode: "AMBUSH",
                 OptionalCosts: ["SPEND_EXPERIENCE:3"]), default);
-        Assert.False(response.Accepted); Assert.Equal(ErrorCodes.UnsupportedCommand, response.ErrorCode);
-        Assert.Equal(MatchStateHasher.Hash(paid.State), MatchStateHasher.Hash(response.State));
-        Assert.Equal(6, response.State.PlayerExperience["P1"]);
+        // Retain this method identity as the regression for the former gap.
+        Assert.True(response.Accepted, response.ErrorMessage);
+        Assert.Equal(3, response.State.PlayerExperience["P1"]);
+        Assert.Contains("POPPY", response.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, ArmamentMightTests.Might(response.State));
         var remembered = response.State.StackItems.Single(i => i.MightySkill is not null).MightySkill!;
         Assert.Equal(4, remembered.BeforeMight); Assert.Equal(5, remembered.AfterMight);
         Restore(response.State); ArmamentMightTests.PublicRecovery(response.State);
         var done = await Top(response.State);
-        Assert.False(done.State.CardObjects["HOST"].IsExhausted); Assert.Equal(5, ArmamentMightTests.Might(done.State));
+        Assert.False(done.State.CardObjects["HOST"].IsExhausted); Assert.Equal(4, ArmamentMightTests.Might(done.State));
         Assert.Empty(done.State.StackItems); Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);
     }
 

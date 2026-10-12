@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="fcf5724f-050c-43f4-a99e-58a03047c823" name="@Mac-mini 2026-10-13 04:51:25" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-13T04:51:25.6136120+08:00" queuing="2026-10-13T04:51:25.6136120+08:00" start="2026-10-13T04:51:19.7652590+08:00" finish="2026-10-13T04:51:25.6908430+08:00" />
+  <TestSettings name="default" id="0d7c4160-8fb6-4073-8a05-72714a7d3327">
+    <Deployment runDeploymentRoot="_Mac-mini_2026-10-13_04_51_25" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="9ae76b70-dac0-4249-9834-164428898302" testId="3548ebce-8daa-cfbf-2ea7-a91591c34d71" testName="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178/219&quot;, response: True, mode: &quot;AMBUSH&quot;)" computerName="Mac-mini" duration="00:00:00.0028897" startTime="2026-10-13T04:51:25.6624710+08:00" endTime="2026-10-13T04:51:25.6624710+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9ae76b70-dac0-4249-9834-164428898302">
+      <Output>
+        <ErrorInfo>
+          <Message>此特殊打出方式暂不支持费用预览。</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(String card, Boolean response, String mode) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs:line 42
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="d4b6a440-b033-46a9-b277-1e43a041f3d8" testId="b5f4a987-16d4-e807-398c-ac1d1a5d1bf7" testName="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178a/219&quot;, response: True, mode: &quot;&quot;)" computerName="Mac-mini" duration="00:00:00.0034289" startTime="2026-10-13T04:51:25.6657870+08:00" endTime="2026-10-13T04:51:25.6657870+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d4b6a440-b033-46a9-b277-1e43a041f3d8">
+      <Output>
+        <ErrorInfo>
+          <Message>当前选择无法打出，请检查目标、位置和支付资源。</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(String card, Boolean response, String mode) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs:line 42
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="79281beb-ae9e-4821-8b6a-344ce0002748" testId="84120ff7-2d42-b0d4-16cf-46d8d10744ec" testName="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178/219&quot;, response: False, mode: &quot;&quot;)" computerName="Mac-mini" duration="00:00:00.0128001" startTime="2026-10-13T04:51:25.6591870+08:00" endTime="2026-10-13T04:51:25.6591870+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="79281beb-ae9e-4821-8b6a-344ce0002748" />
+    <UnitTestResult executionId="5ff6fbc1-fbc0-43a9-83f6-4ee93a5bb421" testId="8b37dc1a-5c72-1cb2-64b1-03ca0c75e061" testName="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178a/219&quot;, response: False, mode: &quot;&quot;)" computerName="Mac-mini" duration="00:00:00.1701522" startTime="2026-10-13T04:51:25.6432130+08:00" endTime="2026-10-13T04:51:25.6432130+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5ff6fbc1-fbc0-43a9-83f6-4ee93a5bb421" />
+    <UnitTestResult executionId="a2f3915b-ff75-4672-98c4-7ab210060511" testId="5e0b40a8-3541-1a5d-7112-9029adf410ba" testName="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178/219&quot;, response: True, mode: &quot;&quot;)" computerName="Mac-mini" duration="00:00:00.0031427" startTime="2026-10-13T04:51:25.6465400+08:00" endTime="2026-10-13T04:51:25.6465400+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a2f3915b-ff75-4672-98c4-7ab210060511">
+      <Output>
+        <ErrorInfo>
+          <Message>当前选择无法打出，请检查目标、位置和支付资源。</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(String card, Boolean response, String mode) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs:line 42
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="578f9da9-7153-4c4e-8227-7c9e0f0fad48" testId="b0c7a2fa-c8f5-db83-6b38-6e282096e7e0" testName="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178a/219&quot;, response: True, mode: &quot;AMBUSH&quot;)" computerName="Mac-mini" duration="00:00:00.0044866" startTime="2026-10-13T04:51:25.4728820+08:00" endTime="2026-10-13T04:51:25.4728820+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="578f9da9-7153-4c4e-8227-7c9e0f0fad48">
+      <Output>
+        <ErrorInfo>
+          <Message>此特殊打出方式暂不支持费用预览。</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(String card, Boolean response, String mode) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs:line 42
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e3c3a8e0-155c-48b1-9965-2fc81ce5bea3" testId="42511b94-57e2-b163-8db4-ac6baa862888" testName="Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: &quot;UNL-120a/219&quot;)" computerName="Mac-mini" duration="00:00:04.6124869" startTime="2026-10-13T04:51:25.4646110+08:00" endTime="2026-10-13T04:51:25.4646170+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e3c3a8e0-155c-48b1-9965-2fc81ce5bea3">
+      <Output>
+        <ErrorInfo>
+          <Message>PLAY_CARD is not allowed in the current timing window.</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Act(MatchState state, String player, GameCommand command) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 174
+   at Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs:line 59
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="7ec53543-6076-4fd2-a9cd-2491832b087b" testId="e19b5c9b-f554-0b5a-cb6c-d111757381d3" testName="Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: &quot;UNL-120/219&quot;)" computerName="Mac-mini" duration="00:00:00.0048237" startTime="2026-10-13T04:51:25.4692230+08:00" endTime="2026-10-13T04:51:25.4692230+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7ec53543-6076-4fd2-a9cd-2491832b087b">
+      <Output>
+        <ErrorInfo>
+          <Message>PLAY_CARD is not allowed in the current timing window.</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Act(MatchState state, String player, GameCommand command) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 174
+   at Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs:line 59
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178/219&quot;, response: True, mode: &quot;AMBUSH&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="3548ebce-8daa-cfbf-2ea7-a91591c34d71">
+      <Execution id="9ae76b70-dac0-4249-9834-164428898302" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.AmbushPermissionTests" name="OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178a/219&quot;, response: True, mode: &quot;&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="b5f4a987-16d4-e807-398c-ac1d1a5d1bf7">
+      <Execution id="d4b6a440-b033-46a9-b277-1e43a041f3d8" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.AmbushPermissionTests" name="OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: &quot;UNL-120/219&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="e19b5c9b-f554-0b5a-cb6c-d111757381d3">
+      <Execution id="7ec53543-6076-4fd2-a9cd-2491832b087b" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.AmbushPermissionTests" name="EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178a/219&quot;, response: False, mode: &quot;&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="8b37dc1a-5c72-1cb2-64b1-03ca0c75e061">
+      <Execution id="5ff6fbc1-fbc0-43a9-83f6-4ee93a5bb421" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.AmbushPermissionTests" name="OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: &quot;UNL-120a/219&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="42511b94-57e2-b163-8db4-ac6baa862888">
+      <Execution id="e3c3a8e0-155c-48b1-9965-2fc81ce5bea3" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.AmbushPermissionTests" name="EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178/219&quot;, response: True, mode: &quot;&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="5e0b40a8-3541-1a5d-7112-9029adf410ba">
+      <Execution id="a2f3915b-ff75-4672-98c4-7ab210060511" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.AmbushPermissionTests" name="OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178/219&quot;, response: False, mode: &quot;&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="84120ff7-2d42-b0d4-16cf-46d8d10744ec">
+      <Execution id="79281beb-ae9e-4821-8b6a-344ce0002748" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.AmbushPermissionTests" name="OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: &quot;UNL-178a/219&quot;, response: True, mode: &quot;AMBUSH&quot;)" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="b0c7a2fa-c8f5-db83-6b38-6e282096e7e0">
+      <Execution id="578f9da9-7153-4c4e-8227-7c9e0f0fad48" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.AmbushPermissionTests" name="OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="3548ebce-8daa-cfbf-2ea7-a91591c34d71" executionId="9ae76b70-dac0-4249-9834-164428898302" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b5f4a987-16d4-e807-398c-ac1d1a5d1bf7" executionId="d4b6a440-b033-46a9-b277-1e43a041f3d8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="84120ff7-2d42-b0d4-16cf-46d8d10744ec" executionId="79281beb-ae9e-4821-8b6a-344ce0002748" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8b37dc1a-5c72-1cb2-64b1-03ca0c75e061" executionId="5ff6fbc1-fbc0-43a9-83f6-4ee93a5bb421" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5e0b40a8-3541-1a5d-7112-9029adf410ba" executionId="a2f3915b-ff75-4672-98c4-7ab210060511" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b0c7a2fa-c8f5-db83-6b38-6e282096e7e0" executionId="578f9da9-7153-4c4e-8227-7c9e0f0fad48" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="42511b94-57e2-b163-8db4-ac6baa862888" executionId="e3c3a8e0-155c-48b1-9965-2fc81ce5bea3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e19b5c9b-f554-0b5a-cb6c-d111757381d3" executionId="7ec53543-6076-4fd2-a9cd-2491832b087b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="8" executed="8" passed="2" failed="6" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.9)
+[xUnit.net 00:00:00.12]   Discovering: Riftbound.ConformanceTests
+[xUnit.net 00:00:00.72]   Discovered:  Riftbound.ConformanceTests
+[xUnit.net 00:00:00.73]   Starting:    Riftbound.ConformanceTests
+[xUnit.net 00:00:05.37]       PLAY_CARD is not allowed in the current timing window.
+[xUnit.net 00:00:05.37]       Stack Trace:
+[xUnit.net 00:00:05.37]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs(174,0): at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Act(MatchState state, String player, GameCommand command)
+[xUnit.net 00:00:05.37]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs(59,0): at Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(String card)
+[xUnit.net 00:00:05.37]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.37]       PLAY_CARD is not allowed in the current timing window.
+[xUnit.net 00:00:05.37]       Stack Trace:
+[xUnit.net 00:00:05.37]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs(174,0): at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Act(MatchState state, String player, GameCommand command)
+[xUnit.net 00:00:05.37]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs(59,0): at Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(String card)
+[xUnit.net 00:00:05.37]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.38]       此特殊打出方式暂不支持费用预览。
+[xUnit.net 00:00:05.38]       Stack Trace:
+[xUnit.net 00:00:05.38]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs(42,0): at Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(String card, Boolean response, String mode)
+[xUnit.net 00:00:05.38]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.55]       当前选择无法打出，请检查目标、位置和支付资源。
+[xUnit.net 00:00:05.55]       Stack Trace:
+[xUnit.net 00:00:05.55]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs(42,0): at Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(String card, Boolean response, String mode)
+[xUnit.net 00:00:05.55]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.56]       此特殊打出方式暂不支持费用预览。
+[xUnit.net 00:00:05.57]       Stack Trace:
+[xUnit.net 00:00:05.57]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs(42,0): at Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(String card, Boolean response, String mode)
+[xUnit.net 00:00:05.57]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.57]       当前选择无法打出，请检查目标、位置和支付资源。
+[xUnit.net 00:00:05.57]       Stack Trace:
+[xUnit.net 00:00:05.57]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs(42,0): at Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(String card, Boolean response, String mode)
+[xUnit.net 00:00:05.57]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.57]   Finished:    Riftbound.ConformanceTests
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:51:25.4641160+08:00">
+        <Text>[xUnit.net 00:00:05.37]     Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: "UNL-120a/219") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:51:25.6159280+08:00">
+        <Text>[xUnit.net 00:00:05.37]     Riftbound.ConformanceTests.AmbushPermissionTests.EnemyOccupiedBattlefieldExtendsTheCommonAmbushPermission(card: "UNL-120/219") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:51:25.6159710+08:00">
+        <Text>[xUnit.net 00:00:05.38]     Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: "UNL-178a/219", response: True, mode: "AMBUSH") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:51:25.6466140+08:00">
+        <Text>[xUnit.net 00:00:05.55]     Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: "UNL-178/219", response: True, mode: "") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:51:25.6624800+08:00">
+        <Text>[xUnit.net 00:00:05.56]     Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: "UNL-178/219", response: True, mode: "AMBUSH") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:51:25.6657920+08:00">
+        <Text>[xUnit.net 00:00:05.57]     Riftbound.ConformanceTests.AmbushPermissionTests.OccupiedRealBattlefieldUsesCommonPrintedAndExperienceCosts(card: "UNL-178a/219", response: True, mode: "") [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

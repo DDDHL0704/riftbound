@@ -12518,6 +12518,7 @@ internal static class ActionPromptBuilder
         var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Select(behavior => CoreRuleEngine.EffectPlayBehavior(state, playerId, behavior))
+            .Select(behavior => CoreRuleEngine.PromptAmbushTimingBehavior(state, playerId, behavior))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
             .Select(behavior => ApplyPromptStaticGrantedPredictLifecycleDefault(state, playerId, objectId, cardObject, behavior))
             .Where(behavior => state.PendingEffectPlay is not null || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
@@ -16415,32 +16416,10 @@ internal static class ActionPromptBuilder
             return null;
         }
 
-        var choices = new List<ActionPromptChoiceDto>();
-        if (!string.Equals(behavior.Mode, "AMBUSH", StringComparison.Ordinal))
-        {
-            choices.Add(new ActionPromptChoiceDto("BASE", "基地"));
-        }
-
-        var battlefieldDestinations = MoveUnitBaseToBattlefieldDestinationChoices(state)
-            .Where(choice => state.CardObjects.TryGetValue(choice.Id["BATTLEFIELD:".Length..], out var battlefield)
-                && (string.Equals(behavior.Mode, "AMBUSH", StringComparison.Ordinal)
-                    || string.Equals(battlefield.ControllerId, playerId, StringComparison.Ordinal)))
-            .Where(choice => !PromptBattlefieldStaticPreventsUnitPlayToBattlefield(state, playerId, choice.Id))
-            .ToArray();
-        if (battlefieldDestinations.Length > 0)
-        {
-            choices.AddRange(battlefieldDestinations);
-        }
-        else if (state.BattlefieldStates.Count == 0)
-        {
-            var battlefieldDestination = $"BATTLEFIELD:{playerId}-MAIN";
-            if (!PromptBattlefieldStaticPreventsUnitPlayToBattlefield(state, playerId, battlefieldDestination))
-            {
-                choices.Add(new ActionPromptChoiceDto(battlefieldDestination, "己方主战场"));
-            }
-        }
-
-        return choices.Count == 0 ? null : choices;
+        var choices = CoreRuleEngine.UnitPlayDestinationChoices(state, playerId, behavior)
+            .Select(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                ? choice with { Label = BattlefieldLocationLabel(state, choice.Id["BATTLEFIELD:".Length..]) } : choice).ToArray();
+        return choices.Length == 0 ? null : choices;
     }
 
     private static bool PromptBattlefieldStaticPreventsUnitPlayToBattlefield(MatchState state, string playerId, string destination) =>
@@ -21212,7 +21191,7 @@ public sealed class MatchSession : IMatchSession
                     mainDeck: ["P1-MAIN-001"],
                     runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
                     hand: ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
-                    battlefields: ["P1-BATTLEFIELD-FRIENDLY-001"],
+                    battlefields: ["P1-BATTLEFIELD-FRIENDLY-001", "P1-MAIN"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -21229,11 +21208,15 @@ public sealed class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard, CardInteractionKeywordNames.Ambush],
                     manaCost: 3,
                     cardNo: "UNL-021/219"),
-                ["P1-BATTLEFIELD-FRIENDLY-001"] = new(power: 2, tags: [CardObjectTags.UnitCard])
+                ["P1-BATTLEFIELD-FRIENDLY-001"] = new("P1-BATTLEFIELD-FRIENDLY-001", power: 2, tags: [CardObjectTags.UnitCard], cardNo: "SFD·125/221", ownerId: seed.P1, controllerId: seed.P1),
+                ["P1-MAIN"] = new("P1-MAIN", cardNo: "OGN·278/298", ownerId: seed.P1, controllerId: seed.P1, tags: [P6TokenFactoryCatalog.BattlefieldCardTag])
             });
 
         return state with
         {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) {
+                ["P1-MAIN"] = new(seed.P1, "BATTLEFIELD", "P1-MAIN"),
+                ["P1-BATTLEFIELD-FRIENDLY-001"] = new(seed.P1, "BATTLEFIELD", "P1-MAIN") },
             TimingState = TimingStates.NeutralClosed,
             PriorityPlayerId = seed.P1,
             StackItems = [PendingProbeStackItem(seed)]

@@ -1,0 +1,30 @@
+{
+  "checkedAtUtc": "2026-10-12T19:28:48.365759+00:00",
+  "currentDateShanghai": "2026-10-13",
+  "activeReferences": [
+    "CN core DOC-04 updated 2026-07-17",
+    "CN Vendetta FAQ DOC-06 updated 2026-08-14",
+    "Global Vendetta FAQ published 2026-08-14"
+  ],
+  "futureReferences": [
+    {
+      "documents": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03"
+      ],
+      "effectiveDate": "2026-10-16",
+      "source": "Chinese manifest titles and fresh official Radiance patch-note page",
+      "url": "https://playriftbound.com/en-us/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/",
+      "status": "PUBLISHED_FUTURE_EFFECTIVE_RETAINED_NOT_APPLIED_ON_2026-10-13"
+    }
+  ],
+  "next": [
+    "Read matching CN FAQ blocks and current core instruction/replacement clauses",
+    "Derive stable layer-evaluation boundaries; no intermediate-layer Mighty event",
+    "Reproduce lost intra-resolution crossings and attachment-copy timing with actual commands before changing shared observer",
+    "Fixed highest-Might CI 38297196209 expected 10568 cases / 6785 methods / 110 pairs"
+  ],
+  "goalStatus": "active",
+  "wholeCardCertification": false
+}

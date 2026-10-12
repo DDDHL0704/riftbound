@@ -1,0 +1,5531 @@
+[
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "伊焚娜",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:33.462304+00:00",
+    "responseSha256": "fd20630ad397541117684f3d4627037d46293ae9a961580d72b1e9cbc271e6d7",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 34525,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-002/219",
+          "cardName": "伊焚娜",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "比尔吉沃特",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）",
+          "flavorText": "“我们周围都是水，但你的船还是着火了。真有趣。”",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": 1,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/479c288d279e44bb9e462d8dc470857b.webp",
+          "backImage": "",
+          "listSort": 1499,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "c819c4365d52ebfda20bb7d8fac183017584439312265cfb5eaef1291eac0e38",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "伊芙琳",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:34.186602+00:00",
+    "responseSha256": "80fd50fb503a0d3f1aa29aeaceaf4333dc274d81658ef7cdb8d9e2c754f5b4c0",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 38420,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "RAD·090/167",
+          "cardName": "伊芙琳",
+          "subTitle": "噬魂蚀骨",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "恶魔",
+          "artist": "Luscinia Studio",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你将一张卡牌从正面朝下的状态打出时，让我变为活跃状态，且给予我在本回合内{{S}}+1。",
+          "flavorText": "“我诞生于成千上万次的尖叫，多一次又何妨？”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/4dc4ee6673eb42a69ccfaac9aa983efe.png",
+          "backImage": "",
+          "listSort": 2801,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "6016ffaea2b22f29b5dd568f9b22ba09d9bd69631f28f0ca83ce0bba2e1f3ae8",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 38421,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "RAD·090a/167",
+          "cardName": "伊芙琳",
+          "subTitle": "噬魂蚀骨",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "恶魔",
+          "artist": "黯荧岛Dark Glow",
+          "cardEffect": "{{伏击}}\n当你将一张卡牌从正面朝下的状态打出时，让我变为活跃状态，且给予我在本回合内{{S}}+1。",
+          "flavorText": "“别怕，亲爱的。有我在呢。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/94a60b4d743d4fa9995997f70f7e0b62.png",
+          "backImage": "",
+          "listSort": 2800,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "459b58d08df8783e6e408f65ae35afaa4e7fa508b45f76e75a735c5909f6f2e3",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 38441,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "RAD·109/167",
+          "cardName": "伊芙琳",
+          "subTitle": "掌握全场",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "恶魔",
+          "artist": "Luscinia Studio",
+          "cardEffect": "{{缴械}}（当我进攻时，给予此处的一名敌方单位在本回合内{{S}}-1。）\n当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分。",
+          "flavorText": "“要找到那个特别的人，给他特别的折磨。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/2953dfbc93dc406194cb0b446d2d8749.png",
+          "backImage": "",
+          "listSort": 2780,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "83c45b66e57653c00d50b59177da36dc8cf7ddabc0d8f3670fc11ddc73766bd0",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 38442,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "RAD·109a/167",
+          "cardName": "伊芙琳",
+          "subTitle": "掌握全场",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "恶魔",
+          "artist": "HCuu",
+          "cardEffect": "{{缴械}}\n当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分。",
+          "flavorText": "大多数人需要靠苦修觉醒斗魂，可这个战士……根本用不着！",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/e2f5135b9b984e6296ec9f77cd459a16.png",
+          "backImage": "",
+          "listSort": 2779,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "1a5c00c0dd5e70deccbf453edae1d9f58aa34913e4dfbad112b9b7bd8e508705",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 38491,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "RAD·153/167",
+          "cardName": "痛苦之拥",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "purple"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "每回合限一次，当你将一张牌从正面朝下的状态打出时，抽一张牌。然后，如果不是你的回合，则弃置一张手牌。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/e7e10895fe344abdbdfb20b3d3924299.png",
+          "backImage": "",
+          "listSort": 2730,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "08afb97de2b51dd5937f760d0f93d3cc976a7d566f756d9b5839e1192cd25d23",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 38492,
+          "cardCategoryList": [
+            "exclusive_spell"
+          ],
+          "cardCategoryNameList": [
+            "专属法术"
+          ],
+          "cardNo": "RAD·154/167",
+          "cardName": "最终抚慰",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "purple"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "",
+          "artist": "Polar Engine Studio",
+          "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n你在本回合内打出的下一名单位（包括从正面朝下的状态打出）可被打出到任意战场。当你打出该单位时，给予其{{增益}}。（如果其未拥有增益，则获得一个{{S}}+1增益。）",
+          "flavorText": "“我曾品尝过宁静的味道。不合胃口。”\n——伊芙琳",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/cc902c6fe75d45f981a77e30badd4183.png",
+          "backImage": "",
+          "listSort": 2729,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "c0f5579c9624f03456468c4ea08bb50c29066721f28b6b82cf0bb0d6df9f5ca4",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 38520,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "RAD·175*/167",
+          "cardName": "痛苦之拥",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "purple"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "",
+          "artist": "Suzaki",
+          "cardEffect": "每回合限一次，当你将一张牌从正面朝下的状态打出时，抽一张牌。然后，如果不是你的回合，则弃置一张手牌。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "runemaster_mark",
+          "extendRarityName": "签名超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/619f32477e064ac0af6c548da729b097.png",
+          "backImage": "",
+          "listSort": 2701,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "68edf0fd7cd6a09ebbb82fb0efc8af910efa02474b552df74026604e3e739152",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 38521,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "RAD·175/167",
+          "cardName": "痛苦之拥",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "purple"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "",
+          "artist": "Suzaki",
+          "cardEffect": "每回合限一次，当你将一张牌从正面朝下的状态打出时，抽一张牌。然后，如果不是你的回合，则弃置一张手牌。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/59041f374e1c44dc839bb0e29164aa9c.png",
+          "backImage": "",
+          "listSort": 2700,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "19f37275ed8f2fab84e5444b028ce9bb7af9f7fdec4d7a3d48c6c5f3bcd68938",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 38552,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "RAD·SP3/005",
+          "cardName": "伊芙琳",
+          "subTitle": "掌握全场",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "恶魔",
+          "artist": "Yuande Wu",
+          "cardEffect": "{{缴械}}（当我进攻时，给予此处的一名敌方单位在本回合内{{S}}-1。）\n当我据守一处战场时，如果你在此处控制着正面朝下的卡牌，则获得1分。",
+          "flavorText": "I&#39;ll stay so deep inside your brain\nAnd take you somewhere far away",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/3cc1a88eeb2f41ad865bfe0a87cb9794.png",
+          "backImage": "",
+          "listSort": 2669,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "5072f40ed85a36db3515f6cb386e2a516b1f459c664aaf70188d178c3f07cb0f",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34684,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-141/219",
+          "cardName": "伊芙琳",
+          "subTitle": "摄人心魄",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "伊芙琳",
+          "region": "",
+          "tag": "恶魔",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{后排}}（我在战斗中最后承担伤害。）\n当你在你的回合中将我从正面朝下的状态打出时，你可以选择移动任意一名位于不同位置的敌方单位到我所在的战场。",
+          "flavorText": "“女孩子嘛，只不过是想要咬断你的喉咙。”",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": 2,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 薇古丝）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 薇古丝"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/822a93bc44544e59b29fbbc9bed2cda3.webp",
+          "backImage": "",
+          "listSort": 1340,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "de6227887994d2678b744d0d9d4fda41f77b0245455c750fcb334428af9399dd",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "卑鄙之喉",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:34.909001+00:00",
+    "responseSha256": "5b999eab992d39e35dbbdfaa2ffbfce5108eeeafac0e651a420524b565a0e53d",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 34592,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-060/219",
+          "cardName": "卑鄙之喉",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "green"
+          ],
+          "hero": "",
+          "region": "暗影岛",
+          "tag": "蜘蛛",
+          "artist": "Envar Studio",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n此处战力低于我的敌方单位无法造成战斗伤害。\n当我据守一处战场时，抽一张牌。",
+          "flavorText": "它的巢穴，在那扭曲丛林的彼端。",
+          "energy": 8,
+          "returnEnergy": 2,
+          "power": 8,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/f865bc4c1ad84e978b1410be98ed544f.webp",
+          "backImage": "",
+          "listSort": 1432,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "af7f6ae8d436117e21b6e9b6a35dbab230f7ccb86806401287760f1d25910850",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34593,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-060a/219",
+          "cardName": "卑鄙之喉",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "green"
+          ],
+          "hero": "",
+          "region": "暗影岛",
+          "tag": "蜘蛛",
+          "artist": "Envar Studio",
+          "cardEffect": "{{伏击}}\n此处战力低于我的敌方单位无法在战斗中造成伤害。\n当我据守一处战场时，抽一张牌。",
+          "flavorText": "它的巢穴，在那扭曲丛林的彼端。",
+          "energy": 8,
+          "returnEnergy": 2,
+          "power": 8,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/4cce65bc8cf24db2b4f965f92ef796a9.webp",
+          "backImage": "",
+          "listSort": 1431,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "28b969214c8cf87c0d8135144260bbe66699195798606bdd9de1aa9aa595dcc7",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 31541,
+          "cardCategoryList": [
+            "battlefield"
+          ],
+          "cardCategoryNameList": [
+            "战场"
+          ],
+          "cardNo": "OGN·295/298",
+          "cardName": "卑鄙之喉的巢穴",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "单位无法从此处移动到基地。\n",
+          "flavorText": "卑鄙之喉不太喜欢客人——尤其是那些想提早离开的家伙。",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "OGN(标准补充包)",
+            "OGN(进阶补充包)"
+          ],
+          "productNameList": [
+            "起源 标准补充包",
+            "起源 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/5ca7f566236f405097a2cae852d39fdc.png",
+          "backImage": "",
+          "listSort": 164,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "b6081a9a5e4a4037fcaaad5d7a24dd3128b2c510ae3fe14e5a30f05eb207541d",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "卡兹克",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:35.634771+00:00",
+    "responseSha256": "b60f1c0fd91b6c44beb347e75b78b8032b6de176181fd3842d77a39031c8a45e",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 37883,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "VEN·180",
+          "cardName": "卡兹克",
+          "subTitle": "进化猎手",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "卡兹克",
+          "region": "",
+          "tag": "",
+          "artist": "莺之歌",
+          "cardEffect": "{{狩猎}}\n当我进攻时，你可以选择消耗3经验，以此对此处的一名敌方单位造成等同于我战力的伤害。",
+          "flavorText": "只有顶尖掠食者，才能克服最强悍的敌人。",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "VEN(标准补充包)",
+            "VEN(进阶补充包)"
+          ],
+          "productNameList": [
+            "化神争锋 标准补充包",
+            "化神争锋 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/804f29cbe1334fd1bccc4c658bcffa46.png",
+          "backImage": "",
+          "listSort": 1803,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "8fd32e37b7f3f385bb811794c0c561d9c4e8b51f6aa3e37bb0df8795e5567bd6",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34660,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-119/219",
+          "cardName": "卡兹克",
+          "subTitle": "进化猎手",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "卡兹克",
+          "region": "虚空之地",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "{{狩猎}}（当我征服或据守一处战场时，获得1经验。）\n当我进攻时，你可以选择消耗3经验，以此对此处的一名敌方单位造成等同于我战力的伤害。",
+          "flavorText": "“消化，然后进化。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/0ca9573711d64f6bb5fc28ad1709cc3d.webp",
+          "backImage": "",
+          "listSort": 1364,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "3e1d502d77cb6153999f3628f26ac51cc7600d9e84f964423f329f9719dc9aea",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34661,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-119a/219",
+          "cardName": "卡兹克",
+          "subTitle": "进化猎手",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "卡兹克",
+          "region": "虚空之地",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "{{狩猎}}\n当我进攻时，你可以选择消耗3经验，以此对此处的一名敌方单位造成等同于我战力的伤害。",
+          "flavorText": "“消化，然后进化。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/d166c5a3387e40069bed6c6a9cc12be7.webp",
+          "backImage": "",
+          "listSort": 1363,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "ceed34edd172b4ba0575e45c0384da505349b42159b78f8cea4187d76e5c9671",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34686,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-143/219",
+          "cardName": "卡兹克",
+          "subTitle": "恐怖畸变",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "卡兹克",
+          "region": "虚空之地",
+          "tag": "",
+          "artist": "蛋费鸡丁",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当我进攻或防守时，如果此处有一名落单的敌方单位，则让我本回合内{{S}}+2并获得2经验。",
+          "flavorText": "“我感觉到了有价值的猎物。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/24bee04aa52942af9f08257ee885571d.webp",
+          "backImage": "",
+          "listSort": 1338,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "94017dc3c9522db18a3e61db8b28360d3f2b510678f3cd464685879437fa5f20",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34687,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-143a/219",
+          "cardName": "卡兹克",
+          "subTitle": "恐怖畸变",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "卡兹克",
+          "region": "虚空之地",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "{{伏击}}\n当我进攻或防守时，如果此处有一名落单的敌方单位，则让我本回合内{{S}}+2并获得2经验。",
+          "flavorText": "“我感觉到了有价值的猎物。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/007037de60ad47bfba2a3cdf41978ac2.webp",
+          "backImage": "",
+          "listSort": 1337,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "e8a172bcc08cfa621c8b912c67be5070acb7380a2fa37099a287195e9e22044e",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34754,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-201/219",
+          "cardName": "虚空掠夺者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "purple"
+          ],
+          "hero": "卡兹克",
+          "region": "",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/62c0e05d78144bb09f89fff5f91fc642.webp",
+          "backImage": "",
+          "listSort": 1270,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "fbfbec2912dd4c454abad06ef129001665b651062c43d1b9bb8ac4ccf596aa64",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34755,
+          "cardCategoryList": [
+            "exclusive_spell"
+          ],
+          "cardCategoryNameList": [
+            "专属法术"
+          ],
+          "cardNo": "UNL-202/219",
+          "cardName": "虚空来袭",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "purple"
+          ],
+          "hero": "卡兹克",
+          "region": "",
+          "tag": "",
+          "artist": "莺之歌",
+          "cardEffect": "移动一名友方单位，然后移动一名敌方单位。（如果它们都移动到一处不受你控制的战场，则你视为进攻方。）",
+          "flavorText": "“如果我把你吃掉的话，能学会如何去死吗？”\n——卡兹克",
+          "energy": 2,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/992138a2ecc84f6baa50f513949b3a02.webp",
+          "backImage": "",
+          "listSort": 1269,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "299d6c19cff931d1526aa76e2fe6d676c40a304e7fee79aa63c3ff6043755293",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34799,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-236/219",
+          "cardName": "虚空掠夺者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "purple"
+          ],
+          "hero": "卡兹克",
+          "region": "",
+          "tag": "",
+          "artist": "Jeffrey Chen",
+          "cardEffect": "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/27c88ebf65044d6bb6d32f18886e2fdd.webp",
+          "backImage": "",
+          "listSort": 1225,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "6343e01f796f41c7b49ced2aba1d26617abac1dea4278a84251f199ceb853ae0",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34800,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-236*/219",
+          "cardName": "虚空掠夺者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "purple"
+          ],
+          "hero": "卡兹克",
+          "region": "",
+          "tag": "",
+          "artist": "Jeffrey Chen",
+          "cardEffect": "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "runemaster_mark",
+          "extendRarityName": "签名超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/d3c866cb8eb84129adf3ac25aa9f11b6.webp",
+          "backImage": "",
+          "listSort": 1224,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "56c457046e55745d1002117f8561125101921a6f28fa1ceb5f6c3ca7464a9683",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "奈德丽",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:36.353441+00:00",
+    "responseSha256": "b8f9c55e111fa47e447ff57fab956c89632908fe2dd25d0020e3269d5b139ca2",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 34653,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-114/219",
+          "cardName": "奈德丽",
+          "subTitle": "灵猫形态",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "奈德丽",
+          "region": "以绪塔尔",
+          "tag": "猫科",
+          "artist": "Envar Studio",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当我赢得一场战斗时，抽一张牌。（如果我在战斗后仍然存活，则我赢得胜利。）",
+          "flavorText": "“喵！咳咳……当我没说。”",
+          "energy": 3,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/a01c1b3bb99e451587388a43bdc6a60c.webp",
+          "backImage": "",
+          "listSort": 1371,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "fa067d04c8be21cdaf7b57c8eb03abce3c24750f60c5814f348fcb38a4dbbd80",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "崔法利兵营",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:37.090154+00:00",
+    "responseSha256": "134bd5a74291afdbf66aceb4392b13075999bc54194d974563993bce74404616",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 31540,
+          "cardCategoryList": [
+            "battlefield"
+          ],
+          "cardCategoryNameList": [
+            "战场"
+          ],
+          "cardNo": "OGN·294/298",
+          "cardName": "崔法利兵营",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "此处的所有单位获得{{S}}+1。（包括进攻方单位。）",
+          "flavorText": "诺克萨斯军团欢迎所有能拿得起武器的人加入。",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "OGS",
+            "OGN(英雄预组 维克托)",
+            "OGN(标准补充包)",
+            "OGN(进阶补充包)"
+          ],
+          "productNameList": [
+            "起源 试炼之地",
+            "起源 英雄预组 维克托",
+            "起源 标准补充包",
+            "起源 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/bad437d156b74815913f5b396198fa94.png",
+          "backImage": "",
+          "listSort": 165,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "91587e05cfee8625220f9fdefc8bfcaad1261a22a5b504409dd234360f02b5c5",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "布罗梅因领主",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:37.826334+00:00",
+    "responseSha256": "780cbb6641cb606776835488034aa05b76f7c2c95eda58779b161acde9962b37",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 34535,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-012/219",
+          "cardName": "布罗梅因领主",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "诺克萨斯",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，让你此处的其他单位本回合内获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）",
+          "flavorText": "",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/cb0f4324db4844d286dbb1a109491a3e.webp",
+          "backImage": "",
+          "listSort": 1489,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "b946fd8eb21981844d190398f5c7199294ae054d2636c5bdb35f0f2d6a3c5b57",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "波比",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:38.551537+00:00",
+    "responseSha256": "accad88f4cef9f7d29c6958b98f9db46e6833c638166145036108f300e069cf9",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 34655,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-116/219",
+          "cardName": "波比",
+          "subTitle": "刚毅典范",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "波比",
+          "region": "德玛西亚",
+          "tag": "约德尔人",
+          "artist": "League Splash Team",
+          "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。",
+          "flavorText": "“我？英雄？呵呵，无稽之谈。”",
+          "energy": 5,
+          "returnEnergy": null,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/d3a58357fd1c4af7a958fc0b2e4ce32e.webp",
+          "backImage": "",
+          "listSort": 1369,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "6c4196cd640006c79f8193fff1b5ab0eb967c0997fec592267a2bfa5ee6c58a6",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34656,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-116a/219",
+          "cardName": "波比",
+          "subTitle": "刚毅典范",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "波比",
+          "region": "德玛西亚",
+          "tag": "约德尔人",
+          "artist": "League Splash Team",
+          "cardEffect": "{{法盾}}\n当你打出我时，如果对手得分距离胜利得分不超过3分，则让我变为活跃状态，并获得3经验。",
+          "flavorText": "",
+          "energy": 5,
+          "returnEnergy": null,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/5cdb703d8ff845758ae0e6c0a93114c7.webp",
+          "backImage": "",
+          "listSort": 1368,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "7857bba3c4b6b0349da44a7414639ff1b88edba8fc497b31a6237739a142fded",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34729,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-178/219",
+          "cardName": "波比",
+          "subTitle": "扶弱使者",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "波比",
+          "region": "德玛西亚",
+          "tag": "约德尔人",
+          "artist": "Dao Trong Le",
+          "cardEffect": "你可以选择消耗3经验，作为打出我的额外费用，以此让我的费用减少{{3}}。\n{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n{{壁垒}}（我在战斗中首先承担伤害。）",
+          "flavorText": "",
+          "energy": 6,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/46df1a05995d420f85d54c3e8563d259.webp",
+          "backImage": "",
+          "listSort": 1295,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "7a133533ddd22986af1648ba320fa1469a4eaa60757e9124f4fd11fbfdf37adb",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34730,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-178a/219",
+          "cardName": "波比",
+          "subTitle": "扶弱使者",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "波比",
+          "region": "德玛西亚",
+          "tag": "约德尔人",
+          "artist": "League Splash Team",
+          "cardEffect": "你可以选择消耗3经验，作为打出我的额外费用，以此让我的费用减少{{3}}。\n{{伏击}}\n{{壁垒}}",
+          "flavorText": "“我在全力发挥！那就是一切，不是吗？”",
+          "energy": 6,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/bac029006ab64b5596d35ba520ef82c1.webp",
+          "backImage": "",
+          "listSort": 1294,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "dcb9115a1e02833841028b6e2558c15d1bab0a437b89ef1fdbe9bb930cd0468d",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34756,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-203/219",
+          "cardName": "圣锤之毅",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "yellow"
+          ],
+          "hero": "波比",
+          "region": "",
+          "tag": "",
+          "artist": "Pandart Studio",
+          "cardEffect": "当你据守一处战场时，获得1经验。\n消耗3经验，{{横置}}：抽一张牌。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/ed58b231081d4ca0bbf429e8c8a741be.webp",
+          "backImage": "",
+          "listSort": 1268,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "2ceafeceb86467c7b2848eb1a60157744d66ca5298fb061ac9fc40b8b7a84234",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34757,
+          "cardCategoryList": [
+            "exclusive_spell"
+          ],
+          "cardCategoryNameList": [
+            "专属法术"
+          ],
+          "cardNo": "UNL-204/219",
+          "cardName": "持卫的裁决",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "yellow"
+          ],
+          "hero": "波比",
+          "region": "",
+          "tag": "",
+          "artist": "莺之歌",
+          "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n选择战场上的一名敌方单位。其拥有者将该单位放到其主牌堆的顶部或底部。",
+          "flavorText": "“然后别回来了！”\n——波比",
+          "energy": 2,
+          "returnEnergy": 2,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/2fc6d1f3d34f4fc29ba2ad1699927bc9.webp",
+          "backImage": "",
+          "listSort": 1267,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "cc5561a379206da5ce0ceebd4cfbeeae9838549e57e6f42e64a2bfb468316beb",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34801,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-237/219",
+          "cardName": "圣锤之毅",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "yellow"
+          ],
+          "hero": "波比",
+          "region": "",
+          "tag": "",
+          "artist": "KK Zhang",
+          "cardEffect": "当你据守一处战场时，获得1经验。\n消耗3经验，{{横置}}：抽一张牌。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/ba171930bb9a48dc9e7a61d636de1966.webp",
+          "backImage": "",
+          "listSort": 1223,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "a1cf4bd8e3b9ebfc04a1172bbbe6318817a670696a31b0834a43c3f9e78e9767",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34802,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-237*/219",
+          "cardName": "圣锤之毅",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange",
+            "yellow"
+          ],
+          "hero": "波比",
+          "region": "",
+          "tag": "",
+          "artist": "KK Zhang",
+          "cardEffect": "当你据守一处战场时，获得1经验。\n消耗3经验，{{横置}}：抽一张牌。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "runemaster_mark",
+          "extendRarityName": "签名超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/361feda1235c424f86ee71f0830ee6b9.webp",
+          "backImage": "",
+          "listSort": 1222,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "8460222fc78bb76c4fd4326adfea24ef93a15e0e2e554775e6e4ddd9c73edd2b",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "环刃舞者",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:39.280488+00:00",
+    "responseSha256": "04d3acd21e547e72c75d82ecc441237115c61504b5ae87e5ff04182b17750052",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 34604,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-071/219",
+          "cardName": "环刃舞者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue"
+          ],
+          "hero": "",
+          "region": "比尔吉沃特",
+          "tag": "",
+          "artist": "Wild Blue Studios",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，让你此处的其他单位本回合内获得{{坚守}}。（如果他们是防守方，则{{S}}+1。）",
+          "flavorText": "优雅。从容。致命。",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260327/6a5180c2876d449ab29de213c6d2b22d.webp",
+          "backImage": "",
+          "listSort": 1420,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "968183f5a081bd6369f2be91522afe93b4ccc2837c385bcd45d30bc1a6ff2aab",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "班德尔树",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:39.994352+00:00",
+    "responseSha256": "13a64b991d9ced51e72abad97e1aae1b76f0a37bfc81704d1ee269079975b39f",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 31522,
+          "cardCategoryList": [
+            "battlefield"
+          ],
+          "cardCategoryNameList": [
+            "战场"
+          ],
+          "cardNo": "OGN·278/298",
+          "cardName": "班德尔树",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+          "flavorText": "它生长在班德尔城的正中心，保护着上古神话中的约德尔人。",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "OGN(标准补充包)",
+            "OGN(进阶补充包)"
+          ],
+          "productNameList": [
+            "起源 标准补充包",
+            "起源 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/327788d7d62442bf99a2f5374fa405d5.png",
+          "backImage": "",
+          "listSort": 183,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "4ae6250724577b0640de589029a4e6bf7a2d58db7236a3f0850bc22b5d786c68",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 31523,
+          "cardCategoryList": [
+            "battlefield"
+          ],
+          "cardCategoryNameList": [
+            "战场"
+          ],
+          "cardNo": "OGN·278a/298",
+          "cardName": "班德尔树",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Grafit Studio",
+          "cardEffect": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+          "flavorText": "它生长在班德尔城的正中心，保护着上古神话中的约德尔人。",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "OGN(标准补充包)",
+            "OGN(进阶补充包)"
+          ],
+          "productNameList": [
+            "起源 标准补充包",
+            "起源 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251022/4664cb881d2a4bf288bcaeddc2cf71d0.png",
+          "backImage": "",
+          "listSort": 182,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "470e828a07dccf670506d38f0d5c601af42cac498da1ba7f3780c8a8a18525e8",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "织魂者",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:40.710431+00:00",
+    "responseSha256": "646dbcb97bbdce3be0639a7074135298210e8f178d9095adaa576340f7ab558a",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 37823,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "VEN·123",
+          "cardName": "织魂者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "暗影岛",
+          "tag": "蜘蛛",
+          "artist": "Wild Blue Studio",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）",
+          "flavorText": "被吃掉并不是最惨的命运。",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "VEN(标准补充包)",
+            "VEN(进阶补充包)"
+          ],
+          "productNameList": [
+            "化神争锋 标准补充包",
+            "化神争锋 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/ccfbb30017dd4282979b06012da383ff.png",
+          "backImage": "",
+          "listSort": 1863,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "bc1963b31448fbc06347b01db5730b3c0680fab99568508092f0d2f500e8461b",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "莫甘娜",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:41.448404+00:00",
+    "responseSha256": "39ec73f5e07a9d88434de989dccd77299ba4f7ee7d781989c974433161f71a37",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 37702,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "VEN·017",
+          "cardName": "莫甘娜",
+          "subTitle": "复仇天使",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "莫甘娜",
+          "region": "德玛西亚",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，对一名单位造成伤害，其数量等同于该单位上已标记的伤害数值。",
+          "flavorText": "“人们需要一个反派，我就来当这个反派。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "VEN(标准补充包)",
+            "VEN(进阶补充包)"
+          ],
+          "productNameList": [
+            "化神争锋 标准补充包",
+            "化神争锋 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/c99b1d00b2d24128822b0ea1907d2965.png",
+          "backImage": "",
+          "listSort": 1984,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "3d197ba6bd721a3c949b1527bee3e682e88bfa7720f030833b58d07a76924687",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 37889,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "VEN·186",
+          "cardName": "莫甘娜",
+          "subTitle": "复仇天使",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "莫甘娜",
+          "region": "德玛西亚",
+          "tag": "",
+          "artist": "Yuande Wu",
+          "cardEffect": "{{伏击}}\n当你打出我时，对一名单位造成等同于其伤害标记数值的伤害。",
+          "flavorText": "“凯尔，妈妈看到你杀了这么多人，一定很自豪吧。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "VEN(标准补充包)",
+            "VEN(进阶补充包)"
+          ],
+          "productNameList": [
+            "化神争锋 标准补充包",
+            "化神争锋 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/04362a35e3cd44d48c537257e3da58ca.png",
+          "backImage": "",
+          "listSort": 1797,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "861299d00fb9b505cbe8633f77490e05fc8f6be220c0683eddf96d9f12498e5e",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "蔚",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:42.226099+00:00",
+    "responseSha256": "7f384c6cebfa4b456aa772ca3f5e7e208816c666c75f6afc9d4a25427418492b",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 37870,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "VEN·167",
+          "cardName": "蔚",
+          "subTitle": "铲除者",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "蔚",
+          "region": "皮尔特沃夫",
+          "tag": "",
+          "artist": "Grafit Studio",
+          "cardEffect": "{{游走}}\n从废牌堆回收一张卡牌：让我在本回合内{{S}}+1（可重复执行）。",
+          "flavorText": "“我只是喜欢痛扁你们而已。”",
+          "energy": 2,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "VEN(标准补充包)",
+            "VEN(进阶补充包)"
+          ],
+          "productNameList": [
+            "化神争锋 标准补充包",
+            "化神争锋 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/73ae17d5dfc049729675d5055f93e9d1.png",
+          "backImage": "",
+          "listSort": 1816,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "5aac8f8b9beb5a49e7dbb608dee44fe9168a79f979d170babcb9b3f3ae61819b",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34524,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-001/219",
+          "cardName": "竞技场理事",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "诺克萨斯",
+          "tag": "约德尔人",
+          "artist": "Kudos Productions",
+          "cardEffect": "我以活跃状态进场。\n{{横置}}：让一名单位在本回合内{{S}}+3。",
+          "flavorText": "千万别提假发的事。",
+          "energy": 5,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260326/476c4f003a4449868e32b75f7e94a446.webp",
+          "backImage": "",
+          "listSort": 1500,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "eca8864d6c19a2386740d8b892dcdaab9b5e96a3300595994ef300f3032d05e6",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34525,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-002/219",
+          "cardName": "伊焚娜",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "比尔吉沃特",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）",
+          "flavorText": "“我们周围都是水，但你的船还是着火了。真有趣。”",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": 1,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/479c288d279e44bb9e462d8dc470857b.webp",
+          "backImage": "",
+          "listSort": 1499,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "c819c4365d52ebfda20bb7d8fac183017584439312265cfb5eaef1291eac0e38",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34529,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-006/219",
+          "cardName": "小鲨鱼",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "比尔吉沃特",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n{{强攻4}}（如果我是进攻方，则{{S}}+4。）",
+          "flavorText": "“别担心，只是幼年个体。”\n——常见遗言",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 1,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/84bc57f9ba5941789d14942174614417.webp",
+          "backImage": "",
+          "listSort": 1495,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "4032145a474a00341d7d11f24e9c1f2b673bd45573febfaa86638b7f8aaf87be",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34531,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-008/219",
+          "cardName": "莽林巨象",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "恕瑞玛",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{强攻}}（如果我是进攻方，则{{S}}+1。）\n如果本回合内有单位被摧毁，则我以活跃状态进场。",
+          "flavorText": "不是不报，孽障未到。",
+          "energy": 6,
+          "returnEnergy": null,
+          "power": 6,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/a050510cae71433090ce267967360655.webp",
+          "backImage": "",
+          "listSort": 1493,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "cb8f662cc38b1109ec8e4b8df7c67cad72c0ea3a50ee2699b6754f5a35d64223",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34532,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "UNL-009/219",
+          "cardName": "大幕渐起",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "莺之歌",
+          "cardEffect": "{{回响}}{{2}}（你可以选择支付此额外费用，以重复此法术效果。）让一名单位变为活跃状态。",
+          "flavorText": "有些艺术，活人是不会懂得欣赏的。",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/1759d1e9ca134dbea8ff596d71938321.webp",
+          "backImage": "",
+          "listSort": 1492,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "acaba25541f9a75e54627580d017d8c779d95936d2227852b2b8050b2d407a08",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34533,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "UNL-010/219",
+          "cardName": "强能冲拳",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n让一名单位本回合内获得{{强攻2}}和{{游走}}。（如果它是进攻方，则{{S}}+2。它可以向其它战场进行移动。）",
+          "flavorText": "“如果碰壁了，就用力把它碰穿！”\n——蔚",
+          "energy": 1,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260327/f32a07279ab14235bbd31125e162cbd2.webp",
+          "backImage": "",
+          "listSort": 1491,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "c4ecf80d9e19b7ddbcc7025e9e36dc958c55785830baad326e8ff0b788297c12",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34535,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-012/219",
+          "cardName": "布罗梅因领主",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "诺克萨斯",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，让你此处的其他单位本回合内获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）",
+          "flavorText": "",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/cb0f4324db4844d286dbb1a109491a3e.webp",
+          "backImage": "",
+          "listSort": 1489,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "b946fd8eb21981844d190398f5c7199294ae054d2636c5bdb35f0f2d6a3c5b57",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34538,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "UNL-015/219",
+          "cardName": "占山为王",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "抽一张牌，然后你和盟友每控制一处战场，你便抽一张牌。",
+          "flavorText": "强者通吃，就是这世间不变的道理。",
+          "energy": 3,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/dd4672f9011544e3b5b2ec2511e599fc.webp",
+          "backImage": "",
+          "listSort": 1486,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "50492f97fa39e8e4d564cbff89e564a4b8aee5e9a1f6dcc2f6bfb53083b9b533",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34540,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "UNL-017/219",
+          "cardName": "怒吼清算",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{回响}} — 弃置一张手牌（你可以选择支付此额外费用，以重复此法术效果。）\n让一名单位本回合内获得{{强攻4}}。（如果它是进攻方，则{{S}}+4。）",
+          "flavorText": "开打前吼一嗓子，至少能壮胆。",
+          "energy": 4,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260328/39de9e66166b4b71aa37df92fd90525e.webp",
+          "backImage": "",
+          "listSort": 1484,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "f153f8e9524269eead98f9cf306dc657e09e76bba03fda1febba0099a229c9be",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34541,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-018/219",
+          "cardName": "雪人斗士",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "诺克萨斯",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "当我征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则打出两个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{横置}}：{{获得}}{{A}}。”）",
+          "flavorText": "爱好变工作，干活也不累！",
+          "energy": 6,
+          "returnEnergy": null,
+          "power": 6,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260326/9e51273fb3ce41aa9d4eac447e334997.webp",
+          "backImage": "",
+          "listSort": 1483,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "22e2a45a73396d9283604b92e51ece1184bc478f6b39091a7d74c581c2178c17",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34548,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-024/219",
+          "cardName": "雷恩加尔",
+          "subTitle": "隐匿杀机",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "雷恩加尔",
+          "region": "以绪塔尔",
+          "tag": "猫科",
+          "artist": "HCuu",
+          "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）\n{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n{{游走}}（我可以向其他战场进行移动。）",
+          "flavorText": "“真正的猎手从不休息。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/5004147ee3674387ac20cd3e918b3a74.webp",
+          "backImage": "",
+          "listSort": 1476,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "bdb85eb28523b5efbe8f8d8bbeb475c2029fc356f85b151fc6361f8735e24439",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34551,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-026/219",
+          "cardName": "泽拉斯",
+          "subTitle": "无边能量",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "泽拉斯",
+          "region": "恕瑞玛",
+          "tag": "",
+          "artist": "Six More Vodka",
+          "cardEffect": "支付{{红色}}，{{横置}}：对一名单位造成3点伤害。我必须位于战场中才能使用此技能。",
+          "flavorText": "“我站在永恒的边缘上。”",
+          "energy": 5,
+          "returnEnergy": null,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/de11e178998c4b9b80f2dee92bf151c9.webp",
+          "backImage": "",
+          "listSort": 1473,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "53cdc0bf5abaa9286580d08ab0ce1a69efcd5da26be65b2463d857f002b95488",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34557,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-030/219",
+          "cardName": "蔚",
+          "subTitle": "火爆铁拳",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "蔚",
+          "region": "祖安",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n支付{{2}}和{{红色}}：让我本回合内战力翻倍。",
+          "flavorText": "“计划？我可不需要计划。”",
+          "energy": 4,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/beaf0126ad9f4001ae4330a9dbfc9742.webp",
+          "backImage": "",
+          "listSort": 1467,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "7db47b99bf50cde65bfc13f932dcfafbd5a07d553a4f55a4a8f6eb6593dc695d",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34558,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-030a/219",
+          "cardName": "蔚",
+          "subTitle": "火爆铁拳",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "蔚",
+          "region": "祖安",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "{{法盾}}\n支付{{2}}和{{红色}}：让我本回合内战力翻倍。",
+          "flavorText": "“计划？我可不需要计划。”",
+          "energy": 4,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/cc26380f8fa6410d83dfcb7a8013dfcc.webp",
+          "backImage": "",
+          "listSort": 1466,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "c0144b1ca4100f8325e8f9f0ad517993ba67d6aaa5ed7817ca3d7197076995ce",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34701,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-153/219",
+          "cardName": "腐泥疏浚工",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "祖安",
+          "tag": "机械",
+          "artist": "Six More Vodka",
+          "cardEffect": "{{绝念>}} 打出一名1{{S}}的“战鹰”到你的基地，它拥有{{法盾}}。（当我被摧毁后，发动此效果。对手必须支付{{A}}才能将拥有{{法盾}}的目标选作法术或技能的目标。）",
+          "flavorText": "机器人停了下来，凝视着前方。在一片废墟之中，躺着一颗完好无损的蛋。",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": 1,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260327/c715ca1b0ead44c0990c1c7974c7682b.webp",
+          "backImage": "",
+          "listSort": 1323,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "748c654991f7f8c8bba89994e41b2bcfacc54195dff38ca4a93daaf59ba876ac",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34702,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-154/219",
+          "cardName": "猩红飞鸽",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "诺克萨斯",
+          "tag": "鸟类",
+          "artist": "Kudos Productions",
+          "cardEffect": "如果我和另一名单位一起进攻一处战场，则我获得{{S}}+2。",
+          "flavorText": "某种程度上说，确实是在“传递信息”。",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/e733856b5ad34493a9df503afc9c79c3.webp",
+          "backImage": "",
+          "listSort": 1322,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "73d106eb47b6c5475a618f0272f961b0ae6e391602dd4e738ef47a8a94935829",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34704,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-156/219",
+          "cardName": "忠忠魄罗",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "弗雷尔卓德",
+          "tag": "魄罗",
+          "artist": "Six More Vodka",
+          "cardEffect": "{{绝念>}} 如果我被摧毁时未处于落单状态，则抽一张牌。（当我被摧毁后，发动此效果。所在位置没有其他友方单位时，即视为“落单”。）",
+          "flavorText": "一只由勇敢组成的小圆球。",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/b4794f8c99404d5aba2ead2ffb1a320a.webp",
+          "backImage": "",
+          "listSort": 1320,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "cdccbb45eebcb47261dfc2af951e92245fcce1c2193f7a12f85a0a37c223f542",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34707,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "UNL-159/219",
+          "cardName": "狩魂",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "摧毁战场上一名不高于3{{S}}的单位。",
+          "flavorText": "一点也不疼，只是要命而已。",
+          "energy": 2,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260327/c78902d2f84c4508b01a449317737a51.webp",
+          "backImage": "",
+          "listSort": 1317,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "b3c4a970ecf5bb7de7f3e3facf60f6722c93509082b4f8d6b42434443b6fd42e",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34709,
+          "cardCategoryList": [
+            "equipment"
+          ],
+          "cardCategoryNameList": [
+            "装备"
+          ],
+          "cardNo": "UNL-161/219",
+          "cardName": "占卜贝壳",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{预知}}（当你打出此牌时，查看主牌堆顶部的一张牌。你可以选择将其回收。）\n{{迅捷>}} 摧毁此牌，{{横置}}：让一名单位在本回合内{{S}}+2。",
+          "flavorText": "稀罕宝物，用完就扔。",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260326/35642403f11e4885af42dadb0b589188.webp",
+          "backImage": "",
+          "listSort": 1315,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "3461991f26429e0a04179c1dc145cad527fd4e1882da2271a80b525541836338",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34711,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-163/219",
+          "cardName": "搜魔人巡管",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "德玛西亚",
+          "tag": "",
+          "artist": "Six More Vodka",
+          "cardEffect": "对手若要将多名单位同时移动到我所在的战场，则必须为除第一名单位外的每名其他单位各额外支付{{A}}。",
+          "flavorText": "“名字，工作。说吧。”",
+          "energy": 4,
+          "returnEnergy": null,
+          "power": 4,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/a70963fd6fe8434d91367558cc73b77d.webp",
+          "backImage": "",
+          "listSort": 1313,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "928079ef35453ec1a7ce3323106b7f5c7af0bacade6bd83647baf5496569d3ea",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34724,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "UNL-175/219",
+          "cardName": "战术撤退",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一名友方单位。本回合内，在该单位下次被摧毁时，改为移除其所受伤害、将其变为休眠状态、并将其召回。（把该单位送回基地，此行动不算作移动。）",
+          "flavorText": "有勇不如有谋。",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260326/759fadd050704cb38b5510efb2feb38c.webp",
+          "backImage": "",
+          "listSort": 1300,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "30ccfab07998caa5e6aeb29e350b1c2b7915d5156f6b366e7d96b669c6275bc8",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34816,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-176/219",
+          "cardName": "蔚",
+          "subTitle": "和平卫士",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "蔚",
+          "region": "皮尔特沃夫",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当我进攻时，{{眩晕}}此处的一名敌方单位。（使其在本回合内无法造成战斗伤害。）",
+          "flavorText": "“我自己就是后援。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/7eea17bcee364b1198e550737f05c4a7.webp",
+          "backImage": "",
+          "listSort": 1299,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "94a833dbf2ee9e87b002a9c761436f62f7be5130a92c9de98455b89869b51cde",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34726,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-176a/219",
+          "cardName": "蔚",
+          "subTitle": "和平卫士",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "蔚",
+          "region": "皮尔特沃夫",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "{{伏击}}\n当我进攻时，{{眩晕}}此处的一名敌方单位。",
+          "flavorText": "“我自己就是后援。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/206b9d5ed34c4689ab6cd83e8b43e3b5.webp",
+          "backImage": "",
+          "listSort": 1298,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "be5ea01d4873d1e93c6a7c373fcb64bbe29cd1331fa7e2ef2950b233f4413480",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34740,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-187/219",
+          "cardName": "皮城执法官",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "yellow"
+          ],
+          "hero": "蔚",
+          "region": "",
+          "tag": "",
+          "artist": "Pandart Studio",
+          "cardEffect": "当你征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则你可以选择让我变为休眠状态，以此让一名单位变为活跃状态。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/18b9587cd7dc463bb9610453870c5c36.webp",
+          "backImage": "",
+          "listSort": 1284,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "28933555a9d2311268fd29337008b42f4902bcfaa0fa512abc792226559c7776",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34741,
+          "cardCategoryList": [
+            "exclusive_equipment"
+          ],
+          "cardCategoryNameList": [
+            "专属装备"
+          ],
+          "cardNo": "UNL-188/219",
+          "cardName": "海克斯科技护手",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "yellow"
+          ],
+          "hero": "蔚",
+          "region": "",
+          "tag": "武装",
+          "artist": "Grafit Studio",
+          "cardEffect": "{{装配}}{{3}}{{A}}。此技能的法力费用减少你所选单位的战力。（支付此费用：将此牌贴附到你控制的一名单位上。）",
+          "flavorText": "",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/bf4279fe48f54deb9eeb9bb5e6ebec41.webp",
+          "backImage": "",
+          "listSort": 1283,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "dd085b80f822e8348d20cb15dab253019187ea32af2f1c5f34b855278a2ff153",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34768,
+          "cardCategoryList": [
+            "battlefield"
+          ],
+          "cardCategoryNameList": [
+            "战场"
+          ],
+          "cardNo": "UNL-215/219",
+          "cardName": "流星疗泉",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Six More Vodka",
+          "cardEffect": "每回合首次，当玩家在此处打出一名非指示物单位时，该玩家可以选择将自己在此处控制的另一名单位移动到其基地。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/e6c615555394464e9e49b40a2868704b.webp",
+          "backImage": "",
+          "listSort": 1256,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "710cd34af6181e961b619ea2190a421f3eb7bb3be78c7f446113471153ef9cc7",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34770,
+          "cardCategoryList": [
+            "battlefield"
+          ],
+          "cardCategoryNameList": [
+            "战场"
+          ],
+          "cardNo": "UNL-217/219",
+          "cardName": "捕猎场",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "当你征服此处时，如果你给敌方单位分配了不低于3点的过量伤害，则打出一名1{{S}}“战鹰”，它拥有{{法盾}}。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/f28897252d7e46f9af0683cc0d8a476d.webp",
+          "backImage": "",
+          "listSort": 1254,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "230948380b558c7360d856c8a10f5ee62e7ece1f61060f93574430171e2a1623",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34771,
+          "cardCategoryList": [
+            "battlefield"
+          ],
+          "cardCategoryNameList": [
+            "战场"
+          ],
+          "cardNo": "UNL-218/219",
+          "cardName": "偶像谷",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Caravan Studio",
+          "cardEffect": "当一名玩家在此处打出一名单位时，该玩家可以选择支付{{1}}，以此给予该单位{{增益}}。（未拥有增益的单位获得一个{{S}}+1增益。）",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260327/1d66c535faf44731907008362a0751c7.webp",
+          "backImage": "",
+          "listSort": 1253,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "a2c3f181c42065a2247a6fd4cd93ab0514e6a51d4594ed0027a666fd9d4b311a",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34785,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-229/219",
+          "cardName": "皮城执法官",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "yellow"
+          ],
+          "hero": "蔚",
+          "region": "",
+          "tag": "",
+          "artist": "Jonathan Santoro",
+          "cardEffect": "当你征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则你可以选择让我变为休眠状态，以此让一名单位变为活跃状态。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/45f6d402cd104a9e86de6f94ee6cd573.webp",
+          "backImage": "",
+          "listSort": 1239,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "02ee37b48c761edf2791b8a9d7cb024ed0fa8f89840cf45eb3011da8c8214b48",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34786,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-229*/219",
+          "cardName": "皮城执法官",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "yellow"
+          ],
+          "hero": "蔚",
+          "region": "",
+          "tag": "",
+          "artist": "Jonathan Santoro",
+          "cardEffect": "当你征服一处战场时，如果你给敌方单位分配了不低于3点的过量伤害，则你可以选择让我变为休眠状态，以此让一名单位变为活跃状态。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "runemaster_mark",
+          "extendRarityName": "签名超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/42756356d34045e891a858a0f7dc23dc.webp",
+          "backImage": "",
+          "listSort": 1238,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "1628370a75b0414947f062285e178a324342df860ab4de6c8361e215a8a577fa",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 33081,
+          "cardCategoryList": [
+            "equipment"
+          ],
+          "cardCategoryNameList": [
+            "装备"
+          ],
+          "cardNo": "SFD·009/221",
+          "cardName": "锯齿短匕",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "武装",
+          "artist": "黯荧岛Dark Glow",
+          "cardEffect": "{{装配红色}}（支付{{红色}}：将此牌贴附到你控制的一名单位上。）",
+          "flavorText": "",
+          "energy": 1,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/1d2005b27489499f839da2a805b985f8.png",
+          "backImage": "",
+          "listSort": 992,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "2e46c50ef447710adccf50a938ff252a7da76c25fc57c24eec020e9921a81c4f",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 31244,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "OGN·036/298",
+          "cardName": "蔚",
+          "subTitle": "铲除者",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "蔚",
+          "region": "皮尔特沃夫",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{游走}} （我可以向其他战场进行移动。）\n你可以从废牌堆回收一张卡牌，然后让我本回合内{{S}}+1（可重复执行）。",
+          "flavorText": "“先打一拳，打的时候再把问题问遍！”",
+          "energy": 2,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "OGN(英雄预组 金克丝)",
+            "OGN(标准补充包)",
+            "OGN(进阶补充包)"
+          ],
+          "productNameList": [
+            "起源 英雄预组 金克丝",
+            "起源 标准补充包",
+            "起源 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/520ae5d653f6428fbaa3d7ed754f03c1.png",
+          "backImage": "",
+          "listSort": 461,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "e4aee0bd8658005db62d3d8e378ebe0b595b236a1f46413afe2e146969942fe4",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34840,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "ARC-001/006",
+          "cardName": "蔚",
+          "subTitle": "铲除者",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "蔚",
+          "region": "皮尔特沃夫",
+          "tag": "",
+          "artist": "Fortiche Production",
+          "cardEffect": "{{游走}} （我可以向其他战场进行移动。）\n你可以从废牌堆回收一张卡牌，然后让我本回合内{{S}}+1（可重复执行）。",
+          "flavorText": "“先打一拳，打的时候再把问题问遍！”",
+          "energy": 2,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "ARC"
+          ],
+          "productNameList": [
+            " 双城之战主题礼盒"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20250810/6fbfdffdd7ae46ed8e97e13b0e43ae38.png",
+          "backImage": "",
+          "listSort": 136,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "{{游走}} （我可以向其他战场进行移动。）\n从废牌堆回收一张卡牌，给予我本回合内{{S}}+1。",
+          "otherDesc": 0
+        },
+        "recordSha256": "e5b4703c23851d433ecdf69496b7ab3cd42dd9108fe9e3701e22b9a2e7af313e",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "追猎雪狼",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:42.949399+00:00",
+    "responseSha256": "7a88e3be87585d5ca2c720c24c6465afe8e51c125f171514a8a0491a31423c51",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 37987,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-166/219",
+          "cardName": "追猎雪狼",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "弗雷尔卓德",
+          "tag": "犬形",
+          "artist": "Six More Vodka",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n你必须摧毁一名自己控制的“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，作为打出我的额外费用。你可以选择将我打出至该单位所在的战场（即使你在该处没有其他单位）。",
+          "flavorText": "自然从不寻求宽恕。",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 6,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/b3433c85682647ef9641a13408779497.webp",
+          "backImage": "",
+          "listSort": 1310,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n\n你必须摧毁一名自己控制的“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，作为打出我的额外费用。你可以选择将我[伏击]至该单位所在的战场，即使你在该处没有其他单位。",
+          "otherDesc": 0
+        },
+        "recordSha256": "535e9d2bbd16de5b96b963dfe790f324e26064bccdb81913be19bb75246e0395",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "阴森药剂师",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:43.656018+00:00",
+    "responseSha256": "9d6c0a0659d7fbee1f8483930e34febb740b60fe33996ea2610349f6b2605900",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 34544,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-021/219",
+          "cardName": "阴森药剂师",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "诺克萨斯",
+          "tag": "",
+          "artist": "Wild Blue Studios",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，你可以选择让一名战场上的友方单位返回其所属的手牌。",
+          "flavorText": "治病总比不治强，但也强不到哪去。",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260327/067d2a83a6e247e0b282140b0fd58357.webp",
+          "backImage": "",
+          "listSort": 1480,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "1734ca1d7c3a6927c42696f2c1f2a3c746c9ffd234e3967de17c9bd759ff8f31",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "雷恩加尔",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:44.400836+00:00",
+    "responseSha256": "88abbbcc77ccb9b3ed6d22e80e7a5928daa83e01e6f9e3a31ba4df0d5ec31494",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 37882,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "VEN·179",
+          "cardName": "雷恩加尔",
+          "subTitle": "异兽猎手",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "雷恩加尔以绪塔尔",
+          "region": "",
+          "tag": "猫科",
+          "artist": "莺之歌",
+          "cardEffect": "{{伏击}}\n我可以{{伏击}}到有敌方单位的战场，即使你在该处没有单位。",
+          "flavorText": "只有最强的猎人，才能面对最凶猛的猎物。",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 6,
+          "productCodeList": [
+            "VEN(标准补充包)",
+            "VEN(进阶补充包)"
+          ],
+          "productNameList": [
+            "化神争锋 标准补充包",
+            "化神争锋 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/613eff23f98641bbba3fdff427d91afc.png",
+          "backImage": "",
+          "listSort": 1804,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "630d89f7a5d2ec9478040d9427d2d9310e440b2bbd66017724afff4e0526054a",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34548,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-024/219",
+          "cardName": "雷恩加尔",
+          "subTitle": "隐匿杀机",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "雷恩加尔",
+          "region": "以绪塔尔",
+          "tag": "猫科",
+          "artist": "HCuu",
+          "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）\n{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n{{游走}}（我可以向其他战场进行移动。）",
+          "flavorText": "“真正的猎手从不休息。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)",
+            "UNL（英雄预组 蔚）"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包",
+            "破限系列 英雄预组 蔚"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/5004147ee3674387ac20cd3e918b3a74.webp",
+          "backImage": "",
+          "listSort": 1476,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "bdb85eb28523b5efbe8f8d8bbeb475c2029fc356f85b151fc6361f8735e24439",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34549,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-024a/219",
+          "cardName": "雷恩加尔",
+          "subTitle": "隐匿杀机",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "雷恩加尔",
+          "region": "以绪塔尔",
+          "tag": "猫科",
+          "artist": "League Splash Team",
+          "cardEffect": "{{急速}}\n{{强攻2}}\n{{法盾}}\n{{游走}}",
+          "flavorText": "“真正的猎手从不休息。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 4,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/2de758b3fcc4495aad8f5a4890621386.webp",
+          "backImage": "",
+          "listSort": 1475,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "60c8223d6b65ce0447604fe0eff505ba0e3b1e017fdc9fb96b84461bdc808479",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34662,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-120/219",
+          "cardName": "雷恩加尔",
+          "subTitle": "异兽猎手",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "雷恩加尔",
+          "region": "以绪塔尔",
+          "tag": "猫科",
+          "artist": "TSWCK逍",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n我可以被打出至有敌方单位的战场（即使你在该处没有单位）。",
+          "flavorText": "“让我们看看，他们是什么做的。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 6,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/7c3773eb0c9246a784c0e1c714787574.webp",
+          "backImage": "",
+          "listSort": 1362,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n我可以{{伏击}}到有敌方单位的战场，即使你在该处没有单位。",
+          "otherDesc": 0
+        },
+        "recordSha256": "be2c2488f03efd6c78f06ab271d19328bfdfac4381913f4b9ce48cd53896b167",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34663,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-120a/219",
+          "cardName": "雷恩加尔",
+          "subTitle": "异兽猎手",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "orange"
+          ],
+          "hero": "雷恩加尔",
+          "region": "以绪塔尔",
+          "tag": "猫科",
+          "artist": "League Splash Team",
+          "cardEffect": "{{伏击}}\n我可以被打出至有敌方单位的战场。",
+          "flavorText": "“让我们看看，他们是什么做的。”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 6,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/a3ae670bee35492fbbcc1b372f0a5ef1.webp",
+          "backImage": "",
+          "listSort": 1361,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "{{伏击}}\n我可以{{伏击}}到有敌方单位的战场，即使你在该处没有单位。",
+          "otherDesc": 0
+        },
+        "recordSha256": "df8eed232fb9da3c1febd75fe1e16b1f1aad18b0b76c11cd67f721996a1846c6",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34736,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-183/219",
+          "cardName": "傲之追猎者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "orange"
+          ],
+          "hero": "雷恩加尔",
+          "region": "",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "当你打出一名单位时，让一名单位本回合内{{S}}+1。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/eccfbba40f66407ab625f1405e9945b0.webp",
+          "backImage": "",
+          "listSort": 1288,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "db7ac4b8f6534a62376bb0d3016f3036c19150a47d9345129ac171eb7572c355",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34737,
+          "cardCategoryList": [
+            "exclusive_spell"
+          ],
+          "cardCategoryNameList": [
+            "专属法术"
+          ],
+          "cardNo": "UNL-184/219",
+          "cardName": "狩猎律动",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "orange"
+          ],
+          "hero": "雷恩加尔",
+          "region": "",
+          "tag": "",
+          "artist": "华锐",
+          "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n放逐一名友方单位，然后让其拥有者将其打出到任意一处战场，无视其费用。",
+          "flavorText": "“多么辉煌的狩猎啊！”\n——雷恩加尔",
+          "energy": 2,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/985de89c066e4cf3b9cc69eec71dc30a.webp",
+          "backImage": "",
+          "listSort": 1287,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "a67ebafc08f82e2c40a288934517cd3c3dc38bbd588d3d6d19ecb86d78cc024e",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34781,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-227/219",
+          "cardName": "傲之追猎者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "orange"
+          ],
+          "hero": "雷恩加尔",
+          "region": "",
+          "tag": "",
+          "artist": "Duy Nguyen",
+          "cardEffect": "当你打出一名单位时，让一名单位本回合内{{S}}+1。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/0c4a034eb79b4c55a27cb1cf63cd592a.webp",
+          "backImage": "",
+          "listSort": 1243,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "590d4ed56a6277a43ea86d38b38e19028a88afa32c565d424ab1f974438d6b7e",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34782,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-227*/219",
+          "cardName": "傲之追猎者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "orange"
+          ],
+          "hero": "雷恩加尔",
+          "region": "",
+          "tag": "",
+          "artist": "Duy Nguyen",
+          "cardEffect": "当你打出一名单位时，让一名单位本回合内{{S}}+1。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "runemaster_mark",
+          "extendRarityName": "签名超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/adff9c54374d47378781b91f727447b0.webp",
+          "backImage": "",
+          "listSort": 1242,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "064c2a1ee06de3a235b3fff2d72daa84562c4f8faa8458554118b936ff051118",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 33098,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "SFD·025/221",
+          "cardName": "雷恩加尔",
+          "subTitle": "暴起",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "雷恩加尔",
+          "region": "以绪塔尔",
+          "tag": "猫科",
+          "artist": "League Splash Team",
+          "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算，并能打出到你控制的战场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）\n我可以被打出到你正在进攻的战场。",
+          "flavorText": "“今晚，猎个痛快！”",
+          "energy": 3,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/00a70467a62149d0bea90dd62c7813ec.png",
+          "backImage": "",
+          "listSort": 975,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "77495327419438e1dcdb85c2eb037567b61eef764a479e84b492be9f84f3ad5f",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34820,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "SFD·025a/221·P",
+          "cardName": "雷恩加尔",
+          "subTitle": "暴起",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "雷恩加尔",
+          "region": "以绪塔尔",
+          "tag": "猫科",
+          "artist": "League Splash Team",
+          "cardEffect": "{{反应}}\n{{强攻2}}\n我可以被打出到你正在进攻的战场。",
+          "flavorText": "猫？狗？肉齿兽！真棒！",
+          "energy": 3,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260418/b35d5ee7c3c54ef284e62b570867df72.png",
+          "backImage": "",
+          "listSort": 688,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "a9d18bee539a3dfbbba3d6fe6312090c5236f05ec06fee748db44b49e4fb16ed",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "风行狐",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:45.107602+00:00",
+    "responseSha256": "b255f6a0d319acd6557c7c603e8f7daa4b6f7c453b99313aa10d3ecd3af569a0",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 34608,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-075/219",
+          "cardName": "风行狐",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue"
+          ],
+          "hero": "",
+          "region": "艾欧尼亚",
+          "tag": "犬形",
+          "artist": "黯荧岛Dark Glow",
+          "cardEffect": "{{狩猎2}}（当我征服或据守一处战场时，获得2经验。）\n{{等级3>}} 我获得{{S}}+1和{{游走}}。（如果你拥有不少于3经验，则获得该效果。拥有{{游走}}的单位可以向其他战场进行移动。）",
+          "flavorText": "真是种另类的宠物。",
+          "energy": 3,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/4b0112bbaf2343ce95ae3cb6a5405dd3.webp",
+          "backImage": "",
+          "listSort": 1416,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "fe06ec1b888878e3447ec8c3830854f3383d3c396714cdddc96d0497664aef75",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "黛安娜",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T21:22:45.825599+00:00",
+    "responseSha256": "6ad22e4c7a9506aaa80ca40003dc9add481aeddb435a570bcbfbfc967095eb6f",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "records": [
+      {
+        "record": {
+          "id": 37886,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "VEN·183",
+          "cardName": "黛安娜",
+          "subTitle": "超脱凡界",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "巨神峰",
+          "tag": "",
+          "artist": "Naifan Zhang",
+          "cardEffect": "{{伏击}}\n当你打出一个法术时，给予我在本回合内{{S}}+2。",
+          "flavorText": "她们希冀共享这片天空\n大到能让两人共舞\n双手与心交缠\n——曙光赞歌",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "VEN(标准补充包)",
+            "VEN(进阶补充包)"
+          ],
+          "productNameList": [
+            "化神争锋 标准补充包",
+            "化神争锋 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/0d4fa3635acc40c48664256b0aef305b.png",
+          "backImage": "",
+          "listSort": 1800,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "5b90682c0db9dc558fbc0830fa1973a0d9190a9e91d1c6d4651a3e47f9c1859c",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34612,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-079/219",
+          "cardName": "黛安娜",
+          "subTitle": "皎月化身",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue"
+          ],
+          "hero": "",
+          "region": "黛安娜",
+          "tag": "巨神峰",
+          "artist": "Six More Vodka",
+          "cardEffect": "当法术对决在此处开始时，你可以选择支付{{1}}，以此进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。（洞察时，查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+          "flavorText": "“追随无伪之光。”",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/c6adebacf49749d2804021a7ee47992f.webp",
+          "backImage": "",
+          "listSort": 1412,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "当法术对决在此处开始时，你可以选择支付{{1}}。若如此做，则进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。（洞察时，查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+          "otherDesc": 0
+        },
+        "recordSha256": "3480d982ea2e3a4f2d9f461990a4c10cc73dbeb83fbc49c0a693953dd29e80ce",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34613,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-079a/219",
+          "cardName": "黛安娜",
+          "subTitle": "皎月化身",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue"
+          ],
+          "hero": "",
+          "region": "黛安娜",
+          "tag": "巨神峰",
+          "artist": "League Splash Team",
+          "cardEffect": "当法术对决在此处开始时，你可以选择支付{{1}}，以此进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。",
+          "flavorText": "“追随无伪之光。”",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/3cec0ee688334478a3d771405e2a62d6.webp",
+          "backImage": "",
+          "listSort": 1411,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "当法术对决在此处开始时，你可以选择支付{{1}}。若如此做，则进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。",
+          "otherDesc": 0
+        },
+        "recordSha256": "d3ee1da66b3558d3e87bd3634d9fd2993772a4f48871814f7842ee1a8d346c23",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34695,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-149/219",
+          "cardName": "黛安娜",
+          "subTitle": "超脱凡界",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "巨神峰",
+          "tag": "",
+          "artist": "Six More Vodka",
+          "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n每当你打出一个法术时，让我本回合内{{S}}+2。",
+          "flavorText": "“我没有退路了。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/2a4d5ff70fd24c9eba1f535670c0ca4a.webp",
+          "backImage": "",
+          "listSort": 1329,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "9a0c87e8073ab07aef1851ab18fa52c7fde3abb47c1944f0fffe9c0e84208363",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34696,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "UNL-149a/219",
+          "cardName": "黛安娜",
+          "subTitle": "超脱凡界",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "巨神峰",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "{{伏击}}\n每当你打出一个法术时，让我本回合内{{S}}+2。",
+          "flavorText": "“我没有退路了。”",
+          "energy": 4,
+          "returnEnergy": 1,
+          "power": 3,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/8d80c79070a14100a67e3bd8f93cdb40.webp",
+          "backImage": "",
+          "listSort": 1328,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "2809b56286e7347a169f6c9a22d0eaaf7ebb7bdad4a98d2ebe5b14aa27411cde",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34750,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-197/219",
+          "cardName": "皎月女神",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue",
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "{{反应>}} {{横置}}：{{获得}}{{1}}。此法力仅可在法术对决期间消耗。（获得费用资源的技能无法成为其他法术的反应目标。）",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/d20d7e7b06b444489a45752ec0fd3af4.webp",
+          "backImage": "",
+          "listSort": 1274,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "d3e28572534a1cf76626d3094bdeab479750011d8c4e3022362994c2d2729ae8",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34751,
+          "cardCategoryList": [
+            "exclusive_spell"
+          ],
+          "cardCategoryNameList": [
+            "专属法术"
+          ],
+          "cardNo": "UNL-198/219",
+          "cardName": "月之降临",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue",
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "",
+          "tag": "",
+          "artist": "Grafit Studio",
+          "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n选择一处你拥有单位的战场。你可以选择将最多一名敌方单位移动至该战场，然后让该处的敌方单位本回合内{{S}}-2。",
+          "flavorText": "“夜色降临！”\n——黛安娜",
+          "energy": 3,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/c0edba2c21f7498493c0d00c308f1d7a.webp",
+          "backImage": "",
+          "listSort": 1273,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "d5ee8d1dc20d2dc89b798a807bf09f1202248ed8d2f9e8dea10cffaf76f4ba72",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34795,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-234/219",
+          "cardName": "皎月女神",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue",
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "",
+          "tag": "",
+          "artist": "Lisha Du",
+          "cardEffect": "{{反应>}} {{横置}}：{{获得}}{{1}}。此法力仅可在法术对决期间消耗。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/89d3e091c23649769b41df9c43a4f266.webp",
+          "backImage": "",
+          "listSort": 1229,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "3bce9496585980363016fb26b7786dc11aa347b8f898a568021b9a8b095601ad",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      },
+      {
+        "record": {
+          "id": 34796,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "UNL-234*/219",
+          "cardName": "皎月女神",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue",
+            "purple"
+          ],
+          "hero": "黛安娜",
+          "region": "",
+          "tag": "",
+          "artist": "Lisha Du",
+          "cardEffect": "{{反应>}} {{横置}}：{{获得}}{{1}}。此法力仅可在法术对决期间消耗。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "runemaster_mark",
+          "extendRarityName": "签名超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/2290ad4d5e1243e9867bb490674b0630.webp",
+          "backImage": "",
+          "listSort": 1228,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "recordSha256": "aebe1b0a224d7b9c9f75153e7bf5f017834587d3e770b60ea868421b264b32bd",
+        "snapshotParity": true,
+        "wholeCardReviewed": false
+      }
+    ]
+  }
+]

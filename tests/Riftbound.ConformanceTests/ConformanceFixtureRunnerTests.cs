@@ -53744,8 +53744,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -53820,8 +53820,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -53893,8 +53893,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -53965,6 +53965,7 @@ public sealed class ConformanceFixtureRunnerTests
             ]
         };
 
+        state = AmbushPermissionTests.LegacyOccupiedField(state);
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-ambush-play-card-priority-window-rejected", "P1", "PLAY_CARD"),
@@ -53976,7 +53977,7 @@ public sealed class ConformanceFixtureRunnerTests
                 Destination: "BATTLEFIELD:P1-MAIN"),
             CancellationToken.None);
 
-        Assert.True(result.Accepted);
+        Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Null(result.ErrorCode);
         Assert.Null(result.ErrorMessage);
         Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BATTLEFIELD", "TRIGGER_QUEUED"], result.Events.Select(gameEvent => gameEvent.Kind));
@@ -53986,7 +53987,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-GLOOMY-APOTHECARY"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001", "P1-MAIN", "P1-HAND-UNL-GLOOMY-APOTHECARY"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(2, result.State.StackItems.Count);
         var probeStackItem = result.State.StackItems[0];
         Assert.Equal("STACK-0-P2-SPELL-PROBE", probeStackItem.StackItemId);
@@ -54040,6 +54041,8 @@ public sealed class ConformanceFixtureRunnerTests
             ]
         };
 
+        state = AmbushPermissionTests.LegacyOccupiedField(state);
+        state = state with { RunePools = new Dictionary<string, RunePool>(state.RunePools) { ["P1"] = new(5, 1) } };
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p4-ambush-play-card-behavior-spec-unit", "P1", "PLAY_CARD"),
@@ -54051,11 +54054,11 @@ public sealed class ConformanceFixtureRunnerTests
                 Destination: "BATTLEFIELD:P1-MAIN"),
             CancellationToken.None);
 
-        Assert.True(result.Accepted);
+        Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Null(result.ErrorCode);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-VI"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001", "P1-MAIN", "P1-HAND-UNL-VI"], result.State.PlayerZones["P1"].Battlefields);
         // CN 359.2 / 337.4: only the older spell remains on the chain.
         Assert.Equal("STACK-0-P2-SPELL-PROBE", Assert.Single(result.State.StackItems).StackItemId);
         Assert.Equal("P2", result.State.PriorityPlayerId);
@@ -54105,7 +54108,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(
-            ["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-GLOOMY-APOTHECARY"],
+            ["P1-BATTLEFIELD-FRIENDLY-001", "P1-MAIN", "P1-HAND-UNL-GLOOMY-APOTHECARY"],
             result.FinalState.PlayerZones["P1"].Battlefields);
         var source = result.FinalState.CardObjects["P1-HAND-UNL-GLOOMY-APOTHECARY"];
         Assert.Equal("UNL-021/219", source.CardNo);
@@ -54157,8 +54160,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.CardNotInHand, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -54223,8 +54226,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.CardNotInHand, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -54300,8 +54303,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.CardNotInHand, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -54375,8 +54378,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
@@ -54450,8 +54453,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
@@ -54526,8 +54529,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.False(string.IsNullOrWhiteSpace(result.ErrorMessage));
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
