@@ -1,0 +1,28 @@
+{
+  "base": {
+    "nativeRequest": true,
+    "nativeCommands": 3,
+    "accepted": 3,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "a1e332c345039a1ee7070777fcdec83365422b8ecb9b90bac946b4753f31c6a6",
+      "expectedStateHash": "a1e332c345039a1ee7070777fcdec83365422b8ecb9b90bac946b4753f31c6a6",
+      "errors": []
+    },
+    "finalHash": "a1e332c345039a1ee7070777fcdec83365422b8ecb9b90bac946b4753f31c6a6"
+  },
+  "ambush": {
+    "nativeRequest": true,
+    "nativeCommands": 5,
+    "accepted": 5,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "67bbbe220ad691bf532728a717e6d71a8885a998d3f68fb53d1018231b9b6f62",
+      "expectedStateHash": "67bbbe220ad691bf532728a717e6d71a8885a998d3f68fb53d1018231b9b6f62",
+      "errors": []
+    },
+    "finalHash": "67bbbe220ad691bf532728a717e6d71a8885a998d3f68fb53d1018231b9b6f62"
+  }
+}

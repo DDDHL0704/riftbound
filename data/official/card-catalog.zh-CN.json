@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1010,
+  "total": 1015,
   "cards": [
     {
       "id": 31005,
@@ -41754,6 +41754,246 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37702,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·017",
+      "cardName": "莫甘娜",
+      "subTitle": "复仇天使",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "莫甘娜",
+      "region": "德玛西亚",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，对一名单位造成伤害，其数量等同于该单位上已标记的伤害数值。",
+      "flavorText": "“人们需要一个反派，我就来当这个反派。”",
+      "energy": 5,
+      "returnEnergy": 1,
+      "power": 5,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/c99b1d00b2d24128822b0ea1907d2965.png",
+      "backImage": "",
+      "listSort": 1984,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37889,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·186",
+      "cardName": "莫甘娜",
+      "subTitle": "复仇天使",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "莫甘娜",
+      "region": "德玛西亚",
+      "tag": "",
+      "artist": "Yuande Wu",
+      "cardEffect": "{{伏击}}\n当你打出我时，对一名单位造成等同于其伤害标记数值的伤害。",
+      "flavorText": "“凯尔，妈妈看到你杀了这么多人，一定很自豪吧。”",
+      "energy": 5,
+      "returnEnergy": 1,
+      "power": 5,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/04362a35e3cd44d48c537257e3da58ca.png",
+      "backImage": "",
+      "listSort": 1797,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37823,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·123",
+      "cardName": "织魂者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "暗影岛",
+      "tag": "蜘蛛",
+      "artist": "Wild Blue Studio",
+      "cardEffect": "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）",
+      "flavorText": "被吃掉并不是最惨的命运。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/ccfbb30017dd4282979b06012da383ff.png",
+      "backImage": "",
+      "listSort": 1863,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37882,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·179",
+      "cardName": "雷恩加尔",
+      "subTitle": "异兽猎手",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "雷恩加尔以绪塔尔",
+      "region": "",
+      "tag": "猫科",
+      "artist": "莺之歌",
+      "cardEffect": "{{伏击}}\n我可以{{伏击}}到有敌方单位的战场，即使你在该处没有单位。",
+      "flavorText": "只有最强的猎人，才能面对最凶猛的猎物。",
+      "energy": 5,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/613eff23f98641bbba3fdff427d91afc.png",
+      "backImage": "",
+      "listSort": 1804,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37886,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·183",
+      "cardName": "黛安娜",
+      "subTitle": "超脱凡界",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "黛安娜",
+      "region": "巨神峰",
+      "tag": "",
+      "artist": "Naifan Zhang",
+      "cardEffect": "{{伏击}}\n当你打出一个法术时，给予我在本回合内{{S}}+2。",
+      "flavorText": "她们希冀共享这片天空\n大到能让两人共舞\n双手与心交缠\n——曙光赞歌",
+      "energy": 4,
+      "returnEnergy": 1,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/0d4fa3635acc40c48664256b0aef305b.png",
+      "backImage": "",
+      "listSort": 1800,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -41776,6 +42016,106 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
       "scope": "One exact CN printing; original 1009 entries and their 2026-04-27 acquisition metadata are unchanged; no CN/EN denominator merge"
+    },
+    {
+      "cardNo": "VEN·017",
+      "sourceId": 37702,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "莫甘娜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-12T21:36:12.568054+00:00",
+      "sourceRecordSha256": "3d197ba6bd721a3c949b1527bee3e682e88bfa7720f030833b58d07a76924687",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact current CN printing; original catalog acquisition metadata and old records preserved; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·186",
+      "sourceId": 37889,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "莫甘娜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-12T21:36:12.568054+00:00",
+      "sourceRecordSha256": "861299d00fb9b505cbe8633f77490e05fc8f6be220c0683eddf96d9f12498e5e",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact current CN printing; original catalog acquisition metadata and old records preserved; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·123",
+      "sourceId": 37823,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "织魂者",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-12T21:36:13.198411+00:00",
+      "sourceRecordSha256": "bc1963b31448fbc06347b01db5730b3c0680fab99568508092f0d2f500e8461b",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact current CN printing; original catalog acquisition metadata and old records preserved; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·179",
+      "sourceId": 37882,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "雷恩加尔",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-12T21:36:13.832805+00:00",
+      "sourceRecordSha256": "630d89f7a5d2ec9478040d9427d2d9310e440b2bbd66017724afff4e0526054a",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact current CN printing; original catalog acquisition metadata and old records preserved; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·183",
+      "sourceId": 37886,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "黛安娜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-12T21:36:14.456189+00:00",
+      "sourceRecordSha256": "5b90682c0db9dc558fbc0830fa1973a0d9190a9e91d1c6d4651a3e47f9c1859c",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact current CN printing; original catalog acquisition metadata and old records preserved; registration is not whole-card certification"
     }
   ]
 }

@@ -1,0 +1,16 @@
+{
+  "scope": "Declared zero-valued damage instructions must receive numeric modifiers before prevention; non-damage instructions remain non-damage",
+  "results": [
+    {
+      "name": "Riftbound.ConformanceTests.VendettaAmbushTests.ADeclaredZeroDamageInstructionReceivesTheBattlefieldBonus(cardNo: \"VEN·017\")",
+      "outcome": "Failed",
+      "message": "Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: [GameEvent { Kind = PRIORITY_PASSED, Description = P2 让过优先行动权, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = STACK_ITEM_RESOLVED, Description = STACK-1-UNIT 结算, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTROL_LOST, Description = 未留有己方单位，失去战场控制权, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }]"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.VendettaAmbushTests.ADeclaredZeroDamageInstructionReceivesTheBattlefieldBonus(cardNo: \"VEN·186\")",
+      "outcome": "Failed",
+      "message": "Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: [GameEvent { Kind = PRIORITY_PASSED, Description = P2 让过优先行动权, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = STACK_ITEM_RESOLVED, Description = STACK-1-UNIT 结算, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTROL_LOST, Description = 未留有己方单位，失去战场控制权, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }]"
+    }
+  ],
+  "trxSha256": "d8c95a3f18e65b4f7cf5b61765893da5570ec338bcba438dd90046bb45dd15e4"
+}

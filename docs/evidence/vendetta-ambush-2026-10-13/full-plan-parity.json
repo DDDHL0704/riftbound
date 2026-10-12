@@ -1,0 +1,24 @@
+{
+  "status": "FULL_METHOD_PLAN_PARITY_VERIFIED_NOT_EXECUTED",
+  "oldMethodsRetained": 6815,
+  "currentMethods": 6827,
+  "missingMethods": [],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.MorganaNativeTests.ProductionMarkedDamageUnitAbilityAndResponsesReplay",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.ADeclaredZeroDamageInstructionReceivesTheBattlefieldBonus",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.ARealDamageResponseChangesTheAmountReadAtAbilityResolution",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.ARealReturnResponsePreservesTheSkillButDoesNotDamageANewTargetIncarnation",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.AReturnInstructionDoesNotBecomeDamageBecauseOfTheBattlefield",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.CatalogStatisticsAreEvidenceOfRegistrationOnly",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.CurrentNonTargetedPrintingsUseTheSharedAmbushEntryAndPrintedCosts",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.MarkedDamageAbilityReceivesTheBattlefieldsSpellAndSkillBonus",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.MarkedDamageIsARespondablePlayAbilityAndReadsTheCurrentTarget",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.NewDianaWordingParsesAndEachCompletedSpellGetsAnIndependentSkill",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.ReleasedExactPrintingHasItsCatalogIdentityAndExecutableUnitDefinition",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.VendettaRengarRetainsTheEnemyOccupiedLocationPermission"
+  ],
+  "expectedFullCases": 10680,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "assemblySha256": "08432f289955566729ae6fdc4a4767cfef198da03cb57bb4eb753f517b3185d0"
+}

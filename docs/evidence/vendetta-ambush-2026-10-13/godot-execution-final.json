@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+    "--headless",
+    "--path",
+    "clients/godot",
+    "res://scenes/debug/MorganaInteractionProof.tscn",
+    "--",
+    "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/vendetta-ambush-20261013/native"
+  ],
+  "exitCode": 0,
+  "executedAtUtc": "2026-10-12T22:04:10.070080+00:00",
+  "output": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nMORGANA_MARKED_DAMAGE_PASS: 8 production unit target, battlefield and independent ability response commands\n",
+  "outputSha256": "8211fa112cb0fd26ada7fa408372bf1c7f9304b3ddf98c4500327179276bbd61",
+  "scope": "Headless production controls; not visible paired match"
+}

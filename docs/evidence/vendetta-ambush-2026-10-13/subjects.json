@@ -1,0 +1,189 @@
+[
+  {
+    "id": "OGN-133/298",
+    "activeCardNo": "OGN·133/298",
+    "reviewStatus": "NOT_REVIEWED",
+    "sources": [
+      {
+        "language": "zh-CN",
+        "sourceId": 31357,
+        "cardNo": "OGN·133/298",
+        "name": "剑刃飓风",
+        "sha256": "1870079c448de9941fd55436d4fe2d96a161ed2455f5b6c97a790553e16548ee",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+          "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      },
+      {
+        "language": "en-US",
+        "sourceId": "ogn-133-298",
+        "cardNo": "OGN-133/298",
+        "name": "Flurry of Blades",
+        "sha256": "dec4f27c04e053330888e3ada740dc894cd931e45d55f4ac8d95700a98f59c10",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+          "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      }
+    ],
+    "implementation": [],
+    "tests": [],
+    "nativeEvidence": []
+  },
+  {
+    "id": "OGN-296/298",
+    "activeCardNo": "OGN·296/298",
+    "reviewStatus": "NOT_REVIEWED",
+    "sources": [
+      {
+        "language": "zh-CN",
+        "sourceId": 31542,
+        "cardNo": "OGN·296/298",
+        "name": "虚空之门",
+        "sha256": "73ee1cf09b4385b46ea337ff68d2b08c5ac8c5b97ed91c0b55dc001876b8ac69",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+          "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      },
+      {
+        "language": "en-US",
+        "sourceId": "ogn-296-298",
+        "cardNo": "OGN-296/298",
+        "name": "Void Gate",
+        "sha256": "c5c75a0c16921f4d7a96163f0e4186d689f7aa461c89b7c51561fae13a8acc76",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+          "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      }
+    ],
+    "implementation": [],
+    "tests": [],
+    "nativeEvidence": []
+  },
+  {
+    "id": "VEN-017",
+    "activeCardNo": null,
+    "reviewStatus": "NOT_REVIEWED",
+    "sources": [
+      {
+        "language": "zh-CN",
+        "sourceId": 37702,
+        "cardNo": "VEN·017",
+        "name": "莫甘娜",
+        "sha256": "3d197ba6bd721a3c949b1527bee3e682e88bfa7720f030833b58d07a76924687",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+          "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      }
+    ],
+    "implementation": [],
+    "tests": [],
+    "nativeEvidence": []
+  },
+  {
+    "id": "VEN-123",
+    "activeCardNo": null,
+    "reviewStatus": "NOT_REVIEWED",
+    "sources": [
+      {
+        "language": "zh-CN",
+        "sourceId": 37823,
+        "cardNo": "VEN·123",
+        "name": "织魂者",
+        "sha256": "bc1963b31448fbc06347b01db5730b3c0680fab99568508092f0d2f500e8461b",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+          "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      }
+    ],
+    "implementation": [],
+    "tests": [],
+    "nativeEvidence": []
+  },
+  {
+    "id": "VEN-179",
+    "activeCardNo": null,
+    "reviewStatus": "NOT_REVIEWED",
+    "sources": [
+      {
+        "language": "zh-CN",
+        "sourceId": 37882,
+        "cardNo": "VEN·179",
+        "name": "雷恩加尔",
+        "sha256": "630d89f7a5d2ec9478040d9427d2d9310e440b2bbd66017724afff4e0526054a",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+          "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      }
+    ],
+    "implementation": [],
+    "tests": [],
+    "nativeEvidence": []
+  },
+  {
+    "id": "VEN-183",
+    "activeCardNo": null,
+    "reviewStatus": "NOT_REVIEWED",
+    "sources": [
+      {
+        "language": "zh-CN",
+        "sourceId": 37886,
+        "cardNo": "VEN·183",
+        "name": "黛安娜",
+        "sha256": "5b90682c0db9dc558fbc0830fa1973a0d9190a9e91d1c6d4651a3e47f9c1859c",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+          "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      }
+    ],
+    "implementation": [],
+    "tests": [],
+    "nativeEvidence": []
+  },
+  {
+    "id": "VEN-186",
+    "activeCardNo": null,
+    "reviewStatus": "NOT_REVIEWED",
+    "sources": [
+      {
+        "language": "zh-CN",
+        "sourceId": 37889,
+        "cardNo": "VEN·186",
+        "name": "莫甘娜",
+        "sha256": "861299d00fb9b505cbe8633f77490e05fc8f6be220c0683eddf96d9f12498e5e",
+        "snapshot": {
+          "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+          "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+        },
+        "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+        "publishedPreview": false
+      }
+    ],
+    "implementation": [],
+    "tests": [],
+    "nativeEvidence": []
+  }
+]

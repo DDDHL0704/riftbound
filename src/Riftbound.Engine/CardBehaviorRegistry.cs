@@ -124,6 +124,7 @@ public sealed record CardBehaviorDefinition(
     int CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit = 0,
     int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
     bool DamageAmountFromFirstTargetManaCost = false,
+    bool DamageAmountFromTargetMarkedDamage = false,
     bool DrawsControllerAndOtherPlayers = false,
     bool CallsRuneForControllerAndOtherPlayers = false,
     bool GrantsBoon = false,
@@ -412,6 +413,18 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·017", "莫甘娜", 5, "UNIT_PLAY_TARGET_MARKED_DAMAGE", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, DamageAmountFromTargetMarkedDamage: true),
+        new("VEN·186", "莫甘娜", 5, "UNIT_PLAY_TARGET_MARKED_DAMAGE_ALT", 0, 1,
+            TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, DamageAmountFromTargetMarkedDamage: true),
+        new("VEN·123", "织魂者", 3, "SOULSPINNER_AMBUSH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3, SourceUnitTags: "蜘蛛"),
+        new("VEN·179", "雷恩加尔", 5, "RENGAR_VEN_AMBUSH_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "猫科", AllowsAmbushToEnemyOccupiedBattlefield: true),
+        new("VEN·183", "黛安娜", 4, "DIANA_VEN_AMBUSH_SPELL_POWER_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new(
             "UNL-007/219",
             "惩戒",

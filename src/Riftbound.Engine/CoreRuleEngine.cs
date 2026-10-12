@@ -35689,7 +35689,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? targetObjectId = null)
     {
         int damageAmount;
-        if (behavior.DamageAmountFromFirstTargetManaCost
+        if (behavior.DamageAmountFromTargetMarkedDamage)
+            damageAmount = targetObjectId is not null && state.CardObjects.TryGetValue(targetObjectId, out var markedTarget)
+                ? Math.Max(0, markedTarget.Damage) : 0;
+        else if (behavior.DamageAmountFromFirstTargetManaCost
             && stackItem.TargetObjectIds.Count > 0
             && state.CardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var firstTargetState))
         {
@@ -35705,10 +35708,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             damageAmount = stackItem.DamageAmount > 0 ? stackItem.DamageAmount : behavior.DamageAmount;
         }
 
-        if (!IsSpellPlayBehavior(behavior))
+        if (!IsSpellPlayBehavior(behavior) && !stackItem.SourceConfirmed)
         {
             return damageAmount;
         }
+
+        // A declared damage instruction can evaluate to zero and still receive
+        // extra damage before prevention (715). A non-damage instruction must
+        // not be converted into damage by a numeric bonus.
+        if (damageAmount == 0 && !behavior.DamageAmountFromTargetMarkedDamage
+            && !behavior.DamageAmountFromFirstTargetManaCost && !behavior.DamageAmountFromOptionalPowerCost
+            && behavior.DamageAmount == 0 && behavior.ConditionalDamageAmount == 0)
+            return 0;
 
         return ApplyBattlefieldTargetSpellSkillDamageBonus(
             state,
@@ -35718,7 +35729,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static int ApplyBattlefieldTargetSpellSkillDamageBonus(MatchState state, string? targetObjectId, int damageAmount)
     {
-        if (damageAmount <= 0 || targetObjectId is null) return damageAmount;
+        if (damageAmount < 0 || targetObjectId is null) return damageAmount;
         var battlefield = BattlefieldLocalRules.AtUnit(state, targetObjectId);
         return battlefield is not null && BattlefieldStaticAbilitySpecRules.TryGetAbility(battlefield.CardNo,
             BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility, out var ability)

@@ -1,0 +1,374 @@
+[
+  {
+    "id": "DOC-04-P081-B016",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437"
+    ],
+    "text": "437.           抵挡",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B017",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.1"
+    ],
+    "text": "437.1.              抵挡 伤害指的是降低一组游戏物体将受到的伤害 的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B018",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.1.a"
+    ],
+    "text": "437.1.a.                 抵挡 是一种与伤害 互动的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B019",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.1.a.1"
+    ],
+    "text": "437.1.a.1.                    计算被抵挡的总伤害时,抵挡会包含所有已施加的额外伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B020",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.1.b"
+    ],
+    "text": "437.1.b.                 抵挡 会在定义伤害数值、影响的伤害来源以及相关效果持续时间的说明中出现。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B021",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.1.b.1"
+    ],
+    "text": "437.1.b.1.                    抵挡 行动通常的格式为:“在本回合内,抵挡 接下来将对[单位]造成的 X 点[来源]伤害。”",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B022",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.1.b.1.a"
+    ],
+    "text": "437.1.b.1.a.                       [X]即为“抵挡值”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B023",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.1.b.1.b"
+    ],
+    "text": "437.1.b.1.b.                       X 可以是“所有”,表示无限量的伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B024",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.1.b.2"
+    ],
+    "text": "437.1.b.2.                    抵挡 始终对受抵挡 行动影响的单位即将受到的下一次伤害生效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B025",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.2"
+    ],
+    "text": "437.2.              当伤害被抵挡时,会替换为下述事件:造成等同于原本伤害减去该单位个别记录的抵挡值的伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B026",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.2.a"
+    ],
+    "text": "437.2.a.                 经抵挡后将造成的伤害绝不会低于 0,但可以为 0。伤害为 0 等同于未造成伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B027",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.3"
+    ],
+    "text": "437.3.              以此方式造成伤害时,会让受此抵挡行动影响的单位个别记录的抵挡值降低,减量即为被抵挡的伤害数量。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B028",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.3.a"
+    ],
+    "text": "437.3.a.                 如果抵挡值为 0 或更低,不再为该单位个别记录抵挡,该效果随之失效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B029",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "437.3.b"
+    ],
+    "text": "437.3.b.                 降低后的数值就是新的个别记录抵挡值。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B001",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.3.c"
+    ],
+    "text": "437.3.c.                如果抵挡值为“所有”,则保持为“所有”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B002",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.4"
+    ],
+    "text": "437.4.            对一个单位造成的伤害如果被全部抵挡,则视为未对其造成任何伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B003",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.5"
+    ],
+    "text": "437.5.            在战斗中,仍然可以为受到抵挡影响的单位分配伤害。该分配造成的伤害将会受到抵挡行动的影响。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B004",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.5.a"
+    ],
+    "text": "437.5.a.                按照正常的伤害分配规则,在为单位分配伤害时,最高可为其分配达致命伤害数量的数值;在计算此数值\n                        时,应将该单位上所有抵挡行动的抵挡值纳入考量。\n                               举例:要在战斗伤害阶段中为一个 2[M]单位分配伤害。该单位拥有“抵挡我在每次战斗中承受\n                               的前 3 点伤害。因此需要为该单位分配 5 点伤害,才算是为其分配了达致命伤害数量的数值。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B005",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.5.b"
+    ],
+    "text": "437.5.b.                如果抵挡值为“全部”,那么无论受到多少伤害,都不会视作致命伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B006",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.6"
+    ],
+    "text": "437.6.            抵挡 是一种限定行动 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B007",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.6.a"
+    ],
+    "text": "437.6.a.                玩家 只能在游戏效果 的指示下抵挡伤害 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B008",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.7"
+    ],
+    "text": "437.7.            抵挡 是一种延迟替换效果 。\n                        想获取更多有关信息,请查阅规则 367.替换效果。\n                        想获取更多有关信息,请查阅规则 389.延迟技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B001",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "714.1"
+    ],
+    "text": "714.1.          额外伤害仅可为正值,且仅可让分配的伤害量增加。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B002",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "714.2"
+    ],
+    "text": "714.2.          如果由于任何原因导致额外伤害变为负数,则不会对造成伤害行动应用额外伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B003",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "715"
+    ],
+    "text": "715.       额外伤害的应用对象为:造成伤害行动每次结算所造成的总伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B004",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "715.1"
+    ],
+    "text": "715.1.          如果造成伤害行动只有一个目标,则对该目标造成的伤害量按照提供的额外伤害量进行加算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B005",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "715.2"
+    ],
+    "text": "715.2.          如果造成伤害行动拥有多个目标,则对每个目标造成的伤害量分别按照额外伤害量单独进行加算。\n                    举例:“星芒凝汇”是一张法术牌,其描述为:“对最多两名单位各造成 6 点伤害。”一名玩家在控制“安妮 -\n                     汹涌烈焰”的情况下打出“星芒凝汇”。“安妮 - 汹涌烈焰”的描述为:“你的法术和技能造成 1 点额外伤害。”\n                     这种情况下,“星芒凝汇”将对两个目标各造成 1 点额外伤害,即各造成 7 点伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B006",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "715.3"
+    ],
+    "text": "715.3.          如果造成伤害行动需要分摊伤害,则额外伤害将加算至需要分摊的伤害量中。这可能改变可供选择的目标数量。\n                     举例:“沃利贝尔 - 震怒天声”是一名单位,其部分描述为:“当我进攻时,对此处的敌方单位造成共计 5 点\n                     伤害,可在多名敌方单位之间分摊。”一名玩家在控制“安妮 - 汹涌烈焰”的情况下使用“沃利贝尔 - 震怒天\n                     声”发动进攻。“安妮 - 汹涌烈焰”的描述为:“你的法术和技能造成 1 点额外伤害。”“沃利贝尔 - 震怒天声”\n                     现将对其所在位置的敌方单位造成共计 6 点伤害,可在多名敌方单位之间分摊。不仅如此,可以选择分摊\n                     单位的数量也从之前的最多 5 名单位提升至最多 6 名单位。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B007",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "715.4"
+    ],
+    "text": "715.4.          如果实际未造成伤害,那么额外伤害将不会生效。\n                     举例:“提莫 - 军事家”是一名单位,其部分描述为:“当我防守时,选择此处的一名敌方单位,并展示你主\n                     牌堆顶部的五张牌。每以此方式展示一张带有[待命]技能的卡牌,对该单位造成 1 点伤害,然后回收展示\n                     的卡牌。”他贴附了“灭世者的死亡之冠”。一名敌方单位移动至提莫所在的战场,并在该处开始战斗。提莫\n                     的控制者展示其主牌堆顶部的 5 张牌,但其中没有带有[待命]的卡牌。虽然该技能因“灭世者的死亡之冠”\n                     获得了 3 点额外伤害,但并未执行可供额外伤害应用的造成伤害行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B008",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "715.4.a"
+    ],
+    "text": "715.4.a.             如果伤害被以任何方式被替换或减少,那么在决定将造成的伤害量时,替换或减少行动会将额外伤害计入\n                     总伤害。\n                            举例:一个单位具有 3 点抵挡值。该单位位于“虚空之门”战场。一名对手使用“海克斯射线”将该\n                            单位选取为目标。“海克斯射线”对该单位造成 4 点伤害,包括来自“虚空之门”的额外伤害;抵挡\n                            效果会抵挡其中 3 点伤害。因此该单位受到 1 点伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P103-B009",
+    "document": "DOC-04",
+    "page": 103,
+    "clauseAnchors": [
+      "716"
+    ],
+    "text": "716.       贴附",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

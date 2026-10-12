@@ -2013,7 +2013,7 @@ public static class TriggerParser
 
         var unitSpellPlayedPowerMatch = Regex.Match(
             segment,
-            @"每当你打出(?:一张法术牌|一个法术)时，让我本回合内\{\{S\}\}\+(\d+)",
+            @"(?:每当|当)你打出(?:一张法术牌|一个法术)时，(?:让我|给予我在)本回合内\{\{S\}\}\+(\d+)",
             RegexOptions.CultureInvariant);
         if (unitSpellPlayedPowerMatch.Success
             && int.TryParse(unitSpellPlayedPowerMatch.Groups[1].Value, out var spellPlayedPowerDelta))
