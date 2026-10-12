@@ -11415,6 +11415,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (powerDelta != 0)
             {
                 nextSourceState = ApplyPowerModifier(
+                    null,
                     nextSourceState,
                     triggerBehavior,
                     triggerStackItem,
@@ -22905,6 +22906,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     events.Add(readyEvent);
                 }
                 cardObjects[sourceObjectId] = ApplyPowerModifier(
+                    null,
                     readiedState,
                     triggerBehavior,
                     triggerStackItem,
@@ -27259,6 +27261,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && stackSpellManaCost != 0)
         {
             var modifiedFirstTargetState = ApplyPowerModifier(
+                state with { PlayerZones = playerZones, CardObjects = cardObjects },
                 dynamicPowerTargetState,
                 behavior,
                 stackItem,
@@ -27281,6 +27284,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
 
             var modifiedSourceUnitState = ApplyPowerModifier(
+                state with { PlayerZones = playerZones, CardObjects = cardObjects },
                 sourceUnitState,
                 behavior,
                 stackItem,
@@ -27839,6 +27843,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || behavior.ModifiesAllEnemyBattlefieldUnits)
         {
             ApplyBattlefieldPowerModifiers(
+                state,
                 playerZones,
                 cardObjects,
                 behavior,
@@ -27862,6 +27867,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : new CardObjectState(targetObjectId);
 
                     targetState = ApplyPowerModifier(
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
                         targetState,
                         behavior,
                         stackItem,
@@ -27890,6 +27896,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         : new CardObjectState(targetObjectId);
 
                     targetState = ApplyPowerModifier(
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
                         targetState,
                         behavior,
                         stackItem,
@@ -28127,6 +28134,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
                 {
                     var modifiedFirstTargetState = ApplyPowerModifier(
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
                         currentFirstTargetStateForModifier,
                         behavior,
                         stackItem,
@@ -28340,6 +28348,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 var powerModifierAmount = comparisonTargetState.Power - modifiedTargetState.Power;
                 var nextTargetState = ApplyPowerModifier(
+                    state with { PlayerZones = playerZones, CardObjects = cardObjects },
                     modifiedTargetState,
                     behavior,
                     stackItem,
@@ -28371,6 +28380,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 if (firstPowerDelta != 0)
                 {
                     var nextFirstTargetState = ApplyPowerModifier(
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
                         firstTargetState,
                         behavior,
                         stackItem,
@@ -28384,6 +28394,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 if (secondPowerDelta != 0)
                 {
                     var nextSecondTargetState = ApplyPowerModifier(
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
                         secondTargetState,
                         behavior,
                         stackItem,
@@ -28485,6 +28496,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && cardObjects.TryGetValue(buffedTargetObjectId, out var buffedTargetState))
             {
                 var modifiedTargetState = ApplyPowerModifier(
+                    state with { PlayerZones = playerZones, CardObjects = cardObjects },
                     buffedTargetState,
                     behavior,
                     stackItem,
@@ -28764,6 +28776,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         && PowerModifierConditionApplies(targetState, behavior))
                     {
                         targetState = ApplyPowerModifier(
+                            state with { PlayerZones = playerZones, CardObjects = cardObjects },
                             targetState,
                             behavior,
                             stackItem,
@@ -31395,6 +31408,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void ApplyBattlefieldPowerModifiers(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
@@ -31414,6 +31428,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     cardObjects[targetObjectId] = ApplyPowerModifier(
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
                         targetState,
                         behavior,
                         stackItem,
@@ -31438,6 +31453,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     cardObjects[targetObjectId] = ApplyPowerModifier(
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
                         targetState,
                         behavior,
                         stackItem,
@@ -33220,6 +33236,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static CardObjectState ApplyPowerModifier(
+        MatchState? powerState,
         CardObjectState targetState,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
@@ -33228,11 +33245,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         out GameEvent powerEvent)
     {
         var previousPower = targetState.Power;
-        var rawResultingPower = previousPower + powerModifierAmount;
-        var resultingPower = behavior.MinimumPowerAfterModifier > 0
-            ? Math.Max(behavior.MinimumPowerAfterModifier, rawResultingPower)
-            : rawResultingPower;
-        var appliedPowerDelta = resultingPower - previousPower;
+        var appliedPowerDelta = powerModifierAmount;
+        var minimumPower = powerModifierAmount < 0 ? behavior.MinimumPowerAfterModifier : 0;
+        int? snapshotMight = null;
+        if (minimumPower > 0)
+        {
+            if (powerState is null) throw new InvalidOperationException("Minimum Might requires the current rule state.");
+            var currentCards = powerState.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            currentCards[targetObjectId] = targetState;
+            var current = powerState with { CardObjects = currentCards };
+            var might = ResolveCurrentFieldUnitPower(current, targetState);
+            snapshotMight = might;
+            // Reductions cannot raise already-lower Might. Snapshot the allowed
+            // reduction including aura/role bonuses, then retain that arithmetic
+            // modifier if the unit later leaves the aura (Spiritforged FAQ).
+            appliedPowerDelta = Math.Max(powerModifierAmount, -Math.Max(0, might - minimumPower));
+        }
+        var resultingPower = previousPower + appliedPowerDelta;
         var appliedOrder = appliedPowerDelta == 0 ? 0 : NextPowerModifierAppliedOrder(targetState);
         var powerModifierLedger = appliedPowerDelta == 0
             ? targetState.UntilEndOfTurnPowerModifiers
@@ -33249,9 +33278,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     resultingPower,
                     "CoreRuleEngine.ApplyPowerModifier",
                     powerModifierAmount,
-                    behavior.MinimumPowerAfterModifier,
+                    minimumPower,
                     resultingPower,
-                    appliedOrder))
+                    appliedOrder,
+                    snapshotMight))
                 .ToArray();
         var nextTargetState = targetState with
         {
@@ -33261,18 +33291,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             UntilEndOfTurnPowerModifiers = powerModifierLedger
         };
         nextTargetState = ApplyPowerThresholdSelfKeywordStaticAbilities(nextTargetState);
+        var payload = new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = stackItem.SourceObjectId,
+            ["targetObjectId"] = targetObjectId,
+            ["powerDelta"] = powerModifierAmount,
+            ["appliedPowerDelta"] = appliedPowerDelta,
+            ["minimumPower"] = minimumPower,
+            ["resultingPower"] = nextTargetState.Power
+        };
+        if (snapshotMight.HasValue) payload["snapshotMight"] = snapshotMight.Value;
         powerEvent = new GameEvent(
             "POWER_MODIFIED_UNTIL_END_OF_TURN",
             $"{behavior.DisplayName}临时修正战力",
-            new Dictionary<string, object?>
-            {
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["targetObjectId"] = targetObjectId,
-                ["powerDelta"] = powerModifierAmount,
-                ["appliedPowerDelta"] = appliedPowerDelta,
-                ["minimumPower"] = behavior.MinimumPowerAfterModifier,
-                ["resultingPower"] = nextTargetState.Power
-            });
+            payload);
 
         return nextTargetState;
     }

@@ -8050,6 +8050,244 @@
         "wholeCardCertification": false,
         "exactHeadFullCiRequired": true
       }
+    },
+    {
+      "id": "selected-battlefield-siphon-current-might-floor-2026-10-12",
+      "status": "SCOPED_LOCAL_CHECK_AND_NATIVE_PASS_EXACT_HEAD_FULL_CI_REQUIRED",
+      "scope": "Siphon chosen battlefield and current-Might floor arithmetic/recovery for five shared ApplyPowerModifier consumers; not full minimum-Might family or whole-card certification",
+      "subjects": [
+        {
+          "id": "OGN-093/298",
+          "activeCardNo": "OGN·093/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31311,
+              "cardNo": "OGN·093/298",
+              "name": "烟幕弹",
+              "sha256": "e7425b7b81879886eb4151bad25eb6b1bbec8b22d0151e4bb8bfab7ea265913d",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-093-298",
+              "cardNo": "OGN-093/298",
+              "name": "Smoke Screen",
+              "sha256": "5daf67bcd2b0031206143254d9c1631029d44fc894f59e7ff923d9afccd7c351",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-095/298",
+          "activeCardNo": "OGN·095/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31313,
+              "cardNo": "OGN·095/298",
+              "name": "“敲”诈",
+              "sha256": "5bea928ed9d362e0e6c7ec19afd394d4fc6f24cccbd78855b6291bd724463448",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-095-298",
+              "cardNo": "OGN-095/298",
+              "name": "Stupefy",
+              "sha256": "4e3295b0d6881cf46ad5f631e9ff42eb554f2308f006d99b24893f61fa714b9d",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-097/298",
+          "activeCardNo": "OGN·097/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31315,
+              "cardNo": "OGN·097/298",
+              "name": "爆裂球果仙灵",
+              "sha256": "9340e1567ea7d5dca8fe421da7577733fe5dac795cf4dd2fdebfe6813c33d88b",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-097-298",
+              "cardNo": "OGN-097/298",
+              "name": "Blastcone Fae",
+              "sha256": "e94f0b47259e8db288ba7d07884a94cafca8f4034588cb155b3413de2f755674",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-116/298",
+          "activeCardNo": "OGN·116/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31335,
+              "cardNo": "OGN·116/298",
+              "name": "千尾监视者",
+              "sha256": "c58977ab0b7c1d69985eba47860f3d6c6032f8f81ee3d2b234c9e6ec25c3ca05",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-116-298",
+              "cardNo": "OGN-116/298",
+              "name": "Thousand-Tailed Watcher",
+              "sha256": "4c5fe91d28062169c8d4c9dcd2870598f73401c54e2b39224a10bba43a097367",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-266/298",
+          "activeCardNo": "OGN·266/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31509,
+              "cardNo": "OGN·266/298",
+              "name": "虹吸能量",
+              "sha256": "2f6fe0ccfa52accff1ab5f7168472c68ed94baf542383acb95e47fa7c962fe74",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-266-298",
+              "cardNo": "OGN-266/298",
+              "name": "Siphon Power",
+              "sha256": "09aa58b5588d235143ac42e1060b44d0ab9cf77a549ca6eb53eca1cf7af11f7a",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P017-B003",
+        "DOC-04-P017-B004",
+        "DOC-04-P017-B005",
+        "DOC-04-P043-B010",
+        "DOC-04-P050-B005",
+        "DOC-04-P050-B006",
+        "DOC-04-P050-B007",
+        "DOC-04-P050-B008",
+        "DOC-04-P050-B011",
+        "DOC-04-P050-B014",
+        "EN-e00ae42bdf164281-P001-B149",
+        "EN-e00ae42bdf164281-P001-B150",
+        "EN-e00ae42bdf164281-P001-B151",
+        "EN-e00ae42bdf164281-P001-B152",
+        "EN-e00ae42bdf164281-P001-B153",
+        "EN-e00ae42bdf164281-P001-B154",
+        "EN-e00ae42bdf164281-P001-B155"
+      ],
+      "pendingRuleRecords": [
+        "EN-e00ae42bdf164281-P001-B156",
+        "EN-e00ae42bdf164281-P001-B157"
+      ],
+      "auditDocument": "docs/SIPHON_MINIMUM_MIGHT_AUDIT_2026-10-12.md",
+      "tests": [
+        "MinimumMightAuditTests",
+        "SiphonEnergyTests",
+        "SiphonEnergyNativeTests",
+        "CoreRuleEnginePlaysSiphonEnergyBattlefieldPowerSplit"
+      ],
+      "evidence": "docs/evidence/siphon-minimum-2026-10-12",
+      "exclusions": [
+        "Other 12 exact source identities and their activation/trigger/continuous-effect routes",
+        "Complete text and timing/keywords for the five scoped consumers",
+        "Full layer dependency/timestamp combinations",
+        "Mel replacement interactions",
+        "Visible paired clients",
+        "Windows real runtime",
+        "Real database execution",
+        "English source count gap"
+      ],
+      "validation": {
+        "checkCases": 10118,
+        "checkMethods": 6518,
+        "focusedRecoveryCases": 1850,
+        "focusedAdjacentAndNativeCases": 84,
+        "finalBoundaryCases": 3,
+        "nativeProductionCommands": 2,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true
+      }
     }
   ]
 }

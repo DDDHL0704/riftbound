@@ -1,0 +1,14 @@
+{
+  "native": true,
+  "replay": {
+    "isMatch": true,
+    "replayedStateHash": "2b72fdba0defbb2d1745662e7080aa0636c8fd1a539302e992f6702c6c7d5243",
+    "expectedStateHash": "2b72fdba0defbb2d1745662e7080aa0636c8fd1a539302e992f6702c6c7d5243",
+    "errors": []
+  },
+  "commands": 4,
+  "chosenTargets": [
+    "BF2"
+  ],
+  "finalHash": "2b72fdba0defbb2d1745662e7080aa0636c8fd1a539302e992f6702c6c7d5243"
+}

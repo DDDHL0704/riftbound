@@ -124,7 +124,7 @@ public sealed partial class CoreRuleEngine
             && IsObjectOnField(state.PlayerZones,source.ObjectId) && source.Tags.Contains(CardObjectTags.UnitCard))
         {
             var behavior=new CardBehaviorDefinition(c.CardNo,"幽魂半人马",0,c.Kind,0,0,PowerModifierAmount:spec.PowerDelta.GetValueOrDefault());
-            cards[source.ObjectId]=ApplyPowerModifier(source,behavior,item,source.ObjectId,behavior.PowerModifierAmount,out var powerEvent);
+            cards[source.ObjectId]=ApplyPowerModifier(state, source,behavior,item,source.ObjectId,behavior.PowerModifierAmount,out var powerEvent);
             events.Add(powerEvent);
         }
         return NoopStackResolutionResult(state) with { CardObjects=cards,Events=events };

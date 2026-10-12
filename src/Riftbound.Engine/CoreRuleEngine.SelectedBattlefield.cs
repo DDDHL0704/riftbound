@@ -2,7 +2,8 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record SelectedBattlefieldEffectSpec(int EnemyPowerModifier, bool MoveOptionalEnemy);
+public sealed record SelectedBattlefieldEffectSpec(int EnemyPowerModifier, bool MoveOptionalEnemy,
+    int FriendlyPowerModifier = 0);
 
 public sealed partial class CoreRuleEngine
 {
@@ -26,7 +27,9 @@ public sealed partial class CoreRuleEngine
             || string.IsNullOrWhiteSpace(item.TargetObjectIds[0])) return;
         var field = item.TargetObjectIds[0];
         var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
-        if (!HasFriendlyUnitAtSelectedBattlefield(current, item.ControllerId, field)) return;
+        if (BattlefieldLocalRules.Battlefield(current, field) is null
+            || behavior.TargetScope == CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit
+                && !HasFriendlyUnitAtSelectedBattlefield(current, item.ControllerId, field)) return;
 
         for (var repeat = 0; repeat < item.EffectRepeatCount; repeat++)
         {
@@ -37,12 +40,17 @@ public sealed partial class CoreRuleEngine
 
             // CN 355.5.a: the chosen battlefield/unit are targets; the local group
             // is collected after movement and neither pays Ward nor gets retargeted.
-            var affected = cards.Keys.Where(id => IsEnemyBattlefieldUnitObject(current, item.ControllerId, id)
-                && BattlefieldLocalRules.AtUnit(current, id)?.ObjectId == field)
+            var affected = cards.Keys.Where(id => BattlefieldLocalRules.AtUnit(current, id)?.ObjectId == field)
                 .Order(StringComparer.Ordinal).ToArray();
+            // Snapshot group Might before changing any aura/threshold source.
+            var powerState = current with { CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
             foreach (var id in affected)
             {
-                cards[id] = ApplyPowerModifier(cards[id], behavior, item, id, spec.EnemyPowerModifier, out var powerEvent);
+                var delta = IsPlayerControlledFieldUnitObject(current, item.ControllerId, id)
+                    ? spec.FriendlyPowerModifier : IsEnemyBattlefieldUnitObject(current, item.ControllerId, id)
+                        ? spec.EnemyPowerModifier : 0;
+                if (delta == 0) continue;
+                cards[id] = ApplyPowerModifier(powerState, cards[id], behavior, item, id, delta, out var powerEvent);
                 events.Add(powerEvent);
             }
         }

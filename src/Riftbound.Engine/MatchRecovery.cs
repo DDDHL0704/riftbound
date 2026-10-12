@@ -2348,6 +2348,7 @@ public static class MatchRecoveryValidator
                 "continuous effect",
                 errors);
             ValidateSnapshotTimingContinuousEffectScalarPayloadValues(view, errors);
+            ValidateSnapshotTimingMinimumMightProvenance(view, authoritativeState, errors);
             ValidateSnapshotTimingContinuousEffectListPayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadShapes(
                 view,
@@ -3988,6 +3989,31 @@ public static class MatchRecoveryValidator
             $"snapshot for {view.PlayerId} timing continuous effect item",
             validSequences,
             errors);
+    }
+
+    private static void ValidateSnapshotTimingMinimumMightProvenance(
+        RecoveredPlayerView view,
+        MatchState? authoritativeState,
+        List<string> errors)
+    {
+        if (authoritativeState is null || view.SnapshotTick != authoritativeState.Tick
+            || view.Snapshot.Timing is null
+            || !TryReadObjectList(view.Snapshot.Timing, "continuousEffects", out var payloads)) return;
+
+        var expected = BuildAuthoritativeContinuousEffectsById(authoritativeState.ContinuousEffects);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var payload in payloads)
+        {
+            if (!TryReadObjectString(payload, "effectId", out var id) || id is null) continue;
+            seen.Add(id);
+            var might = expected.TryGetValue(id, out var effect) ? effect.SnapshotMight : null;
+            if (!OptionalIntSnapshotValueMatches(payload, "snapshotMight", might))
+                errors.Add($"snapshot for {view.PlayerId} timing continuous effect {id} snapshot Might disagrees with authoritative state");
+        }
+        var knownObjects = view.Snapshot.Players is null ? null : BuildSnapshotKnownObjectIds(view.Snapshot);
+        foreach (var effect in expected.Values.Where(e => e.SnapshotMight.HasValue))
+            if (effect.TargetObjectId is { } target && knownObjects?.Contains(target) == true && !seen.Contains(effect.EffectId))
+                errors.Add($"snapshot for {view.PlayerId} timing continuous effect {effect.EffectId} snapshot Might provenance is missing");
     }
 
     private static void ValidateContinuousEffectSequenceValue(
@@ -13327,6 +13353,7 @@ public static class MatchRecoveryValidator
         var appliedPowerDeltasMatch = true;
         var minimumPowersMatch = true;
         var resultingPowersMatch = true;
+        var snapshotMightsMatch = true;
         var appliedOrdersMatch = true;
         var sourceOrdersMatch = true;
         var conditionsMatch = true;
@@ -13461,6 +13488,11 @@ public static class MatchRecoveryValidator
             if (!OptionalIntSnapshotValueMatches(spectatorEffect, "resultingPower", authoritativeEffect.ResultingPower))
             {
                 resultingPowersMatch = false;
+            }
+
+            if (!OptionalIntSnapshotValueMatches(spectatorEffect, "snapshotMight", authoritativeEffect.SnapshotMight))
+            {
+                snapshotMightsMatch = false;
             }
 
             if (!OptionalIntSnapshotValueMatches(spectatorEffect, "appliedOrder", authoritativeEffect.AppliedOrder))
@@ -13701,6 +13733,16 @@ public static class MatchRecoveryValidator
                 authoritativeEffects.Select(effect => effect.ResultingPower),
                 spectatorEffects,
                 "resultingPower",
+                errors);
+        }
+
+        if (!snapshotMightsMatch)
+        {
+            AddSpectatorContinuousEffectOptionalIntAggregateMismatch(
+                "snapshot Mights",
+                authoritativeEffects.Select(effect => effect.SnapshotMight),
+                spectatorEffects,
+                "snapshotMight",
                 errors);
         }
 
@@ -14089,6 +14131,13 @@ public static class MatchRecoveryValidator
                 "resultingPower",
                 "resulting power",
                 authoritativeEffect.ResultingPower,
+                normalizedEffectId,
+                errors);
+            ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
+                effectPayload,
+                "snapshotMight",
+                "snapshot Might",
+                authoritativeEffect.SnapshotMight,
                 normalizedEffectId,
                 errors);
             ValidateSpectatorContinuousEffectKeyedOptionalIntValue(
@@ -15514,7 +15563,20 @@ public static class MatchRecoveryValidator
             effectLabel,
             "resulting power",
             errors);
-        ValidateContinuousEffectPowerFloorConsistency(effectLabel, minimumPower, resultingPower, errors);
+        var snapshotMight = ValidateSnapshotPayloadOptionalNonNegativeIntValue(
+            effectPayload,
+            "snapshotMight",
+            effectLabel,
+            "snapshot Might",
+            errors);
+        if (snapshotMight.HasValue
+            && (!string.Equals(layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                || !string.Equals(layerEngineStatus, "FOUNDATION_ONLY", StringComparison.Ordinal)))
+        {
+            errors.Add($"{effectLabel} snapshot Might requires POWER_MODIFIER foundation metadata");
+        }
+        ValidateContinuousEffectPowerFloorConsistency(
+            effectLabel, minimumPower, resultingPower, requestedPowerDelta, appliedPowerDelta, snapshotMight, errors);
         var appliedOrder = ValidateSnapshotPayloadOptionalPositiveIntValue(
             effectPayload,
             "appliedOrder",
@@ -18193,17 +18255,48 @@ public static class MatchRecoveryValidator
         string effectLabel,
         int? minimumPower,
         int? resultingPower,
+        int? requestedPowerDelta,
+        int? appliedPowerDelta,
+        int? snapshotMight,
         List<string> errors)
     {
-        if (!minimumPower.HasValue
-            || !resultingPower.HasValue
-            || resultingPower.Value >= minimumPower.Value)
+        if (minimumPower is not > 0 || requestedPowerDelta is >= 0)
         {
+            if (snapshotMight.HasValue)
+                errors.Add($"{effectLabel} snapshot Might must be absent without a minimum Might reduction");
+            if (minimumPower is > 0 && resultingPower.HasValue && resultingPower.Value < minimumPower.Value)
+                errors.Add($"{effectLabel} resulting power {resultingPower.Value} is less than minimum power {minimumPower.Value}");
             return;
         }
 
-        errors.Add(
-            $"{effectLabel} resulting power {resultingPower.Value} is less than minimum power {minimumPower.Value}");
+        if (!snapshotMight.HasValue)
+        {
+            // Missing provenance is invalid; do not recover old development
+            // matches by guessing total Might from the unit's current raw stat.
+            if (requestedPowerDelta is < 0)
+                errors.Add($"{effectLabel} snapshot Might is required for a minimum Might reduction");
+            if (resultingPower.HasValue && resultingPower.Value < minimumPower.Value)
+                errors.Add($"{effectLabel} resulting power {resultingPower.Value} is less than minimum power {minimumPower.Value}");
+            return;
+        }
+
+        if (snapshotMight.Value < 0)
+        {
+            errors.Add($"{effectLabel} snapshot Might cannot be negative");
+            return;
+        }
+        if (!requestedPowerDelta.HasValue || !appliedPowerDelta.HasValue)
+        {
+            errors.Add($"{effectLabel} snapshot Might requires requested and applied power deltas");
+            return;
+        }
+
+        // Independent arithmetic check of the decision captured at application.
+        // Later aura, equipment or battle-role changes do not reapply the floor.
+        var allowedReduction = Math.Max(0L, (long)snapshotMight.Value - minimumPower.Value);
+        var expectedDelta = Math.Max((long)requestedPowerDelta.Value, -allowedReduction);
+        if (appliedPowerDelta.Value != expectedDelta)
+            errors.Add($"{effectLabel} applied power delta {appliedPowerDelta.Value} disagrees with snapshot Might {snapshotMight.Value} and minimum power {minimumPower.Value}");
     }
 
     private static void ValidateContinuousEffectPowerModifierFoundationResidualCanonicality(
@@ -25753,11 +25846,14 @@ public static class MatchRecoveryValidator
                     $"authoritative state card object {objectId} power modifier {modifierLabel} minimum power {modifier.MinimumPower} cannot be negative");
             }
 
-            if (modifier.MinimumPower > 0 && modifier.ResultingPower < modifier.MinimumPower)
-            {
-                errors.Add(
-                    $"authoritative state card object {objectId} power modifier {modifierLabel} resulting power {modifier.ResultingPower} is less than minimum power {modifier.MinimumPower}");
-            }
+            ValidateContinuousEffectPowerFloorConsistency(
+                $"authoritative state card object {objectId} power modifier {modifierLabel}",
+                modifier.MinimumPower,
+                modifier.ResultingPower,
+                modifier.RequestedPowerDelta,
+                modifier.PowerDelta,
+                modifier.SnapshotMight,
+                errors);
 
             if (modifier.AppliedOrder is { } appliedOrder)
             {

@@ -1,27 +1,30 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-siphon-energy-battlefield-power-split",
-  "description": "Siphon Energy gives friendly battlefield units +1 power and enemy battlefield units -1 power, not below 1, until end of turn.",
+  "description": "Siphon Energy selects one real battlefield; original power assertions and seed are preserved after real movement establishes the battle.",
   "source": "manual-pdf-faq-preflight",
-  "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
-  "faqVersion": "official-pdf-faq-set-2026-04-28",
-  "catalogVersion": "official-2026-04-27",
+  "auditStatus": "SCOPED_CURRENT_SELECTED_BATTLEFIELD_REFERENCE",
+  "rulesVersion": "CN-2026-07-17-plus-applicable-FAQ",
+  "faqVersion": "CN-Vendetta-2026-08-14",
+  "catalogVersion": "official-live-readback-2026-10-12T053551Z",
   "seed": 2603302156,
   "rulesEvidence": [
     {
-      "source": "official/card-catalog.zh-CN.json",
+      "source": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
       "locator": "OGN·266/298 虹吸能量",
-      "note": "官方卡面：费用 2；反应；选择一个战场，让该处所有友方单位本回合内战力 +1，敌方单位本回合内战力 -1 且不得低于 1。当前 fixture 锁定单战场区域模型下的战场单位范围。"
+      "note": "官方卡面选择一个战场；此fixture保留原六个单位的战力断言，并以真实进场和明确战场目标验证局部范围。其他战场、光环最低战力与恢复由独立用例覆盖。"
     },
     {
-      "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
+      "source": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+      "locator": "DOC-04-P043-B010; DOC-04-P017-B004/B005; Spiritforged FAQ Cards that Reduce Might",
       "note": "从手牌支付费用打出法术、加入结算链，双方让过后按卡面施加本回合内战力修正；回合结束特殊清理移除期限效果。"
     }
   ],
   "roomId": "p2-preflight-siphon-energy-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302156,
     "turnNumber": 81,
@@ -49,61 +52,179 @@
     "players": {
       "P1": {
         "mainDeck": [],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-SIPHON-ENERGY"],
-        "base": ["P1-BASE-UNIT-001"],
-        "battlefields": ["P1-BATTLEFIELD-UNIT-001", "P1-BATTLEFIELD-UNIT-002"],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-SIPHON-ENERGY"
+        ],
+        "base": [
+          "P1-BASE-UNIT-001",
+          "P1-BATTLEFIELD-UNIT-001",
+          "P1-BATTLEFIELD-UNIT-002"
+        ],
+        "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
         "mainDeck": [],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
-        "base": ["P2-BASE-UNIT-001"],
-        "battlefields": ["P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002"],
+        "base": [
+          "P2-BASE-UNIT-001"
+        ],
+        "battlefields": [
+          "BF",
+          "P2-BATTLEFIELD-UNIT-001",
+          "P2-BATTLEFIELD-UNIT-002"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-BASE-UNIT-001": {
         "damage": 0,
         "power": 4,
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "cardNo": "OGN·012/298",
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P1-BATTLEFIELD-UNIT-001": {
         "damage": 0,
         "power": 2,
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "cardNo": "OGN·012/298",
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P1-BATTLEFIELD-UNIT-002": {
         "damage": 0,
         "power": 5,
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "cardNo": "OGN·012/298",
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P2-BASE-UNIT-001": {
         "damage": 0,
         "power": 3,
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "cardNo": "OGN·012/298",
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
       },
       "P2-BATTLEFIELD-UNIT-001": {
         "damage": 0,
         "power": 3,
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "cardNo": "OGN·012/298",
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
       },
       "P2-BATTLEFIELD-UNIT-002": {
         "damage": 0,
         "power": 1,
-        "untilEndOfTurnPowerModifier": 0
+        "untilEndOfTurnPowerModifier": 0,
+        "cardNo": "OGN·012/298",
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "BF": {
+        "cardNo": "OGN·296/298",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
+      }
+    },
+    "objectLocations": {
+      "BF": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P1-BASE-UNIT-001": {
+        "playerId": "P1",
+        "zone": "BASE"
+      },
+      "P1-BATTLEFIELD-UNIT-001": {
+        "playerId": "P1",
+        "zone": "BASE"
+      },
+      "P1-BATTLEFIELD-UNIT-002": {
+        "playerId": "P1",
+        "zone": "BASE"
+      },
+      "P2-BASE-UNIT-001": {
+        "playerId": "P2",
+        "zone": "BASE"
+      },
+      "P2-BATTLEFIELD-UNIT-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
+      },
+      "P2-BATTLEFIELD-UNIT-002": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "BF"
       }
     }
   },
   "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-siphon-energy-enter",
+      "cmd": {
+        "cmdType": "MOVE_UNIT",
+        "sourceObjectId": "P1-BATTLEFIELD-UNIT-001",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:BF",
+        "optionalCosts": [],
+        "sourceObjectIds": [
+          "P1-BATTLEFIELD-UNIT-001",
+          "P1-BATTLEFIELD-UNIT-002"
+        ]
+      }
+    },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p2-preflight-siphon-energy-play",
@@ -111,7 +232,9 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-SIPHON-ENERGY",
         "cardNo": "OGN·266/298",
-        "targetObjectIds": []
+        "targetObjectIds": [
+          "BF"
+        ]
       }
     },
     {
@@ -130,8 +253,13 @@
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
+      "UNIT_MOVED_TO_BATTLEFIELD",
+      "UNIT_MOVED_TO_BATTLEFIELD",
+      "BATTLEFIELD_CONTESTED",
+      "SPELL_DUEL_STARTED",
+      "BATTLE_ROLES_ESTABLISHED",
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
@@ -144,7 +272,24 @@
       "POWER_MODIFIED_UNTIL_END_OF_TURN"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "UNIT_MOVED_TO_BATTLEFIELD"
+      },
+      {
+        "kind": "UNIT_MOVED_TO_BATTLEFIELD"
+      },
+      {
+        "kind": "BATTLEFIELD_CONTESTED"
+      },
+      {
+        "kind": "SPELL_DUEL_STARTED"
+      },
+      {
+        "kind": "BATTLE_ROLES_ESTABLISHED"
+      },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -160,13 +305,21 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-SIPHON-ENERGY",
           "cardNo": "OGN·266/298",
-          "targetObjectIds": [],
-          "effectKind": "SIPHON_ENERGY_FRIENDLY_BATTLEFIELD_PLUS_1_ENEMY_BATTLEFIELD_MINUS_1"
+          "targetObjectIds": [
+            "BF"
+          ],
+          "effectKind": "SIPHON_ENERGY_SELECTED_BATTLEFIELD_FRIENDLY_PLUS_1_ENEMY_MINUS_1"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
         "payload": {
@@ -211,33 +364,56 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "WAIT"
+      ],
+      "P2": [
+        "PASS_FOCUS"
+      ]
     },
     "finalState": {
       "turnNumber": 81,
-      "activePlayerId": "P1",
+      "activePlayerId": "P2",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
+      "timingState": "SPELL_DUEL_OPEN",
       "scores": {
         "P1": 0,
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-BASE-UNIT-001"],
-          "battlefields": ["P1-BATTLEFIELD-UNIT-001", "P1-BATTLEFIELD-UNIT-002"],
-          "graveyard": ["P1-SPELL-SIPHON-ENERGY"]
+          "base": [
+            "P1-BASE-UNIT-001"
+          ],
+          "battlefields": [
+            "P1-BATTLEFIELD-UNIT-001",
+            "P1-BATTLEFIELD-UNIT-002"
+          ],
+          "graveyard": [
+            "P1-SPELL-SIPHON-ENERGY"
+          ]
         },
         "P2": {
-          "base": ["P2-BASE-UNIT-001"],
-          "battlefields": ["P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002"],
+          "base": [
+            "P2-BASE-UNIT-001"
+          ],
+          "battlefields": [
+            "BF",
+            "P2-BATTLEFIELD-UNIT-001",
+            "P2-BATTLEFIELD-UNIT-002"
+          ],
           "graveyard": []
         }
       },
@@ -276,8 +452,18 @@
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      },
+      "P2": {
+        "actionable": true,
+        "actions": [
+          "PASS_FOCUS"
+        ]
+      }
     }
   }
 }

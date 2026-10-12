@@ -377,7 +377,9 @@ public sealed record ContinuousEffectState(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? ParticipantDependencyObjectIds = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    int? SourceOrder = null);
+    int? SourceOrder = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    int? SnapshotMight = null);
 
 public sealed record PowerModifierLedgerEntry
 {
@@ -396,7 +398,8 @@ public sealed record PowerModifierLedgerEntry
         int requestedPowerDelta = int.MinValue,
         int minimumPower = 0,
         int resultingPower = int.MinValue,
-        int? appliedOrder = null)
+        int? appliedOrder = null,
+        int? snapshotMight = null)
     {
         EffectId = NormalizeText(effectId);
         EffectKind = NormalizeText(effectKind);
@@ -412,6 +415,7 @@ public sealed record PowerModifierLedgerEntry
         MinimumPower = Math.Max(0, minimumPower);
         ResultingPower = resultingPower == int.MinValue ? effectivePower : resultingPower;
         AppliedOrder = appliedOrder is > 0 ? appliedOrder.Value : null;
+        SnapshotMight = snapshotMight;
     }
 
     public string EffectId { get; init; }
@@ -442,6 +446,9 @@ public sealed record PowerModifierLedgerEntry
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AppliedOrder { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? SnapshotMight { get; init; }
 
     private static string NormalizeText(string? value)
     {
@@ -2162,7 +2169,8 @@ public sealed record MatchState
                             modifier.PowerDelta,
                             modifier.MinimumPower,
                             modifier.ResultingPower,
-                            modifier.AppliedOrder)));
+                            modifier.AppliedOrder,
+                            SnapshotMight: modifier.SnapshotMight)));
                     var trackedPowerDelta = cardObject.UntilEndOfTurnPowerModifiers.Sum(modifier => modifier.PowerDelta);
                     var untrackedPowerDelta = cardObject.UntilEndOfTurnPowerModifier - trackedPowerDelta;
                     if (untrackedPowerDelta != 0)
@@ -5631,6 +5639,11 @@ public sealed record ResolutionResult(
         if (effect.ResultingPower.HasValue)
         {
             view["resultingPower"] = effect.ResultingPower.Value;
+        }
+
+        if (effect.SnapshotMight.HasValue)
+        {
+            view["snapshotMight"] = effect.SnapshotMight.Value;
         }
 
         if (effect.AppliedOrder.HasValue)

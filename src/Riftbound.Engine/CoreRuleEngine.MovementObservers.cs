@@ -207,7 +207,7 @@ public sealed partial class CoreRuleEngine
             if (spec is null) BattlefieldTriggerSpecRules.TryGetTrigger(context.CardNo, BattlefieldTriggerSpecRules.IsBattlefieldMovedUnitPowerModifierTrigger, out spec);
             var delta = spec!.PowerDelta.GetValueOrDefault();
             var behavior = new CardBehaviorDefinition(context.CardNo, OfficialCardSourceIdentityGroups.DisplayName(context.CardNo), 0, spec.Kind, 0, 0, PowerModifierAmount: delta);
-            cards[unit.ObjectId] = ApplyPowerModifier(unit, behavior, item, unit.ObjectId, delta, out var powerEvent);
+            cards[unit.ObjectId] = ApplyPowerModifier(state, unit, behavior, item, unit.ObjectId, delta, out var powerEvent);
             events.Add(powerEvent);
         }
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
