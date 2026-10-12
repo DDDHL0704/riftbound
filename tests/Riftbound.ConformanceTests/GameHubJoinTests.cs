@@ -12331,15 +12331,11 @@ public sealed class GameHubJoinTests
         {
             Assert.Equal("P1-UNIT-ROYAL-ATTENDANT", Assert.IsType<string>(requirement["sourceObjectId"]));
             Assert.Equal("传奇", Assert.IsType<string>(requirement["targetScopeLabel"]));
-            Assert.Equal(1, Assert.IsType<int>(requirement["minTargetCount"]));
-            Assert.Equal(1, Assert.IsType<int>(requirement["maxTargetCount"]));
+            Assert.Equal(0, Assert.IsType<int>(requirement["minTargetCount"]));
+            Assert.Equal(0, Assert.IsType<int>(requirement["maxTargetCount"]));
             var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
                 requirement["targetChoicesByIndex"]);
-            var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-                .Select(choice => choice.Id)
-                .Order(StringComparer.Ordinal)
-                .ToArray();
-            Assert.Equal(["P1-LEGEND-ROYAL-TARGET", "P2-LEGEND-ROYAL-TARGET"], choices);
+            Assert.Empty(choicesByIndex);
         }
 
         var playClients = new RecordingHubClients();
@@ -15656,6 +15652,16 @@ public sealed class GameHubJoinTests
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
 
+        var targetPrompt = PromptFor(playClients, "P1");
+        var targetMetadata = Assert.IsType<Dictionary<string, object?>>(targetPrompt.Candidates!.Single(c => c.Action == "CHOOSE_CARDS").Metadata);
+        var targetClients = new RecordingHubClients();
+        await CreateHub(targetClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-ambush-target", JsonSerializer.SerializeToElement(new {
+                cmdType = "CHOOSE_CARDS", choiceId = targetMetadata["choiceId"], choiceWindow = targetMetadata["choiceWindow"],
+                chosenObjectIds = new[] { "P1-HAND-UNL-GLOOMY-APOTHECARY" }
+            }));
+        Assert.Empty(targetClients.CallerClient.Errors);
+
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
         await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
@@ -15674,9 +15680,9 @@ public sealed class GameHubJoinTests
         Assert.Single(snapshot.Stack);
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+        Assert.Equal(["P1-HAND-UNL-GLOOMY-APOTHECARY"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
         Assert.Equal(
-            ["P1-BATTLEFIELD-FRIENDLY-001", "P1-MAIN", "P1-HAND-UNL-GLOOMY-APOTHECARY"],
+            ["P1-BATTLEFIELD-FRIENDLY-001", "P1-MAIN"],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
     }
 

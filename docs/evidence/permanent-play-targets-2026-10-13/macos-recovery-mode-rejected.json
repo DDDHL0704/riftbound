@@ -1,0 +1,8 @@
+{
+  "status": "SUPERSEDED_RECOVERY_MODE_IMPORT_FAILED",
+  "recordedAtUtc": "2026-10-12T22:42:41.542183+00:00",
+  "observedError": "GodotTools.HotReloadAssemblyWatcher started timer outside scene tree",
+  "action": "Use normal editor import/export with temporary editor-plugin disablement and exact source byte restoration; ERROR checks retained",
+  "completeExecutionLogSha256": "dd0a84ce17829b4690c84c344187cb03de664769f747cf2eb3c60aa040e1df96",
+  "completeExecutionLogPath": "var/qa/permanent-trigger-targets-20261013/macos-desktop.log"
+}

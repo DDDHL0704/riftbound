@@ -1,0 +1,7 @@
+{
+  "scope": "A mandatory mixed target pair must have an executable complete selection before opening a choice",
+  "name": "Riftbound.ConformanceTests.PermanentPlayTargetTests.MissingAnEnemyDoesNotTrapTheEnteredUnitInAnImpossiblePairChoice",
+  "outcome": "Failed",
+  "message": "Assert.Null() Failure: Value is not null\nExpected: null\nActual:   PendingCardChoiceState { ResolvingStackItemId = STACK-1-UNIT, DeckContext = , HandContext = , ChoiceId = PERMANENT-TARGET:STACK-1-UNIT, ChoiceWindow = TRIGGER_CONFIRMATION, PlayerId = P1, RequiredCount = 2, MaxCount = 2, LegalObjectIds = System.String[], ContextObjectIds = System.String[], Reason = 常驻牌已入场：选择打出技能的目标并确认法盾费用，随后双方可以响应。, SourceObjectId = UNIT, EffectKind = ABYSSAL_BEHEMOTH_PLAY_UNIT_RETURN_FRIENDLY_AND_ENEMY }",
+  "trxSha256": "e50d637bce77408ba2f3045b6a0e2b4e1de43447e608bde32d72bdda13d61e95"
+}

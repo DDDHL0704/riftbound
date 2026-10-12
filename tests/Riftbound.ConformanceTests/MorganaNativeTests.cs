@@ -9,16 +9,22 @@ public sealed class MorganaNativeTests
 {
     [Theory]
     [InlineData("base")] [InlineData("ambush")]
+    [InlineData("ward-pay")] [InlineData("ward-decline")]
     public async Task ProductionMarkedDamageUnitAbilityAndResponsesReplay(string branch)
     {
-        var cardNo = branch == "base" ? "VEN·017" : "VEN·186";
+        var cardNo = branch is "ambush" or "ward-decline" ? "VEN·186" : "VEN·017";
         var initial = VendettaAmbushTests.Position(cardNo);
         if (branch == "ambush") {
             initial = LocalDestructionRecallTests.At(initial, "HOST", "P1", "BATTLEFIELD", "F");
             initial = await AmbushPermissionTests.Response(initial);
         }
+        if (branch.StartsWith("ward", StringComparison.Ordinal)) {
+            initial = LocalDestructionRecallTests.At(initial, "HOST", "P2", "BASE");
+            initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                ["HOST"] = initial.CardObjects["HOST"] with { OwnerId = "P2", ControllerId = "P2", Tags = [CardObjectTags.UnitCard, CardObjectTags.Spellshield] } } };
+        }
         initial = OfficialInsightAndSpellLockTests.Restore(initial);
-        var destination = branch == "base" ? "BASE" : "BATTLEFIELD:F";
+        var destination = branch == "ambush" ? "BATTLEFIELD:F" : "BASE";
         var root = Environment.GetEnvironmentVariable("RIFTBOUND_MORGANA_EVIDENCE"); var dir = root is null ? null : Path.Combine(root, branch);
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
         void Export(string name, object value) {
@@ -31,7 +37,7 @@ public sealed class MorganaNativeTests
         }
         var journal = new Journal(); var engine = new CoreRuleEngine(); var session = new MatchSession(initial, engine, journal);
         Export("snapshot.json", ResolutionResult.BuildSnapshots(initial)["P1"]);
-        var targets = new[] { "HOST" };
+        var targets = Array.Empty<string>();
         Export("selection.json", new { sourceObjectId = "UNIT", cardNo = cardNo, targetObjectIds = targets, destination });
         var prompt = session.PromptFor("P1"); Export("play-prompt.json", prompt);
         var request = new PlayCostPreviewRequestDto("quote", prompt.PromptId!, initial.Tick, new("UNIT", cardNo, targets, Destination: destination));
@@ -48,12 +54,19 @@ public sealed class MorganaNativeTests
         Assert.Equal(MatchStateHasher.Hash(done.State), MatchStateHasher.Hash(stale.State));
         Assert.Equal(2, done.State.CardObjects["HOST"].Damage);
         Assert.True(done.State.StackItems.Single(i => i.SourceObjectId == "UNIT").SourceConfirmed);
-        var steps = branch == "base" ? new[] { "skill-pass-1", "skill-pass-2" }
-            : new[] { "skill-pass-1", "skill-pass-2", "older-pass-1", "older-pass-2" };
+        var steps = branch switch {
+            "ambush" => new[] { "target-choice", "skill-pass-1", "skill-pass-2", "older-pass-1", "older-pass-2" },
+            "ward-pay" => ["target-choice", "ward-cost", "skill-pass-1", "skill-pass-2"],
+            "ward-decline" => ["target-choice", "ward-cost"],
+            _ => ["target-choice", "skill-pass-1", "skill-pass-2"]
+        };
         Export("steps.json", steps); var native = dir is not null && File.Exists(Path.Combine(dir, "play-command.json")) ? 1 : 0;
         foreach (var name in steps) {
-            var actor = done.State.PendingPayment?.PlayerId ?? done.State.PriorityPlayerId!; prompt = session.PromptFor(actor); Export(name + "-prompt.json", prompt);
-            GameCommand command = new PassPriorityCommand();
+            var actor = done.State.PendingPayment?.PlayerId ?? done.State.PendingCardChoice?.PlayerId ?? done.State.PriorityPlayerId!; prompt = session.PromptFor(actor); Export(name + "-prompt.json", prompt);
+            GameCommand command = name == "target-choice"
+                ? new ChooseCardsCommand(done.State.PendingCardChoice!.ChoiceId, done.State.PendingCardChoice.ChoiceWindow, ["HOST"])
+                : name == "ward-cost" ? new PayCostCommand(done.State.PendingPayment!.PaymentId, done.State.PendingPayment.PaymentWindow, [branch == "ward-pay" ? "PAY" : "DECLINE"])
+                : new PassPriorityCommand();
             var fields = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(command, command.GetType(), json), json)!;
             fields["promptId"] = JsonSerializer.SerializeToElement(prompt.PromptId); fields["snapshotTick"] = JsonSerializer.SerializeToElement(done.State.Tick);
             var nextRaw = Raw(name, fields); if (dir is not null && File.Exists(Path.Combine(dir, name + "-command.json"))) native++;
@@ -63,7 +76,7 @@ public sealed class MorganaNativeTests
             if (name == "skill-pass-2") Assert.Equal(4, done.State.CardObjects["HOST"].Damage);
         }
         Assert.Empty(done.State.StackItems); Assert.Null(done.State.PendingPayment);
-        Assert.Equal(4, done.State.CardObjects["HOST"].Damage);
+        Assert.Equal(branch == "ward-decline" ? 2 : 4, done.State.CardObjects["HOST"].Damage);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();

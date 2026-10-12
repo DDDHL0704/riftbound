@@ -31,6 +31,7 @@ DOCUMENTATION = frozenset({
     'docs/MIGHTY_EXPERIENCE_FRAME_AUDIT_2026-10-13.md',
     'docs/AMBUSH_PERMISSION_AUDIT_2026-10-13.md',
     'docs/VENDETTA_AMBUSH_PRINTINGS_AUDIT_2026-10-13.md',
+    'docs/PERMANENT_PLAY_TARGETS_AUDIT_2026-10-13.md',
     'docs/RULE_TEST_WORKFLOW.md', 'docs/RULE_TEST_SPEED_2026-10-09.md',
     'docs/RULE_TEST_SPEED_2026-10-12.md',
     'docs/rules-authority-and-audit.md', 'docs/rules-evidence-index.md',

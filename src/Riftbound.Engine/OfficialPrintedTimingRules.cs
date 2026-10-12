@@ -18,6 +18,12 @@ internal static class OfficialPrintedTimingRules
                     || clause.Contains("当你将我打出", StringComparison.Ordinal))))
             .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
     internal static bool HasPlayTrigger(string cardNo) => PlayTriggers.Value.Contains(cardNo);
+    private static readonly Lazy<IReadOnlySet<string>> OtherPlayTargets = new(() =>
+        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+            .Where(card => Regex.IsMatch(card.CardEffect,
+                @"(?:当你打出我|当你打出此牌|当你打出此装备|当此牌被打出|当你将我打出)[^。\n]*(?:另一名|其他[一二两三四五六七八九十0-9]+名)",
+                RegexOptions.CultureInvariant)).Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
+    internal static bool PlayTargetsExcludeSource(string cardNo) => OtherPlayTargets.Value.Contains(cardNo);
     private static readonly Lazy<IReadOnlyDictionary<string, (bool Swift, bool Reaction)>> Permissions = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(card => card.CardNo,
             card => (HasPrintedKeyword(card.CardEffect, "迅捷"),

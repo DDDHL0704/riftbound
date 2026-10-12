@@ -1,0 +1,216 @@
+{
+  "scope": "Public chosen-target permanent play triggers; private hand/deck and two target-dependent cost protocols remain open",
+  "wholeCardCertification": false,
+  "subjects": [
+    {
+      "cardNo": "UNL-021/219",
+      "name": "阴森药剂师",
+      "sourceId": 34544,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·007/221",
+      "name": "晶能阻断器",
+      "sourceId": 33079,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·032/221",
+      "name": "斩剑浪客",
+      "sourceId": 33108,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·039/221",
+      "name": "皇家随从",
+      "sourceId": 33115,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·053/221",
+      "name": "迦娜",
+      "sourceId": 33130,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·061/221",
+      "name": "见习工程师",
+      "sourceId": 33141,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·062/221",
+      "name": "泡泡机",
+      "sourceId": 33142,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·101/221",
+      "name": "仙灵龙",
+      "sourceId": 33186,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·132/221",
+      "name": "海渊巨兽",
+      "sourceId": 33222,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·138/221",
+      "name": "吟风翼",
+      "sourceId": 33228,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·158/221",
+      "name": "流沙术士",
+      "sourceId": 33252,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGS·010/024",
+      "name": "安妮",
+      "sourceId": 31589,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·016/298",
+      "name": "危险二人组",
+      "sourceId": 31222,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·051/298",
+      "name": "烈阳盾卫",
+      "sourceId": 31263,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·063/298",
+      "name": "奥义！魂佑",
+      "sourceId": 31275,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·082/298",
+      "name": "苍炎守护者",
+      "sourceId": 31298,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·092/298",
+      "name": "怒海大鲨炮",
+      "sourceId": 31310,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·097/298",
+      "name": "爆裂球果仙灵",
+      "sourceId": 31315,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·132/298",
+      "name": "大副",
+      "sourceId": 31356,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·136/298",
+      "name": "竞技场新人",
+      "sourceId": 31360,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·141/298",
+      "name": "均衡僧侣",
+      "sourceId": 31365,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·149/298",
+      "name": "食肉蛇藤",
+      "sourceId": 31373,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·165/298",
+      "name": "牧灵犬",
+      "sourceId": 31393,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·188/298",
+      "name": "祖安保镖",
+      "sourceId": 31418,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·191/298",
+      "name": "疯狂海寇",
+      "sourceId": 31421,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·199/298",
+      "name": "控潮者",
+      "sourceId": 31433,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·225/298",
+      "name": "烈阳首领",
+      "sourceId": 31463,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·226/298",
+      "name": "幽灵主母",
+      "sourceId": 31464,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·234/298",
+      "name": "龙骑兵",
+      "sourceId": 31472,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·017",
+      "name": "莫甘娜",
+      "sourceId": 37702,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·186",
+      "name": "莫甘娜",
+      "sourceId": 37889,
+      "reviewStatus": "NOT_REVIEWED"
+    }
+  ],
+  "excludedDefinitions": [
+    "UNL-161/219:SCRYING_SHELL_PLAY_EQUIPMENT_PREDICT",
+    "UNL-123/219:DARKENED_LURKER_PLAY_UNIT_DISCARD_DRAW",
+    "SFD·013/221:BLAST_CREW_APPRENTICE_PLAY_UNIT_OPTIONAL_DAMAGE",
+    "SFD·067/221:FROSTCOAT_CUB_PLAY_UNIT_OPTIONAL_POWER_MINUS_2",
+    "OGN·100/298:OGN_GEMSTONE_SEER_PREDICT_STATIC_PLAY_UNIT",
+    "OGN·235/298:OGN_KARMA_PREDICT_RECYCLE_BOON_PLAY_UNIT",
+    "OGN·020/298:JUNKYARD_BULLY_PLAY_UNIT_ENCOURAGE_DISCARD_TWO_DRAW_TWO",
+    "SFD·058/221:SFD_058_ORNN_EQUIPMENT_LOOK_PLAY_UNIT",
+    "SFD·058a/221:SFD_058A_ORNN_EQUIPMENT_LOOK_PLAY_UNIT",
+    "SFD·237/221:SFD_237_KARMA_PREDICT_RECYCLE_BOON_PLAY_UNIT",
+    "SFD·237*/221:SFD_237_PROMO_KARMA_PREDICT_RECYCLE_BOON_PLAY_UNIT",
+    "OGN·171/298:BABBLING_PORO_PLAY_UNIT_PREDICT",
+    "OGN·086/298:GEMSTONE_GOLEM_PLAY_UNIT_PREDICT",
+    "OGN·174/298:DASE_SCOUT_PLAY_UNIT_PREDICT",
+    "UNL-089/219:JHIN_PLAY_UNIT_PREDICT",
+    "SFD·149/221:EZREAL_PLAY_UNIT_DISCARD_DRAW_TWO",
+    "SFD·149a/221:EZREAL_ALT_A_PLAY_UNIT_DISCARD_DRAW_TWO",
+    "OGN·003/298:CHEMPUNK_TOUGH_PLAY_UNIT_DISCARD_HAND",
+    "OGN·030/298:JINX_PLAY_UNIT_DISCARD_TWO_HAND",
+    "OGN·030a/298:JINX_ALT_A_PLAY_UNIT_DISCARD_TWO_HAND",
+    "OGN·192/298:HEARTSPLIT_DRAGON_PLAY_UNIT_DISCARD_OPPONENT_HAND",
+    "UNL-121/219:CHARMING_SPIRIT_PLAY_UNIT_DISCARD_CHOSEN_PLAYER_HAND"
+  ]
+}

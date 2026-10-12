@@ -58,7 +58,9 @@ jobs:
     # A failed or missing selector must not silently skip the complete suite.
     if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # The complete suite retains every game and all 110 pairings. The recorded
+    # 2026-10-13 hosted run exceeded 35 minutes without completing two shards.
+    timeout-minutes: 60
     concurrency:
       group: rules-${{ github.ref }}-${{ github.sha }}
       cancel-in-progress: true

@@ -150,7 +150,8 @@ public sealed class OfficialUnitRevivalTests
     public async Task MatronWithoutASelectedTargetDoesNotOpenAnEmptyComposer()
     {
         var cast = await Act(Position("OGN·226/298"), "P1", new PlayCardCommand("C", "OGN·226/298", []));
-        var done = cast.State.StackItems.Count == 0 ? cast : await Top(cast.State);
+        var done = cast.State.PendingCardChoice is not null ? await OfficialHeldConfirmationTests.Choose(cast.State)
+            : cast.State.StackItems.Count == 0 ? cast : await Top(cast.State);
         Assert.Null(done.State.PendingEffectPlay);
         Assert.Contains("C", done.State.PlayerZones["P1"].Base);
         Assert.Contains("G", done.State.PlayerZones["P1"].Graveyard);

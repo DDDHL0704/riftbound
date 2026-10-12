@@ -122,6 +122,7 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGER_CONFIRMED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
@@ -163,6 +164,9 @@
       },
       {
         "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGER_CONFIRMED"
       },
       {
         "kind": "PRIORITY_PASSED"

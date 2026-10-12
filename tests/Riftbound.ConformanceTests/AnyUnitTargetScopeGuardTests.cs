@@ -68,7 +68,7 @@ public sealed class AnyUnitTargetScopeGuardTests
     }
 
     [Fact]
-    public void FirstMateMainActionPlayCardPromptExposesOnlyPublicFieldUnitTargets()
+    public async Task FirstMateMainActionPlayCardPromptExposesOnlyPublicFieldUnitTargets()
     {
         var state = BuildFirstMateState();
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
@@ -85,7 +85,9 @@ public sealed class AnyUnitTargetScopeGuardTests
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-UNIT-FIRST-MATE", StringComparison.Ordinal));
-        var targetIds = (playCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Empty(playCandidate.Targets ?? []);
+        var played = await OfficialGraveyardRecastTests.Act(state, "P1", new PlayCardCommand("P1-UNIT-FIRST-MATE", "OGN·132/298", []));
+        var targetIds = played.State.PendingCardChoice!.LegalObjectIds.ToArray();
         Assert.Equal(["P1-BASE-UNIT", "P2-BATTLEFIELD-UNIT"], targetIds);
 
         string[] invalidTargetObjectIds =
@@ -111,9 +113,9 @@ public sealed class AnyUnitTargetScopeGuardTests
         Assert.Equal(CardTargetScopes.AnyUnit, Assert.IsType<string>(firstMateRequirement["targetScope"]));
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             firstMateRequirement["targetChoicesByIndex"]);
-        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
-            targetChoicesByIndex["0"]);
-        var firstMateTargetIds = firstTargetChoices.Select(choice => choice.Id).ToArray();
+        Assert.Empty(targetChoicesByIndex);
+        Assert.Equal(0, Assert.IsType<int>(firstMateRequirement["minTargetCount"]));
+        var firstMateTargetIds = played.State.PendingCardChoice!.LegalObjectIds.ToArray();
         Assert.Equal(["P1-BASE-UNIT", "P2-BATTLEFIELD-UNIT"], firstMateTargetIds);
         Assert.All(invalidTargetObjectIds, objectId => Assert.DoesNotContain(objectId, firstMateTargetIds));
     }
@@ -165,7 +167,7 @@ public sealed class AnyUnitTargetScopeGuardTests
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
         Assert.True(playCandidate.Enabled);
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-UNIT-FIRST-MATE", StringComparison.Ordinal));
-        Assert.Contains(playCandidate.Targets ?? [], target => string.Equals(target.Id, "P1-BASE-UNIT", StringComparison.Ordinal));
+        Assert.Empty(playCandidate.Targets ?? []);
 
         var staleRawCommand = PromptScopedPlayCardRawCommand(command, prompt);
         var reorderedStaleRawCommand = ReorderedPromptScopedPlayCardRawCommand(command, prompt);
@@ -186,7 +188,7 @@ public sealed class AnyUnitTargetScopeGuardTests
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Null(accepted.ErrorCode);
-        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "EQUIPMENT_RECALLED_TO_BASE"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BASE", "TRIGGER_QUEUED", "EQUIPMENT_RECALLED_TO_BASE", "TRIGGER_CONFIRMED"], accepted.Events.Select(gameEvent => gameEvent.Kind).ToArray());
         var acceptedStackItem = AssertFirstMateAcceptedState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);

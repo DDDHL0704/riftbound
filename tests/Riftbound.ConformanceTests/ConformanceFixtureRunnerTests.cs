@@ -16812,8 +16812,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Null(result.State.PendingCardChoice);
+        Assert.Empty(result.State.StackItems);
+        Assert.Single(result.State.PlayerZones["P1"].Base);
     }
 
     [Fact]
@@ -17041,8 +17042,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Null(result.State.PendingCardChoice);
+        Assert.Empty(result.State.StackItems);
+        Assert.Single(result.State.PlayerZones["P1"].Base);
     }
 
     [Fact]
@@ -17141,8 +17143,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Null(result.State.PendingCardChoice);
+        Assert.Empty(result.State.StackItems);
+        Assert.Single(result.State.PlayerZones["P1"].Base);
     }
 
     [Fact]
@@ -33590,14 +33593,17 @@ public sealed class ConformanceFixtureRunnerTests
                 []),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
-        Assert.Equal(1, result.State.PlayerCardsPlayedThisTurn["P1"]);
-        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-UNIT-DANGEROUS-DUO"], result.State.PlayerZones["P1"].Hand);
-        Assert.Empty(result.State.StackItems);
+        // CN 355.5.b: the permanent enters; its encourage skill chooses afterward.
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(2, result.State.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Contains("P1-UNIT-DANGEROUS-DUO", result.State.PlayerZones["P1"].Base);
+        var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Contains("P1-BASE-DANGEROUS-DUO-TARGET-001", choice.LegalObjectIds);
+        Assert.Null(result.State.PriorityPlayerId);
+        Assert.Single(result.State.StackItems);
     }
 
     [Fact]
@@ -42296,7 +42302,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public void P79RoyalAttendantPromptExposesLegendModesAndTargets()
+    public async Task P79RoyalAttendantPromptExposesLegendModesAndTargets()
     {
         var state = RoyalAttendantLegendModeState(initialLegendExhausted: true);
 
@@ -42316,14 +42322,14 @@ public sealed class ConformanceFixtureRunnerTests
         {
             Assert.Equal("SFD·039/221", Assert.IsType<string>(requirement["cardNo"]));
             Assert.Equal("传奇", Assert.IsType<string>(requirement["targetScopeLabel"]));
-            Assert.Equal(1, Assert.IsType<int>(requirement["minTargetCount"]));
-            Assert.Equal(1, Assert.IsType<int>(requirement["maxTargetCount"]));
+            Assert.Equal(0, Assert.IsType<int>(requirement["minTargetCount"]));
+            Assert.Equal(0, Assert.IsType<int>(requirement["maxTargetCount"]));
             var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
                 requirement["targetChoicesByIndex"]);
-            var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-                .Select(choice => choice.Id)
-                .Order(StringComparer.Ordinal)
-                .ToArray();
+            Assert.Empty(choicesByIndex);
+            var entered = await OfficialGraveyardRecastTests.Act(PrintedCostFixture.Add(state, "P1", "SFD·039/221"), "P1", new PlayCardCommand(
+                "P1-UNIT-ROYAL-ATTENDANT", "SFD·039/221", [], Mode: (string)requirement["mode"]!));
+            var choices = entered.State.PendingCardChoice!.LegalObjectIds.Order(StringComparer.Ordinal).ToArray();
             Assert.Equal(["P1-LEGEND-001", "P2-LEGEND-001"], choices);
         }
     }
@@ -53983,7 +53989,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BATTLEFIELD", "TRIGGER_QUEUED"], result.Events.Select(gameEvent => gameEvent.Kind));
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.Null(result.State.PriorityPlayerId);
+        Assert.NotNull(result.State.PendingCardChoice);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
@@ -54103,7 +54110,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(3, result.FinalState.Tick);
+        Assert.Equal(2, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);

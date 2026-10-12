@@ -1,0 +1,35 @@
+{
+  "status": "FIXED_COMMIT_CI_TIMED_OUT_NOT_FULL_PASS",
+  "runId": 38311388455,
+  "commit": "bb00ebc2b01930957c306cd1bfcee46ed3630fa6",
+  "attempt": 1,
+  "recordedAtUtc": "2026-10-12T22:12:32.953926+00:00",
+  "reason": "GitHub check annotation: job exceeded 35m0s; not a live polling timeout",
+  "completedShards": {
+    "games-4": {
+      "total": 52,
+      "passed": 52,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "games-2": {
+      "total": 49,
+      "passed": 49,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "rules": {
+      "total": 10497,
+      "passed": 10497,
+      "failed": 0,
+      "notExecuted": 0
+    }
+  },
+  "missingShards": [
+    "games-1",
+    "games-3"
+  ],
+  "nativeConnectionRecovery": "not executed",
+  "macOSAndWindowsBuild": "success",
+  "wholeCardCertification": false
+}

@@ -23663,6 +23663,7 @@ public static class MatchRecoveryValidator
                 errors.Add("invalid captured Insight trigger");
         foreach (var item in state.StackItems)
         {
+            if (!CoreRuleEngine.ValidPermanentPlayTargetStack(state, item)) errors.Add("invalid permanent play target confirmation");
             if (!CoreRuleEngine.ValidLocationDamageStack(state, item)) errors.Add("invalid per-location damage ability");
             if (!CoreRuleEngine.ValidDistributionStack(state, item)) errors.Add("invalid distributed damage ability");
             if (item.DamageDistribution?.ResolutionDamage is not null

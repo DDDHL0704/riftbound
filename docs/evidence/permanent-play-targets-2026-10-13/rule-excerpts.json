@@ -1,0 +1,386 @@
+[
+  {
+    "id": "DOC-04-P039-B023",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "337.1"
+    ],
+    "text": "337.1.          如果有至少一个结算链项目处于待处理状态,则其中最早的待处理结算链项目 的控制者必须完成打出该待处理项目",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B002",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.1.a"
+    ],
+    "text": "337.1.a.               在结算链上对项目进行确认不会让过优先行动权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B003",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.1.b"
+    ],
+    "text": "337.1.b.               结算链项目会按照被添加到结算链的顺序进行确认。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B004",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.2"
+    ],
+    "text": "337.2.            如果在结算链项目完成确认后,该项目为单位、装备或获得资源的技能,则会立即结算——进入步骤 4:结算。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B005",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.3"
+    ],
+    "text": "337.3.            如果在结算链项目完成确认后,仍有待处理的结算链项目,返回步骤 1:确认。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B006",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.4"
+    ],
+    "text": "337.4.            如果在结算链项目完成确认后,结算链上不再有需要确认的项目,则结算链上的下一个项目的控制者将获得优先行\n                  动权 。进入步骤 2:执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B012",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.2"
+    ],
+    "text": "359.2.          常驻牌 离开结算链 ,变为游戏物体 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B013",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.2.a"
+    ],
+    "text": "359.2.a.              所有被动技能生效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B014",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.2.b"
+    ],
+    "text": "359.2.b.              从上到下依次执行卡牌上的所有规则文本。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B015",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.2.c"
+    ],
+    "text": "359.2.c.              如果卡牌为单位,则以休眠状态进场,打出到选定位置。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B016",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.2.d"
+    ],
+    "text": "359.2.d.              如果卡牌为非单位装备,则以活跃状态进场,打出到玩家基地。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B009",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.5"
+    ],
+    "text": "355.5.       如果卡牌需要你选择一个或以上的游戏物体,则在此时做出选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B010",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.5.a"
+    ],
+    "text": "355.5.a.            这不包括根据条件对一个或以上游戏物体产生影响的卡牌。\n                         举例:“眩晕任意战场上的一名单位”是一个选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B012",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.5.b"
+    ],
+    "text": "355.5.b.            这不包括为常驻牌触发式技能做出的选择,也不包括为项目确认时生成的延迟或内嵌式触发做出的选择\n                    (即使这些技能会在结算链项目打出时触发)。\n                         举例:打出具有“打出我时,摧毁一名单位”触发式技能的单位时,无需选择目标。只有在技能触\n                         发时,才需要选择目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B002",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14"
+    ],
+    "text": "355.14.            分摊",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B003",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.a"
+    ],
+    "text": "355.14.a.                如果卡牌指定一定数量的伤害可在一定数量的单位之间分摊,则每个被选定的单位都视为被指定为目标 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B004",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.b"
+    ],
+    "text": "355.14.b.                这些目标的选择发生在当法术或技能在结算链上进行确认时。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B005",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.c"
+    ],
+    "text": "355.14.c.                选定的目标数量最多只能达到(且不能超过)法术打出时的初始伤害量。\n                              举例:一名玩家打出了一张法术牌,其指示为“分摊 5 点伤害”,那最多只能选择 5 名单位,但\n                              可以少于 5 名。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B006",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.d"
+    ],
+    "text": "355.14.d.                每个目标都视为有效,且会单独触发指目标效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B007",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.e"
+    ],
+    "text": "355.14.e.                直到法术或技能结算时,玩家才能决定伤害的分配方式。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B008",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.f"
+    ],
+    "text": "355.14.f.                每个目标都必须受到有效的伤害量。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B009",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.g"
+    ],
+    "text": "355.14.g.                有效伤害必须为正整数,大于或等于 1 点伤害。\n                              想获取更多有关信息,请查阅规则 417.造成。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B010",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.h"
+    ],
+    "text": "355.14.h.                法术或效果结算时,如果目标的数量多于可供分配的伤害,则由造成该伤害的效果的控制者决定哪些目标\n                         不再成为目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B011",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.h.1"
+    ],
+    "text": "355.14.h.1.                   该玩家在选择哪些目标不再作为目标时,不能让最终留存的目标数量少于其要分配的伤害点\n                              数。\n                                   举例:一名玩家打出“阿尔法突袭”,其部分描述为:“选择一名友方单位。该单位对战\n                                   场上的敌方单位造成等同于其战力的伤害,可在多名敌方单位之间分摊。”该玩家以自\n                                   己的一名 5[M]单位,和战场上的五名 1[M]敌方随从为目标。其对手进行反应,打出\n                                   “蛮荒之力”,选取其中一名随从为目标;并打出“封冻”,选取该 5[M]单位为目标。当\n                                   “阿尔法突袭”结算时,该玩家有 3 点伤害可分配,必须选择让哪些目标不再作为目\n                                   标。该玩家不能为了对该 3[M]随从造成 3 点伤害,而选择让其中四名单位不再成为\n                                   目标。该玩家最多只能选择让两名单位不再成为目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B012",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.i"
+    ],
+    "text": "355.14.i.                任何已支付的费用,或因这些游戏物体被选为目标而触发的效果,都将持续生效、保持已支付或已触发的\n                         状态。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B017",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "384.1"
+    ],
+    "text": "384.1.             在场上时通常会启用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B018",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "384.2"
+    ],
+    "text": "384.2.             只有在场上时,常驻牌的触发式技能才能对其条件进行判定。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B020",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "385.1"
+    ],
+    "text": "385.1.             触发式技能 对场地 外卡牌的影响,取决于其所在区域的信息隐私等级 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B001",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "385.2"
+    ],
+    "text": "385.2.            处于场地外的触发式技能将自行描述其适用的条件。\n                         举例:触发式技能“每当你征服一处战场时,你可以选择弃置一张手牌,以此让此牌从你的废牌堆中返回你\n                         的手牌”,只会在该卡牌处于废牌堆时触发,且无法在别的位置触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P065-B017",
+    "document": "DOC-04",
+    "page": 65,
+    "clauseAnchors": [
+      "404.1"
+    ],
+    "text": "404.1.            支付之前步骤中确定的费用。\n                         想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P065-B018",
+    "document": "DOC-04",
+    "page": 65,
+    "clauseAnchors": [
+      "404.2"
+    ],
+    "text": "404.2.            到了这一阶段,玩家可以拒绝为触发式技能支付其产生的费用。如果玩家选择拒绝支付,此技能将不再被视作待处\n                  理项目 ,并会从结算链上移除。它将不会成为已确认的结算链项目 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P065-B019",
+    "document": "DOC-04",
+    "page": 65,
+    "clauseAnchors": [
+      "404.2.a"
+    ],
+    "text": "404.2.a.                 这并不等于技能被无效化。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

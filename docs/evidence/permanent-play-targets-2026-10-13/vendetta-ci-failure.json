@@ -1,0 +1,9 @@
+{
+  "status": "FIXED_COMMIT_CI_FAILED_NOT_FULL_PASS",
+  "runId": 38314841154,
+  "commit": "60a0fbe3e9322aae1edd76ed9add624978c94310",
+  "rules": "35-minute terminal cancellation; two game shards and network recovery missing",
+  "windows": "Export ERROR from leaked DummyTexture resources",
+  "macos": "success",
+  "wholeCardCertification": false
+}

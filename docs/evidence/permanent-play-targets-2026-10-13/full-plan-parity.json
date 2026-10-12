@@ -1,0 +1,31 @@
+{
+  "status": "FULL_METHOD_PLAN_PARITY_VERIFIED_NOT_EXECUTED",
+  "baselineCommit": "bb00ebc2b01930957c306cd1bfcee46ed3630fa6",
+  "oldMethodsRetained": 6815,
+  "currentMethods": 6833,
+  "missingMethods": [],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.MorganaNativeTests.ProductionMarkedDamageUnitAbilityAndResponsesReplay",
+    "Riftbound.ConformanceTests.PermanentPlayTargetTests.AnotherOrOtherTargetsExcludeTheEnteredSource",
+    "Riftbound.ConformanceTests.PermanentPlayTargetTests.CurrentRecoveryRejectsForgedPermanentTargetWindows",
+    "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget",
+    "Riftbound.ConformanceTests.PermanentPlayTargetTests.MissingAnEnemyDoesNotTrapTheEnteredUnitInAnImpossiblePairChoice",
+    "Riftbound.ConformanceTests.PermanentPlayTargetTests.PermanentEntersBeforeItsPlayAbilityChoosesTheNewUnit",
+    "Riftbound.ConformanceTests.PermanentPlayTargetTests.WardIsAnIndependentAbilityCostAndDeclineDoesNotUndoThePermanent",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.ADeclaredZeroDamageInstructionReceivesTheBattlefieldBonus",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.ARealDamageResponseChangesTheAmountReadAtAbilityResolution",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.ARealReturnResponsePreservesTheSkillButDoesNotDamageANewTargetIncarnation",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.AReturnInstructionDoesNotBecomeDamageBecauseOfTheBattlefield",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.CatalogStatisticsAreEvidenceOfRegistrationOnly",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.CurrentNonTargetedPrintingsUseTheSharedAmbushEntryAndPrintedCosts",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.MarkedDamageAbilityReceivesTheBattlefieldsSpellAndSkillBonus",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.MarkedDamageIsARespondablePlayAbilityAndReadsTheCurrentTarget",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.NewDianaWordingParsesAndEachCompletedSpellGetsAnIndependentSkill",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.ReleasedExactPrintingHasItsCatalogIdentityAndExecutableUnitDefinition",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.VendettaRengarRetainsTheEnemyOccupiedLocationPermission"
+  ],
+  "expectedFullCases": 10728,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "assemblySha256": "f92be979a4a42a42e19611b8d9875c1868bb0f531578569ab54baf7df4de8ce0"
+}

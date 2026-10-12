@@ -15,13 +15,14 @@ public sealed partial class CoreRuleEngine
                 || HasHeldTargetConfirmation(item) && ValidHeldTargetStack(state, item)
                 || HasLegendConquestTarget(item) && item.TriggerCost is null && ValidLegendConquest(item.LegendConquest!, item.EffectKind, item.CardNo)
                 || item.FieldContext is { } field && ValidFieldContext(field, item.EffectKind, item.CardNo)
-                || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo))
-            && (item.LocationDamage is not null || item.DamageDistribution is not null ? item.TargetObjectIds.Count > 0 : item.TargetObjectIds.Count == 1)
+                || item.ReflexiveCopy is { TargetConfirmed: false } copy && ValidReflexiveCopy(copy, item.EffectKind, item.CardNo)
+                || item.PermanentPlayTargetsPending && ValidPermanentPlayTargetStack(state, item))
+            && (item.LocationDamage is not null || item.DamageDistribution is not null || item.PermanentPlayTargetsPending ? item.TargetObjectIds.Count > 0 : item.TargetObjectIds.Count == 1)
             && item.TargetGenerations is { } generations && generations.Count == item.TargetObjectIds.Count
             && item.TargetObjectIds.All(id => generations.TryGetValue(id, out var generation) && generation >= 0)
             && payment.PaymentId == "TRIGGER-WARD:" + item.StackItemId && payment.PlayerId == item.ControllerId
             && payment.PaymentWindow == TriggerTargetCostWindow && payment.ManaCost == 0 && payment.PowerCost > 0
-            && (item.LocationDamage is null && item.DamageDistribution is null || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
+            && (item.LocationDamage is null && item.DamageDistribution is null && !item.PermanentPlayTargetsPending || payment.PowerCost == ResolveSpellshieldTargetTaxPower(state, item.ControllerId, item.TargetObjectIds, out _))
             && payment.PowerCostByTrait.Count == 0 && payment.PaymentResourceActionIds.Count == 0
             && payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])
             && state.PriorityPlayerId is null && state.PendingCardChoice is null;
@@ -33,7 +34,8 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "请选择支付法盾费用或放弃技能。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Single(i => i.StackItemId == pending.ResolvingStackItemId);
         var next = state with { Tick = state.Tick + 1, PendingPayment = null };
-        var legal = item.DamageDistribution is not null ? DistributionTargets(state, item)
+        var legal = item.PermanentPlayTargetsPending ? PermanentPlayTargetChoices(state, item)
+            : item.DamageDistribution is not null ? DistributionTargets(state, item)
             : item.LocationDamage is not null ? LocationDamageTargets(state,item)
             : item.ReflexiveDuel is not null ? ReflexiveDuelTargets(state,item)
             : item.UnitConquest is not null ? ConquestDamageTargets(state,item)

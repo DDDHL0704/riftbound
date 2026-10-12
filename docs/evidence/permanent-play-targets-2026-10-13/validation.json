@@ -1,0 +1,214 @@
+{
+  "status": "SCOPED_CHECK_NATIVE_AND_MACOS_EXPORT_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "verifiedAtUtc": "2026-10-12T22:36:02.509539+00:00",
+  "issue": 18,
+  "wholeCardCertification": false,
+  "nativeProductionCommands": 18,
+  "nativeActual": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 11.7,
+    "total": 4,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.04
+      }
+    ]
+  },
+  "focused": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 40.96,
+    "total": 50,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 50,
+        "passed": 50,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.93
+      }
+    ]
+  },
+  "fixedCommitFullRequired": true,
+  "macosDesktop": {
+    "status": "LOCAL_MACOS_NORMAL_EXPORT_AND_EXPORTED_RUNTIME_BOOT_PASS",
+    "verifiedAtUtc": "2026-10-12T22:43:58.826164+00:00",
+    "command": "python3.12 clients/godot/tools/ci-desktop.py",
+    "exitCode": 0,
+    "projectSourceRestoredSha256": "dae511582551670f843d78cc1f2778baf1b21d91d2bafba3cc455f0ca04f0764",
+    "ciToolSha256": "da364cea1ccf19fe6839dbd11b6ea9d5fd89322451c38044d57f680b01a2f03d",
+    "packageSha256": "c2f48c73d6ae7e0c4ae2e38fc4deab12a32191979018dcd8473b8dbf13794f71",
+    "logs": {
+      "build.log": "012b12a3423371c82d628e1908f148486ccea079fe2c9c61b5dc8202adde746e",
+      "import.log": "e6f30e416b98bc17b4ed6fe9789bdef6e8609067d25790945681c935dd2d8b62",
+      "export.log": "c786ea16f1287d53c82b96760ccdbff4da681a933bdfd02d10189b12c2ef617f",
+      "exported-boot.log": "c4844fb32bd92038c451321124d31d4d464cfb49b9e0841b11aefce2819a8ecf"
+    },
+    "editorPluginLoadingDisabledDuringPackaging": true,
+    "errorsRemainFatal": true,
+    "recoveryModeUsed": false,
+    "acceptanceBoundary": "Actual exported macOS process initialized bundled catalog; not visible paired full match, Windows runtime or database."
+  },
+  "adjacentFirstAttempt": {
+    "total": 5180,
+    "passed": 5156,
+    "failed": 24,
+    "status": "FAILED_OLD_SEQUENCE_AND_PROMPT_EXPECTATIONS_REVIEWED"
+  },
+  "adjacentSecondAttempt": {
+    "total": 5180,
+    "passed": 5176,
+    "failed": 4,
+    "status": "FAILED_FOUR_FIXES_VERIFIED_BY_REMAINING_FOCUS"
+  },
+  "pythonChecks": 18,
+  "remainingFocus": {
+    "total": 22,
+    "passed": 21,
+    "failed": 1,
+    "status": "ONE_ADDITIONAL_DECLARED_TARGET_FIXTURE_EVENT_UPDATED"
+  },
+  "lastVerifiedFullBaseline": {
+    "commit": "bb00ebc2b01930957c306cd1bfcee46ed3630fa6",
+    "cases": 10648,
+    "methods": 6815,
+    "matrixPairs": 110
+  },
+  "targetConfirmationBoundary": "Preselection intents receive an initial legality check; actual target confirmation and generation binding occur after permanent entry. Canonical production composer sends no play-trigger targets.",
+  "checkSecondAttempt": {
+    "passed": 10578,
+    "total": 10579,
+    "failed": 1,
+    "skipped": 0,
+    "cause": "Tidecaller fixture lacks actual object metadata, so no legal target exists; direct skip tick is 1. Corrected fixture only."
+  },
+  "noTargetFocused": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.78,
+    "total": 232,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 232,
+        "passed": 232,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 7.06
+      }
+    ]
+  },
+  "checkAttemptEvidence": [
+    {
+      "directory": "var/qa/permanent-trigger-targets-20261013/check",
+      "total": 10579,
+      "passed": 10574,
+      "failed": 5,
+      "trxSha256": "a993e70603779211af0bd77cceca5dbacd23e3090b0270c6cf220fc2a9ec2bf8"
+    },
+    {
+      "directory": "var/qa/permanent-trigger-targets-20261013/check-final",
+      "total": 10579,
+      "passed": 10578,
+      "failed": 1,
+      "trxSha256": "ba292d1844504395e15deeed079037c3ce8ff60453f62fcea64153a24a515475"
+    }
+  ],
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 124.21,
+    "total": 10579,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10579,
+        "passed": 10579,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 120.45
+      }
+    ]
+  },
+  "parity": {
+    "status": "CHECK_CASE_AND_METHOD_PARITY_VERIFIED",
+    "verifiedAtUtc": "2026-10-12T22:58:48.796403+00:00",
+    "baselineCommit": "60a0fbe3e9322aae1edd76ed9add624978c94310",
+    "oldCasesRetained": 10531,
+    "oldMethodsRetained": 6686,
+    "currentCases": 10579,
+    "currentMethods": 6692,
+    "missingCases": [],
+    "missingMethods": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.MorganaNativeTests.ProductionMarkedDamageUnitAbilityAndResponsesReplay(branch: \"ward-decline\")",
+      "Riftbound.ConformanceTests.MorganaNativeTests.ProductionMarkedDamageUnitAbilityAndResponsesReplay(branch: \"ward-pay\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.AnotherOrOtherTargetsExcludeTheEnteredSource(cardNo: \"OGN\u00b7132/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.AnotherOrOtherTargetsExcludeTheEnteredSource(cardNo: \"OGN\u00b7141/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.AnotherOrOtherTargetsExcludeTheEnteredSource(cardNo: \"SFD\u00b7132/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.CurrentRecoveryRejectsForgedPermanentTargetWindows(mutation: \"binding\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.CurrentRecoveryRejectsForgedPermanentTargetWindows(mutation: \"flag\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.CurrentRecoveryRejectsForgedPermanentTargetWindows(mutation: \"orphan\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.CurrentRecoveryRejectsForgedPermanentTargetWindows(mutation: \"response\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.CurrentRecoveryRejectsForgedPermanentTargetWindows(mutation: \"source\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7016/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7051/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7063/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7082/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7092/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7097/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7132/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7136/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7141/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7149/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7165/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7188/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7191/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7199/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7225/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7226/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGN\u00b7234/298\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"OGS\u00b7010/024\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7007/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7032/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7039/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7053/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7061/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7062/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7101/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7132/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7138/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"SFD\u00b7158/221\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"UNL-021/219\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"VEN\u00b7017\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget(cardNo: \"VEN\u00b7186\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.MissingAnEnemyDoesNotTrapTheEnteredUnitInAnImpossiblePairChoice",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.PermanentEntersBeforeItsPlayAbilityChoosesTheNewUnit(cardNo: \"VEN\u00b7017\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.PermanentEntersBeforeItsPlayAbilityChoosesTheNewUnit(cardNo: \"VEN\u00b7186\")",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.WardIsAnIndependentAbilityCostAndDeclineDoesNotUndoThePermanent(cardNo: \"VEN\u00b7017\", pay: False)",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.WardIsAnIndependentAbilityCostAndDeclineDoesNotUndoThePermanent(cardNo: \"VEN\u00b7017\", pay: True)",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.WardIsAnIndependentAbilityCostAndDeclineDoesNotUndoThePermanent(cardNo: \"VEN\u00b7186\", pay: False)",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.WardIsAnIndependentAbilityCostAndDeclineDoesNotUndoThePermanent(cardNo: \"VEN\u00b7186\", pay: True)"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.AnotherOrOtherTargetsExcludeTheEnteredSource",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.CurrentRecoveryRejectsForgedPermanentTargetWindows",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.EachListedPublicTargetPermanentCanEnterBeforeAnyAbilityTarget",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.MissingAnEnemyDoesNotTrapTheEnteredUnitInAnImpossiblePairChoice",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.PermanentEntersBeforeItsPlayAbilityChoosesTheNewUnit",
+      "Riftbound.ConformanceTests.PermanentPlayTargetTests.WardIsAnIndependentAbilityCostAndDeclineDoesNotUndoThePermanent"
+    ],
+    "trxSha256": "33bc2c112c9bad2c8da2147b2f144a9ce3e9bf92e609e0c920a846c50a767aea"
+  }
+}

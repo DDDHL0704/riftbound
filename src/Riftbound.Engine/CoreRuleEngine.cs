@@ -19661,7 +19661,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds,
             out targetObjectIds);
         var targetScope = PlayCardTargetScopeForBehavior(behavior);
-        if (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
+        if (!(HasIndependentPermanentTargets(behavior) && targetObjectIds.Count == 0)
+            && (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
             || !PlayCardTargetsExposeKnownCardNumbers(state, targetObjectIds)
             || !CreatedBaseUnitCopyTargetAllowed(state, behavior, targetObjectIds)
             || !HasValidTargetGroup(state, behavior, targetObjectIds)
@@ -19673,7 +19674,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !IsMainDeckLookWindowControlledByPlayer(state, intent.PlayerId, behavior)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsLegalChosenCardTarget(state, intent.PlayerId, targetObjectId, targetIndex,
-                    targetObjectIds, targetScope, behavior)).Any())
+                    targetObjectIds, targetScope, behavior)).Any()))
         {
             rejection = Reject(
                 state,
@@ -19957,7 +19958,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var battlefieldSpellCostReductionMana = manaCost.BattlefieldSpellReduction;
         var battlefieldHeldUnitCostIncreaseMana = manaCost.Increase;
         var spellshieldTaxPower = ResolveSpellshieldTargetTaxPower(state, intent.PlayerId, behavior, paymentTargets, out var spellshieldTaxTargetObjectIds);
-        if (EffectPlayIgnoresAllCosts(state, intent.PlayerId))
+        if (EffectPlayIgnoresAllCosts(state, intent.PlayerId) || HasIndependentPermanentTargets(behavior))
         {
             spellshieldTaxPower = 0;
             spellshieldTaxTargetObjectIds = [];
@@ -25957,8 +25958,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.SourceObjectId,
             behavior);
 
-        if (!HasValidResolvedTargetCount(behavior, chosenStackItem)
-            || !HasValidTargetEffectAdditionalCostTargets(behavior, chosenStackItem.TargetObjectIds, stackItem.OptionalCosts))
+        if (!(confirmPermanent && HasIndependentPermanentTargets(behavior))
+            && (!HasValidResolvedTargetCount(behavior, chosenStackItem)
+            || !HasValidTargetEffectAdditionalCostTargets(behavior, chosenStackItem.TargetObjectIds, stackItem.OptionalCosts)))
         {
             return new StackResolutionResult(
                 state.PlayerZones,

@@ -6401,7 +6401,7 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public void ActionPromptPlayCardMetadataFiltersFriendlyTargetsByController()
+    public async Task ActionPromptPlayCardMetadataFiltersFriendlyTargetsByController()
     {
         var state = new MatchState(
             "prompt-play-friendly-target-control-room",
@@ -6466,9 +6466,9 @@ public sealed class ConformanceFixtureShapeTests
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
 
         Assert.True(playCandidate.Enabled);
-        Assert.Contains(
-            playCandidate.Targets ?? [],
-            target => string.Equals(target.Id, "P1-FRIENDLY-TARGET", StringComparison.Ordinal));
+        Assert.Empty(playCandidate.Targets ?? []);
+        var played = await OfficialGraveyardRecastTests.Act(state, "P1", new PlayCardCommand("P1-UNIT-ARENA-ROOKIE", "OGN·136/298", []));
+        Assert.Contains("P1-FRIENDLY-TARGET", played.State.PendingCardChoice!.LegalObjectIds);
         Assert.DoesNotContain(
             playCandidate.Targets ?? [],
             target => string.Equals(target.Id, "P1-DIRTY-OPPONENT-CONTROLLED-TARGET", StringComparison.Ordinal));
@@ -6479,9 +6479,9 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("FRIENDLY_UNIT", Assert.IsType<string>(sourceRequirement["targetScope"]));
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
-            targetChoicesByIndex["0"]);
-        Assert.Equal(["P1-FRIENDLY-TARGET"], firstTargetChoices.Select(choice => choice.Id).ToArray());
+        Assert.Empty(targetChoicesByIndex);
+        Assert.Equal(["P1-FRIENDLY-TARGET"], played.State.PendingCardChoice!.LegalObjectIds);
+        Assert.DoesNotContain("P1-DIRTY-OPPONENT-CONTROLLED-TARGET", played.State.PendingCardChoice.LegalObjectIds);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Verify the exported desktop runtime on its actual OS; no publishing or signing secrets."""
 import hashlib
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import re
@@ -23,6 +24,10 @@ TEMPLATE_SHA = "92f8681e349ef1f90891b792da95e3b2b0bd1ed610b78018c58feb2d87e15a9d
 
 def download(name, digest, directory):
     destination = directory / name
+    if destination.is_file():
+        with destination.open("rb") as source:
+            if hashlib.file_digest(source, "sha256").hexdigest() == digest:
+                return destination
     with urllib.request.urlopen(RELEASE + name, timeout=120) as response, destination.open("wb") as output:
         shutil.copyfileobj(response, output)
     with destination.open("rb") as source:
@@ -30,6 +35,22 @@ def download(name, digest, directory):
     if actual != digest:
         raise RuntimeError(f"SHA-256 mismatch for {name}")
     return destination
+
+
+@contextmanager
+def packaging_without_editor_plugins(project):
+    config = project / "project.godot"
+    original = config.read_bytes()
+    text = original.decode("utf-8")
+    # Only editor tooling is disabled. The game settings and exported runtime
+    # are exercised normally; always restore the exact source bytes.
+    packaging = re.sub(r'(\[editor_plugins\][^\[]*?^enabled=)[^\r\n]*',
+                       r'\1PackedStringArray()', text, count=1, flags=re.M)
+    try:
+        config.write_bytes(packaging.encode("utf-8"))
+        yield
+    finally:
+        config.write_bytes(original)
 
 
 def run(args, log, timeout=600, cwd=ROOT):
@@ -73,12 +94,13 @@ def main():
                     shutil.copyfileobj(source, output)
 
     run(["dotnet", "build", PROJECT / "Riftbound.GodotClient.csproj"], logs / "build.log")
-    run([editor, "--headless", "--editor", "--path", PROJECT, "--import"], logs / "import.log")
-    target = "macOS" if platform == "darwin" else "Windows Desktop"
-    output_dir = PROJECT / "exports" / ("macos" if platform == "darwin" else "windows")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    package = output_dir / ("Riftbound.zip" if platform == "darwin" else "Riftbound.exe")
-    run([editor, "--headless", "--path", PROJECT, "--export-release", target, package], logs / "export.log")
+    with packaging_without_editor_plugins(PROJECT):
+        run([editor, "--headless", "--editor", "--path", PROJECT, "--import"], logs / "import.log")
+        target = "macOS" if platform == "darwin" else "Windows Desktop"
+        output_dir = PROJECT / "exports" / ("macos" if platform == "darwin" else "windows")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        package = output_dir / ("Riftbound.zip" if platform == "darwin" else "Riftbound.exe")
+        run([editor, "--headless", "--path", PROJECT, "--export-release", target, package], logs / "export.log")
     if platform == "darwin":
         extracted = tools_dir / "exported"
         subprocess.run(["ditto", "-xk", str(package), str(extracted)], check=True)

@@ -11641,6 +11641,1192 @@
         "Visible paired match, actual Windows runtime and real PostgreSQL",
         "October 16 future sources retained and not applied early"
       ]
+    },
+    {
+      "id": "permanent-play-targets-2026-10-13",
+      "status": "SCOPED_CHECK_NATIVE_AND_MACOS_EXPORT_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "32 declared behaviors / 31 registered current CN printings: permanent entry before public play-trigger targets, current bindings, source exclusions, executable complete target groups, independent Ward costs and current recovery; no whole-card certification",
+      "subjects": [
+        {
+          "id": "OGN-016/298",
+          "activeCardNo": "OGN·016/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31222,
+              "cardNo": "OGN·016/298",
+              "name": "危险二人组",
+              "sha256": "8c55b0626a2687f74721189a66f5924ab49f9ff06e1b95081c80d9bca66d1297",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-016-298",
+              "cardNo": "OGN-016/298",
+              "name": "Dangerous Duo",
+              "sha256": "8147913b4030d5b2733bc0d8382f1b08a40192ca3dd82ca874bf60d95ef99a9c",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-051/298",
+          "activeCardNo": "OGN·051/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31263,
+              "cardNo": "OGN·051/298",
+              "name": "烈阳盾卫",
+              "sha256": "845b08bb7e0af29457967b1b5fecfd11416ee576e9de7e43ac80323200cf164c",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-051-298",
+              "cardNo": "OGN-051/298",
+              "name": "Solari Shieldbearer",
+              "sha256": "19d4e38a8f08da0b5ee9a1e8d9336899be40a684b3a6cc3eae72eb3cf5f26301",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-063/298",
+          "activeCardNo": "OGN·063/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31275,
+              "cardNo": "OGN·063/298",
+              "name": "奥义！魂佑",
+              "sha256": "5da4de9ea94839651743731a5a680544fbe927fa368fe2c67e39357e50ed66aa",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-063-298",
+              "cardNo": "OGN-063/298",
+              "name": "Spirit's Refuge",
+              "sha256": "a5a29da80d5ca91c48926518c25fca354ef93e15ff9665ff478c2dfb20f65cf5",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-082/298",
+          "activeCardNo": "OGN·082/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31298,
+              "cardNo": "OGN·082/298",
+              "name": "苍炎守护者",
+              "sha256": "c73180066cdb0394182cade4386e8eab40777aa7c3a59a51afaaf900abea84b8",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-082-298",
+              "cardNo": "OGN-082/298",
+              "name": "Whiteflame Protector",
+              "sha256": "f85e68d90d4337ea942a399c3ee5a0e61389f9c1eecb4e3b4092dfcfaa481968",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-092/298",
+          "activeCardNo": "OGN·092/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31310,
+              "cardNo": "OGN·092/298",
+              "name": "怒海大鲨炮",
+              "sha256": "0d3ecd69eef4e5550e6eaceb346d80e1798e8768fe5c854a19c18707e8b837b2",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-092-298",
+              "cardNo": "OGN-092/298",
+              "name": "Riptide Rex",
+              "sha256": "8395456a02d1a19752fa05609f71d511ec0fbcd70a0c736736f93490c0652703",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-097/298",
+          "activeCardNo": "OGN·097/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31315,
+              "cardNo": "OGN·097/298",
+              "name": "爆裂球果仙灵",
+              "sha256": "9340e1567ea7d5dca8fe421da7577733fe5dac795cf4dd2fdebfe6813c33d88b",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-097-298",
+              "cardNo": "OGN-097/298",
+              "name": "Blastcone Fae",
+              "sha256": "e94f0b47259e8db288ba7d07884a94cafca8f4034588cb155b3413de2f755674",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-132/298",
+          "activeCardNo": "OGN·132/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31356,
+              "cardNo": "OGN·132/298",
+              "name": "大副",
+              "sha256": "e886a83e22e2786d3628c1759e8007a62fa9734a8a03376121c8a5395648aa78",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-132-298",
+              "cardNo": "OGN-132/298",
+              "name": "First Mate",
+              "sha256": "26b5031cd83326be674c73e663d8a85e496bfac22b6bbeefe8c6a1fb30862250",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-136/298",
+          "activeCardNo": "OGN·136/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31360,
+              "cardNo": "OGN·136/298",
+              "name": "竞技场新人",
+              "sha256": "5ded832b64c86ff46cec904758609a2286c8688e3cb97a24dc50a523f99dffac",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-136-298",
+              "cardNo": "OGN-136/298",
+              "name": "Pit Rookie",
+              "sha256": "ba04f6a4d042b77799ee472047f9daea28b9a0ba4ec99dac0b0629cddbd6b091",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-141/298",
+          "activeCardNo": "OGN·141/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31365,
+              "cardNo": "OGN·141/298",
+              "name": "均衡僧侣",
+              "sha256": "6a5124c9d6300830ed416685a8d0f8ff4ee98994db9709fefef953cf7ec8ec17",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-141-298",
+              "cardNo": "OGN-141/298",
+              "name": "Kinkou Monk",
+              "sha256": "5c95f651bb50d71b68817a78e8f05c172832ba1cf99bc5b91544ba78124d1139",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-149/298",
+          "activeCardNo": "OGN·149/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31373,
+              "cardNo": "OGN·149/298",
+              "name": "食肉蛇藤",
+              "sha256": "098356e032ac06123914fb6bff8aa5e6561e52790c73aba959e1753a14ac4f7d",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-149-298",
+              "cardNo": "OGN-149/298",
+              "name": "Carnivorous Snapvine",
+              "sha256": "7b7a21c3c67f1986987da86f52426775715cfd7e59a95d256ed81bbcd76c57f6",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-165/298",
+          "activeCardNo": "OGN·165/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31393,
+              "cardNo": "OGN·165/298",
+              "name": "牧灵犬",
+              "sha256": "719fd7d9e73d9c6251a329204054dc5fce799f30f0825906a4010553868f5261",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-165-298",
+              "cardNo": "OGN-165/298",
+              "name": "Cemetery Attendant",
+              "sha256": "9dbec470c584aa09444c1902ec25d9072d4a2cd683edd894ade01f5f4bd27a15",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-188/298",
+          "activeCardNo": "OGN·188/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31418,
+              "cardNo": "OGN·188/298",
+              "name": "祖安保镖",
+              "sha256": "30639429f0325511f575fb8dd3070cef8e2c5b20b7a14c18c9a164269fe849ab",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-188-298",
+              "cardNo": "OGN-188/298",
+              "name": "Zaunite Bouncer",
+              "sha256": "919ba0a4eae8a1b6afaee152150eb47974fb58cb07c2d8080a7dba56cf27ba99",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-191/298",
+          "activeCardNo": "OGN·191/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31421,
+              "cardNo": "OGN·191/298",
+              "name": "疯狂海寇",
+              "sha256": "ff3cd9e62f6aade2451ded9f7e18fa19cbc4f4d677874b5ee1723359d213a142",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-191-298",
+              "cardNo": "OGN-191/298",
+              "name": "Maddened Marauder",
+              "sha256": "59fba6d32cade9542d9e22877d4398c757df61a4b25a29e7dc1e911750cf0d05",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-199/298",
+          "activeCardNo": "OGN·199/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31433,
+              "cardNo": "OGN·199/298",
+              "name": "控潮者",
+              "sha256": "69894d050eea1bfc53a6e42cebef80f99072b2a54b746d9086c1df0b92c68145",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-199-298",
+              "cardNo": "OGN-199/298",
+              "name": "Tideturner",
+              "sha256": "dee2b269ccaa7b33f2a5577513f8160e3c37c3ceb37564172d42a95a91ec028b",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-225/298",
+          "activeCardNo": "OGN·225/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31463,
+              "cardNo": "OGN·225/298",
+              "name": "烈阳首领",
+              "sha256": "97eb46125077fdd46facbe12ef83bd6d1c05a96b98ac0f056c5f2859bccfaa9f",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-225-298",
+              "cardNo": "OGN-225/298",
+              "name": "Solari Chief",
+              "sha256": "56608102370678c810d918a935f6cdb5615277fa468538b0d0fadaf6a367f35b",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-226/298",
+          "activeCardNo": "OGN·226/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31464,
+              "cardNo": "OGN·226/298",
+              "name": "幽灵主母",
+              "sha256": "6433ae9157b1c3abcad2220e8713223543ded8f787d22c6d0817aeb92c1975e1",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-226-298",
+              "cardNo": "OGN-226/298",
+              "name": "Spectral Matron",
+              "sha256": "9099c50a873e6cfd2809507acabf90c3b8217872af70203fee064de2f0c8d883",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-234/298",
+          "activeCardNo": "OGN·234/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31472,
+              "cardNo": "OGN·234/298",
+              "name": "龙骑兵",
+              "sha256": "960f7db354057061e79852a68cfa4d9c3f6790237efd70bfdeb05d6e90b37bd2",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-234-298",
+              "cardNo": "OGN-234/298",
+              "name": "Harnessed Dragon",
+              "sha256": "fdafc7fe0cf6b120ee6a3bb970fe731d7f2ed9a98e262e6812f1a6d1b0cacecd",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGS-010/024",
+          "activeCardNo": "OGS·010/024",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31589,
+              "cardNo": "OGS·010/024",
+              "name": "安妮",
+              "sha256": "34dddcd75703b23aad07e5c0a96158dff624ad91338d5a6fbd8f27cf0cc60286",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogs-010-024",
+              "cardNo": "OGS-010/024",
+              "name": "Annie",
+              "sha256": "6523ae7e2722b9e7164515790eb7efe5d7617ba2d07a410cbed7ce6e18b12a02",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-007/221",
+          "activeCardNo": "SFD·007/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33079,
+              "cardNo": "SFD·007/221",
+              "name": "晶能阻断器",
+              "sha256": "56fbc40fc9817f46bd931732cdd8e779cdd3168daf72a0d948ff7187418afc96",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-007-221",
+              "cardNo": "SFD-007/221",
+              "name": "Gem Jammer",
+              "sha256": "159b9ffef1c9f5d08912a968758fc5e92f1d52cf5212fafa4250c3d875a44de1",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-032/221",
+          "activeCardNo": "SFD·032/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33108,
+              "cardNo": "SFD·032/221",
+              "name": "斩剑浪客",
+              "sha256": "f624524bfa388809ca79f1157ba804521f8d113ee6aac5f317cd62da5bca6b58",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-032-221",
+              "cardNo": "SFD-032/221",
+              "name": "Disarming Rake",
+              "sha256": "8c33e8e98e6144dbe7438d7835f8eb87dc6653e2b6b4a1530f0de430cf460991",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-039/221",
+          "activeCardNo": "SFD·039/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33115,
+              "cardNo": "SFD·039/221",
+              "name": "皇家随从",
+              "sha256": "90dbcb96b0ca420c802dcea527f9f563f401951dbb24709a745274c2793ca0c8",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-039-221",
+              "cardNo": "SFD-039/221",
+              "name": "Royal Entourage",
+              "sha256": "95bb9e1cb8f414e1960f75d66d7a2ac379826f91c4ebedb9c7610578c9acc6a5",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-053/221",
+          "activeCardNo": "SFD·053/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33130,
+              "cardNo": "SFD·053/221",
+              "name": "迦娜",
+              "sha256": "c31b0af26a7640c44d1fef062322b4575480414bb5989ad61f99b00cf3f9f869",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-053-221",
+              "cardNo": "SFD-053/221",
+              "name": "Janna",
+              "sha256": "369630a051a835a2e38421d15b611bead5d3cc746c67a86fcaadde0956335403",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-061/221",
+          "activeCardNo": "SFD·061/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33141,
+              "cardNo": "SFD·061/221",
+              "name": "见习工程师",
+              "sha256": "2131ff1ecd2b84fcab0f3a68cfe957512bbcd6d2a82e204c3c2d93b32cfa5969",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-061-221",
+              "cardNo": "SFD-061/221",
+              "name": "Aspiring Engineer",
+              "sha256": "2e6de6031ac38ba46b459ff576a8023785b1d106587ae45b0498ca68c1c7b871",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-062/221",
+          "activeCardNo": "SFD·062/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33142,
+              "cardNo": "SFD·062/221",
+              "name": "泡泡机",
+              "sha256": "a7c2a417651e1b4d47e980c5c20074b26533d71dd5834bde8f4cf239fa755632",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-062-221",
+              "cardNo": "SFD-062/221",
+              "name": "Bubble Bot",
+              "sha256": "afa80f26bfb0b5482df37e6cbde6af9756b962ad8e1b0584e3c9508ba142b5af",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-101/221",
+          "activeCardNo": "SFD·101/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33186,
+              "cardNo": "SFD·101/221",
+              "name": "仙灵龙",
+              "sha256": "bc9e4f0acf7f177d092c4be6e4c7f06018586f109abf21e1ef19ae4c3a97e06b",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-101-221",
+              "cardNo": "SFD-101/221",
+              "name": "Fae Dragon",
+              "sha256": "81644f628d8ed6fba743b0a96548ae3451119c9ba72435a4a910e49c63621d30",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-132/221",
+          "activeCardNo": "SFD·132/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33222,
+              "cardNo": "SFD·132/221",
+              "name": "海渊巨兽",
+              "sha256": "0bc1492781f61b193b66a60de08cdaa386bb9d4f2a3cf20e4e29a0fc6c6b5453",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-132-221",
+              "cardNo": "SFD-132/221",
+              "name": "Beast Below",
+              "sha256": "5dfc0090e886c54ba078ed17a91ba6d6657f897c20a0a71977600b27fd75dc33",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-138/221",
+          "activeCardNo": "SFD·138/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33228,
+              "cardNo": "SFD·138/221",
+              "name": "吟风翼",
+              "sha256": "0a1265a85e7a900874cf5f55acff7e471d5dda1673f3af41834adb295c0ed5a4",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-138-221",
+              "cardNo": "SFD-138/221",
+              "name": "Windsinger",
+              "sha256": "60d99b3148e35dbb5a666244f9317c785a09709408406967c59fd3ce81c3f9d6",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-158/221",
+          "activeCardNo": "SFD·158/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33252,
+              "cardNo": "SFD·158/221",
+              "name": "流沙术士",
+              "sha256": "7b2d03f00a99c2d333c6b35f1382fc12c895a266a5712203e9016419398c6793",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-158-221",
+              "cardNo": "SFD-158/221",
+              "name": "Sandshifter",
+              "sha256": "b20ede7529c5828bdeae6cd2a369d08fb6be8b7808ba4363c21ae80d6c0397e7",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "UNL-021/219",
+          "activeCardNo": "UNL-021/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34544,
+              "cardNo": "UNL-021/219",
+              "name": "阴森药剂师",
+              "sha256": "1734ca1d7c3a6927c42696f2c1f2a3c746c9ffd234e3967de17c9bd759ff8f31",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-021-219",
+              "cardNo": "UNL-021/219",
+              "name": "Grim Apothecary",
+              "sha256": "b197d217d3c2a7b8518021fe0fa2ae9c9966ca1853fe34fb39f63ebfddfd52c5",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "VEN-017",
+          "activeCardNo": null,
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 37702,
+              "cardNo": "VEN·017",
+              "name": "莫甘娜",
+              "sha256": "3d197ba6bd721a3c949b1527bee3e682e88bfa7720f030833b58d07a76924687",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "VEN-186",
+          "activeCardNo": null,
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 37889,
+              "cardNo": "VEN·186",
+              "name": "莫甘娜",
+              "sha256": "861299d00fb9b505cbe8633f77490e05fc8f6be220c0683eddf96d9f12498e5e",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P039-B023",
+        "DOC-04-P040-B002",
+        "DOC-04-P040-B003",
+        "DOC-04-P040-B004",
+        "DOC-04-P040-B005",
+        "DOC-04-P040-B006",
+        "DOC-04-P049-B012",
+        "DOC-04-P049-B013",
+        "DOC-04-P049-B014",
+        "DOC-04-P049-B015",
+        "DOC-04-P049-B016",
+        "DOC-04-P043-B009",
+        "DOC-04-P043-B010",
+        "DOC-04-P043-B012",
+        "DOC-04-P046-B002",
+        "DOC-04-P046-B003",
+        "DOC-04-P046-B004",
+        "DOC-04-P046-B005",
+        "DOC-04-P046-B006",
+        "DOC-04-P046-B007",
+        "DOC-04-P046-B008",
+        "DOC-04-P046-B009",
+        "DOC-04-P046-B010",
+        "DOC-04-P046-B011",
+        "DOC-04-P046-B012",
+        "DOC-04-P062-B017",
+        "DOC-04-P062-B018",
+        "DOC-04-P062-B020",
+        "DOC-04-P063-B001",
+        "DOC-04-P065-B017",
+        "DOC-04-P065-B018",
+        "DOC-04-P065-B019"
+      ],
+      "auditDocument": "docs/PERMANENT_PLAY_TARGETS_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/permanent-play-targets-2026-10-13/check-parity.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/ci-timeout-attempt1.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/code-inputs.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/core-readback.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/cost-waiver-source.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/fixture-parity.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/full-plan-parity.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/godot-execution.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/group-red-evidence.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/macos-desktop.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/macos-recovery-mode-rejected.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/native-replay.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/other-target-red-evidence.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/red-evidence.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/rule-excerpts.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/source-queue.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/source-readback.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/validation.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/vendetta-ci-failure.json",
+        "docs/evidence/permanent-play-targets-2026-10-13/windows-export-failure.json"
+      ],
+      "tests": [
+        "PermanentPlayTargetTests",
+        "MorganaNativeTests",
+        "OfficialPermanentConfirmationTests",
+        "OfficialHeldConfirmationTests",
+        "AnyUnitTargetScopeGuardTests",
+        "EnemyBattlefieldUnitTargetScopeGuardTests",
+        "ConformanceFixtureRunnerTests",
+        "GameHubJoinTests",
+        "OfficialRevealedHandPlayTests",
+        "OfficialUnitRevivalTests"
+      ],
+      "validation": {
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "focusCases": 50,
+        "nativeProductionCommands": 18,
+        "checkCases": 10579,
+        "checkMethods": 6692,
+        "addedCases": 48,
+        "addedMethods": 6,
+        "fullPlannedMethods": 6833,
+        "expectedFullCases": 10728
+      },
+      "exclusions": [
+        "Private hand/deck decisions and target-dependent effect costs",
+        "Mode choice and simultaneous trigger ordering",
+        "Copied rule-text instances and undeclared/unregistered printings",
+        "All whole-card, number, replacement and cost semantics",
+        "1738 whole cards, 14293 rules and eight EN gaps",
+        "Visible paired full match, actual Windows runtime, real PostgreSQL"
+      ]
     }
   ]
 }

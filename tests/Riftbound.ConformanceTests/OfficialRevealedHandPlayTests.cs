@@ -149,7 +149,12 @@ public sealed class OfficialRevealedHandPlayTests
         var quote=new CoreRuleEngine().PreviewPlayCard(selected.State,"P2",PlayCostPreviewTests.Request(selected.State,play));
         Assert.True(quote.CanPay,quote.Message);Assert.Equal(0,quote.Cost!.GenericPower+quote.Cost.PowerByTrait.Values.Sum());
         var child=await Act(selected.State,"P2",play);Assert.Single(child.State.StackItems);
-        var done=await Top(child.State);Assert.Equal(-2,done.State.CardObjects["ENEMY"].UntilEndOfTurnPowerModifier);Restore(done.State);
+        // Free permanent play does not waive its independent triggered ability cost.
+        Assert.Equal(1,child.State.PendingPayment!.PowerCost);
+        var payment=child.State.PendingPayment;
+        var declined=await Act(child.State,"P2",new PayCostCommand(payment.PaymentId,payment.PaymentWindow,["DECLINE"]));
+        Assert.Contains("U",declined.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(0,declined.State.CardObjects["ENEMY"].UntilEndOfTurnPowerModifier);Restore(declined.State);
     }
 
     [Fact]

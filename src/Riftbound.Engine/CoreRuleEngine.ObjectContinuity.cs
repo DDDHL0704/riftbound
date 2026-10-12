@@ -51,6 +51,7 @@ public sealed partial class CoreRuleEngine
         var previousItems = before.StackItems.ToDictionary(item => item.StackItemId, StringComparer.Ordinal);
         var stack = after.StackItems.Select(item =>
         {
+            if (item.PermanentPlayTargetsPending) return item;
             if (previousItems.TryGetValue(item.StackItemId, out var previousItem)
                 && previousItem.TargetObjectIds.SequenceEqual(item.TargetObjectIds, StringComparer.Ordinal)) return item;
             var bindings = item.TargetObjectIds.Distinct(StringComparer.Ordinal)

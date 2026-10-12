@@ -1,0 +1,54 @@
+{
+  "base": {
+    "nativeRequest": true,
+    "nativeCommands": 4,
+    "accepted": 4,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "75f65e83ad983ec39501924dd665a6d6cf632392fda1d6efed5050655f961356",
+      "expectedStateHash": "75f65e83ad983ec39501924dd665a6d6cf632392fda1d6efed5050655f961356",
+      "errors": []
+    },
+    "finalHash": "75f65e83ad983ec39501924dd665a6d6cf632392fda1d6efed5050655f961356"
+  },
+  "ambush": {
+    "nativeRequest": true,
+    "nativeCommands": 6,
+    "accepted": 6,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "059ca3f6a2edd0b5a5a7ba822fe7e8a66d658a8bd8653324a17260cf2562bad5",
+      "expectedStateHash": "059ca3f6a2edd0b5a5a7ba822fe7e8a66d658a8bd8653324a17260cf2562bad5",
+      "errors": []
+    },
+    "finalHash": "059ca3f6a2edd0b5a5a7ba822fe7e8a66d658a8bd8653324a17260cf2562bad5"
+  },
+  "ward-pay": {
+    "nativeRequest": true,
+    "nativeCommands": 5,
+    "accepted": 5,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "c5ab8306bffc1a2f6b6edc65818700aa7476a65dc213d38a4ef522e8faf77368",
+      "expectedStateHash": "c5ab8306bffc1a2f6b6edc65818700aa7476a65dc213d38a4ef522e8faf77368",
+      "errors": []
+    },
+    "finalHash": "c5ab8306bffc1a2f6b6edc65818700aa7476a65dc213d38a4ef522e8faf77368"
+  },
+  "ward-decline": {
+    "nativeRequest": true,
+    "nativeCommands": 3,
+    "accepted": 3,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "79fe366180f2d638f6c9a469f3a1a2dc538c1a61405629077418ad1e46092d1a",
+      "expectedStateHash": "79fe366180f2d638f6c9a469f3a1a2dc538c1a61405629077418ad1e46092d1a",
+      "errors": []
+    },
+    "finalHash": "79fe366180f2d638f6c9a469f3a1a2dc538c1a61405629077418ad1e46092d1a"
+  }
+}

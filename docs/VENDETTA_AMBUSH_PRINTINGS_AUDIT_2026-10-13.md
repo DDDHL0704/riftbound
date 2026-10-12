@@ -19,3 +19,5 @@ Godot 生产目标、位置、quote 与响应控件在最终引擎输入上生�
 583 项定向及相邻检查、两场最终原生命令回放通过；本批一次 check 通过 10,531 用例 / 6,686 方法，零失败/跳过/重复，124.63 秒；原 10,499 用例 / 6,674 方法全部保留，新增 32 / 12。[核对证据](evidence/vendetta-ambush-2026-10-13/check-parity.json)保留精确新增身份。full 计划保留全部原 6,815 方法并增加至 6,827，预期 10,680 用例；实现已推送为 60a0fbe3e9322aae1edd76ed9add624978c94310，[固定提交完整 CI 38314841154](https://github.com/DDDHL0704/riftbound/actions/runs/38314841154) 已启动，尚未完成。原方法、Theory 行及 110 配对须逐项保留，计划不作为实际完整通过。
 
 仍开放：莫甘娜确认入场后的独立目标选择及自身目标、目标离场后再次入场、复制技能实例、其他当前未登记 VEN 印次、完整数值/防止/替换、1738 整卡与 14293 条款语义、八项英文来源缺口，以及可见双客户端、Windows 实机、真实 PostgreSQL。历史伏击批次中五个 VEN 缺口属于当时范围，本批仅补齐这里列出的路径。[问题 #17](https://github.com/DDDHL0704/riftbound/issues/17)持续记录这些边界。
+
+固定提交 CI 的 Windows 导出已失败，日志报告两个 DummyTexture RID 泄漏；规则任务也超过 35 分钟终止，缺少两组完整对局及网络恢复，不记为完整通过。[失败记录](evidence/permanent-play-targets-2026-10-13/windows-export-failure.json)保留观察边界，后续 recovery mode 打包及新的 Windows 验收仍需证据。

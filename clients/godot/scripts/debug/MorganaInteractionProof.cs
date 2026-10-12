@@ -13,7 +13,7 @@ public partial class MorganaInteractionProof : Control
     {
         try {
             var root = OS.GetCmdlineUserArgs().Single(a => a.StartsWith("--evidence="))[11..]; var count = 0;
-            foreach (var branch in new[] { "base", "ambush" }) {
+            foreach (var branch in new[] { "base", "ambush", "ward-pay", "ward-decline" }) {
                 var dir = Path.Combine(root, branch);
                 var steps = JsonSerializer.Deserialize<string[]>(File.ReadAllText(Path.Combine(dir, "steps.json")))!;
                 Play(dir); count++;
@@ -27,15 +27,15 @@ public partial class MorganaInteractionProof : Control
     {
         using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-prompt.json")));
         var prompt = document.RootElement;
-        var action = step == "cost" ? "PAY_COST" : "PASS_PRIORITY";
+        var action = step == "target-choice" ? "CHOOSE_CARDS" : step == "ward-cost" ? "PAY_COST" : "PASS_PRIORITY";
         var view = (Godot.Collections.Dictionary)typeof(Main).GetMethod("BuildPromptView", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [prompt])!;
         var controller = new PromptInteractionController(); controller.Load(view);
         var bar = GD.Load<PackedScene>("res://scenes/components/ActionBar.tscn").Instantiate<ActionBar>(); AddChild(bar);
         bar.ActionSelected += id => controller.SelectAction(id); bar.ShowPrompt(view["message"].AsString(), controller.Actions);
-        if (step == "cost") {
+        if (step is "target-choice" or "ward-cost") {
             var label = controller.Actions.Single(a => a.Name == action).Label;
             bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b => b.Text == label).EmitSignal(BaseButton.SignalName.Pressed);
-            Check(controller.TrySelectChoice("target", branch == "pay" ? "SPEND_POWER:yellow:1" : "DECLINE"), "Server offers the Mighty cost choice");
+            Check(controller.TrySelectChoice("target", step == "target-choice" ? "HOST" : branch == "ward-pay" ? "PAY" : "DECLINE"), "Server offers the post-entry target/cost decision");
         } else {
             var primary = (Button)typeof(ActionBar).GetField("_primaryAction", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(bar)!;
             Check(!primary.Disabled, "Production response pass enabled"); primary.EmitSignal(BaseButton.SignalName.Pressed);

@@ -232,7 +232,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
     }
 
     [Fact]
-    public void MegasharkCannonMainActionPlayCardPromptTargetListOnlyExposesLegalEnemyPublicBattlefieldUnit()
+    public async Task MegasharkCannonMainActionPlayCardPromptTargetListOnlyExposesLegalEnemyPublicBattlefieldUnit()
     {
         var state = BuildMegasharkState();
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
@@ -258,9 +258,10 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
             requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-UNIT-MEGASHARK-CANNON", StringComparison.Ordinal));
         var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-            .Select(choice => choice.Id)
-            .ToArray();
+        Assert.Empty(choicesByIndex);
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        var played = await OfficialGraveyardRecastTests.Act(state, "P1", new PlayCardCommand("P1-UNIT-MEGASHARK-CANNON", "OGN·092/298", []));
+        var firstTargetChoiceIds = played.State.PendingCardChoice!.LegalObjectIds.ToArray();
 
         Assert.Equal(["P2-BATTLEFIELD-UNIT"], firstTargetChoiceIds);
         Assert.DoesNotContain("P1-FRIENDLY-BATTLEFIELD-UNIT", firstTargetChoiceIds);
