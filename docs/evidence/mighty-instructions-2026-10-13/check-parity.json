@@ -1,0 +1,41 @@
+{
+  "oldCasesPreserved": 10419,
+  "oldMethodsPreserved": 6644,
+  "currentCases": 10438,
+  "currentMethods": 6653,
+  "addedCases": [
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.ATargetReturnedInResponseIsSkippedWhileTheUntargetedBoonStillResolves",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.ChoosingNoBoonConsumptionStillBuffsAllFriendlyUnitsWithoutARepeatedMightyEvent",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.ConsumeThenRegrantBoonRaisesOneRealMightyEventEvenWithTheSameFinalMight(fiora: \"SFD·180/221\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.ConsumeThenRegrantBoonRaisesOneRealMightyEventEvenWithTheSameFinalMight(fiora: \"SFD·180a/221\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.GrantedEchoProducesTwoDistinctCrossingsInsideOneResolution",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.HistoricalInstructionFramesContainNoPrivatePileOrderOrInternalEventPayload",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.IllegalConsumptionTargetsAreRejectedWithoutChangingTheMatch(invalid: \"duplicate\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.IllegalConsumptionTargetsAreRejectedWithoutChangingTheMatch(invalid: \"enemy\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.IllegalConsumptionTargetsAreRejectedWithoutChangingTheMatch(invalid: \"equipment\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.IllegalConsumptionTargetsAreRejectedWithoutChangingTheMatch(invalid: \"hidden\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.IllegalConsumptionTargetsAreRejectedWithoutChangingTheMatch(invalid: \"unbuffed\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.RecoveryRejectsForgedInstructionCrossingInputs(altered: \"after\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.RecoveryRejectsForgedInstructionCrossingInputs(altered: \"before\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.RecoveryRejectsForgedInstructionCrossingInputs(altered: \"private\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.TheLegendAlsoSeesTheRebuffCrossingAndKeepsExhaustionOptional(card: \"SFD·205/221\")",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.TheLegendAlsoSeesTheRebuffCrossingAndKeepsExhaustionOptional(card: \"SFD·251/221\")",
+    "Riftbound.ConformanceTests.MightyInstructionNativeTests.ProductionOptionalConsumptionMightyConfirmationAndResponsesReplay(branch: \"decline\")",
+    "Riftbound.ConformanceTests.MightyInstructionNativeTests.ProductionOptionalConsumptionMightyConfirmationAndResponsesReplay(branch: \"no-consume\")",
+    "Riftbound.ConformanceTests.MightyInstructionNativeTests.ProductionOptionalConsumptionMightyConfirmationAndResponsesReplay(branch: \"pay\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.ATargetReturnedInResponseIsSkippedWhileTheUntargetedBoonStillResolves",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.ChoosingNoBoonConsumptionStillBuffsAllFriendlyUnitsWithoutARepeatedMightyEvent",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.ConsumeThenRegrantBoonRaisesOneRealMightyEventEvenWithTheSameFinalMight",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.GrantedEchoProducesTwoDistinctCrossingsInsideOneResolution",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.HistoricalInstructionFramesContainNoPrivatePileOrderOrInternalEventPayload",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.IllegalConsumptionTargetsAreRejectedWithoutChangingTheMatch",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.RecoveryRejectsForgedInstructionCrossingInputs",
+    "Riftbound.ConformanceTests.MightyInstructionEventTests.TheLegendAlsoSeesTheRebuffCrossingAndKeepsExhaustionOptional",
+    "Riftbound.ConformanceTests.MightyInstructionNativeTests.ProductionOptionalConsumptionMightyConfirmationAndResponsesReplay"
+  ],
+  "missingCases": [],
+  "missingMethods": [],
+  "duplicates": 0
+}

@@ -9669,7 +9669,7 @@
     },
     {
       "id": "highest-might-cost-2026-10-13",
-      "status": "SCOPED_CHECK_NATIVE_AND_COST_COMBINATION_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "status": "SCOPED_CHECK_NATIVE_COST_COMBINATION_AND_FIXED_COMMIT_FULL_PASS",
       "scope": "Exact CN OGN·014/298 highest-controlled-visible-field-current-Might mana reduction, zero floor, granted Echo additional mana, quote/real payment and native/recovery evidence; no whole-card/all-layer certification",
       "subjects": [
         {
@@ -9793,6 +9793,293 @@
         "All 1738 whole-card identities, 14293 rule records and eight EN source gaps",
         "Visible paired match, Windows real runtime and actual PostgreSQL",
         "EN sources retain snapshot references without fresh certification"
+      ],
+      "fixedCommitFullCi": "docs/evidence/highest-might-2026-10-13/full-ci-3035ab54.json"
+    },
+    {
+      "id": "mighty-instruction-events-2026-10-13",
+      "status": "SCOPED_CHECK_NATIVE_AND_INSTRUCTION_EVENT_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Exact CN Open Action optional consumption/ready/all-boon instructions, stable-instruction Mighty crossings and current Fiora/legend/Echo/attachment contexts; no whole-card or complete Mighty-flow certification",
+      "subjects": [
+        {
+          "id": "OGN-153/298",
+          "activeCardNo": "OGN·153/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31378,
+              "cardNo": "OGN·153/298",
+              "name": "公开行动",
+              "sha256": "1dc44253db3bff30ec3adc96f388e8fe42e4dbfbe1c00bc18febfa95ce5104d3",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-153-298",
+              "cardNo": "OGN-153/298",
+              "name": "Overt Operation",
+              "sha256": "724090310ab672af3cf3623314c57e282e07b8f8a7eeec90fb90ffa9a6fa963b",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact CN Open Action optional consumption/ready/all-boon instructions, stable-instruction Mighty crossings and current Fiora/legend/Echo/attachment contexts; no whole-card or complete Mighty-flow certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/mighty-instructions-2026-10-13/validation.json"
+        },
+        {
+          "id": "SFD-180/221",
+          "activeCardNo": "SFD·180/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33277,
+              "cardNo": "SFD·180/221",
+              "name": "菲奥娜",
+              "sha256": "efda83123f391b1224fbdb7c8e02e0a9599458e3bb4d2dcc2d2cbd7b5a2139e8",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-180-221",
+              "cardNo": "SFD-180/221",
+              "name": "Fiora",
+              "sha256": "3f55fc8fe530ad50eda1a770b9798f37aab4abf19c0477d7074ad1b3fe7d39d3",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact CN Open Action optional consumption/ready/all-boon instructions, stable-instruction Mighty crossings and current Fiora/legend/Echo/attachment contexts; no whole-card or complete Mighty-flow certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/mighty-instructions-2026-10-13/validation.json"
+        },
+        {
+          "id": "SFD-180A/221",
+          "activeCardNo": "SFD·180a/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33278,
+              "cardNo": "SFD·180a/221",
+              "name": "菲奥娜",
+              "sha256": "c18996e917fa0d5c2df82789adfdf1e684ab26e80c1bc301ef7a6e348f641b37",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-180a-221",
+              "cardNo": "SFD-180a/221",
+              "name": "Fiora",
+              "sha256": "bf87489da91a33407cfdc494b4efaba461ef836427f0e93e3d6f553a77f55363",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact CN Open Action optional consumption/ready/all-boon instructions, stable-instruction Mighty crossings and current Fiora/legend/Echo/attachment contexts; no whole-card or complete Mighty-flow certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/mighty-instructions-2026-10-13/validation.json"
+        },
+        {
+          "id": "SFD-205/221",
+          "activeCardNo": "SFD·205/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33304,
+              "cardNo": "SFD·205/221",
+              "name": "无双剑姬",
+              "sha256": "7a5e09030d03648c7c3a56dcc2ba487dd9c69850d7495fdd5cf66ab266fd6354",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-205-221",
+              "cardNo": "SFD-205/221",
+              "name": "Grand Duelist",
+              "sha256": "cfe0a7ecff2d18d51859bad2b3f5119f9daa1cf2f5246529282f075ef736f7d7",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact CN Open Action optional consumption/ready/all-boon instructions, stable-instruction Mighty crossings and current Fiora/legend/Echo/attachment contexts; no whole-card or complete Mighty-flow certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/mighty-instructions-2026-10-13/validation.json"
+        },
+        {
+          "id": "SFD-251/221",
+          "activeCardNo": "SFD·251/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33362,
+              "cardNo": "SFD·251/221",
+              "name": "无双剑姬",
+              "sha256": "6bef60d71802703cf3ee0a5c4901f6632a8589fc55141e7e86746971f175f1eb",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-251-221",
+              "cardNo": "SFD-251/221",
+              "name": "Grand Duelist",
+              "sha256": "3c864aa09d6357004577865509d95ed4f10e5ac2f9fbde4a83f34d47ae79fb8f",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact CN Open Action optional consumption/ready/all-boon instructions, stable-instruction Mighty crossings and current Fiora/legend/Echo/attachment contexts; no whole-card or complete Mighty-flow certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/mighty-instructions-2026-10-13/validation.json"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P050-B005",
+        "DOC-04-P050-B006",
+        "DOC-04-P050-B007",
+        "DOC-04-P050-B008",
+        "DOC-04-P050-B011",
+        "DOC-04-P050-B014",
+        "DOC-04-P051-B001",
+        "DOC-04-P051-B002",
+        "DOC-04-P051-B003",
+        "DOC-04-P051-B004",
+        "DOC-04-P051-B005",
+        "DOC-04-P051-B006",
+        "DOC-04-P052-B001",
+        "DOC-04-P052-B005",
+        "DOC-04-P052-B006",
+        "DOC-04-P052-B007",
+        "DOC-04-P052-B008",
+        "DOC-04-P052-B009",
+        "DOC-04-P052-B011",
+        "DOC-04-P053-B002",
+        "DOC-04-P053-B003",
+        "DOC-04-P055-B015",
+        "DOC-04-P055-B016",
+        "DOC-04-P055-B018",
+        "DOC-04-P056-B002",
+        "DOC-04-P056-B004",
+        "DOC-04-P056-B005",
+        "DOC-04-P056-B006",
+        "DOC-04-P102-B014",
+        "DOC-04-P102-B016",
+        "DOC-04-P102-B017",
+        "DOC-06-P006-B002",
+        "DOC-06-P006-B003",
+        "DOC-06-P006-B004",
+        "DOC-06-P006-B006",
+        "DOC-06-P006-B007",
+        "DOC-06-P006-B008",
+        "DOC-06-P007-B001",
+        "DOC-06-P007-B003",
+        "DOC-06-P013-B001",
+        "DOC-06-P018-B006",
+        "DOC-06-P019-B001",
+        "DOC-06-P019-B002",
+        "DOC-06-P019-B003"
+      ],
+      "auditDocument": "docs/MIGHTY_INSTRUCTION_EVENT_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/mighty-instructions-2026-10-13/validation.json",
+        "docs/evidence/mighty-instructions-2026-10-13/open-action-source.json",
+        "docs/evidence/mighty-instructions-2026-10-13/associated-source-readback.json",
+        "docs/evidence/mighty-instructions-2026-10-13/cn-faq-readback.json",
+        "docs/evidence/mighty-instructions-2026-10-13/rule-excerpts.json",
+        "docs/evidence/mighty-instructions-2026-10-13/source-parity.json",
+        "docs/evidence/mighty-instructions-2026-10-13/applicability.json",
+        "docs/evidence/mighty-instructions-2026-10-13/red-evidence.json",
+        "docs/evidence/mighty-instructions-2026-10-13/event-red-evidence.json",
+        "docs/evidence/mighty-instructions-2026-10-13/godot-execution.json"
+      ],
+      "tests": [
+        "MightyInstructionEventTests",
+        "MightyInstructionNativeTests",
+        "MightyTransitionTests",
+        "CopiedAttachmentObserverTests",
+        "EquipChainTests",
+        "CoreRuleEnginePlaysOpenActionGrantAllBoons",
+        "OfficialEchoCostTests"
+      ],
+      "validation": {
+        "nativeProductionCommands": 13,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "checkCases": 10438,
+        "checkMethods": 6653
+      },
+      "exclusions": [
+        "Other uninstrumented numeric instruction boundaries, entry identity and current-layer dependencies",
+        "Actual becoming-Mighty replacements and all numeric-layer/timestamp/dependency semantics",
+        "History inputs and output jointly changed require trusted complete action/event replay",
+        "Other boon consumption/ready triggers and whole Open Action/Fiora/legend semantics",
+        "All 1738 whole-card identities, 14293 rule records and eight EN source gaps",
+        "Visible paired match, Windows real runtime and actual PostgreSQL",
+        "Future Radiance versions retained without applying before October 16"
       ]
     }
   ]

@@ -27,6 +27,7 @@ DOCUMENTATION = frozenset({
     'docs/SUNKEN_TEMPLE_MIGHT_AUDIT_2026-10-13.md',
     'docs/MIGHTY_TRANSITION_AUDIT_2026-10-13.md',
     'docs/HIGHEST_MIGHT_COST_AUDIT_2026-10-13.md',
+    'docs/MIGHTY_INSTRUCTION_EVENT_AUDIT_2026-10-13.md',
     'docs/RULE_TEST_WORKFLOW.md', 'docs/RULE_TEST_SPEED_2026-10-09.md',
     'docs/RULE_TEST_SPEED_2026-10-12.md',
     'docs/rules-authority-and-audit.md', 'docs/rules-evidence-index.md',

@@ -93,7 +93,7 @@ public sealed partial class CoreRuleEngine
         }
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-        var applied = TryAttachEquipment(zones, cards, state.ObjectLocations, item.ControllerId, item.SourceObjectId,
+        var applied = TryAttachEquipment(state, zones, cards, state.ObjectLocations, item.ControllerId, item.SourceObjectId,
             gearId, unitId, ability.EffectKind, events, out var locations, new Dictionary<string, object?> {
                 ["playerId"] = item.ControllerId, ["abilityId"] = context.AbilityId, ["stackItemId"] = item.StackItemId });
         // The granted skill was captured at activation. Losing control of the

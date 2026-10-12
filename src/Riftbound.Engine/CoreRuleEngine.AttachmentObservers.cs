@@ -58,7 +58,7 @@ public sealed partial class CoreRuleEngine
         }));
     }
 
-    private static bool TryAttachEquipment(Dictionary<string, PlayerZones> zones,
+    private static bool TryAttachEquipment(MatchState state, Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, IReadOnlyDictionary<string, ObjectLocationState> knownLocations,
         string actor, string sourceId, string gearId, string unitId, string reason, List<GameEvent> events,
         out IReadOnlyDictionary<string, ObjectLocationState> locations,
@@ -72,35 +72,39 @@ public sealed partial class CoreRuleEngine
             || !nextLocations.TryGetValue(unitId, out var target) || !nextLocations.TryGetValue(gearId, out var origin)) return false;
         if (gear.AttachedToObjectId == unitId) return false;
         var controller = EffectiveFieldControllerId(zones, gearId, gear);
-        if (!string.IsNullOrWhiteSpace(gear.AttachedToObjectId))
-            events.Add(new("EQUIPMENT_DETACHED", "武装从原宿主卸除", new Dictionary<string, object?> {
-                ["sourceObjectId"] = sourceId, ["equipmentObjectId"] = gearId,
-                ["unitObjectId"] = gear.AttachedToObjectId, ["controllerId"] = controller,
-                ["ownerId"] = gear.OwnerId, ["reason"] = "REATTACH", ["attachingPlayerId"] = actor }));
-        if (origin.Zone != target.Zone || origin.BattlefieldObjectId != target.BattlefieldObjectId)
+        using (new MightInstructionScope(state, zones, cards, events, nextLocations))
         {
-            foreach (var (player, zone) in zones.ToArray())
-                zones[player] = zone with { Base = zone.Base.Where(id => id != gearId).ToArray(),
-                    Battlefields = zone.Battlefields.Where(id => id != gearId).ToArray() };
-            var gearZones = zones[controller];
-            zones[controller] = target.Zone == "BASE" ? gearZones with { Base = [..gearZones.Base, gearId] }
-                : gearZones with { Battlefields = [..gearZones.Battlefields, gearId] };
+            if (!string.IsNullOrWhiteSpace(gear.AttachedToObjectId))
+                events.Add(new("EQUIPMENT_DETACHED", "武装从原宿主卸除", new Dictionary<string, object?> {
+                    ["sourceObjectId"] = sourceId, ["equipmentObjectId"] = gearId,
+                    ["unitObjectId"] = gear.AttachedToObjectId, ["controllerId"] = controller,
+                    ["ownerId"] = gear.OwnerId, ["reason"] = "REATTACH", ["attachingPlayerId"] = actor }));
+            if (origin.Zone != target.Zone || origin.BattlefieldObjectId != target.BattlefieldObjectId)
+            {
+                foreach (var (player, zone) in zones.ToArray())
+                    zones[player] = zone with { Base = zone.Base.Where(id => id != gearId).ToArray(),
+                        Battlefields = zone.Battlefields.Where(id => id != gearId).ToArray() };
+                var gearZones = zones[controller];
+                zones[controller] = target.Zone == "BASE" ? gearZones with { Base = [..gearZones.Base, gearId] }
+                    : gearZones with { Battlefields = [..gearZones.Battlefields, gearId] };
+            }
+            nextLocations[gearId] = new(controller, target.Zone, target.BattlefieldObjectId);
+            cards[gearId] = gear with { AttachedToObjectId = unitId };
+            var payload = new Dictionary<string, object?> {
+                ["sourceObjectId"] = sourceId, ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId,
+                ["controllerId"] = controller, ["ownerId"] = gear.OwnerId, ["attachedToObjectId"] = unitId,
+                ["previousAttachedToObjectId"] = gear.AttachedToObjectId,
+                ["equipmentCardNo"] = gear.CardNo, ["reason"] = reason, ["attachingPlayerId"] = actor };
+            if (metadata is not null) foreach (var pair in metadata) payload[pair.Key] = pair.Value;
+            events.Add(new("EQUIPMENT_ATTACHED", "武装贴附至单位", payload));
+            CaptureAttachmentObservers(zones, cards, unitId, gearId, actor, events);
         }
-        nextLocations[gearId] = new(controller, target.Zone, target.BattlefieldObjectId);
-        cards[gearId] = gear with { AttachedToObjectId = unitId };
-        var payload = new Dictionary<string, object?> {
-            ["sourceObjectId"] = sourceId, ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId,
-            ["controllerId"] = controller, ["ownerId"] = gear.OwnerId, ["attachedToObjectId"] = unitId,
-            ["previousAttachedToObjectId"] = gear.AttachedToObjectId,
-            ["equipmentCardNo"] = gear.CardNo, ["reason"] = reason, ["attachingPlayerId"] = actor };
-        if (metadata is not null) foreach (var pair in metadata) payload[pair.Key] = pair.Value;
-        events.Add(new("EQUIPMENT_ATTACHED", "武装贴附至单位", payload));
-        CaptureAttachmentObservers(zones, cards, unitId, gearId, actor, events);
         // Vendetta FAQ: attachment is observed first; the subsequent replacement
         // instruction creates one fresh printed text instance for this armament.
         if (AttachedRuleTextRules.CopiesPrintedText(gear.CardNo) && AttachedRuleTextRules.Face(unit) is { } face
             && CopyCharacteristics.HasFace(face))
         {
+            using var copiedTextInstruction = new MightInstructionScope(state, zones, cards, events, nextLocations);
             var revision = checked(gear.AttachmentRevision + 1);
             cards[gearId] = cards[gearId] with { AttachmentRevision = revision,
                 AttachedRuleText = new(new(unit.ObjectId, unit.ObjectGeneration), face, revision) };

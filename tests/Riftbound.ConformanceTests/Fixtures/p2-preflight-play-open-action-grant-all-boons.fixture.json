@@ -150,7 +150,7 @@
           "sourceObjectId": "P1-SPELL-OPEN-ACTION",
           "cardNo": "OGN·153/298",
           "targetObjectIds": [],
-          "effectKind": "OPEN_ACTION_GRANT_BOON_ALL_FRIENDLY_UNITS_NO_CONSUME"
+          "effectKind": "CHOSEN_BOONS_CONSUME_READY_THEN_ALL_FRIENDLY_BOON"
         }
       },
       { "kind": "PRIORITY_PASSED" },

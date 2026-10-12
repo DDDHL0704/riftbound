@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
-        TryAttachEquipment(zones, cards, state.ObjectLocations, item.ControllerId, gear.ObjectId, gear.ObjectId,
+        TryAttachEquipment(state, zones, cards, state.ObjectLocations, item.ControllerId, gear.ObjectId, gear.ObjectId,
             targetId, EquipEffect, events, out var locations, new Dictionary<string, object?> {
                 ["targetPower"] = ResolveCurrentFieldUnitPower(state, target), ["optionalCosts"] = item.OptionalCosts.ToArray(),
                 ["paymentResourceActions"] = item.OptionalCosts.Where(c => c.StartsWith("RECYCLE_RUNE:", StringComparison.Ordinal)).ToArray() });

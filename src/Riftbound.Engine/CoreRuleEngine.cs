@@ -27125,6 +27125,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.GrantsBoonToAllFriendlyUnits)
         {
+            if (behavior.ConsumesTargetBoonsToReady)
+                ConsumeChosenBoonsAndReady(state, stackItem, playerZones, cardObjects, events);
+            using var boonInstruction = new MightInstructionScope(state, playerZones, cardObjects, events);
             foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
             {
                 var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
@@ -30562,7 +30565,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["attachingPlayerId"] = stackItem.ControllerId }));
             locations = ReconcileObjectLocations(state.ObjectLocations, playerZones); return true;
         }
-        return TryAttachEquipment(playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
+        return TryAttachEquipment(state, playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
             stackItem.SourceObjectId, gearId, unitId, behavior.EffectKind, events, out locations);
     }
 
@@ -31274,7 +31277,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || target.Tags.Contains(CardObjectTags.RuneCard) || !SourceObjectControlledByPlayerOrLegacyOwned(target, controller)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var gear) || gear.IsFaceDown
             || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || !string.IsNullOrWhiteSpace(gear.AttachedToObjectId)) return false;
-        return TryAttachEquipment(playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
+        return TryAttachEquipment(state, playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
             stackItem.SourceObjectId, gear.ObjectId, targetId, "AGILE_DIRECT_PLAY_ATTACH", events, out locations);
     }
 
@@ -31352,7 +31355,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }));
 
         if (isWeapon)
-            TryAttachEquipment(playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
+            TryAttachEquipment(state, playerZones, cardObjects, state.ObjectLocations, stackItem.ControllerId,
                 stackItem.SourceObjectId, equipmentObjectId, stackItem.SourceObjectId, reason, events, out locations,
                 new Dictionary<string, object?> { ["unitCardNo"] = akshanState.CardNo, ["optionalCosts"] = stackItem.OptionalCosts.ToArray() });
         else locations = ReconcileObjectLocations(state.ObjectLocations, playerZones);

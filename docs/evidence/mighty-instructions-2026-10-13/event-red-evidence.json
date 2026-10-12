@@ -1,0 +1,25 @@
+{
+  "baselineCommit": "14507ba3afa365998d4068a215216c5fcf99683a",
+  "workingScope": "After generic optional consume/ready support; before instruction event observation",
+  "trx": "var/qa/mighty-instructions-20261013/selection-then-event-red/focus/results.trx",
+  "sha256": "f08683aa998ebd52164eaaaf39843eedbc7a4059a2623dc9672fb3ef5e675323",
+  "results": [
+    {
+      "test": "Riftbound.ConformanceTests.MightyInstructionEventTests.ConsumeThenRegrantBoonRaisesOneRealMightyEventEvenWithTheSameFinalMight(fiora: \"SFD·180a/221\")",
+      "outcome": "Failed",
+      "message": "Assert.Single() Failure: The collection was empty"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.MightyInstructionEventTests.ConsumeThenRegrantBoonRaisesOneRealMightyEventEvenWithTheSameFinalMight(fiora: \"SFD·180/221\")",
+      "outcome": "Failed",
+      "message": "Assert.Single() Failure: The collection was empty"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.MightyInstructionEventTests.ChoosingNoBoonConsumptionStillBuffsAllFriendlyUnitsWithoutARepeatedMightyEvent",
+      "outcome": "Passed",
+      "message": ""
+    }
+  ],
+  "testAssemblySha256": "ef7d67ef236922d018e848eedb7f1e5394e8011698e9be041ae338c3b9f16bfb",
+  "profile": "focus"
+}

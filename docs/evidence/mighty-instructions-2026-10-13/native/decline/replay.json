@@ -1,0 +1,13 @@
+{
+  "nativeRequest": true,
+  "nativeCommands": 4,
+  "accepted": 4,
+  "staleRejected": 1,
+  "replay": {
+    "isMatch": true,
+    "replayedStateHash": "af21ed6c6e36fa74f7cf5c3957573d4b932e2510fe8f056a1e9f2fd1d29eb097",
+    "expectedStateHash": "af21ed6c6e36fa74f7cf5c3957573d4b932e2510fe8f056a1e9f2fd1d29eb097",
+    "errors": []
+  },
+  "finalHash": "af21ed6c6e36fa74f7cf5c3957573d4b932e2510fe8f056a1e9f2fd1d29eb097"
+}

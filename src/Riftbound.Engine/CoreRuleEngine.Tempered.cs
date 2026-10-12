@@ -304,7 +304,7 @@ public sealed partial class CoreRuleEngine
         IReadOnlyDictionary<string, ObjectLocationState> locations = ReconcileObjectLocations(state.ObjectLocations, zones);
         if (cards.TryGetValue(item.SourceObjectId, out var host) && host.ObjectGeneration == item.Tempered.Unit.Generation
             && IsFaceUpNonStandbyUnit(host) && IsObjectOnField(zones, host.ObjectId))
-            TryAttachEquipment(zones, cards, locations, item.ControllerId, item.SourceObjectId, gear.ObjectId,
+            TryAttachEquipment(state, zones, cards, locations, item.ControllerId, item.SourceObjectId, gear.ObjectId,
                 host.ObjectId, TemperedEffect, events, out locations, new Dictionary<string, object?> { ["unitCardNo"] = item.CardNo });
         return result with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, Events = events };
     }

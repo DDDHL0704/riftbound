@@ -29,41 +29,81 @@ public sealed partial class CoreRuleEngine
         => PrintedCardFactory.TryCreate(after.ObjectId, after.OwnerId ?? after.ControllerId ?? "", after.CardNo, out var printed)
             ? printed.Power : after.Power;
 
-    // Public command-boundary observation covers static/attachment/location/role
-    // changes as well as explicit modifiers. Intra-resolution crossings remain a separate audit track.
-    private static ResolutionResult RecordMightyTransitions(MatchState before, ResolutionResult result)
+    private const string CapturedMightInstruction = "INTERNAL_STABLE_MIGHT_INSTRUCTION";
+    private sealed record MightInstructionFrames(LastKnownMightFrame Before, LastKnownMightFrame After);
+
+    // Only complete instruction results are observed. Numeric-layer iterations
+    // are instantaneous and never produce intermediate Mighty crossings.
+    private sealed class MightInstructionScope(MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
+        List<GameEvent> events, IReadOnlyDictionary<string, ObjectLocationState>? locations = null) : IDisposable
     {
-        if (!result.Accepted || result.State.Status != MatchStatuses.InProgress) return result;
-        var state = result.State; var queue = state.TriggerQueue.ToList(); var events = result.Events.ToList();
-        var sources = state.CardObjects.Values.Where(c => !c.IsFaceDown && !c.Tags.Contains(CardObjectTags.Standby)
-            && (IsObjectOnField(state.PlayerZones, c.ObjectId) && c.Tags.Contains(CardObjectTags.UnitCard)
-                || state.PlayerZones.Values.Any(z => z.LegendZone.Contains(c.ObjectId))))
-            .SelectMany(source => AttachedRuleTextRules.Instances(state, source).Select(instance =>
+        private readonly LastKnownMightFrame before = CapturePublicMightFrame(state, zones, cards, locations);
+        public void Dispose()
+        {
+            var after = CapturePublicMightFrame(state, zones, cards, locations);
+            events.Add(new(CapturedMightInstruction, "记录完整指令后的公开战力输入",
+                new Dictionary<string, object?> { ["frames"] = new MightInstructionFrames(before, after) }));
+        }
+    }
+
+    private static (CardObjectState Source, RuleTextInstance Instance, TriggerSpec Spec)[] MightySources(LastKnownMightFrame frame)
+        => frame.CardObjects.Values.Where(c => !c.IsFaceDown && !c.Tags.Contains(CardObjectTags.Standby)
+            && (IsObjectOnField(frame.PlayerZones, c.ObjectId) && c.Tags.Contains(CardObjectTags.UnitCard)
+                || frame.PlayerZones.Values.Any(z => z.LegendZone.Contains(c.ObjectId))))
+            .SelectMany(source => AttachedRuleTextRules.Instances(frame.PlayerZones, frame.CardObjects, source).Select(instance =>
                 (Source: source, Instance: instance, Spec: MightySkillDefinition(instance.CardNo))))
-            .Where(c => c.Spec is not null).ToArray();
-        if (sources.Length == 0) return result;
-        var prior = CapturePublicMightFrame(before, before.PlayerZones, before.CardObjects);
-        var after = CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects);
+            .Where(c => c.Spec is not null).Select(c => (c.Source, c.Instance, c.Spec!)).ToArray();
+
+    private static IEnumerable<MightySkillContext> MightyCrossings(LastKnownMightFrame before, LastKnownMightFrame after)
+    {
+        var sources = MightySources(after); if (sources.Length == 0) yield break;
+        var priorState = MightFrameState(before); var afterState = MightFrameState(after);
         foreach (var target in after.CardObjects.Values.Where(c => IsVisibleFieldUnitObject(after.CardObjects, c.ObjectId)
             && IsObjectOnField(after.PlayerZones, c.ObjectId))) {
             var previous = before.CardObjects.TryGetValue(target.ObjectId, out var old)
                 && old.ObjectGeneration == target.ObjectGeneration && IsVisibleFieldUnitObject(before.CardObjects, old.ObjectId)
                 && IsObjectOnField(before.PlayerZones, old.ObjectId)
-                ? ResolveCurrentFieldUnitPower(MightFrameState(prior), old) : MightyBeforeEntry(target);
-            var current = ResolveCurrentFieldUnitPower(MightFrameState(after), target);
+                ? ResolveCurrentFieldUnitPower(priorState, old) : MightyBeforeEntry(target);
+            var current = ResolveCurrentFieldUnitPower(afterState, target);
             if (previous >= PowerfulUnitPowerThreshold || current < PowerfulUnitPowerThreshold) continue;
             foreach (var observer in sources.Where(c => c.Source.ControllerId == target.ControllerId)) {
-                    var source = observer.Source; var instance = observer.Instance; var spec = observer.Spec!;
-                    if (previous >= spec.RequiredPowerThreshold || current < spec.RequiredPowerThreshold) continue;
-                    var kind = spec.ExhaustsSource == true ? MightyRuneEffect : MightyReadyEffect;
-                    var context = new MightySkillContext(instance.CardNo, kind, new(source.ObjectId, source.ObjectGeneration),
-                        new(target.ObjectId, target.ObjectGeneration), target.ControllerId!, previous, current, prior, after,
-                        instance.Id, instance.Origin);
-                    var trigger = new TriggerQueueItemState($"MIGHTY:{state.Tick}:{instance.Id}:{target.ObjectId}",
-                        target.ControllerId!, source.ObjectId, kind, "UNIT_BECAME_POWERFUL") { SourceCardNo = instance.CardNo, MightySkill = context };
-                    queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+                var source = observer.Source; var instance = observer.Instance; var spec = observer.Spec;
+                if (previous >= spec.RequiredPowerThreshold || current < spec.RequiredPowerThreshold) continue;
+                var kind = spec.ExhaustsSource == true ? MightyRuneEffect : MightyReadyEffect;
+                yield return new(instance.CardNo, kind, new(source.ObjectId, source.ObjectGeneration),
+                    new(target.ObjectId, target.ObjectGeneration), target.ControllerId!, previous, current,
+                    before, after, instance.Id, instance.Origin);
             }
         }
+    }
+
+    private static ResolutionResult RecordMightyTransitions(MatchState before, ResolutionResult result)
+    {
+        var steps = result.Events.Where(e => e.Kind == CapturedMightInstruction)
+            .Select(e => (MightInstructionFrames)e.Payload["frames"]!).ToArray();
+        var events = result.Events.Where(e => e.Kind != CapturedMightInstruction).ToList();
+        if (!result.Accepted || result.State.Status != MatchStatuses.InProgress)
+            return result with { Events = events };
+        var state = result.State; var queue = state.TriggerQueue.ToList();
+        if (steps.Length == 0 && !state.CardObjects.Values.Any(c =>
+            (IsObjectOnField(state.PlayerZones, c.ObjectId) || state.PlayerZones.Values.Any(z => z.LegendZone.Contains(c.ObjectId)))
+            && AttachedRuleTextRules.Instances(state, c).Any(i => MightySkillDefinition(i.CardNo) is not null)))
+            return result;
+        var previous = CapturePublicMightFrame(before, before.PlayerZones, before.CardObjects);
+        var index = 0;
+        void Record(LastKnownMightFrame after)
+        {
+            foreach (var context in MightyCrossings(previous, after)) {
+                var trigger = new TriggerQueueItemState($"MIGHTY:{state.Tick}:{index}:{context.InstanceId}:{context.Unit.ObjectId}",
+                    context.ControllerId, context.Source.ObjectId, context.Kind, "UNIT_BECAME_POWERFUL") {
+                        SourceCardNo = context.CardNo, MightySkill = context };
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
+            previous = after; index++;
+        }
+        foreach (var step in steps) { Record(step.Before); Record(step.After); }
+        Record(CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects));
         return result with { State = state with { TriggerQueue = queue }, Events = events };
     }
 

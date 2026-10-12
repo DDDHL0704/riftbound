@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_CHECK_NATIVE_AND_COST_COMBINATION_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_CHECK_NATIVE_COST_COMBINATION_AND_FIXED_COMMIT_FULL_PASS",
   "scope": "Exact CN OGN·014/298 highest-controlled-visible-field-current-Might mana reduction, zero floor, granted Echo additional mana, quote/real payment and native/recovery evidence; no whole-card/all-layer certification",
   "verifiedAtUtc": "2026-10-12T19:21:28.380146+00:00",
   "wholeCardCertification": false,
@@ -119,5 +119,6 @@
       "disabled": true,
       "commandEmitted": false
     }
-  }
+  },
+  "fixedCommitFullCi": "docs/evidence/highest-might-2026-10-13/full-ci-3035ab54.json"
 }

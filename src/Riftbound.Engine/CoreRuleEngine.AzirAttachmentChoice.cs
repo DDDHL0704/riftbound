@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var locations = ReconcileObjectLocations(state.ObjectLocations, zones); var events = new List<GameEvent>(); var attached = false;
         if (context.AttachmentChosen == true && CanExecuteAzirAttachment(state, item)) {
-            attached = TryAttachEquipment(zones, cards, locations, item.ControllerId, item.SourceObjectId,
+            attached = TryAttachEquipment(state, zones, cards, locations, item.ControllerId, item.SourceObjectId,
                 context.Equipment!.ObjectId, item.SourceObjectId, item.EffectKind, events, out var changedLocations,
                 new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["abilityId"] = P4ActivatedAbilityCatalog.AzirSwiftSwapAbilityId,
                     ["stackItemId"] = item.StackItemId, ["targetObjectId"] = item.TargetObjectIds[0] });

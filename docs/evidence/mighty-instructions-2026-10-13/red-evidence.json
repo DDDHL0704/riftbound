@@ -1,0 +1,24 @@
+{
+  "baselineCommit": "14507ba3afa365998d4068a215216c5fcf99683a",
+  "trx": "var/qa/mighty-instructions-20261013/red/focus/results.trx",
+  "sha256": "56b14a19d4e132e92413314a897575e85283814893cacac266eb19f0065d1d96",
+  "testAssemblySha256": "1ddcd6c2c007df1493b0a8b53e7b64f16fb64210908b87120366562772226604",
+  "results": [
+    {
+      "test": "Riftbound.ConformanceTests.MightyInstructionEventTests.ConsumeThenRegrantBoonRaisesOneRealMightyEventEvenWithTheSameFinalMight(fiora: \"SFD·180a/221\")",
+      "outcome": "Failed",
+      "message": "公开行动 requires 0 battlefield unit target(s)."
+    },
+    {
+      "test": "Riftbound.ConformanceTests.MightyInstructionEventTests.ChoosingNoBoonConsumptionStillBuffsAllFriendlyUnitsWithoutARepeatedMightyEvent",
+      "outcome": "Passed",
+      "message": ""
+    },
+    {
+      "test": "Riftbound.ConformanceTests.MightyInstructionEventTests.ConsumeThenRegrantBoonRaisesOneRealMightyEventEvenWithTheSameFinalMight(fiora: \"SFD·180/221\")",
+      "outcome": "Failed",
+      "message": "公开行动 requires 0 battlefield unit target(s)."
+    }
+  ],
+  "profile": "focus"
+}
