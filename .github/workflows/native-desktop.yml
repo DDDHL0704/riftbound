@@ -97,27 +97,35 @@ jobs:
 
   desktop:
     needs: scope
-    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    # Materialize the matrix even for docs, keeping both existing check names.
+    if: ${{ always() && !cancelled() }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    # Documentation checks need no native runner or packaging tool downloads.
+    runs-on: ${{ needs.scope.result == 'success' && needs.scope.outputs.full == 'false' && 'ubuntu-latest' || matrix.os }}
     timeout-minutes: 40
     concurrency:
-      group: desktop-${{ github.ref }}-${{ github.sha }}-${{ matrix.os }}
+      group: desktop-${{ github.ref }}-${{ github.sha }}-${{ matrix.os }}-${{ needs.scope.result == 'success' && needs.scope.outputs.full == 'false' && github.run_id || 'full' }}
       cancel-in-progress: true
     steps:
+      - name: Documentation-only scope; packaging not executed
+        if: ${{ needs.scope.result == 'success' && needs.scope.outputs.full == 'false' }}
+        run: echo 'Documentation-only verification. Desktop packaging was not executed. See verification-scope.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.full != 'false' }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.full != 'false' }}
         with:
           dotnet-version: |
             8.0.x
             10.0.x
       - run: python3 clients/godot/tools/ci-desktop.py
+        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.full != 'false' }}
         shell: bash
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
+        if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
         with:
           name: native-${{ matrix.os }}
           path: |

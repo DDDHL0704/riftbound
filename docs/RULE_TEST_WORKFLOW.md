@@ -73,3 +73,5 @@ python3 scripts/audit/check-project-governance.py --date 2026-10-11
 轻量成功与上一完整基线分开记录。最终发布候选仍等待完整回归与相应原生、双客户端及 Windows 验收；后续需要真实 Postgres 证据时必须明确提供连接并验证实际执行。
 
 浅 checkout 中若多提交 push 的中间祖先不可确定，即使可取得 base，也保守执行 full；不会把历史不完整当作文档豁免。只有范围任务成功且明确返回 false 才跳过完整任务，任何空/异常输出仍 full。
+
+Desktop 矩阵始终生成既有检查名。明确文档范围时在 Ubuntu 写入打包未执行说明，跳过所有原生下载/构建/打包；其他或不确定范围使用实际矩阵 OS 执行完整步骤。文档并发组与 full 分开，同 SHA 的文档任务也不取消手动 full。
