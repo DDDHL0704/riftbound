@@ -4198,7 +4198,10 @@ public sealed class CardCatalogBaselineTests
         Assert.DoesNotContain("ApplyOgnFioraPowerfulKeywordTags", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("CardStaticAbilitySpecRules.TryGetUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("CardStaticAbilitySpecRules.TryGetStaticAbility", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility", coreRuleEngineSource, StringComparison.Ordinal);
+        var layerSource = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Riftbound.Engine", "CoreRuleEngine.RuleDerivedKeywords.cs"));
+        Assert.Contains("CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility", layerSource, StringComparison.Ordinal);
+        Assert.Contains("RecomputeRuleDerivedKeywords", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ApplyPowerThresholdSelfKeywordStaticAbilities", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
 

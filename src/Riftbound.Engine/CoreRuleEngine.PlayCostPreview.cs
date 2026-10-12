@@ -6,6 +6,7 @@ public sealed partial class CoreRuleEngine
 {
     public PlayCostQuoteDto PreviewPlayCard(MatchState state, string playerId, PlayCostPreviewRequestDto request)
     {
+        state = RecomputeRuleDerivedKeywords(state);
         if (state.Status != MatchStatuses.InProgress || state.PendingPayment is not null
             || state.PendingHandChoice is not null || state.PendingCardChoice is not null
             || ResolutionResult.HasBlockingPendingTaskQueue(state))

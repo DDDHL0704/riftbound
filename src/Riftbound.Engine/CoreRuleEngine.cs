@@ -163,15 +163,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
+            result = RefreshRuleDerivedKeywordLayers(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))));
             var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))))));
             collected = RecordBattleDuelRoles(state, collected);
-            return ValueTask.FromResult(ApplyObjectContinuity(state,
+            return ValueTask.FromResult(RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
-                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected)))))))));
+                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))));
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
@@ -15180,7 +15181,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var combatKeyword = isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast;
-        keywordBonus = CombatKeywordAmount(cardObject.Tags, combatKeyword);
+        keywordBonus = CombatKeywordAmount(NonRuleDerivedTags(cardObject), combatKeyword)
+            + CombatKeywordAmount(cardObject.RuleDerivedTags ?? [], combatKeyword);
         keywordBonus = Math.Max(
             keywordBonus,
             ResolveSourceObjectKeywordStaticAuraBonus(
@@ -15263,6 +15265,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(state, zones, id, card);
 
     internal static int ResolveCurrentFieldUnitPower(MatchState state, CardObjectState card)
+    {
+        var evaluated = RecomputeRuleDerivedKeywords(state);
+        return ResolveCurrentFieldUnitPowerFromEvaluatedKeywords(evaluated, evaluated.CardObjects.GetValueOrDefault(card.ObjectId) ?? card);
+    }
+
+    private static int ResolveCurrentFieldUnitPowerFromEvaluatedKeywords(MatchState state, CardObjectState card)
     {
         var before = CurrentPowerBeforeConditionalAuras(state, card);
         return Math.Max(0, before + ConditionalPowerAuraContributions(state, card, before).Sum(c => c.Delta));
@@ -24468,9 +24476,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     internal static int SpellshieldPowerCostForTarget(MatchState state, string playerId, string objectId)
     {
+        state = RecomputeRuleDerivedKeywords(state);
         if (!IsEnemyFieldObject(state, playerId, objectId) || !state.CardObjects.TryGetValue(objectId, out var card)
             || card.IsFaceDown || card.Tags.Contains(CardObjectTags.Standby)) return 0;
-        return CardResourceKeywordRules.SpellshieldTaxFromTags(card.Tags)
+        return CardResourceKeywordRules.SpellshieldTaxFromTags(NonRuleDerivedTags(card))
+            + CardResourceKeywordRules.SpellshieldTaxFromTags(card.RuleDerivedTags ?? [])
             + CopiedRuleTextKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveSourceObjectResourceKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
             + ResolveFriendlyFilteredUnitsResourceKeywordAmount(state, state.PlayerZones, objectId, card, CardResourceKeywordNames.Spellshield);
@@ -33291,7 +33301,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 + appliedPowerDelta,
             UntilEndOfTurnPowerModifiers = powerModifierLedger
         };
-        nextTargetState = ApplyPowerThresholdSelfKeywordStaticAbilities(nextTargetState);
         var payload = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = stackItem.SourceObjectId,
@@ -33428,7 +33437,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
         };
-        nextTargetState = ApplyPowerThresholdSelfKeywordStaticAbilities(nextTargetState);
         var nextBoonEvents = new List<GameEvent>
         {
             new(
@@ -33509,27 +33517,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         trigger = candidate;
         return true;
-    }
-
-    private static CardObjectState ApplyPowerThresholdSelfKeywordStaticAbilities(CardObjectState state)
-    {
-        if (!CardStaticAbilitySpecRules.TryGetStaticAbility(
-                state.CardNo,
-                CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility,
-                out var ability)
-            || state.Power < ability.RequiredPowerThreshold.GetValueOrDefault())
-        {
-            return state;
-        }
-
-        return state with
-        {
-            Tags = state.Tags
-                .Concat(ability.GrantedKeywords ?? [])
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(tag => tag, StringComparer.Ordinal)
-                .ToArray()
-        };
     }
 
     private static CardObjectState ApplyTargetTag(
@@ -35957,6 +35944,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         for (var pass = 0; pass < 32; pass++)
         {
+            var layered = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                ObjectLocations = objectLocations ?? ReconcileObjectLocations(state.ObjectLocations, playerZones) });
+            if (!ReferenceEquals(layered.CardObjects, cardObjects))
+                foreach (var (id, card) in layered.CardObjects) cardObjects[id] = card;
             var cleanup = ResolveFieldDestructions(state,
                 playerZones,
                 cardObjects,

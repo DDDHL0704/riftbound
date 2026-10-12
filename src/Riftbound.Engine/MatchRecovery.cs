@@ -23323,6 +23323,11 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        var layeredKeywords = CoreRuleEngine.RecomputeRuleDerivedKeywords(state);
+        foreach (var (id, card) in state.CardObjects)
+            if (!(card.RuleDerivedTags ?? []).SequenceEqual(layeredKeywords.CardObjects[id].RuleDerivedTags ?? [])
+                || !card.Tags.SequenceEqual(layeredKeywords.CardObjects[id].Tags))
+                errors.Add($"invalid current rule-derived keywords for {id}");
         var battleDeclarations = state.UntilEndOfTurnEffects?.Count(e => e?.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal) == true) ?? 0;
         if (battleDeclarations > 0 && (battleDeclarations != 1
             || !CoreRuleEngine.TryReadBattleResponseDeclarationContext(state, string.Empty, out _)))

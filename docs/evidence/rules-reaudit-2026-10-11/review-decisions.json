@@ -8762,7 +8762,7 @@
     },
     {
       "id": "leona-stunned-might-aura-2026-10-12",
-      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "status": "SCOPED_FIXED_COMMIT_FULL_CI_AND_NATIVE_PASS",
       "scope": "Two exact CN Leona Dedicated printings: live stun/enemy/here conditional numeric reduction with current-Might floor, copies, equipment, lethal cleanup, turn stun cleanup, transient snapshots and safe recovery; no whole-card/complete-layer certification",
       "subjects": [
         {
@@ -8873,7 +8873,8 @@
         "checkMethods": 6574,
         "nativeProductionCommands": 8,
         "wholeCardCertification": false,
-        "exactHeadFullCiRequired": true
+        "exactHeadFullCiRequired": false,
+        "fixedCommitFullEvidence": "docs/evidence/leona-stunned-might-2026-10-12/full-ci-b8cacd74.json"
       },
       "exclusions": [
         "Fixed-commit complete CI with all methods/cases/110 pairs",
@@ -8882,6 +8883,90 @@
         "First Leona enter-ready ability and whole-card interactions",
         "EN VEN-SP3/006 identity/runtime mapping and all source gaps",
         "All applicable card/rule/QA semantic and native/real-database acceptance"
+      ]
+    },
+    {
+      "id": "powerful-self-keyword-layer-2026-10-12",
+      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Exact CN OGN-232/298 Powerful self-keyword gain/loss from current Might, copied text counts, independent granted tags, least enabling state, actual target costs and canonical recovery; no whole-card or complete-layer certification",
+      "subjects": [
+        {
+          "id": "OGN-232/298",
+          "activeCardNo": "OGN·232/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31470,
+              "cardNo": "OGN·232/298",
+              "name": "菲奥娜",
+              "sha256": "7c3adfaf355070e19a0b937acfb6e9013ceb156bdad314a7e5f5956ac0d02c4e",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-232-298",
+              "cardNo": "OGN-232/298",
+              "name": "Fiora",
+              "sha256": "4648c8e8685ccaa5dbe3bc8c5f9f23be697d6a9af2b6f839f6a237e1309376d1",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "wholeCardCertification": false,
+          "scope": "Current-Might Powerful self-keyword layer only, including independent/copy grants, removal, costs and recovery; no complete card or layer certification",
+          "scopedEvidence": "docs/evidence/powerful-keyword-layer-2026-10-12/validation.json"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P092-B021",
+        "DOC-04-P092-B022",
+        "DOC-04-P093-B002",
+        "DOC-04-P093-B003",
+        "DOC-04-P094-B003",
+        "DOC-04-P094-B004",
+        "DOC-04-P094-B006",
+        "DOC-04-P094-B007",
+        "DOC-04-P094-B013"
+      ],
+      "auditDocument": "docs/POWERFUL_KEYWORD_LAYER_AUDIT_2026-10-12.md",
+      "evidence": [
+        "docs/evidence/powerful-keyword-layer-2026-10-12/validation.json",
+        "docs/evidence/powerful-keyword-layer-2026-10-12/live-readback.json",
+        "docs/evidence/powerful-keyword-layer-2026-10-12/red-evidence.json",
+        "docs/evidence/powerful-keyword-layer-2026-10-12/powerful-source-queue.json"
+      ],
+      "tests": [
+        "PowerfulKeywordLayerTests",
+        "PowerfulKeywordNativeTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEngineGrantsOgnFioraKeywordsWhenBoonMakesPowerful",
+        "MatchRecoveryTests"
+      ],
+      "validation": {
+        "checkCases": 10284,
+        "checkMethods": 6583,
+        "nativeProductionCommands": 6,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true
+      },
+      "exclusions": [
+        "Fixed-commit complete CI with all methods/cases/110 pairs",
+        "Current-Might Powerful consumers: ready/rune/conquest/discount/draw/last-breath flows",
+        "Complete generic layer dependency/timestamp ordering beyond monotonic Powerful-self grants",
+        "All related whole cards and current applicable rule/FAQ source gaps",
+        "Visible paired clients, Windows real runtime and real PostgreSQL execution"
       ]
     }
   ]

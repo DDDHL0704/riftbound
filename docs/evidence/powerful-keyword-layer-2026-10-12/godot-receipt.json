@@ -1,0 +1,9 @@
+{
+  "recordedAtUtc": "2026-10-12T13:49:15.485716+00:00",
+  "version": "4.7.2.stable.mono.official.ed1daf0bf",
+  "mode": "headless",
+  "exitCode": 0,
+  "stdout": "POWERFUL_KEYWORD_PASS: 6 production play and response commands",
+  "productionCommands": 6,
+  "visiblePairedClientAcceptance": false
+}

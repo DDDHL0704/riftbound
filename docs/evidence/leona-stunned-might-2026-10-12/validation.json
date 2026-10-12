@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_FIXED_COMMIT_FULL_CI_AND_NATIVE_PASS",
   "verifiedAtUtc": "2026-10-12T13:03:33.946279+00:00",
   "semanticCoverageCertified": false,
   "wholeCardCertification": false,
@@ -209,7 +209,7 @@
     },
     "source": "docs/evidence/leona-stunned-might-2026-10-12/godot-receipt.json"
   },
-  "fixedCommitFullRequired": true,
+  "fixedCommitFullRequired": false,
   "visiblePairedClientAcceptance": false,
   "windowsRuntimeAcceptance": false,
   "realPostgresAcceptance": false,
@@ -220,5 +220,6 @@
     "First Leona enter-ready ability and whole-card interactions",
     "EN VEN-SP3/006 identity/runtime mapping and all source gaps",
     "All applicable card/rule/QA semantic and native/real-database acceptance"
-  ]
+  ],
+  "fixedCommitFullEvidence": "docs/evidence/leona-stunned-might-2026-10-12/full-ci-b8cacd74.json"
 }
