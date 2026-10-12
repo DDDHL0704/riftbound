@@ -201,6 +201,8 @@ public static class TriggerKinds
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
     public const string UnitHighCostSpellPowerModifier =
         "UNIT_HIGH_COST_SPELL_POWER_MODIFIER";
+    public const string UnitPaidManaSpellReadySelf =
+        "UNIT_PAID_MANA_SPELL_READY_SELF";
     public const string LegendHighCostSpellDrawOne =
         "LEGEND_HIGH_COST_SPELL_DRAW_ONE";
     public const string LegendHighCostSpellBanishCompletion =

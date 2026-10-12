@@ -1,0 +1,26 @@
+{
+  "status": "FAILED",
+  "commit": "d56f3c1a3c75f5ddc5ffa248498b0d5365bd83a4",
+  "runId": 38319756180,
+  "recordedAtUtc": "2026-10-12T23:28:50.108748+00:00",
+  "jobs": {
+    "scope": "success",
+    "desktop (windows-latest)": "success",
+    "rules": "failure",
+    "desktop (macos-latest)": "success"
+  },
+  "failure": [
+    {
+      "case": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "message": "System.InvalidOperationException : B0 targeted boon staging driver cannot stage OGN·136/298: {\"Status\":\"FINISHED\",\"Phase\":\"TURN_START\",\"TimingState\":\"NEUTRAL_CLOSED\",\"ActivePlayerId\":\"P2\",\"TurnPlayerId\":\"P2\",\"FocusPlayerId\":null,\"PriorityPlayerId\":null,\"Scores\":{\"P1\":7,\"P2\":8},\"RunePools\":{\"P1\":{\"Mana\":0,\"Power\":0,\"PowerByTrait\":{}},\"P2\":{\"Mana\":0,\"Power\":0,\"PowerByTrait\":{}}},\"PendingTaskPhase\":\"IDLE\",\"ActiveTaskId\":null,\"TaskKinds\":[]}",
+      "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.DriveSpecificUnitToOwnBaseGrantingBoonToBattlefieldUnitAsync(MatchSession session, ResolutionResult current, String playerId, String cardNo, String targetCardNo, String intentPrefix) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 13578\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 4415\n--- End of stack trace from previous location ---"
+    }
+  ],
+  "partialCounts": {
+    "rules": 10577,
+    "games2Passed": 48,
+    "games2Failed": 1
+  },
+  "fullAcceptance": false,
+  "scope": "Targeted boon staging driver still requires target choice in unit play; public target now belongs to subsequent permanent trigger confirmation."
+}

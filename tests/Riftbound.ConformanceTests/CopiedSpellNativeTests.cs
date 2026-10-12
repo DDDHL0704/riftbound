@@ -12,15 +12,21 @@ public sealed class CopiedSpellNativeTests
     [InlineData("one", 1)]
     [InlineData("two", 2)]
     [InlineData("detach", 1)]
+    [InlineData("ready-one", 1)]
+    [InlineData("ready-two", 2)]
     public async Task ProductionSpellOrderingAndEveryIndependentResponseReplay(string branch, int copies)
     {
-        var initial = AttachedRuleTextTests.Position("VEN·183", 0);
+        var readySource = branch.StartsWith("ready-", StringComparison.Ordinal);
+        var spellCard = readySource ? "OGN·083/298" : "OGN·048/298";
+        var initial = AttachedRuleTextTests.Position(readySource ? "UNL-005/219" : "VEN·183", 0);
         for (var i = 0; i < copies; i++) {
             var id = i == 0 ? "GEAR" : "SONG" + i;
             if (i > 0) initial = AttachedRuleTextTests.AddSong(initial, id);
             initial = (await AttachedRuleTextTests.Attach(initial, id)).State;
         }
-        initial = OfficialCopyIdentityTests.AddSpell(initial, "SPELL", "OGN·048/298");
+        if (readySource) initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+            ["HOST"] = initial.CardObjects["HOST"] with { IsExhausted = true } } };
+        initial = OfficialCopyIdentityTests.AddSpell(initial, "SPELL", spellCard);
         if (branch == "detach") initial = OfficialCopyIdentityTests.AddSpell(initial, "DETACH", "SFD·011/221");
         Restore(initial);
         var root = Environment.GetEnvironmentVariable("RIFTBOUND_COPIED_SPELL_EVIDENCE");
@@ -68,7 +74,7 @@ public sealed class CopiedSpellNativeTests
             await Submit(prefix + "-1", current.PriorityPlayerId!, new PassPriorityCommand());
             await Submit(prefix + "-2", current.PriorityPlayerId!, new PassPriorityCommand());
         }
-        await Submit("play", "P1", new PlayCardCommand("SPELL", "OGN·048/298", []));
+        await Submit("play", "P1", new PlayCardCommand("SPELL", spellCard, []));
         await Passes("spell-pass"); Assert.Equal(copies + 1, current.TriggerQueue.Count);
         var ids = current.TriggerQueue.Select(t => t.TriggerId).Reverse().ToArray();
         await Submit("order", "P1", new OrderTriggersCommand(ids));
@@ -80,9 +86,12 @@ public sealed class CopiedSpellNativeTests
             Assert.All(origins, id => Assert.Contains(current.StackItems, i => i.SpellContext?.InstanceId == id));
         }
         var skills = current.StackItems.Count;
-        for (var i = 0; i < skills; i++) await Passes("skill-" + i);
+        for (var i = 0; i < skills; i++) {
+            await Passes("skill-" + i);
+            if (readySource) Assert.False(current.CardObjects["HOST"].IsExhausted);
+        }
         Assert.Empty(current.StackItems); Assert.Empty(current.TriggerQueue);
-        Assert.Equal(branch == "detach" ? 9 : copies == 2 ? 9 : 7, current.CardObjects["HOST"].Power);
+        Assert.Equal(readySource ? 7 : branch == "detach" ? 9 : copies == 2 ? 9 : 7, current.CardObjects["HOST"].Power);
         var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
             e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)).ToArray();
         var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1, e.CompletedTick, i, ev))).ToArray();

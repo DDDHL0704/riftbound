@@ -1,0 +1,11 @@
+{
+  "src/Riftbound.Contracts/BehaviorSpecs.cs": "318fe1c3931c87666447f6396eeddf2793e9263da616b710c91e1676407c001b",
+  "src/Riftbound.CardCatalog/RuleTextParsers.cs": "27eb8e28a1c20fb32960102442b7713ccbf217860c72fde49494bb849faa3a95",
+  "src/Riftbound.Engine/SpellPlayedTriggerSpecRules.cs": "1156f0f6e77fb4afbdfc8a61d537a78a7eaac00af29ad1cbb56eaa32c6514174",
+  "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs": "33bb67bb59e16f19f4f7012afbe873567eb1c3b2d2fb4dc95c006d37f8fb41f2",
+  "tests/Riftbound.ConformanceTests/PaidSpellReadyTests.cs": "14a51222a03964aebb52b8dc677c321edf911c6662e97b71b7b45a8384646952",
+  "tests/Riftbound.ConformanceTests/CopiedSpellNativeTests.cs": "31510cf35d8812ea8e8b38834c6fc71bf18c8cb633a14cb442991adaf1d0e34c",
+  "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "57eeae50167a2fe4cf153029cb5cc6a59f65d49f80ff861f03835eec9e6908a4",
+  "clients/godot/scripts/debug/CopiedSpellInteractionProof.cs": "e2f8ea78acfef781cf91ef25da85f3226e58e6a475b4b2c86860a90b722c8c7e",
+  "scripts/ci-change-scope.py": "1b6b08da5742d5e42ae0c7a0d52178f65ec5294045b54782c6b9b23c179ae5e1"
+}

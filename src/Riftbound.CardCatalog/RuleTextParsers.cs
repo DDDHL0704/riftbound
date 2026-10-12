@@ -2011,6 +2011,23 @@ public static class TriggerParser
                 RecycleCount: 1);
         }
 
+        var unitPaidManaSpellReadyMatch = Regex.Match(
+            segment,
+            @"当你打出一个法术时，如果消耗了不低于\{\{(\d+)\}\}法力，则让我变为活跃状态。?$",
+            RegexOptions.CultureInvariant);
+        if (unitPaidManaSpellReadyMatch.Success
+            && int.TryParse(unitPaidManaSpellReadyMatch.Groups[1].Value, out var readyMinimumPaidMana))
+        {
+            return new TriggerSpec(
+                TriggerKinds.UnitPaidManaSpellReadySelf,
+                TriggerTimings.BattlefieldSpellPlayed,
+                segment,
+                "Paid-mana spell completion readies its source through the shared captured trigger instance.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                MinimumPaidMana: readyMinimumPaidMana,
+                UnitReadyCount: 1);
+        }
+
         var unitSpellPlayedPowerMatch = Regex.Match(
             segment,
             @"(?:每当|当)你打出(?:一张法术牌|一个法术)时，(?:让我|给予我在)本回合内\{\{S\}\}\+(\d+)",

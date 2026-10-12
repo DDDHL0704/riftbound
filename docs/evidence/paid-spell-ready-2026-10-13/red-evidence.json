@@ -1,0 +1,17 @@
+{
+  "baselineCommit": "c6795377300aa4d81589bfd21c7912d9a79d9a34",
+  "source": "UNL-005/219",
+  "cases": [
+    {
+      "case": "Riftbound.ConformanceTests.PaidSpellReadyTests.ActualFourManaCompletesIntoIndependentReadySkills(copies: 1)",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0",
+      "stack": "   at Riftbound.ConformanceTests.PaidSpellReadyTests.ActualFourManaCompletesIntoIndependentReadySkills(Int32 copies) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/PaidSpellReadyTests.cs:line 33\n--- End of stack trace from previous location ---"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.PaidSpellReadyTests.ActualFourManaCompletesIntoIndependentReadySkills(copies: 0)",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0",
+      "stack": "   at Riftbound.ConformanceTests.PaidSpellReadyTests.ActualFourManaCompletesIntoIndependentReadySkills(Int32 copies) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/PaidSpellReadyTests.cs:line 33\n--- End of stack trace from previous location ---"
+    }
+  ],
+  "scope": "Existing printed/copied ready trigger missing; real four-mana spell finalized and completed"
+}

@@ -51,6 +51,12 @@ internal static class SpellPlayedTriggerSpecRules
             && !string.IsNullOrWhiteSpace(trigger.EffectKind);
     }
 
+    public static bool IsUnitPaidManaSpellReadySelfTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitPaidManaSpellReadySelf
+            && trigger.Timing == TriggerTimings.BattlefieldSpellPlayed
+            && trigger.TargetScope == TriggerTargetScopes.SourceUnit
+            && trigger.MinimumPaidMana is > 0 && trigger.UnitReadyCount == 1;
+
     public static bool IsLegendHighCostSpellDrawTrigger(TriggerSpec trigger)
     {
         return string.Equals(trigger.Kind, TriggerKinds.LegendHighCostSpellDrawOne, StringComparison.Ordinal)

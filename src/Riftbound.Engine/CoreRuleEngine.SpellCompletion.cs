@@ -42,6 +42,7 @@ public sealed partial class CoreRuleEngine
         if (SpellPlayedTriggerSpecRules.TryGetTrigger(cardNo, t => t.Kind == kind
                 && (SpellPlayedTriggerSpecRules.IsUnitSpellPlayedPowerModifierTrigger(t)
                     || SpellPlayedTriggerSpecRules.IsUnitHighCostSpellPowerModifierTrigger(t)
+                    || SpellPlayedTriggerSpecRules.IsUnitPaidManaSpellReadySelfTrigger(t)
                     || SpellPlayedTriggerSpecRules.IsLegendHighCostSpellDrawTrigger(t)
                     || SpellPlayedTriggerSpecRules.IsLegendHighCostSpellBanishCompletionTrigger(t)), out var spec)) return spec;
         return BattlefieldTriggerSpecRules.TryGetTrigger(cardNo, t => t.Kind == kind
@@ -65,7 +66,11 @@ public sealed partial class CoreRuleEngine
             && context.InstanceId == (context.Origin is { } origin
                 ? $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
                 : $"PRINTED:{sourceId}:{context.SourceGeneration}")
-            && (context.Origin is null || context.Kind is TriggerKinds.UnitSpellPlayedPowerModifier or TriggerKinds.UnitHighCostSpellPowerModifier);
+            && (context.Origin is null || IsUnitSpellCompletionKind(context.Kind));
+
+    private static bool IsUnitSpellCompletionKind(string kind)
+        => kind is TriggerKinds.UnitSpellPlayedPowerModifier or TriggerKinds.UnitHighCostSpellPowerModifier
+            or TriggerKinds.UnitPaidManaSpellReadySelf;
 
     private static IReadOnlyList<TriggerQueueItemState> CaptureSpellTriggers(MatchState state,
         StackItemState played, CardBehaviorDefinition behavior, out IReadOnlyList<string> markers, bool targetSelection = false)
@@ -77,6 +82,7 @@ public sealed partial class CoreRuleEngine
         var spell = state.CardObjects.GetValueOrDefault(played.SourceObjectId);
         var owner = spell?.OwnerId ?? played.ControllerId;
         var kinds = new[] { TriggerKinds.UnitSpellPlayedPowerModifier, TriggerKinds.UnitHighCostSpellPowerModifier,
+            TriggerKinds.UnitPaidManaSpellReadySelf,
             TriggerKinds.LegendHighCostSpellDrawOne, TriggerKinds.LegendHighCostSpellBanishCompletion,
             TriggerKinds.BattlefieldSpellPowerBonus, TriggerKinds.BattlefieldFriendlySpellDraw };
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
@@ -92,8 +98,8 @@ public sealed partial class CoreRuleEngine
             {
                 if ((kind == TriggerKinds.BattlefieldFriendlySpellDraw) != targetSelection) continue;
                 if (SpellTriggerSpec(instance.CardNo, kind) is not { } spec) continue;
-                if (instance.Origin is not null && kind is not (TriggerKinds.UnitSpellPlayedPowerModifier or TriggerKinds.UnitHighCostSpellPowerModifier)) continue;
-                if (kind is TriggerKinds.UnitSpellPlayedPowerModifier or TriggerKinds.UnitHighCostSpellPowerModifier ? !ownUnit
+                if (instance.Origin is not null && !IsUnitSpellCompletionKind(kind)) continue;
+                if (IsUnitSpellCompletionKind(kind) ? !ownUnit
                     : kind is TriggerKinds.LegendHighCostSpellDrawOne or TriggerKinds.LegendHighCostSpellBanishCompletion ? !ownLegend : field is null) continue;
                 if (played.PlayCost.CardMana < spec.MinimumCardMana.GetValueOrDefault()
                     || played.PlayCost.PaidMana < spec.MinimumPaidMana.GetValueOrDefault()) continue;
@@ -231,6 +237,23 @@ public sealed partial class CoreRuleEngine
                 events.Add(new("POWER_MODIFIED_UNTIL_END_OF_TURN", "施法触发增加本回合战力", new Dictionary<string, object?>
                     { ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id, ["powerDelta"] = amount,
                         ["appliedPowerDelta"] = amount, ["resultingPower"] = cards[id].Power, ["reason"] = context.Kind }));
+            }
+        }
+        else if (spec.UnitReadyCount == 1)
+        {
+            var id = item.SourceObjectId;
+            if (cards.TryGetValue(id, out var card) && IsObjectOnField(zones, id)
+                && card.ObjectGeneration == context.SourceGeneration && IsFaceUpNonStandbyUnit(card)
+                && !CardStaticAbilitySpecRules.CardCannotBecomeActive(card.CardNo))
+            {
+                cards[id] = card with { IsExhausted = false };
+                events.Add(new("UNIT_READIED", "施法触发让来源变为活跃状态", new Dictionary<string, object?>
+                {
+                    ["playerId"] = item.ControllerId, ["sourceObjectId"] = id, ["targetObjectId"] = id,
+                    ["wasExhausted"] = card.IsExhausted, ["isExhausted"] = false,
+                    ["reason"] = context.Kind, ["playedCardNo"] = context.PlayedCardNo,
+                    ["playedSourceObjectId"] = context.PlayedObjectId
+                }));
             }
         }
         else if (spec.DrawCount is > 0)

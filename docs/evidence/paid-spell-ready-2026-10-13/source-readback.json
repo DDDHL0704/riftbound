@@ -1,0 +1,71 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "传承者雷芙纳",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "language": "zh-CN",
+  "region": "CN",
+  "fetchedAtUtc": "2026-10-12T23:24:56.486790+00:00",
+  "responseSha256": "7cc55dbc4ccfe5785f8752987241c58543b34534a883f4934e3abe9bc0b120f8",
+  "records": [
+    {
+      "record": {
+        "id": 34528,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "UNL-005/219",
+        "cardName": "传承者雷芙纳",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "弗雷尔卓德",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "{{游走}}（我可以向其他战场进行移动。）\n当你打出一个法术时，如果消耗了不低于{{4}}法力，则让我变为活跃状态。",
+        "flavorText": "“任何东西都阻挡不了我们！严寒不行，死亡也不行！”",
+        "energy": 7,
+        "returnEnergy": 1,
+        "power": 7,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260324/e424baba31ee440bb9d2c6f1288d6b00.webp",
+        "backImage": "",
+        "listSort": 1496,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "52e1681b2aff6bdc071c125b3a9f3197ac9fc5a7550cd37922f0828747d87f5b",
+      "snapshotParity": true,
+      "wholeCardReviewed": false
+    }
+  ]
+}

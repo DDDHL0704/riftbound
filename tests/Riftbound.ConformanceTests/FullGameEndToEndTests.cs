@@ -13592,21 +13592,30 @@ public sealed partial class FullGameEndToEndTests
             var playCandidate = EnabledCandidate(result.Prompts[playerId], CommandTypes.PlayCard);
             var canPlaySource = sourceObjectId is not null
                 && playCandidate?.Sources?.Any(choice => string.Equals(choice.Id, sourceObjectId, StringComparison.Ordinal)) == true;
-            var canTarget = playCandidate?.Targets?.Any(choice => string.Equals(choice.Id, targetObjectId, StringComparison.Ordinal)) == true;
             if (sourceObjectId is not null
                 && canPlaySource
-                && canTarget
                 && result.State.RunePools[playerId].Mana >= result.State.CardObjects[sourceObjectId].ManaCost)
             {
+                var command = new PlayCardCommand(sourceObjectId, cardNo, [], Destination: "BASE");
                 var play = await session.SubmitAsync(
                     playerId,
                     $"{intentPrefix}-play-{turnIndex}",
-                    new PlayCardCommand(sourceObjectId, cardNo, [targetObjectId], Destination: "BASE"),
-                    RawCommand(new PlayCardCommand(sourceObjectId, cardNo, [targetObjectId], Destination: "BASE")),
+                    command,
+                    RawCommand(command),
                     CancellationToken.None);
                 AssertAccepted(play);
                 AssertNoHiddenZoneLeak(play);
-                var resolved = await ResolveStackPassPassAsync(session, play, $"{intentPrefix}-resolve-{turnIndex}");
+                Assert.NotNull(FindBaseUnitByCardNo(play.State, playerId, cardNo));
+                var choice = Assert.IsType<PendingCardChoiceState>(play.State.PendingCardChoice);
+                Assert.Equal("TRIGGER_CONFIRMATION", choice.ChoiceWindow);
+                Assert.Equal(playerId, choice.PlayerId);
+                Assert.Contains(targetObjectId, choice.LegalObjectIds);
+                var choose = new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [targetObjectId]);
+                var confirmed = await session.SubmitAsync(playerId, $"{intentPrefix}-confirm-target-{turnIndex}",
+                    choose, RawCommand(choose), CancellationToken.None);
+                AssertAccepted(confirmed);
+                AssertNoHiddenZoneLeak(confirmed);
+                var resolved = await ResolveStackPassPassAsync(session, confirmed, $"{intentPrefix}-resolve-{turnIndex}");
                 Assert.Contains(CardObjectTags.Boon, resolved.State.CardObjects[targetObjectId].Tags);
                 Assert.NotNull(FindBaseUnitByCardNo(resolved.State, playerId, cardNo));
                 AssertNoHiddenZoneLeak(resolved);

@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "case": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "duration": "00:00:19.3246425",
+      "result": "Passed",
+      "trx": "var/qa/paid-spell-ready-20261013/ci-game-fix/focus/results.trx"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesWiseElderSourceObjectFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "duration": "00:00:11.4605260",
+      "result": "Passed",
+      "trx": "var/qa/paid-spell-ready-20261013/native-export-and-callers/focus/results.trx"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "duration": "00:00:18.4425798",
+      "result": "Passed",
+      "trx": "var/qa/paid-spell-ready-20261013/native-export-and-callers/focus/results.trx"
+    }
+  ],
+  "oldMethodAndOutcomeAssertionsPreserved": true,
+  "scope": "Three original midgame full matches, complete action log replay and score victory"
+}
