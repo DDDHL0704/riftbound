@@ -15,7 +15,7 @@ public sealed class ArmamentMightTests
                 ["GEAR"]=new("GEAR",cardNo:gear,ownerId:"P1",controllerId:"P1",tags:[CardObjectTags.EquipmentCard,CardEquipmentKeywordNames.Weapon],attachedToObjectId:attached?"HOST":null)},
             RunePools=new Dictionary<string,RunePool>(s.RunePools) {["P1"]=new(20,20)}};
         if (attached && gear == "SFD·059/221") s = s with { CardObjects = new Dictionary<string, CardObjectState>(s.CardObjects) {
-            ["GEAR"] = s.CardObjects["GEAR"] with { AttachmentRevision = 1, AttachedRuleText = new(new("HOST", 0), unit, 1) } } };
+            ["GEAR"] = s.CardObjects["GEAR"] with { AttachmentRevision = 1, AttachedRuleText = new(new("HOST", 0), unit, 1, s.Tick, 0) } } };
         return At(At(s,"HOST","P1","BASE"),"GEAR","P1","BASE");
     }
     internal static int Might(MatchState s)=>CurrentPowerTargetTests.Snapshot(s).GetProperty("players").GetProperty("P1").GetProperty("objects").GetProperty("HOST").GetProperty("effectivePower").GetInt32();

@@ -1,0 +1,24 @@
+{
+  "image-diana": {
+    "nativeCommands": 13,
+    "accepted": 13,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "4f58ededb19b488ff2f7f4e652744ef167b6892d0b1752a3868d6196313193b5",
+      "expectedStateHash": "4f58ededb19b488ff2f7f4e652744ef167b6892d0b1752a3868d6196313193b5",
+      "errors": []
+    }
+  },
+  "image-azir": {
+    "nativeCommands": 14,
+    "accepted": 14,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "eac3bb8c39f30dfdb48c6110698f8543ee4ca9eb95d6d5378e0390e73e4da3ba",
+      "expectedStateHash": "eac3bb8c39f30dfdb48c6110698f8543ee4ca9eb95d6d5378e0390e73e4da3ba",
+      "errors": []
+    }
+  }
+}

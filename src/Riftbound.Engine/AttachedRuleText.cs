@@ -2,8 +2,8 @@ using Riftbound.CardCatalog;
 
 namespace Riftbound.Engine;
 
-public sealed record AttachedRuleTextState(ObjectBinding Unit, string CardNo, long Revision);
-public sealed record RuleTextInstanceBinding(string CardNo, ObjectBinding Unit, ObjectBinding Equipment, long Revision);
+public sealed record AttachedRuleTextState(ObjectBinding Unit, string CardNo, long Revision, long? CapturedTick, long? FaceRevision);
+public sealed record RuleTextInstanceBinding(string CardNo, ObjectBinding Unit, ObjectBinding Equipment, long Revision, long? CapturedTick, long? FaceRevision);
 internal sealed record RuleTextInstance(string Id, string CardNo, RuleTextInstanceBinding? Origin = null);
 
 // Enumerate printed text sets, never the host's materialized tags, temporary
@@ -27,7 +27,8 @@ internal static class AttachedRuleTextRules
             && gear.AttachedToObjectId == copy.Unit.ObjectId
             && cards.TryGetValue(copy.Unit.ObjectId, out var unit) && unit.ObjectGeneration == copy.Unit.Generation
             && unit.Tags.Contains(CardObjectTags.UnitCard)
-            && Field(zones, unit.ObjectId) && Face(unit) == copy.CardNo && CopyCharacteristics.HasFace(copy.CardNo);
+            && Field(zones, unit.ObjectId) && copy.CapturedTick is >= 0
+            && CopyFaceTimeline.FaceAt(unit, copy.FaceRevision, copy.CapturedTick) == copy.CardNo && CopyCharacteristics.HasFace(copy.CardNo);
 
     internal static IEnumerable<RuleTextInstance> Copies(MatchState state, CardObjectState unit)
         => Copies(state.PlayerZones, state.CardObjects, unit);
@@ -42,7 +43,7 @@ internal static class AttachedRuleTextRules
         {
             if (!Bound(zones, cards, gear) || gear.IsFaceDown || gear.Tags.Contains(CardObjectTags.Standby)) continue;
             var copy = gear.AttachedRuleText!;
-            var origin = new RuleTextInstanceBinding(copy.CardNo, copy.Unit, new(gear.ObjectId, gear.ObjectGeneration), copy.Revision);
+            var origin = new RuleTextInstanceBinding(copy.CardNo, copy.Unit, new(gear.ObjectId, gear.ObjectGeneration), copy.Revision, copy.CapturedTick, copy.FaceRevision);
             yield return new($"ATTACHED:{gear.ObjectId}:{gear.ObjectGeneration}:{copy.Revision}", copy.CardNo, origin);
         }
     }
@@ -79,7 +80,7 @@ internal static class AttachedRuleTextRules
     internal static bool ValidState(MatchState state, CardObjectState gear)
     {
         if (gear.AttachmentRevision < 0 || gear.AttachmentRevision > 0 && !CopiesPrintedText(gear.CardNo)) return false;
-        if (gear.AttachedRuleText is not null) return Bound(state, gear);
+        if (gear.AttachedRuleText is { } text) return text.CapturedTick <= state.Tick && Bound(state, gear);
         return !CopiesPrintedText(gear.CardNo) || gear.AttachedToObjectId is null || !Field(state, gear.ObjectId);
     }
 
@@ -91,11 +92,13 @@ internal static class AttachedRuleTextRules
         if (origin is null) return true;
         if (origin.Unit is null || origin.Equipment is null || origin.CardNo != cardNo || origin.Unit.ObjectId != unitId || origin.Unit.Generation != generation
             || generation < 0 || origin.Revision <= 0 || origin.Equipment.Generation < 0
+            || origin.CapturedTick is not >= 0 || origin.CapturedTick > state.Tick || origin.FaceRevision is not >= 0
             || origin.Equipment.ObjectId == unitId || !CopyCharacteristics.HasFace(cardNo)
             || !state.CardObjects.TryGetValue(origin.Equipment.ObjectId, out var gear)
             || origin.Equipment.Generation > gear.ObjectGeneration || !CopiesPrintedText(gear.CardNo)) return false;
         if (gear.ObjectGeneration == origin.Equipment.Generation && origin.Revision > gear.AttachmentRevision) return false;
         return !state.CardObjects.TryGetValue(unitId, out var unit) || generation < unit.ObjectGeneration
-            || generation == unit.ObjectGeneration && Face(unit) == cardNo;
+            || generation == unit.ObjectGeneration && CopyFaceTimeline.Valid(state, unit)
+                && CopyFaceTimeline.FaceAt(unit, origin.FaceRevision, origin.CapturedTick) == cardNo;
     }
 }

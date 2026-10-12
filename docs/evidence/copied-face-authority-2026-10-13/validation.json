@@ -1,0 +1,54 @@
+{
+  "scope": "Listed focused and adjacent runs only",
+  "expandedFocus": 126,
+  "revisedFocus": 71,
+  "adjacentAndNative": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 18.83,
+    "total": 290,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 290,
+        "passed": 290,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 15.1
+      }
+    ]
+  },
+  "trxSha256": "ccce0e4066b8bee5939216748fc7ae8e1ada3522523159243ca74ac52ec252f3",
+  "fullGameMethodsPassed": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAttachmentMidgameConfirmsBothDrawsAndReplaysThroughScoreVictory(card: \"SFD·119a/221\", copyFirst: True)",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"SFD·050/221\")",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"OGN·109/298\")",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAzirConfirmsWeaponThenChoosesAttachmentAndReplaysThroughScoreVictory",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAttachmentMidgameConfirmsBothDrawsAndReplaysThroughScoreVictory(card: \"SFD·119/221\", copyFirst: False)"
+  ],
+  "actualNativeCommands": 27,
+  "actualNativeBranches": 2,
+  "staleRejected": 2,
+  "ciScopeTestsPassed": 9,
+  "wholeCardCertification": false,
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 128.8,
+    "total": 10639,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10639,
+        "passed": 10639,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 125.18
+      }
+    ]
+  },
+  "fullPlannedMethods": 6859,
+  "expectedFullCases": 10788
+}

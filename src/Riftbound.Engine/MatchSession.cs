@@ -464,6 +464,8 @@ public sealed record PowerModifierLedgerEntry
 public sealed record CardObjectState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CopyFaceTransition>? CopyFaceTransitions { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public AttachedRuleTextState? AttachedRuleText { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public long AttachmentRevision { get; init; }
@@ -4258,7 +4260,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
+            state.ObjectGeneration) { CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)

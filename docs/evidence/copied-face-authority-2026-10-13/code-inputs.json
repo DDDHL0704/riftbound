@@ -1,0 +1,15 @@
+{
+  "src/Riftbound.Engine/CopyFaceTimeline.cs": "0f5e37fa52d8e19e9344268f568ba462ea5255d5d3334b54a2247413f070e0b9",
+  "src/Riftbound.Engine/AttachedRuleText.cs": "12c54f30b221e2842d661093465161336e3da17d4fc588d3fe99730d17902c6e",
+  "src/Riftbound.Engine/MatchSession.cs": "046a3f54653f0db7be3af0c690a69110b534bed879047e23a87da55fca86d61e",
+  "src/Riftbound.Engine/MatchRecovery.cs": "f5f6f907506cd8b783ac257d1a5949d1a524623f02b48249fcf0bbdf2092262c",
+  "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs": "ec5a1ee44e1910712a2f7fa48c1cc683295c28371797658869a3460439666edb",
+  "src/Riftbound.Engine/CoreRuleEngine.ReflexiveCopy.cs": "0564b24d3b29ca8171b585d347bbc699668513d32f643d7dd646ca3a8d1c209e",
+  "src/Riftbound.Engine/CoreRuleEngine.AttachmentObservers.cs": "8d75136c156d56fd64ba470e975c93351bba38116af94e689dd18e21b0c08815",
+  "tests/Riftbound.ConformanceTests/CopiedFaceAuthorityTests.cs": "731f2c25de392517e1182a0018f69767718f6a06dfeaa5f777f26aa3165bc065",
+  "tests/Riftbound.ConformanceTests/CopiedFaceNativeTests.cs": "4a87961a1e6aee15b2c6a6e77924a321a83720bd938c885390b1f10542e6af15",
+  "tests/Riftbound.ConformanceTests/ArmamentMightTests.cs": "f8f08764c83c047a9f8f3986de97f631e91ed1b053cbb47254a65655d7c9c003",
+  "tests/Riftbound.ConformanceTests/MightyTransitionTests.cs": "f5d03413ecca3bceafced72cb616e7601328b387bd179e1370b556f2dbbca8c1",
+  "clients/godot/scripts/debug/CopiedSpellInteractionProof.cs": "614e733961ed5152b48de649039788ed633cba7cad24d3719921a76df92507cb",
+  "scripts/ci-change-scope.py": "55403140fb06e47c00e9b6d81281909c6283ab6cc0a35e59452e3ab044bc078d"
+}

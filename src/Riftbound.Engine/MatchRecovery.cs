@@ -23740,7 +23740,10 @@ public static class MatchRecoveryValidator
             && !CoreRuleEngine.ValidAttachmentModeChoice(state, modeChoice)) errors.Add("invalid attachment mode confirmation");
         if (state.StackItems.Any(item => !CoreRuleEngine.ValidConfirmedAttachmentMode(state, item))) errors.Add("invalid confirmed attachment mode");
         foreach (var card in state.CardObjects.Values)
+        {
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
+            if (!CopyFaceTimeline.Valid(state, card)) errors.Add("invalid copied face timeline");
+        }
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow != CoreRuleEngine.TemperedPaymentWindow))
             errors.Add("invalid referenced equipment experience cost");

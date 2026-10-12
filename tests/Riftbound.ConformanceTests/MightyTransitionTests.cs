@@ -148,7 +148,7 @@ public sealed class MightyTransitionTests
         state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
             ["SECOND"] = copied
                 ? new("SECOND", cardNo: "SFD·059/221", ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.EquipmentCard],
-                    attachedToObjectId: "FIORA") { AttachmentRevision = 1, AttachedRuleText = new(new("FIORA", 0), "SFD·180/221", 1) }
+                    attachedToObjectId: "FIORA") { AttachmentRevision = 1, AttachedRuleText = new(new("FIORA", 0), "SFD·180/221", 1, state.Tick, 0) }
                 : new("SECOND", cardNo: "SFD·180a/221", power: 3, ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.UnitCard]) } };
         state = LocalDestructionRecallTests.At(state, "SECOND", "P1", "BASE");
         var done = await EquipTestDriver.FinishAsync(await Act(state, "P1", new AssembleEquipmentCommand("GEAR", "HOST", ["ASSEMBLE_GREEN"])));

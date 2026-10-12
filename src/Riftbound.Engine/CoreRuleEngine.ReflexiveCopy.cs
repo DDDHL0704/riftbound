@@ -111,8 +111,8 @@ public sealed partial class CoreRuleEngine
             // This is an effect on the existing object, not a new entry: damage,
             // granted abilities, status, owner/controller and attachments survive.
             var copied = copySource is null ? null : CopyCharacteristics.CreateImage(image.ObjectId, image.ControllerId!, copySource);
-            cards[image.ObjectId] = image with {
-                CardNo = copied?.CardNo ?? image.CardNo,
+            var transformed = copied?.CardNo is { } face ? CopyFaceTimeline.ChangeFace(image, face, state.Tick + 1) : image;
+            cards[image.ObjectId] = transformed with {
                 ManaCost = copied?.ManaCost ?? image.ManaCost,
                 Power = image.Power + (copied?.Power ?? 0),
                 GrantedTags = (image.GrantedTags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),

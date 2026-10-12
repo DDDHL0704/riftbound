@@ -25,8 +25,11 @@ public sealed partial class CoreRuleEngine
             var damageMarkers = crossedZone || card.Damage == 0 || !IsObjectOnField(after.PlayerZones, id)
                 ? null : card.DamageMarkedByPlayerIds;
             var grantedTags = crossedZone || !IsObjectOnField(after.PlayerZones, id) ? null : card.GrantedTags;
-            if (card.GrantedTags == grantedTags && card.ObjectGeneration == generation && card.MovementCountThisTurn == movementCount && card.DamageMarkedByPlayerIds == damageMarkers) continue;
-            cards[id] = card with { GrantedTags = grantedTags, ObjectGeneration = generation, MovementCountThisTurn = movementCount, DamageMarkedByPlayerIds = damageMarkers };
+            if ((!crossedZone || card.CopyFaceTransitions is null) && card.GrantedTags == grantedTags
+                && card.ObjectGeneration == generation && card.MovementCountThisTurn == movementCount
+                && card.DamageMarkedByPlayerIds == damageMarkers) continue;
+            cards[id] = card with { CopyFaceTransitions = crossedZone ? null : card.CopyFaceTransitions,
+                GrantedTags = grantedTags, ObjectGeneration = generation, MovementCountThisTurn = movementCount, DamageMarkedByPlayerIds = damageMarkers };
             changed = true;
         }
 

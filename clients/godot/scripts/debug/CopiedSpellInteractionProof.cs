@@ -13,7 +13,9 @@ public partial class CopiedSpellInteractionProof : Control
     {
         try {
             var root = OS.GetCmdlineUserArgs().Single(a => a.StartsWith("--evidence="))[11..]; var count = 0;
-            foreach (var branch in new[] { "one", "two", "detach", "ready-one", "ready-two" }) {
+            var branches = OS.GetCmdlineUserArgs().FirstOrDefault(a => a.StartsWith("--branches="))?[11..].Split(',')
+                ?? ["one", "two", "detach", "ready-one", "ready-two"];
+            foreach (var branch in branches) {
                 var dir = Path.Combine(root, branch);
                 using var steps = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, "steps.json")));
                 foreach (var step in steps.RootElement.EnumerateArray()) {

@@ -1,0 +1,271 @@
+[
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "斯弗尔尚歌",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T23:40:35.580415+00:00",
+    "responseSha256": "5e3970de8d5b9e86c1e694b86e0ca877d8e06764d8042a4e1e78c581b02205c9",
+    "record": {
+      "id": 33139,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "SFD·059/221",
+      "cardName": "斯弗尔尚歌",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "Envar Studio",
+      "cardEffect": "{{装配}}{{1}}{{绿色}}（支付{{1}}和{{绿色}}：将此牌贴附到你控制的一名单位上。）\n在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+      "flavorText": "\"只有最伟大的弗雷尔卓德英雄才拥有臻冰做的武器!\"——努努",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/3fb9c51990c64735b1d613e27e53f2a7.png",
+      "backImage": "",
+      "listSort": 934,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "2146ff16f353ba13fa9c3081a9403980f290ce160b95df6e03cbe35da077f9fa",
+    "snapshotParity": true,
+    "wholeCardReviewed": false
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "镜花水月",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T23:40:35.687425+00:00",
+    "responseSha256": "00ed2b35a6b04996c0e4cfccafc584e82f691fd125bde1ad64f776861b7848b6",
+    "record": {
+      "id": 34753,
+      "cardCategoryList": [
+        "exclusive_spell"
+      ],
+      "cardCategoryNameList": [
+        "专属法术"
+      ],
+      "cardNo": "UNL-200/219",
+      "cardName": "镜花水月",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue",
+        "yellow"
+      ],
+      "hero": "乐芙兰",
+      "region": "",
+      "tag": "",
+      "artist": "华锐",
+      "cardEffect": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。该“映像”变为所选单位的复制体。并让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "flavorText": "“最好的谎言，总是美丽的。”\n——乐芙兰",
+      "energy": 3,
+      "returnEnergy": 2,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/9264bffd383a476da0a3126d4f513367.webp",
+      "backImage": "",
+      "listSort": 1271,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。然后进行一次：该“映像”变为所选单位的复制体。让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "otherDesc": 0
+    },
+    "recordSha256": "1265a81895f2d6981aa94074177d3e9b0d8c2258ad39652534fd15ccbd9c8824",
+    "snapshotParity": true,
+    "wholeCardReviewed": false
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "取放自如",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T23:40:35.805304+00:00",
+    "responseSha256": "8f49783d3e407c6b581a8a236e7dca127d19b87b21415a0ad1fea16b341857fd",
+    "record": {
+      "id": 33083,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "SFD·011/221",
+      "cardName": "取放自如",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一名单位和其控制者的一件武装。为该单位贴附或卸除该武装。抽一张牌。",
+      "flavorText": "“承认吧，你已经上钩了。”",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/fa95f3a87cf149418034bd5520876884.png",
+      "backImage": "",
+      "listSort": 990,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "52a2aabee1fc38e2326ac62163298b979dc7e0756717b9b09a22be8269649642",
+    "snapshotParity": true,
+    "wholeCardReviewed": false
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "可疑的眼镜",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "language": "zh-CN",
+    "region": "CN",
+    "fetchedAtUtc": "2026-10-12T23:40:35.914044+00:00",
+    "responseSha256": "39e97bf7e9f03109021df2900353e7f94ba28dc89d9b9713857f93ec0045337c",
+    "record": {
+      "id": 37839,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "VEN·137",
+      "cardName": "可疑的眼镜",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "Polar Engine Studio",
+      "cardEffect": "{{装配1黄色}}（支付{{1}}和{{黄色}}：将此牌贴附到你控制的一名单位上。）\n此牌贴附到单位上时，选择另一名友方单位。装配此牌的单位在此牌贴附期间变为所选单位的复制体。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 0,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/8a07c2cb2fec4243804bc923af0b6752.png",
+      "backImage": "",
+      "listSort": 1847,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+    "snapshotParity": true,
+    "wholeCardReviewed": false
+  }
+]

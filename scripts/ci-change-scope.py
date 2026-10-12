@@ -34,6 +34,7 @@ DOCUMENTATION = frozenset({
     'docs/PERMANENT_PLAY_TARGETS_AUDIT_2026-10-13.md',
     'docs/COPIED_SPELL_TRIGGERS_AUDIT_2026-10-13.md',
     'docs/PAID_SPELL_READY_AUDIT_2026-10-13.md',
+    'docs/COPIED_FACE_AUTHORITY_AUDIT_2026-10-13.md',
     'docs/RULE_TEST_WORKFLOW.md', 'docs/RULE_TEST_SPEED_2026-10-09.md',
     'docs/RULE_TEST_SPEED_2026-10-12.md',
     'docs/rules-authority-and-audit.md', 'docs/rules-evidence-index.md',

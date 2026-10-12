@@ -1,0 +1,18 @@
+{
+  "status": "PLANNED_ONLY_NOT_FULL_EXECUTION",
+  "baselineMethods": 6853,
+  "plannedMethods": 6859,
+  "allOldMethodsPreserved": true,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.CopiedFaceAuthorityTests.CopiedImageCannotDropItsFaceTimelineEvenWithoutAnAttachedGear",
+    "Riftbound.ConformanceTests.CopiedFaceAuthorityTests.DetachAndReattachAcquiresTheNewFaceAtANewTextRevision",
+    "Riftbound.ConformanceTests.CopiedFaceAuthorityTests.OriginalBlankTextDoesNotAcquireTheNewFacesSpellSkill",
+    "Riftbound.ConformanceTests.CopiedFaceAuthorityTests.RecoveryRejectsForgedCopyTimelineOrAcquisition",
+    "Riftbound.ConformanceTests.CopiedFaceAuthorityTests.TextCapturedFromImageRemainsBoundAfterTheHostCopiesADifferentFace",
+    "Riftbound.ConformanceTests.CopiedFaceNativeTests.ProductionCopyResponseAttachmentAndTextAcquisitionReplay"
+  ],
+  "expectedFullCases": 10788,
+  "expectedPairs": 110,
+  "seed": 424242,
+  "testAssemblySha256": "f3ab18e8d64c65c4943758429d921b703d1b29bb9f9896e3a65dc4eb5342e4b3"
+}

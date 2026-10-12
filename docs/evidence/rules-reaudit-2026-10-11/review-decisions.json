@@ -13890,6 +13890,349 @@
         "All private choices, effect costs, simultaneous ordering and whole card semantics",
         "Eight EN source gaps, visible paired full match, Windows user runtime and real PostgreSQL"
       ]
+    },
+    {
+      "id": "copied-face-authority-2026-10-13",
+      "status": "SCOPED_CHECK_NATIVE_AND_LISTED_FULL_GAMES_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Image reflexive copy changes face after prior attachment; acquired text revision persists and reattachment acquires a new face; no whole-card certification",
+      "subjects": [
+        {
+          "id": "SFD-011/221",
+          "activeCardNo": "SFD·011/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33083,
+              "cardNo": "SFD·011/221",
+              "name": "取放自如",
+              "sha256": "52a2aabee1fc38e2326ac62163298b979dc7e0756717b9b09a22be8269649642",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-011-221",
+              "cardNo": "SFD-011/221",
+              "name": "Angle Shot",
+              "sha256": "ddc9e908a675f7126114e4e716663c483f960602ef1e651b04cf38148b8dbaf2",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-050/221",
+          "activeCardNo": "SFD·050/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33126,
+              "cardNo": "SFD·050/221",
+              "name": "阿兹尔",
+              "sha256": "7ae1471dcc402e7672c590bd9c87175f6da668ba0fba9ba2bfef0c07e7b99708",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-050-221",
+              "cardNo": "SFD-050/221",
+              "name": "Azir",
+              "sha256": "7e2555a5867c96a6e6397f8d3b6725877c69ab9e17479d9dbb213281a4a4d27a",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-059/221",
+          "activeCardNo": "SFD·059/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33139,
+              "cardNo": "SFD·059/221",
+              "name": "斯弗尔尚歌",
+              "sha256": "2146ff16f353ba13fa9c3081a9403980f290ce160b95df6e03cbe35da077f9fa",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-059-221",
+              "cardNo": "SFD-059/221",
+              "name": "Svellsongur",
+              "sha256": "75506eceadb637a5be97bcf4abfaa12ba98c875c16c1f058641ef1cc54dbaee1",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "UNL-200/219",
+          "activeCardNo": "UNL-200/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34753,
+              "cardNo": "UNL-200/219",
+              "name": "镜花水月",
+              "sha256": "1265a81895f2d6981aa94074177d3e9b0d8c2258ad39652534fd15ccbd9c8824",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-200-219",
+              "cardNo": "UNL-200/219",
+              "name": "Mirror Image",
+              "sha256": "01796731529808f8b22392b611595cb56c980c99b8095464000549e406b14b78",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "VEN-137",
+          "activeCardNo": null,
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 37839,
+              "cardNo": "VEN·137",
+              "name": "可疑的眼镜",
+              "sha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "VEN-183",
+          "activeCardNo": null,
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 37886,
+              "cardNo": "VEN·183",
+              "name": "黛安娜",
+              "sha256": "5b90682c0db9dc558fbc0830fa1973a0d9190a9e91d1c6d4651a3e47f9c1859c",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P008-B005",
+        "DOC-04-P008-B006",
+        "DOC-04-P008-B007",
+        "DOC-04-P055-B015",
+        "DOC-04-P055-B016",
+        "DOC-04-P055-B018",
+        "DOC-04-P056-B002",
+        "DOC-04-P056-B004",
+        "DOC-04-P056-B005",
+        "DOC-04-P056-B006",
+        "DOC-04-P058-B017",
+        "DOC-04-P058-B018",
+        "DOC-04-P058-B021",
+        "DOC-04-P059-B001",
+        "DOC-04-P059-B002",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B004",
+        "DOC-04-P059-B006",
+        "DOC-04-P059-B007",
+        "DOC-04-P059-B008",
+        "DOC-04-P059-B009",
+        "DOC-04-P059-B010",
+        "DOC-04-P059-B011",
+        "DOC-04-P059-B012",
+        "DOC-04-P059-B013",
+        "DOC-04-P060-B001",
+        "DOC-04-P060-B002",
+        "DOC-04-P060-B004",
+        "DOC-04-P060-B005",
+        "DOC-04-P060-B006",
+        "DOC-04-P060-B007",
+        "DOC-04-P060-B008",
+        "DOC-04-P060-B009",
+        "DOC-04-P060-B010",
+        "DOC-04-P060-B011",
+        "DOC-04-P060-B012",
+        "DOC-04-P060-B013",
+        "DOC-04-P060-B014",
+        "DOC-04-P060-B015",
+        "DOC-04-P061-B001",
+        "DOC-04-P061-B002",
+        "DOC-04-P061-B003",
+        "DOC-04-P061-B004",
+        "DOC-04-P061-B005",
+        "DOC-04-P061-B006",
+        "DOC-04-P061-B007",
+        "DOC-04-P061-B008",
+        "DOC-04-P061-B009",
+        "DOC-04-P061-B010",
+        "DOC-04-P061-B011",
+        "DOC-04-P061-B012",
+        "DOC-04-P061-B013",
+        "DOC-04-P061-B014",
+        "DOC-04-P061-B015",
+        "DOC-04-P061-B016",
+        "DOC-04-P061-B017",
+        "DOC-04-P061-B018",
+        "DOC-04-P061-B019",
+        "DOC-04-P061-B020",
+        "DOC-04-P061-B021",
+        "DOC-04-P061-B022",
+        "DOC-04-P062-B001",
+        "DOC-04-P062-B002",
+        "DOC-04-P062-B003",
+        "DOC-04-P062-B004",
+        "DOC-04-P062-B005",
+        "DOC-04-P062-B006",
+        "DOC-04-P062-B007",
+        "DOC-04-P062-B008",
+        "DOC-04-P062-B009",
+        "DOC-04-P062-B010",
+        "DOC-04-P062-B011",
+        "DOC-04-P062-B012",
+        "DOC-04-P062-B013",
+        "DOC-04-P062-B014",
+        "DOC-04-P062-B016",
+        "DOC-04-P062-B017",
+        "DOC-04-P062-B018",
+        "DOC-04-P062-B019",
+        "DOC-04-P062-B020",
+        "DOC-04-P063-B001",
+        "DOC-04-P093-B008",
+        "DOC-04-P093-B009",
+        "DOC-04-P093-B010",
+        "DOC-04-P093-B011",
+        "DOC-04-P094-B001",
+        "DOC-04-P104-B009",
+        "DOC-04-P104-B010",
+        "DOC-04-P104-B011",
+        "DOC-04-P104-B012",
+        "DOC-04-P104-B013",
+        "DOC-04-P104-B014",
+        "DOC-04-P104-B015",
+        "DOC-04-P104-B017",
+        "DOC-04-P104-B018",
+        "DOC-04-P105-B002",
+        "DOC-04-P105-B003",
+        "DOC-04-P105-B004"
+      ],
+      "auditDocument": "docs/COPIED_FACE_AUTHORITY_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/copied-face-authority-2026-10-13/associated-readback.json",
+        "docs/evidence/copied-face-authority-2026-10-13/check-parity.json",
+        "docs/evidence/copied-face-authority-2026-10-13/code-inputs.json",
+        "docs/evidence/copied-face-authority-2026-10-13/core-readback.json",
+        "docs/evidence/copied-face-authority-2026-10-13/faq-readback.json",
+        "docs/evidence/copied-face-authority-2026-10-13/full-plan-parity.json",
+        "docs/evidence/copied-face-authority-2026-10-13/godot-execution.json",
+        "docs/evidence/copied-face-authority-2026-10-13/native-replay.json",
+        "docs/evidence/copied-face-authority-2026-10-13/red-evidence.json",
+        "docs/evidence/copied-face-authority-2026-10-13/rule-excerpts.json",
+        "docs/evidence/copied-face-authority-2026-10-13/source-readback.json",
+        "docs/evidence/copied-face-authority-2026-10-13/validation.json"
+      ],
+      "tests": [
+        "CopiedFaceAuthorityTests",
+        "CopiedFaceNativeTests",
+        "OfficialCopyIdentityTests",
+        "OfficialReflexiveCopyTests",
+        "AttachedRuleTextTests",
+        "CopiedActivatedAbilityTests",
+        "CopiedSpellTriggerTests",
+        "MightyTransitionTests"
+      ],
+      "validation": {
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "expandedFocusedCases": 126,
+        "revisedFocusCases": 71,
+        "nativeProductionCommands": 27,
+        "checkCases": 10639,
+        "checkMethods": 6718,
+        "adjacentCases": 290,
+        "originalFullGameCasesPassed": 5,
+        "addedCases": 18,
+        "addedMethods": 6,
+        "fullPlannedMethods": 6859,
+        "expectedFullCases": 10788
+      },
+      "exclusions": [
+        "Shady Spectacles VEN137 runtime not implemented",
+        "All nonempty acquired skills across face changes and historical generation authority",
+        "Other original-source/copy semantics and all full-card coverage",
+        "Eight EN source gaps, visible paired full match, Windows user runtime, real PostgreSQL"
+      ]
     }
   ]
 }

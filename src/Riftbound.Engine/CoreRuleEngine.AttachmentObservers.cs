@@ -107,7 +107,8 @@ public sealed partial class CoreRuleEngine
             using var copiedTextInstruction = new MightInstructionScope(state, zones, cards, events, nextLocations);
             var revision = checked(gear.AttachmentRevision + 1);
             cards[gearId] = cards[gearId] with { AttachmentRevision = revision,
-                AttachedRuleText = new(new(unit.ObjectId, unit.ObjectGeneration), face, revision) };
+                AttachedRuleText = new(new(unit.ObjectId, unit.ObjectGeneration), face, revision, state.Tick + 1,
+                    unit.CopyFaceTransitions?.Count ?? 0) };
             events.Add(new("RULE_TEXT_COPIED", "贴附后复制单位的印刷技能文字", new Dictionary<string, object?> {
                 ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId, ["sourceCardNo"] = face,
                 ["revision"] = revision, ["reason"] = "ATTACH_THEN_COPY_PRINTED_RULE_TEXT" }));
