@@ -589,10 +589,10 @@ public sealed class TriggerPaymentTests
         Assert.True(result.Accepted, result.ErrorMessage);
         var payment = AssertSunkenTemplePaymentOpen(result);
         Assert.Equal(1, result.State.RunePools["P1"].Mana);
-        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
         Assert.Equal("P1", payment.PlayerId);
         Assert.Equal(1, payment.ManaCost);
-        Assert.Contains(PayOneMana, payment.LegalPaymentChoiceIds);
+        Assert.Contains("PAY", payment.LegalPaymentChoiceIds);
         Assert.Contains(Decline, payment.LegalPaymentChoiceIds);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Equal(
@@ -616,10 +616,14 @@ public sealed class TriggerPaymentTests
         var paid = await engine.ResolveAsync(
             opened.State,
             new PlayerIntent("intent-sunken-temple-pay", "P1", CommandTypes.PayCost),
-            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]),
             CancellationToken.None);
 
         Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Empty(paid.State.PlayerZones["P1"].Hand);
+        Assert.Single(paid.State.StackItems);
+        var response = await OfficialGraveyardRecastTests.Top(paid.State);
+        paid = response with { Events = paid.Events.Concat(response.Events).ToArray() };
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-001"], paid.State.PlayerZones["P1"].Hand);
@@ -639,7 +643,7 @@ public sealed class TriggerPaymentTests
         var engine = new CoreRuleEngine();
         var opened = await DeclareSunkenTempleBattleAsync(BuildBattlefieldConquerPowerfulDrawState(), engine);
         var payment = AssertSunkenTemplePaymentOpen(opened);
-        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]);
 
         var paid = await engine.ResolveAsync(
             opened.State,
@@ -648,6 +652,10 @@ public sealed class TriggerPaymentTests
             CancellationToken.None);
 
         Assert.True(paid.Accepted, paid.ErrorMessage);
+        Assert.Empty(paid.State.PlayerZones["P1"].Hand);
+        Assert.Single(paid.State.StackItems);
+        var response = await OfficialGraveyardRecastTests.Top(paid.State);
+        paid = response with { Events = paid.Events.Concat(response.Events).ToArray() };
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-001"], paid.State.PlayerZones["P1"].Hand);
@@ -713,12 +721,12 @@ public sealed class TriggerPaymentTests
         var wrongPlayer = await engine.ResolveAsync(
             opened.State,
             new PlayerIntent("intent-sunken-temple-wrong-player", "P2", CommandTypes.PayCost),
-            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]),
             CancellationToken.None);
         var stalePayment = await engine.ResolveAsync(
             opened.State,
             new PlayerIntent("intent-sunken-temple-stale-payment", "P1", CommandTypes.PayCost),
-            new PayCostCommand($"{payment.PaymentId}:stale", payment.PaymentWindow, [PayOneMana]),
+            new PayCostCommand($"{payment.PaymentId}:stale", payment.PaymentWindow, ["PAY"]),
             CancellationToken.None);
         var unknownChoice = await engine.ResolveAsync(
             opened.State,
@@ -733,7 +741,7 @@ public sealed class TriggerPaymentTests
         var payAndDecline = await engine.ResolveAsync(
             opened.State,
             new PlayerIntent("intent-sunken-temple-pay-and-decline", "P1", CommandTypes.PayCost),
-            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana, Decline]),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY", Decline]),
             CancellationToken.None);
         var malformed = await engine.ResolveAsync(
             opened.State,
@@ -760,7 +768,7 @@ public sealed class TriggerPaymentTests
         var insufficient = await engine.ResolveAsync(
             opened.State,
             new PlayerIntent("intent-sunken-temple-insufficient", "P1", CommandTypes.PayCost),
-            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, [PayOneMana]),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]),
             CancellationToken.None);
 
         AssertRejectedNoMutation(insufficient, opened.State, ErrorCodes.InsufficientCost);
@@ -1727,7 +1735,7 @@ public sealed class TriggerPaymentTests
     {
         var payment = result.State.PendingPayment;
         Assert.NotNull(payment);
-        Assert.Equal(TriggerPaymentWindow, payment.PaymentWindow);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
         var openedEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, PowerfulDrawTrigger, StringComparison.Ordinal));
@@ -1735,8 +1743,8 @@ public sealed class TriggerPaymentTests
         Assert.Equal(payment.PaymentWindow, openedEvent.Payload["paymentWindow"]);
         Assert.Equal("P1-BATTLEFIELD-SUNKEN-TEMPLE", openedEvent.Payload["battlefieldId"]);
         Assert.Equal("P1-BATTLEFIELD-SUNKEN-TEMPLE", openedEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal("P1-BATTLEFIELD-POWERFUL-ATTACKER", openedEvent.Payload["sourceObjectId"]);
-        Assert.Equal([PayOneMana, Decline], Assert.IsType<string[]>(openedEvent.Payload["paymentChoices"]));
+        Assert.Equal("P1-BATTLEFIELD-SUNKEN-TEMPLE", openedEvent.Payload["sourceObjectId"]);
+        Assert.Equal(["PAY", Decline], Assert.IsType<string[]>(openedEvent.Payload["paymentChoices"]));
 
         var prompt = result.Prompts["P1"];
         Assert.True(prompt.Actionable);
@@ -1746,11 +1754,11 @@ public sealed class TriggerPaymentTests
             promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.PayCost, StringComparison.Ordinal));
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
         Assert.Equal(payment.PaymentId, Assert.IsType<string>(metadata["paymentId"]));
-        Assert.Equal(TriggerPaymentWindow, Assert.IsType<string>(metadata["paymentWindow"]));
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", Assert.IsType<string>(metadata["paymentWindow"]));
         var cost = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(metadata["cost"]);
         Assert.Equal(1, Assert.IsType<int>(cost["mana"]));
         var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]).ToArray();
-        Assert.Contains(choices, choice => string.Equals(choice.Id, PayOneMana, StringComparison.Ordinal));
+        Assert.Contains(choices, choice => string.Equals(choice.Id, "PAY", StringComparison.Ordinal));
         Assert.Contains(choices, choice => string.Equals(choice.Id, Decline, StringComparison.Ordinal));
         return payment;
     }
@@ -2788,6 +2796,11 @@ public sealed class TriggerPaymentTests
             turnPlayerId: "P1",
             phase: MatchPhases.Main,
             timingState: TimingStates.NeutralOpen,
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SUNKEN-TEMPLE")],
+            objectLocations: new Dictionary<string, ObjectLocationState> {
+                ["P1-BATTLEFIELD-SUNKEN-TEMPLE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+                ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+                ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE") },
             runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(mana, 0),

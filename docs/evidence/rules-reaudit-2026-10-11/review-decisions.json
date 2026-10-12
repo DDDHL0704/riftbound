@@ -9227,7 +9227,7 @@
     },
     {
       "id": "powerful-sacrifice-cost-2026-10-13",
-      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "status": "SCOPED_CHECK_NATIVE_AND_FIXED_COMMIT_FULL_PASS",
       "scope": "Exact CN UNL-173/219 mandatory current Mighty cost, non-target prompt, shared death/Last Breath sequencing and granted Echo combination; no whole-card certification",
       "subjects": [
         {
@@ -9290,7 +9290,8 @@
         "docs/evidence/powerful-sacrifice-2026-10-13/core-rules-readback.json",
         "docs/evidence/powerful-sacrifice-2026-10-13/red-evidence.json",
         "docs/evidence/powerful-sacrifice-2026-10-13/echo-red-evidence.json",
-        "docs/evidence/powerful-sacrifice-2026-10-13/powerful-source-queue.json"
+        "docs/evidence/powerful-sacrifice-2026-10-13/powerful-source-queue.json",
+        "docs/evidence/powerful-sacrifice-2026-10-13/full-ci-168d8f7e.json"
       ],
       "tests": [
         "PowerfulSacrificeCostTests",
@@ -9301,17 +9302,155 @@
       "validation": {
         "nativeProductionCommands": 10,
         "wholeCardCertification": false,
-        "exactHeadFullCiRequired": true,
+        "exactHeadFullCiRequired": false,
         "checkCases": 10340,
-        "checkMethods": 6612
+        "checkMethods": 6612,
+        "validatedImplementationCommit": "168d8f7e58bb31a0bce95c4142119501d579e7d1",
+        "fullCiRunId": 38280773459,
+        "fullCases": 10489,
+        "fullMethods": 6753,
+        "pairs": 110
       },
       "exclusions": [
-        "Fixed-commit full CI",
         "All mandatory nonstandard cost combinations/replacements, layers and provider cards",
         "Native Echo choice flow, visible paired match and Windows real runtime",
         "17 Powerful exact CN printings remain whole-card NOT_REVIEWED",
         "Full source/card/rule semantics, eight EN source gaps, real PostgreSQL acceptance",
         "EN source references retain their prior snapshot boundary, no EN live refresh or whole-card certification"
+      ]
+    },
+    {
+      "id": "sunken-temple-might-2026-10-13",
+      "status": "SCOPED_CHECK_NATIVE_AND_TWO_FULL_GAME_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Exact CN SFD·218/221 conquest-time current Might, shared public numeric history, leading optional cost and independent response; no whole-card certification",
+      "subjects": [
+        {
+          "id": "SFD-218/221",
+          "activeCardNo": "SFD·218/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33317,
+              "cardNo": "SFD·218/221",
+              "name": "沉没神庙",
+              "sha256": "38309afc4229b2163a8aaf8c096436bf2b6607706bda81b7e02c5aa355ff5648",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-218-221",
+              "cardNo": "SFD-218/221",
+              "name": "Sunken Temple",
+              "sha256": "215fd3790c468d8ddb48bd49d16175c57848a26fde19d7d591a72049fd385b3d",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact CN SFD·218/221 conquest-time current Might, shared public numeric history, leading optional cost and independent response; no whole-card certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/sunken-temple-2026-10-13/validation.json"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P030-B020",
+        "DOC-04-P037-B014",
+        "DOC-04-P058-B018",
+        "DOC-04-P061-B011",
+        "DOC-04-P061-B013",
+        "DOC-04-P087-B005",
+        "DOC-04-P087-B006",
+        "DOC-04-P087-B007",
+        "DOC-04-P087-B008",
+        "DOC-04-P087-B009",
+        "DOC-04-P087-B010",
+        "DOC-04-P087-B011",
+        "DOC-04-P087-B012",
+        "DOC-04-P087-B013",
+        "DOC-04-P087-B014",
+        "DOC-04-P087-B015",
+        "DOC-04-P087-B016",
+        "DOC-04-P087-B017",
+        "DOC-04-P092-B013",
+        "DOC-04-P102-B016",
+        "DOC-04-P030-B021",
+        "DOC-04-P030-B022",
+        "DOC-04-P059-B002",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B004",
+        "DOC-04-P059-B006",
+        "DOC-04-P059-B007",
+        "DOC-04-P059-B008",
+        "DOC-04-P059-B009",
+        "DOC-04-P062-B016",
+        "DOC-04-P062-B017",
+        "DOC-04-P062-B018",
+        "DOC-04-P063-B009",
+        "DOC-04-P063-B010",
+        "DOC-04-P063-B011",
+        "DOC-04-P063-B012",
+        "DOC-04-P063-B013",
+        "DOC-04-P063-B014",
+        "DOC-04-P063-B015",
+        "DOC-04-P063-B016",
+        "DOC-04-P063-B017",
+        "DOC-04-P063-B018",
+        "DOC-04-P063-B019",
+        "DOC-04-P063-B020",
+        "DOC-04-P063-B021",
+        "DOC-04-P064-B001",
+        "DOC-04-P064-B002",
+        "DOC-04-P064-B003",
+        "DOC-04-P064-B004",
+        "DOC-04-P064-B006",
+        "DOC-04-P061-B009",
+        "DOC-04-P088-B011",
+        "DOC-04-P088-B012",
+        "DOC-04-P102-B012",
+        "DOC-04-P102-B013"
+      ],
+      "auditDocument": "docs/SUNKEN_TEMPLE_MIGHT_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/sunken-temple-2026-10-13/validation.json",
+        "docs/evidence/sunken-temple-2026-10-13/live-readback.json",
+        "docs/evidence/sunken-temple-2026-10-13/core-rules-readback.json",
+        "docs/evidence/sunken-temple-2026-10-13/red-evidence.json",
+        "docs/evidence/sunken-temple-2026-10-13/powerful-source-queue.json"
+      ],
+      "tests": [
+        "SunkenTempleMightTests",
+        "SunkenTempleNativeTests",
+        "TriggerPaymentTests",
+        "GameHubJoinTests.P79BattlefieldConquerPowerfulDrawSeedOffersBattlefieldDestinationAndDraws",
+        "FullGameEndToEndTests.OfficialDeckMidgamePaysSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "FullGameEndToEndTests.OfficialDeckMidgameDeclinesSunkenTemplePowerfulDrawAndScoreVictoryActionLogReplaysToFinalStateHash"
+      ],
+      "validation": {
+        "nativeProductionCommands": 13,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "checkCases": 10366,
+        "checkMethods": 6623
+      },
+      "exclusions": [
+        "Fixed-commit full CI and whole card/all-layer/conquest semantics",
+        "Historical input and result jointly changed require trusted full action/event replay; no full security certification",
+        "17 Powerful whole-card identities, becoming Mighty and highest-Might consumers",
+        "All 1738 whole-card identities, 14293 rule records and eight EN source gaps",
+        "Native combat assignment/ordering scope, visible paired match, Windows real runtime and actual PostgreSQL",
+        "EN source references retain prior snapshot boundary, no EN live refresh/certification"
       ]
     }
   ]

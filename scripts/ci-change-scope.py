@@ -24,6 +24,7 @@ DOCUMENTATION = frozenset({
     'docs/POWERFUL_CONSUMER_MIGHT_AUDIT_2026-10-12.md',
     'docs/POWERFUL_LAST_BREATH_AUDIT_2026-10-12.md',
     'docs/POWERFUL_SACRIFICE_COST_AUDIT_2026-10-13.md',
+    'docs/SUNKEN_TEMPLE_MIGHT_AUDIT_2026-10-13.md',
     'docs/RULE_TEST_WORKFLOW.md', 'docs/RULE_TEST_SPEED_2026-10-09.md',
     'docs/RULE_TEST_SPEED_2026-10-12.md',
     'docs/rules-authority-and-audit.md', 'docs/rules-evidence-index.md',

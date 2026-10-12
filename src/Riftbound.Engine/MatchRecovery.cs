@@ -4486,6 +4486,7 @@ public static class MatchRecoveryValidator
                 triggeredEventKind,
                 errors);
             ValidateLastBreathMightPayload(triggerPayload, effectKind, errors);
+            ValidateBattlefieldConquestMightPayload(triggerPayload, effectKind, errors);
             ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
                 triggerLabel,
                 triggerId,
@@ -18600,6 +18601,7 @@ public static class MatchRecoveryValidator
             var hiddenSource = authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
+            if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("spectator captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
@@ -18833,6 +18835,7 @@ public static class MatchRecoveryValidator
             var hiddenSource = authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
+            if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("snapshot captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
@@ -22991,6 +22994,7 @@ public static class MatchRecoveryValidator
             }
 
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23290,6 +23294,38 @@ public static class MatchRecoveryValidator
         return true;
     }
 
+    private static BattlefieldConquestMightContext? ReadBattlefieldConquestMightView(object? payload)
+    {
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("battlefieldConquestMight", out var raw)
+                && raw.ValueKind != JsonValueKind.Null
+                ? raw.Deserialize<BattlefieldConquestMightContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+        } catch (JsonException) { return null; }
+    }
+
+    private static void ValidateBattlefieldConquestMightPayload(object? payload, string? effect, List<string> errors)
+    {
+        var context = ReadBattlefieldConquestMightView(payload);
+        if (effect == TriggerKinds.BattlefieldConquerPowerfulPayDraw || context is not null)
+            if (context is null || effect != TriggerKinds.BattlefieldConquerPowerfulPayDraw
+                || !CoreRuleEngine.ValidBattlefieldConquestMightFrame(context)) errors.Add("invalid public captured conquest Might");
+    }
+
+    private static void ValidateBattlefieldConquestMightStackViews(IReadOnlyList<object?> payloads,
+        MatchState authority, List<string> errors, string label)
+    {
+        foreach (var payload in payloads) {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            TryReadObjectString(payload, "effectKind", out var effect);
+            ValidateBattlefieldConquestMightPayload(payload, effect, errors);
+            var expected = authority.StackItems.FirstOrDefault(i => i.StackItemId == id);
+            if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(payload))
+                != MatchStateHasher.HashValue(expected?.BattlefieldConquestMight))
+                errors.Add($"{label} captured conquest Might differs from authoritative state");
+        }
+    }
+
     private static void ValidateLastBreathMightPayload(object? payload, string? effect, List<string> errors)
     {
         var context = ReadLastBreathMightView(payload);
@@ -23349,6 +23385,17 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        if (state.PendingPayment is { PaymentWindow: "TRIGGER_PAYMENT", Reason: { } oldReason }
+            && oldReason.StartsWith(TriggerKinds.BattlefieldConquerPowerfulPayDraw + "|", StringComparison.Ordinal))
+            errors.Add("obsolete payment lacks captured conquest Might and independent ability");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.BattlefieldConquestMight is { } captured ? !CoreRuleEngine.ValidBattlefieldConquestMightContext(state,
+                captured, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId)
+                : trigger.EffectKind == TriggerKinds.BattlefieldConquerPowerfulPayDraw) errors.Add("invalid captured conquest Might");
+        foreach (var item in state.StackItems)
+            if (item.BattlefieldConquestMight is { } captured ? !CoreRuleEngine.ValidBattlefieldConquestMightContext(state,
+                captured, item.EffectKind, item.SourceObjectId, item.ControllerId)
+                : item.EffectKind == TriggerKinds.BattlefieldConquerPowerfulPayDraw) errors.Add("invalid captured conquest Might stack");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.LastBreathMight is { } captured ? !CoreRuleEngine.ValidLastBreathMightContext(state, captured,
                 trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId)
@@ -24412,7 +24459,7 @@ public static class MatchRecoveryValidator
                 || item.AfterPlayRecycle is not null || item.RecycledUnit is not null || item.PlayCost is not null
                 || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null
                 || item.DeathRevealContext is not null || item.DeathObserver is not null || item.MovementObserver is not null
-                || item.FieldContext is not null || item.LegendConquest is not null || item.ReflexiveDuel is not null
+                || item.BattlefieldConquestMight is not null || item.FieldContext is not null || item.LegendConquest is not null || item.ReflexiveDuel is not null
                 || item.BattlefieldStart is not null || item.EphemeralStart is not null || item.BeginningRecycle is not null
                 || item.BeginningDraw is not null || item.LocationDamage is not null || item.UnitConquest is not null
                 || item.CompletedRepeatExecutions != 0 || item.CompletedHandExecutions != 0 || item.CompletedDeckExecutions != 0
@@ -31461,6 +31508,7 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
+        ValidateBattlefieldConquestMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateLocationDamageViews(stackItems, authoritativeState, errors, "spectator replay frame");
         var authoritativeStackItemsById = new Dictionary<string, StackItemState>(StringComparer.Ordinal);

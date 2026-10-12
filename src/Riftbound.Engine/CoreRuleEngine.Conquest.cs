@@ -58,6 +58,9 @@ public sealed partial class CoreRuleEngine
         if (conqueredRealBattlefield)
             recastTriggers = recastTriggers.Concat(CaptureConquestDamage(state, state with {PlayerZones=playerZones,CardObjects=cardObjects},
                 playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestMight(state with { PlayerZones = playerZones,
+            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+            playerId, battlefieldId, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield
@@ -161,19 +164,6 @@ public sealed partial class CoreRuleEngine
                 out var battlefieldReadyLegendPendingPayment))
         {
             pendingPayment = battlefieldReadyLegendPendingPayment;
-        }
-        if (TryOpenBattlefieldConquerPowerfulPayDrawPaymentWindow(
-                playerZones,
-                cardObjects,
-                playerId,
-                battlefieldId,
-                sourceObjectId,
-                conqueringUnitObjectIds,
-                resolutionTick,
-                events,
-                out var battlefieldPowerfulDrawPendingPayment))
-        {
-            pendingPayment = battlefieldPowerfulDrawPendingPayment;
         }
         if (TryOpenBattlefieldConquerPayOneCreateGoldPaymentWindow(
                 playerZones,

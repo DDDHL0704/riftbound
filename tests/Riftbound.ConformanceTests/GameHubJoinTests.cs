@@ -10059,9 +10059,9 @@ public sealed class GameHubJoinTests
         var metadata = Assert.IsType<Dictionary<string, object?>>(payCandidate.Metadata);
         var paymentId = Assert.IsType<string>(metadata["paymentId"]);
         var paymentWindow = Assert.IsType<string>(metadata["paymentWindow"]);
-        Assert.Equal("TRIGGER_PAYMENT", paymentWindow);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", paymentWindow);
         var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]).ToArray();
-        Assert.Contains(choices, choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
+        Assert.Contains(choices, choice => string.Equals(choice.Id, "PAY", StringComparison.Ordinal));
         Assert.Contains(choices, choice => string.Equals(choice.Id, "DECLINE", StringComparison.Ordinal));
 
         var payClients = new RecordingHubClients();
@@ -10071,13 +10071,25 @@ public sealed class GameHubJoinTests
                 cmdType = "PAY_COST",
                 paymentId,
                 paymentWindow,
-                paymentChoiceIds = new[] { "SPEND_MANA:1" },
+                paymentChoiceIds = new[] { "PAY" },
                 promptId = payPrompt.PromptId,
                 snapshotTick = payPrompt.SnapshotTick
             }));
 
         Assert.Empty(payClients.CallerClient.Errors);
-        var payEvents = EventsFor(payClients);
+        var confirmedEvents = EventsFor(payClients);
+        Assert.DoesNotContain(confirmedEvents, e => e.Kind == "CARD_DRAWN");
+        var responseEvents = new List<GameEvent>();
+        foreach (var actor in new[] { "P1", "P2" }) {
+            var prompt = PromptFor(payClients, actor);
+            var responseClients = new RecordingHubClients();
+            await CreateHub(responseClients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2", registry)
+                .SubmitIntent(roomId, actor, "sunken-response-" + actor, JsonSerializer.SerializeToElement(new {
+                    cmdType = "PASS_PRIORITY", promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
+            Assert.Empty(responseClients.CallerClient.Errors); responseEvents.AddRange(EventsFor(responseClients));
+            payClients = responseClients;
+        }
+        var payEvents = confirmedEvents.Concat(responseEvents).ToArray();
         var triggerEvent = Assert.Single(payEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));

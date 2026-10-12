@@ -1,0 +1,12 @@
+{
+  "native": true,
+  "accepted": 3,
+  "staleRejected": 1,
+  "replay": {
+    "isMatch": true,
+    "replayedStateHash": "0a4da49d9c915a4e85550010e17707d49dc6ec47ad3695f4cc64ff74dc1d7e06",
+    "expectedStateHash": "0a4da49d9c915a4e85550010e17707d49dc6ec47ad3695f4cc64ff74dc1d7e06",
+    "errors": []
+  },
+  "finalHash": "0a4da49d9c915a4e85550010e17707d49dc6ec47ad3695f4cc64ff74dc1d7e06"
+}

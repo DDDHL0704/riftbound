@@ -37930,8 +37930,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.RunePools["P1"].Mana);
         var payment = result.State.PendingPayment;
         Assert.NotNull(payment);
-        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
-        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
+        Assert.Equal(["PAY", "DECLINE"], payment.LegalPaymentChoiceIds);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -37941,10 +37941,14 @@ public sealed class ConformanceFixtureRunnerTests
         var paid = await engine.ResolveAsync(
             result.State,
             new PlayerIntent("intent-p7-9-battlefield-powerful-draw-pay", "P1", "PAY_COST"),
-            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]),
             CancellationToken.None);
 
         Assert.True(paid.Accepted);
+        Assert.Empty(paid.State.PlayerZones["P1"].Hand);
+        Assert.Single(paid.State.StackItems);
+        var response = await OfficialGraveyardRecastTests.Top(paid.State);
+        paid = response with { Events = paid.Events.Concat(response.Events).ToArray() };
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         var triggerEvent = Assert.Single(paid.Events, gameEvent =>
@@ -37978,8 +37982,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         var payment = result.State.PendingPayment;
         Assert.NotNull(payment);
-        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
-        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
+        Assert.Equal(["PAY", "DECLINE"], payment.LegalPaymentChoiceIds);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -37988,10 +37992,14 @@ public sealed class ConformanceFixtureRunnerTests
         var paid = await engine.ResolveAsync(
             result.State,
             new PlayerIntent("intent-p7-9-battlefield-powerful-draw-multiple-pay", "P1", "PAY_COST"),
-            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]),
+            new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]),
             CancellationToken.None);
 
         Assert.True(paid.Accepted);
+        Assert.Empty(paid.State.PlayerZones["P1"].Hand);
+        Assert.Single(paid.State.StackItems);
+        var response = await OfficialGraveyardRecastTests.Top(paid.State);
+        paid = response with { Events = paid.Events.Concat(response.Events).ToArray() };
         Assert.Null(paid.State.PendingPayment);
         Assert.Equal(0, paid.State.RunePools["P1"].Mana);
         var triggerEvent = Assert.Single(paid.Events, gameEvent =>
@@ -65864,6 +65872,12 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 1) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SUNKEN-TEMPLE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["P1-BATTLEFIELD-SUNKEN-TEMPLE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+                ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+                ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -65914,6 +65928,13 @@ public sealed class ConformanceFixtureRunnerTests
     {
         return PunishmentState(mana: 1) with
         {
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SUNKEN-TEMPLE")],
+            ObjectLocations = new Dictionary<string, ObjectLocationState> {
+                ["P1-BATTLEFIELD-SUNKEN-TEMPLE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+                ["P1-BATTLEFIELD-WEAK-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+                ["P1-BATTLEFIELD-SECOND-POWERFUL-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+                ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE")
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with

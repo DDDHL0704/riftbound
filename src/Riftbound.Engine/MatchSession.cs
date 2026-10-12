@@ -620,6 +620,8 @@ public sealed record StackItemState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LastBreathMightContext? LastBreathMight { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BattlefieldConquestMightContext? BattlefieldConquestMight { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TargetedPowerAbilityContext? TargetedPowerAbility { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DamageDistributionContext? DamageDistribution { get; init; }
@@ -761,6 +763,8 @@ public sealed record TriggerQueueItemState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LastBreathMightContext? LastBreathMight { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BattlefieldConquestMightContext? BattlefieldConquestMight { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DamageDistributionContext? DamageDistribution { get; init; }
     public AttachmentObserverContext? AttachmentObserver { get; init; }
@@ -4269,7 +4273,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4283,7 +4287,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -5339,6 +5343,7 @@ public sealed record ResolutionResult(
                 ["movementDestinations"] = execution.MovementDestinations, ["destination"] = execution.Destination
             }).ToArray();
         if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
+        if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
         if (!hiddenSource && item.MovementDestinations is { } moves)
             view["movementDestinations"] = moves.ToArray();
         if (!hiddenSource && item.HeldContext is { } held && (held.Kind switch {
@@ -5505,6 +5510,7 @@ public sealed record ResolutionResult(
             ["triggeredByEventKind"] = item.TriggeredByEventKind
         };
         if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
+        if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
         return view;
     }
 
@@ -25000,7 +25006,7 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState BuildBattlefieldConquerPowerfulDrawScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var scenario = BuildScenarioState(
             current,
             seed,
             2603303039,
@@ -25056,6 +25062,12 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+
+        return scenario with { UntilEndOfTurnEffects = scenario.UntilEndOfTurnEffects.Append(BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-SUNKEN-TEMPLE")).Distinct(StringComparer.Ordinal).ToArray(),
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(scenario.ObjectLocations) {
+            ["P1-BATTLEFIELD-SUNKEN-TEMPLE"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+            ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE"),
+            ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-SUNKEN-TEMPLE") } };
     }
 
     private static MatchState BuildBattlefieldConquerSandSoldierScenario(MatchState current, DevScenarioSeed seed)

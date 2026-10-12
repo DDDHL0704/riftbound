@@ -12,7 +12,7 @@ public sealed partial class CoreRuleEngine
 
     // CN 204.3.a: leading instruction costs are paid while confirming a trigger,
     // before responses. A paid receipt follows the captured stack item, not its live source.
-    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.AttachmentObserver is { } attached && AttachmentDrawSpec(attached.CardNo) is { } drawSpec ? new(Mana: drawSpec.ManaCost ?? 0) : item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
+    private static LeadingCost? LeadingTriggerCost(StackItemState item) => item.BattlefieldConquestMight is { } conquestMight ? new(Mana: BattlefieldConquestMightDefinition(conquestMight.CardNo)?.ManaCost ?? 0) : item.AttachmentObserver is { } attached && AttachmentDrawSpec(attached.CardNo) is { } drawSpec ? new(Mana: drawSpec.ManaCost ?? 0) : item.BattlefieldStart is { DrawCount: > 0 } ? new(DestroyLocalUnit: true) : item.LegendConquest?.Kind switch {
         "PAY_READY_SELF" => new(Mana: LegendConquestDefinition(item.LegendConquest.CardNo)?.Spec.ManaCost ?? 0),
         "EXHAUST_READY_UNIT" or "EXHAUST_DECK_PLAY" => new(Exhaust: true),
         _ => item.HeldContext?.Kind switch {
@@ -25,7 +25,7 @@ public sealed partial class CoreRuleEngine
     };
     internal static bool NeedsTriggerCostConfirmation(StackItemState item) => LeadingTriggerCost(item) is not null && item.TriggerCost is null;
 
-    private static bool ValidLeadingCostContext(StackItemState item) => item.AttachmentObserver is not null ? ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo) : item.BattlefieldStart is { DrawCount: > 0 } start ? ValidBattlefieldStartDefinition(start, item.EffectKind, item.CardNo) : item.LegendConquest is { } conquest ? LeadingTriggerCost(item) is not null && ValidLegendConquest(conquest, item.EffectKind, item.CardNo)
+    private static bool ValidLeadingCostContext(StackItemState item) => item.BattlefieldConquestMight is { } conquestMight ? ValidBattlefieldConquestMightFrame(conquestMight) && item.CardNo == conquestMight.CardNo && item.SourceObjectId == conquestMight.Source.ObjectId && item.ControllerId == conquestMight.ControllerId && item.EffectKind == TriggerKinds.BattlefieldConquerPowerfulPayDraw  : item.AttachmentObserver is not null ? ValidAttachmentObserver(item.AttachmentObserver, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo) : item.BattlefieldStart is { DrawCount: > 0 } start ? ValidBattlefieldStartDefinition(start, item.EffectKind, item.CardNo) : item.LegendConquest is { } conquest ? LeadingTriggerCost(item) is not null && ValidLegendConquest(conquest, item.EffectKind, item.CardNo)
         : item.HeldContext is { } held
         && LeadingTriggerCost(item) is not null && item.CardNo == held.CardNo
         && (HeldDefinition(held.CardNo) is { } definition && definition.Kind == held.Kind && definition.Amount == held.Amount
@@ -59,12 +59,12 @@ public sealed partial class CoreRuleEngine
                 : "选择横置此传奇以确认触发技能；不选则放弃。费用支付后双方可以响应，效果随后结算。",
             item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
 
-    private static long TriggerCostSourceGeneration(StackItemState item) => item.AttachmentObserver?.SourceGeneration ?? item.BattlefieldStart?.SourceGeneration ?? item.LegendConquest?.SourceGeneration ?? item.HeldContext!.SourceGeneration;
+    private static long TriggerCostSourceGeneration(StackItemState item) => item.BattlefieldConquestMight?.Source.Generation ?? item.AttachmentObserver?.SourceGeneration ?? item.BattlefieldStart?.SourceGeneration ?? item.LegendConquest?.SourceGeneration ?? item.HeldContext!.SourceGeneration;
 
     private static PendingPaymentState TriggerCostPayment(StackItemState item)
         => new("TRIGGER-COST:" + item.StackItemId, TriggerCostWindow, item.ControllerId,
             manaCost: LeadingTriggerCost(item)!.Mana, powerCost: LeadingTriggerCost(item)!.Power, legalPaymentChoiceIds: ["PAY", "DECLINE"],
-            reason: item.AttachmentObserver is not null ? "支付法力以确认贴附后的抽牌技能，或放弃；双方响应后才抽牌。" : item.LegendConquest is not null ? "支付 1 法力以确认征服技能，或放弃；双方响应后传奇才变为活跃。" : "支付 4 点任意符能以确认据守技能；确认后双方可以响应，结算时额外获得 1 分。")
+            reason: item.BattlefieldConquestMight is not null ? "支付法力以确认征服抽牌技能，或放弃；双方响应后才抽牌。" : item.AttachmentObserver is not null ? "支付法力以确认贴附后的抽牌技能，或放弃；双方响应后才抽牌。" : item.LegendConquest is not null ? "支付 1 法力以确认征服技能，或放弃；双方响应后传奇才变为活跃。" : "支付 4 点任意符能以确认据守技能；确认后双方可以响应，结算时额外获得 1 分。")
             { ResolvingStackItemId = item.StackItemId };
 
     private static ResolutionResult PrepareTriggerCostConfirmation(ResolutionResult result, StackItemState item)
@@ -77,7 +77,8 @@ public sealed partial class CoreRuleEngine
             PendingPayment = cost.Power + cost.Mana > 0 ? TriggerCostPayment(item) : null,
             PriorityPlayerId = null, ActivePlayerId = item.ControllerId };
         return result with { State = state, Events = item.AttachmentObserver is not null
-            ? result.Events.Append(AttachmentPaymentOpened(item, state.PendingPayment!)).ToArray() : result.Events,
+            ? result.Events.Append(AttachmentPaymentOpened(item, state.PendingPayment!)).ToArray()
+            : item.BattlefieldConquestMight is not null ? result.Events.Append(BattlefieldConquestMightPaymentOpened(item, state.PendingPayment!)).ToArray() : result.Events,
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
@@ -97,6 +98,8 @@ public sealed partial class CoreRuleEngine
     {
         var item = state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId);
         if (item is null || !NeedsTriggerCostConfirmation(item) || !ValidLeadingCostContext(item)
+            || item.BattlefieldConquestMight is { } captured && !ValidBattlefieldConquestMightContext(state, captured,
+                item.EffectKind, item.SourceObjectId, item.ControllerId)
             || LeadingTriggerCost(item) is not { } cost || cost.Power + cost.Mana <= 0) return false;
         var expected = TriggerCostPayment(item);
         return payment.PaymentId == expected.PaymentId && payment.PaymentWindow == expected.PaymentWindow
@@ -124,16 +127,25 @@ public sealed partial class CoreRuleEngine
     private static ResolutionResult CompleteTriggerCost(MatchState state, StackItemState item,
         TriggerCostReceipt? receipt, List<GameEvent> events)
     {
-        if (item.AttachmentObserver is not null && state.PendingPayment is { } payment)
-            events.Add(BuildPaymentWindowClosedEvent(payment, item.ControllerId, declined: receipt is null));
+        if ((item.AttachmentObserver is not null || item.BattlefieldConquestMight is not null) && state.PendingPayment is { } payment) {
+            var closed = BuildPaymentWindowClosedEvent(payment, item.ControllerId, declined: receipt is null);
+            if (item.BattlefieldConquestMight is not null) closed = closed with { Payload = new Dictionary<string, object?>(closed.Payload) {
+                ["trigger"] = item.EffectKind, ["sourceObjectId"] = item.SourceObjectId } };
+            events.Add(closed);
+        }
         var paid = receipt is null ? null : item with { TriggerCost = receipt };
         var next = RestoreAfterTriggerConfirmation(state with { Tick = state.Tick + 1,
             PendingCardChoice = null, PendingPayment = null,
             StackItems = state.StackItems.Where(i => paid is not null || i.StackItemId != item.StackItemId)
                 .Select(i => i.StackItemId == item.StackItemId ? paid! : i).ToArray() }, item);
+        var confirmation = new Dictionary<string, object?> {
+            ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["stackItemId"] = item.StackItemId };
+        if (item.BattlefieldConquestMight is not null && state.PendingPayment is { } conquestPayment) {
+            confirmation["trigger"] = item.EffectKind; confirmation["paymentId"] = conquestPayment.PaymentId;
+            confirmation["paymentWindow"] = conquestPayment.PaymentWindow;
+        }
         events.Add(new(receipt is null ? "TRIGGER_PAYMENT_DECLINED" : "TRIGGER_CONFIRMED",
-            receipt is null ? "放弃并移除触发技能" : "已确认触发技能，双方可以响应", new Dictionary<string, object?> {
-                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["stackItemId"] = item.StackItemId }));
+            receipt is null ? "放弃并移除触发技能" : "已确认触发技能，双方可以响应", confirmation));
         return new(true, null, next, events, ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }
 
@@ -205,9 +217,14 @@ public sealed partial class CoreRuleEngine
             reason: pending.Reason, sourceObjectId: item.SourceObjectId);
         var committed = PaymentCostRules.TryCommitPayment(plan, state.RunePools, state.PlayerExperience);
         if (!committed.Accepted) return RejectWithCorePrompts(state, "资源不足，可以先使用符文或反应资源技能，或放弃此技能。", ErrorCodes.InsufficientCost);
+        var details = new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId };
+        if (item.BattlefieldConquestMight is not null) {
+            details["reason"] = item.EffectKind; details["paymentChoiceIds"] = choices.ToArray();
+            details["mana"] = pending.ManaCost; details["power"] = pending.PowerCost;
+        }
         return CompleteTriggerCost(state with { RunePools = committed.RunePools, PlayerExperience = committed.PlayerExperience }, item,
             new(new(item.SourceObjectId, TriggerCostSourceGeneration(item)), Power: pending.PowerCost, Mana: pending.ManaCost),
             [new("COST_PAID", "支付触发技能的基础费用", PaymentCostRules.BuildCostPaidPayload(plan, committed.RunePools,
-                committed.PlayerExperience, new Dictionary<string, object?> { ["sourceObjectId"] = item.SourceObjectId }))]);
+                committed.PlayerExperience, details))]);
     }
 }

@@ -1,0 +1,209 @@
+{
+  "status": "SCOPED_CHECK_NATIVE_AND_TWO_FULL_GAME_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "verifiedAtUtc": "2026-10-12T17:53:58.422333+00:00",
+  "scope": "Exact CN SFD·218/221 conquest-time current Might, shared public numeric history, leading optional cost and independent response; no whole-card certification",
+  "semanticCoverageCertified": false,
+  "wholeCardCertification": false,
+  "baselineImplementationCommit": "168d8f7e58bb31a0bce95c4142119501d579e7d1",
+  "implementationInputs": {
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "b56a832d157feb27ff6782be53b04dc240e8500e1dd481129a5f4af957a95e1b",
+    "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs": "c7fe3a2e5ae715376ffc2868d0c8581878ef59856b41b15d6f99a8869cc59ee5",
+    "src/Riftbound.Engine/CoreRuleEngine.BattlefieldConquestMight.cs": "241abfcd596168c305948d43031b9747af1572f220622af0c1f81cecddd7cdc2",
+    "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs": "144e33847fc0b14cb8825798bc0c6d7a70e6f4c700a198ef2d25a49752502667",
+    "src/Riftbound.Engine/MatchRecovery.cs": "518ef56ef44e05f48c319643137f5f4abe3b124263201c1030f306546124ebfd",
+    "src/Riftbound.Engine/MatchSession.cs": "2993dbe9f364ac4e879a35158001b700275c969cdaf9768cd0b9707c45f09c73",
+    "tests/Riftbound.ConformanceTests/SunkenTempleMightTests.cs": "4a5fd25ad34b2eb90c9efff32916da63f16db5dba765ed14da3aeb602d08d3aa",
+    "tests/Riftbound.ConformanceTests/SunkenTempleNativeTests.cs": "7a2f1617d817a855e2c682a70e6e5667754f2879d0a759117d9b8f4989b7f760",
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs": "6164011de379403ffe3a9572333ce8081ea243161956c33b6945063983308f36",
+    "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs": "cfa0f1555e912d357d8b52d3b44d329359c94a97d3e349709b07a121f0b8b18c",
+    "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs": "2fe3d0ff5e948718f3173a6d4ad3bd718cc4cfa14dbdc0a32e64a252df140057",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "4f77c6fc77a6ccf6e754f7317d3f5f10942210476fb0ba20984e823cf0fca975",
+    "clients/godot/scripts/debug/SunkenTempleInteractionProof.cs": "481293749993c89e8c00754b283462b4a010d0630c418e63b06a6a2e059cf8b3",
+    "clients/godot/scenes/debug/SunkenTempleInteractionProof.tscn": "7755cdf4909aa69e28360876bc857da6f31a441184904d95a4458aa00f983840",
+    "scripts/ci-change-scope.py": "36bead2f1789ba030df057e3803d490797f18ac495aa75339a4d75952af907aa"
+  },
+  "fullGameAdjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 25.41,
+    "total": 2,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 17.18
+      }
+    ]
+  },
+  "nativeFinalReadback": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.37,
+    "total": 3,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.82
+      }
+    ]
+  },
+  "native": {
+    "productionAcceptedCommands": 13,
+    "staleRejected": 3,
+    "duplicateJournalWrites": 0,
+    "godotHeadless": true,
+    "branches": {
+      "pay": {
+        "native": true,
+        "accepted": 6,
+        "staleRejected": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "ad6c93d84a4dc44f242de191dbe9a1774327bf8fc802957be8488dc9604beea0",
+          "expectedStateHash": "ad6c93d84a4dc44f242de191dbe9a1774327bf8fc802957be8488dc9604beea0",
+          "errors": []
+        },
+        "finalHash": "ad6c93d84a4dc44f242de191dbe9a1774327bf8fc802957be8488dc9604beea0"
+      },
+      "decline": {
+        "native": true,
+        "accepted": 4,
+        "staleRejected": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "d37825036fae790e4471643bf1b65863acdcf31ba0d63369462ef8b71b1e4aff",
+          "expectedStateHash": "d37825036fae790e4471643bf1b65863acdcf31ba0d63369462ef8b71b1e4aff",
+          "errors": []
+        },
+        "finalHash": "d37825036fae790e4471643bf1b65863acdcf31ba0d63369462ef8b71b1e4aff"
+      },
+      "below": {
+        "native": true,
+        "accepted": 3,
+        "staleRejected": 1,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "0a4da49d9c915a4e85550010e17707d49dc6ec47ad3695f4cc64ff74dc1d7e06",
+          "expectedStateHash": "0a4da49d9c915a4e85550010e17707d49dc6ec47ad3695f4cc64ff74dc1d7e06",
+          "errors": []
+        },
+        "finalHash": "0a4da49d9c915a4e85550010e17707d49dc6ec47ad3695f4cc64ff74dc1d7e06"
+      }
+    }
+  },
+  "fixedCommitFullRequired": true,
+  "fullExpectedCases": 10515,
+  "fullExpectedMethods": 6764,
+  "fullExpectedPairs": 110,
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/11",
+  "remaining": [
+    "Fixed-commit full CI and whole card/all-layer/conquest semantics",
+    "Historical input and result jointly changed require trusted full action/event replay; no full security certification",
+    "17 Powerful whole-card identities, becoming Mighty and highest-Might consumers",
+    "All 1738 whole-card identities, 14293 rule records and eight EN source gaps",
+    "Native combat assignment/ordering scope, visible paired match, Windows real runtime and actual PostgreSQL"
+  ],
+  "adjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 62.18,
+    "total": 2479,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2479,
+        "passed": 2479,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 58.62
+      }
+    ]
+  },
+  "sourceBaseCommit": "6c2e631433925d0525228a845de28100164e9095",
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 117.58,
+    "total": 10366,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10366,
+        "passed": 10366,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 113.79
+      }
+    ]
+  },
+  "parity": {
+    "baselineCases": 10340,
+    "currentCases": 10366,
+    "baselineMethods": 6612,
+    "currentMethods": 6623,
+    "oldCaseAndMethodIdentitiesPreserved": true,
+    "addedCases": [
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.ARealResponseDetachDoesNotEraseAnAlreadyConfirmedConquest",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.AUnitEquippedToCurrentFiveQualifiesAtActualConquest",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.AssaultCountsAtCombatConquestButDoesNotQualifyUnopposedMovement(combat: False)",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.AssaultCountsAtCombatConquestButDoesNotQualifyUnopposedMovement(combat: True)",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.ConquestQualificationUsesTheCurrentFiveBoundary(stored: 1, qualifies: False)",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.ConquestQualificationUsesTheCurrentFiveBoundary(stored: 2, qualifies: True)",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.ConquestQualificationUsesTheCurrentFiveBoundary(stored: 3, qualifies: True)",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.DecliningLeavesManaAndDeckUnchangedAndDoesNotLeaveAnAbility",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.HistoricalQualificationContainsNoPrivateCardOrPileOrder",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.InvalidCostConfirmationDoesNotChangeTheMatch(change: \"duplicate\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.InvalidCostConfirmationDoesNotChangeTheMatch(change: \"empty\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.InvalidCostConfirmationDoesNotChangeTheMatch(change: \"legacy-choice\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.InvalidCostConfirmationDoesNotChangeTheMatch(change: \"other-player\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.PayingTheConquestCostDoesNotDrawBeforeIndependentResponses",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.PublicRecoveryRejectsAChangedHistoricalQualification(viewer: \"P1\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.PublicRecoveryRejectsAChangedHistoricalQualification(viewer: \"P2\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.PublicRecoveryRejectsAChangedHistoricalQualification(viewer: \"spectator\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.RecoveryRejectsForgedConquestQualification(change: \"future-tick\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.RecoveryRejectsForgedConquestQualification(change: \"might\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.RecoveryRejectsForgedConquestQualification(change: \"missing-context\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.RecoveryRejectsForgedConquestQualification(change: \"private-pile\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.RecoveryRejectsForgedConquestQualification(change: \"source-generation\")",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.RecoveryRejectsForgedConquestQualification(change: \"wrong-field\")",
+      "Riftbound.ConformanceTests.SunkenTempleNativeTests.ProductionMovementFocusCostAndResponseCommandsReplay(branch: \"below\")",
+      "Riftbound.ConformanceTests.SunkenTempleNativeTests.ProductionMovementFocusCostAndResponseCommandsReplay(branch: \"decline\")",
+      "Riftbound.ConformanceTests.SunkenTempleNativeTests.ProductionMovementFocusCostAndResponseCommandsReplay(branch: \"pay\")"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.ARealResponseDetachDoesNotEraseAnAlreadyConfirmedConquest",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.AUnitEquippedToCurrentFiveQualifiesAtActualConquest",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.AssaultCountsAtCombatConquestButDoesNotQualifyUnopposedMovement",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.ConquestQualificationUsesTheCurrentFiveBoundary",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.DecliningLeavesManaAndDeckUnchangedAndDoesNotLeaveAnAbility",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.HistoricalQualificationContainsNoPrivateCardOrPileOrder",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.InvalidCostConfirmationDoesNotChangeTheMatch",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.PayingTheConquestCostDoesNotDrawBeforeIndependentResponses",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.PublicRecoveryRejectsAChangedHistoricalQualification",
+      "Riftbound.ConformanceTests.SunkenTempleMightTests.RecoveryRejectsForgedConquestQualification",
+      "Riftbound.ConformanceTests.SunkenTempleNativeTests.ProductionMovementFocusCostAndResponseCommandsReplay"
+    ],
+    "duplicates": 0
+  },
+  "testAssemblySha256": "b0649b35ebc61f94332959787b9f70f256c18c673ad946b2c7a9d6b8f113d3e4",
+  "checkTrxSha256": "4e9806a9865a9e5947163077acf54039859bde621d7cf2f61ff16e739caf22a1",
+  "fullPlanMethodCount": 6764,
+  "allPriorFullMethodsRetained": true,
+  "fullPlanAssemblySha256": "b0649b35ebc61f94332959787b9f70f256c18c673ad946b2c7a9d6b8f113d3e4",
+  "toolTests": {
+    "status": "PASSED",
+    "count": 24,
+    "logSha256": "742e729f37709d8df37286958e45856bf4638db9758de76989d3f359261ab683"
+  }
+}

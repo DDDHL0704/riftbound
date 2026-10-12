@@ -6345,8 +6345,8 @@ public sealed partial class FullGameEndToEndTests
             SunkenTempleBattlefieldConquerPowerfulDrawCardNo);
         var payment = result.State.PendingPayment;
         Assert.NotNull(payment);
-        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
-        Assert.Equal(["SPEND_MANA:1", "DECLINE"], payment.LegalPaymentChoiceIds);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
+        Assert.Equal(["PAY", "DECLINE"], payment.LegalPaymentChoiceIds);
         var openedEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerPowerfulPayDraw, StringComparison.Ordinal));
@@ -6375,7 +6375,7 @@ public sealed partial class FullGameEndToEndTests
             string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldConquerPowerfulPayDraw, StringComparison.Ordinal));
         Assert.Equal(1, costPaid.Payload["mana"]);
-        Assert.Equal(["SPEND_MANA:1"], Assert.IsType<string[]>(costPaid.Payload["paymentChoiceIds"]));
+        Assert.Equal(["PAY"], Assert.IsType<string[]>(costPaid.Payload["paymentChoiceIds"]));
 
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -16551,6 +16551,16 @@ public sealed partial class FullGameEndToEndTests
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
+        if (result.State.TriggerQueue.Count > 0) {
+            var orderingPlayer = PlayerWithEnabledCandidate(result, CommandTypes.OrderTriggers)!;
+            var ordering = result.Prompts[orderingPlayer].Candidates!.Single(c => c.Action == CommandTypes.OrderTriggers);
+            var metadata = JsonSerializer.SerializeToElement(ordering.Metadata);
+            var order = new OrderTriggersCommand(OrderedTriggerIds: metadata.GetProperty("orderedTriggerIds")
+                .EnumerateArray().Select(id => id.GetString()!).ToArray());
+            var beforeOrder = result.Events;
+            result = await session.SubmitAsync(orderingPlayer, intentId + "-order", order, RawCommand(order), default);
+            AssertAccepted(result); result = result with { Events = beforeOrder.Concat(result.Events).ToArray() };
+        }
         Assert.NotNull(result.State.PendingPayment);
         AssertNoHiddenZoneLeak(result);
         return result;
@@ -16565,9 +16575,9 @@ public sealed partial class FullGameEndToEndTests
         var payment = current.State.PendingPayment
             ?? throw new InvalidOperationException("B0 Sunken Temple payment driver expected a pending payment.");
         Assert.Equal(playerId, payment.PlayerId);
-        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
-        Assert.Contains("SPEND_MANA:1", payment.LegalPaymentChoiceIds);
-        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["SPEND_MANA:1"]);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
+        Assert.Contains("PAY", payment.LegalPaymentChoiceIds);
+        var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["PAY"]);
         var result = await session.SubmitAsync(
             playerId,
             intentId,
@@ -16576,7 +16586,17 @@ public sealed partial class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(result);
         AssertNoHiddenZoneLeak(result);
-        return result;
+        Assert.DoesNotContain(result.Events, e => e.Kind == "CARD_DRAWN");
+        Assert.Single(result.State.StackItems, i => i.BattlefieldConquestMight is not null);
+        var events = result.Events.ToList();
+        for (var i = 0; result.State.StackItems.Any(i => i.BattlefieldConquestMight is not null); i++) {
+            Assert.True(i < 8, "Conquest response sequence exceeded guard.");
+            var pass = new PassPriorityCommand();
+            result = await session.SubmitAsync(result.State.PriorityPlayerId!, intentId + "-response-" + i,
+                pass, RawCommand(pass), CancellationToken.None);
+            AssertAccepted(result); AssertNoHiddenZoneLeak(result); events.AddRange(result.Events);
+        }
+        return result with { Events = events };
     }
 
     private static async ValueTask<ResolutionResult> DeclineTriggerPaymentAsync(
@@ -16588,7 +16608,7 @@ public sealed partial class FullGameEndToEndTests
         var payment = current.State.PendingPayment
             ?? throw new InvalidOperationException("B0 trigger payment decline driver expected a pending payment.");
         Assert.Equal(playerId, payment.PlayerId);
-        Assert.Equal("TRIGGER_PAYMENT", payment.PaymentWindow);
+        Assert.Equal(payment.ResolvingStackItemId is null ? "TRIGGER_PAYMENT" : "TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);
         Assert.Contains("DECLINE", payment.LegalPaymentChoiceIds);
         var command = new PayCostCommand(payment.PaymentId, payment.PaymentWindow, ["DECLINE"]);
         var result = await session.SubmitAsync(

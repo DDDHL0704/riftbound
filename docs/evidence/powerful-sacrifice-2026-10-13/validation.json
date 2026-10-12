@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_CHECK_NATIVE_AND_FIXED_COMMIT_FULL_PASS",
   "verifiedAtUtc": "2026-10-12T16:53:58.420221+00:00",
   "scope": "Exact CN UNL-173/219 mandatory current Mighty cost, non-target prompt, shared death/Last Breath sequencing and granted Echo combination; no whole-card certification",
   "semanticCoverageCertified": false,
@@ -97,7 +97,7 @@
       }
     }
   },
-  "fixedCommitFullRequired": true,
+  "fixedCommitFullRequired": false,
   "fullExpectedCases": 10489,
   "fullExpectedMethods": 6753,
   "fullExpectedPairs": 110,
@@ -173,5 +173,16 @@
     "status": "PASSED",
     "count": 24,
     "logSha256": "b3796da2179c69fa0b8d0ff17fcbaad1b9304c8988c6cccabfd989c0296941e5"
+  },
+  "validatedImplementationCommit": "168d8f7e58bb31a0bce95c4142119501d579e7d1",
+  "fullCiEvidence": "docs/evidence/powerful-sacrifice-2026-10-13/full-ci-168d8f7e.json",
+  "fullCi": {
+    "cases": 10489,
+    "methods": 6753,
+    "seconds": 1580.08,
+    "assemblySha256": "eb6313353dcbeda6c3d126e9b13acde268cfdd42a21262ca4c78ff1003d22d25",
+    "failed": 0,
+    "skipped": 0,
+    "duplicates": []
   }
 }

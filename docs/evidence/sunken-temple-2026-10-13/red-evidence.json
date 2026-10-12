@@ -1,0 +1,17 @@
+{
+  "baselineCommit": "168d8f7e58bb31a0bce95c4142119501d579e7d1",
+  "trx": "var/qa/sunken-temple-20261013/red/focus/results.trx",
+  "sha256": "372bb6d30fc41344b6a0651eeef1b38c47feeca67d198b57a68e181538cbce38",
+  "failed": [
+    {
+      "test": "Riftbound.ConformanceTests.SunkenTempleMightTests.PayingTheConquestCostDoesNotDrawBeforeIndependentResponses",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"DRAW1\"]"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.SunkenTempleMightTests.AUnitEquippedToCurrentFiveQualifiesAtActualConquest",
+      "outcome": "Failed",
+      "message": "Assert.NotNull() Failure: Value is null"
+    }
+  ]
+}
