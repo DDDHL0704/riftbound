@@ -34,7 +34,7 @@ full 实际耗时 1,358.87 秒。普通规则片 346.02 秒，却在首批启动
 
 完整任务按提交 SHA 使用各自并发组，不同代码候选互不取消；同一 SHA 的重复任务才可取消重复。纯文档提交不会取消此前代码验证。轻量结果明确标注规则/打包未执行，不能称为完整绿色。完整候选仍须 full 与原生验收。既有 rules/desktop 检查名称保留；未修改或声称验证 GitHub branch protection 配置。
 
-固定时长调度模型显示普通反馈可从约 1,202 秒提前到约 346 秒；这是模型，不能声称完整 CI 或游戏执行实际加速。新调度的实际时间与覆盖须以本轮远端 TRX 读回为准。
+固定时长调度模型显示普通反馈可从约 1,202 秒提前到约 346 秒；这是模型，不能声称完整 CI 或游戏执行实际加速。下方记录本轮实际反馈约592秒，未达到模型的346秒；实际读回优先于估计。
 
 ## 证据治理
 
@@ -74,3 +74,36 @@ EN 返回 1,381、报告 1,389，8 项缺口仍未解决。10/16 未来生效资
 验证输出和后续 CI 状态见 [当前状态](PROJECT_STATUS.md)。本报告完成的是准备工作，官方全量重审仍未完成，新 Goal 必须等待用户另行确认。
 
 GitHub 实跑补充：文档提交 6e45d91f 的 scope 12 秒完成，完整代码运行仍在后台，来源/索引的十个输入哈希完全相同。但 job-level 跳过 desktop 会让矩阵不展开，只产生 desktop 检查名。已修正为保留两个平台检查名；明确文档范围时仅在 Ubuntu 写入“打包未执行”说明，原生下载/构建/打包全部跳过。文档组与 full 组隔离，包括同一 SHA 的手动 full；当前分支保护设置未检查，不能推断 required 配置。旧尝试不作为修正后的最终 CI 证据。
+
+## 本轮实测与固定输入记录
+
+最终代码候选442114f061e19a3c089060078f9fd67a0a6f906b的 [CI 38205666224](https://github.com/DDDHL0704/riftbound/actions/runs/38205666224)于2026-10-12 05:19:04 UTC成功；scope、完整rules、macOS/Windows原生构建及网络恢复步骤全部成功。此前c379b4a5完整运行已取消，没有完整摘要，不记为通过。
+
+环境：GitHub临时ubuntu-latest执行full，macos-latest/windows-latest执行实际打包；工作流请求.NET 8.0.x/10.0.x。此处记录runner标签与版本约束，不声称固定硬件或SDK补丁版本。full结果为PASSED、10,201用例、零失败/跳过、1,446.75秒。
+
+独立下载五份TRX与plan，核对用例身份及次数、计划/实际方法、分片集合和完整矩阵。与上一完整基线59656042相比，10,201个用例、6,625个方法、110个双向配对身份全部相同；种子424242、11牌组及全部110个配对最终哈希相同。summary内caseParityVerified=false表示runner未请求基线比较；上述保留结论来自后续独立TRX核对。
+
+| TRX片 | 通过用例 | SHA-256 |
+|---|---:|---|
+| games-1 | 1 | cd52d02f0ffa4a4d5ba2299e99f0fb56320545f8041a9ce34cda656d06f440e7 |
+| games-2 | 49 | 6c16fb13eafbe43389e1f85d05811bf396610c57920ca650070d574eae41990a |
+| games-3 | 49 | c6cd3b33fd93a169df6aa4622a77c653ad6fec94b3f9089d9f636d0b7e7cebb9 |
+| games-4 | 52 | 2038df295bf7c0c7601e25f6b9a6d1a611342471bddca44fd1f4b2af16ba8834 |
+| rules | 10,050 | ae74e0a32e765c3c98f206b9afd5cb327d89fd341c320b55c7aee8e64d3015ac |
+
+身份哈希采用UTF-8编码的Python json.dumps：用例为sorted(Counter(testName).items())且ensure_ascii=False；方法及配对为排序后的身份列表；矩阵最终哈希字典使用sort_keys=True，其余为默认参数。
+
+| 集合 | SHA-256 |
+|---|---|
+| 用例身份/次数 | 8cc3295d12d68225e5799dbac06793a5c748adadf17f01594b537e52f6cc2088 |
+| 方法身份 | 2f5eb6053fc091370e5d1cbff8f68269c033e0574abc010d21aac64713066c23 |
+| 配对身份 | a37d444cce0f6501f8d13c6056439743eaed2524da7db40b08c4e52914e06155 |
+| 配对最终哈希字典 | b132b0d90017f45131a5a894da8a4620dec5a952ec996fd6cd2559ff4719f5bc |
+
+普通规则反馈从TRX首片开始后1,197.88秒提前到591.99秒，full总时间从1,358.87秒变为1,446.75秒。临时runner不同，不能将调度模型或提前反馈宣称为完整回归提速。
+
+文档提交3bb9e98087bba65dd6a5047a957ffb99a3022592的 [CI 38205744722](https://github.com/DDDHL0704/riftbound/actions/runs/38205744722)于04:55:24–04:55:46 UTC完成，仅22秒。scope判定full=false，两个desktop检查名仅执行Ubuntu上的明确范围说明，rules/打包跳过；其间442114f0完整运行继续到05:19:04 UTC，未被文档运行取消。
+
+两个运行的十个来源/索引输入SHA-256完全一致，governanceValid=true、semanticCoverageCertified=false；检查器SHA-256为3fe66895f152719afeae2cd6b98bea148df4b6523f8418deeaaf7748783b9a93，范围选择器为04857a571b4009ad45437bfe84bdc43e8045512dc12ef4704235cb680ceadf2f。原始来源及索引可从固定442114f0提交重建，未提升任何ledger状态。
+
+下载原件保存在本地var/qa/project-preparation/ci-4421-full、ci-4421-scope、ci-3bb9-scope，独立对照结果为ci-4421-parity.json；大日志不提交，以上固定运行和哈希为长期记录。准备工作完成，不等于全量官方语义或原生实机验收完成；未创建新Goal。
