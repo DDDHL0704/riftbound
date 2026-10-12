@@ -8971,7 +8971,7 @@
     },
     {
       "id": "powerful-current-might-consumers-2026-10-12",
-      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "status": "SCOPED_FIXED_COMMIT_FULL_AND_NATIVE_PASS_WHOLE_UNCERTIFIED",
       "scope": "Current field Might count for three exact CN prints; self-cost reduction through shared play planning; no complete card/layer certification",
       "subjects": [
         {
@@ -9123,7 +9123,8 @@
         "checkMethods": 6595,
         "nativeProductionCommands": 4,
         "wholeCardCertification": false,
-        "exactHeadFullCiRequired": true
+        "exactHeadFullCiRequired": false,
+        "fixedCommitFullCi": "docs/evidence/powerful-consumers-2026-10-12/full-ci-14dfaa13.json"
       },
       "exclusions": [
         "Complete trigger confirmation/response of Kadreglin",
@@ -9131,6 +9132,91 @@
         "Powerful sacrifice additional costs and preview applicability",
         "All 1738 whole-card and 14293 full-rule records and unresolved official-source gaps",
         "Visible paired clients, Windows runtime and real PostgreSQL acceptance"
+      ]
+    },
+    {
+      "id": "powerful-last-breath-2026-10-12",
+      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Current Might before departure, printed/copied Mighty Last Breath, independent shared death/response flow, current recovery/public privacy gates; exact CN SFD-167/221 only, no complete card/layer/platform certification",
+      "subjects": [
+        {
+          "id": "SFD-167/221",
+          "activeCardNo": "SFD·167/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33261,
+              "cardNo": "SFD·167/221",
+              "name": "无名英雄",
+              "sha256": "e5f07ce7d6088c153abe0a1602790c81a39cf5cc8b8fcf8ea6e2c460165d9374",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-167-221",
+              "cardNo": "SFD-167/221",
+              "name": "Unsung Hero",
+              "sha256": "d368d1ac4b2fadf581dd287b19d10327861c42841d4091082163442585549205",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Current Might before departure, printed/copied Mighty Last Breath, independent shared death/response flow, current recovery/public privacy gates; exact CN SFD-167/221 only, no complete card/layer/platform certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/powerful-last-breath-2026-10-12/validation.json"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P037-B019",
+        "DOC-04-P113-B003",
+        "DOC-04-P113-B005",
+        "DOC-04-P113-B006",
+        "DOC-04-P113-B007",
+        "DOC-04-P113-B008",
+        "DOC-04-P113-B009",
+        "DOC-04-P102-B016"
+      ],
+      "auditDocument": "docs/POWERFUL_LAST_BREATH_AUDIT_2026-10-12.md",
+      "evidence": [
+        "docs/evidence/powerful-last-breath-2026-10-12/validation.json",
+        "docs/evidence/powerful-last-breath-2026-10-12/live-readback.json",
+        "docs/evidence/powerful-last-breath-2026-10-12/adjacent-live-readback.json",
+        "docs/evidence/powerful-last-breath-2026-10-12/red-evidence.json",
+        "docs/evidence/powerful-last-breath-2026-10-12/powerful-source-queue.json"
+      ],
+      "tests": [
+        "PowerfulLastBreathTests",
+        "PowerfulLastBreathNativeTests",
+        "MatchRecoveryTests",
+        "RealTriggerQueueTests",
+        "ConformanceFixtureRunnerTests.P79UnsungHeroDrawsTwoWhenDestroyedWhilePowerful"
+      ],
+      "validation": {
+        "checkCases": 10324,
+        "checkMethods": 6604,
+        "nativeProductionCommands": 10,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true
+      },
+      "exclusions": [
+        "Fixed-commit complete CI and current whole-regression identity/matrix audit",
+        "All other Last Breath consumers and complete semantic coverage of all relevant whole cards",
+        "Mighty ready/rune/conquest/additional-cost consumers and generic full layers/timestamps",
+        "Official source gaps, all 1738 whole-card records and full rule/QA certification",
+        "Visible paired native match, Windows real runtime, real PostgreSQL"
       ]
     }
   ]

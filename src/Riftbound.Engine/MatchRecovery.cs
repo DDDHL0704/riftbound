@@ -4485,6 +4485,7 @@ public static class MatchRecoveryValidator
                 effectKind,
                 triggeredEventKind,
                 errors);
+            ValidateLastBreathMightPayload(triggerPayload, effectKind, errors);
             ValidateTriggerQueueStandardLastBreathSourceObjectIdContext(
                 triggerLabel,
                 triggerId,
@@ -18599,6 +18600,7 @@ public static class MatchRecoveryValidator
             var hiddenSource = authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
+            if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
             var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
@@ -18831,6 +18833,7 @@ public static class MatchRecoveryValidator
             var hiddenSource = authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
+            if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
             var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
@@ -21403,14 +21406,6 @@ public static class MatchRecoveryValidator
             }
         }
 
-        if (string.Equals(expectedEffectKind, UnsungHeroLastBreathPowerfulDrawEffectKindForRecovery, StringComparison.Ordinal)
-            && objectPowers is not null
-            && objectPowers.TryGetValue(sourceObjectId, out var sourcePower)
-            && sourcePower < PowerfulUnitPowerThresholdForRecovery)
-        {
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} power {sourcePower} must be at least {PowerfulUnitPowerThresholdForRecovery} in {objectPowerLabel}");
-        }
 
         var hasKnownPoroBaseAllyContext = false;
         var hasOtherFriendlyFaceUpBaseUnit = false;
@@ -22995,6 +22990,7 @@ public static class MatchRecoveryValidator
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state active player");
             }
 
+            ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23294,6 +23290,36 @@ public static class MatchRecoveryValidator
         return true;
     }
 
+    private static void ValidateLastBreathMightPayload(object? payload, string? effect, List<string> errors)
+    {
+        var context = ReadLastBreathMightView(payload);
+        if (effect == TriggerKinds.UnitLastBreathPowerfulDraw || context is not null)
+            if (context is null || effect != TriggerKinds.UnitLastBreathPowerfulDraw || !CoreRuleEngine.ValidLastBreathMightFrame(context))
+                errors.Add("invalid public captured last-breath Might");
+    }
+
+    private static LastBreathMightContext? ReadLastBreathMightView(object? payload)
+    {
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("lastBreathMight", out var raw)
+                && raw.ValueKind != JsonValueKind.Null
+                ? raw.Deserialize<LastBreathMightContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+        } catch (JsonException) { return null; }
+    }
+
+    private static void ValidateLastBreathMightStackViews(IReadOnlyList<object?> payloads,
+        MatchState authority, List<string> errors, string label)
+    {
+        foreach (var payload in payloads)
+        {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            var expected = authority.StackItems.FirstOrDefault(i => i.StackItemId == id);
+            if (MatchStateHasher.HashValue(ReadLastBreathMightView(payload)) != MatchStateHasher.HashValue(expected?.LastBreathMight))
+                errors.Add($"{label} captured last-breath Might differs from authoritative state");
+        }
+    }
+
     private static DeathObserverContext? ReadDeathObserverView(object? payload)
     {
         try {
@@ -23323,6 +23349,16 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.LastBreathMight is { } captured ? !CoreRuleEngine.ValidLastBreathMightContext(state, captured,
+                trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId)
+                : trigger.EffectKind == TriggerKinds.UnitLastBreathPowerfulDraw)
+                errors.Add("invalid captured last-breath Might");
+        foreach (var item in state.StackItems)
+            if (item.LastBreathMight is { } captured ? !CoreRuleEngine.ValidLastBreathMightContext(state, captured,
+                item.EffectKind, item.SourceObjectId, item.ControllerId)
+                : item.EffectKind == TriggerKinds.UnitLastBreathPowerfulDraw)
+                errors.Add("invalid captured last-breath Might stack");
         var layeredKeywords = CoreRuleEngine.RecomputeRuleDerivedKeywords(state);
         foreach (var (id, card) in state.CardObjects)
             if (!(card.RuleDerivedTags ?? []).SequenceEqual(layeredKeywords.CardObjects[id].RuleDerivedTags ?? [])
@@ -31383,11 +31419,16 @@ public static class MatchRecoveryValidator
                 && !string.IsNullOrWhiteSpace(stackItemId)
                 ? stackItemId.Trim()
                 : $"#{index + 1}";
+            var sourceReferences = knownObjectIds;
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { LastBreathMight: { } captured } earned
+                && CoreRuleEngine.ValidLastBreathMightContext(authoritativeState, captured, earned.EffectKind, earned.SourceObjectId, earned.ControllerId)
+                && MatchStateHasher.HashValue(ReadLastBreathMightView(stackItem)) == MatchStateHasher.HashValue(captured))
+                sourceReferences = knownObjectIds.Append(earned.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             ValidateTimingOptionalObjectReferenceWithExpectedDetails(
                 stackItem,
                 "sourceObjectId",
                 $"spectator replay frame snapshot stack item {stackItemLabel} source object id",
-                knownObjectIds,
+                sourceReferences,
                 "object registry",
                 errors);
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
@@ -31419,6 +31460,7 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateLocationDamageViews(stackItems, authoritativeState, errors, "spectator replay frame");
         var authoritativeStackItemsById = new Dictionary<string, StackItemState>(StringComparer.Ordinal);

@@ -6,7 +6,10 @@ public sealed record TurnDeathLedger(int TurnNumber, IReadOnlyDictionary<string,
 public sealed record DestroyedUnitFact(string ObjectId, string CardNo, string OwnerId, string ControllerId, long Generation, bool WasMinion);
 public sealed record DeathObserverContext(string CardNo, string Kind, long SourceGeneration, DestroyedUnitFact Destroyed);
 internal sealed record CapturedDeathObserver(string ObjectId, string ControllerId, DeathObserverContext Context);
-internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, DestroyedUnitFact Unit, IReadOnlyList<CapturedDeathObserver> Observers);
+internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, DestroyedUnitFact Unit, IReadOnlyList<CapturedDeathObserver> Observers)
+{
+    public IReadOnlyList<LastBreathMightContext> LastBreathMights { get; init; } = [];
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -47,7 +50,7 @@ public sealed partial class CoreRuleEngine
                 && UnitDestroyedTriggerSpecRules.TryGetTrigger(source.CardNo,t=>IsDeathObserverKind(t.Kind),out var spec)
                 && (spec.Kind != TriggerKinds.UnitDestroyedNonMinionCreateMinion || !fact.WasMinion))
                 observers.Add(new(source.ObjectId,controller,new(source.CardNo!,spec.Kind,source.ObjectGeneration,fact)));
-        return new($"death-{frame.Origin.Tick}-{frame.DeathSequence++}",frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers);
+        return new($"death-{frame.Origin.Tick}-{frame.DeathSequence++}",frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) { LastBreathMights = CaptureLastBreathMight(state, zones, cards, unit) };
     }
 
     private static ResolutionResult RecordDeathObservers(MatchState before, ResolutionResult result)
@@ -86,6 +89,16 @@ public sealed partial class CoreRuleEngine
             var prior=counts.GetValueOrDefault(death.Unit.ControllerId);
             counts[death.Unit.ControllerId]=prior+1;
             if (state.Status!=MatchStatuses.InProgress) continue;
+            foreach (var captured in death.LastBreathMights.Where(c => UnitDestroyedTriggerSpecRules.TryGetTrigger(c.CardNo,
+                UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger, out var spec)
+                && c.Might >= spec.RequiredPowerThreshold.GetValueOrDefault(PowerfulUnitPowerThreshold)))
+            {
+                var trigger = new TriggerQueueItemState(
+                    $"TRIGGER-{death.Id}{(captured.Origin is null ? "" : ":" + captured.InstanceId)}-{death.Unit.ObjectId}-{TriggerKinds.UnitLastBreathPowerfulDraw}",
+                    captured.ControllerId, death.Unit.ObjectId, TriggerKinds.UnitLastBreathPowerfulDraw, "UNIT_DESTROYED") {
+                    SourceCardNo = captured.CardNo, LastBreathMight = captured };
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
             foreach(var observer in death.Observers)
             {
                 if (observer.Context.Kind==TriggerKinds.UnitFirstFriendlyDestroyedDrawOne

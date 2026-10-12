@@ -1,0 +1,218 @@
+[
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "斯特拉克的挑战护手",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "cardNo": "SFD·056/221",
+    "fetchedAt": "2026-10-12T15:29:25.973529+00:00",
+    "responseSha256": "fa368596ab1d93a22569e0c87accacd49df5e3c25a88a5b31a391dea44f9d650",
+    "recordSha256": "06687064f27735c7f0202bfe116c6c222604af854254459de3b312ac771f81f8",
+    "unchanged": true,
+    "rawPath": "var/qa/powerful-last-breath-20261012/SFD-056-221-response.json",
+    "records": [
+      {
+        "id": 33134,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "SFD·056/221",
+        "cardName": "斯特拉克的挑战护手",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "武装",
+        "artist": "黯荧岛Dark Glow",
+        "cardEffect": "{{灵便}}（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。)\n{{装配绿色}}（支付{{绿色}}：将此牌贴附到你控制的一名单位上。）",
+        "flavorText": "这对爪子可不是闹着玩的。",
+        "energy": 3,
+        "returnEnergy": 2,
+        "power": null,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/b9a16b698fb64b93ba88ca7b96303d2c.png",
+        "backImage": "",
+        "listSort": 939,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      }
+    ],
+    "language": "zh-CN",
+    "region": "CN",
+    "publicationDate": null,
+    "effectiveDate": null
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "斯弗尔尚歌",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "cardNo": "SFD·059/221",
+    "fetchedAt": "2026-10-12T15:29:25.973488+00:00",
+    "responseSha256": "1c839d9130c44865e81407c39b4e92da3121b9a12b380429e3a2021fa29f863e",
+    "recordSha256": "2146ff16f353ba13fa9c3081a9403980f290ce160b95df6e03cbe35da077f9fa",
+    "unchanged": true,
+    "rawPath": "var/qa/powerful-last-breath-20261012/SFD-059-221-response.json",
+    "records": [
+      {
+        "id": 33139,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "SFD·059/221",
+        "cardName": "斯弗尔尚歌",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "武装",
+        "artist": "Envar Studio",
+        "cardEffect": "{{装配}}{{1}}{{绿色}}（支付{{1}}和{{绿色}}：将此牌贴附到你控制的一名单位上。）\n在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+        "flavorText": "\"只有最伟大的弗雷尔卓德英雄才拥有臻冰做的武器!\"——努努",
+        "energy": 3,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/3fb9c51990c64735b1d613e27e53f2a7.png",
+        "backImage": "",
+        "listSort": 934,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      }
+    ],
+    "language": "zh-CN",
+    "region": "CN",
+    "publicationDate": null,
+    "effectiveDate": null
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "断魂一扼",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "cardNo": "SFD·163/221",
+    "fetchedAt": "2026-10-12T15:29:25.973396+00:00",
+    "responseSha256": "1e862be63999d67193a7569c5ad854a1f5434b7364112a75ca38ae3bd02a14ec",
+    "recordSha256": "741ecf56b1dadd7c403f6fc561d8b62d3fa7f4cbd9ac4f1ecfbdfd7c83fbfd51",
+    "unchanged": true,
+    "rawPath": "var/qa/powerful-last-breath-20261012/SFD-163-221-response.json",
+    "records": [
+      {
+        "id": 33257,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "SFD·163/221",
+        "cardName": "断魂一扼",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Polar Engine Studio",
+        "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n摧毁一名友方单位，让另一名友方单位在本回合内获得等同于被摧毁单位战力的+{{S}}加成。抽一张牌。",
+        "flavorText": "“死亡是我的仁慈。”\n——莫德凯撒",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/aa4cd6bdb3e944b4a2811c2233623bfa.png",
+        "backImage": "",
+        "listSort": 816,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n摧毁一名友方单位。若如此做，则让另一名友方单位在本回合内获得等同于前者战力的+{{S}}加成。\n抽一张牌。",
+        "otherDesc": 0
+      }
+    ],
+    "language": "zh-CN",
+    "region": "CN",
+    "publicationDate": null,
+    "effectiveDate": null
+  }
+]

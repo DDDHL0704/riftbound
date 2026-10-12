@@ -41318,17 +41318,24 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-UNSUNG-HERO", triggerQueued.Payload["sourceObjectId"]);
         Assert.Equal("P1", triggerQueued.Payload["controllerId"]);
         Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
-        Assert.Contains(p2Pass.Events, gameEvent =>
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal("UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2", Assert.Single(p2Pass.State.StackItems).EffectKind);
+        var response1 = await engine.ResolveAsync(p2Pass.State,
+            new("intent-p7-9-unsung-hero-trigger-p1-pass", "P1", "PASS_PRIORITY"), new PassPriorityCommand(), default);
+        var response2 = await engine.ResolveAsync(response1.State,
+            new("intent-p7-9-unsung-hero-trigger-p2-pass", "P2", "PASS_PRIORITY"), new PassPriorityCommand(), default);
+        Assert.True(response1.Accepted, response1.ErrorMessage); Assert.True(response2.Accepted, response2.ErrorMessage);
+        Assert.Contains(response2.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2", StringComparison.Ordinal));
 
-        var drawEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        var drawEvent = Assert.Single(response2.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.Equal("P1", drawEvent.Payload["playerId"]);
         Assert.Equal(2, drawEvent.Payload["count"]);
-        Assert.Equal(["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"], p2Pass.State.PlayerZones["P1"].Hand);
-        Assert.Empty(p2Pass.State.PlayerZones["P1"].MainDeck);
-        Assert.Equal(["P1-UNSUNG-HERO", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
-        CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-UNSUNG-HERO", "GRAVEYARD");
+        Assert.Equal(["P1-UNSUNG-HERO-DRAW-001", "P1-UNSUNG-HERO-DRAW-002"], response2.State.PlayerZones["P1"].Hand);
+        Assert.Empty(response2.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-UNSUNG-HERO", "P1-SPELL-VENGEANCE"], response2.State.PlayerZones["P1"].Graveyard);
+        CardZoneTestAssertions.RetainedOutsidePlay(response2.State, "P1-UNSUNG-HERO", "GRAVEYARD");
     }
 
     [Fact]

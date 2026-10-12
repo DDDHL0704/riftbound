@@ -1,0 +1,35 @@
+{
+  "startedAt": "2026-10-12T15:54:37.227872+00:00",
+  "steps": [
+    {
+      "name": "build",
+      "command": [
+        "/Users/dinghaolin/.dotnet/dotnet",
+        "build",
+        "clients/godot",
+        "-m:1",
+        "-v:q",
+        "--nologo"
+      ],
+      "exitCode": 0,
+      "outputTail": "\n\u5df2\u6210\u529f\u751f\u6210\u3002\n    0 \u4e2a\u8b66\u544a\n    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:00.60\n",
+      "outputSha256": "b23fe437b544e9dbb11519d69905162f683fe98c595187897d3fd3b027dd5cb9"
+    },
+    {
+      "name": "native",
+      "command": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "clients/godot",
+        "res://scenes/debug/PowerfulLastBreathInteractionProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/powerful-last-breath-20261012/native-shared"
+      ],
+      "exitCode": 0,
+      "outputTail": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nPOWERFUL_LAST_BREATH_PASS: 10 production play and response commands\n",
+      "outputSha256": "ca99f11478dafc8fef10e32ea02934a4b3eb4f07b353ba7a0f05f65757280f25"
+    }
+  ],
+  "finishedAt": "2026-10-12T15:54:38.994961+00:00"
+}

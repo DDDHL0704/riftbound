@@ -25,6 +25,7 @@ public sealed partial class CoreRuleEngine
         public int DeathSequence { get; set; }
         public int DestructionBatchSequence { get; set; }
         public int? CurrentDestructionBatch { get; set; }
+        public LastKnownMightFrame? CurrentDestructionMightFrame { get; set; }
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
         public HashSet<string> NestedDestroyedOwners { get; } = [];
         private int cursor;

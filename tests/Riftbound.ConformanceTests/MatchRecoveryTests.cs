@@ -9465,7 +9465,7 @@ public sealed class MatchRecoveryTests
                 ["ownerId"] = "alice",
                 ["controllerId"] = "alice",
                 ["isFaceDown"] = false,
-                ["power"] = 4,
+                ["power"] = 2,
                 ["tags"] = new[] { CardObjectTags.UnitCard },
                 ["location"] = new Dictionary<string, object?>(StringComparer.Ordinal)
                 {
@@ -9487,7 +9487,8 @@ public sealed class MatchRecoveryTests
                 ["sourceObjectId"] = "source-1",
                 ["sourceVisibility"] = "VISIBLE",
                 ["effectKind"] = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
-                ["triggeredByEventKind"] = "UNIT_DESTROYED"
+                ["triggeredByEventKind"] = "UNIT_DESTROYED",
+                ["lastBreathMight"] = PowerfulLastBreathTests.BelowThresholdContext("source-1", "alice")
             }
         };
         var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
@@ -9507,7 +9508,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "snapshot for alice timing trigger queue item unsung hero last-breath powerful draw source object id source-1 power 4 must be at least 5 in objects",
+                "captured last-breath Might",
                 StringComparison.Ordinal));
     }
 
@@ -31644,7 +31645,7 @@ public sealed class MatchRecoveryTests
             {
                 ["source-1"] = new(
                     "source-1",
-                    power: 4,
+                    power: 2,
                     tags: [CardObjectTags.UnitCard],
                     cardNo: "SFD·167/221",
                     ownerId: "alice",
@@ -31661,7 +31662,7 @@ public sealed class MatchRecoveryTests
                     "alice",
                     sourceObjectId: "source-1",
                     effectKind: "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
-                    triggeredByEventKind: "UNIT_DESTROYED")
+                    triggeredByEventKind: "UNIT_DESTROYED") { LastBreathMight = PowerfulLastBreathTests.BelowThresholdContext("source-1", "alice") }
             ]);
 
         var errors = MatchRecoveryValidator.Validate(
@@ -31676,7 +31677,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2 unsung hero last-breath powerful draw source object id source-1 power 4 must be at least 5 in authoritative state object registry",
+                "captured last-breath Might",
                 StringComparison.Ordinal));
     }
 
@@ -147064,7 +147065,7 @@ public sealed class MatchRecoveryTests
             {
                 [sourceObjectId] = new(
                     sourceObjectId,
-                    power: 4,
+                    power: 2,
                     tags: [CardObjectTags.UnitCard],
                     cardNo: "SFD·167/221",
                     ownerId: "alice",
@@ -147081,7 +147082,7 @@ public sealed class MatchRecoveryTests
                     "alice",
                     sourceObjectId,
                     "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
-                    "UNIT_DESTROYED")
+                    "UNIT_DESTROYED") { LastBreathMight = PowerfulLastBreathTests.BelowThresholdContext("source-1", "alice") }
             ]);
         var events = new[]
         {
@@ -147108,7 +147109,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw source object id source-1 power 4 must be at least 5 in authoritative state object registry",
+                "captured last-breath Might",
                 StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
@@ -147148,7 +147149,7 @@ public sealed class MatchRecoveryTests
             {
                 [sourceObjectId] = new(
                     sourceObjectId,
-                    power: 4,
+                    power: 2,
                     tags: [CardObjectTags.UnitCard],
                     cardNo: "SFD·167/221",
                     ownerId: "alice",
@@ -147165,7 +147166,7 @@ public sealed class MatchRecoveryTests
                     "alice",
                     sourceObjectId,
                     "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2",
-                    "UNIT_DESTROYED")
+                    "UNIT_DESTROYED") { LastBreathMight = PowerfulLastBreathTests.BelowThresholdContext("source-1", "alice") }
             ]);
         var events = new[]
         {
@@ -147215,7 +147216,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame timing trigger queue item unsung hero last-breath powerful draw source object id source-1 power 4 must be at least 5 in authoritative state object registry",
+                "captured last-breath Might",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,

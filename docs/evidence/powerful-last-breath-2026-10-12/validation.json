@@ -1,0 +1,157 @@
+{
+  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "verifiedAtUtc": "2026-10-12T16:17:19.368728+00:00",
+  "scope": "Current Might before departure, printed/copied Mighty Last Breath, independent shared death/response flow, current recovery/public privacy gates; exact CN SFD-167/221 only, no complete card/layer/platform certification",
+  "semanticCoverageCertified": false,
+  "wholeCardCertification": false,
+  "parentCommit": "d2551952c30b2b2bf43dc66aba05a371eefd82f2",
+  "implementationInputs": {
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "6e699bbc7488984c9da819c492528651efbe71923bc95b2b680d002178564b87",
+    "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs": "87aa519a1269ae555e0aa4df2435e84d511d87a5340fdf77f5b6aa090e0acbb2",
+    "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs": "727819050354ccb39fdb77556c64c533f79e0f4d9be218a487e5f16cd69989ef",
+    "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs": "f3168400f1a46803e218d154cd9ff8a7fdda436c85981fee68ca0151eee4b63e",
+    "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs": "35ff4f888bb5de7811c1e6739da974b4d7e5c2f40b59f30f7dafaa20c88825d3",
+    "src/Riftbound.Engine/MatchRecovery.cs": "b5b97db0f4e1fbaab80e1b06dbec4ac40935e7da9f04a5cb1631ca56b66f2636",
+    "src/Riftbound.Engine/MatchSession.cs": "a49600716e2a846282157cade5fd01abbfc4c086ea222212ff5c63fcdc388695",
+    "tests/Riftbound.ConformanceTests/PowerfulLastBreathTests.cs": "4f7fe59f3113a0431384b7568b474b9377b0b91c0cb37f0e0fea32ab4ac97043",
+    "tests/Riftbound.ConformanceTests/PowerfulLastBreathNativeTests.cs": "3f80894389d0ee5cf9ce53ce0eeefb8be2a0a2a85615dd814c621e6bde9dc0a0",
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs": "099203a94dc94b902c17326892200c2a9a359d0b8f6cc54576c90f8b96bef1cb",
+    "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs": "0010de21ff98050d95d65ee2d12fbd6031e5609033e4164b781017061b5e71cf",
+    "clients/godot/scripts/debug/PowerfulLastBreathInteractionProof.cs": "6b14ff2b51c23a5156b8f2e860fd57853866a318345a629b243bef13bccef8f3",
+    "clients/godot/scenes/debug/PowerfulLastBreathInteractionProof.tscn": "e3259f37e1d7baefe5edff70187e286d221d0ebc45f0ce0320e1d9820726fa62",
+    "scripts/ci-change-scope.py": "ea06a68c3a806714910eb196496029a268ca544b0baae831c5c672542d754133"
+  },
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 120.65,
+    "total": 10324,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10324,
+        "passed": 10324,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 117.13
+      }
+    ]
+  },
+  "parity": {
+    "baselineCases": 10308,
+    "currentCases": 10324,
+    "baselineMethods": 6595,
+    "currentMethods": 6604,
+    "oldCaseAndMethodIdentitiesPreserved": true,
+    "addedCases": [
+      "Riftbound.ConformanceTests.PowerfulLastBreathNativeTests.ProductionDestructionAndLastBreathResponseControlsReplay(branch: \"equipped\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathNativeTests.ProductionDestructionAndLastBreathResponseControlsReplay(branch: \"token\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.ADepartedCopyTokenStillResolvesItsEarnedLastBreath",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.APrintedCopyProvidesASeparateLastBreathThroughTheSharedOrderingFlow",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.AStoredPowerfulUnitSuppressedByTheLiveAuraDoesNotEarnLastBreath",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.EveryPublicViewRejectsAChangedHistoricalMight(viewer: \"P1\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.EveryPublicViewRejectsAChangedHistoricalMight(viewer: \"P2\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.EveryPublicViewRejectsAChangedHistoricalMight(viewer: \"spectator\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.ExplicitDestructionCapturesThePowerfulUnitsCurrentMightBeforeItLeaves",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.ExplicitDestructionQueuesTheLastBreathForIndependentConfirmationAndResponse",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.HistoricalMightDoesNotStoreOpponentPrivateCardsOrPileOrder",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.RecoveryRejectsForgedLastKnownMightInputs(change: \"generation\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.RecoveryRejectsForgedLastKnownMightInputs(change: \"instance\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.RecoveryRejectsForgedLastKnownMightInputs(change: \"key-drift\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.RecoveryRejectsForgedLastKnownMightInputs(change: \"might\")",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.RecoveryRejectsForgedLastKnownMightInputs(change: \"private-pile\")"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.PowerfulLastBreathNativeTests.ProductionDestructionAndLastBreathResponseControlsReplay",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.ADepartedCopyTokenStillResolvesItsEarnedLastBreath",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.APrintedCopyProvidesASeparateLastBreathThroughTheSharedOrderingFlow",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.AStoredPowerfulUnitSuppressedByTheLiveAuraDoesNotEarnLastBreath",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.EveryPublicViewRejectsAChangedHistoricalMight",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.ExplicitDestructionCapturesThePowerfulUnitsCurrentMightBeforeItLeaves",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.ExplicitDestructionQueuesTheLastBreathForIndependentConfirmationAndResponse",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.HistoricalMightDoesNotStoreOpponentPrivateCardsOrPileOrder",
+      "Riftbound.ConformanceTests.PowerfulLastBreathTests.RecoveryRejectsForgedLastKnownMightInputs"
+    ],
+    "duplicates": 0
+  },
+  "testAssemblySha256": "4bb51ecfe2fd4d376c58f2cce8ef8d841e8bd75abf56320bb0f2fdb58480f6ee",
+  "checkTrxSha256": "1895f87a3f10f05b34a4fafaa1eeff3046b7fac9b9bda5954e8cfe3beaa2ab52",
+  "adjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 90.71,
+    "total": 2276,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2276,
+        "passed": 2276,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 59.1
+      }
+    ]
+  },
+  "finalSharedFlowFocus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 40.63,
+    "total": 20,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 20,
+        "passed": 20,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.04
+      }
+    ]
+  },
+  "nativeFinalReadback": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.55,
+    "total": 2,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.83
+      }
+    ]
+  },
+  "native": {
+    "productionAcceptedCommands": 10,
+    "staleRejected": 2,
+    "duplicateJournalWrites": 0,
+    "actualReadback": true,
+    "actionEventStateReplayMatch": true,
+    "headlessControlExecution": true,
+    "visiblePairedAcceptance": false,
+    "windowsRuntimeAcceptance": false,
+    "realPostgresAcceptance": false
+  },
+  "fixedCommitFullRequired": true,
+  "fullExpectedCases": 10473,
+  "fullExpectedMethods": 6745,
+  "fullExpectedPairs": 110,
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/9",
+  "remaining": [
+    "Fixed-commit complete CI and current whole-regression identity/matrix audit",
+    "All other Last Breath consumers and complete semantic coverage of all relevant whole cards",
+    "Mighty ready/rune/conquest/additional-cost consumers and generic full layers/timestamps",
+    "Official source gaps, all 1738 whole-card records and full rule/QA certification",
+    "Visible paired native match, Windows real runtime, real PostgreSQL"
+  ],
+  "fullPlanMethodCount": 6745,
+  "allPriorFullMethodsRetained": true,
+  "toolTests": 24
+}

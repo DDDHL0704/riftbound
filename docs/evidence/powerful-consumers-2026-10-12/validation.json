@@ -1,10 +1,10 @@
 {
   "createdAt": "2026-10-12T14:25:43.821123+00:00",
-  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_FIXED_COMMIT_FULL_AND_NATIVE_PASS_WHOLE_UNCERTIFIED",
   "scope": "Current field Might count for three exact CN prints; self-cost reduction through shared play planning; no complete card/layer certification",
   "implementationParent": "e6ae01f5986557b65e25183c76a775615c359249",
   "wholeCardCertification": false,
-  "fullCiRequired": true,
+  "fullCiRequired": false,
   "check": {
     "status": "PASSED",
     "profile": "check",
@@ -139,5 +139,15 @@
         "seconds": 6.43
       }
     ]
+  },
+  "fixedCommitFullCi": {
+    "commit": "14dfaa133b7a4f9e1c3bc542dde63cafd6cf22e2",
+    "runId": 38263501421,
+    "receipt": "docs/evidence/powerful-consumers-2026-10-12/full-ci-14dfaa13.json",
+    "cases": 10457,
+    "methods": 6736,
+    "matrixPairs": 110,
+    "seconds": 1588.76,
+    "boundary": "Does not cover current Last Breath changes or broader/real-device acceptance"
   }
 }
