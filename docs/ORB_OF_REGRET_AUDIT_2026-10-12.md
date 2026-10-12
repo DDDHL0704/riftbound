@@ -1,6 +1,6 @@
 # 懊悔法球：限定激活技能重建
 
-状态：当前中文卡面、定向规则、Godot 生产控件命令及批次 check 已通过；固定提交 full 待提交后在后台执行。不是整卡、最低战力家族或全量官方认证。相关来源队列归入 [GitHub #7](https://github.com/DDDHL0704/riftbound/issues/7)。
+状态：当前中文卡面、定向规则、Godot 生产控件命令及批次 check 已通过；固定提交 0ddbd93d 的 full 已在后台启动。不是整卡、最低战力家族或全量官方认证。相关来源队列归入 [GitHub #7](https://github.com/DDDHL0704/riftbound/issues/7)。
 
 ## 来源与适用范围
 
@@ -30,7 +30,7 @@
 
 Godot 4.7.2 headless 中实际点击 ActionBar、PromptInteractionController 和生产命令模板，两个场景分别生成激活、让过、让过，共 6 条命令。场景为光环下最低值和敌方法盾符文回收。JSON mapper 与 MatchSession 接受实际生成的命令，并验证提示/tick 身份、真实支付、重复意图去重、过期意图拒绝、权威/双方/观众恢复及动作/事件/状态回放。每场保留 3 条接受命令、1 条过期拒绝和最终状态哈希。该结果不代替可见双客户端、Windows 实机或真实数据库执行。
 
-[本批证据](evidence/orb-of-regret-2026-10-12/validation.json)记录实际 10,154 个 check 用例、6,530 个方法、119.23 秒，以及输入和 TRX 哈希。独立核对确认原 10,118 用例、6,518 方法全部保留，新增 36 用例、12 方法，零失败/跳过/重复。fixed-commit full 仍在提交后执行；不继承 33c3b54a 的完整验收。全量卡牌 ledger 保持 NOT_REVIEWED，不按注册或本批通过提升为整卡认证。
+[本批证据](evidence/orb-of-regret-2026-10-12/validation.json)记录实际 10,154 个 check 用例、6,530 个方法、119.23 秒，以及输入和 TRX 哈希。独立核对确认原 10,118 用例、6,518 方法全部保留，新增 36 用例、12 方法，零失败/跳过/重复。固定提交 0ddbd93d83ce65be7fe714b3e461ebc703911ea0 的 [完整 CI 38232248031](https://github.com/DDDHL0704/riftbound/actions/runs/38232248031) 已启动、尚无完整通过结论；不继承 33c3b54a 的完整验收。全量卡牌 ledger 保持 NOT_REVIEWED，不按注册或本批通过提升为整卡认证。
 
 ## 继续处理
 
