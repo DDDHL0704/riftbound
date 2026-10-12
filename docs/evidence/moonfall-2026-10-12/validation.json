@@ -1,0 +1,353 @@
+{
+  "status": "SCOPED_LOCAL_CHECK_AND_NATIVE_PASS_EXACT_HEAD_FULL_CI_REQUIRED",
+  "wholeCardCertification": false,
+  "semanticCoverageCertified": false,
+  "sourceBaselineCommit": "c9efff0a3d4f31f5220c486535a3890d20d28acc",
+  "sources": [
+    {
+      "language": "zh-CN",
+      "sourceId": 34751,
+      "cardNo": "UNL-198/219",
+      "name": "月之降临",
+      "sha256": "d5ee8d1dc20d2dc89b798a807bf09f1202248ed8d2f9e8dea10cffaf76f4ba72",
+      "snapshot": {
+        "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+        "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+      },
+      "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+      "publishedPreview": false
+    },
+    {
+      "language": "en-US",
+      "sourceId": "unl-198-219",
+      "cardNo": "UNL-198/219",
+      "name": "Moonfall",
+      "sha256": "333f55cddea22b982f7b2576bc5bf32be958caeaf9aac09287f5a7ae728c7d47",
+      "snapshot": {
+        "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+        "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+      },
+      "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+      "publishedPreview": false
+    }
+  ],
+  "sourceCoverage": {
+    "path": "docs/evidence/rules-reaudit-2026-10-12/goal-resume-20261012T053551Z/source-coverage.json",
+    "sha256": "75bb26c50879a715151cda437e63cbc01acf4f23e8b99adab0e803cab9f7e245"
+  },
+  "sourceFiles": [
+    {
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "sha256": "9e4392e4ad816f02d0600426cb431a63ec159d4fd44161ac7ad843388ad546da"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs",
+      "sha256": "6640ab630b2d743d134a7c71a7474781c25f0027d4b620cd479a5ca438037c70"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs",
+      "sha256": "2a21b1eb547eb2bf90f13d6d16098584e0ca0a9f24f692959593901c3862131e"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
+      "sha256": "ba1e01b093f0fab1ce25a1021373486bcf2f30a95e35d0c418cb5279c64e4f54"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "92fab2eba844d2003f22532f7a055e90d4bda05e4263ef63ff3aa9cbc5d28add"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "8d6ff2c9a66ecffd4e214d6483f2de414687aea8b800b5bb32aa099ca2283ecd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MoonfallTests.cs",
+      "sha256": "0b18c672e61216d289e458e5448ae92f22d642702178777df8451230b48caca8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MoonfallNativeTests.cs",
+      "sha256": "39ff6369660b0aa71b4aaa109e0165a15271677c89fbc96a8bd7d5f1541170fd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-moonrise-enemy-battlefield-power-minus-2.fixture.json",
+      "sha256": "28b0582d39d675389c3f3435bcf90d0a003024d7b3b9ea70291072f98e959227"
+    },
+    {
+      "path": "clients/godot/scripts/debug/MoonfallInteractionProof.cs",
+      "sha256": "e3e9e1f4cce13c07e22ea338ccf4f9c0d9c947f5bd2acba28ba720cf7be39ac6"
+    },
+    {
+      "path": "clients/godot/scenes/debug/MoonfallInteractionProof.tscn",
+      "sha256": "ccbea3d0443c2abfa8de550180afbf834332eb9f4c85efdc3f1427a7f9094bf0"
+    }
+  ],
+  "profiles": {
+    "focus3-native": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 11.86,
+      "total": 28,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 28,
+          "passed": 28,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 7.97
+        }
+      ]
+    },
+    "focus4-repeats": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 42.84,
+      "total": 48,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 48,
+          "passed": 48,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 8.58
+        }
+      ]
+    },
+    "check1": {
+      "status": "PASSED",
+      "profile": "check",
+      "seconds": 103.27,
+      "total": 10081,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "check",
+          "total": 10081,
+          "passed": 10081,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 99.28
+        }
+      ]
+    }
+  },
+  "discoveredMethods": 6642,
+  "checkMethods": 6501,
+  "trx": {
+    "focus3-native": {
+      "path": "var/qa/moonfall-20261012/focus3-native/focus/results.trx",
+      "sha256": "3b6f4bda018a3fa15fb5870519dc7f75c1568e9215466ac20591a69ab28dc398"
+    },
+    "focus4-repeats": {
+      "path": "var/qa/moonfall-20261012/focus4-repeats/focus/results.trx",
+      "sha256": "242560b81ede526f9a46fc0e74b026fca24bcd0a5bfb8143242fc62bccfd4d7c"
+    },
+    "check1": {
+      "path": "var/qa/moonfall-20261012/check1/check/results.trx",
+      "sha256": "171382cbec8344015b067e8298fd843bdab766e68cce5d18896f11b456b5818a"
+    }
+  },
+  "preservation": {
+    "allPriorOrdinaryCasesExactlyPreserved": true,
+    "priorOrdinaryCases": 10050,
+    "currentCheckCases": 10081,
+    "addedCaseCount": 29,
+    "addedCases": [
+      "Riftbound.ConformanceTests.MoonfallNativeTests.ProductionBattlefieldAndOptionalEnemyCommandsPayResolveAndReplay(branch: \"base\")",
+      "Riftbound.ConformanceTests.MoonfallNativeTests.ProductionBattlefieldAndOptionalEnemyCommandsPayResolveAndReplay(branch: \"no-move\")",
+      "Riftbound.ConformanceTests.MoonfallNativeTests.ProductionBattlefieldAndOptionalEnemyCommandsPayResolveAndReplay(branch: \"other-field\")",
+      "Riftbound.ConformanceTests.MoonfallTests.ARealCounterCancelsMovementAndPenaltyButDoesNotRefundPayment",
+      "Riftbound.ConformanceTests.MoonfallTests.AResponseDamagingTheSelectedEnemyKillsItOnlyAfterMovingAndWeakening",
+      "Riftbound.ConformanceTests.MoonfallTests.AffectedWardUnitsDoNotBecomeChosenTargetsOrAdditionalCosts",
+      "Riftbound.ConformanceTests.MoonfallTests.AnInvalidLaterBattlefieldChoiceCannotChargeEchoOrChangeState",
+      "Riftbound.ConformanceTests.MoonfallTests.BattlefieldRequiresAVisibleFriendlyUnitRatherThanOwnershipOrEquipment(hidden: False)",
+      "Riftbound.ConformanceTests.MoonfallTests.BattlefieldRequiresAVisibleFriendlyUnitRatherThanOwnershipOrEquipment(hidden: True)",
+      "Riftbound.ConformanceTests.MoonfallTests.EchoPreservesEachOptionalMoveChoiceAndRechecksTheSharedBattlefield(moveInitially: False)",
+      "Riftbound.ConformanceTests.MoonfallTests.EchoPreservesEachOptionalMoveChoiceAndRechecksTheSharedBattlefield(moveInitially: True)",
+      "Riftbound.ConformanceTests.MoonfallTests.InvalidSelectionsAreRejectedBeforePaymentAndMutation(branch: \"friendly-unit\")",
+      "Riftbound.ConformanceTests.MoonfallTests.InvalidSelectionsAreRejectedBeforePaymentAndMutation(branch: \"missing-field\")",
+      "Riftbound.ConformanceTests.MoonfallTests.InvalidSelectionsAreRejectedBeforePaymentAndMutation(branch: \"other-field\")",
+      "Riftbound.ConformanceTests.MoonfallTests.InvalidSelectionsAreRejectedBeforePaymentAndMutation(branch: \"reverse\")",
+      "Riftbound.ConformanceTests.MoonfallTests.InvalidSelectionsAreRejectedBeforePaymentAndMutation(branch: \"same-location\")",
+      "Riftbound.ConformanceTests.MoonfallTests.InvalidSelectionsAreRejectedBeforePaymentAndMutation(branch: \"too-many\")",
+      "Riftbound.ConformanceTests.MoonfallTests.InvalidSelectionsAreRejectedBeforePaymentAndMutation(branch: \"unit-as-field\")",
+      "Riftbound.ConformanceTests.MoonfallTests.LosingTheFriendlyUnitInvalidatesTheChosenBattlefield",
+      "Riftbound.ConformanceTests.MoonfallTests.MovementProhibitionSkipsOnlyMovementAndTheLocalPenaltyStillResolves",
+      "Riftbound.ConformanceTests.MoonfallTests.MovesOneEnemyFromAnotherBattlefieldOrBaseBeforeTheLocalPenalty(enemy: \"D2\")",
+      "Riftbound.ConformanceTests.MoonfallTests.MovesOneEnemyFromAnotherBattlefieldOrBaseBeforeTheLocalPenalty(enemy: \"D3\")",
+      "Riftbound.ConformanceTests.MoonfallTests.MovingAStolenUnitPreservesItsOwnerControllerDamageAndEquipment",
+      "Riftbound.ConformanceTests.MoonfallTests.MustChooseABattlefieldEvenWhenDecliningTheOptionalMove",
+      "Riftbound.ConformanceTests.MoonfallTests.NegativeRawMightWithoutDamageDoesNotDestroyTheUnit",
+      "Riftbound.ConformanceTests.MoonfallTests.NoMoveBranchOnlyWeakensEnemiesAtTheSelectedBattlefield",
+      "Riftbound.ConformanceTests.MoonfallTests.ReturnedObjectGenerationDoesNotReplaceTheOriginalChosenTarget(changed: \"battlefield\")",
+      "Riftbound.ConformanceTests.MoonfallTests.ReturnedObjectGenerationDoesNotReplaceTheOriginalChosenTarget(changed: \"enemy\")",
+      "Riftbound.ConformanceTests.MoonfallTests.TheOptionalChosenEnemyStillChargesWard"
+    ],
+    "missingCases": [],
+    "semanticCoverageCertified": false
+  },
+  "redReproduction": {
+    "proof": {
+      "baselineSourceCommit": "c9efff0a3d4f31f5220c486535a3890d20d28acc",
+      "engineSha256": "1ac230234a1e605653be5157917df435eaef5139e8bafc192b8475d727154ddd",
+      "testAssemblySha256": "1771a6a27793f1ff63f24dcd49dffd5ddf1fad73aef3e87ceda96d295ef95370",
+      "exitCode": 1,
+      "note": "Isolated previous compiled engine with new regression tests using existing APIs only; not a full mixed-assembly regression."
+    },
+    "trx": {
+      "path": "var/qa/moonfall-20261012/isolated-baseline/results.trx",
+      "sha256": "e4b6a2e7d4b666e86acbb945e19aa697839910879fcef17773eda10674f444d2"
+    },
+    "allFourCoreRegressionsFailed": true,
+    "scope": "New tests using existing APIs against the frozen previous engine; not full mixed-assembly validation"
+  },
+  "native": {
+    "mode": "Godot 4.7.2 headless production PlayCardOverlay; no visual two-window/Windows/database acceptance inferred",
+    "productionCommands": 3,
+    "acceptedJournalCommands": 9,
+    "rejectedStaleCommands": 3,
+    "scenarios": [
+      {
+        "branch": "no-move",
+        "chosenTargets": [
+          "BF"
+        ],
+        "finalHash": "ad2fbd600fdf9e57005f614dd75350835007889dc1f5dd2671db99729b882dd2",
+        "artifacts": [
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/no-move/command.json",
+            "sha256": "4eac9377f9ed149334d3a2eb7919207648da2a56b0b75db7e95b200c908fdc59"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/no-move/preview.json",
+            "sha256": "bda6a0ff20641b9677ece5438d97a48e74b0e290d81c346c16618e4f56353f26"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/no-move/prompt.json",
+            "sha256": "ed2e8f0d0cc6b786ad2d5f094d54ee717a2a702995dddc46b7ec6a95d68fb6f5"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/no-move/quote.json",
+            "sha256": "2dda1afa5a4278b791f46fc719778a13d09642345fe55c7cb59eb19e1049ed5e"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/no-move/replay.json",
+            "sha256": "7adb9687bf2e42abb0a504c8c8f8995d255348fefaab5bf9d719a9a511432da3"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/no-move/result-snapshot.json",
+            "sha256": "2ec54fa7b735b95963d22c28205bfd6c288e8e4c52037b5b727aadb98366b4a3"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/no-move/snapshot.json",
+            "sha256": "6b003ae876b8879a9368187b0720c43baf4b39dbfbd03fb571094593ad22693e"
+          }
+        ]
+      },
+      {
+        "branch": "other-field",
+        "chosenTargets": [
+          "BF",
+          "D2"
+        ],
+        "finalHash": "0e0424fa1685736367e904cdb911de33fa1f1278822912be3eb4ce721a3063c5",
+        "artifacts": [
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/other-field/command.json",
+            "sha256": "d12fe7c558b74bf29fc21f0c7ca126dedbc1ec638f759e667b1f8014ff403cb4"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/other-field/preview.json",
+            "sha256": "4461b943d96f075472a547cdacf850274b1942b38f623dc8d9410839f31d6e6e"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/other-field/prompt.json",
+            "sha256": "ed2e8f0d0cc6b786ad2d5f094d54ee717a2a702995dddc46b7ec6a95d68fb6f5"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/other-field/quote.json",
+            "sha256": "09639e2788b2d817a9a6bf8bf09cd6912d33f380ac62daa5b4facc761dd59acc"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/other-field/replay.json",
+            "sha256": "ea6110b039df3f0bc7578c10f7fec019935315a4fe172df7dce62a7ae936bd28"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/other-field/result-snapshot.json",
+            "sha256": "6ba3f2e99c92ceb471bbc35fd3805c6dda2dfbca376536198da946aa0aa79023"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/other-field/snapshot.json",
+            "sha256": "6b003ae876b8879a9368187b0720c43baf4b39dbfbd03fb571094593ad22693e"
+          }
+        ]
+      },
+      {
+        "branch": "base",
+        "chosenTargets": [
+          "BF",
+          "D3"
+        ],
+        "finalHash": "749723c6fcb3ce0db9aa7f255828e4f4ada44b446dd3815192193218191221fe",
+        "artifacts": [
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/base/command.json",
+            "sha256": "82c3fdb4a45813917b9876985ca39e94f973792cedfa4a81971fefd41f5e6eaf"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/base/preview.json",
+            "sha256": "4b68a4cbfc1ff146490b19d4f9a9da249b10e09acf0b20f101ac174f880387c0"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/base/prompt.json",
+            "sha256": "ed2e8f0d0cc6b786ad2d5f094d54ee717a2a702995dddc46b7ec6a95d68fb6f5"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/base/quote.json",
+            "sha256": "2d7c680173adabe21a5a18e324545ba215cb476ea15ef081a95bfc0c374256f3"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/base/replay.json",
+            "sha256": "463ee9d304cd1c419b305b9d6c36b46686a801dda32add263c86e2a28d3f62c2"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/base/result-snapshot.json",
+            "sha256": "9d7f526e89daf4dd2823536f77e9e7814b2ebd2c5fa7ef32782bf2809c3c332e"
+          },
+          {
+            "path": "docs/evidence/moonfall-2026-10-12/base/snapshot.json",
+            "sha256": "6b003ae876b8879a9368187b0720c43baf4b39dbfbd03fb571094593ad22693e"
+          }
+        ]
+      }
+    ]
+  },
+  "sourceOnlyCi": {
+    "commit": "c9efff0a3d4f31f5220c486535a3890d20d28acc",
+    "runId": 38209317679,
+    "status": "PASSED",
+    "profile": "full",
+    "total": 10201,
+    "methods": 6625,
+    "pairs": 110,
+    "seed": 424242,
+    "seconds": 976.3,
+    "caseIdentitySha256": "8cc3295d12d68225e5799dbac06793a5c748adadf17f01594b537e52f6cc2088",
+    "scope": "Earlier unchanged gameplay engine/source expansion; not this changed engine"
+  },
+  "currentCandidateCi": {
+    "status": "REQUIRED_AFTER_COMMIT",
+    "resultLocation": "docs/MOONFALL_AUDIT_2026-10-12.md"
+  },
+  "exclusions": [
+    "Mel additional chosen-unit reduction replacement",
+    "Full layer dependencies/timestamp combinations",
+    "Other selected-battlefield spells",
+    "Visible paired clients",
+    "Windows real runtime",
+    "Real database execution"
+  ]
+}

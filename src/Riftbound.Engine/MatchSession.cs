@@ -12833,7 +12833,8 @@ internal static class ActionPromptBuilder
         IReadOnlyList<IReadOnlyList<string>> choicesByIndex)
     {
         if (behavior.AnyNumberOfTargets) return false;
-        return behavior.MaxTotalTargetPower > 0
+        return behavior.SelectedBattlefieldEffect is not null
+            || behavior.MaxTotalTargetPower > 0
             || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || behavior.SwapsTargetLocations
             || choicesByIndex
@@ -12877,6 +12878,8 @@ internal static class ActionPromptBuilder
             {
                 return false;
             }
+            if (!CoreRuleEngine.IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targetObjectIds, targetIndex))
+                return false;
         }
 
         if (!CoreRuleEngine.HasValidTargetGroup(state, behavior, targetObjectIds))
@@ -12999,6 +13002,9 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => targetIndex == 0
+                ? CoreRuleEngine.HasFriendlyUnitAtSelectedBattlefield(state, playerId, objectId)
+                : IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId)
@@ -16754,6 +16760,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.AnyUnit => "任意单位",
             CardTargetScopes.FriendlyUnit => "友方单位",
             CardTargetScopes.FriendlyUnitThenBattlefield => "友方单位，然后战场",
+            CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => "有己方单位的战场，然后可选敌方单位",
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => "友方单位，然后另一个友方单位",
             CardTargetScopes.FriendlyThenEnemyUnits => "友方单位，然后敌方单位",
             CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",

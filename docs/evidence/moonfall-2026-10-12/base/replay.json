@@ -1,0 +1,15 @@
+{
+  "native": true,
+  "replay": {
+    "isMatch": true,
+    "replayedStateHash": "749723c6fcb3ce0db9aa7f255828e4f4ada44b446dd3815192193218191221fe",
+    "expectedStateHash": "749723c6fcb3ce0db9aa7f255828e4f4ada44b446dd3815192193218191221fe",
+    "errors": []
+  },
+  "commands": 4,
+  "chosenTargets": [
+    "BF",
+    "D3"
+  ],
+  "finalHash": "749723c6fcb3ce0db9aa7f255828e4f4ada44b446dd3815192193218191221fe"
+}

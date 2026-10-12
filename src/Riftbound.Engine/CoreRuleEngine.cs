@@ -23730,6 +23730,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => targetIndex == 0
+                ? HasFriendlyUnitAtSelectedBattlefield(state, playerId, objectId)
+                : IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
@@ -27825,6 +27828,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 damageTriggeredDestroyTargetObjectIds,
                 preventDamageFromThisStackItem,
                 PreventSpellAndSkillDamageThisTurnEffectId);
+        }
+        else if (behavior.SelectedBattlefieldEffect is not null)
+        {
+            var locations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            ResolveSelectedBattlefieldEffect(state, playerZones, cardObjects, locations, behavior, stackItem, events);
+            resolvedObjectLocations = ReconcileObjectLocations(locations, playerZones);
         }
         else if (behavior.ModifiesAllFriendlyBattlefieldUnits
             || behavior.ModifiesAllEnemyBattlefieldUnits)

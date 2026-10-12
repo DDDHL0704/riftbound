@@ -258,7 +258,8 @@ public sealed record CardBehaviorDefinition(
     string TargetTraitsManaReductionTags = "",
     string EffectPlayedUnitStatus = "",
     int TargetTraitsManaReduction = 0,
-    bool CanCounterAbilities = false);
+    bool CanCounterAbilities = false,
+    SelectedBattlefieldEffectSpec? SelectedBattlefieldEffect = null);
 
 public static class CardDamageConditionKinds
 {
@@ -276,6 +277,7 @@ public static class CardTargetScopes
     public const string AnyUnit = "ANY_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
+    public const string FriendlyOccupiedBattlefieldThenEnemyUnit = "FRIENDLY_OCCUPIED_BATTLEFIELD_THEN_ENEMY_UNIT";
     public const string FriendlyUnitThenFriendlyUnit = "FRIENDLY_UNIT_THEN_FRIENDLY_UNIT";
     public const string FriendlyThenEnemyUnits = "FRIENDLY_THEN_ENEMY_UNITS";
     public const string UnitThenItsControllersWeapon = "UNIT_THEN_ITS_CONTROLLERS_WEAPON";
@@ -493,11 +495,13 @@ public static class CardBehaviorRegistry
             "UNL-198/219",
             "月之降临",
             3,
-            "MOON_RISE_ENEMY_BATTLEFIELD_MINUS_2_NO_MOVE",
+            "SELECTED_BATTLEFIELD_MOVE_THEN_ENEMY_MINUS_2",
             0,
-            0,
-            PowerModifierAmount: -2,
-            ModifiesAllEnemyBattlefieldUnits: true),
+            2,
+            TargetScope: CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit,
+            MinTargetCount: 1,
+            CanPlayDuringSpellDuel: true,
+            SelectedBattlefieldEffect: new(-2, MoveOptionalEnemy: true)),
         new(
             "OGN·050/298",
             "符文禁锢",

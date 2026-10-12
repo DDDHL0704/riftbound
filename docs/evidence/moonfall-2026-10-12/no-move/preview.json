@@ -1,0 +1,1 @@
+{"requestId":"11cf81a221b248bf9f94ce3fdb2b12b2","promptId":"death-duel:1:P1:PLAY_CARD,PASS_FOCUS,SURRENDER","snapshotTick":1,"command":{"sourceObjectId":"AOE","cardNo":"UNL-198/219","targetObjectIds":["BF"],"mode":"","optionalCosts":[],"destination":"","repeatChoices":null,"movementDestinations":null,"cmdType":"PLAY_CARD"}}

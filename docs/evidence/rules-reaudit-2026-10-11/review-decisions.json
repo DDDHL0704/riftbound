@@ -7959,6 +7959,97 @@
       ],
       "pauseAfterBatchRequested": true,
       "firstCiRepair": "Four correctly rejected forged-event inputs exposed a stale diagnostic expectation constant. Only that test constant changes; all original rejection assertions and engine/client source are preserved. Focused repair: 18/18 passed."
+    },
+    {
+      "id": "selected-battlefield-moonfall-2026-10-12",
+      "status": "SCOPED_LOCAL_CHECK_AND_NATIVE_PASS_FULL_CI_REQUIRED",
+      "scope": "UNL-198/219 selected battlefield, optional enemy movement then local -2 Might, declared target/cost/revalidation/repeat/replay behavior; not complete card certification",
+      "subjects": [
+        {
+          "id": "UNL-198/219",
+          "activeCardNo": "UNL-198/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34751,
+              "cardNo": "UNL-198/219",
+              "name": "月之降临",
+              "sha256": "d5ee8d1dc20d2dc89b798a807bf09f1202248ed8d2f9e8dea10cffaf76f4ba72",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-198-219",
+              "cardNo": "UNL-198/219",
+              "name": "Moonfall",
+              "sha256": "333f55cddea22b982f7b2576bc5bf32be958caeaf9aac09287f5a7ae728c7d47",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P043-B007",
+        "DOC-04-P043-B008",
+        "DOC-04-P043-B009",
+        "DOC-04-P043-B010",
+        "DOC-04-P050-B005",
+        "DOC-04-P050-B006",
+        "DOC-04-P050-B007",
+        "DOC-04-P050-B008",
+        "DOC-04-P050-B011",
+        "DOC-04-P050-B014",
+        "DOC-04-P017-B003",
+        "DOC-04-P017-B004",
+        "DOC-04-P017-B005",
+        "DOC-04-P113-B019",
+        "DOC-04-P113-B020",
+        "DOC-04-P120-B004",
+        "DOC-04-P120-B006",
+        "DOC-04-P120-B009"
+      ],
+      "pendingRuleRecords": [
+        "EN-fc2193dde002e5b5-P001-B024",
+        "EN-fc2193dde002e5b5-P001-B027"
+      ],
+      "auditDocument": "docs/MOONFALL_AUDIT_2026-10-12.md",
+      "tests": [
+        "MoonfallTests",
+        "MoonfallNativeTests",
+        "CoreRuleEnginePlaysMoonRiseEnemyBattlefieldPowerMinus2"
+      ],
+      "evidence": "docs/evidence/moonfall-2026-10-12",
+      "exclusions": [
+        "Mel additional chosen-unit reduction replacement",
+        "Full layer dependencies/timestamp combinations",
+        "Other selected-battlefield spells",
+        "Visible paired clients",
+        "Windows real runtime",
+        "Real database execution"
+      ],
+      "validation": {
+        "checkCases": 10081,
+        "checkMethods": 6501,
+        "focusedRepeatAndNativeCases": 48,
+        "nativeScenarios": 3,
+        "nativeProductionCommands": 3,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true
+      }
     }
   ]
 }

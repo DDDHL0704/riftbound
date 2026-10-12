@@ -58,6 +58,7 @@ public sealed partial class CoreRuleEngine
         foreach (var id in movable)
         {
             var origin = FindFieldObjectLocation(zones, id)!.Value;
+            var originBattlefield = locations.GetValueOrDefault(id)?.BattlefieldObjectId;
             var equipment = AttachedEquipmentObjectIds(cards, id);
             RemoveFieldObjectFromLocation(zones, origin.PlayerId, origin.Zone, id);
             AddFieldObjectToLocation(zones, origin.PlayerId, destinationZone, id);
@@ -66,7 +67,7 @@ public sealed partial class CoreRuleEngine
                 new Dictionary<string, object?> {
                     ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id, ["unitObjectId"] = id,
                     ["playerId"] = origin.PlayerId, ["ownerPlayerId"] = origin.PlayerId, ["movingPlayerId"] = item.ControllerId,
-                    ["originZone"] = origin.Zone, ["originBattlefieldObjectId"] = state.ObjectLocations.GetValueOrDefault(id)?.BattlefieldObjectId,
+                    ["originZone"] = origin.Zone, ["originBattlefieldObjectId"] = originBattlefield,
                     ["destinationZone"] = destinationZone, ["destination"] = destination, ["battlefieldObjectId"] = field,
                     ["simultaneousSourceObjectIds"] = ids
                 }));
