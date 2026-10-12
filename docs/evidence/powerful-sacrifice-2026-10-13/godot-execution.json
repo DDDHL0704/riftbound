@@ -1,0 +1,35 @@
+{
+  "startedAt": "2026-10-12T16:48:54.634884+00:00",
+  "steps": [
+    {
+      "name": "build",
+      "command": [
+        "/Users/dinghaolin/.dotnet/dotnet",
+        "build",
+        "clients/godot",
+        "-m:1",
+        "-v:q",
+        "--nologo"
+      ],
+      "exitCode": 0,
+      "outputTail": "\n已成功生成。\n    0 个警告\n    0 个错误\n\n已用时间 00:00:00.56\n",
+      "outputSha256": "d3bdf1856b0006807fe3bfc641fb8f019fe2232fd52efa4744e2cb4b94d1af80"
+    },
+    {
+      "name": "native",
+      "command": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "clients/godot",
+        "res://scenes/debug/PowerfulSacrificeInteractionProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/powerful-sacrifice-20261013/native-correct-runes"
+      ],
+      "exitCode": 0,
+      "outputTail": "Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org\n\nPOWERFUL_SACRIFICE_PASS: 10 production play and response commands\n",
+      "outputSha256": "f890578481085cb2bd8d419c276346ffce7f541deb0b72fbfda4467c3e3b8f1d"
+    }
+  ],
+  "finishedAt": "2026-10-12T16:48:56.173561+00:00"
+}

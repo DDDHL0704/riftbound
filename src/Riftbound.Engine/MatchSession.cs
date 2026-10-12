@@ -12653,6 +12653,10 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
+        if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
+            && !CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
+            && CoreRuleEngine.PowerfulDestructionAdditionalCostCandidates(state, playerId).Count == 0)
+            return false;
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
         if (minTargetCount == 0)
@@ -14315,6 +14319,13 @@ internal static class ActionPromptBuilder
             ? currentExperience
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
+
+        if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost)
+            choices.AddRange(CoreRuleEngine.PowerfulDestructionAdditionalCostCandidates(state, playerId).Select(id => {
+                var choice = ObjectChoice(state, id, "必付额外费用；不是法术目标");
+                return new ActionPromptChoiceDto($"DESTROY_FRIENDLY_POWERFUL_UNIT:{id}",
+                    $"摧毁友方强力单位：{choice.Label}", choice.Reason);
+            }));
 
         if (CanPromptSourceStealEnemyEquipmentOptionalCost(
                 state,
@@ -16421,7 +16432,6 @@ internal static class ActionPromptBuilder
     private static string UnsupportedPlayCardCompositionReason(CardBehaviorDefinition behavior)
     {
         if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
-            || behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
             || behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost)
         {
             return "该牌需要服务端提供额外费用牺牲目标选择，当前前端入口暂不提交。";

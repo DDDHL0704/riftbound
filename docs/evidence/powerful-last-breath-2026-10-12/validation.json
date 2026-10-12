@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_CHECK_NATIVE_AND_FIXED_COMMIT_FULL_PASS",
   "verifiedAtUtc": "2026-10-12T16:17:19.368728+00:00",
   "scope": "Current Might before departure, printed/copied Mighty Last Breath, independent shared death/response flow, current recovery/public privacy gates; exact CN SFD-167/221 only, no complete card/layer/platform certification",
   "semanticCoverageCertified": false,
@@ -139,7 +139,7 @@
     "windowsRuntimeAcceptance": false,
     "realPostgresAcceptance": false
   },
-  "fixedCommitFullRequired": true,
+  "fixedCommitFullRequired": false,
   "fullExpectedCases": 10473,
   "fullExpectedMethods": 6745,
   "fullExpectedPairs": 110,
@@ -153,5 +153,16 @@
   ],
   "fullPlanMethodCount": 6745,
   "allPriorFullMethodsRetained": true,
-  "toolTests": 24
+  "toolTests": 24,
+  "validatedImplementationCommit": "f1e66b1ebe4d42cee591cb5da6e8de371c98a826",
+  "fullCiEvidence": "docs/evidence/powerful-last-breath-2026-10-12/full-ci-f1e66b1e.json",
+  "fullCi": {
+    "cases": 10473,
+    "methods": 6745,
+    "seconds": 1573.2,
+    "assemblySha256": "1aca651e5e5db17a19ed5797acff3cb1c3cb4428e4b0b6a9111ea0da323b5ef2",
+    "failed": 0,
+    "skipped": 0,
+    "duplicates": []
+  }
 }

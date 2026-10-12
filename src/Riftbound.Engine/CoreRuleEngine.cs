@@ -24878,6 +24878,24 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        // A mandatory nonstandard cost coexists with independently selected
+        // resource/Echo costs. It is paid during play, never once per repeat.
+        if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost)
+        {
+            var required = normalizedOptionalCosts.Where(cost =>
+                cost.StartsWith(DestroyFriendlyPowerfulUnitAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
+            if (required.Length != 1 || !TryParseDestroyFriendlyPowerfulUnitAdditionalCost(required[0], out var target)) return false;
+            var otherCosts = normalizedOptionalCosts.Where(cost => !string.Equals(cost, required[0], StringComparison.Ordinal)).ToArray();
+            if (!TryBuildOptionalCostPlan(state, playerId, otherCosts,
+                    behavior with { RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false }, out _,
+                    out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                    out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds)) return false;
+            destroyedAdditionalCostTargetObjectIds = destroyedAdditionalCostTargetObjectIds.Append(target).ToArray();
+            return true;
+        }
+
         if (TryBuildSourceStealEnemyEquipmentOptionalCost(
                 state,
                 playerId,
@@ -24950,16 +24968,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out var destroyedFriendlyUnitTargetObjectId))
         {
             destroyedAdditionalCostTargetObjectIds = [destroyedFriendlyUnitTargetObjectId];
-            return true;
-        }
-
-        if (normalizedOptionalCosts.Count == 1
-            && behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
-            && TryParseDestroyFriendlyPowerfulUnitAdditionalCost(
-                normalizedOptionalCosts[0],
-                out var destroyedTargetObjectId))
-        {
-            destroyedAdditionalCostTargetObjectIds = [destroyedTargetObjectId];
             return true;
         }
 
@@ -25396,9 +25404,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return IsPlayerControlledFieldObject(state, playerId, targetObjectId)
+        return IsPlayerControlledFieldUnitObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
-            && targetState.Power >= 5;
+            && ResolveCurrentFieldUnitPower(state, targetState) >= PowerfulUnitPowerThreshold;
+    }
+
+    internal static IReadOnlyList<string> PowerfulDestructionAdditionalCostCandidates(MatchState state, string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+        return zones.Base.Concat(zones.Battlefields).Distinct(StringComparer.Ordinal)
+            .Where(id => CanDestroyFriendlyPowerfulUnitAsAdditionalCost(state, playerId, id))
+            .OrderBy(id => id, StringComparer.Ordinal).ToArray();
     }
 
     private static bool CanDestroyFriendlyUnitAsAdditionalCost(

@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="d1cc8d7f-b0c8-4a6d-9faf-6ae65443c763" name="@Mac-mini 2026-10-13 00:35:49" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-13T00:35:49.9722710+08:00" queuing="2026-10-13T00:35:49.9722710+08:00" start="2026-10-13T00:35:45.3710270+08:00" finish="2026-10-13T00:35:50.8111180+08:00" />
+  <TestSettings name="default" id="859b70ed-3f46-4614-aa72-060b5120571f">
+    <Deployment runDeploymentRoot="_Mac-mini_2026-10-13_00_35_49" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="5e97762e-2859-45e1-960e-639c77157b3a" testId="53ba2efe-b6fa-782f-97bf-21698b6335e4" testName="Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostRejectsStoredEightSuppressedToCurrentTwo" computerName="Mac-mini" duration="00:00:00.9676632" startTime="2026-10-13T00:35:50.7887490+08:00" endTime="2026-10-13T00:35:50.7887490+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5e97762e-2859-45e1-960e-639c77157b3a">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure
+Expected: False
+Actual:   True</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostRejectsStoredEightSuppressedToCurrentTwo() in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/PowerfulSacrificeCostTests.cs:line 46
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="487b6dc3-5203-4c23-b2a9-e2856652e17d" testId="a9b8ea1b-b896-4934-9412-ae6f6332639b" testName="Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostAcceptsPrintedTwoEquippedToCurrentFive" computerName="Mac-mini" duration="00:00:03.3377665" startTime="2026-10-13T00:35:49.8221590+08:00" endTime="2026-10-13T00:35:49.8221670+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="487b6dc3-5203-4c23-b2a9-e2856652e17d">
+      <Output>
+        <ErrorInfo>
+          <Message>当前选择无法打出，请检查目标、位置和支付资源。</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostAcceptsPrintedTwoEquippedToCurrentFive() in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/PowerfulSacrificeCostTests.cs:line 31
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostAcceptsPrintedTwoEquippedToCurrentFive" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="a9b8ea1b-b896-4934-9412-ae6f6332639b">
+      <Execution id="487b6dc3-5203-4c23-b2a9-e2856652e17d" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.PowerfulSacrificeCostTests" name="MightyAdditionalCostAcceptsPrintedTwoEquippedToCurrentFive" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostRejectsStoredEightSuppressedToCurrentTwo" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="53ba2efe-b6fa-782f-97bf-21698b6335e4">
+      <Execution id="5e97762e-2859-45e1-960e-639c77157b3a" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.PowerfulSacrificeCostTests" name="MightyAdditionalCostRejectsStoredEightSuppressedToCurrentTwo" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="53ba2efe-b6fa-782f-97bf-21698b6335e4" executionId="5e97762e-2859-45e1-960e-639c77157b3a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a9b8ea1b-b896-4934-9412-ae6f6332639b" executionId="487b6dc3-5203-4c23-b2a9-e2856652e17d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="2" executed="2" passed="0" failed="2" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.9)
+[xUnit.net 00:00:00.12]   Discovering: Riftbound.ConformanceTests
+[xUnit.net 00:00:00.76]   Discovered:  Riftbound.ConformanceTests
+[xUnit.net 00:00:00.77]   Starting:    Riftbound.ConformanceTests
+[xUnit.net 00:00:04.12]       当前选择无法打出，请检查目标、位置和支付资源。
+[xUnit.net 00:00:04.12]       Stack Trace:
+[xUnit.net 00:00:04.12]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/PowerfulSacrificeCostTests.cs(31,0): at Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostAcceptsPrintedTwoEquippedToCurrentFive()
+[xUnit.net 00:00:04.12]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.09]       Assert.False() Failure
+[xUnit.net 00:00:05.09]       Expected: False
+[xUnit.net 00:00:05.09]       Actual:   True
+[xUnit.net 00:00:05.09]       Stack Trace:
+[xUnit.net 00:00:05.09]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/PowerfulSacrificeCostTests.cs(46,0): at Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostRejectsStoredEightSuppressedToCurrentTwo()
+[xUnit.net 00:00:05.09]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.09]   Finished:    Riftbound.ConformanceTests
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T00:35:49.8216040+08:00">
+        <Text>[xUnit.net 00:00:04.12]     Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostAcceptsPrintedTwoEquippedToCurrentFive [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T00:35:50.7887650+08:00">
+        <Text>[xUnit.net 00:00:05.09]     Riftbound.ConformanceTests.PowerfulSacrificeCostTests.MightyAdditionalCostRejectsStoredEightSuppressedToCurrentTwo [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

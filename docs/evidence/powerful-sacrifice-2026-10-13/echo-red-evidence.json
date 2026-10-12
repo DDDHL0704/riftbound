@@ -1,0 +1,17 @@
+{
+  "scope": "Server-offered mandatory Mighty and granted Echo choices fail combination; valid choice identities asserted before preview",
+  "trx": "var/qa/powerful-sacrifice-20261013/echo-red-offered-ids/focus/results.trx",
+  "sha256": "b59870832c472200dbd7c6e04c6cc67ea07d82edaf82f5d22be02c0533d2cc18",
+  "failed": [
+    {
+      "test": "Riftbound.ConformanceTests.PowerfulSacrificeCostTests.GrantedEchoComposesWithOneMightyCostWithoutRepeatingTheSacrifice(echoes: 2)",
+      "outcome": "Failed",
+      "message": "当前选择无法打出，请检查目标、位置和支付资源。"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.PowerfulSacrificeCostTests.GrantedEchoComposesWithOneMightyCostWithoutRepeatingTheSacrifice(echoes: 1)",
+      "outcome": "Failed",
+      "message": "当前选择无法打出，请检查目标、位置和支付资源。"
+    }
+  ]
+}
