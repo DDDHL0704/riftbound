@@ -606,6 +606,8 @@ public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string
 
 public sealed record StackItemState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DamageDistributionContext? DamageDistribution { get; init; }
     public AttachmentObserverContext? AttachmentObserver { get; init; }
     public TemperedContext? Tempered { get; init; }
     public LegendAttachmentContext? LegendAttachment { get; init; }
@@ -742,6 +744,8 @@ public sealed record StackItemState
 
 public sealed record TriggerQueueItemState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DamageDistributionContext? DamageDistribution { get; init; }
     public AttachmentObserverContext? AttachmentObserver { get; init; }
     public TemperedContext? Tempered { get; init; }
     public ReflexiveCopyContext? ReflexiveCopy { get; init; }
@@ -1407,9 +1411,15 @@ public sealed record MatchState
             .Distinct(StringComparer.Ordinal)
             .ToArray();
         var battlefieldObjectId = battlefieldObjectIds.Length == 1 ? battlefieldObjectIds[0] : null;
+        // A captured battle continues even when its last unit leaves during a
+        // response. Its declaration is cleared by battle settlement, not by
+        // the lifetime of the participating objects.
+        var hasDeclaration = CoreRuleEngine.TryReadBattleResponseDeclarationContext(state,
+            battlefieldObjectId ?? string.Empty, out var declaration);
+        battlefieldObjectId ??= hasDeclaration ? declaration.BattlefieldId : null;
 
         return new BattleState(
-            participantObjectIds.Length > 0,
+            participantObjectIds.Length > 0 || hasDeclaration,
             BattleLifecycleIds.BattleIdForBattlefield(battlefieldObjectId),
             battlefieldObjectId,
             attackerObjectIds,
@@ -4224,7 +4234,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4238,7 +4248,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -5303,6 +5313,10 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
         if (!hiddenSource && CoreRuleEngine.LegendUnitTokenLabel(item.EffectKind) is { } legendLabel) view["abilityLabel"] = legendLabel;
+        if (!hiddenSource && item.DamageDistribution is not null) {
+            view["damageDistribution"] = item.DamageDistribution;
+            view["abilityLabel"] = "进攻分摊伤害";
+        }
         if (!hiddenSource && item.LocationDamage is not null) {
             view["locationDamage"] = item.LocationDamage;
             view["abilityLabel"] = "每个位置至多一名敌方单位受到伤害";
@@ -5345,7 +5359,7 @@ public sealed record ResolutionResult(
         StackItemState item,
         string viewerPlayerId)
     {
-        return item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.MovementObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
+        return item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.MovementObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 
@@ -6638,7 +6652,9 @@ public sealed record ResolutionResult(
                     ? "请选择要处理的卡牌"
                     : "等待对手选择卡牌",
                 string.Equals(playerId, state.PendingCardChoice.PlayerId, StringComparison.Ordinal)
-                    ? state.PendingCardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION"
+                    ? state.PendingCardChoice.ChoiceWindow == CoreRuleEngine.EffectDamageWindow
+                        ? WithSurrender(CommandTypes.AssignEffectDamage)
+                        : state.PendingCardChoice.ChoiceWindow == "TRIGGER_CONFIRMATION"
                         ? WithSurrender(CommandTypes.ChooseCards, CommandTypes.ActivateAbility, CommandTypes.TapRune, CommandTypes.RecycleRune)
                         : WithSurrender(CommandTypes.ChooseCards)
                     : WithSurrender("WAIT")));
@@ -8858,6 +8874,7 @@ internal static class ActionPromptBuilder
             CommandTypes.Mulligan => CandidatePresentation("setup", "mulligan", "primary", 30),
             CommandTypes.PayCost => CandidatePresentation("payment", "pay-cost", "payment", 40),
             CommandTypes.AssignCombatDamage => CandidatePresentation("battle", "assign-damage", "battle", 50),
+            CommandTypes.AssignEffectDamage => CandidatePresentation("choice", "assign-effect-damage", "choice", 50),
             CommandTypes.OrderTriggers => CandidatePresentation("choice", "order-triggers", "choice", 60),
             CommandTypes.ChooseHandCards => CandidatePresentation("choice", "choose-hand", "choice", 70),
             CommandTypes.ChooseCards => CandidatePresentation("choice", "choose-cards", "choice", 75),
@@ -15174,6 +15191,7 @@ internal static class ActionPromptBuilder
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentMetadataFor(state, playerId),
             "DECLARE_BATTLE" => DeclareBattleMetadataFor(state, playerId),
             "ASSIGN_COMBAT_DAMAGE" => AssignCombatDamageMetadataFor(state, playerId),
+            "ASSIGN_EFFECT_DAMAGE" => CoreRuleEngine.EffectDamageMetadata(state, playerId),
             "ORDER_TRIGGERS" => OrderTriggersMetadataFor(state, playerId),
             "LEGEND_ACT" => LegendActionMetadataFor(state, playerId),
             _ => null
@@ -16785,6 +16803,7 @@ internal static class ActionPromptBuilder
             "CHOOSE_HAND_CARDS" => "选择手牌",
             "CHOOSE_CARDS" => "选择卡牌",
             "ASSIGN_COMBAT_DAMAGE" => "分配战斗伤害",
+            "ASSIGN_EFFECT_DAMAGE" => "分配技能伤害",
             "ORDER_TRIGGERS" => "排序触发",
             "LEGEND_ACT" => "传奇行动",
             "PASS" => "让过",

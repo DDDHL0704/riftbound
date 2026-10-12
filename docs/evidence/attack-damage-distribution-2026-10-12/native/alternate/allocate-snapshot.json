@@ -1,0 +1,740 @@
+{
+  "tick": 7,
+  "turnNumber": 5,
+  "activePlayerId": "P1",
+  "players": {
+    "P1": {
+      "id": "P1",
+      "name": "P1",
+      "seat": "P1",
+      "ready": false,
+      "handSize": 0,
+      "score": 0,
+      "experience": 0,
+      "cardsPlayedThisTurn": 0,
+      "deckSubmitted": false,
+      "mulliganCompleted": false,
+      "runePool": {
+        "mana": 20,
+        "power": 20,
+        "untypedPower": 20,
+        "powerByTrait": {}
+      },
+      "zones": {
+        "mainDeckCount": 12,
+        "runeDeckCount": 3,
+        "hand": [],
+        "handHidden": 0,
+        "base": [
+          "GEAR"
+        ],
+        "baseCards": [
+          "GEAR"
+        ],
+        "baseRunes": [],
+        "battlefields": [
+          "F",
+          "HOST"
+        ],
+        "battlefieldHiddenStandbyCount": 0,
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "objects": {
+        "GEAR": {
+          "objectId": "GEAR",
+          "damage": 0,
+          "power": 0,
+          "basePower": 0,
+          "effectivePower": 0,
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false,
+          "isFaceDown": false,
+          "isAttacking": false,
+          "isDefending": false,
+          "tags": [
+            "CARD_TYPE:EQUIPMENT",
+            "\u6B66\u88C5"
+          ],
+          "untilEndOfTurnEffects": [],
+          "manaCost": 0,
+          "attachedToObjectId": null,
+          "cardNo": "SFD\u00B7022/221",
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "location": {
+            "playerId": "P1",
+            "zone": "BASE",
+            "zoneKind": "base",
+            "zoneLabel": "\u57FA\u5730"
+          }
+        },
+        "F": {
+          "objectId": "F",
+          "damage": 0,
+          "power": 0,
+          "basePower": 0,
+          "effectivePower": 0,
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false,
+          "isFaceDown": false,
+          "isAttacking": false,
+          "isDefending": false,
+          "tags": [
+            "CARD_TYPE:BATTLEFIELD"
+          ],
+          "untilEndOfTurnEffects": [],
+          "manaCost": 0,
+          "attachedToObjectId": null,
+          "cardNo": "OGN\u00B7278/298",
+          "ownerId": "P1",
+          "controllerId": "P2",
+          "location": {
+            "playerId": "P1",
+            "zone": "BATTLEFIELD",
+            "zoneKind": "battlefield-site",
+            "zoneLabel": "\u6218\u573A\u724C",
+            "battlefieldObjectId": "F"
+          }
+        },
+        "HOST": {
+          "objectId": "HOST",
+          "damage": 0,
+          "power": 9,
+          "basePower": 9,
+          "effectivePower": 9,
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": true,
+          "isFaceDown": false,
+          "isAttacking": true,
+          "isDefending": false,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
+          "untilEndOfTurnEffects": [],
+          "manaCost": 0,
+          "attachedToObjectId": null,
+          "cardNo": "OGN\u00B7041a/298",
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "movementCountThisTurn": 1,
+          "cannotTakeDamage": false,
+          "location": {
+            "playerId": "P1",
+            "zone": "BATTLEFIELD",
+            "zoneKind": "battlefield",
+            "zoneLabel": "\u6218\u573A",
+            "battlefieldObjectId": "F"
+          }
+        }
+      }
+    },
+    "P2": {
+      "id": "P2",
+      "name": "P2",
+      "seat": "P2",
+      "ready": false,
+      "handSize": 1,
+      "score": 0,
+      "experience": 0,
+      "cardsPlayedThisTurn": 0,
+      "deckSubmitted": false,
+      "mulliganCompleted": false,
+      "runePool": {
+        "mana": 20,
+        "power": 20,
+        "untypedPower": 20,
+        "powerByTrait": {}
+      },
+      "zones": {
+        "mainDeckCount": 0,
+        "runeDeckCount": 0,
+        "hand": [],
+        "handHidden": 1,
+        "base": [],
+        "baseCards": [],
+        "baseRunes": [],
+        "battlefields": [
+          "OTHER",
+          "ENEMY1",
+          "ENEMY2",
+          "ENEMY3"
+        ],
+        "battlefieldHiddenStandbyCount": 0,
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "objects": {
+        "OTHER": {
+          "objectId": "OTHER",
+          "damage": 0,
+          "power": 0,
+          "basePower": 0,
+          "effectivePower": 0,
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false,
+          "isFaceDown": false,
+          "isAttacking": false,
+          "isDefending": false,
+          "tags": [
+            "CARD_TYPE:BATTLEFIELD"
+          ],
+          "untilEndOfTurnEffects": [],
+          "manaCost": 0,
+          "attachedToObjectId": null,
+          "cardNo": "OGN\u00B7294/298",
+          "ownerId": "P2",
+          "controllerId": null,
+          "location": {
+            "playerId": "P2",
+            "zone": "BATTLEFIELD",
+            "zoneKind": "battlefield-site",
+            "zoneLabel": "\u6218\u573A\u724C",
+            "battlefieldObjectId": "OTHER"
+          }
+        },
+        "ENEMY1": {
+          "objectId": "ENEMY1",
+          "damage": 0,
+          "power": 3,
+          "basePower": 3,
+          "effectivePower": 3,
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false,
+          "isFaceDown": false,
+          "isAttacking": false,
+          "isDefending": true,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
+          "untilEndOfTurnEffects": [],
+          "manaCost": 0,
+          "attachedToObjectId": null,
+          "cardNo": "OGN\u00B7001/298",
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "location": {
+            "playerId": "P2",
+            "zone": "BATTLEFIELD",
+            "zoneKind": "battlefield",
+            "zoneLabel": "\u6218\u573A",
+            "battlefieldObjectId": "F"
+          }
+        },
+        "ENEMY2": {
+          "objectId": "ENEMY2",
+          "damage": 0,
+          "power": 3,
+          "basePower": 3,
+          "effectivePower": 3,
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false,
+          "isFaceDown": false,
+          "isAttacking": false,
+          "isDefending": true,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
+          "untilEndOfTurnEffects": [],
+          "manaCost": 0,
+          "attachedToObjectId": null,
+          "cardNo": "OGN\u00B7001/298",
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "location": {
+            "playerId": "P2",
+            "zone": "BATTLEFIELD",
+            "zoneKind": "battlefield",
+            "zoneLabel": "\u6218\u573A",
+            "battlefieldObjectId": "F"
+          }
+        },
+        "ENEMY3": {
+          "objectId": "ENEMY3",
+          "damage": 0,
+          "power": 3,
+          "basePower": 3,
+          "effectivePower": 3,
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false,
+          "isFaceDown": false,
+          "isAttacking": false,
+          "isDefending": true,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
+          "untilEndOfTurnEffects": [],
+          "manaCost": 0,
+          "attachedToObjectId": null,
+          "cardNo": "OGN\u00B7001/298",
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "location": {
+            "playerId": "P2",
+            "zone": "BATTLEFIELD",
+            "zoneKind": "battlefield",
+            "zoneLabel": "\u6218\u573A",
+            "battlefieldObjectId": "F"
+          }
+        }
+      }
+    }
+  },
+  "lanes": {
+    "battlefieldObjectIds": [
+      {
+        "playerId": "P1",
+        "objectId": "F"
+      },
+      {
+        "playerId": "P1",
+        "objectId": "HOST"
+      },
+      {
+        "playerId": "P2",
+        "objectId": "OTHER"
+      },
+      {
+        "playerId": "P2",
+        "objectId": "ENEMY1"
+      },
+      {
+        "playerId": "P2",
+        "objectId": "ENEMY2"
+      },
+      {
+        "playerId": "P2",
+        "objectId": "ENEMY3"
+      }
+    ],
+    "battlefieldCount": 6,
+    "battlefields": [
+      {
+        "battlefieldObjectId": "F",
+        "zonePlayerId": "P1",
+        "cardNo": "OGN\u00B7278/298",
+        "controllerId": "P2",
+        "status": "CONTESTED",
+        "contested": true,
+        "occupantObjectIds": [
+          "ENEMY1",
+          "ENEMY2",
+          "ENEMY3",
+          "HOST"
+        ],
+        "occupantControllerIds": [
+          "P1",
+          "P2"
+        ],
+        "unitsBySide": {
+          "P1": [
+            "HOST"
+          ],
+          "P2": [
+            "ENEMY1",
+            "ENEMY2",
+            "ENEMY3"
+          ]
+        },
+        "standbyObjectIds": [],
+        "standbySlots": [],
+        "standbySlotCount": 0,
+        "faceDownStandbyCount": 0,
+        "hiddenStandbyCount": 0,
+        "scoredThisTurn": false,
+        "scoredThisTurnPlayerIds": [],
+        "pendingTaskKinds": [
+          "BATTLEFIELD_CONTESTED",
+          "START_BATTLE",
+          "START_SPELL_DUEL"
+        ]
+      },
+      {
+        "battlefieldObjectId": "OTHER",
+        "zonePlayerId": "P2",
+        "cardNo": "OGN\u00B7294/298",
+        "controllerId": null,
+        "status": "UNCONTROLLED",
+        "contested": false,
+        "occupantObjectIds": [],
+        "occupantControllerIds": [],
+        "unitsBySide": {},
+        "standbyObjectIds": [],
+        "standbySlots": [],
+        "standbySlotCount": 0,
+        "faceDownStandbyCount": 0,
+        "hiddenStandbyCount": 0,
+        "scoredThisTurn": false,
+        "scoredThisTurnPlayerIds": [],
+        "pendingTaskKinds": []
+      }
+    ]
+  },
+  "stack": [
+    {
+      "stackItemId": "ordered-attack-damage-4-HOST-PRINTED:HOST:0",
+      "controllerId": "P1",
+      "sourceObjectId": "HOST",
+      "sourceVisibility": "VISIBLE",
+      "effectKind": "CAPTURED_DISTRIBUTED_DAMAGE",
+      "cardNo": "OGN\u00B7041a/298",
+      "targetObjectIds": [
+        "ENEMY1",
+        "ENEMY2",
+        "ENEMY3"
+      ],
+      "damageAmount": 5,
+      "damageDistribution": {
+        "cardNo": "OGN\u00B7041a/298",
+        "source": {
+          "objectId": "HOST",
+          "generation": 0
+        },
+        "sourceLocation": {
+          "playerId": "P1",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "F"
+        },
+        "initialDamage": 5,
+        "initialBonuses": [],
+        "resolutionDamage": 5
+      },
+      "abilityLabel": "\u8FDB\u653B\u5206\u644A\u4F24\u5BB3",
+      "playAbility": true
+    }
+  ],
+  "timing": {
+    "phase": "MAIN",
+    "turnStartStep": null,
+    "timingState": "NEUTRAL_CLOSED",
+    "turnPlayerId": "P1",
+    "priorityPlayerId": null,
+    "passedPriorityPlayerIds": [],
+    "focusPlayerId": null,
+    "passedFocusPlayerIds": [],
+    "winnerPlayerId": null,
+    "destroyedUnitOwnerIdsThisTurn": [],
+    "turnWindow": {
+      "state": "NEUTRAL_CLOSED",
+      "isSpellDuel": false,
+      "isClosed": true,
+      "hasStack": true,
+      "actingPlayerId": null
+    },
+    "spellDuel": {
+      "isActive": false,
+      "isClosed": false,
+      "spellDuelId": null,
+      "battlefieldObjectId": null,
+      "focusPlayerId": null,
+      "passedFocusPlayerIds": [],
+      "stackItemIds": [],
+      "stackControllerIds": []
+    },
+    "battle": {
+      "isActive": true,
+      "battleId": "battle:F",
+      "battlefieldObjectId": "F",
+      "attackerObjectIds": [
+        "HOST"
+      ],
+      "defenderObjectIds": [
+        "ENEMY1",
+        "ENEMY2",
+        "ENEMY3"
+      ],
+      "participantControllerIds": {
+        "HOST": "P1",
+        "ENEMY1": "P2",
+        "ENEMY2": "P2",
+        "ENEMY3": "P2"
+      },
+      "damageAssignment": {
+        "isPending": false
+      }
+    },
+    "battleResolutions": [],
+    "battlefieldTasks": [
+      {
+        "taskId": "task:start-spell-duel:F",
+        "kind": "START_SPELL_DUEL",
+        "status": "COMPLETED",
+        "reason": "BATTLEFIELD_CONTESTED",
+        "battlefieldObjectId": "F",
+        "participantControllerIds": [
+          "P1",
+          "P2"
+        ],
+        "participantObjectIds": [
+          "ENEMY1",
+          "ENEMY2",
+          "ENEMY3",
+          "HOST"
+        ],
+        "actingPlayerId": null,
+        "stackItemIds": [],
+        "spellDuelId": "spell-duel:F"
+      },
+      {
+        "taskId": "task:start-battle:F",
+        "kind": "START_BATTLE",
+        "status": "ACTIVE",
+        "reason": "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+        "battlefieldObjectId": "F",
+        "participantControllerIds": [
+          "P1",
+          "P2"
+        ],
+        "participantObjectIds": [
+          "ENEMY1",
+          "ENEMY2",
+          "ENEMY3",
+          "HOST"
+        ],
+        "actingPlayerId": "P1",
+        "stackItemIds": [],
+        "battleId": "battle:F"
+      }
+    ],
+    "battlefieldResolutions": [],
+    "pendingTaskQueue": {
+      "hasTasks": true,
+      "isBlocking": true,
+      "phase": "BATTLE_TASKS",
+      "activeTaskId": "task:start-battle:F",
+      "tasks": [
+        {
+          "taskId": "cleanup:battlefield-contested:F",
+          "kind": "BATTLEFIELD_CONTESTED",
+          "reason": "BATTLEFIELD_CONTROL_CHECK",
+          "playerId": "P1",
+          "battlefieldObjectId": "F",
+          "objectId": null
+        },
+        {
+          "taskId": "task:start-spell-duel:F",
+          "kind": "START_SPELL_DUEL",
+          "reason": "BATTLEFIELD_CONTESTED",
+          "playerId": "P1",
+          "battlefieldObjectId": "F",
+          "objectId": null
+        },
+        {
+          "taskId": "task:start-battle:F",
+          "kind": "START_BATTLE",
+          "reason": "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+          "playerId": "P1",
+          "battlefieldObjectId": "F",
+          "objectId": null
+        }
+      ],
+      "metadata": {
+        "taskCount": 3,
+        "stateBasedTaskKinds": []
+      }
+    },
+    "pendingPayment": null,
+    "ruleQueueCoverage": [
+      {
+        "key": "stack",
+        "liveCount": 1,
+        "evidenceKeys": [
+          "stack"
+        ]
+      },
+      {
+        "key": "trigger",
+        "liveCount": 0,
+        "evidenceKeys": []
+      },
+      {
+        "key": "battle",
+        "liveCount": 5,
+        "evidenceKeys": [
+          "battle",
+          "battlefieldTasks",
+          "pendingTaskQueue"
+        ]
+      },
+      {
+        "key": "window",
+        "liveCount": 1,
+        "evidenceKeys": [
+          "turnWindow"
+        ]
+      },
+      {
+        "key": "payment",
+        "liveCount": 0,
+        "evidenceKeys": []
+      }
+    ],
+    "pendingHandChoice": null,
+    "pendingCardChoice": {
+      "choiceId": "DISTRIBUTED-AMOUNTS:ordered-attack-damage-4-HOST-PRINTED:HOST:0",
+      "choiceWindow": "EFFECT_DAMAGE_DISTRIBUTION",
+      "playerId": "P1",
+      "requiredCount": 3,
+      "maxCount": 3,
+      "reason": "\u53EA\u7ED9\u4ECD\u6709\u6548\u7684\u5DF2\u786E\u8BA4\u76EE\u6807\u5206\u914D\u6B63\u6574\u6570\u4F24\u5BB3\uFF1B\u4E0D\u80FD\u65B0\u589E\u76EE\u6807\u3002",
+      "sourceObjectId": "HOST",
+      "effectKind": "CAPTURED_DISTRIBUTED_DAMAGE",
+      "choiceState": "PENDING_CHOICE",
+      "legalCount": 3,
+      "contextCount": 3,
+      "legalObjectIds": [
+        "ENEMY1",
+        "ENEMY2",
+        "ENEMY3"
+      ]
+    },
+    "pendingEffectPlay": null,
+    "continuousEffects": [
+      {
+        "effectId": "GLOBAL:BATTLEFIELD_SPELL_DUEL_COMPLETED:F",
+        "scope": "GLOBAL",
+        "layer": "RULE_TEXT",
+        "duration": "UNTIL_END_OF_TURN",
+        "targetObjectId": null,
+        "sourceObjectId": null,
+        "powerDelta": 0,
+        "basePower": 0,
+        "effectivePower": 0,
+        "sequence": 1
+      }
+    ],
+    "triggerQueue": [],
+    "winningScore": 8,
+    "roomStatus": "IN_PROGRESS",
+    "readyPlayerIds": []
+  },
+  "turnState": "NEUTRAL_CLOSED",
+  "table": {
+    "source": "server-snapshot",
+    "viewerPlayerId": "P1",
+    "runeDeckSize": 12,
+    "players": [
+      {
+        "playerId": "P1",
+        "seat": "P1",
+        "perspective": "self",
+        "isViewer": true,
+        "zones": {
+          "mainDeckCount": 12,
+          "runeDeckCount": 3,
+          "hand": [],
+          "handHidden": 0,
+          "base": [
+            "GEAR"
+          ],
+          "baseCards": [
+            "GEAR"
+          ],
+          "baseRunes": [],
+          "battlefields": [
+            "F",
+            "HOST"
+          ],
+          "battlefieldHiddenStandbyCount": 0,
+          "graveyard": [],
+          "banished": [],
+          "legendZone": [],
+          "championZone": []
+        }
+      },
+      {
+        "playerId": "P2",
+        "seat": "P2",
+        "perspective": "opponent",
+        "isViewer": false,
+        "zones": {
+          "mainDeckCount": 0,
+          "runeDeckCount": 0,
+          "hand": [],
+          "handHidden": 1,
+          "base": [],
+          "baseCards": [],
+          "baseRunes": [],
+          "battlefields": [
+            "OTHER",
+            "ENEMY1",
+            "ENEMY2",
+            "ENEMY3"
+          ],
+          "battlefieldHiddenStandbyCount": 0,
+          "graveyard": [],
+          "banished": [],
+          "legendZone": [],
+          "championZone": []
+        }
+      }
+    ],
+    "battlefields": [
+      {
+        "index": 0,
+        "battlefieldObjectId": "F",
+        "zonePlayerId": "P1",
+        "cardNo": "OGN\u00B7278/298",
+        "controllerId": "P2",
+        "status": "CONTESTED",
+        "contested": true,
+        "occupantObjectIds": [
+          "ENEMY1",
+          "ENEMY2",
+          "ENEMY3",
+          "HOST"
+        ],
+        "occupantControllerIds": [
+          "P1",
+          "P2"
+        ],
+        "unitsBySide": {
+          "P1": [
+            "HOST"
+          ],
+          "P2": [
+            "ENEMY1",
+            "ENEMY2",
+            "ENEMY3"
+          ]
+        },
+        "standbyObjectIds": [],
+        "standbySlots": [],
+        "standbySlotCount": 0,
+        "faceDownStandbyCount": 0,
+        "hiddenStandbyCount": 0,
+        "scoredThisTurn": false,
+        "scoredThisTurnPlayerIds": [],
+        "pendingTaskKinds": [
+          "BATTLEFIELD_CONTESTED",
+          "START_BATTLE",
+          "START_SPELL_DUEL"
+        ]
+      },
+      {
+        "index": 1,
+        "battlefieldObjectId": "OTHER",
+        "zonePlayerId": "P2",
+        "cardNo": "OGN\u00B7294/298",
+        "controllerId": null,
+        "status": "UNCONTROLLED",
+        "contested": false,
+        "occupantObjectIds": [],
+        "occupantControllerIds": [],
+        "unitsBySide": {},
+        "standbyObjectIds": [],
+        "standbySlots": [],
+        "standbySlotCount": 0,
+        "faceDownStandbyCount": 0,
+        "hiddenStandbyCount": 0,
+        "scoredThisTurn": false,
+        "scoredThisTurnPlayerIds": [],
+        "pendingTaskKinds": []
+      }
+    ]
+  }
+}

@@ -593,7 +593,7 @@ internal sealed class PromptInteractionController
 
     private static bool IsSpecialAction(string actionName)
     {
-        return actionName is "MULLIGAN" or "ORDER_TRIGGERS" or "ASSIGN_COMBAT_DAMAGE";
+        return actionName is "MULLIGAN" or "ORDER_TRIGGERS" or "ASSIGN_COMBAT_DAMAGE" or "ASSIGN_EFFECT_DAMAGE";
     }
 
     private static string FriendlyActionLabel(string actionName, string label)

@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_LOCAL_PASS_EXACT_HEAD_FULL_CI_PENDING",
+  "status": "SCOPED_REBUILT_NATIVE_AND_EXACT_HEAD_FULL_CI_PASS",
   "batchCheck": {
     "status": "PASSED",
     "profile": "check",
@@ -102,11 +102,12 @@
   "wholeCardCertification": false,
   "visiblePairedClients": false,
   "windowsNetworkAcceptance": false,
-  "currentFullCI": "Pending commit and exact SHA verification",
+  "currentFullCI": "PASSED b8c044d3ab9e060fc6382d273488648b2684e94e; 10,137 cases / 6,599 methods; all prior cases and methods retained",
   "remaining": [
     "Untyped legacy ability and target-count consumers",
     "Actual attack damage distribution and response flow for OGN-041/298 and alternate",
     "All printed-rule copy consumers and remaining armament lower abilities",
     "Full official corpus and visible paired clients/network acceptance"
-  ]
+  ],
+  "exactHeadFullCi": "docs/evidence/ability-counters-2026-10-12/ci-b8c044d3.json"
 }

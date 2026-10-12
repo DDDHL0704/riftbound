@@ -31,6 +31,10 @@ export type DamageAssignmentChoice = {
 };
 
 export type DamageAssignmentModel = {
+  stackItemId: string;
+  isEffectDamage: boolean;
+  minimumAssignedTargets: number;
+  totalDamage: number;
   battleId: string;
   battlefieldId: string;
   damagePoolLabel?: string;
@@ -103,6 +107,8 @@ export function buildDamageAssignmentModel(
   snapshot: SnapshotDto | undefined
 ): DamageAssignmentModel {
   const metadata = candidate.metadata ?? {};
+  const isEffectDamage = candidate.action === "ASSIGN_EFFECT_DAMAGE";
+  const stackItemId = stringMetadata(metadata, "stackItemId") ?? "";
   const battleId = stringMetadata(metadata, "battleId") ?? prompt?.view?.relatedBattleId ?? "";
   const battlefieldId = stringMetadata(metadata, "battlefieldId")
     ?? stringMetadata(metadata, "battlefieldObjectId")
@@ -110,8 +116,9 @@ export function buildDamageAssignmentModel(
     ?? prompt?.view?.relatedBattlefieldId
     ?? "";
   const scalarDamagePool = firstNumberMetadata(metadata, ["damagePool", "totalDamage", "assignableDamage"]);
-  const damagePoolBySource = numberMapMetadata(metadata, ["damagePool", "damagePoolBySource"]);
-  const damagePoolLabel = scalarDamagePool == null
+  const damagePoolBySource = numberMapMetadata(metadata, ["assignableDamagePool", "damagePool", "damagePoolBySource"]);
+  const totalDamage = [...damagePoolBySource.values()].reduce((total, amount) => total + amount, 0);
+  const damagePoolLabel = isEffectDamage ? String(totalDamage) : scalarDamagePool == null
     ? damagePoolBySource.size > 0 ? `${damagePoolBySource.size} 个来源` : undefined
     : String(scalarDamagePool);
   const assignmentRecords = recordArrayMetadata(metadata.assignmentChoices);
@@ -130,11 +137,16 @@ export function buildDamageAssignmentModel(
   const dedupedChoices = uniqueDamageChoices(fallbackChoices);
 
   return {
+    stackItemId,
+    isEffectDamage,
+    minimumAssignedTargets: numberMetadata(metadata, "minimumAssignedTargets") ?? 0,
+    totalDamage,
     battleId,
     battlefieldId,
     damagePoolLabel,
     choices: dedupedChoices,
     resetKey: [
+      stackItemId,
       battleId,
       battlefieldId,
       damagePoolLabel ?? "none",

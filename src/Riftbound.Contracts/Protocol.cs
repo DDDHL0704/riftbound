@@ -93,6 +93,7 @@ public static class CommandTypes
     public const string DeclareBattle = "DECLARE_BATTLE";
     public const string PayCost = "PAY_COST";
     public const string AssignCombatDamage = "ASSIGN_COMBAT_DAMAGE";
+    public const string AssignEffectDamage = "ASSIGN_EFFECT_DAMAGE";
     public const string OrderTriggers = "ORDER_TRIGGERS";
     public const string ChooseHandCards = "CHOOSE_HAND_CARDS";
     public const string ChooseCards = "CHOOSE_CARDS";
@@ -267,6 +268,10 @@ public sealed record AssignCombatDamageCommand(
     string BattleId = "",
     string BattlefieldId = "",
     IReadOnlyList<CombatDamageAssignmentDto>? Assignments = null) : GameCommand(CommandTypes.AssignCombatDamage);
+
+public sealed record AssignEffectDamageCommand(
+    string StackItemId = "",
+    IReadOnlyList<CombatDamageAssignmentDto>? Assignments = null) : GameCommand(CommandTypes.AssignEffectDamage);
 
 public sealed record OrderTriggersCommand(
     IReadOnlyList<string>? TriggerIds = null,

@@ -81,6 +81,7 @@ public static class GameCommandJsonMapper
                 Text(cmd, "battleId"),
                 Text(cmd, "battlefieldId"),
                 CombatDamageAssignments(cmd)),
+            "ASSIGN_EFFECT_DAMAGE" => new AssignEffectDamageCommand(Text(cmd, "stackItemId"), CombatDamageAssignments(cmd)),
             "ORDER_TRIGGERS" => OrderTriggers(cmd),
             "CHOOSE_HAND_CARDS" => new ChooseHandCardsCommand(
                 Text(cmd, "choiceId"),

@@ -1286,6 +1286,15 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var attackDistributedDamage = Regex.Match(segment,
+            @"当我进攻时，对此处的敌方单位造成共计([0-9]+)点伤害，可在多名敌方单位之间分摊。?$",
+            RegexOptions.CultureInvariant);
+        if (attackDistributedDamage.Success)
+            return new TriggerSpec(TriggerKinds.UnitAttackDistributedDamage, TriggerTimings.UnitAttack, segment,
+                "Targets are confirmed before responses; positive damage amounts are assigned only at resolution (355.14).",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere,
+                DamageAmount: int.Parse(attackDistributedDamage.Groups[1].Value, CultureInfo.InvariantCulture));
+
         var unitAttackPayPowerModifierMatch = Regex.Match(
             segment,
             @"当我进攻时，你可以选择支付\{\{([0-9一两二三四五六七八九十]+)\}\}，以此让此处的一名单位在本回合内\{\{S\}\}-([0-9一两二三四五六七八九十]+)。?$",
@@ -2683,6 +2692,17 @@ public static class StaticAbilityParser
                     BehaviorImplementationStatuses.Unimplemented,
                     "Battlefield granted unit experience activated ability parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
                     experienceAmount));
+                continue;
+            }
+
+            var controllerDamageBonus = Regex.Match(segment,
+                @"你的法术和技能造成的伤害\+([0-9]+)", RegexOptions.CultureInvariant);
+            if (controllerDamageBonus.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.ControllerSpellSkillDamageBonus,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Controller damage bonus parsed; shared distributed damage applies it to the total pool (715.3).",
+                    int.Parse(controllerDamageBonus.Groups[1].Value, CultureInfo.InvariantCulture)));
                 continue;
             }
 

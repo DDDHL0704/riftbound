@@ -646,7 +646,7 @@ public partial class Main : Control
 
     private async Task SubmitCurrentDamageAssignmentsAsync(IReadOnlyList<DamageAssignmentSelection> assignments)
     {
-        if (!TryGetCurrentSpecialAction("ASSIGN_COMBAT_DAMAGE", out var action))
+        if (!TryGetCurrentSpecialAction("ASSIGN_EFFECT_DAMAGE", out var action) && !TryGetCurrentSpecialAction("ASSIGN_COMBAT_DAMAGE", out action))
         {
             return;
         }
@@ -4098,7 +4098,7 @@ public partial class Main : Control
     private void AppendReceipt(string label, CommandReceiptDto receipt)
     {
         QueueMainThread(nameof(ApplyCommandFeedback), receipt.Accepted ? "" : receipt.Message);
-        if (!receipt.Accepted && receipt.CmdType == CommandTypes.AssignCombatDamage)
+        if (!receipt.Accepted && receipt.CmdType is CommandTypes.AssignCombatDamage or CommandTypes.AssignEffectDamage)
             QueueMainThread(nameof(ApplyDamageRejection), receipt.Message);
         var tone = receipt.Accepted ? "green" : "red";
         AppendLog(
@@ -4452,7 +4452,7 @@ public partial class Main : Control
             candidate.TryGetValue("enabled", out var enabledValue)
             && enabledValue.AsBool()
             && candidate.TryGetValue("action", out var actionValue)
-            && actionValue.AsString() is "MULLIGAN" or "ORDER_TRIGGERS" or "ASSIGN_COMBAT_DAMAGE");
+            && actionValue.AsString() is "MULLIGAN" or "ORDER_TRIGGERS" or "ASSIGN_COMBAT_DAMAGE" or "ASSIGN_EFFECT_DAMAGE");
         if (action is null)
         {
             HideSpecialPromptOverlays();
@@ -4496,6 +4496,7 @@ public partial class Main : Control
                 }
 
                 break;
+            case "ASSIGN_EFFECT_DAMAGE":
             case "ASSIGN_COMBAT_DAMAGE":
                 _mulliganOverlay?.HidePrompt();
                 _triggerOrderOverlay?.HidePrompt();

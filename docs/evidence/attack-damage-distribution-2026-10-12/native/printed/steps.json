@@ -1,0 +1,55 @@
+[
+  {
+    "name": "targets",
+    "player": "P1",
+    "command": {
+      "choiceId": "DISTRIBUTED-TARGETS:ordered-attack-damage-4-HOST-PRINTED:HOST:0",
+      "choiceWindow": "TRIGGER_CONFIRMATION",
+      "chosenObjectIds": [
+        "ENEMY1",
+        "ENEMY2",
+        "ENEMY3"
+      ],
+      "cmdType": "CHOOSE_CARDS"
+    }
+  },
+  {
+    "name": "pass-1",
+    "player": "P1",
+    "command": {
+      "cmdType": "PASS_PRIORITY"
+    }
+  },
+  {
+    "name": "pass-2",
+    "player": "P2",
+    "command": {
+      "cmdType": "PASS_PRIORITY"
+    }
+  },
+  {
+    "name": "allocate",
+    "player": "P1",
+    "command": {
+      "stackItemId": "ordered-attack-damage-4-HOST-PRINTED:HOST:0",
+      "assignments": [
+        {
+          "sourceObjectId": "HOST",
+          "targetObjectId": "ENEMY1",
+          "damage": 2
+        },
+        {
+          "sourceObjectId": "HOST",
+          "targetObjectId": "ENEMY2",
+          "damage": 2
+        },
+        {
+          "sourceObjectId": "HOST",
+          "targetObjectId": "ENEMY3",
+          "damage": 1
+        }
+      ],
+      "cmdType": "ASSIGN_EFFECT_DAMAGE"
+    }
+  }
+]

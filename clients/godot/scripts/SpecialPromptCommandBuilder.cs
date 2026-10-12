@@ -102,13 +102,19 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(ReadString(metadata, "battleId")))
+        var effectDamage = ReadString(metadata, "assignmentRule") == "EFFECT_POSITIVE_INTEGER";
+        if (effectDamage && string.IsNullOrWhiteSpace(ReadString(metadata, "stackItemId")))
+        {
+            reason = "stackItemId is missing";
+            return false;
+        }
+        if (!effectDamage && string.IsNullOrWhiteSpace(ReadString(metadata, "battleId")))
         {
             reason = "battleId is missing";
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(FirstNonEmpty(ReadString(metadata, "battlefieldId"), ReadString(metadata, "battlefieldObjectId"))))
+        if (!effectDamage && string.IsNullOrWhiteSpace(FirstNonEmpty(ReadString(metadata, "battlefieldId"), ReadString(metadata, "battlefieldObjectId"))))
         {
             reason = "battlefieldId is missing";
             return false;
@@ -137,9 +143,22 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
-        payload["cmdType"] = "ASSIGN_COMBAT_DAMAGE";
-        payload["battleId"] = ReadString(metadata, "battleId");
-        payload["battlefieldId"] = FirstNonEmpty(ReadString(metadata, "battlefieldId"), ReadString(metadata, "battlefieldObjectId"));
+        if (ReadString(metadata, "assignmentRule") == "EFFECT_POSITIVE_INTEGER")
+        {
+            if (selections.Count != ReadInt(metadata, "minimumAssignedTargets"))
+            {
+                reason = "每个留存目标至少分配 1 点伤害";
+                return false;
+            }
+            payload["cmdType"] = "ASSIGN_EFFECT_DAMAGE";
+            payload["stackItemId"] = ReadString(metadata, "stackItemId");
+        }
+        else
+        {
+            payload["cmdType"] = "ASSIGN_COMBAT_DAMAGE";
+            payload["battleId"] = ReadString(metadata, "battleId");
+            payload["battlefieldId"] = FirstNonEmpty(ReadString(metadata, "battlefieldId"), ReadString(metadata, "battlefieldObjectId"));
+        }
         payload["assignments"] = orderedSelections
             .Select(selection => new Dictionary<string, object?>(StringComparer.Ordinal)
             {

@@ -191,6 +191,7 @@ public static class TriggerKinds
         "SFD_FIORA_POWERFUL_READY_PAY_YELLOW_READY";
     public const string UnitAttackPayPowerModifier =
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
+    public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
     public const string UnitHighCostSpellPowerModifier =
@@ -255,6 +256,7 @@ public static class TriggerTimings
 
 public static class TriggerTargetScopes
 {
+    public const string EnemyUnitHere = "ENEMY_UNIT_HERE";
     public const string MovedUnit = "MOVED_UNIT";
     public const string FriendlyUnitAtThisBattlefield = "FRIENDLY_UNIT_AT_THIS_BATTLEFIELD";
     public const string DefenderUnitAtThisBattlefield = "DEFENDER_UNIT_AT_THIS_BATTLEFIELD";
@@ -326,6 +328,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";

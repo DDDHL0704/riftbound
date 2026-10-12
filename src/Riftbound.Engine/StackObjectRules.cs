@@ -11,7 +11,7 @@ internal static class StackObjectRules
             || item.DeathRevealContext is not null || item.RecastContext is not null
             || item.SpellContext is not null || item.FieldContext is not null || item.InsightContext is not null
             || item.MovementObserver is not null || item.DeathObserver is not null
-            || item.LocationDamage is not null || item.ReflexiveDuel is not null
+            || item.DamageDistribution is not null || item.LocationDamage is not null || item.ReflexiveDuel is not null
             || item.UnitConquest is not null || item.LegendConquest is not null
             || item.BeginningRecycle is not null || item.BeginningDraw is not null
             || item.EphemeralStart is not null || item.BattlefieldStart is not null || item.HeldContext is not null
@@ -27,4 +27,12 @@ internal static class StackObjectRules
     internal static bool CanChoose(MatchState state, string id, bool allowAbilities)
         => state.StackItems.FirstOrDefault(item => item.StackItemId == id) is { } item
             && (IsSpell(item) || allowAbilities && IsAbility(item));
+
+    // A reentered card has the same transport ID but is a different game object
+    // (124). Invalid targets that merely moved within the field still count
+    // under 359.3.e.9.a; an object that departed to a nonfield zone does not.
+    internal static bool ReferencesCurrentObject(MatchState state, StackItemState item, string id)
+        => item.TargetObjectIds.Contains(id, StringComparer.Ordinal)
+            && (item.TargetGenerations is null || item.TargetGenerations.TryGetValue(id, out var generation)
+                && state.CardObjects.TryGetValue(id, out var card) && card.ObjectGeneration == generation);
 }

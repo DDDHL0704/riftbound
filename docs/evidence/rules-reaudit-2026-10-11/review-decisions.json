@@ -7837,7 +7837,7 @@
     },
     {
       "id": "ABILITY-COUNTERS-2026-10-12",
-      "status": "SCOPED_LOCAL_PASS_FULL_CI_PENDING",
+      "status": "SCOPED_REBUILT_NATIVE_AND_EXACT_HEAD_FULL_CI_PASS",
       "scope": "Current spell or ability counter classification for captured/registered abilities and confirmed permanent play triggers, independent source preservation, spell-only rejection, correct friendly-unit roles and precise spectator stack references. No whole-card certification.",
       "subjects": [
         "SFD-045/221",
@@ -7863,9 +7863,48 @@
       "evidence": [
         "docs/ABILITY_COUNTER_AUDIT_2026-10-12.md",
         "docs/evidence/ability-counters-2026-10-12/validation.json",
-        "docs/evidence/ability-counters-2026-10-12/native-validation.json"
+        "docs/evidence/ability-counters-2026-10-12/native-validation.json",
+        "docs/evidence/ability-counters-2026-10-12/ci-b8c044d3.json"
       ],
       "wholeCardCertification": false
+    },
+    {
+      "id": "ATTACK-DAMAGE-DISTRIBUTION-2026-10-12",
+      "status": "SCOPED_REBUILT_FOCUSED_AND_NATIVE_PASS_EXACT_HEAD_FULL_CI_PENDING",
+      "scope": "Captured declared unit-attack distributed damage instructions and independent copied instances, resolution-only allocation, target continuity and response roster cleanup. Initial battle spell-duel role/trigger timing remains open. No whole-card certification.",
+      "subjects": [
+        "OGN-041/298",
+        "OGN-041a/298",
+        "OGS-001/024",
+        "UNL-106/219"
+      ],
+      "rules": [
+        "DOC-04 124,355.14,359.3.e.9.a,359.3.f,465.1,466,715.3"
+      ],
+      "implementation": [
+        "CoreRuleEngine.DamageDistribution.cs",
+        "CoreRuleEngine.BattleResponseCleanup.cs",
+        "StackObjectRules.ReferencesCurrentObject",
+        "GameCommandJsonMapper",
+        "Godot DamageAssignmentOverlay",
+        "DevUi ActionPanel"
+      ],
+      "tests": [
+        "AttackDamageDistributionTests",
+        "AttackDamageNativeTests",
+        "FullGameEndToEndTests.AuditedDistributedAttackConfirmsRespondsAllocatesAndReplaysThroughScoreVictory"
+      ],
+      "evidence": [
+        "docs/ATTACK_DAMAGE_DISTRIBUTION_AUDIT_2026-10-12.md",
+        "docs/evidence/attack-damage-distribution-2026-10-12/validation.json"
+      ],
+      "wholeCardCertification": false,
+      "remaining": [
+        "Initial attack/defend role establishment and trigger placement before battle spell-duel focus (464.2).",
+        "Late arriving participants, role changes and the complete battle trigger lifecycle.",
+        "Full official corpus semantic rebuild and all remaining attached-rule consumers.",
+        "Reentered counter references are restored binding fixtures; actual leave/replay command sequence still needed."
+      ]
     }
   ]
 }

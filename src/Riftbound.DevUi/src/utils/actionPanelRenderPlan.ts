@@ -246,6 +246,7 @@ function fallbackSubmissionGate(connected: boolean): NonNullable<BuildActionPane
 function entryKindForAction(action: string): ActionPanelRenderEntryKind {
   switch (action) {
     case "ASSIGN_COMBAT_DAMAGE":
+    case "ASSIGN_EFFECT_DAMAGE":
       return "damage-assignment";
     case "DECLARE_BATTLE":
       return "battle-declaration";

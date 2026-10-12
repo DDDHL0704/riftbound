@@ -22081,7 +22081,17 @@ public sealed partial class FullGameEndToEndTests
             {
                 if (!declineEffectPlay && cardChoice.ChoiceWindow == "RECYCLE_FOR_EFFECT_PLAY") return result;
                 playerId = cardChoice.PlayerId;
-                command = new ChooseCardsCommand(cardChoice.ChoiceId, cardChoice.ChoiceWindow,
+                if (cardChoice.ChoiceWindow == "EFFECT_DAMAGE_DISTRIBUTION")
+                {
+                    var candidate = result.Prompts[playerId].Candidates!.Single(c => c.Action == CommandTypes.AssignEffectDamage);
+                    var metadata = JsonSerializer.SerializeToElement(candidate.Metadata);
+                    var requirement = metadata.GetProperty("requiredAssignments")[0];
+                    var targets = cardChoice.LegalObjectIds.Take(cardChoice.RequiredCount).ToArray();
+                    command = new AssignEffectDamageCommand(metadata.GetProperty("stackItemId").GetString()!, targets.Select((id, n) =>
+                        new CombatDamageAssignmentDto(requirement.GetProperty("sourceObjectId").GetString()!, id,
+                            n == 0 ? requirement.GetProperty("damage").GetInt32() - targets.Length + 1 : 1)).ToArray());
+                }
+                else command = new ChooseCardsCommand(cardChoice.ChoiceId, cardChoice.ChoiceWindow,
                     cardChoice.LegalObjectIds.Take(cardChoice.RequiredCount).ToArray());
             }
             else if (result.State.PendingPayment is { } payment && payment.LegalPaymentChoiceIds.Contains("DECLINE"))
@@ -25074,6 +25084,10 @@ public sealed partial class FullGameEndToEndTests
                     damage = assignment.Damage
                 }).ToArray()
             }),
+            AssignEffectDamageCommand assignEffectDamage => JsonSerializer.SerializeToElement(
+                assignEffectDamage, assignEffectDamage.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web)),
+            OrderTriggersCommand orderTriggers => JsonSerializer.SerializeToElement(
+                orderTriggers, orderTriggers.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web)),
             _ => RawCommand(command.CmdType)
         };
     }

@@ -42,7 +42,9 @@ function extractBackendEventKinds(root) {
   ]) {
     const filePath = path.join(root, relativePath);
     const source = fs.readFileSync(filePath, "utf8");
-    for (const match of source.matchAll(/new\s*(?:GameEvent)?\s*\(\s*"([A-Z][A-Z0-9_]+)"/g)) {
+    // GameEvent requires kind, description and payload. Two-argument prompt
+    // choices and named card constructors are not event emitters.
+    for (const match of source.matchAll(/new\s*(?:GameEvent)?\s*\(\s*"([A-Z][A-Z0-9_]+)"\s*,\s*\$?"(?:\\.|[^"\\])*"\s*,/g)) {
       eventKinds.add(match[1]);
     }
   }

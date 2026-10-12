@@ -24,6 +24,8 @@ public partial class DamageAssignmentOverlay : Control
     private Button _confirmButton = null!;
     private Button _suggestButton = null!;
     private bool _canUsePrompt;
+    private bool _effectDamage;
+    private int _minimumAssignedTargets;
 
     public IReadOnlyList<DamageAssignmentSelection> RequiredAssignments =>
         PooledDamageSelection.TrySplit(_assignments, _damageByTarget, out var selections) ? selections : [];
@@ -66,6 +68,12 @@ public partial class DamageAssignmentOverlay : Control
             return false;
         }
 
+        _effectDamage = action.TryGetValue("action", out var name) && name.AsString() == "ASSIGN_EFFECT_DAMAGE";
+        using (var document = System.Text.Json.JsonDocument.Parse(action["candidateJson"].AsString())) {
+            var metadata = document.RootElement.GetProperty("metadata");
+            _minimumAssignedTargets = _effectDamage ? metadata.GetProperty("minimumAssignedTargets").GetInt32() : 0;
+        }
+        GetNode<Label>("%DamageTitle").Text = _effectDamage ? "分配技能伤害" : "分配战斗伤害";
         _assignments.AddRange(assignments);
         _targets.AddRange(assignments.SelectMany(source => source.Targets)
             .DistinctBy(target => target.TargetObjectId).OrderBy(target => target.Priority));
@@ -183,7 +191,8 @@ public partial class DamageAssignmentOverlay : Control
             status.AddThemeColorOverride("font_color", !target.CannotTakeDamage && amount >= target.LethalDamageThreshold && amount > 0
                 ? MinimalTheme.Selected : MinimalTheme.TextSecondary);
         }
-        _confirmButton.Disabled = !_canUsePrompt || !PooledDamageSelection.TrySplit(_assignments, _damageByTarget, out _);
+        _confirmButton.Disabled = !_canUsePrompt || !PooledDamageSelection.TrySplit(_assignments, _damageByTarget, out _)
+            || _effectDamage && _damageByTarget.Values.Count(amount => amount > 0) != _minimumAssignedTargets;
     }
 
     private void ApplySuggestedDistribution()

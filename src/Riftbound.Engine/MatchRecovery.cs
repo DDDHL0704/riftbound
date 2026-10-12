@@ -1070,7 +1070,7 @@ public static class MatchRecoveryValidator
             commandPlayerIds,
             commandPlayerScopeLabel,
             errors);
-        ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors);
+        ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors, authoritativeState);
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
         ValidateSpectatorReplayFrame(
@@ -1981,7 +1981,8 @@ public static class MatchRecoveryValidator
         long? currentTick,
         long lastEventSequence,
         IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         foreach (var (playerId, view) in playerViews)
         {
@@ -1996,7 +1997,7 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            ValidateSnapshotShape(view, errors);
+            ValidateSnapshotShape(view, errors, authoritativeState);
 
             if (view.Snapshot.Players is null)
             {
@@ -2164,7 +2165,8 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSnapshotShape(
         RecoveredPlayerView view,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         if (view.Snapshot.Lanes is null)
         {
@@ -2283,7 +2285,7 @@ public static class MatchRecoveryValidator
                 "battle",
                 "battle",
                 errors);
-            ValidateSnapshotTimingBattlePayloadValues(view, errors);
+            ValidateSnapshotTimingBattlePayloadValues(view, errors, authoritativeState);
             ValidateSnapshotTimingBattleParticipantControllerPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentPayloadPropertyNames(view, errors);
             ValidateSnapshotTimingBattleDamageAssignmentMapPayloadPropertyNames(view, errors);
@@ -3050,7 +3052,8 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSnapshotTimingBattlePayloadValues(
         RecoveredPlayerView view,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         if (view.Snapshot.Timing is null
             || !TryReadObjectValue(view.Snapshot.Timing, "battle", out var battlePayload)
@@ -3076,7 +3079,8 @@ public static class MatchRecoveryValidator
         ValidateBattleActiveParticipantConsistency(
             battlePayload,
             $"snapshot for {view.PlayerId} timing battle",
-            errors);
+            errors,
+            authoritativeState);
         ValidateBattlePlayerReferences(
             battlePayload,
             $"snapshot for {view.PlayerId} timing battle",
@@ -22889,6 +22893,19 @@ public static class MatchRecoveryValidator
 
     private static void ValidateLocationDamageViews(IReadOnlyList<object?> items, MatchState state, List<string> errors, string label)
     {
+        foreach (var item in state.StackItems)
+        {
+            var projected = items.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId);
+            try
+            {
+                var json = JsonSerializer.SerializeToElement(projected);
+                var context = json.ValueKind == JsonValueKind.Object && json.TryGetProperty("damageDistribution", out var value)
+                    ? value.Deserialize<DamageDistributionContext>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) : null;
+                if (MatchStateHasher.HashValue(context) != MatchStateHasher.HashValue(item.DamageDistribution))
+                    errors.Add($"{label} distributed damage context differs from authoritative state");
+            }
+            catch (JsonException) { errors.Add($"{label} invalid distributed damage context"); }
+        }
         foreach (var item in state.StackItems.Where(item => item?.LocationDamage is not null))
         {
             var projected = items.FirstOrDefault(payload => TryReadObjectString(payload, "stackItemId", out var id) && id == item.StackItemId);
@@ -23167,6 +23184,10 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSpellContinuations(MatchState state, List<string> errors)
     {
+        var battleDeclarations = state.UntilEndOfTurnEffects?.Count(e => e?.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal) == true) ?? 0;
+        if (battleDeclarations > 0 && (battleDeclarations != 1
+            || !CoreRuleEngine.TryReadBattleResponseDeclarationContext(state, string.Empty, out _)))
+            errors.Add("invalid battle response declaration");
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.MovementObserver is { } movement
@@ -23340,6 +23361,13 @@ public static class MatchRecoveryValidator
                 : item.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger stack context");
         if (state.PendingCardChoice is { ChoiceWindow: "TRIGGER_CONFIRMATION" } confirmation
             && !CoreRuleEngine.ValidTriggerChoice(state, confirmation)) errors.Add("invalid trigger confirmation");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.EffectDamageWindow } allocation
+            && !CoreRuleEngine.ValidDistributionAllocation(state, allocation)) errors.Add("invalid effect damage distribution");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.DamageDistribution is { } distribution
+                ? distribution.ResolutionDamage is not null || !CoreRuleEngine.ValidDistributionContext(state, distribution,
+                    trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
+                : trigger.EffectKind == CoreRuleEngine.DistributedDamageEffect) errors.Add("invalid distributed damage trigger");
 
         if (state.PendingPayment is { } payment
             && (payment.PaymentWindow is not (CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.TriggerTargetCostWindow or CoreRuleEngine.TemperedPaymentWindow) && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
@@ -23353,6 +23381,10 @@ public static class MatchRecoveryValidator
         foreach (var item in state.StackItems)
         {
             if (!CoreRuleEngine.ValidLocationDamageStack(state, item)) errors.Add("invalid per-location damage ability");
+            if (!CoreRuleEngine.ValidDistributionStack(state, item)) errors.Add("invalid distributed damage ability");
+            if (item.DamageDistribution?.ResolutionDamage is not null
+                && (state.PendingCardChoice is not { ChoiceWindow: CoreRuleEngine.EffectDamageWindow } pendingDistribution
+                    || pendingDistribution.ResolvingStackItemId != item.StackItemId)) errors.Add("orphan effect damage distribution");
             if (item.InsightContext is { } captured
                 ? !CoreRuleEngine.ValidInsightTrigger(captured, item.EffectKind, item.ControllerId, item.CardNo)
                     || captured.Kind == "DUEL" && !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!)
@@ -29447,7 +29479,8 @@ public static class MatchRecoveryValidator
         ValidateBattleActiveParticipantConsistency(
             battlePayload,
             payloadLabel,
-            errors);
+            errors,
+            authoritativeState);
         ValidateBattlePlayerReferences(
             battlePayload,
             payloadLabel,
@@ -29647,7 +29680,8 @@ public static class MatchRecoveryValidator
     private static void ValidateBattleActiveParticipantConsistency(
         object? battlePayload,
         string payloadLabel,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         if (!TryReadObjectBool(battlePayload, "isActive", out var isActive)
             || !TryBuildBattleParticipantObjectIdSet(battlePayload, out var participantObjectIds))
@@ -29659,7 +29693,12 @@ public static class MatchRecoveryValidator
         var actualParticipantObjectIds = participantObjectIds
             .OrderBy(participantObjectId => participantObjectId, StringComparer.Ordinal)
             .ToArray();
-        if (isActive && !hasParticipants)
+        // Empty current rosters are legitimate only while an authoritative
+        // captured declaration keeps this precise battle pending settlement.
+        var capturedEmptyBattle = authoritativeState is not null
+            && CoreRuleEngine.TryReadBattleResponseDeclarationContext(authoritativeState, string.Empty, out _)
+            && BattleMatches(battlePayload, authoritativeState, authoritativeState.BattleState);
+        if (isActive && !hasParticipants && !capturedEmptyBattle)
         {
             errors.Add(
                 $"{payloadLabel} active flag is true but no battle participants are present; {FormatExpectedActualForRecovery("<non-empty>", actualParticipantObjectIds)}");

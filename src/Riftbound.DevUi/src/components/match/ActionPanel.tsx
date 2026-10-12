@@ -810,6 +810,10 @@ function DamageAssignmentCandidate({
   const [damageByKey, setDamageByKey] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    if (model.isEffectDamage) setDamageByKey({});
+  }, [model.stackItemId, model.isEffectDamage]);
+
+  useEffect(() => {
     setDamageByKey((current) => {
       const allowed = new Set(model.choices.map((choice) => choice.key));
       return Object.fromEntries(
@@ -829,8 +833,9 @@ function DamageAssignmentCandidate({
     .filter((assignment) => assignment.damage > 0);
   const assignedDamage = assignments.reduce((total, assignment) => total + assignment.damage, 0);
   const canSubmit = submitGate.canSubmit
-    && model.battleId.length > 0
-    && model.battlefieldId.length > 0
+    && (model.isEffectDamage
+      ? model.stackItemId.length > 0 && assignments.length === model.minimumAssignedTargets && assignedDamage === model.totalDamage
+      : model.battleId.length > 0 && model.battlefieldId.length > 0)
     && assignments.length > 0;
 
   return (
@@ -840,14 +845,14 @@ function DamageAssignmentCandidate({
         <StatusPill tone={canSubmit ? "warn" : "neutral"}>{assignments.length > 0 ? "待服务端校验" : "等待分配"}</StatusPill>
       </div>
       <div className="damage-assignment-summary">
-        <span>战斗：{model.battleId || "服务端未提供"}</span>
-        <span>战场：{model.battlefieldId || "服务端未提供"}</span>
+        {!model.isEffectDamage && <span>战斗：{model.battleId || "服务端未提供"}</span>}
+        {!model.isEffectDamage && <span>战场：{model.battlefieldId || "服务端未提供"}</span>}
         <span>伤害池：{model.damagePoolLabel ?? "服务端未提供"}</span>
         <span>已填写：{assignedDamage}</span>
         <span>合法目标：{model.choices.length} 项</span>
       </div>
       <p className="damage-assignment-note">
-        仅按服务端候选提交伤害分配；总量、致命阈值和最终结算都由服务端校验。
+        {model.isEffectDamage ? "给每个留存目标至少分配 1 点伤害，总量必须等于伤害池；只能使用已确认目标。" : "仅按服务端候选提交伤害分配；总量、致命阈值和最终结算都由服务端校验。"}
       </p>
       <div className="damage-assignment-list">
         {model.choices.length === 0 && <span className="empty-hint">等待服务端提供伤害分配候选。</span>}
@@ -880,7 +885,11 @@ function DamageAssignmentCandidate({
       <Button
         disabled={!canSubmit}
         icon={<Send size={16} />}
-        onClick={() => onCommand(withPromptStamp({
+        onClick={() => onCommand(withPromptStamp(model.isEffectDamage ? {
+          cmdType: "ASSIGN_EFFECT_DAMAGE",
+          stackItemId: model.stackItemId,
+          assignments
+        } : {
           cmdType: "ASSIGN_COMBAT_DAMAGE",
           battleId: model.battleId,
           battlefieldId: model.battlefieldId,

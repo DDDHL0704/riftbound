@@ -60,6 +60,11 @@ export type BuildEventLogPlanInput = {
 };
 
 const eventKindLabels: Record<string, string> = {
+  INSIGHT_REQUESTED: "请求洞察选择",
+  NEXT_SPELL_ECHO_GRANTED: "下个法术获得回响",
+  SPELL_PLAY_PROHIBITED: "禁止打出法术",
+  TOKEN_REPLACEMENT_CHOSEN: "确认指示物替换",
+  TRIGGER_NOT_CONFIRMED: "触发技能未确认",
   ABILITY_ACTIVATED: "激活能力",
   ABILITY_NO_EFFECT: "能力未生效",
   ABILITY_RESOLVED: "能力结算",

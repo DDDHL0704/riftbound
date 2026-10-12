@@ -126,6 +126,24 @@ assert.equal(legalTargetsModel.battlefieldId, "bf-from-server-flow");
 assert.equal(legalTargetsModel.damagePoolLabel, "1 个来源");
 assert.equal(legalTargetsModel.choices[0].sourceDamagePool, 2);
 
+const effectCandidate = {
+  action: "ASSIGN_EFFECT_DAMAGE", enabled: true, label: "分配技能伤害",
+  metadata: { stackItemId: "attack-skill-1", assignableDamagePool: { attacker: 5 },
+    minimumAssignedTargets: 2, legalTargets: { attacker: ["defender", "secondDefender"] } }
+};
+const effectModel = buildDamageAssignmentModel(effectCandidate, undefined, snapshot);
+assert.equal(effectModel.isEffectDamage, true);
+assert.equal(effectModel.stackItemId, "attack-skill-1");
+assert.equal(effectModel.totalDamage, 5);
+assert.equal(effectModel.damagePoolLabel, "5");
+assert.equal(effectModel.minimumAssignedTargets, 2);
+assert.equal(effectModel.choices[0].sourceDamagePool, 5);
+assert.equal(effectModel.choices.length, 2);
+const copiedEffectModel = buildDamageAssignmentModel({ ...effectCandidate,
+  metadata: { ...effectCandidate.metadata, stackItemId: "attack-skill-2" } }, undefined, snapshot);
+assert.notEqual(copiedEffectModel.resetKey, effectModel.resetKey);
+assert.equal(buildDamageAssignmentModel(effectCandidate, undefined, snapshot).resetKey, effectModel.resetKey);
+
 const triggerModel = buildOrderTriggersModel({
   action: "ORDER_TRIGGERS",
   enabled: true,
