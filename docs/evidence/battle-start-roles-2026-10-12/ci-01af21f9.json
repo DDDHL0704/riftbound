@@ -1,0 +1,23 @@
+{
+  "headSha": "01af21f9d6a91fa8c2a819e6b8c49d663ab7b8f3",
+  "runId": 38197975478,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38197975478",
+  "status": "FAILED_DIAGNOSTIC_EXPECTATION_REPAIR_REQUIRED",
+  "jobs": {
+    "rules": "failure",
+    "macos": "success",
+    "windows": "success"
+  },
+  "executedCases": 10200,
+  "passedCases": 10196,
+  "failedCases": [
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch"
+  ],
+  "plannedMethodsWithoutTrx": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.PreconstructedCatalogDecksReachScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "diagnosis": "The four validators correctly reject FORGED_EVENT. Their shared expected diagnostic constant lacks BATTLE_ROLES_ESTABLISHED and BATTLE_ROLE_ACQUIRED. No rejection assertion or implementation change is needed."
+}

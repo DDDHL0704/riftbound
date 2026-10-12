@@ -7946,7 +7946,8 @@
       "evidence": [
         "docs/BATTLE_START_ROLES_AUDIT_2026-10-12.md",
         "docs/evidence/battle-start-roles-2026-10-12/sources.json",
-        "docs/evidence/battle-start-roles-2026-10-12/validation.json"
+        "docs/evidence/battle-start-roles-2026-10-12/validation.json",
+        "docs/evidence/battle-start-roles-2026-10-12/ci-01af21f9.json"
       ],
       "wholeCardCertification": false,
       "remaining": [
@@ -7956,7 +7957,8 @@
         "Full official card/rule/QA semantic audit and the English source count gap.",
         "Visible paired Mac clients and Windows network acceptance."
       ],
-      "pauseAfterBatchRequested": true
+      "pauseAfterBatchRequested": true,
+      "firstCiRepair": "Four correctly rejected forged-event inputs exposed a stale diagnostic expectation constant. Only that test constant changes; all original rejection assertions and engine/client source are preserved. Focused repair: 18/18 passed."
     }
   ]
 }

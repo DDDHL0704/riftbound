@@ -96,12 +96,12 @@
     "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedDistributedAttackConfirmsRespondsAllocatesAndReplaysThroughScoreVictory(scenario: \"countered\")": "Passed",
     "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedDistributedAttackConfirmsRespondsAllocatesAndReplaysThroughScoreVictory(scenario: \"printed\")": "Passed"
   },
-  "finalTestAssemblySha256": "eb45f222ec364bfc8026644cf72e17c510eeaf9619034ce2aebaa5b4038e776c",
+  "finalTestAssemblySha256": "e3ad6a1c83340183a13a73718c5d30b796694700249449b79a4d91fd505310a3",
   "compositeLocal": {
     "distinctPassed": 10060,
     "remainingFailures": [],
     "mixedAssemblyEvidence": true,
-    "note": "One local check plus specific repaired cases and selected games; this is not a repeated complete regression of the final assembly. The pushed code commit requires full exact-head CI."
+    "note": "One local check plus repaired cases, selected games and the four corrected recovery diagnostic assertions. Mixed assemblies share unchanged engine/client implementation after the first CI. This is not a repeated complete regression of the final assembly. Full exact-head CI is required."
   },
   "parity": {
     "previousCheckCases": 10034,
@@ -129,7 +129,7 @@
       "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"owner\")",
       "Riftbound.ConformanceTests.OfficialInformationPermissionTests.EmptyRevealedHandRecoveryStillRejectsForgedContinuation(mutation: \"stack\")"
     ],
-    "committedTestMethodsInModifiedFiles": 2332,
+    "committedTestMethodsInModifiedFiles": 4136,
     "missingCommittedMethods": [],
     "changedInlineData": [],
     "discoveredMethods": 6625
@@ -173,7 +173,8 @@
     "status": "REQUIRED_FOR_PUSHED_CODE_COMMIT",
     "workflow": "Native desktop and China rules",
     "expectedCases": 10201,
-    "note": "Final run URL and exact-head artifact verification will be saved in var/qa/battle-start-roles/ci-final/verification.json after push. No second local check."
+    "note": "Final run URL and exact-head artifact verification will be saved in var/qa/battle-start-roles/ci-final/verification.json after push. No second local check.",
+    "previousRun": 38197975478
   },
   "remaining": [
     "Existing spell-duel conversion and preserved focus under DOC-04 464.2.c.1.b need a real command chain.",
@@ -182,5 +183,28 @@
     "The full official card/rule/QA semantic audit and English reported-versus-readback count gap remain open.",
     "Visible paired Mac clients and Windows network acceptance are absent; overall platform remains NOT READY."
   ],
-  "resumption": "Finish the exact-head CI and then pause at the user request dated 2026-10-12. Do not begin another batch."
+  "resumption": "Finish the exact-head CI and then pause at the user request dated 2026-10-12. Do not begin another batch.",
+  "ciDiagnosticsRepair": {
+    "runId": 38197975478,
+    "evidence": "docs/evidence/battle-start-roles-2026-10-12/ci-01af21f9.json",
+    "focused": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 40.62,
+      "total": 18,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 18,
+          "passed": 18,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 8.56
+        }
+      ]
+    },
+    "sourceImplementationUnchanged": true
+  },
+  "priorFocusTestAssemblySha256": "eb45f222ec364bfc8026644cf72e17c510eeaf9619034ce2aebaa5b4038e776c"
 }
