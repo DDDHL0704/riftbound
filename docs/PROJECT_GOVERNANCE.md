@@ -2,7 +2,7 @@
 
 2026-10-12 起生效。当前产品是服务端裁定的 Godot .NET 原生 macOS / Windows 对战平台，React DevUi 用于调试和协议验证；历史调度和写锁不再具有执行权威。
 
-用户已确认 GitHub Issues、默认 triage 标签、优先验证反馈与证据治理、后台固定提交 CI、明确文档白名单及本轮清理范围。本轮不创建替代 Goal；这些确认不等于新目标授权。
+用户已确认 GitHub Issues、默认 triage 标签、优先验证反馈与证据治理、后台固定提交 CI、明确文档白名单及清理范围。准备阶段未创建Goal；2026-10-12用户另行明确确认后，新官方全量审计Goal已启动。
 
 ## 来源与信任
 
@@ -14,7 +14,7 @@
 
 ## 范围与完成条件
 
-全量清单保存在 docs/evidence/rules-reaudit-2026-10-11/all-card-ledger.json 和 all-rule-ledger.json，决策另存 review-decisions.json。重建索引不得丢弃原始决策或批量把状态改成PASS。
+当前来源入口由 [PROJECT_STATUS](PROJECT_STATUS.md) 指向版本化source-coverage.json及卡牌清单；未变的规则记录引用2026-10-11/all-rule-ledger.json，旧限定决策保留原提交/来源哈希。重建索引不得丢弃原始决策或批量把状态改成PASS。来源刷新按精确印次比较，API ID或图片更新不自动合并语义身份。
 
 限定结论须有来源版本/适用性、精确范围、共享实现及全部相关调用、正反例、真正执行的测试身份/输入版本/输出，以及恢复、回放和必要原生证据；未覆盖消费者明确保留。
 

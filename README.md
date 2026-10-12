@@ -4,7 +4,7 @@ Godot .NET 原生 macOS / Windows 客户端与 .NET 服务端。玩家提交意�
 
 当前为 **NOT READY**。开发先读 [当前状态](docs/PROJECT_STATUS.md)、[项目治理](docs/PROJECT_GOVERNANCE.md) 和 [测试工作流](docs/RULE_TEST_WORKFLOW.md)。历史 CURRENT/P 阶段记录不再充当任务调度或规则认证。
 
-2026-10-12 最近来源刷新取得 CN 1,459、EN 1,381 个印次，16 份中文 PDF 和 20 份全球来源；英文报告总数仍比返回数多 8 项。完整索引含 1,711 个卡牌身份和 14,293 条规则/示例/QA，逐项语义认证仍未完成。来源快照不自动表示官网此刻未变，见 [刷新记录](docs/OFFICIAL_SOURCE_REFRESH_2026-10-12.md)。
+2026-10-12 续跑实取 CN 1,502、EN 1,381 个印次，16 份中文 PDF 和 20 份全球来源；英文报告总数仍比返回数多 8 项。当前并集含 1,738 个卡牌身份和 14,293 条规则/示例/QA，逐项语义认证仍未完成。来源快照不自动表示官网此刻未变，见 [当前版本入口](docs/PROJECT_STATUS.md)。
 
 代码基线 442114f0 的 [完整 CI](https://github.com/DDDHL0704/riftbound/actions/runs/38205666224) 已通过 10,201 用例、6,625 方法及 110 个双向牌组配对，与上一基线的全部身份和配对最终哈希相同。macOS/Windows 构建与网络恢复成功；可见双客户端、Windows 实机、真实 PostgreSQL 和全量官方语义仍有独立验收缺口。该结果仅属于指定基线，后续改动须记录自己的验证范围。
 
@@ -59,4 +59,4 @@ python3 scripts/audit/check-project-governance.py
 | tests/Riftbound.* / scripts/tests | 行为证据与验证工具检查 |
 | data/official / docs/evidence | 有版本的来源快照和限定证据 |
 
-任务与规格统一使用 [GitHub Issues](https://github.com/DDDHL0704/riftbound/issues)，词汇见 [GLOSSARY](GLOSSARY.md)。9 月及更早规则默认未重新认证，按当前适用官方来源逐项整改。后续页面使用 frontend-design 与 Product Design，并重新取得参考截图；本轮没有页面改动，也不创建新 Goal。
+任务与规格统一使用 [GitHub Issues](https://github.com/DDDHL0704/riftbound/issues)，词汇见 [GLOSSARY](GLOSSARY.md)。9 月及更早规则默认未重新认证，按当前适用官方来源逐项整改。后续页面使用 frontend-design 与 Product Design，并重新取得参考截图。用户已确认创建新Goal，持续审计至全量证据闭合或明确暂停。

@@ -5,7 +5,7 @@
 - Work in this repository, /Users/dinghaolin/MyProjects/riftbound. The product is the Godot .NET macOS / Windows client with a server-authoritative engine; React DevUi is a debug and protocol client.
 - Read docs/PROJECT_STATUS.md, docs/PROJECT_GOVERNANCE.md and the relevant part of docs/RULE_TEST_WORKFLOW.md first. Then read only the source manifest, scoped audit and tests relevant to the change.
 - Old CURRENT_*, P-stage and coordination documents are historical records, not active tasks, write locks or rule certification. Do not load giant cumulative lists to recover current work.
-- The old official-audit Goal was deleted. This round does not create a replacement Goal; configuration or cleanup approval is not approval to create one.
+- The preparation round is complete. On 2026-10-12 the user explicitly authorized a new active official-audit Goal. Continue until the complete source-version coverage and required acceptance evidence close, or the user explicitly pauses. Do not stop at a batch or green CI.
 
 ## Development lifecycle
 
@@ -21,6 +21,7 @@
 - Community platforms, TTS, old Java and generated planning documents are references only. Registration, implemented, RepresentativeRulePass, counts and CI green do not certify whole-card semantics.
 - Generic keywords, timing, costs, zones/information, lifecycle and triggers belong in shared engine flow. Avoid card-specific bypasses.
 - Preserve the full source universe and unresolved items. Complete certification needs every applicable card/rule/QA item, source gaps, executable evidence and required native gates closed.
+- The latest source coverage is linked from docs/PROJECT_STATUS.md. The 2026-10-11 checker remains a check of that historical rule/index baseline, not proof that later live-source deltas are absent.
 
 ## Project map
 
