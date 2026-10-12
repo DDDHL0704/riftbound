@@ -1,0 +1,143 @@
+{
+  "createdAt": "2026-10-12T14:25:43.821123+00:00",
+  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "scope": "Current field Might count for three exact CN prints; self-cost reduction through shared play planning; no complete card/layer certification",
+  "implementationParent": "e6ae01f5986557b65e25183c76a775615c359249",
+  "wholeCardCertification": false,
+  "fullCiRequired": true,
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 131.91,
+    "total": 10308,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10308,
+        "passed": 10308,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 122.92
+      }
+    ]
+  },
+  "caseAndMethodParity": {
+    "baselineCases": 10284,
+    "currentCases": 10308,
+    "baselineMethods": 6583,
+    "currentMethods": 6595,
+    "addedCases": [
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.APreviewDoesNotAuthorizeAnEarlierDiscountAfterTheEquipmentDeparts",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.AResponseDetachingTheArmamentChangesTheDrawCountAtResolution",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.AUnitPlayDrawCountsItsSelfAndAnEquippedPowerfulUnit",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.CurrentOfficialReactionCanBePlayedDuringPriority",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.CurrentPrintedSelfDiscountProducesGenericAmountAndThresholdMetadata",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.IneligibleObjectsCannotReduceTheSourceCost(branch: \"enemy-controlled\")",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.IneligibleObjectsCannotReduceTheSourceCost(branch: \"hidden\")",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.IneligibleObjectsCannotReduceTheSourceCost(branch: \"non-unit\")",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.IneligibleObjectsCannotReduceTheSourceCost(branch: \"out-of-field\")",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.IneligibleObjectsCannotReduceTheSourceCost(branch: \"standby\")",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.LiveEnemyAuraDisablesAStoredPowerfulUnitsDraw",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MightyDrawCountsAnEquippedUnitUsingItsCurrentMight",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MultiplePowerfulUnitsReduceTheSharedTotalIncludingSelectedHaste(count: 1, haste: False, expected: 5)",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MultiplePowerfulUnitsReduceTheSharedTotalIncludingSelectedHaste(count: 1, haste: True, expected: 6)",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MultiplePowerfulUnitsReduceTheSharedTotalIncludingSelectedHaste(count: 2, haste: False, expected: 3)",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MultiplePowerfulUnitsReduceTheSharedTotalIncludingSelectedHaste(count: 2, haste: True, expected: 4)",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MultiplePowerfulUnitsReduceTheSharedTotalIncludingSelectedHaste(count: 4, haste: False, expected: 0)",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MultiplePowerfulUnitsReduceTheSharedTotalIncludingSelectedHaste(count: 4, haste: True, expected: 0)",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.SelfDiscountCountsCurrentPowerfulUnitsForPreviewAndActualPayment",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.SelfDiscountUsesTheFiveMightBoundary(printed: 2, cost: 7)",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.SelfDiscountUsesTheFiveMightBoundary(printed: 3, cost: 5)",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.SelfDiscountUsesTheFiveMightBoundary(printed: 4, cost: 5)",
+      "Riftbound.ConformanceTests.PowerfulConsumerNativeTests.ProductionPlayComposerUsesCurrentMightForDrawAndDiscountAndReplays(branch: \"discount\")",
+      "Riftbound.ConformanceTests.PowerfulConsumerNativeTests.ProductionPlayComposerUsesCurrentMightForDrawAndDiscountAndReplays(branch: \"draw\")"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.APreviewDoesNotAuthorizeAnEarlierDiscountAfterTheEquipmentDeparts",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.AResponseDetachingTheArmamentChangesTheDrawCountAtResolution",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.AUnitPlayDrawCountsItsSelfAndAnEquippedPowerfulUnit",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.CurrentOfficialReactionCanBePlayedDuringPriority",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.CurrentPrintedSelfDiscountProducesGenericAmountAndThresholdMetadata",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.IneligibleObjectsCannotReduceTheSourceCost",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.LiveEnemyAuraDisablesAStoredPowerfulUnitsDraw",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MightyDrawCountsAnEquippedUnitUsingItsCurrentMight",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MultiplePowerfulUnitsReduceTheSharedTotalIncludingSelectedHaste",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.SelfDiscountCountsCurrentPowerfulUnitsForPreviewAndActualPayment",
+      "Riftbound.ConformanceTests.PowerfulConsumerMightTests.SelfDiscountUsesTheFiveMightBoundary",
+      "Riftbound.ConformanceTests.PowerfulConsumerNativeTests.ProductionPlayComposerUsesCurrentMightForDrawAndDiscountAndReplays"
+    ],
+    "allOldCasesAndMethodsRetained": true,
+    "duplicates": 0
+  },
+  "fullPlannedMethods": 6736,
+  "allPriorFullMethodsRetained": true,
+  "sourceInputs": {
+    "src/Riftbound.Contracts/BehaviorSpecs.cs": "a287faa0ef69c4dcb844f0c6388cc77e7407bfdd6e3034c58d3691f3b1056699",
+    "src/Riftbound.CardCatalog/RuleTextParsers.cs": "ac6c260117ed1eab1023e8dea2103c3ff296da1060889646734364709a516b92",
+    "src/Riftbound.Engine/CardStaticAbilitySpecRules.cs": "55c49890b354a2634cc11d419a6bc4de0a585afd0f506ea26651049500a6e3d9",
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "3c8dce443ccf55c78dd80d1a1f05e882bd75fde2299ee85f80a7761df4e93172",
+    "tests/Riftbound.ConformanceTests/PowerfulConsumerMightTests.cs": "5f1c360bba85d3cc799bc14a12a74cd38be45ab64a3e7ffee6222c6bf9b2c809",
+    "tests/Riftbound.ConformanceTests/PowerfulConsumerNativeTests.cs": "dba158dde169e5cc7273157f75ddfe825b7ca30e877017220b81b1aa678b9fef",
+    "clients/godot/scripts/debug/PowerfulConsumerInteractionProof.cs": "1aa9627b4aef2185fa47cf766110d2329870f375dd8b30fa625e04eb22be60e6",
+    "clients/godot/scenes/debug/PowerfulConsumerInteractionProof.tscn": "fa996af3817fc75d811a8f494e4ac41df9fbd9ddf9fdd8c6e7d713d720b7ff81",
+    "scripts/ci-change-scope.py": "5c3941afd2cd64e4b09dfad73dfa03a9ad92bb562667f40358c7997c92fabd0e"
+  },
+  "testAssemblySha256": "632477f6e9267b9a5f412e4a66c0f6e0013696f6429ced0fb8f60ff0cdb0acec",
+  "checkTrxSha256": "fb08b5e2a65d52e40e10d2153b90e15d92768a11af4fb80668fc54238d19da9a",
+  "sourceReadbackSha256": "2f68f1f617d61a0de7f40272bb3154a1784f88358a20cbdd83f5bc1bdf6613ed",
+  "native": {
+    "engine": "Godot 4.7.2 .NET macOS headless",
+    "productionCommandsAccepted": 4,
+    "staleCommandsRejected": 2,
+    "duplicateSubmissionAddedJournalEntries": 0,
+    "actionEventStateReplayMatch": true,
+    "evidence": "native/",
+    "visiblePairedMatch": false,
+    "windowsRuntime": false,
+    "realPostgreSql": false
+  },
+  "adjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 61.26,
+    "total": 2212,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2212,
+        "passed": 2212,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 57.41
+      }
+    ]
+  },
+  "toolTests": 24,
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/8",
+  "exclusions": [
+    "Complete trigger confirmation/response of Kadreglin",
+    "Became-Powerful event transitions, ready/rune/conquest and Last Breath information",
+    "Powerful sacrifice additional costs and preview applicability",
+    "All 1738 whole-card and 14293 full-rule records and unresolved official-source gaps",
+    "Visible paired clients, Windows runtime and real PostgreSQL acceptance"
+  ],
+  "nativeFinalInputReadback": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 10.32,
+    "total": 2,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 6.43
+      }
+    ]
+  }
+}

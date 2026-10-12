@@ -30,6 +30,12 @@ internal static class CardStaticAbilitySpecRules
         return string.Equals(ability.Kind, StaticAbilityKinds.SourceUnitEnterReady, StringComparison.Ordinal);
     }
 
+    public static bool IsSourcePowerfulUnitCostReduction(StaticAbilitySpec ability)
+    {
+        return string.Equals(ability.Kind, StaticAbilityKinds.SourceCostReductionPerControlledPowerfulUnit, StringComparison.Ordinal)
+            && ability.Amount > 0 && ability.RequiredPowerThreshold is > 0;
+    }
+
     public static bool IsOtherFriendlyUnitsEnterReadyAbility(StaticAbilitySpec ability)
     {
         return string.Equals(ability.Kind, StaticAbilityKinds.OtherFriendlyUnitsEnterReady, StringComparison.Ordinal);

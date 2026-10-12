@@ -1,0 +1,21 @@
+{
+  "baselineCommit": "e6ae01f5",
+  "scope": "Current-Might counts and missing printed self-cost reduction",
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.PowerfulConsumerMightTests.SelfDiscountCountsCurrentPowerfulUnitsForPreviewAndActualPayment",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   7"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.PowerfulConsumerMightTests.AUnitPlayDrawCountsItsSelfAndAnEquippedPowerfulUnit",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.PowerfulConsumerMightTests.MightyDrawCountsAnEquippedUnitUsingItsCurrentMight",
+      "outcome": "Failed",
+      "message": "Assert.Single() Failure: The collection was empty"
+    }
+  ]
+}

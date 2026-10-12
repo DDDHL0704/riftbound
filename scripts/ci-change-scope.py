@@ -21,6 +21,7 @@ DOCUMENTATION = frozenset({
     'docs/NINE_TAILED_FOX_AUDIT_2026-10-12.md',
     'docs/LEONA_STUNNED_MIGHT_AUDIT_2026-10-12.md',
     'docs/POWERFUL_KEYWORD_LAYER_AUDIT_2026-10-12.md',
+    'docs/POWERFUL_CONSUMER_MIGHT_AUDIT_2026-10-12.md',
     'docs/RULE_TEST_WORKFLOW.md', 'docs/RULE_TEST_SPEED_2026-10-09.md',
     'docs/RULE_TEST_SPEED_2026-10-12.md',
     'docs/rules-authority-and-audit.md', 'docs/rules-evidence-index.md',

@@ -1,0 +1,33 @@
+{
+  "startedAt": "2026-10-12T14:16:54.012432+00:00",
+  "commands": [
+    {
+      "name": "godot-build",
+      "command": [
+        "/Users/dinghaolin/.dotnet/dotnet",
+        "build",
+        "clients/godot",
+        "-m:1",
+        "-v:q",
+        "--nologo"
+      ],
+      "exitCode": 0,
+      "logSha256": "8de3f5269255c3651fc47efe72f17d9aa3f596b1aeaf928dbbdbc9785ec431fd"
+    },
+    {
+      "name": "godot-runtime",
+      "command": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "clients/godot",
+        "res://scenes/debug/PowerfulConsumerInteractionProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/powerful-consumers-20261012/native"
+      ],
+      "exitCode": 0,
+      "logSha256": "0c07d30e774249d93587cd50cf270819f2c43f6009dd166c83f565e29e295549"
+    }
+  ],
+  "endedAt": "2026-10-12T14:16:57.830152+00:00"
+}

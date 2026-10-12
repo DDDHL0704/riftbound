@@ -1,0 +1,240 @@
+[
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "实力至上",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAt": "2026-10-12T13:58:38.510847+00:00",
+    "responseSha256": "d66ad97a4f6ef37fe9f67e05815a657ab9475c0bfdce2b2bc821fc0f78f58d72",
+    "reportedTotal": 1,
+    "records": [
+      {
+        "id": 33191,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "SFD·106/221",
+        "cardName": "实力至上",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n你每控制一名{{强力}}单位，就抽一张牌。（战力达到5或以上时，即为强力单位。）",
+        "flavorText": "数量即是力量。",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "SFD(英雄预组 菲奥娜)",
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 英雄预组 菲奥娜",
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/dc07d7ec859540478231b3b7624e5d33.png",
+        "backImage": "",
+        "listSort": 882,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      }
+    ],
+    "matchingQueueRecords": [
+      {
+        "cardNo": "SFD·106/221",
+        "sourceId": 33191,
+        "sha256": "d58824cc2fe5623f7111d5b525c58cc5e65fba2f198251d50eb762d3da223aeb",
+        "baselineSha256": "d58824cc2fe5623f7111d5b525c58cc5e65fba2f198251d50eb762d3da223aeb",
+        "unchanged": true
+      }
+    ],
+    "publicationDate": null,
+    "effectiveDate": null,
+    "language": "zh-CN",
+    "region": "CN"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "琢珥鱼",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAt": "2026-10-12T13:58:38.518197+00:00",
+    "responseSha256": "2d79061ae09f22581608f7c483a2696a5d8b3c504d4011c871e7c9345cb9e9a4",
+    "reportedTotal": 1,
+    "records": [
+      {
+        "id": 33188,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "SFD·103/221",
+        "cardName": "琢珥鱼",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "比尔吉沃特",
+        "tag": "",
+        "artist": "MaR Studio",
+        "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{橙色}}，让我以活跃状态进场。）\n你每控制一名{{强力}}单位，我的费用便减少{{2}}。（战力达到5或以上时，即为强力单位。）",
+        "flavorText": "它不是饿了，也不是想守护地盘。它就只是非常讨厌船而已。",
+        "energy": 7,
+        "returnEnergy": 2,
+        "power": 6,
+        "productCodeList": [
+          "SFD(英雄预组 菲奥娜)",
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 英雄预组 菲奥娜",
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/0df166f175064a72a7ea309eb0b3751e.png",
+        "backImage": "",
+        "listSort": 885,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      }
+    ],
+    "matchingQueueRecords": [
+      {
+        "cardNo": "SFD·103/221",
+        "sourceId": 33188,
+        "sha256": "59cc2e87f66be019b5de61f7bb39e7fcbf54e23edb404bf145bf086c0c5d6e98",
+        "baselineSha256": "59cc2e87f66be019b5de61f7bb39e7fcbf54e23edb404bf145bf086c0c5d6e98",
+        "unchanged": true
+      }
+    ],
+    "publicationDate": null,
+    "effectiveDate": null,
+    "language": "zh-CN",
+    "region": "CN"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "卡德雷格林",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAt": "2026-10-12T13:58:38.503899+00:00",
+    "responseSha256": "b862d503b23c5a548173acdacf07da899b880caba3a1ae6f8d71ffad55d3348c",
+    "reportedTotal": 1,
+    "records": [
+      {
+        "id": 31246,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·038/298",
+        "cardName": "邪焰巨龙 卡德雷格林",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "德玛西亚",
+        "tag": "龙",
+        "artist": "Six More Vodka",
+        "cardEffect": "当你打出我时，你场上每有一名{{强力}}单位，就抽一张牌。（战力达到5或以上时，即为强力单位。）",
+        "flavorText": "洪荒之火。",
+        "energy": 9,
+        "returnEnergy": 2,
+        "power": 9,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/df96ef8689ad43379600442ddc7cb4f9.png",
+        "backImage": "",
+        "listSort": 459,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      }
+    ],
+    "matchingQueueRecords": [
+      {
+        "cardNo": "OGN·038/298",
+        "sourceId": 31246,
+        "sha256": "a80d55b4c8ade446c8e84bb469623a7e481946456e62fe3b4e0d5b09b23d8af8",
+        "baselineSha256": "a80d55b4c8ade446c8e84bb469623a7e481946456e62fe3b4e0d5b09b23d8af8",
+        "unchanged": true
+      }
+    ],
+    "publicationDate": null,
+    "effectiveDate": null,
+    "language": "zh-CN",
+    "region": "CN"
+  }
+]

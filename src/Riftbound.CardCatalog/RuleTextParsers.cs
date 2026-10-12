@@ -2690,6 +2690,24 @@ public static class StaticAbilityParser
                 }
             }
 
+            var powerfulUnitCostReductionMatch = Regex.Match(
+                segment,
+                @"你每控制一名\{\{强力\}\}单位，我的费用便减少\{\{(?<amount>[0-9一两二三四五六七八九十]+)\}\}(?:。?（战力达到(?<threshold>[0-9一两二三四五六七八九十]+)或以上时，即为强力单位。）)?。?$",
+                RegexOptions.CultureInvariant);
+            if (powerfulUnitCostReductionMatch.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(
+                    StaticAbilityKinds.SourceCostReductionPerControlledPowerfulUnit,
+                    segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Self cost reduction per controlled Powerful unit, evaluated through current field Might.",
+                    Amount: ParseChineseNumber(powerfulUnitCostReductionMatch.Groups["amount"].Value),
+                    RequiredPowerThreshold: powerfulUnitCostReductionMatch.Groups["threshold"].Success
+                        ? ParseChineseNumber(powerfulUnitCostReductionMatch.Groups["threshold"].Value)
+                        : PowerfulUnitPowerThreshold));
+                continue;
+            }
+
             var battlefieldEchoCostReductionMatch = Regex.Match(
                 segment,
                 @"友方\{\{回响\}\}的费用减少\{\{(\d+)\}\}",

@@ -25501,13 +25501,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         CardBehaviorDefinition behavior)
     {
+        var selfReduction = CardStaticAbilitySpecRules.TryGetStaticAbility(behavior.CardNo,
+                CardStaticAbilitySpecRules.IsSourcePowerfulUnitCostReduction, out var selfCost)
+            ? selfCost.Amount * CountControlledUnitsWithPowerAtLeast(state, playerId, selfCost.RequiredPowerThreshold!.Value)
+            : 0;
         if (behavior.CostReductionMana <= 0
             || string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal))
         {
-            return 0;
+            return selfReduction;
         }
 
-        return behavior.CostReductionConditionKind switch
+        return selfReduction + (behavior.CostReductionConditionKind switch
         {
             CardCostReductionConditionKinds.EnemyUnitDestroyedThisTurn
                 => EnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
@@ -25522,7 +25526,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
                 => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             _ => 0
-        };
+        });
     }
 
     private static int ResolveBattlefieldEchoCostReductionMana(
@@ -27581,7 +27585,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             if (behavior.DrawsBeforeRuneCall)
             {
-                var preRuneDrawCount = ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
+                var preRuneDrawCount = ResolveDrawCount(state, playerZones, cardObjects, stackItem.ControllerId, behavior, resolvedObjectLocations);
                 if (ShouldDrawForBehavior(behavior, stackItem, destroyedObjectIds, preRuneDrawCount))
                 {
                     foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, targetControllerDrawRecipientIds))
@@ -28007,7 +28011,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     discardedObjectIds).ToList();
             }
 
-            var perPlayerDrawCount = ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
+            var perPlayerDrawCount = ResolveDrawCount(state, playerZones, cardObjects, stackItem.ControllerId, behavior, resolvedObjectLocations);
             foreach (var drawPlayerId in SeatPlayerIds(state))
             {
                 var drawApplication = ApplyDrawToPlayer(
@@ -29348,7 +29352,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             officialLastBreathTriggers.AddRange(lethalCleanup.TriggerQueue);
         }
 
-        var drawCount = drawCountOverride ?? ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
+        var drawCount = drawCountOverride ?? ResolveDrawCount(state, playerZones, cardObjects, stackItem.ControllerId, behavior, resolvedObjectLocations);
         if (ShouldDrawForBehavior(behavior, stackItem, destroyedObjectIds, drawCount))
         {
             foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, targetControllerDrawRecipientIds))
@@ -35886,37 +35890,40 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static int ResolveDrawCount(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string controllerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null)
     {
         return behavior.DynamicDrawCountKind switch
         {
             CardDynamicDrawCountKinds.ControllerPowerfulUnits => CountControlledUnitsWithPowerAtLeast(
-                playerZones,
-                cardObjects,
+                state with { PlayerZones = playerZones, CardObjects = cardObjects,
+                    ObjectLocations = ReconcileObjectLocations(objectLocations ?? state.ObjectLocations, playerZones) },
                 controllerId,
-                5),
+                PowerfulUnitPowerThreshold),
             _ => behavior.DrawCount
         };
     }
 
     private static int CountControlledUnitsWithPowerAtLeast(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        MatchState state,
         string playerId,
         int minimumPower)
     {
-        if (!playerZones.TryGetValue(playerId, out var zones))
+        state = RecomputeRuleDerivedKeywords(state);
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return 0;
         }
 
         return zones.Base
             .Concat(zones.Battlefields)
-            .Count(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && cardObject.Power >= minimumPower);
+            .Distinct(StringComparer.Ordinal)
+            .Count(objectId => IsPlayerControlledFieldUnitObject(state, playerId, objectId)
+                && ResolveCurrentFieldUnitPowerFromEvaluatedKeywords(state, state.CardObjects[objectId]) >= minimumPower);
     }
 
     private static StateBasedCleanupResult RunStateBasedCleanupLoop(MatchState state,

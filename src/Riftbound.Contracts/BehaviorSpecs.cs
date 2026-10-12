@@ -338,6 +338,7 @@ public static class StaticAbilityKinds
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
+    public const string SourceCostReductionPerControlledPowerfulUnit = "SOURCE_COST_REDUCTION_PER_CONTROLLED_POWERFUL_UNIT";
     public const string SourceUnitEnterReady = "SOURCE_UNIT_ENTER_READY";
     public const string FriendlyUnitsEnterReady = "FRIENDLY_UNITS_ENTER_READY";
     public const string OtherFriendlyUnitsEnterReady = "OTHER_FRIENDLY_UNITS_ENTER_READY";

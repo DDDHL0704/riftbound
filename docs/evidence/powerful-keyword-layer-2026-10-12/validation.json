@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_FIXED_COMMIT_FULL_AND_NATIVE_PASS_WHOLE_UNCERTIFIED",
   "verifiedAtUtc": "2026-10-12T13:49:15.542937+00:00",
   "semanticCoverageCertified": false,
   "wholeCardCertification": false,
@@ -146,15 +146,24 @@
     },
     "source": "docs/evidence/powerful-keyword-layer-2026-10-12/godot-receipt.json"
   },
-  "fixedCommitFullRequired": true,
+  "fixedCommitFullRequired": false,
   "visiblePairedClientAcceptance": false,
   "windowsRuntimeAcceptance": false,
   "realPostgresAcceptance": false,
   "remaining": [
-    "Fixed-commit complete CI with all methods/cases/110 pairs",
     "Current-Might Powerful consumers: ready/rune/conquest/discount/draw/last-breath flows",
     "Complete generic layer dependency/timestamp ordering beyond monotonic Powerful-self grants",
     "All related whole cards and current applicable rule/FAQ source gaps",
     "Visible paired clients, Windows real runtime and real PostgreSQL execution"
-  ]
+  ],
+  "fixedCommitFullCi": {
+    "commit": "38fa18dfa561ce17a592dedbacca46094af4de15",
+    "runId": 38258713128,
+    "cases": 10433,
+    "methods": 6724,
+    "matrixPairs": 110,
+    "allPriorIdentitiesAndHashesRetained": true,
+    "receipt": "docs/evidence/powerful-keyword-layer-2026-10-12/full-ci-38fa18df.json",
+    "boundary": "Does not cover later Powerful numeric consumers or whole card/layer/native real-device gates"
+  }
 }
