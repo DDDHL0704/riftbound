@@ -1,0 +1,15 @@
+{
+  "trx": "var/qa/leona-20261012/red-2/focus/results.trx",
+  "sha256": "6132e7a5e23dfccb2db9d817c0beb594bcb0b9bdf5dcefccbe878321a720aaa9",
+  "failures": [
+    {
+      "name": "Riftbound.ConformanceTests.LeonaStunnedMightTests.DedicatedPrintingContinuouslyReducesTheStunnedEnemyHere(printing: \"OGN·079/298\")",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   3"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.LeonaStunnedMightTests.DedicatedPrintingContinuouslyReducesTheStunnedEnemyHere(printing: \"OGN·079a/298\")",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   3"
+    }
+  ],
+  "excluded": "The first attempt used a nonexistent fixture property; intermediate card-identity/focus/battle-recall assumptions are not counted as gameplay defects."
+}

@@ -5,6 +5,11 @@ namespace Riftbound.Engine;
 
 internal static class StaticAuraSpecRules
 {
+    public static bool IsConditionalEnemyPowerAura(StaticAuraSpec aura) => aura.Kind == StaticAuraKinds.SameLocationEnemyFilteredPower
+        && aura.Layer == ContinuousEffectLayers.StaticAura && aura.TargetScope == StaticAuraTargetScopes.SameLocationEnemyFilteredUnits
+        && aura.ParticipantScope == StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits
+        && aura.Duration == "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD" && aura.PowerDeltaPerParticipant < 0
+        && aura.MinimumPowerAfterModifier is > 0 && aura.TargetFilter == StaticAuraTargetFilters.Stunned;
     private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<StaticAuraSpec>>> StaticAurasByCardNo =
         new(BuildStaticAuraMap, LazyThreadSafetyMode.ExecutionAndPublication);
 
@@ -462,6 +467,8 @@ internal static class StaticAuraSpecRules
 
     private static bool TargetMatchesFilter(string targetFilter, CardObjectState target)
     {
+        if (targetFilter == StaticAuraTargetFilters.Stunned)
+            return target.UntilEndOfTurnEffects.Contains("STUNNED", StringComparer.Ordinal);
         if (string.Equals(targetFilter, StaticAuraTargetFilters.Token, StringComparison.Ordinal))
         {
             return TokenObjectRules.IsToken(target);

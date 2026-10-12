@@ -15909,6 +15909,14 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (effectKind == StaticAuraKinds.SameLocationEnemyFilteredPower) {
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD"
+                || !effectId.StartsWith($"CONDITIONAL_POWER_AURA:{sourceObjectId}:", StringComparison.Ordinal)
+                || !effectId.EndsWith(":" + targetObjectId, StringComparison.Ordinal))
+                errors.Add($"{effectLabel} conditional power aura identity is invalid");
+            return;
+        }
+
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
         {
             if (string.Equals(duration, "WHILE_SOURCE_ON_PUBLIC_FIELD", StringComparison.Ordinal)
@@ -16288,6 +16296,19 @@ public static class MatchRecoveryValidator
             || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
             || !IsContinuousEffectLayerScopeValid(scope, layer))
         {
+            return;
+        }
+
+        if (effectKind == StaticAuraKinds.SameLocationEnemyFilteredPower) {
+            var spec = StaticAuraSpecRules.GetStaticAuras(sourceCardNo).FirstOrDefault(StaticAuraSpecRules.IsConditionalEnemyPowerAura);
+            if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD" || spec is null)
+                errors.Add($"{effectLabel} conditional power aura requires a matching official source and scope");
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath,
+                "CoreRuleEngine.ConditionalPowerAuraContributions", "conditional aura source path", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition,
+                $"STUNNED_ENEMY_AT_SOURCE_LOCATION_MINIMUM:{spec?.MinimumPowerAfterModifier}", "conditional aura condition", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle,
+                "RECOMPUTED_FROM_CURRENT_CONDITION_LOCATION_AND_MIGHT", "conditional aura lifecycle", errors);
             return;
         }
 
@@ -17513,7 +17534,7 @@ public static class MatchRecoveryValidator
         // A graveyard-count aura is not a fixed delta per field participant.
         // ValidateDynamicPowerAuraViews checks its exact amount
         // against the current authoritative effect, including zero.
-        if (effectKind == StaticAuraKinds.SourceGraveyardCountPower) return;
+        if (effectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower) return;
 
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
         {
@@ -23041,7 +23062,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
-        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
+        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
             .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "continuousEffects", out var effects))
@@ -23050,7 +23071,7 @@ public static class MatchRecoveryValidator
                 if (!TryReadObjectString(payload, "effectId", out var id) || string.IsNullOrWhiteSpace(id)) continue;
                 if (!expected.TryGetValue(id, out var effect))
                 {
-                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
+                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
                         errors.Add($"{label} unexpected dynamic power aura");
                     continue;
                 }
@@ -23068,7 +23089,7 @@ public static class MatchRecoveryValidator
                 foreach (var (key, value) in strings)
                     if (!TryReadObjectString(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind is "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
+                if (effect.EffectKind is "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower)
                     foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
                         ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],
                         ["targetDependencyObjectIds"] = effect.TargetDependencyObjectIds ?? [],

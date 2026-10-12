@@ -380,6 +380,7 @@ public static class StaticAuraKinds
         "FRIENDLY_FIELD_EQUIPMENT_COUNT_TO_SOURCE_UNIT_POWER";
     public const string SourceObjectPower = "SOURCE_OBJECT_POWER";
     public const string SourceGraveyardCountPower = "SOURCE_GRAVEYARD_COUNT_POWER";
+    public const string SameLocationEnemyFilteredPower = "SAME_LOCATION_ENEMY_FILTERED_POWER";
     public const string SourceObjectFilteredPower = "SOURCE_OBJECT_FILTERED_POWER";
     public const string SourceObjectFilteredKeyword = "SOURCE_OBJECT_FILTERED_KEYWORD";
     public const string SourceObjectLevelKeyword = "SOURCE_OBJECT_LEVEL_KEYWORD";
@@ -412,6 +413,7 @@ public static class StaticAuraKinds
 
 public static class StaticAuraTargetScopes
 {
+    public const string SameLocationEnemyFilteredUnits = "SAME_LOCATION_ENEMY_FILTERED_UNITS";
     public const string SourceObject = "SOURCE_OBJECT";
     public const string SameBattlefieldUnits = "SAME_BATTLEFIELD_UNITS";
     public const string SameBattlefieldFilteredUnits = "SAME_BATTLEFIELD_FILTERED_UNITS";
@@ -427,6 +429,7 @@ public static class StaticAuraTargetScopes
 
 public static class StaticAuraParticipantScopes
 {
+    public const string SameLocationEnemyFilteredPublicUnits = "SAME_LOCATION_ENEMY_FILTERED_PUBLIC_UNITS";
     public const string SourceObject = "SOURCE_OBJECT";
     public const string FriendlyPublicFieldEquipment = "FRIENDLY_PUBLIC_FIELD_EQUIPMENT";
     public const string SameBattlefieldPublicUnits = "SAME_BATTLEFIELD_PUBLIC_UNITS";
@@ -449,6 +452,7 @@ public static class StaticAuraParticipantScopes
 
 public static class StaticAuraTargetFilters
 {
+    public const string Stunned = "STATUS:STUNNED";
     public const string AnyPrefix = "ANY:";
     public const string CardNamePrefix = "CARD_NAME:";
     public const string Token = "TOKEN";
@@ -664,7 +668,9 @@ public sealed record StaticAuraSpec(
     int? RequiredReadyEnemyUnitCount = null,
     int? RequiredParticipantCount = null,
     int? RequiredPlayerExperience = null,
-    string? PowerMultiplierZone = null);
+    string? PowerMultiplierZone = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MinimumPowerAfterModifier = null);
 
 public sealed record EffectPhraseSpec(
     string TemplateId,

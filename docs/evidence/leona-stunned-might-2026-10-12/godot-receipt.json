@@ -1,0 +1,9 @@
+{
+  "recordedAtUtc": "2026-10-12T13:03:33.718861+00:00",
+  "version": "4.7.2.stable.mono.official.ed1daf0bf",
+  "mode": "headless",
+  "exitCode": 0,
+  "stdout": "LEONA_MIGHT_PASS: 8 production movement, play and response commands",
+  "productionCommands": 8,
+  "visiblePairedClientAcceptance": false
+}

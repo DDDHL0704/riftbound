@@ -2991,7 +2991,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId,
         out int keywordBonus,
         out int staticPowerBonus,
-        bool damageContribution = true)
+        bool damageContribution = true,
+        bool conditionalPowerAuras = true,
+        bool clampResult = true)
     {
         keywordBonus = 0;
         staticPowerBonus = 0;
@@ -3023,7 +3025,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             readyEnemyUnitCount,
             out keywordBonus,
             out staticPowerBonus,
-            damageContribution);
+            damageContribution, conditionalPowerAuras, clampResult);
     }
 
     private static string? BattleDefendingPlayerId(MatchState state, BattleState battle)
@@ -15164,7 +15166,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int readyEnemyUnitCount,
         out int keywordBonus,
         out int staticPowerBonus,
-        bool damageContribution = true)
+        bool damageContribution = true,
+        bool conditionalPowerAuras = true,
+        bool clampResult = true)
     {
         keywordBonus = 0;
         staticPowerBonus = 0;
@@ -15241,7 +15245,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolveSourceBattleStatePowerStaticAuraBonus(
             cardObject, isAttacking, attackingUnitCount, defendingUnitCount, readyEnemyUnitCount);
 
-        return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
+        var power = cardObject.Power + keywordBonus + staticPowerBonus;
+        if (conditionalPowerAuras)
+            staticPowerBonus += ConditionalPowerAuraContributions(state, cardObject, power).Sum(c => c.Delta);
+        power = cardObject.Power + keywordBonus + staticPowerBonus;
+        return clampResult ? Math.Max(0, power) : power;
     }
 
     private static int ResolveFieldPowerStaticAuraBonus(MatchState state,
@@ -15256,11 +15264,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     internal static int ResolveCurrentFieldUnitPower(MatchState state, CardObjectState card)
     {
-        var battle = state.BattleState;
-        if (battle.IsActive && (battle.AttackerObjectIds.Contains(card.ObjectId) || battle.DefenderObjectIds.Contains(card.ObjectId)))
-            return ResolveAssignmentBattleCombatPower(state, battle, card.ObjectId, out _, out _, damageContribution: false);
-        var field = state.ObjectLocations.GetValueOrDefault(card.ObjectId)?.BattlefieldObjectId ?? "";
-        return Math.Max(0, card.Power + ResolveFieldPowerStaticAuraBonus(state, state.PlayerZones, card.ObjectId, card, field));
+        var before = CurrentPowerBeforeConditionalAuras(state, card);
+        return Math.Max(0, before + ConditionalPowerAuraContributions(state, card, before).Sum(c => c.Delta));
     }
 
     private static int ResolveSourceBattleStatePowerStaticAuraBonus(

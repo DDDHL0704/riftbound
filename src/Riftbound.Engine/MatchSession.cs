@@ -2128,6 +2128,19 @@ public sealed record MatchState
                     ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [bonus.SourceId],
                     TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
             }
+            foreach (var aura in CoreRuleEngine.ConditionalPowerAuraContributions(state, cardObject))
+            {
+                var dependencies = aura.Instance.Origin is { } copied
+                    ? new[] { aura.SourceId, copied.Equipment.ObjectId } : new[] { aura.SourceId };
+                effects.Add(new ContinuousEffectState($"CONDITIONAL_POWER_AURA:{aura.SourceId}:{aura.Instance.Id}:{aura.Index}:{objectId}",
+                    "OBJECT", ContinuousEffectLayers.StaticAura, aura.Spec.Duration, objectId, aura.SourceId,
+                    aura.Delta, aura.Before, aura.After, aura.Spec.Kind, aura.Instance.CardNo,
+                    "CoreRuleEngine.ConditionalPowerAuraContributions", true, LayerEngineFoundationResiduals(),
+                    Condition: $"STUNNED_ENEMY_AT_SOURCE_LOCATION_MINIMUM:{aura.Spec.MinimumPowerAfterModifier}",
+                    Lifecycle: "RECOMPUTED_FROM_CURRENT_CONDITION_LOCATION_AND_MIGHT",
+                    ParticipantObjectIds: [objectId], SourceDependencyObjectIds: dependencies,
+                    TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
+            }
             foreach (var sourceObjectPowerEffect in BuildSourceObjectPowerStaticAuraEffects(state, objectId, cardObject))
             {
                 effects.Add(sourceObjectPowerEffect);

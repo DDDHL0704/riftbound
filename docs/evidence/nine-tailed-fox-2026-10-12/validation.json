@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_FIXED_COMMIT_FULL_CI_AND_NATIVE_PASS",
   "verifiedAtUtc": "2026-10-12T12:06:45.357606+00:00",
   "semanticCoverageCertified": false,
   "wholeCardCertification": false,
@@ -260,7 +260,7 @@
     },
     "source": "docs/evidence/nine-tailed-fox-2026-10-12/godot-receipt.json"
   },
-  "fixedCommitFullRequired": true,
+  "fixedCommitFullRequired": false,
   "visiblePairedClientAcceptance": false,
   "windowsRuntimeAcceptance": false,
   "realPostgresAcceptance": false,
@@ -270,5 +270,6 @@
     "EN VEN-SP3/006 identity and runtime mapping",
     "Whole-card, all applicable rule/FAQ records and source gaps",
     "Visible paired clients, Windows real runtime and real PostgreSQL execution"
-  ]
+  ],
+  "fixedCommitFullEvidence": "docs/evidence/nine-tailed-fox-2026-10-12/full-ci-b4ed9afe.json"
 }

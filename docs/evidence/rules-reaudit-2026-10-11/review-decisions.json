@@ -8606,7 +8606,7 @@
     },
     {
       "id": "nine-tailed-fox-enemy-attack-2026-10-12",
-      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "status": "SCOPED_FIXED_COMMIT_FULL_CI_AND_NATIVE_PASS",
       "scope": "Three exact CN Nine-Tailed Fox printed enemy-attack triggers with turn duration, automatic attacker reference/current-Might floor, declared-role and ceased-token recovery; no whole-card certification",
       "subjects": [
         {
@@ -8749,7 +8749,8 @@
         "checkMethods": 6560,
         "nativeProductionCommands": 6,
         "wholeCardCertification": false,
-        "exactHeadFullCiRequired": true
+        "exactHeadFullCiRequired": false,
+        "fixedCommitFullEvidence": "docs/evidence/nine-tailed-fox-2026-10-12/full-ci-b4ed9afe.json"
       },
       "exclusions": [
         "Fixed-commit complete CI with all methods/cases/110 pairs",
@@ -8757,6 +8758,130 @@
         "EN VEN-SP3/006 identity and runtime mapping",
         "Whole-card, all applicable rule/FAQ records and source gaps",
         "Visible paired clients, Windows real runtime and real PostgreSQL execution"
+      ]
+    },
+    {
+      "id": "leona-stunned-might-aura-2026-10-12",
+      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Two exact CN Leona Dedicated printings: live stun/enemy/here conditional numeric reduction with current-Might floor, copies, equipment, lethal cleanup, turn stun cleanup, transient snapshots and safe recovery; no whole-card/complete-layer certification",
+      "subjects": [
+        {
+          "id": "OGN-079/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31294,
+              "cardNo": "OGN·079/298",
+              "name": "蕾欧娜",
+              "sha256": "e72261c7007602ddeff70fc963c1f088a6530965f2a49d478375ac5558aa4f89",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-079-298",
+              "cardNo": "OGN-079/298",
+              "name": "Leona",
+              "sha256": "5c2c0ee0fea38e12ce6d0f6a050e929e73e57e03dca841ee10b3f0d0d5ddb6de",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Printed conditional StaticAuraSpec -> current enemy/stun/same-location filter -> dependent numeric calculation -> shared Might/projection/recovery",
+          "scope": "Scoped two CN Dedicated-printing live numeric aura, copies, stun/lethal and passive-versus-snapshot checks; whole-card, Powerful keyword and complete layer semantics remain open",
+          "scopedEvidence": "docs/evidence/leona-stunned-might-2026-10-12/validation.json",
+          "activeCardNo": "OGN·079/298"
+        },
+        {
+          "id": "OGN-079A/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31295,
+              "cardNo": "OGN·079a/298",
+              "name": "蕾欧娜",
+              "sha256": "c3b5a7b56ccb72044e37937bdcba89ca7296b66b6823012b4a56d0c9825abf70",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-079a-298",
+              "cardNo": "OGN-079a/298",
+              "name": "Leona",
+              "sha256": "155ff0d5e5666dc19f2a7179b5a4f32729210e3bede93c18996f51cebecbace4",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Printed conditional StaticAuraSpec -> current enemy/stun/same-location filter -> dependent numeric calculation -> shared Might/projection/recovery",
+          "scope": "Scoped two CN Dedicated-printing live numeric aura, copies, stun/lethal and passive-versus-snapshot checks; whole-card, Powerful keyword and complete layer semantics remain open",
+          "scopedEvidence": "docs/evidence/leona-stunned-might-2026-10-12/validation.json",
+          "activeCardNo": "OGN·079a/298"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P094-B007",
+        "DOC-04-P094-B008",
+        "DOC-04-P094-B009",
+        "DOC-04-P094-B010",
+        "DOC-04-P094-B013",
+        "DOC-04-P094-B015",
+        "DOC-04-P094-B016",
+        "DOC-04-P095-B002",
+        "DOC-04-P095-B003",
+        "DOC-04-P095-B004",
+        "DOC-04-P095-B009",
+        "DOC-04-P095-B010",
+        "DOC-04-P095-B012"
+      ],
+      "auditDocument": "docs/LEONA_STUNNED_MIGHT_AUDIT_2026-10-12.md",
+      "evidence": [
+        "docs/evidence/leona-stunned-might-2026-10-12/validation.json",
+        "docs/evidence/leona-stunned-might-2026-10-12/live-readback.json",
+        "docs/evidence/leona-stunned-might-2026-10-12/red-evidence.json"
+      ],
+      "tests": [
+        "LeonaStunnedMightTests",
+        "LeonaMightNativeTests",
+        "MatchRecoveryTests",
+        "MinimumMightAuditTests",
+        "CardCatalogBaselineTests"
+      ],
+      "validation": {
+        "checkCases": 10270,
+        "checkMethods": 6574,
+        "nativeProductionCommands": 8,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true
+      },
+      "exclusions": [
+        "Fixed-commit complete CI with all methods/cases/110 pairs",
+        "Powerful-derived keyword gain/loss and complete repeated layer application",
+        "Generic timestamp/dependency/source ordering beyond these equal-floor numeric auras",
+        "First Leona enter-ready ability and whole-card interactions",
+        "EN VEN-SP3/006 identity/runtime mapping and all source gaps",
+        "All applicable card/rule/QA semantic and native/real-database acceptance"
       ]
     }
   ]

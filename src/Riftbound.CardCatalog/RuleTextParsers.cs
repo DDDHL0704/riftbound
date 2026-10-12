@@ -2936,6 +2936,19 @@ public static class StaticAuraParser
                     "Current controller graveyard count is recomputed by the shared power layer.", PowerMultiplierZone: "GRAVEYARD"));
                 continue;
             }
+            var enemyStatusPower = Regex.Match(segment,
+                @"^此处被眩晕的敌方单位\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<minimum>\d+)\{\{S\}\}[。.]?$",
+                RegexOptions.CultureInvariant);
+            if (enemyStatusPower.Success && int.TryParse(enemyStatusPower.Groups["delta"].Value, out var enemyDelta)
+                && enemyDelta < 0 && int.TryParse(enemyStatusPower.Groups["minimum"].Value, out var minimum) && minimum > 0) {
+                auras.Add(new(StaticAuraKinds.SameLocationEnemyFilteredPower, StaticAuraLayer,
+                    "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD", StaticAuraTargetScopes.SameLocationEnemyFilteredUnits,
+                    StaticAuraParticipantScopes.SameLocationEnemyFilteredPublicUnits, enemyDelta, segment,
+                    BehaviorImplementationStatuses.Unimplemented,
+                    "Passive reduction is recomputed after the numeric effects it depends on; it never snapshots a turn modifier.",
+                    TargetFilter: StaticAuraTargetFilters.Stunned, MinimumPowerAfterModifier: minimum));
+                continue;
+            }
             var levelSourceKeywordAdded = TryAddSourceObjectLevelKeywordAuras(auras, segment);
 
             var sourceObjectLevelPowerMatch = Regex.Match(

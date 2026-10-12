@@ -1,0 +1,1 @@
+{"requestId":"69fed21a261f467fa8af5f45370a2f3e","promptId":"HOLD-TEST:1:P1:PLAY_CARD,PASS_FOCUS,SURRENDER","snapshotTick":1,"command":{"sourceObjectId":"SPELL","cardNo":"OGN\u00B7262/298","targetObjectIds":["ENEMY1"],"mode":"","optionalCosts":[],"destination":"","repeatChoices":null,"movementDestinations":null,"cmdType":"PLAY_CARD"}}
