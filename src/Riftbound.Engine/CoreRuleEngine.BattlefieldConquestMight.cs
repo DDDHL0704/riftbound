@@ -46,7 +46,8 @@ public sealed partial class CoreRuleEngine
     {
         try {
             var frame = context.Frame;
-            if (context.ConquestTick < 0 || context.Source.Generation < 0 || context.PowerfulUnits.Count == 0
+            if (!ValidMightFrameExperience(frame)
+                || context.ConquestTick < 0 || context.Source.Generation < 0 || context.PowerfulUnits.Count == 0
                 || !frame.PlayerZones.ContainsKey(context.ControllerId)
                 || BattlefieldConquestMightDefinition(context.CardNo) is not { } spec
                 || !frame.CardObjects.TryGetValue(context.Source.ObjectId, out var source)

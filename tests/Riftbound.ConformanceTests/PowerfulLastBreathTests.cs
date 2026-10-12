@@ -14,7 +14,8 @@ public sealed class PowerfulLastBreathTests
         var zones = new Dictionary<string, PlayerZones> { [controller] = PlayerZones.Empty with { Base = [source] } };
         return new(source, "SFD·167/221", 0, controller, 4, new(zones,
             new Dictionary<string, CardObjectState> { [source] = unit },
-            new Dictionary<string, ObjectLocationState> { [source] = new(controller, "BASE") }, []), $"PRINTED:{source}:0");
+            new Dictionary<string, ObjectLocationState> { [source] = new(controller, "BASE") }, [],
+            new Dictionary<string, int> { [controller] = 0 }), $"PRINTED:{source}:0");
     }
 
     internal static async Task<ResolutionResult> Destroy(MatchState initial, string target = "HOST")

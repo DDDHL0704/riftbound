@@ -127,7 +127,8 @@ public sealed partial class CoreRuleEngine
             foreach (var frame in new[] { context.Before, context.After }) {
                 var publicIds = frame.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields).Concat(z.Graveyard)
                     .Concat(z.Banished).Concat(z.LegendZone).Concat(z.ChampionZone)).ToHashSet(StringComparer.Ordinal);
-                if (frame.PlayerZones.Values.Any(z => z.Hand.Count != 0 || z.MainDeck.Count != 0 || z.RuneDeck.Count != 0)
+                if (!ValidMightFrameExperience(frame)
+                    || frame.PlayerZones.Values.Any(z => z.Hand.Count != 0 || z.MainDeck.Count != 0 || z.RuneDeck.Count != 0)
                     || frame.CardObjects.Any(p => p.Key != p.Value.ObjectId || p.Value.IsFaceDown || p.Value.Tags.Contains(CardObjectTags.Standby)
                         || !publicIds.Contains(p.Key))
                     || frame.ObjectLocations.Keys.Any(id => !frame.CardObjects.ContainsKey(id))

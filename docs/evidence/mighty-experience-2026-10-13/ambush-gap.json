@@ -1,0 +1,15 @@
+{
+  "status": "CURRENT_VALID_POPPY_CONTEXT_REJECTED_BY_LIMITED_AMBUSH_PLANNER",
+  "issue": 16,
+  "source": "UNL-178/219",
+  "originalFailure": "当前伏击出牌路径尚未由服务端开放。",
+  "test": "PayingExperienceInARealResponseDoesNotRewriteAnEarnedCrossing",
+  "wholeCardCertification": false,
+  "fixture": "PrintedCardFactory hand unit",
+  "existingImplementation": "Limited shared Ambush path exists",
+  "constraints": [
+    "Destination hard-coded to player-MAIN",
+    "All optional costs rejected",
+    "Other timing and interaction consumers not audited"
+  ]
+}

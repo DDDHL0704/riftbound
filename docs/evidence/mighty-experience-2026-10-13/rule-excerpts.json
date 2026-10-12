@@ -1,0 +1,182 @@
+[
+  {
+    "id": "DOC-04-P053-B005",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f"
+    ],
+    "text": "359.3.f.       引用",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B006",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.1"
+    ],
+    "text": "359.3.f.1.          某些技能所使用的信息,引用自该技能的来源,或引用自某法术或技能的一个或多个目标。该\n                    情况通常可以通过诸如“此处”、“我的”或“其”等词语来识别。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B007",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.2"
+    ],
+    "text": "359.3.f.2.          以此方式在指示中引用的信息,会在该指示执行时进行检查。\n                         举例:\n                         一名玩家将“亚索 - 迷途怅惘”移动至受敌方占据的战场,并在该处发起战斗。对手反\n                         应“亚索 - 迷途怅惘”的进攻触发技能,从待命状态打出“战或逃”并指定亚索为目标,\n                         将亚索移回基地。当进攻触发结算时,“此处”已不再是战斗进行的战场,于是进攻触\n                         发的目标指定失效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B009",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.2.a"
+    ],
+    "text": "359.3.f.2.a.             当引用检查与目标相关的指示执行信息时,如果该目标不合法,则该引用将返回\n                         “无”的结果,且与其相关的所有指示将被无视。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B010",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.3"
+    ],
+    "text": "359.3.f.3.          某些触发式技能所使用的信息,引用自该技能的触发条件。该信息会在满足触发条件时进行检\n                    查。\n                         举例:“莉莉娅 - 仙灵小鹿”的描述为:“当我从一处位置移动时,在该处打出一名拥有\n                         [瞬息]的 3[M]‘精灵’指示物。”如果莉莉娅移动至一处战场,则她的触发式技能会被加\n                         入结算链,并在此时记录她的移动起点。如果她因有玩家反应该结算链上的触发式技\n                         能而被移动到了非场地区域,也不会影响在触发式技能结算时打出“精灵”指示物的位\n                         置。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B011",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.3.a"
+    ],
+    "text": "359.3.f.3.a.             对于延迟触发式技能,除非另有说明,否则信息会在触发式技能被创建时受到引用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B012",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.3.b"
+    ],
+    "text": "359.3.f.3.b.             对于关联技能,如果其引用了关联触发式技能中的信息,并且有明确说明,则可以从\n                         关联触发式技能的触发条件中引用该信息。\n                               举例:娅希拉的描述为:“当我据守一处战场时,在你的下一个主阶段开始\n                               时,你可以选择将一名敌方单位移动到此战场。”该延迟触发式技能中的“此\n                               战场”指的是她据守的战场,因此会在生成该触发式技能时从该触发条件中\n                               引用该战场。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B013",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.4"
+    ],
+    "text": "359.3.f.4.          触发式技能效果中使用的某些信息会直接引用自触发式技能本身,比如“敌方”和“友方”状态。该",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P102-B014",
+    "document": "DOC-04",
+    "page": 102,
+    "clauseAnchors": [
+      "709"
+    ],
+    "text": "709.         当一个单位的战力从 5 以下变成 5 或以上时,就会“变为强力单位”。\n                 举例:一名战力为 4 的单位,获得[M]+1 后,便会变为强力单位。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P102-B016",
+    "document": "DOC-04",
+    "page": 102,
+    "clauseAnchors": [
+      "710"
+    ],
+    "text": "710.         场上的单位将根据其当前的战力进行评估。\n                  举例:一个基础战力为 3 的单位,被一个描述为“一名单位在本回合内获得[M]+3”的法术指定为目标。该法术结算\n                  时,单位的战力从 3 增至 6,变成了强力单位。当回合结束、该效果失效时,该单位将不再是强力单位。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P102-B017",
+    "document": "DOC-04",
+    "page": 102,
+    "clauseAnchors": [
+      "711"
+    ],
+    "text": "711.         非场地区域 的单位将根据卡面上印刷的战力进行评估。\n                  举例:如果卡牌上印刷的战力为 5 或以上,则其即使被放入废牌堆,仍为强力单位。其位于场上时是否有提升或降\n                  低其战力的效果,不会对此状态产生影响。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P106-B001",
+    "document": "DOC-04",
+    "page": 106,
+    "clauseAnchors": [
+      "727.1.b.2"
+    ],
+    "text": "727.1.b.2.                     当条件满足时,依赖性技能会完全按照描述生效。\n                                    举例:“风行狐”拥有“[等级 3][>] 我获得[M]+1 和游走。”只要其控制者拥有至少 3 点\n                                    经验,风行狐的游走就会生效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P106-B002",
+    "document": "DOC-04",
+    "page": 106,
+    "clauseAnchors": [
+      "727.1.b.3"
+    ],
+    "text": "727.1.b.3.                     如果一个技能拥有多个依赖性关键词,则这些关键词的条件必须全部达成,该技能才会生效。\n                                    举例:一名单位的描述为:“[等级 11][>>] [鼓舞][>] 当你征服一处战场时,获得 1\n                                    分。”要使该单位的征服效果生效,其控制者必须拥有 11 点经验,并且在本回合已完\n                                    成一张非该单位卡牌的确认。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P122-B023",
+    "document": "DOC-04",
+    "page": 122,
+    "clauseAnchors": [
+      "824.1.c"
+    ],
+    "text": "824.1.c.               只要控制玩家拥有[N]经验,拥有[等级]的卡牌上的依赖性技能便会生效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P123-B001",
+    "document": "DOC-04",
+    "page": 123,
+    "clauseAnchors": [
+      "824.1.c.1"
+    ],
+    "text": "824.1.c.1.                 如果带有[等级]的卡牌的控制者发生变化,则依赖性技能会根据新控制者的经验变为生效或未\n                           激活 状态。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

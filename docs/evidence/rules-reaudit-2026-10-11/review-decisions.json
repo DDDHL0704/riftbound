@@ -10081,6 +10081,213 @@
         "Visible paired match, Windows real runtime and actual PostgreSQL",
         "Future Radiance versions retained without applying before October 16"
       ]
+    },
+    {
+      "id": "mighty-public-experience-2026-10-13",
+      "status": "SCOPED_CHECK_NATIVE_AND_PUBLIC_EXPERIENCE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Current public experience inputs for captured Mighty/Fiora, Sunken Temple conquest and Unsung Hero Last Breath numeric histories; no whole-card or all-Level certification",
+      "subjects": [
+        {
+          "id": "UNL-092/219",
+          "activeCardNo": "UNL-092/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34630,
+              "cardNo": "UNL-092/219",
+              "name": "德玛西亚使节",
+              "sha256": "39268b99ea335eb3d91bc56bd2077ef3439d3991f4b79c63d252e672b48dbab6",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-092-219",
+              "cardNo": "UNL-092/219",
+              "name": "Demacian Diplomat",
+              "sha256": "8f1ba8267f0a010a792fa42cb15765db57c6a737b1c6dc3fbddd4037ef16c062",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "UNL-094/219",
+          "activeCardNo": "UNL-094/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34632,
+              "cardNo": "UNL-094/219",
+              "name": "晶手猎人",
+              "sha256": "0ddb1459a815eb81316e5a0eceb0ff4e2eca19ca25b79803552f18a257be85bb",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-094-219",
+              "cardNo": "UNL-094/219",
+              "name": "Gemhand Hunter",
+              "sha256": "fee54e4a83b62a98e2816bab92565dd4fe7d01c55ca13cc158ca6685e4107e21",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "UNL-178/219",
+          "activeCardNo": "UNL-178/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34729,
+              "cardNo": "UNL-178/219",
+              "name": "波比",
+              "sha256": "7a133533ddd22986af1648ba320fa1469a4eaa60757e9124f4fd11fbfdf37adb",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-178-219",
+              "cardNo": "UNL-178/219",
+              "name": "Poppy",
+              "sha256": "751f9e3634949979caf8873e1567873b51e0a54cbd2c0b6ab829748a835c8336",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "UNL-191/219",
+          "activeCardNo": "UNL-191/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34744,
+              "cardNo": "UNL-191/219",
+              "name": "无极宗师",
+              "sha256": "08f4bda74947b8a93a47a2d5e14f6fea2098fa0a7630a84bddad59a7041a5244",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-191-219",
+              "cardNo": "UNL-191/219",
+              "name": "Wuju Master",
+              "sha256": "1b08632c5c2e716698baa58ace8c1081e921083bb8ff3099669d81da597bac6b",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P053-B005",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-04-P053-B010",
+        "DOC-04-P053-B011",
+        "DOC-04-P053-B012",
+        "DOC-04-P053-B013",
+        "DOC-04-P102-B014",
+        "DOC-04-P102-B016",
+        "DOC-04-P102-B017",
+        "DOC-04-P106-B001",
+        "DOC-04-P106-B002",
+        "DOC-04-P122-B023",
+        "DOC-04-P123-B001"
+      ],
+      "auditDocument": "docs/MIGHTY_EXPERIENCE_FRAME_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/mighty-experience-2026-10-13/source-readback.json",
+        "docs/evidence/mighty-experience-2026-10-13/core-readback.json",
+        "docs/evidence/mighty-experience-2026-10-13/rule-excerpts.json",
+        "docs/evidence/mighty-experience-2026-10-13/experience-source-queue.json",
+        "docs/evidence/mighty-experience-2026-10-13/applicability.json",
+        "docs/evidence/mighty-experience-2026-10-13/red-evidence.json",
+        "docs/evidence/mighty-experience-2026-10-13/ambush-gap.json",
+        "docs/evidence/mighty-experience-2026-10-13/godot-execution.json",
+        "docs/evidence/mighty-experience-2026-10-13/ambush-gap-results.trx",
+        "docs/evidence/mighty-experience-2026-10-13/validation.json",
+        "docs/evidence/mighty-experience-2026-10-13/check-parity.json",
+        "docs/evidence/mighty-experience-2026-10-13/code-inputs.json"
+      ],
+      "tests": [
+        "MightyExperienceFrameTests",
+        "MightyExperienceNativeTests",
+        "MightyTransitionTests",
+        "PowerfulLastBreathTests",
+        "SunkenTempleMightTests"
+      ],
+      "validation": {
+        "focusCases": 18,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "nativeProductionCommands": 10,
+        "checkCases": 10456,
+        "checkMethods": 6662
+      },
+      "exclusions": [
+        "Poppy Ambush response is explicitly unsupported: issue 16; rejection preservation does not certify official behavior",
+        "Literal nine Level plus-Might source entries remain NOT_REVIEWED; other conditional/copy consumers remain open",
+        "Other numeric inputs, stable instruction boundaries, entry generation and real Mighty replacements",
+        "History numeric inputs and outputs jointly forged require trusted complete replay",
+        "1738 whole-card identities, 14293 rule entries and eight EN source gaps",
+        "Visible two-client match, actual Windows runtime and actual PostgreSQL",
+        "Future Radiance retained and not applied before October 16"
+      ]
     }
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs": "4ac9deadb28a2bda6f94702040a2a9d1c328eb923cd067feeaa6eaa8ff49a688",
+  "src/Riftbound.Engine/CoreRuleEngine.MightyTransitions.cs": "f76ce5521dfde20881b72d27bf7bdd7596c90a888e5e6c66bb8bea4f10d1d6fc",
+  "src/Riftbound.Engine/CoreRuleEngine.BattlefieldConquestMight.cs": "70236978e7208e930af8917e4f7083aeaa6ca3e2b32e9533e24d0ad6c9948dbd",
+  "tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs": "14b4d7a9b45e8d9795cc88221b057a1e13584cca5319cfc011f7ff56785cb841",
+  "tests/Riftbound.ConformanceTests/MightyExperienceNativeTests.cs": "53b955630cf1988075da3de3bef07b24d4d96dca691df6318f4e107e91702c40",
+  "tests/Riftbound.ConformanceTests/PowerfulLastBreathTests.cs": "e4c7f14922062e20d864a8990f4d56043beac75f0f345fed380a74c65ea3f74c",
+  "clients/godot/scripts/debug/MightyExperienceInteractionProof.cs": "a4003e4450407b6f623df6b23b7550a953733a88d2cc0dcd8cb5d1f2901574d2",
+  "clients/godot/scenes/debug/MightyExperienceInteractionProof.tscn": "1b5985da8dfa77fab975fcd11c26cf2d21080ea605062c0e3dcc9ddf2d3db955"
+}

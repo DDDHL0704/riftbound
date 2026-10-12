@@ -10,7 +10,8 @@ public sealed record LastKnownMightFrame(
     IReadOnlyDictionary<string, PlayerZones> PlayerZones,
     IReadOnlyDictionary<string, CardObjectState> CardObjects,
     IReadOnlyDictionary<string, ObjectLocationState> ObjectLocations,
-    IReadOnlyList<string> BattleDeclarations);
+    IReadOnlyList<string> BattleDeclarations,
+    IReadOnlyDictionary<string, int> PlayerExperience);
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record LastBreathMightContext(string SourceObjectId, string CardNo, long SourceGeneration,
@@ -34,15 +35,25 @@ public sealed partial class CoreRuleEngine
         var publicLocations = ReconcileObjectLocations(locations ?? state.ObjectLocations, zones)
             .Where(p => visible.ContainsKey(p.Key)).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         return new(publicZones, visible, publicLocations, state.UntilEndOfTurnEffects
-            .Where(e => e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal)).ToArray());
+            .Where(e => e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal)).ToArray(),
+            publicZones.Keys.ToDictionary(id => id, id => state.PlayerExperience.GetValueOrDefault(id), StringComparer.Ordinal));
     }
 
+    private static bool ValidMightFrameExperience(LastKnownMightFrame frame)
+        => frame.PlayerExperience is not null && frame.PlayerZones is not null
+            && frame.PlayerExperience.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(frame.PlayerZones.Keys)
+            && frame.PlayerExperience.Values.All(value => value >= 0);
+
     private static MatchState MightFrameState(LastKnownMightFrame frame)
-        => new("LAST-KNOWN-MIGHT", 0, 0, frame.PlayerZones.Keys.First(),
+    {
+        if (!ValidMightFrameExperience(frame)) throw new ArgumentException("Invalid public Might-frame experience inputs.");
+        return new("LAST-KNOWN-MIGHT", 0, 0, frame.PlayerZones.Keys.First(),
             frame.PlayerZones.Keys.ToDictionary(p => p, p => p, StringComparer.Ordinal),
             status: MatchStatuses.InProgress, phase: MatchPhases.Main,
             playerZones: frame.PlayerZones, cardObjects: frame.CardObjects,
-            objectLocations: frame.ObjectLocations, untilEndOfTurnEffects: frame.BattleDeclarations);
+            objectLocations: frame.ObjectLocations, untilEndOfTurnEffects: frame.BattleDeclarations,
+            playerExperience: frame.PlayerExperience);
+    }
 
     private static LastBreathMightContext[] CaptureLastBreathMight(MatchState state,
         IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
@@ -91,6 +102,7 @@ public sealed partial class CoreRuleEngine
             || effect != TriggerKinds.UnitLastBreathPowerfulDraw || context.SourceObjectId != source
             || context.ControllerId != controller || frame.CardObjects is null || frame.PlayerZones is null
             || frame.ObjectLocations is null || frame.BattleDeclarations is null || frame.PlayerZones.Count == 0
+            || !ValidMightFrameExperience(frame)
             || frame.BattleDeclarations.Any(e => e is null || !e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal))
             || !frame.CardObjects.TryGetValue(source, out var unit) || unit.ObjectId != source
             || unit.ObjectGeneration != context.SourceGeneration

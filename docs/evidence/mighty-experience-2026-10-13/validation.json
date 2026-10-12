@@ -1,0 +1,115 @@
+{
+  "status": "SCOPED_CHECK_NATIVE_AND_PUBLIC_EXPERIENCE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "scope": "Frozen public experience inputs for current numeric Mighty histories; no whole-card or all-Level certification",
+  "verifiedAtUtc": "2026-10-12T20:39:42.602785+00:00",
+  "wholeCardCertification": false,
+  "issue": 15,
+  "ambushGapIssue": 16,
+  "nativeProductionCommands": 10,
+  "fixedCommitFullCiRequired": true,
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 121.49,
+    "total": 10456,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10456,
+        "passed": 10456,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 117.86
+      }
+    ]
+  },
+  "adjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 15.78,
+    "total": 373,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 373,
+        "passed": 373,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 12.24
+      }
+    ]
+  },
+  "parity": {
+    "status": "CHECK_CASE_AND_METHOD_PARITY_VERIFIED",
+    "verifiedAtUtc": "2026-10-12T20:38:29.152063+00:00",
+    "baselineCommit": "192764d854e10958819ca44455d361b50d7301da",
+    "oldCasesRetained": 10438,
+    "oldMethodsRetained": 6653,
+    "cases": 10456,
+    "methods": 6662,
+    "missingCases": [],
+    "missingMethods": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ARealExperiencePaymentDropsMightAndASeparateGainCrossesAgain",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ConquestQualifiesWithTheExperienceDependentFriendlyAura",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ExperienceThatDoesNotCrossTheThresholdDoesNotQueueASkill(experience: 4)",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ExperienceThatDoesNotCrossTheThresholdDoesNotQueueASkill(experience: 6)",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(fiora: \"SFD·180/221\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(fiora: \"SFD·180a/221\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.LastBreathRetainsTheExperienceDependentFriendlyAuraAtDeparture",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.RecoveryRejectsChangedOrMalformedHistoricalExperience(mutation: \"after\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.RecoveryRejectsChangedOrMalformedHistoricalExperience(mutation: \"before\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.RecoveryRejectsChangedOrMalformedHistoricalExperience(mutation: \"extra-seat\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.RecoveryRejectsChangedOrMalformedHistoricalExperience(mutation: \"missing-seat\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.RecoveryRejectsChangedOrMalformedHistoricalExperience(mutation: \"negative\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.RecoveryRejectsChangedOrMalformedHistoricalExperience(mutation: \"null\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.TheLegendUsesTheSameExperienceThresholdHistory(legend: \"SFD·205/221\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.TheLegendUsesTheSameExperienceThresholdHistory(legend: \"SFD·251/221\")",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ThePendingPoppyAmbushGapDoesNotRewriteCapturedExperience",
+      "Riftbound.ConformanceTests.MightyExperienceNativeTests.ProductionExperienceThresholdMightyConfirmationAndResponsesReplay(branch: \"decline\")",
+      "Riftbound.ConformanceTests.MightyExperienceNativeTests.ProductionExperienceThresholdMightyConfirmationAndResponsesReplay(branch: \"pay\")"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ARealExperiencePaymentDropsMightAndASeparateGainCrossesAgain",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ConquestQualifiesWithTheExperienceDependentFriendlyAura",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ExperienceThatDoesNotCrossTheThresholdDoesNotQueueASkill",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.LastBreathRetainsTheExperienceDependentFriendlyAuraAtDeparture",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.RecoveryRejectsChangedOrMalformedHistoricalExperience",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.TheLegendUsesTheSameExperienceThresholdHistory",
+      "Riftbound.ConformanceTests.MightyExperienceFrameTests.ThePendingPoppyAmbushGapDoesNotRewriteCapturedExperience",
+      "Riftbound.ConformanceTests.MightyExperienceNativeTests.ProductionExperienceThresholdMightyConfirmationAndResponsesReplay"
+    ],
+    "checkTrxSha256": "0d19d96f0e10f8ad8bd4c5804c7296e67c277d20b1e68b299cb2e5dc2d2850ff"
+  },
+  "checkTrxSha256": "0d19d96f0e10f8ad8bd4c5804c7296e67c277d20b1e68b299cb2e5dc2d2850ff",
+  "testAssemblySha256": "e8eaa904f73a1e997977bcc2d8e8242982092590ea57859d94b722b341d7472a",
+  "fullPlanMethods": 6803,
+  "allPriorFullMethodsRetained": true,
+  "expectedFullCases": 10605,
+  "toolTests": 24,
+  "native": {
+    "pay": {
+      "nativeCommands": 6,
+      "accepted": 6,
+      "staleRejected": 1,
+      "replayMatches": true,
+      "finalHostExhausted": false,
+      "finalHostCurrentMight": 5
+    },
+    "decline": {
+      "nativeCommands": 4,
+      "accepted": 4,
+      "staleRejected": 1,
+      "replayMatches": true,
+      "finalHostExhausted": true,
+      "finalHostCurrentMight": 5
+    }
+  },
+  "fixtureProvenance": "Production PrintedCardFactory for hand units; exact archived baseline four red cases supersede initial spell-helper fixtures",
+  "interruptedCheck": "Stopped before completion when hand-unit fixture classification was corrected; not a pass",
+  "ambushScope": "Limited shared planner exists; current legal battlefield/experience-cost combination is rejected and remains open",
+  "adjacentNote": "Shared engine unchanged since 373-case adjacent run; final corrected fixture cases verified by check-final and native readback"
+}

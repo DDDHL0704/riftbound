@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="c67420f3-cf11-409e-bdc6-83fa4f2693e7" name="@Mac-mini 2026-10-13 04:34:18" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-13T04:34:18.1863760+08:00" queuing="2026-10-13T04:34:18.1863760+08:00" start="2026-10-13T04:34:11.9954870+08:00" finish="2026-10-13T04:34:20.4025890+08:00" />
+  <TestSettings name="default" id="3f90649b-6c23-4ba7-98fb-f209d762306b">
+    <Deployment runDeploymentRoot="_Mac-mini_2026-10-13_04_34_18" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="e7a99481-04e7-4ebf-8e5d-01adf5bb7c34" testId="30993d45-47b7-71df-e4cd-a62b6ced8059" testName="Riftbound.ConformanceTests.MightyExperienceFrameTests.LastBreathRetainsTheExperienceDependentFriendlyAuraAtDeparture" computerName="Mac-mini" duration="00:00:01.3522168" startTime="2026-10-13T04:34:19.3987030+08:00" endTime="2026-10-13T04:34:19.3987030+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e7a99481-04e7-4ebf-8e5d-01adf5bb7c34">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyExperienceFrameTests.LastBreathRetainsTheExperienceDependentFriendlyAuraAtDeparture() in /Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs:line 83
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ecd60d55-a4be-43ae-9d31-8bd0186f6445" testId="f4fd90dd-92e1-9a90-2474-24e91d52b241" testName="Riftbound.ConformanceTests.MightyExperienceFrameTests.ConquestQualifiesWithTheExperienceDependentFriendlyAura" computerName="Mac-mini" duration="00:00:00.9728844" startTime="2026-10-13T04:34:20.3718670+08:00" endTime="2026-10-13T04:34:20.3718670+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ecd60d55-a4be-43ae-9d31-8bd0186f6445">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyExperienceFrameTests.ConquestQualifiesWithTheExperienceDependentFriendlyAura() in /Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs:line 72
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c4bfa54c-db56-4baf-9776-e5a1d2fdf95e" testId="c3a42231-5ecd-d80e-99c2-df63d9c2fece" testName="Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(fiora: &quot;SFD·180/221&quot;)" computerName="Mac-mini" duration="00:00:04.8866500" startTime="2026-10-13T04:34:18.0300100+08:00" endTime="2026-10-13T04:34:18.0300180+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c4bfa54c-db56-4baf-9776-e5a1d2fdf95e">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(String fiora) in /Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs:line 62
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2296baa0-f6d0-4dab-969a-e6f99bc0ac71" testId="c55f7ede-2d72-29f2-c57a-d8adaac37940" testName="Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(fiora: &quot;SFD·180a/221&quot;)" computerName="Mac-mini" duration="00:00:00.0172836" startTime="2026-10-13T04:34:18.0458970+08:00" endTime="2026-10-13T04:34:18.0458970+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2296baa0-f6d0-4dab-969a-e6f99bc0ac71">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(String fiora) in /Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs:line 62
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(fiora: &quot;SFD·180/221&quot;)" storage="/users/dinghaolin/myprojects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="c3a42231-5ecd-d80e-99c2-df63d9c2fece">
+      <Execution id="c4bfa54c-db56-4baf-9776-e5a1d2fdf95e" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyExperienceFrameTests" name="GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.MightyExperienceFrameTests.LastBreathRetainsTheExperienceDependentFriendlyAuraAtDeparture" storage="/users/dinghaolin/myprojects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="30993d45-47b7-71df-e4cd-a62b6ced8059">
+      <Execution id="e7a99481-04e7-4ebf-8e5d-01adf5bb7c34" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyExperienceFrameTests" name="LastBreathRetainsTheExperienceDependentFriendlyAuraAtDeparture" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(fiora: &quot;SFD·180a/221&quot;)" storage="/users/dinghaolin/myprojects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="c55f7ede-2d72-29f2-c57a-d8adaac37940">
+      <Execution id="2296baa0-f6d0-4dab-969a-e6f99bc0ac71" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyExperienceFrameTests" name="GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.MightyExperienceFrameTests.ConquestQualifiesWithTheExperienceDependentFriendlyAura" storage="/users/dinghaolin/myprojects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="f4fd90dd-92e1-9a90-2474-24e91d52b241">
+      <Execution id="ecd60d55-a4be-43ae-9d31-8bd0186f6445" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.MightyExperienceFrameTests" name="ConquestQualifiesWithTheExperienceDependentFriendlyAura" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="30993d45-47b7-71df-e4cd-a62b6ced8059" executionId="e7a99481-04e7-4ebf-8e5d-01adf5bb7c34" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f4fd90dd-92e1-9a90-2474-24e91d52b241" executionId="ecd60d55-a4be-43ae-9d31-8bd0186f6445" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c3a42231-5ecd-d80e-99c2-df63d9c2fece" executionId="c4bfa54c-db56-4baf-9776-e5a1d2fdf95e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c55f7ede-2d72-29f2-c57a-d8adaac37940" executionId="2296baa0-f6d0-4dab-969a-e6f99bc0ac71" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="4" executed="4" passed="0" failed="4" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.9)
+[xUnit.net 00:00:00.13]   Discovering: Riftbound.ConformanceTests
+[xUnit.net 00:00:00.75]   Discovered:  Riftbound.ConformanceTests
+[xUnit.net 00:00:00.76]   Starting:    Riftbound.ConformanceTests
+[xUnit.net 00:00:05.67]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:00:05.67]       Stack Trace:
+[xUnit.net 00:00:05.67]         /Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs(62,0): at Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(String fiora)
+[xUnit.net 00:00:05.67]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:05.69]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:00:05.69]       Stack Trace:
+[xUnit.net 00:00:05.69]         /Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs(62,0): at Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(String fiora)
+[xUnit.net 00:00:05.69]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:07.04]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:00:07.04]       Stack Trace:
+[xUnit.net 00:00:07.04]         /Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs(83,0): at Riftbound.ConformanceTests.MightyExperienceFrameTests.LastBreathRetainsTheExperienceDependentFriendlyAuraAtDeparture()
+[xUnit.net 00:00:07.04]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:08.01]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:00:08.01]       Stack Trace:
+[xUnit.net 00:00:08.01]         /Users/dinghaolin/MyProjects/riftbound/var/qa/mighty-experience-20261013/baseline-source/tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs(72,0): at Riftbound.ConformanceTests.MightyExperienceFrameTests.ConquestQualifiesWithTheExperienceDependentFriendlyAura()
+[xUnit.net 00:00:08.01]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:08.01]   Finished:    Riftbound.ConformanceTests
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:34:18.0297060+08:00">
+        <Text>[xUnit.net 00:00:05.67]     Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(fiora: "SFD·180/221") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:34:18.1890610+08:00">
+        <Text>[xUnit.net 00:00:05.69]     Riftbound.ConformanceTests.MightyExperienceFrameTests.GainingTheSixthExperienceCrossesFourToFiveWithoutChangingStoredPower(fiora: "SFD·180a/221") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:34:19.3988360+08:00">
+        <Text>[xUnit.net 00:00:07.04]     Riftbound.ConformanceTests.MightyExperienceFrameTests.LastBreathRetainsTheExperienceDependentFriendlyAuraAtDeparture [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T04:34:20.3719230+08:00">
+        <Text>[xUnit.net 00:00:08.01]     Riftbound.ConformanceTests.MightyExperienceFrameTests.ConquestQualifiesWithTheExperienceDependentFriendlyAura [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>
