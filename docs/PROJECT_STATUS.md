@@ -26,8 +26,8 @@ PostgreSQL真实执行、当前候选可见双客户端完整操作和Windows实
 
 ## 本轮准备验证
 
-验证工具24项检查、actionlint、固定快照治理/引用检查和6,625方法的调度成员对照通过；源代码、客户端、C#测试及官方数据没有改动。
+验证工具24项、actionlint、固定快照治理/引用和6,625方法调度成员对照通过，源码/客户端/C#测试/官方数据无改动。
 
-准备提交 c379b4a53c701e7516602cbaa342d8ca9d3d96c4 已推送，[CI 38204782987](https://github.com/DDDHL0704/riftbound/actions/runs/38204782987) 在固定提交上执行。scope 任务成功，明确 full=true，来源/治理完整性输出保持 semanticCoverageCertified=false；后续实跑发现跳过矩阵会丢失两个平台检查名，本次已修正。此前运行不作为修正后最终基线；最终固定提交CI证据待读回。59656042 仍是上一完整基线。
+矩阵检查名修正提交 442114f061e19a3c089060078f9fd67a0a6f906b 已推送，[最新代码 CI 38205666224](https://github.com/DDDHL0704/riftbound/actions/runs/38205666224) 在固定提交上执行。此前 c379b4a5 的运行已请求取消，不能当作完整通过；59656042 仍是上一完整基线。
 
-本次独立文档提交用于验证轻量路径与后台代码回归可以并行，不能把轻量通过记为 full 通过。后续候选 [#1–#5](https://github.com/DDDHL0704/riftbound/issues) 已登记为 enhancement + needs-triage，未启动结构实施或新 Goal。
+本次文档更新将实测两个固定平台检查名、明确“打包未执行”的轻量步骤及后台代码验证隔离。后续候选 [#1–#5](https://github.com/DDDHL0704/riftbound/issues) 仍为 enhancement + needs-triage；本轮未启动结构重构或新 Goal。
