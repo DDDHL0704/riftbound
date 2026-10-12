@@ -13,8 +13,31 @@ public sealed partial class CoreRuleEngine
         var departed = before.CardObjects.Where(e => IsTokenObject(e.Value)
             && !result.State.CardObjects.ContainsKey(e.Key)).Select(e => e.Key).ToHashSet(StringComparer.Ordinal);
         if (departed.Count == 0) return result;
+        FieldTriggerContext? Invalidate(FieldTriggerContext? context) =>
+            context is { Kind: "ENEMY_ATTACK_MIGHT", AffectedUnit: { } affected }
+                && departed.Contains(affected.ObjectId) && before.CardObjects[affected.ObjectId].ObjectGeneration == affected.Generation
+                ? context with { AffectedUnitCeasedToExist = true } : context;
         var state = result.State with { ObjectLocations = result.State.ObjectLocations
-            .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal) };
+            .Where(e => !departed.Contains(e.Key)).ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal),
+            StackItems = result.State.StackItems.Select(i => i.FieldContext is null ? i : i with { FieldContext = Invalidate(i.FieldContext) }).ToArray(),
+            TriggerQueue = result.State.TriggerQueue.Select(t => t.FieldContext is null ? t : t with { FieldContext = Invalidate(t.FieldContext) }).ToArray() };
+        // Preserve the originally declared participant identities. The current
+        // resolution's before-state proves these missing objects were tokens;
+        // recovery never invents a live unit to replace a ceased participant.
+        var participants = new Dictionary<string, CardObjectState>(state.CardObjects);
+        foreach (var id in departed) participants[id] = before.CardObjects[id];
+        if (TryReadBattleResponseDeclarationContext(state with { CardObjects = participants }, string.Empty, out var context)) {
+            var ceased = context.CeasedTokens?.ToDictionary(e => e.Key, e => e.Value, StringComparer.Ordinal)
+                ?? new Dictionary<string, CeasedBattleToken>(StringComparer.Ordinal);
+            foreach (var id in departed.Order(StringComparer.Ordinal))
+                if (context.AttackerObjectIds.Concat(context.DefenderObjectIds).Contains(id, StringComparer.Ordinal))
+                    ceased[id] = new(before.CardObjects[id].TokenFactoryCardNo ?? before.CardObjects[id].CardNo!, before.CardObjects[id].ObjectGeneration);
+            if (ceased.Count > 0)
+                state = state with { UntilEndOfTurnEffects = SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects,
+                    BuildBattleResponseDeclarationContextMarker(context.BattlefieldId, context.AttackerObjectIds, context.DefenderObjectIds,
+                        context.OptionalCosts, context.BattlefieldTargetObjectIds, context.InitialFocusPlayerId, context.InitialAttackingPlayerId,
+                        context.CombatStarted, context.InitialRolesEstablished, ceased)) };
+        }
         var events = result.Events.ToList();
         foreach (var id in departed)
             if (!events.Any(e => e.Kind == "TOKEN_CEASED_TO_EXIST"

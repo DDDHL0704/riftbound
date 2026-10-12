@@ -65,6 +65,8 @@ public sealed partial class CoreRuleEngine
         string controller, string effect, string? cardNo = null)
     {
         if (!ValidFieldContext(context, effect, cardNo)) return false;
+        if (context.Kind == "ENEMY_ATTACK_MIGHT")
+            return ValidEnemyAttackMightState(state, context, sourceId, controller);
         if (context.Kind != "COMBAT_MIGHT") return true;
         if (string.IsNullOrWhiteSpace(sourceId) || !state.Seats.ContainsKey(controller)
             || !state.CardObjects.TryGetValue(sourceId, out var source) || source.ObjectGeneration < context.SourceGeneration

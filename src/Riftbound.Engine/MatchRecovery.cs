@@ -23478,6 +23478,9 @@ public static class MatchRecoveryValidator
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
                 || field.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(field.ReturnFocusPlayerId)
+                || field.Kind == "ENEMY_ATTACK_MIGHT" && (item.TargetObjectIds.Count != 0 || item.TargetGenerations is not null
+                    || item.OptionalCosts.Count != 0 || item.DamageAmount != 0 || item.EffectRepeatCount != 1
+                    || item.Destination.Length != 0 || item.TargetedPowerAbility is not null || item.DamageDistribution is not null)
                 : item.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger stack context");
         if (state.PendingCardChoice is { ChoiceWindow: "TRIGGER_CONFIRMATION" } confirmation
             && !CoreRuleEngine.ValidTriggerChoice(state, confirmation)) errors.Add("invalid trigger confirmation");

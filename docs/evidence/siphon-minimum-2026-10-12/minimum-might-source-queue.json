@@ -369,8 +369,9 @@
       ],
       "reviewStatus": "NOT_REVIEWED",
       "wholeCardCertification": false,
-      "route": "Other activation, trigger or continuous-effect route requires separate reconstruction",
-      "scope": "Unreviewed current official minimum-Might text"
+      "route": "Printed EnemyAttackPowerModifier TriggerSpec -> controlled-battlefield role capture -> automatic attacker binding -> shared ApplyPowerModifier and token lifecycle",
+      "scope": "Scoped three CN printing trigger/turn duration/automatic reference/recovery check and headless native evidence; fixed-commit full and whole-card certification remain open",
+      "scopedEvidence": "docs/evidence/nine-tailed-fox-2026-10-12/validation.json"
     },
     {
       "id": "OGN-266/298",
@@ -439,8 +440,9 @@
       ],
       "reviewStatus": "NOT_REVIEWED",
       "wholeCardCertification": false,
-      "route": "Other activation, trigger or continuous-effect route requires separate reconstruction",
-      "scope": "Unreviewed current official minimum-Might text"
+      "route": "Printed EnemyAttackPowerModifier TriggerSpec -> controlled-battlefield role capture -> automatic attacker binding -> shared ApplyPowerModifier and token lifecycle",
+      "scope": "Scoped three CN printing trigger/turn duration/automatic reference/recovery check and headless native evidence; fixed-commit full and whole-card certification remain open",
+      "scopedEvidence": "docs/evidence/nine-tailed-fox-2026-10-12/validation.json"
     },
     {
       "id": "OGN-303/298",
@@ -474,8 +476,9 @@
       ],
       "reviewStatus": "NOT_REVIEWED",
       "wholeCardCertification": false,
-      "route": "Other activation, trigger or continuous-effect route requires separate reconstruction",
-      "scope": "Unreviewed current official minimum-Might text"
+      "route": "Printed EnemyAttackPowerModifier TriggerSpec -> controlled-battlefield role capture -> automatic attacker binding -> shared ApplyPowerModifier and token lifecycle",
+      "scope": "Scoped three CN printing trigger/turn duration/automatic reference/recovery check and headless native evidence; fixed-commit full and whole-card certification remain open",
+      "scopedEvidence": "docs/evidence/nine-tailed-fox-2026-10-12/validation.json"
     },
     {
       "id": "SFD-227*/221",

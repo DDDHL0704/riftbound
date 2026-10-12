@@ -194,6 +194,7 @@ public static class TriggerKinds
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
     public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
+    public const string EnemyAttackPowerModifier = "ENEMY_ATTACK_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
     public const string UnitHighCostSpellPowerModifier =
@@ -252,6 +253,7 @@ public static class TriggerTimings
     public const string ControlledUnitBecamePowerful = "CONTROLLED_UNIT_BECAME_POWERFUL";
     public const string UnitAttack = "UNIT_ATTACK";
     public const string UnitAttackOrDefend = "UNIT_ATTACK_OR_DEFEND";
+    public const string EnemyAttacksControlledBattlefield = "ENEMY_ATTACKS_CONTROLLED_BATTLEFIELD";
     public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
     public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";
@@ -260,6 +262,7 @@ public static class TriggerTimings
 public static class TriggerTargetScopes
 {
     public const string EnemyUnitHere = "ENEMY_UNIT_HERE";
+    public const string TriggeringAttacker = "TRIGGERING_ATTACKER";
     public const string MovedUnit = "MOVED_UNIT";
     public const string FriendlyUnitAtThisBattlefield = "FRIENDLY_UNIT_AT_THIS_BATTLEFIELD";
     public const string DefenderUnitAtThisBattlefield = "DEFENDER_UNIT_AT_THIS_BATTLEFIELD";

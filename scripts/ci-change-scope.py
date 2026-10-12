@@ -18,6 +18,7 @@ DOCUMENTATION = frozenset({
     'docs/SIPHON_MINIMUM_MIGHT_AUDIT_2026-10-12.md',
     'docs/ORB_OF_REGRET_AUDIT_2026-10-12.md',
     'docs/AHRI_COMBAT_MIGHT_AUDIT_2026-10-12.md',
+    'docs/NINE_TAILED_FOX_AUDIT_2026-10-12.md',
     'docs/RULE_TEST_WORKFLOW.md', 'docs/RULE_TEST_SPEED_2026-10-09.md',
     'docs/RULE_TEST_SPEED_2026-10-12.md',
     'docs/rules-authority-and-audit.md', 'docs/rules-evidence-index.md',

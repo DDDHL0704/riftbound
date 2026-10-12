@@ -8383,7 +8383,7 @@
     },
     {
       "id": "ahri-combat-might-trigger-2026-10-12",
-      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "status": "SCOPED_FIXED_COMMIT_FULL_CI_AND_NATIVE_PASS",
       "scope": "Five exact CN Ahri attack/defend local-enemy Might trigger printings with current-Might floor, here/lifecycle/copies/payment and player-history recovery; no whole-card certification",
       "subjects": [
         {
@@ -8592,7 +8592,8 @@
         "checkMethods": 6543,
         "nativeProductionCommands": 8,
         "wholeCardCertification": false,
-        "exactHeadFullCiRequired": true
+        "exactHeadFullCiRequired": false,
+        "fixedCommitFullEvidence": "docs/evidence/ahri-combat-might-2026-10-12/full-ci-140f5683.json"
       },
       "exclusions": [
         "Nine-Tailed Fox turn-duration trigger",
@@ -8601,6 +8602,161 @@
         "Whole-card play/deck/chosen-champion/all interactions for each printing",
         "All current applicable cards/rules/FAQ items and source gaps",
         "Visible paired clients, Windows runtime and actual PostgreSQL execution"
+      ]
+    },
+    {
+      "id": "nine-tailed-fox-enemy-attack-2026-10-12",
+      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Three exact CN Nine-Tailed Fox printed enemy-attack triggers with turn duration, automatic attacker reference/current-Might floor, declared-role and ceased-token recovery; no whole-card certification",
+      "subjects": [
+        {
+          "id": "OGN-255/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31497,
+              "cardNo": "OGN·255/298",
+              "name": "九尾妖狐",
+              "sha256": "b70df191069ef528325e26af9ea7d876dbc38bf6e9265654daafa10fd78dc5f8",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-255-298",
+              "cardNo": "OGN-255/298",
+              "name": "Nine-Tailed Fox",
+              "sha256": "395d2de6d458c5fc9143782af667ef9bfc0e8f22423f0534dfb00bcec0779a25",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Printed EnemyAttackPowerModifier TriggerSpec -> controlled-battlefield role capture -> automatic attacker binding -> shared ApplyPowerModifier and token lifecycle",
+          "scope": "Scoped three CN printing trigger/turn duration/automatic reference/recovery check and headless native evidence; fixed-commit full and whole-card certification remain open",
+          "scopedEvidence": "docs/evidence/nine-tailed-fox-2026-10-12/validation.json",
+          "activeCardNo": "OGN·255/298"
+        },
+        {
+          "id": "OGN-303*/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31554,
+              "cardNo": "OGN·303*/298",
+              "name": "九尾妖狐",
+              "sha256": "3f92983d37b5604a33e96a660c0a8fc3e25841a2d36ce18fe45f4c5b2f54854c",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-303-star-298",
+              "cardNo": "OGN-303*/298",
+              "name": "Nine-Tailed Fox",
+              "sha256": "68cde0b943e4b82bf5563f5f789b091a9ebd068f3f918bc107ea79939e2c64ec",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Printed EnemyAttackPowerModifier TriggerSpec -> controlled-battlefield role capture -> automatic attacker binding -> shared ApplyPowerModifier and token lifecycle",
+          "scope": "Scoped three CN printing trigger/turn duration/automatic reference/recovery check and headless native evidence; fixed-commit full and whole-card certification remain open",
+          "scopedEvidence": "docs/evidence/nine-tailed-fox-2026-10-12/validation.json",
+          "activeCardNo": "OGN·303*/298"
+        },
+        {
+          "id": "OGN-303/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31553,
+              "cardNo": "OGN·303/298",
+              "name": "九尾妖狐",
+              "sha256": "816cf23121cf1d5dceea211856fdcc2f12c82ecc3ef42ad08693a61bc70819ad",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-303-298",
+              "cardNo": "OGN-303/298",
+              "name": "Nine-Tailed Fox",
+              "sha256": "21479da6b25acffe0f63fe16d3a43e461892613dd6d76df480fbf3b03880c7b2",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Printed EnemyAttackPowerModifier TriggerSpec -> controlled-battlefield role capture -> automatic attacker binding -> shared ApplyPowerModifier and token lifecycle",
+          "scope": "Scoped three CN printing trigger/turn duration/automatic reference/recovery check and headless native evidence; fixed-commit full and whole-card certification remain open",
+          "scopedEvidence": "docs/evidence/nine-tailed-fox-2026-10-12/validation.json",
+          "activeCardNo": "OGN·303/298"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P045-B001",
+        "DOC-04-P045-B002",
+        "DOC-04-P053-B009",
+        "DOC-04-P053-B010",
+        "DOC-04-P059-B002",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B006",
+        "DOC-04-P059-B007"
+      ],
+      "auditDocument": "docs/NINE_TAILED_FOX_AUDIT_2026-10-12.md",
+      "evidence": [
+        "docs/evidence/nine-tailed-fox-2026-10-12/validation.json",
+        "docs/evidence/nine-tailed-fox-2026-10-12/live-readback.json",
+        "docs/evidence/nine-tailed-fox-2026-10-12/red-evidence.json"
+      ],
+      "tests": [
+        "EnemyAttackMightTests",
+        "EnemyAttackMightNativeTests",
+        "ConformanceFixtureRunnerTests.P79LegendStaticAhriReducesEnemyAttackerPower",
+        "BattleStartRoleTests",
+        "MatchRecoveryTests"
+      ],
+      "validation": {
+        "checkCases": 10233,
+        "checkMethods": 6560,
+        "nativeProductionCommands": 6,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true
+      },
+      "exclusions": [
+        "Fixed-commit complete CI with all methods/cases/110 pairs",
+        "Leona continuous effects and layer interactions",
+        "EN VEN-SP3/006 identity and runtime mapping",
+        "Whole-card, all applicable rule/FAQ records and source gaps",
+        "Visible paired clients, Windows real runtime and real PostgreSQL execution"
       ]
     }
   ]

@@ -1286,6 +1286,16 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var enemyAttackMight = Regex.Match(segment,
+            @"^当敌方单位进攻你控制的战场时[，,]\s*(?:让|给予)其(?:在)?本回合内\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<minimum>\d+)\{\{S\}\}[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (enemyAttackMight.Success && int.TryParse(enemyAttackMight.Groups["delta"].Value, out var enemyAttackDelta)
+            && enemyAttackDelta < 0 && int.TryParse(enemyAttackMight.Groups["minimum"].Value, out var enemyAttackMinimum) && enemyAttackMinimum > 0)
+            return new TriggerSpec(TriggerKinds.EnemyAttackPowerModifier, TriggerTimings.EnemyAttacksControlledBattlefield, segment,
+                "Capture each enemy attacker when it attacks a controlled battlefield; its automatic reference is not a chosen target.",
+                TargetScope: TriggerTargetScopes.TriggeringAttacker, PowerDelta: enemyAttackDelta,
+                Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: enemyAttackMinimum);
+
         var combatMight = Regex.Match(segment,
             @"^当我进攻或防守时[，,]\s*(?:让|给予)此处的一名敌方单位(?:在)?本回合内\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<minimum>\d+)\{\{S\}\}[。.]?$",
             RegexOptions.CultureInvariant);

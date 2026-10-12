@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_FIXED_COMMIT_FULL_CI_AND_NATIVE_PASS",
   "verifiedAtUtc": "2026-10-12T11:05:59.618930+00:00",
   "semanticCoverageCertified": false,
   "wholeCardCertification": false,
@@ -372,7 +372,7 @@
       }
     }
   },
-  "fixedCommitFullRequired": true,
+  "fixedCommitFullRequired": false,
   "visiblePairedClientAcceptance": false,
   "windowsRuntimeAcceptance": false,
   "realPostgresAcceptance": false,
@@ -383,5 +383,6 @@
     "Whole-card play/deck/chosen-champion/all interactions for each printing",
     "All current applicable cards/rules/FAQ items and source gaps",
     "Visible paired clients, Windows runtime and actual PostgreSQL execution"
-  ]
+  ],
+  "fixedCommitFullEvidence": "docs/evidence/ahri-combat-might-2026-10-12/full-ci-140f5683.json"
 }

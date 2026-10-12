@@ -9,6 +9,10 @@ public sealed record FieldTriggerContext(string CardNo, string Kind, long Source
     public ObjectLocationState? SourceLocation { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public RuleTextInstanceBinding? Origin { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectBinding? AffectedUnit { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool AffectedUnitCeasedToExist { get; init; }
 }
 internal sealed record CapturedDrawSource(string SourceId, string ControllerId, FieldTriggerContext Context);
 
@@ -22,10 +26,13 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
         => effect == FieldTriggerEffect && context.SourceGeneration >= 0
             && (cardNo is null || cardNo == context.CardNo)
-            && (context.Kind == "COMBAT_MIGHT" ? CombatMightSpec(context.CardNo) is not null && context.SourceLocation is not null
+            && (context.Kind == "ENEMY_ATTACK_MIGHT" ? EnemyAttackMightSpec(context.CardNo) is not null
+                && context.AffectedUnit is { Generation: >= 0 } && context.SourceLocation is null && context.Origin is null
+                && !string.IsNullOrWhiteSpace(context.BattlefieldId)
+                : context.AffectedUnit is null && !context.AffectedUnitCeasedToExist && (context.Kind == "COMBAT_MIGHT" ? CombatMightSpec(context.CardNo) is not null && context.SourceLocation is not null
                 : context.Kind is "SECOND_DRAW" or "DEFEND" && HasFieldTrigger(context.CardNo, context.Kind)
                     && context.SourceLocation is null && context.Origin is null
-                    && (context.Kind == "SECOND_DRAW" ? context.BattlefieldId is null : !string.IsNullOrWhiteSpace(context.BattlefieldId)));
+                    && (context.Kind == "SECOND_DRAW" ? context.BattlefieldId is null : !string.IsNullOrWhiteSpace(context.BattlefieldId))));
 
     private static CapturedDrawSource[] CaptureDrawTriggerSources(MatchState state, string player) => CaptureDrawTriggerSources(state.PlayerZones, state.CardObjects, player);
 
@@ -89,7 +96,7 @@ public sealed partial class CoreRuleEngine
             NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
             || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
-            || i.FieldContext is not null && i.TargetGenerations is null
+            || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false });
         if (item is null) return result;
         if (NeedsAttachmentModeConfirmation(item)) return PrepareAttachmentMode(result, item);
@@ -155,6 +162,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidTriggerChoice(MatchState state, PendingCardChoiceState choice)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == choice.ResolvingStackItemId) is { FieldContext: { } context } item
             && ValidFieldContext(context, item.EffectKind, item.CardNo) && item.TargetGenerations is null
+            && context.Kind != "ENEMY_ATTACK_MIGHT"
             && item.ControllerId == choice.PlayerId && item.SourceObjectId == choice.SourceObjectId
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
@@ -230,6 +238,7 @@ public sealed partial class CoreRuleEngine
 
     private static StackResolutionResult ResolveFieldTrigger(MatchState state, StackItemState item)
     {
+        if (item.FieldContext is { Kind: "ENEMY_ATTACK_MIGHT" }) return ResolveEnemyAttackMight(state, item);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var events = new List<GameEvent>(); var triggers = new List<TriggerQueueItemState>();
         var target = item.TargetObjectIds.SingleOrDefault();

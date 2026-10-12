@@ -38,7 +38,8 @@ public sealed partial class CoreRuleEngine
         return SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects,
             BuildBattleResponseDeclarationContextMarker(context.BattlefieldId, context.AttackerObjectIds,
                 context.DefenderObjectIds, costs, targets ?? [],
-                context.InitialFocusPlayerId, context.InitialAttackingPlayerId, combatStarted: true, initialRolesEstablished: true));
+                context.InitialFocusPlayerId, context.InitialAttackingPlayerId, combatStarted: true, initialRolesEstablished: true,
+                ceasedTokens: context.CeasedTokens));
     }
 
     private static ResolutionResult RecordBattleDuelRoles(MatchState before, ResolutionResult result)
@@ -76,6 +77,8 @@ public sealed partial class CoreRuleEngine
             .Select(t => t with { TriggeredByEventKind = roleKind }).ToList();
         queue.AddRange(CaptureCombatMightTriggers(state, newAttackers.Concat(newDefenders),
             context.BattlefieldId, TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
+        queue.AddRange(CaptureEnemyAttackMightTriggers(state, newAttackers, context.BattlefieldId,
+            TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
         foreach (var id in newDefenders.Where(id => HasFieldTrigger(cards[id].CardNo, "DEFEND")))
             queue.Add(new TriggerQueueItemState($"defend-{state.Tick}-{id}", cards[id].ControllerId!, id,
                 FieldTriggerEffect, roleKind, TimingStates.SpellDuelOpen) {
@@ -83,7 +86,8 @@ public sealed partial class CoreRuleEngine
         var marker = BuildBattleResponseDeclarationContextMarker(context.BattlefieldId,
             context.AttackerObjectIds.Concat(newAttackers.Where(id => !context.DefenderObjectIds.Contains(id))).Distinct(StringComparer.Ordinal).ToArray(),
             context.DefenderObjectIds.Concat(newDefenders.Where(id => !context.AttackerObjectIds.Contains(id))).Distinct(StringComparer.Ordinal).ToArray(), context.OptionalCosts,
-            context.BattlefieldTargetObjectIds, context.InitialFocusPlayerId, context.InitialAttackingPlayerId, context.CombatStarted, initialRolesEstablished: true);
+            context.BattlefieldTargetObjectIds, context.InitialFocusPlayerId, context.InitialAttackingPlayerId, context.CombatStarted,
+            initialRolesEstablished: true, ceasedTokens: context.CeasedTokens);
         state = state with { UntilEndOfTurnEffects = SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects, marker),
             TriggerQueue = state.TriggerQueue.Concat(queue).ToArray() };
         var events = result.Events.ToList();

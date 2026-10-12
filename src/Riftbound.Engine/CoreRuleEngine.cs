@@ -109,7 +109,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const int LilliaLegendBaseManaCost = 4;
     private const string SpendOneYellowPowerPaymentChoiceId = "SPEND_POWER:yellow:1";
     private const string RumbleLegendIdentityId = LegendIdentityCatalog.RumbleLegendIdentityId;
-    private const string AhriLegendIdentityId = LegendIdentityCatalog.AhriLegendIdentityId;
     private const string LucianLegendIdentityId = LegendIdentityCatalog.LucianLegendIdentityId;
     private const string MasterYiLevelLegendIdentityId = LegendIdentityCatalog.MasterYiLevelLegendIdentityId;
     private const string DravenLegendIdentityId = LegendIdentityCatalog.DravenLegendIdentityId;
@@ -13449,6 +13448,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var queue = CaptureAttackDamageTriggers(attackState, attackerObjectIds, battlefieldId).ToList();
             queue.AddRange(CaptureCombatMightTriggers(attackState, attackerObjectIds.Concat(defenderObjectIds),
                 battlefieldId, TimingStates.NeutralClosed));
+            queue.AddRange(CaptureEnemyAttackMightTriggers(attackState, attackerObjectIds, battlefieldId,
+                TimingStates.NeutralClosed));
             if (canOpenBattleResponsePriority)
                 queue.AddRange(defenderObjectIds.Where(id => cardObjects.TryGetValue(id, out var card) && !card.IsFaceDown
                     && HasFieldTrigger(card.CardNo, "DEFEND")).Select(id => new TriggerQueueItemState($"defend-{state.Tick + 1}-{id}", defendingPlayerId!, id,
@@ -14737,6 +14738,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return value is string text && !string.IsNullOrWhiteSpace(text) ? [text] : [];
     }
 
+    internal sealed record CeasedBattleToken(string FactoryCardNo, long Generation);
+
     internal sealed record BattleResponseDeclarationContext(
         string BattlefieldId,
         string[] AttackerObjectIds,
@@ -14752,6 +14755,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public bool CombatStarted { get; init; }
         [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
         public bool InitialRolesEstablished { get; init; }
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+        public IReadOnlyDictionary<string, CeasedBattleToken>? CeasedTokens { get; init; }
     }
 
     private static string BuildBattleResponseDeclarationContextMarker(
@@ -14763,7 +14768,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? initialFocusPlayerId = null,
         string? initialAttackingPlayerId = null,
         bool combatStarted = false,
-        bool initialRolesEstablished = false)
+        bool initialRolesEstablished = false,
+        IReadOnlyDictionary<string, CeasedBattleToken>? ceasedTokens = null)
     {
         var context = new BattleResponseDeclarationContext(
             battlefieldId,
@@ -14772,7 +14778,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             optionalCosts.ToArray(),
             NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []).ToArray()) {
                 InitialFocusPlayerId = initialFocusPlayerId, InitialAttackingPlayerId = initialAttackingPlayerId,
-                CombatStarted = combatStarted, InitialRolesEstablished = initialRolesEstablished };
+                CombatStarted = combatStarted, InitialRolesEstablished = initialRolesEstablished, CeasedTokens = ceasedTokens };
         var encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(context)));
         return $"{BattleResponseDeclarationContextPrefix}{encoded}";
     }
@@ -14823,7 +14829,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Distinct(StringComparer.Ordinal).Count()
                     != parsed.AttackerObjectIds.Length + parsed.DefenderObjectIds.Length
                 || parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Any(id => !state.CardObjects.TryGetValue(id, out var unit)
-                    || !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                    ? parsed.CeasedTokens?.ContainsKey(id) != true : !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                || parsed.CeasedTokens is not null && (parsed.CeasedTokens.Count == 0 || parsed.CeasedTokens.Any(e =>
+                    string.IsNullOrWhiteSpace(e.Key) || e.Value is null || e.Value.Generation < 0
+                    || !parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Contains(e.Key, StringComparer.Ordinal)
+                    || state.CardObjects.ContainsKey(e.Key) || !P6TokenFactoryCatalog.TryGetByCardNo(e.Value.FactoryCardNo, out var token)
+                    || !token.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)))
                 || (parsed.InitialFocusPlayerId is null) != (parsed.InitialAttackingPlayerId is null)
                 || parsed.InitialFocusPlayerId is not null && !state.Seats.ContainsKey(parsed.InitialFocusPlayerId)
                 || parsed.InitialAttackingPlayerId is not null && !state.Seats.ContainsKey(parsed.InitialAttackingPlayerId)
@@ -15199,12 +15210,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
-            staticPowerBonus += ResolveAhriLegendAttackPowerPenalty(
-                state,
-                playerZones,
-                cardObject,
-                keywordBonus,
-                defendingPlayerId);
         }
 
         keywordBonus += TemporaryCombatKeywordRules.Amount(cardObject, combatKeyword);
@@ -16094,25 +16099,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return defendingPlayerId;
-    }
-
-    private static int ResolveAhriLegendAttackPowerPenalty(
-        MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        CardObjectState attackerState,
-        int attackerKeywordBonus,
-        string? defendingPlayerId)
-    {
-        if (string.IsNullOrWhiteSpace(defendingPlayerId)
-            || !playerZones.TryGetValue(defendingPlayerId, out var defenderZones)
-            || !defenderZones.LegendZone.Any(legendObjectId =>
-                state.CardObjects.TryGetValue(legendObjectId, out var legendState)
-                && LegendCardHasIdentity(legendState.CardNo, AhriLegendIdentityId)))
-        {
-            return 0;
-        }
-
-        return attackerState.Power + attackerKeywordBonus > 1 ? -1 : 0;
     }
 
     private static int CountLucianLegendEquipmentAssaultBonus(

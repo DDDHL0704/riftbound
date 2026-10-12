@@ -36223,67 +36223,36 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendStaticAhriReducesEnemyAttackerPower()
     {
-        var state = PunishmentState(mana: 0) with
-        {
-            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P1-BATTLEFIELD-ATTACKER"]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"],
-                    LegendZone = ["P2-LEGEND-AHRI"]
-                }
-            },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-BATTLEFIELD-ATTACKER"] = new(
-                    "P1-BATTLEFIELD-ATTACKER",
-                    cardNo: "SFD·125/221",
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P2-BATTLEFIELD-DEFENDER"] = new(
-                    "P2-BATTLEFIELD-DEFENDER",
-                    cardNo: "SFD·125/221",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P2-LEGEND-AHRI"] = new(
-                    "P2-LEGEND-AHRI",
-                    cardNo: "OGN·255/298",
-                    ownerId: "P2",
-                    controllerId: "P2")
-            }
-        };
-
-        var result = await new CoreRuleEngine().ResolveAsync(
-            state,
-            new PlayerIntent("intent-p7-9-ahri-static-battle", "P1", "DECLARE_BATTLE"),
-            new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-BATTLEFIELD-ATTACKER"],
-                ["P2-BATTLEFIELD-DEFENDER"],
-                ["COMBAT_ASSIGNMENT"]),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted);
-        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
-        Assert.Equal("P1-BATTLEFIELD-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
-        Assert.Equal("P2-BATTLEFIELD-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
+        // Retain the historical method identity; the printed skill now resolves
+        // as a turn modifier before combat, rather than an implicit static bonus.
+        var state = EnemyAttackMightTests.Board();
+        foreach (var id in new[] { "ENEMY2", "ENEMY3" })
+            state = LocalDestructionRecallTests.At(state, id, "P2", "BASE");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects) {
+            ["HOST"] = state.CardObjects["HOST"] with { CardNo = "SFD·125/221" },
+            ["ENEMY1"] = state.CardObjects["ENEMY1"] with { CardNo = "SFD·125/221", Power = 1 } } };
+        var pending = await EnemyAttackMightTests.Pending(state);
+        Assert.Equal(3, pending.CardObjects["HOST"].Power);
+        var reduced = await AttackDamageDistributionTests.Top(pending);
+        Assert.Equal(2, reduced.State.CardObjects["HOST"].Power);
+        var closed = await AttackDamageDistributionTests.Top(reduced.State);
+        var combat = await OfficialGraveyardRecastTests.Act(closed.State, "P1",
+            new DeclareBattleCommand("F", ["HOST"], ["ENEMY1"], ["COMBAT_ASSIGNMENT"]));
+        Assert.Empty(combat.State.StackItems); Assert.Empty(combat.State.TriggerQueue);
+        var result = combat;
+        var attackerDamageEvent = Assert.Single(result.Events, e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("combatRole"), "ATTACKER"));
+        Assert.Equal("HOST", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("ENEMY1", attackerDamageEvent.Payload["targetObjectId"]);
         Assert.Equal("强攻", attackerDamageEvent.Payload["keyword"]);
-        Assert.Equal(3, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
         Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
-        Assert.Equal(-1, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(0, attackerDamageEvent.Payload.GetValueOrDefault("staticPowerBonus", 0));
         Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["damage"]);
-        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["HOST"].Damage);
+        OfficialGraveyardRecastTests.Restore(result.State);
+        ArmamentMightTests.PublicRecovery(result.State);
     }
 
     [Fact]

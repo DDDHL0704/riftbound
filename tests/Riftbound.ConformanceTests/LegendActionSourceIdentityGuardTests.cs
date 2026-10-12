@@ -63,7 +63,8 @@ public sealed class LegendActionSourceIdentityGuardTests
         Assert.DoesNotContain("IsLucianLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsMasterYiLevelLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.DoesNotContain("IsDravenLegendCardNo", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("AhriLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.DoesNotContain("ResolveAhriLegendAttackPowerPenalty", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("CaptureEnemyAttackMightTriggers", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("LucianLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("MasterYiLevelLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("DravenLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
