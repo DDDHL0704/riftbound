@@ -37,6 +37,7 @@ public static class BehaviorTemplateIds
 
 public static class ActivatedAbilityKinds
 {
+    public const string UnitPowerModifierUntilEndOfTurn = "UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN";
     public const string TypedResourceSkill = "TYPED_RESOURCE_SKILL";
     public const string DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest =
         "DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST";
@@ -618,7 +619,9 @@ public sealed record ActivatedAbilitySpec(
     int? PlayPowerDelta = null,
     bool? IgnorePlayManaCost = null,
     bool? RecycleUnplayedLookedCards = null,
-    string? PlayCardFilter = null);
+    string? PlayCardFilter = null,
+    int? PowerModifierAmount = null,
+    int? MinimumPowerAfterModifier = null);
 
 public sealed record StaticAbilitySpec(
     string Kind,

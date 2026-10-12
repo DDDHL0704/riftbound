@@ -1,0 +1,127 @@
+{
+  "status": "FIXED_COMMIT_FULL_CI_AND_PARITY_VERIFIED",
+  "verifiedAtUtc": "2026-10-12T09:26:43.021987+00:00",
+  "commit": "33c3b54ad834d6263468e5865e4812c74273647e",
+  "runId": 38224667181,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38224667181",
+  "jobs": {
+    "scope": "success",
+    "desktop (macos-latest)": "success",
+    "desktop (windows-latest)": "success",
+    "rules": "success"
+  },
+  "full": {
+    "cases": 10267,
+    "methods": 6659,
+    "seconds": 1387.33,
+    "assemblySha256": "ba164611ef701c6435ba7d5c52ed7ca1a5b59e72178001aa44626d5f2e874895",
+    "failed": 0,
+    "skipped": 0,
+    "duplicates": []
+  },
+  "parity": {
+    "baselineCommit": "b5d2e7f5",
+    "oldCasesPreserved": 10230,
+    "oldMethodsPreserved": 6642,
+    "missingCases": [],
+    "missingMethods": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.AReductionWithMinimumOneCannotIncreaseAlreadyLowerMight(raw: -2)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.AReductionWithMinimumOneCannotIncreaseAlreadyLowerMight(raw: 0)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.AuthoritativeRecoveryRejectsMissingOrContradictoryMightProvenance(forged: -1)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.AuthoritativeRecoveryRejectsMissingOrContradictoryMightProvenance(forged: 0)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.AuthoritativeRecoveryRejectsMissingOrContradictoryMightProvenance(forged: null)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.MinimumIncludesActiveBattleRoleMightAndDoesNotPersistAsAnAura",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.MinimumSnapshotsCurrentMightIncludingTheLocalAura(spell: \"OGN·093/298\", raw: 2, expectedRaw: 0)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.MinimumSnapshotsCurrentMightIncludingTheLocalAura(spell: \"OGN·095/298\", raw: 1, expectedRaw: 0)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.OtherConsumersCannotRaiseUnitsBelowTheirMinimum(card: \"OGN·093/298\", unit: False, target: \"D\")",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.OtherConsumersCannotRaiseUnitsBelowTheirMinimum(card: \"OGN·097/298\", unit: True, target: \"D\")",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.OtherConsumersCannotRaiseUnitsBelowTheirMinimum(card: \"OGN·116/298\", unit: True, target: \"\")",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.OtherConsumersCannotRaiseUnitsBelowTheirMinimum(card: \"OGN·266/298\", unit: False, target: \"BF\")",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.PublicRecoveryRejectsForgedHistoricalMight(spectator: False, forged: 0)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.PublicRecoveryRejectsForgedHistoricalMight(spectator: False, forged: 100)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.PublicRecoveryRejectsForgedHistoricalMight(spectator: False, forged: null)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.PublicRecoveryRejectsForgedHistoricalMight(spectator: True, forged: 0)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.PublicRecoveryRejectsForgedHistoricalMight(spectator: True, forged: 100)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.PublicRecoveryRejectsForgedHistoricalMight(spectator: True, forged: null)",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.TurnEndRemovesBothTheCapturedReductionAndItsProvenance",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.UnitAndBattlefieldConsumersUseCurrentMight(card: \"OGN·097/298\", raw: 2, unit: True, target: \"D\")",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.UnitAndBattlefieldConsumersUseCurrentMight(card: \"OGN·116/298\", raw: 2, unit: True, target: \"\")",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.UnitAndBattlefieldConsumersUseCurrentMight(card: \"OGN·266/298\", raw: 1, unit: False, target: \"BF\")",
+      "Riftbound.ConformanceTests.SiphonEnergyNativeTests.ProductionSelectedBattlefieldCommandsPayResolveAndReplay(branch: \"aura-floor\")",
+      "Riftbound.ConformanceTests.SiphonEnergyNativeTests.ProductionSelectedBattlefieldCommandsPayResolveAndReplay(branch: \"enemy-only\")",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.ChosenBattlefieldIsRequiredAndOtherBattlefieldsAreUnaffected",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.EchoCanChooseSeparateBattlefieldsWithoutSpreadingEitherEffect",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.EnemyOnlyAndEmptyBattlefieldsCanBeChosen(field: \"BF2\", empty: False)",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.EnemyOnlyAndEmptyBattlefieldsCanBeChosen(field: \"BF2\", empty: True)",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.FriendlyIncreaseKeepsItsActualArithmeticBelowOne(before: -2, after: -1)",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.FriendlyIncreaseKeepsItsActualArithmeticBelowOne(before: 0, after: 1)",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.GroupMembersAreAffectedWithoutBeingWardTargetsAndFloorDoesNotIncreaseZero",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.MissingOrNonBattlefieldChoiceCannotPayOrChangeState(target: \"\")",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.MissingOrNonBattlefieldChoiceCannotPayOrChangeState(target: \"D\")",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.MissingOrNonBattlefieldChoiceCannotPayOrChangeState(target: \"D3\")",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.MissingOrNonBattlefieldChoiceCannotPayOrChangeState(target: \"UNKNOWN\")",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.ResolutionCollectsTheUnitsCurrentlyAtTheChosenBattlefield",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.ReturnedBattlefieldDoesNotReplaceTheOriginalTargetGeneration"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.AReductionWithMinimumOneCannotIncreaseAlreadyLowerMight",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.AuthoritativeRecoveryRejectsMissingOrContradictoryMightProvenance",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.MinimumIncludesActiveBattleRoleMightAndDoesNotPersistAsAnAura",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.MinimumSnapshotsCurrentMightIncludingTheLocalAura",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.OtherConsumersCannotRaiseUnitsBelowTheirMinimum",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.PublicRecoveryRejectsForgedHistoricalMight",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.TurnEndRemovesBothTheCapturedReductionAndItsProvenance",
+      "Riftbound.ConformanceTests.MinimumMightAuditTests.UnitAndBattlefieldConsumersUseCurrentMight",
+      "Riftbound.ConformanceTests.SiphonEnergyNativeTests.ProductionSelectedBattlefieldCommandsPayResolveAndReplay",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.ChosenBattlefieldIsRequiredAndOtherBattlefieldsAreUnaffected",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.EchoCanChooseSeparateBattlefieldsWithoutSpreadingEitherEffect",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.EnemyOnlyAndEmptyBattlefieldsCanBeChosen",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.FriendlyIncreaseKeepsItsActualArithmeticBelowOne",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.GroupMembersAreAffectedWithoutBeingWardTargetsAndFloorDoesNotIncreaseZero",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.MissingOrNonBattlefieldChoiceCannotPayOrChangeState",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.ResolutionCollectsTheUnitsCurrentlyAtTheChosenBattlefield",
+      "Riftbound.ConformanceTests.SiphonEnergyTests.ReturnedBattlefieldDoesNotReplaceTheOriginalTargetGeneration"
+    ]
+  },
+  "preconstructedMatrix": {
+    "seed": 424242,
+    "decks": 11,
+    "pairs": 110,
+    "allPairIdentitiesAndFinalHashesPreserved": true,
+    "identityHash": "fca872c6802a37b45dada7db96aec81916893a06a6034150d24f54225bbd5922"
+  },
+  "trxFiles": [
+    {
+      "path": "games-1/results.trx",
+      "sha256": "9bccae2ac76224d3f92f3111f9a5da9a81dd3bce0d7cd4188b0a4d307d3b6474",
+      "cases": 1
+    },
+    {
+      "path": "games-2/results.trx",
+      "sha256": "a41e42f4e8f44466efb649a18fd1d25f3429b7ff838771803a8e7d474b623c2f",
+      "cases": 49
+    },
+    {
+      "path": "games-3/results.trx",
+      "sha256": "b7442d5478f86104e3dbf5d7edb377795a2b892ac0bf1ea1defaa0d5924bb74d",
+      "cases": 49
+    },
+    {
+      "path": "games-4/results.trx",
+      "sha256": "1ba943a5682fbf59bf66bf90e9ca2a494e65e61fbcc8b9a005e71a3232d313ed",
+      "cases": 52
+    },
+    {
+      "path": "rules/results.trx",
+      "sha256": "947c64af6d1e75c8f6bfb4a8e521273c2faaf674573efefaac7be732cf11f239",
+      "cases": 10116
+    }
+  ],
+  "currentHeadEvidence": false,
+  "visiblePairedClientAcceptance": false,
+  "windowsRuntimeAcceptance": false,
+  "realPostgresAcceptance": false,
+  "wholeOfficialAuditComplete": false,
+  "platformReady": false
+}

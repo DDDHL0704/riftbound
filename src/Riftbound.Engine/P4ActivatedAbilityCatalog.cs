@@ -35,7 +35,10 @@ public sealed record P4ActivatedAbilityDefinition(
     bool RecycleUnplayedLookedCards = false,
     string PlayCardFilter = "",
     bool SwiftSpeed = false,
-    bool SupportsCopiedRuleText = false);
+    bool SupportsCopiedRuleText = false,
+    int PowerModifierAmount = 0,
+    int MinimumPowerAfterModifier = 0,
+    string SourceRequiredTag = "");
 
 public sealed record P4SigilTypedResourceProfile(
     string AbilityId,
@@ -816,10 +819,33 @@ public static class P4ActivatedAbilityCatalog
 
         return BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, implementedBehaviors)
             .SelectMany(spec => spec.ActivatedAbilities
-                .Where(IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility)
-                .Select(ability => DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestDefinition(spec, ability)))
+                .Where(ability => IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(ability)
+                    || IsTargetedPowerModifier(ability) && (spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
+                        || spec.CardCategoryName.Contains("单位", StringComparison.Ordinal)))
+                .Select(ability => IsTargetedPowerModifier(ability)
+                    ? TargetedPowerModifierDefinition(spec, ability)
+                    : DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestDefinition(spec, ability)))
             .OrderBy(definition => definition.SourceCardNo, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static bool IsTargetedPowerModifier(ActivatedAbilitySpec ability)
+        => ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+            && ability.ExhaustsSourceAsCost == true && ability.RequiredTargetCount == 1
+            && ability.TargetScope == CardTargetScopes.AnyUnit
+            && ability.PowerModifierAmount is < 0 && ability.MinimumPowerAfterModifier is > 0
+            && ability.ManaCost.GetValueOrDefault() == 0 && ability.PowerCost.GetValueOrDefault() == 0;
+
+    private static P4ActivatedAbilityDefinition TargetedPowerModifierDefinition(BehaviorSpec spec, ActivatedAbilitySpec ability)
+    {
+        var id = BuildBehaviorSpecAbilityId(spec.CardNo, ability.Kind);
+        return new(id, spec.CardNo, id, spec.CardName, 0, 0, 1, false, true, 0, true,
+            "Printed targeted exhaust ability with ordinary timing, Ward payment and captured Might reduction.",
+            Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn, TargetScope: CardTargetScopes.AnyUnit,
+            PowerModifierAmount: ability.PowerModifierAmount!.Value,
+            MinimumPowerAfterModifier: ability.MinimumPowerAfterModifier!.Value,
+            SourceRequiredTag: spec.CardCategoryName.Contains("装备", StringComparison.Ordinal)
+                ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard);
     }
 
     private static bool IsDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestActivatedAbility(

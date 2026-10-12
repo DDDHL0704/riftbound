@@ -2285,6 +2285,11 @@ public static class ActivatedAbilityParser
                     return typedResourceSkill;
                 }
 
+                if (TryParseTargetedPowerModifier(cost, effect, out var powerModifier))
+                {
+                    return powerModifier;
+                }
+
                 if (TryParseDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest(
                         cost,
                         effect,
@@ -2333,6 +2338,24 @@ public static class ActivatedAbilityParser
         }
 
         return segments;
+    }
+
+    private static bool TryParseTargetedPowerModifier(string cost, string effect, out ActivatedAbilitySpec ability)
+    {
+        ability = default!;
+        var match = Regex.Match(effect,
+            @"^让一名单位(?:在)?本回合内\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<min>\d+)\{\{S\}\}[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (cost != "{{横置}}" || !match.Success
+            || !int.TryParse(match.Groups["delta"].Value, out var delta) || delta >= 0
+            || !int.TryParse(match.Groups["min"].Value, out var minimum) || minimum <= 0) return false;
+        ability = new(cost, effect, EffectPhraseParser.ParseTemplateIds(effect),
+            BehaviorImplementationStatuses.Unimplemented,
+            "Typed exhaust and targeted Might modifier; execution is supplied by the activated-ability registry.",
+            Kind: ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn, ExhaustsSourceAsCost: true,
+            ManaCost: 0, PowerCost: 0, RequiredTargetCount: 1, TargetScope: "ANY_UNIT",
+            PowerModifierAmount: delta, MinimumPowerAfterModifier: minimum);
+        return true;
     }
 
     private static bool TryParseTypedResourceSkill(

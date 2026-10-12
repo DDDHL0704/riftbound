@@ -1,0 +1,8 @@
+{
+  "sourceObjectId": "ORB",
+  "abilityId": "OGN_090_298_UNIT_POWER_MODIFIER_UNTIL_END_OF_TURN",
+  "targetObjectIds": [
+    "D"
+  ],
+  "optionalCosts": []
+}

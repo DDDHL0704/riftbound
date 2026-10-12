@@ -24010,6 +24010,7 @@ public static class MatchRecoveryValidator
         var playerFieldObjectIdsByPlayer =
             BuildAuthoritativeStatePlayerFieldObjectIdsByPlayer(authoritativeState.PlayerZones);
         ValidateAuthoritativeStateStackItemValues(authoritativeState.StackItems, errors);
+        ValidateTargetedPowerAbilityStackValues(authoritativeState, errors);
         ValidateAuthoritativeStateTriggerQueueValues(
             authoritativeState.TriggerQueue,
             knownObjectIds,
@@ -24284,6 +24285,52 @@ public static class MatchRecoveryValidator
             errors,
             rejectDuplicates: true,
             rejectRedactionSentinel: true);
+    }
+
+    private static void ValidateTargetedPowerAbilityStackValues(MatchState state, List<string> errors)
+    {
+        if (state.StackItems is null || state.CardObjects is null) return;
+        foreach (var item in state.StackItems) {
+            if (item is null) continue;
+            var recognized = P4ActivatedAbilityCatalog.TryGetByEffectKind(item.EffectKind, out var effect)
+                && effect.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn;
+            var context = item.TargetedPowerAbility;
+            if (context is null) {
+                if (recognized) errors.Add($"stack item {item.StackItemId} targeted power ability context is required");
+                continue;
+            }
+            if (!recognized || !P4ActivatedAbilityCatalog.TryGetByAbilityId(context.AbilityId, out var ability)
+                || ability.Kind != ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+                || ability.EffectKind != item.EffectKind
+                || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, item.CardNo)
+                || string.IsNullOrWhiteSpace(context.SourceObjectId)
+                || context.SourceObjectId != item.SourceObjectId || context.SourceGeneration < 0
+                || !state.CardObjects.TryGetValue(context.SourceObjectId, out var source)
+                || source.ObjectGeneration < context.SourceGeneration
+                || source.ObjectGeneration == context.SourceGeneration
+                    && (!P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
+                        || !source.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal))
+                || item.DamageAmount != 0 || item.EffectRepeatCount != 1
+                || item.TargetObjectIds is not { Count: 1 }
+                || item.TargetGenerations is not { Count: 1 }
+                || !item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var targetGeneration) || targetGeneration < 0
+                || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
+                || item.ReflexiveCopy is not null || item.UnitEntryContext is not null || item.TriggerCost is not null
+                || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
+                || item.LegendAttachment is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
+                || item.MovementDestinations is not null || item.TargetStackSources is not null
+                || item.AfterPlayRecycle is not null || item.RecycledUnit is not null || item.PlayCost is not null
+                || item.RecastContext is not null || item.HeldContext is not null || item.InsightContext is not null
+                || item.DeathRevealContext is not null || item.DeathObserver is not null || item.MovementObserver is not null
+                || item.FieldContext is not null || item.LegendConquest is not null || item.ReflexiveDuel is not null
+                || item.BattlefieldStart is not null || item.EphemeralStart is not null || item.BeginningRecycle is not null
+                || item.BeginningDraw is not null || item.LocationDamage is not null || item.UnitConquest is not null
+                || item.CompletedRepeatExecutions != 0 || item.CompletedHandExecutions != 0 || item.CompletedDeckExecutions != 0
+                || item.DeckChoiceCompleted || item.InsightCompleted || item.PlayedAfterAnotherCardThisTurn
+                || item.SourceConfirmed || item.EffectPlayCompleted || !string.IsNullOrEmpty(item.Destination)
+                || !string.IsNullOrEmpty(item.TimingContext) || item.OptionalCosts.Count != 0)
+                errors.Add($"stack item {item.StackItemId} targeted power ability identity, source or effect shape is invalid");
+        }
     }
 
     private static void ValidateAuthoritativeStateStackItemValues(

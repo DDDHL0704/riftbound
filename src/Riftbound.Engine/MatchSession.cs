@@ -611,8 +611,12 @@ public sealed record CardObjectState
 
 public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations, IReadOnlyList<string>? MovementDestinations = null, string Destination = "");
 
+public sealed record TargetedPowerAbilityContext(string AbilityId, string SourceObjectId, long SourceGeneration);
+
 public sealed record StackItemState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TargetedPowerAbilityContext? TargetedPowerAbility { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DamageDistributionContext? DamageDistribution { get; init; }
     public AttachmentObserverContext? AttachmentObserver { get; init; }
@@ -4246,7 +4250,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -10157,6 +10161,8 @@ internal static class ActionPromptBuilder
             {
                 continue;
             }
+            if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn
+                && !CoreRuleEngine.IsPowerAbilitySource(state, playerId, sourceObjectId, ability)) continue;
 
             var targetChoicesByIndex = ActivateAbilityTargetChoicesByIndex(state, playerId, sourceObjectId, ability);
             if (ability.RequiredTargetCount > 0
@@ -10321,6 +10327,9 @@ internal static class ActionPromptBuilder
         string sourceObjectId,
         CardObjectState cardObject)
     {
+        if (!string.IsNullOrWhiteSpace(ability.SourceRequiredTag))
+            return cardObject.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal)
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
         if (ability.RequiresBaseEquipmentSource)
         {
             return (zones.Base.Contains(sourceObjectId, StringComparer.Ordinal) || zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
@@ -11154,6 +11163,13 @@ internal static class ActionPromptBuilder
             return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
         }
 
+        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal) {
+                ["0"] = PublicBoardObjects(state)
+                    .Where(id => CoreRuleEngine.IsPowerAbilityTarget(state, playerId, id))
+                    .Where(id => CanPayXerathTargetCost(state, playerId, ability, id))
+                    .Select(id => ObjectChoice(state, id, "unit target")).ToArray() };
+
         if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
         {
             var choices = PublicBoardObjects(state)
@@ -11586,7 +11602,8 @@ internal static class ActionPromptBuilder
         P4ActivatedAbilityDefinition ability)
     {
         var powerCostByTrait = P4ActivatedAbilityCatalog.PowerCostByTraitForAbility(ability);
-        if (ability.PowerCost <= 0 && powerCostByTrait.Count == 0)
+        if (ability.PowerCost <= 0 && powerCostByTrait.Count == 0
+            && ability.Kind != ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
         {
             return [];
         }
@@ -11762,6 +11779,8 @@ internal static class ActionPromptBuilder
         string playerId,
         P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+            return CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, playerId);
         if (ability.AbilityId == P4ActivatedAbilityCatalog.ShadowStunAbilityId)
             return CoreRuleEngine.IsShadowBattleResponseWindow(state, playerId);
         if (ability.SwiftSpeed) return CoreRuleEngine.CanActivateSwiftAbility(state, playerId);
@@ -11829,6 +11848,8 @@ internal static class ActionPromptBuilder
 
     private static string ActivateAbilityLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+            return $"{ability.DisplayName}：横置，让一名单位本回合战力{ability.PowerModifierAmount:+0;-0}，最低{ability.MinimumPowerAfterModifier}";
         return ability.AbilityId switch
         {
             P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
@@ -11857,6 +11878,7 @@ internal static class ActionPromptBuilder
 
     private static string ActivateAbilityTargetScopeLabel(P4ActivatedAbilityDefinition ability)
     {
+        if (ability.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn) return "任意公开单位";
         return ability.RequiredTargetCount == 0
             ? "无目标"
             : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal)
@@ -15893,6 +15915,15 @@ internal static class ActionPromptBuilder
             view["abilityInstanceId"] = requirement.AbilityInstanceId;
             view["abilityChoiceId"] = requirement.AbilityInstanceId;
             view["copyEquipmentObjectId"] = requirement.CopyEquipmentObjectId;
+        }
+        if (P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var powerAbility)
+            && powerAbility.Kind == ActivatedAbilityKinds.UnitPowerModifierUntilEndOfTurn)
+        {
+            view["powerModifierAmount"] = powerAbility.PowerModifierAmount;
+            view["minimumPowerAfterModifier"] = powerAbility.MinimumPowerAfterModifier;
+            view["appliesSpellshieldTargetTax"] = true;
+            view["stackPolicy"] = "ordinary-stack-item-before-power-modifier";
+            view["paymentPolicy"] = "payment-plan-spellshield-tax-exhaust-as-cost";
         }
         if (P4ActivatedAbilityCatalog.TryGetByAbilityId(requirement.AbilityId, out var resourceAbility)
             && resourceAbility.IsResourceSkill && resourceAbility.ReactionSpeed)

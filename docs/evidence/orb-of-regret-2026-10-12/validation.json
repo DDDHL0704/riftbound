@@ -1,0 +1,212 @@
+{
+  "status": "SCOPED_LOCAL_CHECK_AND_NATIVE_PASS_EXACT_HEAD_FULL_CI_REQUIRED",
+  "verifiedAtUtc": "2026-10-12T09:45:37.530903+00:00",
+  "semanticCoverageCertified": false,
+  "wholeCardCertification": false,
+  "sourceBaselineCommit": "33c3b54ad834d6263468e5865e4812c74273647e",
+  "subject": "OGN-090/298",
+  "scope": "Printed exhaust/targeted Might activated ability, ordinary timing, Deflect payment, source/target continuity, recovery and production commands; no whole-card certification",
+  "sourceRecordHashPolicy": "Queue uses UTF-8 sorted JSON with default spacing; live readback also records compact sorted JSON. All fields compare equal.",
+  "sources": [
+    {
+      "language": "zh-CN",
+      "sourceId": 31308,
+      "cardNo": "OGN·090/298",
+      "name": "懊悔法球",
+      "sha256": "42d05404315cbb4c3dba1bafdfcba470cae7670494debc9d03f020ab42bb4118",
+      "snapshot": {
+        "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+        "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+      },
+      "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+      "publishedPreview": false
+    },
+    {
+      "language": "en-US",
+      "sourceId": "ogn-090-298",
+      "cardNo": "OGN-090/298",
+      "name": "Orb of Regret",
+      "sha256": "931fb2f852fc8ddf810c63a6fa44ef3237d55382c35963e474d6ff38f1484d1c",
+      "snapshot": {
+        "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+        "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+      },
+      "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+      "publishedPreview": false
+    }
+  ],
+  "liveReadback": "docs/evidence/orb-of-regret-2026-10-12/resumed-live-readback.json",
+  "implementationInputs": [
+    {
+      "path": "clients/godot/scenes/debug/OrbOfRegretInteractionProof.tscn",
+      "sha256": "c0d067f2fc924ff184d36114975516bebc83f73846902ade06b93db3c90fc4be"
+    },
+    {
+      "path": "clients/godot/scripts/debug/OrbOfRegretInteractionProof.cs",
+      "sha256": "2f098a978d2629e2ad653595573bc44e233a856721e2379e62d165e462804981"
+    },
+    {
+      "path": "scripts/ci-change-scope.py",
+      "sha256": "15b91b37254d3f9fd5dc255718c92ee44a68c1f7e678e742740f17a8b411273f"
+    },
+    {
+      "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+      "sha256": "14c7a7e8f00952d6e23877ec81ddb1c0b0e225ad0570b9f4d109e96115c09be3"
+    },
+    {
+      "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+      "sha256": "65f8be1f00994562ec50b510d9113331ef6ddae6c45e57af19071caeec57a7c9"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.TargetedPowerAbility.cs",
+      "sha256": "bb824fbac6b1a59bd0c275c0589ee1e54debf02abdd7461aa7b1b222752b6263"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "07277d5cce2e4047ae22315bb69f4d16c03b6bf8867e89560f953ee89a79d114"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "sha256": "8b8f292d69f2a1d6eef971c5e81745d033b5167d878c78e2512e95e797e52a57"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "50af241d7a4ceafea3b60ef58bc65328dc176ace3d6be8dbc001c3c2329753dd"
+    },
+    {
+      "path": "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs",
+      "sha256": "ec71b1ee3ddd6ac67e6fac178c44f2d418b839eb674ddd11a44d832bfd235af7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "sha256": "9e62050b37c217c1201e6d45201f678eb57c8af44e55e39a5dda3a020f6cadf0"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OrbOfRegretNativeTests.cs",
+      "sha256": "430b906fe6268ab9a2f7aecada940297e2684b5123c52666d773a14eb8f6b300"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OrbOfRegretTests.cs",
+      "sha256": "11fb9efa7e75e352dc0b5488a7598db60dc5608da967832e236a53dca30b188d"
+    }
+  ],
+  "check": {
+    "cases": 10154,
+    "methods": 6530,
+    "seconds": 119.23,
+    "assemblySha256": "610aa8155e3a85608c010e6b4f8b0e941d5a3bb62d3948446f5d858a734e9c72",
+    "failed": 0,
+    "skipped": 0,
+    "duplicates": [],
+    "trx": [
+      {
+        "path": "var/qa/orb-of-regret-20261012/check-final/check/results.trx",
+        "sha256": "5bf2906a31a7220accd32660cd22f52dfb87559689f447115106525964bd971a"
+      }
+    ]
+  },
+  "parity": {
+    "previousCases": 10118,
+    "previousMethods": 6518,
+    "missingCases": [],
+    "missingMethods": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.OrbOfRegretNativeTests.ProductionAbilityCommandsPayResolveRecoverAndReplay(branch: \"aura-floor\")",
+      "Riftbound.ConformanceTests.OrbOfRegretNativeTests.ProductionAbilityCommandsPayResolveRecoverAndReplay(branch: \"deflect-recycle\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ActivationPaysExhaustBeforeResponseAndAppliesCurrentMightOnlyOnResolution",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.CounterLeavesTheExhaustCostPaidAndTheUnitUnmodified",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.CurrentOfficialEquipmentOffersItsTargetedExhaustAbility",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.FriendlyDeflectDoesNotChargePower",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"exhausted\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"hidden\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"off-field\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"opponent\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"wrong-card\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"wrong-type\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"closed\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"duplicate\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"gear\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"hidden-target\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"no-target\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"opponent-turn\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"unnecessary-recycle\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.MinimumDoesNotRaiseAnAlreadyWeakerUnit(might: -2)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.MinimumDoesNotRaiseAnAlreadyWeakerUnit(might: 0)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.OpponentDeflectIsPaidBeforeSourceExhausts(recycle: False)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.OpponentDeflectIsPaidBeforeSourceExhausts(recycle: True)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"destination\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"forged-card\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"future-generation\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"missing\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"movement-plan\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"null-source\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"repeat\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"unknown-ability\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource(change: \"aura-left\", expected: 1)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource(change: \"source-left\", expected: 3)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource(change: \"target-hidden\", expected: 4)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource(change: \"target-new-object\", expected: 4)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.SuccessfulEnemyTargetingUsesTheSharedLegendObserver"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.OrbOfRegretNativeTests.ProductionAbilityCommandsPayResolveRecoverAndReplay",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ActivationPaysExhaustBeforeResponseAndAppliesCurrentMightOnlyOnResolution",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.CounterLeavesTheExhaustCostPaidAndTheUnitUnmodified",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.CurrentOfficialEquipmentOffersItsTargetedExhaustAbility",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.FriendlyDeflectDoesNotChargePower",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.MinimumDoesNotRaiseAnAlreadyWeakerUnit",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.OpponentDeflectIsPaidBeforeSourceExhausts",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.SuccessfulEnemyTargetingUsesTheSharedLegendObserver"
+    ],
+    "independentlyVerified": true
+  },
+  "focusedCases": 83,
+  "catalogIdentityUpdatePassed": true,
+  "toolTests": 24,
+  "native": {
+    "version": "Godot 4.7.2 stable mono",
+    "stdout": "ORB_OF_REGRET_PASS: 6 production ability and response commands",
+    "productionCommands": 6,
+    "testReadbackCases": 2,
+    "branches": {
+      "aura-floor": {
+        "native": true,
+        "commands": 4,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "4d548f74f88772e9f0397df43e49d03eee0658e666019caf7ee95bf59f177cf6",
+          "expectedStateHash": "4d548f74f88772e9f0397df43e49d03eee0658e666019caf7ee95bf59f177cf6",
+          "errors": []
+        },
+        "finalHash": "4d548f74f88772e9f0397df43e49d03eee0658e666019caf7ee95bf59f177cf6"
+      },
+      "deflect-recycle": {
+        "native": true,
+        "commands": 4,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "d3c998167725be64b6d5f972f93155b741ea88fff7a5f3e869ff8c1a89afa644",
+          "expectedStateHash": "d3c998167725be64b6d5f972f93155b741ea88fff7a5f3e869ff8c1a89afa644",
+          "errors": []
+        },
+        "finalHash": "d3c998167725be64b6d5f972f93155b741ea88fff7a5f3e869ff8c1a89afa644"
+      }
+    },
+    "scope": "Headless production ActionBar/PromptInteractionController/Main command template with MatchSession mapper, payment, prompt/tick, deduplication, stale rejection, authoritative/player/spectator recovery and action/event/state replay"
+  },
+  "exactHeadFullCiRequired": true,
+  "visiblePairedClientAcceptance": false,
+  "windowsRuntimeAcceptance": false,
+  "realPostgresAcceptance": false,
+  "remaining": [
+    "Ahri attack/defend targeted trigger printings",
+    "Nine-Tailed Fox triggered turn-duration modifiers",
+    "Leona local continuous Might modifier and all dependencies",
+    "All other applicable cards/rules/FAQ items and source gaps",
+    "Visible paired clients, Windows runtime and real PostgreSQL execution"
+  ]
+}
