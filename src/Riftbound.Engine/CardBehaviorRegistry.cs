@@ -4681,6 +4681,15 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(
+            "VEN·SP3",
+            "阿狸",
+            3,
+            "VEN_AHRI_COMBAT_MIGHT_PLAY_UNIT",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3),
+        new(
             "OGN·121/298",
             "提莫",
             2,

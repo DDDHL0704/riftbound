@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1009,
+  "total": 1010,
   "cards": [
     {
       "id": 31005,
@@ -41706,6 +41706,76 @@
       "listSort": 126,
       "status": 1,
       "cardGroupLimit": null
+    },
+    {
+      "id": 37918,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·SP3",
+      "cardName": "阿狸",
+      "subTitle": "天真绮梦",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "阿狸",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Wild Rift Splash Team",
+      "cardEffect": "当我进攻或防守时，给予此处的一名敌方单位在本回合内{{S}}-2，不得低于1{{S}}。",
+      "flavorText": "",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/03316ded09014f6a9bf28d9661c99862.png",
+      "backImage": "",
+      "listSort": 1768,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "scopedAdditions": [
+    {
+      "cardNo": "VEN·SP3",
+      "sourceId": 37918,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "阿狸",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-12T09:33:38.991155+00:00",
+      "sourceRecordSha256": "5bcafb89346c38d113d55e7583ecb0bb0d8dc5b8feb8c2cc1279c1e303c2d267",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "One exact CN printing; original 1009 entries and their 2026-04-27 acquisition metadata are unchanged; no CN/EN denominator merge"
     }
   ]
 }

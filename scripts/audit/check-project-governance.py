@@ -223,7 +223,9 @@ def main():
     paths.update({key: upstream/name for key, name in {
         'cn': 'card-catalog.zh-CN.json', 'en': 'card-gallery.en-US.json',
         'global': 'global-rules-sources.json', 'qa': 'card-qa.zh-CN.json'}.items()})
-    paths['active'] = root/'data/official/card-catalog.zh-CN.json'
+    # The ledger certifies this recorded index only; current runtime promotion
+    # must not silently change its active-printing universe.
+    paths['active'] = upstream/'active-catalog.zh-CN.json'
     try:
         data = {key: json.loads(path.read_text()) for key, path in paths.items()}
         result = validate(data, root)

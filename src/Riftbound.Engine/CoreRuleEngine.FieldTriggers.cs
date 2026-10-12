@@ -3,7 +3,13 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record TurnDrawLedger(int TurnNumber, IReadOnlyDictionary<string, int> Counts);
-public sealed record FieldTriggerContext(string CardNo, string Kind, long SourceGeneration, string? BattlefieldId = null, string? ReturnFocusPlayerId = null);
+public sealed record FieldTriggerContext(string CardNo, string Kind, long SourceGeneration, string? BattlefieldId = null, string? ReturnFocusPlayerId = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ObjectLocationState? SourceLocation { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public RuleTextInstanceBinding? Origin { get; init; }
+}
 internal sealed record CapturedDrawSource(string SourceId, string ControllerId, FieldTriggerContext Context);
 
 public sealed partial class CoreRuleEngine
@@ -14,9 +20,12 @@ public sealed partial class CoreRuleEngine
     private static bool HasFieldTrigger(string? cardNo, string kind) => FieldTriggerFamilies.Value[kind == "SECOND_DRAW" ? "UNL-074/219" : "SFD·128/221"]
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
-        => effect == FieldTriggerEffect && context.SourceGeneration >= 0 && context.Kind is "SECOND_DRAW" or "DEFEND"
-            && HasFieldTrigger(context.CardNo, context.Kind) && (cardNo is null || cardNo == context.CardNo)
-            && (context.Kind == "SECOND_DRAW" ? context.BattlefieldId is null : !string.IsNullOrWhiteSpace(context.BattlefieldId));
+        => effect == FieldTriggerEffect && context.SourceGeneration >= 0
+            && (cardNo is null || cardNo == context.CardNo)
+            && (context.Kind == "COMBAT_MIGHT" ? CombatMightSpec(context.CardNo) is not null && context.SourceLocation is not null
+                : context.Kind is "SECOND_DRAW" or "DEFEND" && HasFieldTrigger(context.CardNo, context.Kind)
+                    && context.SourceLocation is null && context.Origin is null
+                    && (context.Kind == "SECOND_DRAW" ? context.BattlefieldId is null : !string.IsNullOrWhiteSpace(context.BattlefieldId)));
 
     private static CapturedDrawSource[] CaptureDrawTriggerSources(MatchState state, string player) => CaptureDrawTriggerSources(state.PlayerZones, state.CardObjects, player);
 
@@ -61,7 +70,9 @@ public sealed partial class CoreRuleEngine
     private static string[] FieldTriggerTargets(MatchState state, StackItemState item) => state.CardObjects.Values
         .Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown && !c.Tags.Contains(CardObjectTags.Standby)
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
-            && (item.FieldContext!.Kind == "SECOND_DRAW" ? c.ControllerId == item.ControllerId
+            && (item.FieldContext!.Kind == "COMBAT_MIGHT" ? c.ControllerId != item.ControllerId
+                && IsCombatMightTargetHere(state, item, c.ObjectId)
+                : item.FieldContext.Kind == "SECOND_DRAW" ? c.ControllerId == item.ControllerId
                 : c.ControllerId != item.ControllerId && state.BattleState.AttackerObjectIds.Contains(c.ObjectId)
                     && state.ObjectLocations.TryGetValue(c.ObjectId, out var location) && location.BattlefieldObjectId == item.FieldContext.BattlefieldId))
         .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
@@ -106,7 +117,9 @@ public sealed partial class CoreRuleEngine
                 return PrepareTriggerConfirmation(DiscardUnconfirmedTrigger(result, item));
             choice = new("TRIGGER-TARGET:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
                 item.FieldContext.Kind == "DEFEND" ? 0 : 1, 1, legal, legal,
-                item.FieldContext.Kind == "DEFEND" ? "选择一名进攻单位并摧毁狂热粉丝，或不选以放弃；确认后开放响应" : "选择一名友方单位获得本回合 +2 战力；确认后开放响应",
+                item.FieldContext.Kind == "DEFEND" ? "选择一名进攻单位并摧毁狂热粉丝，或不选以放弃；确认后开放响应"
+                    : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
+                    : "选择一名友方单位获得本回合 +2 战力；确认后开放响应",
                 item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
         }
         state = state with { PendingCardChoice = choice, PendingPayment = payment, ActivePlayerId = item.ControllerId, PriorityPlayerId = null };
@@ -203,6 +216,9 @@ public sealed partial class CoreRuleEngine
             events.AddRange(removal.Events);
         }
         var confirmed = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
+        if (item.FieldContext is { Kind: "COMBAT_MIGHT" })
+            next = next with { UntilEndOfTurnEffects = MarkEzrealEnemyTargetsThisTurnForUnitAbility(
+                state, next.UntilEndOfTurnEffects, item.ControllerId, selected) };
         if (item.ReflexiveCopy is { } copy)
             confirmed = confirmed with { ReflexiveCopy = copy with {
                 CopySource = new(selected[0], state.CardObjects[selected[0]].ObjectGeneration), TargetConfirmed = true } };
@@ -221,7 +237,16 @@ public sealed partial class CoreRuleEngine
             && FieldTriggerTargets(state, item).Contains(target))
         {
             var card = cards[target];
-            if (item.FieldContext!.Kind == "SECOND_DRAW")
+            if (item.FieldContext!.Kind == "COMBAT_MIGHT")
+            {
+                var spec = CombatMightSpec(item.FieldContext.CardNo)!;
+                var behavior = new CardBehaviorDefinition(item.CardNo, "战斗身份触发", 0, item.EffectKind, 0, 1,
+                    TargetScope: CardTargetScopes.EnemyUnit, PowerModifierAmount: spec.PowerDelta!.Value,
+                    MinimumPowerAfterModifier: spec.MinimumPowerAfterModifier!.Value);
+                cards[target] = ApplyPowerModifier(state, card, behavior, item, target, spec.PowerDelta.Value, out var modified);
+                events.Add(modified);
+            }
+            else if (item.FieldContext.Kind == "SECOND_DRAW")
             {
                 cards[target] = ApplyDirectUntilEndPowerModifier(card, target, item.SourceObjectId, item.CardNo,
                     item.EffectKind, "SECOND_CARD_DRAWN", 2, card.Power + 2);

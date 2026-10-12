@@ -2347,7 +2347,7 @@ public static class MatchRecoveryValidator
                 "continuousEffects",
                 "continuous effect",
                 errors);
-            ValidateSnapshotTimingContinuousEffectScalarPayloadValues(view, errors);
+            ValidateSnapshotTimingContinuousEffectScalarPayloadValues(view, errors, authoritativeState);
             ValidateSnapshotTimingMinimumMightProvenance(view, authoritativeState, errors);
             ValidateSnapshotTimingContinuousEffectListPayloadValues(view, errors);
             ValidateSnapshotTimingListItemPayloadShapes(
@@ -3940,7 +3940,8 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSnapshotTimingContinuousEffectScalarPayloadValues(
         RecoveredPlayerView view,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         if (view.Snapshot.Timing is null
             || !TryReadObjectList(view.Snapshot.Timing, "continuousEffects", out var effectPayloads))
@@ -3954,6 +3955,8 @@ public static class MatchRecoveryValidator
         var knownObjectIds = view.Snapshot.Players is null
             ? null
             : BuildSnapshotKnownObjectIds(view.Snapshot);
+        var expectedEffects = authoritativeState?.Tick == view.SnapshotTick
+            ? BuildAuthoritativeContinuousEffectsById(authoritativeState.ContinuousEffects) : null;
         foreach (var effectPayload in effectPayloads)
         {
             if (!IsSnapshotPlayerPayloadObject(effectPayload))
@@ -3965,6 +3968,23 @@ public static class MatchRecoveryValidator
                 effectPayload,
                 $"snapshot for {view.PlayerId} timing continuous effect item",
                 errors);
+            string? historicalSource = null;
+            if (effectValues.EffectId is { } id && expectedEffects?.TryGetValue(id, out var expected) == true
+                && expected.Scope == "OBJECT" && expected.Layer == ContinuousEffectLayers.PowerModifier
+                && expected.Duration == "UNTIL_END_OF_TURN")
+            {
+                var sourceMatches = OptionalStringSnapshotValueMatches(effectPayload, "sourceObjectId", expected.SourceObjectId)
+                    && OptionalStringSnapshotValueMatches(effectPayload, "sourceCardNo", expected.SourceCardNo)
+                    && OptionalStringSnapshotValueMatches(effectPayload, "sourcePath", expected.SourcePath)
+                    && OptionalStringSnapshotValueMatches(effectPayload, "targetObjectId", expected.TargetObjectId);
+                if (!sourceMatches)
+                    errors.Add($"snapshot for {view.PlayerId} timing continuous effect {id} source provenance disagrees with authoritative state");
+                // A resolved modifier keeps its public source reference even when
+                // that source enters a private zone. Only the exact authoritative
+                // reference may be absent from the current visible objects.
+                if (sourceMatches && knownObjectIds?.Contains(expected.TargetObjectId ?? string.Empty) == true)
+                    historicalSource = expected.SourceObjectId;
+            }
             if (effectValues.EffectId is not null && !seenEffectIds.Add(effectValues.EffectId))
             {
                 errors.Add(
@@ -3982,7 +4002,8 @@ public static class MatchRecoveryValidator
                 $"snapshot for {view.PlayerId} timing continuous effect item",
                 knownObjectIds,
                 "objects",
-                errors);
+                errors,
+                historicalSource);
         }
 
         ValidateContinuousEffectSequenceContinuity(
@@ -14725,7 +14746,8 @@ public static class MatchRecoveryValidator
         string effectLabel,
         IReadOnlySet<string>? knownObjectIds,
         string knownObjectLabel,
-        List<string> errors)
+        List<string> errors,
+        string? historicalSourceObjectId = null)
     {
         if (knownObjectIds is null)
         {
@@ -14739,13 +14761,14 @@ public static class MatchRecoveryValidator
             knownObjectIds,
             knownObjectLabel,
             errors);
-        ValidateTimingOptionalObjectReferenceWithExpectedDetails(
-            effectPayload,
-            "sourceObjectId",
-            $"{effectLabel} source object id",
-            knownObjectIds,
-            knownObjectLabel,
-            errors);
+        if (historicalSourceObjectId is null)
+            ValidateTimingOptionalObjectReferenceWithExpectedDetails(
+                effectPayload,
+                "sourceObjectId",
+                $"{effectLabel} source object id",
+                knownObjectIds,
+                knownObjectLabel,
+                errors);
         ValidateTimingObjectReferenceListWithExpectedDetails(
             effectPayload,
             "participantObjectIds",
@@ -23446,10 +23469,12 @@ public static class MatchRecoveryValidator
         if (state.DrawLedger.TurnNumber < 0 || state.DrawLedger.TurnNumber > state.TurnNumber
             || state.DrawLedger.Counts.Any(e => !state.Seats.ContainsKey(e.Key) || e.Value < 0)) errors.Add("invalid turn draw ledger");
         foreach (var trigger in state.TriggerQueue)
-            if (trigger.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContext(field, trigger.EffectKind)
+            if (trigger.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContextState(state, field,
+                trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
                 : trigger.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger context");
         foreach (var item in state.StackItems)
-            if (item.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContext(field, item.EffectKind, item.CardNo)
+            if (item.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContextState(state, field,
+                item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
                 || field.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(field.ReturnFocusPlayerId)

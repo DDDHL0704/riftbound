@@ -193,6 +193,7 @@ public static class TriggerKinds
     public const string UnitAttackPayPowerModifier =
         "UNIT_ATTACK_PAY_POWER_MODIFIER";
     public const string UnitAttackDistributedDamage = "UNIT_ATTACK_DISTRIBUTED_DAMAGE";
+    public const string UnitAttackOrDefendPowerModifier = "UNIT_ATTACK_OR_DEFEND_POWER_MODIFIER";
     public const string UnitSpellPlayedPowerModifier =
         "UNIT_SPELL_PLAYED_POWER_MODIFIER";
     public const string UnitHighCostSpellPowerModifier =
@@ -250,6 +251,7 @@ public static class TriggerTimings
     public const string UnitArmamentAttached = "UNIT_ARMAMENT_ATTACHED";
     public const string ControlledUnitBecamePowerful = "CONTROLLED_UNIT_BECAME_POWERFUL";
     public const string UnitAttack = "UNIT_ATTACK";
+    public const string UnitAttackOrDefend = "UNIT_ATTACK_OR_DEFEND";
     public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
     public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";
@@ -587,7 +589,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<TriggerModeSpec>? Modes = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    bool? DistinctModesPerTurn = null);
+    bool? DistinctModesPerTurn = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? MinimumPowerAfterModifier = null);
 
 public sealed record ReplacementSpec(
     string Kind,

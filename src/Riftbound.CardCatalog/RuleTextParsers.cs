@@ -1286,6 +1286,16 @@ public static class TriggerParser
                 Optional: true);
         }
 
+        var combatMight = Regex.Match(segment,
+            @"^当我进攻或防守时[，,]\s*(?:让|给予)此处的一名敌方单位(?:在)?本回合内\{\{S\}\}(?<delta>-\d+)[，,]\s*不得低于(?<minimum>\d+)\{\{S\}\}[。.]?$",
+            RegexOptions.CultureInvariant);
+        if (combatMight.Success && int.TryParse(combatMight.Groups["delta"].Value, out var combatDelta)
+            && combatDelta < 0 && int.TryParse(combatMight.Groups["minimum"].Value, out var combatMinimum) && combatMinimum > 0)
+            return new TriggerSpec(TriggerKinds.UnitAttackOrDefendPowerModifier, TriggerTimings.UnitAttackOrDefend, segment,
+                "Confirm one local enemy before responses; capture current Might reduction at resolution until turn end.",
+                TargetScope: TriggerTargetScopes.EnemyUnitHere, PowerDelta: combatDelta,
+                Duration: "UNTIL_END_OF_TURN", MinimumPowerAfterModifier: combatMinimum);
+
         var attackDistributedDamage = Regex.Match(segment,
             @"当我进攻时，对此处的敌方单位造成共计([0-9]+)点伤害，可在多名敌方单位之间分摊。?$",
             RegexOptions.CultureInvariant);

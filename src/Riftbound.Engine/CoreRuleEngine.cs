@@ -171,7 +171,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))))));
             collected = RecordBattleDuelRoles(state, collected);
             return ValueTask.FromResult(ApplyObjectContinuity(state,
-                PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state, RecordDistributionSourceLocations(state, collected))))))));
+                PrepareTriggerConfirmation(AdvanceTurnStartSequence(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
+                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected)))))))));
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
@@ -13446,6 +13447,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var attackState = state with { CardObjects = cardObjects, PlayerZones = playerZones };
             var queue = CaptureAttackDamageTriggers(attackState, attackerObjectIds, battlefieldId).ToList();
+            queue.AddRange(CaptureCombatMightTriggers(attackState, attackerObjectIds.Concat(defenderObjectIds),
+                battlefieldId, TimingStates.NeutralClosed));
             if (canOpenBattleResponsePriority)
                 queue.AddRange(defenderObjectIds.Where(id => cardObjects.TryGetValue(id, out var card) && !card.IsFaceDown
                     && HasFieldTrigger(card.CardNo, "DEFEND")).Select(id => new TriggerQueueItemState($"defend-{state.Tick + 1}-{id}", defendingPlayerId!, id,

@@ -8378,6 +8378,229 @@
         "Leona local continuous Might modifier and all dependencies",
         "All other applicable cards/rules/FAQ items and source gaps",
         "Visible paired clients, Windows runtime and real PostgreSQL execution"
+      ],
+      "fixedCommitFullCiVerification": "docs/evidence/orb-of-regret-2026-10-12/full-ci-0ddbd93d.json"
+    },
+    {
+      "id": "ahri-combat-might-trigger-2026-10-12",
+      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Five exact CN Ahri attack/defend local-enemy Might trigger printings with current-Might floor, here/lifecycle/copies/payment and player-history recovery; no whole-card certification",
+      "subjects": [
+        {
+          "id": "OGN-119/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31339,
+              "cardNo": "OGN·119/298",
+              "name": "阿狸",
+              "sha256": "2c98f1c9c7eb6cfcf58c1f93c5f4080a4d34b4b1fff6f9d8258364982137e9d9",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-119-298",
+              "cardNo": "OGN-119/298",
+              "name": "Ahri",
+              "sha256": "d625f8d29b09b3e3ba17e6baeed031e70544fe4aee6aed6e5777b05058833d19",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Typed attack/defend TriggerSpec -> battle-role capture -> shared target/Deflect confirmation -> shared ApplyPowerModifier",
+          "scope": "Scoped CN trigger, source/target continuity, copies, payment and recovery check/native pass; fixed-commit full and whole-card certification remain open",
+          "scopedEvidence": "docs/evidence/ahri-combat-might-2026-10-12/validation.json",
+          "activeCardNo": "OGN·119/298"
+        },
+        {
+          "id": "OGN-119A/298",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31340,
+              "cardNo": "OGN·119a/298",
+              "name": "阿狸",
+              "sha256": "64b7f7c1ea440a025aa19b9582ca1251925995e2d6745fdb532654222426d681",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-119a-298",
+              "cardNo": "OGN-119a/298",
+              "name": "Ahri",
+              "sha256": "a71727a7eb617515fcf2147cd25b13aeed2a01be175b3cd75a0944551e0c2944",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Typed attack/defend TriggerSpec -> battle-role capture -> shared target/Deflect confirmation -> shared ApplyPowerModifier",
+          "scope": "Scoped CN trigger, source/target continuity, copies, payment and recovery check/native pass; fixed-commit full and whole-card certification remain open",
+          "scopedEvidence": "docs/evidence/ahri-combat-might-2026-10-12/validation.json",
+          "activeCardNo": "OGN·119a/298"
+        },
+        {
+          "id": "SFD-227*/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33330,
+              "cardNo": "SFD·227*/221",
+              "name": "阿狸",
+              "sha256": "68d69389fa6bb25d6a64a99f5fea0a8f4f63bd663c1f54252d28bad5c08e0851",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-227-star-221",
+              "cardNo": "SFD-227*/221",
+              "name": "Ahri",
+              "sha256": "f504362390fa6d8592677f93ce17a802b809c393ebeab40d9b14bab8ad24b6ad",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Typed attack/defend TriggerSpec -> battle-role capture -> shared target/Deflect confirmation -> shared ApplyPowerModifier",
+          "scope": "Scoped CN trigger, source/target continuity, copies, payment and recovery check/native pass; fixed-commit full and whole-card certification remain open",
+          "scopedEvidence": "docs/evidence/ahri-combat-might-2026-10-12/validation.json",
+          "activeCardNo": "SFD·227*/221"
+        },
+        {
+          "id": "SFD-227/221",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33329,
+              "cardNo": "SFD·227/221",
+              "name": "阿狸",
+              "sha256": "b8cefd4f7d1b402c845bda41be9706931cab9a20e7acaa0c40afe02328906e5f",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-227-221",
+              "cardNo": "SFD-227/221",
+              "name": "Ahri",
+              "sha256": "8c9ee2ca10317ec66c99f23e2d80d21c6e5315bf3a2519ac931e79f1cfee462e",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Typed attack/defend TriggerSpec -> battle-role capture -> shared target/Deflect confirmation -> shared ApplyPowerModifier",
+          "scope": "Scoped CN trigger, source/target continuity, copies, payment and recovery check/native pass; fixed-commit full and whole-card certification remain open",
+          "scopedEvidence": "docs/evidence/ahri-combat-might-2026-10-12/validation.json",
+          "activeCardNo": "SFD·227/221"
+        },
+        {
+          "id": "VEN-SP3",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 37918,
+              "cardNo": "VEN·SP3",
+              "name": "阿狸",
+              "sha256": "5bcafb89346c38d113d55e7583ecb0bb0d8dc5b8feb8c2cc1279c1e303c2d267",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "reviewStatus": "NOT_REVIEWED",
+          "wholeCardCertification": false,
+          "route": "Typed attack/defend TriggerSpec -> battle-role capture -> shared target/Deflect confirmation -> shared ApplyPowerModifier",
+          "scope": "Scoped CN trigger, source/target continuity, copies, payment and recovery check/native pass; fixed-commit full and whole-card certification remain open",
+          "scopedEvidence": "docs/evidence/ahri-combat-might-2026-10-12/validation.json",
+          "activeCardNo": "VEN·SP3"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-04-P053-B010",
+        "DOC-04-P053-B013",
+        "DOC-04-P059-B002",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B006",
+        "DOC-04-P059-B007",
+        "EN-e00ae42bdf164281-P001-B149",
+        "EN-e00ae42bdf164281-P001-B150",
+        "EN-e00ae42bdf164281-P001-B151",
+        "EN-e00ae42bdf164281-P001-B152",
+        "EN-e00ae42bdf164281-P001-B153",
+        "EN-e00ae42bdf164281-P001-B154",
+        "EN-e00ae42bdf164281-P001-B155"
+      ],
+      "auditDocument": "docs/AHRI_COMBAT_MIGHT_AUDIT_2026-10-12.md",
+      "evidence": "docs/evidence/ahri-combat-might-2026-10-12",
+      "tests": [
+        "AhriCombatMightTests",
+        "AhriCombatMightNativeTests",
+        "MatchRecoveryTests",
+        "CardCatalogBaselineTests",
+        "BattleStartRoleTests",
+        "AttackDamageDistributionTests"
+      ],
+      "validation": {
+        "checkCases": 10191,
+        "checkMethods": 6543,
+        "nativeProductionCommands": 8,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true
+      },
+      "exclusions": [
+        "Nine-Tailed Fox turn-duration trigger",
+        "Leona continuous Might and layer interactions",
+        "EN VEN-SP3/006 exact identity and runtime mapping",
+        "Whole-card play/deck/chosen-champion/all interactions for each printing",
+        "All current applicable cards/rules/FAQ items and source gaps",
+        "Visible paired clients, Windows runtime and actual PostgreSQL execution"
       ]
     }
   ]

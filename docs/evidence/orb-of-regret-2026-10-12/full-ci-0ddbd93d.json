@@ -1,0 +1,122 @@
+{
+  "status": "FIXED_COMMIT_FULL_CI_AND_PARITY_VERIFIED",
+  "verifiedAtUtc": "2026-10-12T10:28:52.066858+00:00",
+  "commit": "0ddbd93d83ce65be7fe714b3e461ebc703911ea0",
+  "runId": 38232248031,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38232248031",
+  "jobs": {
+    "scope": "success",
+    "desktop (macos-latest)": "success",
+    "rules": "success",
+    "desktop (windows-latest)": "success"
+  },
+  "full": {
+    "cases": 10303,
+    "methods": 6671,
+    "seconds": 1314.98,
+    "assemblySha256": "8327a2f63eef07fb47943cd82bdc799220359fc723cd6578054a67794c1f8164",
+    "failed": 0,
+    "skipped": 0,
+    "duplicates": []
+  },
+  "parity": {
+    "baselineCommit": "33c3b54ad834d6263468e5865e4812c74273647e",
+    "oldCasesPreserved": 10267,
+    "oldMethodsPreserved": 6659,
+    "missingCases": [],
+    "missingMethods": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.OrbOfRegretNativeTests.ProductionAbilityCommandsPayResolveRecoverAndReplay(branch: \"aura-floor\")",
+      "Riftbound.ConformanceTests.OrbOfRegretNativeTests.ProductionAbilityCommandsPayResolveRecoverAndReplay(branch: \"deflect-recycle\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ActivationPaysExhaustBeforeResponseAndAppliesCurrentMightOnlyOnResolution",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.CounterLeavesTheExhaustCostPaidAndTheUnitUnmodified",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.CurrentOfficialEquipmentOffersItsTargetedExhaustAbility",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.FriendlyDeflectDoesNotChargePower",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"exhausted\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"hidden\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"off-field\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"opponent\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"wrong-card\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation(change: \"wrong-type\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"closed\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"duplicate\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"gear\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"hidden-target\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"no-target\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"opponent-turn\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment(change: \"unnecessary-recycle\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.MinimumDoesNotRaiseAnAlreadyWeakerUnit(might: -2)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.MinimumDoesNotRaiseAnAlreadyWeakerUnit(might: 0)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.OpponentDeflectIsPaidBeforeSourceExhausts(recycle: False)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.OpponentDeflectIsPaidBeforeSourceExhausts(recycle: True)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"destination\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"forged-card\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"future-generation\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"missing\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"movement-plan\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"null-source\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"repeat\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape(change: \"unknown-ability\")",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource(change: \"aura-left\", expected: 1)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource(change: \"source-left\", expected: 3)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource(change: \"target-hidden\", expected: 4)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource(change: \"target-new-object\", expected: 4)",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.SuccessfulEnemyTargetingUsesTheSharedLegendObserver"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.OrbOfRegretNativeTests.ProductionAbilityCommandsPayResolveRecoverAndReplay",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ActivationPaysExhaustBeforeResponseAndAppliesCurrentMightOnlyOnResolution",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.CounterLeavesTheExhaustCostPaidAndTheUnitUnmodified",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.CurrentOfficialEquipmentOffersItsTargetedExhaustAbility",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.FriendlyDeflectDoesNotChargePower",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidSourcesAreNotOfferedAndRejectWithoutMutation",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.InvalidTimingAndTargetsRejectWithoutPayment",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.MinimumDoesNotRaiseAnAlreadyWeakerUnit",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.OpponentDeflectIsPaidBeforeSourceExhausts",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.RecoveryRejectsForgedAbilityIdentityAndEffectShape",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.ResolutionUsesTheCurrentTargetAndIsIndependentOfTheSource",
+      "Riftbound.ConformanceTests.OrbOfRegretTests.SuccessfulEnemyTargetingUsesTheSharedLegendObserver"
+    ]
+  },
+  "matrix": {
+    "seed": 424242,
+    "decks": 11,
+    "pairs": 110,
+    "allOriginalPairIdentitiesPreserved": true,
+    "changedFinalHashes": [],
+    "identityHash": "fca872c6802a37b45dada7db96aec81916893a06a6034150d24f54225bbd5922"
+  },
+  "trxFiles": [
+    {
+      "path": "games-1/results.trx",
+      "sha256": "3eca64e8912f6f2dab6eb1a8941145b5b394d140130cae79ab6fcf6794af844a",
+      "cases": 1
+    },
+    {
+      "path": "games-2/results.trx",
+      "sha256": "e704029ed7310a9b31712e65dc1389362eea9c56dc0b76f3fddc10e0065fe078",
+      "cases": 49
+    },
+    {
+      "path": "games-3/results.trx",
+      "sha256": "133e4aeda43d835764c64598ac8cce8d8e886026d8ee7173537a6f4a934450ac",
+      "cases": 49
+    },
+    {
+      "path": "games-4/results.trx",
+      "sha256": "837f22fbedadb6efa9dc49e5a548ee87ae6675683264eb7c5b3ceea7fda59731",
+      "cases": 52
+    },
+    {
+      "path": "rules/results.trx",
+      "sha256": "bff2f0146fc09c48dc728920471728497843411f8383f9186d0a338d288381cd",
+      "cases": 10152
+    }
+  ],
+  "currentHeadEvidence": false,
+  "visiblePairedClientAcceptance": false,
+  "windowsRuntimeAcceptance": false,
+  "realPostgresAcceptance": false,
+  "wholeOfficialAuditComplete": false,
+  "platformReady": false
+}

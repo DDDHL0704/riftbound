@@ -1,0 +1,26 @@
+{
+  "oldCatalogSnapshot": "data/official/upstream/2026-10-11/active-catalog.zh-CN.json",
+  "oldCatalogSha256": "076b853096404c74a8ff92fb7e6e2ed9b2f07adc656d3c0fbb947f4b999948c7",
+  "oldEntriesPreserved": 1009,
+  "newCount": 1010,
+  "addition": {
+    "cardNo": "VEN·SP3",
+    "sourceId": 37918,
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "阿狸",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAt": "2026-10-12T09:33:38.991155+00:00",
+    "sourceRecordSha256": "5bcafb89346c38d113d55e7583ecb0bb0d8dc5b8feb8c2cc1279c1e303c2d267",
+    "publishedPreview": false,
+    "setReleaseDate": "2026-07-31",
+    "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+    "scope": "One exact CN printing; original 1009 entries and their 2026-04-27 acquisition metadata are unchanged; no CN/EN denominator merge"
+  }
+}
