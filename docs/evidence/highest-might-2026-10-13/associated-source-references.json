@@ -1,0 +1,184 @@
+[
+  {
+    "cardNo": "SFD·056/221",
+    "sourceId": 33134,
+    "record": {
+      "id": 33134,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "SFD·056/221",
+      "cardName": "斯特拉克的挑战护手",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "黯荧岛Dark Glow",
+      "cardEffect": "{{灵便}}（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。)\n{{装配绿色}}（支付{{绿色}}：将此牌贴附到你控制的一名单位上。）",
+      "flavorText": "这对爪子可不是闹着玩的。",
+      "energy": 3,
+      "returnEnergy": 2,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/b9a16b698fb64b93ba88ca7b96303d2c.png",
+      "backImage": "",
+      "listSort": 939,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "fetchedAtUtc": "2026-10-12T17:58:12.190031+00:00",
+    "sha256": "06687064f27735c7f0202bfe116c6c222604af854254459de3b312ac771f81f8",
+    "region": "CN",
+    "language": "zh-CN",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "sourceEvidence": "docs/evidence/becomes-mighty-2026-10-13/live-readback.json"
+  },
+  {
+    "cardNo": "SFD·167/221",
+    "sourceId": 33261,
+    "record": {
+      "id": 33261,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "SFD·167/221",
+      "cardName": "无名英雄",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "德玛西亚",
+      "tag": "精锐",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{绝念}} — 如果我为{{强力}}单位，则抽两张牌。（当我被摧毁后，发动此效果。战力达到5或以上时，即为强力单位。）",
+      "flavorText": "为了崇高的事业，她甘愿付出一切——甚至包括自己的姓名。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": 2,
+      "productCodeList": [
+        "SFD(英雄预组 菲奥娜)",
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 英雄预组 菲奥娜",
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/f7c6cb02ac294507bdaca4557e4b3944.png",
+      "backImage": "",
+      "listSort": 812,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "fetchedAtUtc": "2026-10-12T18:24:43.505919+00:00",
+    "sha256": "e5f07ce7d6088c153abe0a1602790c81a39cf5cc8b8fcf8ea6e2c460165d9374",
+    "region": "CN",
+    "language": "zh-CN",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "sourceEvidence": "docs/evidence/becomes-mighty-2026-10-13/adjacent-source-refresh.json"
+  },
+  {
+    "cardNo": "SFD·011/221",
+    "sourceId": 33083,
+    "record": {
+      "id": 33083,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "SFD·011/221",
+      "cardName": "取放自如",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一名单位和其控制者的一件武装。为该单位贴附或卸除该武装。抽一张牌。",
+      "flavorText": "“承认吧，你已经上钩了。”",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/fa95f3a87cf149418034bd5520876884.png",
+      "backImage": "",
+      "listSort": 990,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "fetchedAtUtc": "2026-10-12T18:35:25.779529+00:00",
+    "sha256": "52a2aabee1fc38e2326ac62163298b979dc7e0756717b9b09a22be8269649642",
+    "region": "CN",
+    "language": "zh-CN",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "sourceEvidence": "docs/evidence/becomes-mighty-2026-10-13/response-source-refresh.json"
+  }
+]

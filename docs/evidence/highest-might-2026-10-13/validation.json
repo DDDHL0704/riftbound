@@ -1,0 +1,123 @@
+{
+  "status": "SCOPED_CHECK_NATIVE_AND_COST_COMBINATION_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "scope": "Exact CN OGN·014/298 highest-controlled-visible-field-current-Might mana reduction, zero floor, granted Echo additional mana, quote/real payment and native/recovery evidence; no whole-card/all-layer certification",
+  "verifiedAtUtc": "2026-10-12T19:21:28.380146+00:00",
+  "wholeCardCertification": false,
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/13",
+  "nativeProductionCommands": 5,
+  "blockedNativeBranches": 2,
+  "fixedCommitFullCiRequired": true,
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 116.63,
+    "total": 10419,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10419,
+        "passed": 10419,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 113.03
+      }
+    ]
+  },
+  "adjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 34.07,
+    "total": 1645,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 1645,
+        "passed": 1645,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 26.07
+      }
+    ]
+  },
+  "parity": {
+    "oldCasesPreserved": 10397,
+    "oldMethodsPreserved": 6634,
+    "currentCases": 10419,
+    "currentMethods": 6644,
+    "addedCases": [
+      "Riftbound.ConformanceTests.HighestUnitMightNativeTests.ProductionQuoteConfirmationAndResponsesUseCurrentMightAndReplay(branch: \"below\")",
+      "Riftbound.ConformanceTests.HighestUnitMightNativeTests.ProductionQuoteConfirmationAndResponsesUseCurrentMightAndReplay(branch: \"equipped\")",
+      "Riftbound.ConformanceTests.HighestUnitMightNativeTests.ProductionQuoteConfirmationAndResponsesUseCurrentMightAndReplay(branch: \"missing-red\")",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.AControlledUnitCountsInEitherFieldZoneRegardlessOfItsOwner(zone: \"BASE\")",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.AControlledUnitCountsInEitherFieldZoneRegardlessOfItsOwner(zone: \"BATTLEFIELD\")",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.ARealDetachInvalidatesTheEarlierAffordableQuoteWithoutAuthorizingPayment",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.AZeroManaCostStillRequiresThePrintedRedPower",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.CurrentMightReductionAndManaFloorAgreeInPreviewAndCommit(stored: 2, attached: False, cost: 6)",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.CurrentMightReductionAndManaFloorAgreeInPreviewAndCommit(stored: 2, attached: True, cost: 3)",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.CurrentMightReductionAndManaFloorAgreeInPreviewAndCommit(stored: 3, attached: True, cost: 2)",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.CurrentMightReductionAndManaFloorAgreeInPreviewAndCommit(stored: 5, attached: True, cost: 0)",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.CurrentMightReductionAndManaFloorAgreeInPreviewAndCommit(stored: 8, attached: True, cost: 0)",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.OnlyControlledVisibleFieldUnitsContributeToTheMaximum(kind: \"enemy-unit\")",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.OnlyControlledVisibleFieldUnitsContributeToTheMaximum(kind: \"equipment\")",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.OnlyControlledVisibleFieldUnitsContributeToTheMaximum(kind: \"face-down\")",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.OnlyControlledVisibleFieldUnitsContributeToTheMaximum(kind: \"hand-unit\")",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.OnlyControlledVisibleFieldUnitsContributeToTheMaximum(kind: \"rune\")",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.PreviewReducesEightManaByTheHighestCurrentMightOfFive",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.TheHighestMightReductionCanAlsoReduceGrantedEchoAdditionalMana(stored: 14, cost: 0)",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.TheHighestMightReductionCanAlsoReduceGrantedEchoAdditionalMana(stored: 8, cost: 5)",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.WithNoControlledUnitTheSpellStillCostsEightMana"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.HighestUnitMightNativeTests.ProductionQuoteConfirmationAndResponsesUseCurrentMightAndReplay",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.AControlledUnitCountsInEitherFieldZoneRegardlessOfItsOwner",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.ARealDetachInvalidatesTheEarlierAffordableQuoteWithoutAuthorizingPayment",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.AZeroManaCostStillRequiresThePrintedRedPower",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.CurrentMightReductionAndManaFloorAgreeInPreviewAndCommit",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.OnlyControlledVisibleFieldUnitsContributeToTheMaximum",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.PreviewReducesEightManaByTheHighestCurrentMightOfFive",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.TheHighestMightReductionCanAlsoReduceGrantedEchoAdditionalMana",
+      "Riftbound.ConformanceTests.HighestUnitMightTests.WithNoControlledUnitTheSpellStillCostsEightMana"
+    ],
+    "missingCases": [],
+    "missingMethods": [],
+    "duplicates": 0
+  },
+  "checkTrxSha256": "a72f7db665b834dc514d91b62e9082c7b91097b9ed067e624412eb01a280db74",
+  "testAssemblySha256": "351e06eb081a806a14eaa0f120e2d3d2bbc53d116294b9c35fc30536559d3190",
+  "fullPlanMethods": 6785,
+  "allPriorFullMethodsRetained": true,
+  "toolTests": {
+    "count": 24,
+    "status": "PASSED",
+    "logSha256": "2522f28121e2aa652f1fe82b44d85aad4cb4041c987a87f45725faa9d5e8392c"
+  },
+  "nativeReplay": {
+    "nativeRequest": true,
+    "nativeCommands": 5,
+    "accepted": 5,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "95c6f289409f0fac8ab919e1c1bc1e545721515fc6a5af1223d81b3573df96e7",
+      "expectedStateHash": "95c6f289409f0fac8ab919e1c1bc1e545721515fc6a5af1223d81b3573df96e7",
+      "errors": []
+    },
+    "finalHash": "95c6f289409f0fac8ab919e1c1bc1e545721515fc6a5af1223d81b3573df96e7"
+  },
+  "blockedBranches": {
+    "below": {
+      "candidateEnabled": false,
+      "composerOpened": false,
+      "commandEmitted": false
+    },
+    "missing-red": {
+      "CanPay": false,
+      "disabled": true,
+      "commandEmitted": false
+    }
+  }
+}

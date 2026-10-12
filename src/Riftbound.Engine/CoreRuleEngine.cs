@@ -24713,7 +24713,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardCostReductionConditionKinds.EnemyUnitDestroyedThisTurn
                 => EnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerHighestUnitPower
-                => Math.Min(behavior.CostReductionMana, HighestControlledUnitPower(state, playerId)),
+                => HighestControlledUnitPower(state, playerId),
             CardCostReductionConditionKinds.OpponentWithinThreeOfWinningScore
                 => OpponentWithinWinningScoreDistance(state, playerId, 3) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerControlsTaggedUnit
@@ -25415,7 +25415,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return zones.Base
             .Concat(zones.Battlefields)
-            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.Power : 0)
+            .Where(objectId => IsPlayerControlledFieldUnitObject(state, playerId, objectId))
+            .Select(objectId => ResolveCurrentFieldUnitPower(state, state.CardObjects[objectId]))
             .DefaultIfEmpty(0)
             .Max();
     }

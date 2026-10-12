@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="2a89eaac-20d2-4a0c-9280-a71462603a8e" name="@Mac-mini 2026-10-13 02:53:02" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-13T02:53:02.7080890+08:00" queuing="2026-10-13T02:53:02.7080890+08:00" start="2026-10-13T02:52:57.8479550+08:00" finish="2026-10-13T02:53:02.7158780+08:00" />
+  <TestSettings name="default" id="16a0c6f6-422f-4b25-a94c-3280059e8390">
+    <Deployment runDeploymentRoot="_Mac-mini_2026-10-13_02_53_02" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="25cb9845-de7a-4796-b29c-c74cde0c02ad" testId="219b9002-6ae4-2de6-4b6a-47cbf89a31c0" testName="Riftbound.ConformanceTests.HighestUnitMightTests.PreviewReducesEightManaByTheHighestCurrentMightOfFive" computerName="Mac-mini" duration="00:00:00.0356902" startTime="2026-10-13T02:53:02.6000750+08:00" endTime="2026-10-13T02:53:02.6000750+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="25cb9845-de7a-4796-b29c-c74cde0c02ad">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Values differ
+Expected: 3
+Actual:   6</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.HighestUnitMightTests.PreviewReducesEightManaByTheHighestCurrentMightOfFive() in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/HighestUnitMightTests.cs:line 26
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="31284b4d-1ace-4f69-a554-a88827a8fda7" testId="833462ad-57c8-661d-1b7f-0f053108e972" testName="Riftbound.ConformanceTests.HighestUnitMightTests.RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit" computerName="Mac-mini" duration="00:00:03.6046268" startTime="2026-10-13T02:53:02.5655110+08:00" endTime="2026-10-13T02:53:02.5655180+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="31284b4d-1ace-4f69-a554-a88827a8fda7">
+      <Output>
+        <ErrorInfo>
+          <Message>Not enough mana to play 霹天雳地.</Message>
+          <StackTrace>   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Act(MatchState state, String player, GameCommand command) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 174
+   at Riftbound.ConformanceTests.HighestUnitMightTests.RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit() in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/HighestUnitMightTests.cs:line 34
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Riftbound.ConformanceTests.HighestUnitMightTests.PreviewReducesEightManaByTheHighestCurrentMightOfFive" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="219b9002-6ae4-2de6-4b6a-47cbf89a31c0">
+      <Execution id="25cb9845-de7a-4796-b29c-c74cde0c02ad" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.HighestUnitMightTests" name="PreviewReducesEightManaByTheHighestCurrentMightOfFive" />
+    </UnitTest>
+    <UnitTest name="Riftbound.ConformanceTests.HighestUnitMightTests.RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit" storage="/users/dinghaolin/myprojects/riftbound/tests/riftbound.conformancetests/bin/debug/net10.0/riftbound.conformancetests.dll" id="833462ad-57c8-661d-1b7f-0f053108e972">
+      <Execution id="31284b4d-1ace-4f69-a554-a88827a8fda7" />
+      <TestMethod codeBase="/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Riftbound.ConformanceTests.HighestUnitMightTests" name="RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="219b9002-6ae4-2de6-4b6a-47cbf89a31c0" executionId="25cb9845-de7a-4796-b29c-c74cde0c02ad" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="833462ad-57c8-661d-1b7f-0f053108e972" executionId="31284b4d-1ace-4f69-a554-a88827a8fda7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="2" executed="2" passed="0" failed="2" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.9)
+[xUnit.net 00:00:00.12]   Discovering: Riftbound.ConformanceTests
+[xUnit.net 00:00:00.75]   Discovered:  Riftbound.ConformanceTests
+[xUnit.net 00:00:00.76]   Starting:    Riftbound.ConformanceTests
+[xUnit.net 00:00:04.39]       Not enough mana to play 霹天雳地.
+[xUnit.net 00:00:04.39]       Stack Trace:
+[xUnit.net 00:00:04.39]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs(174,0): at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Act(MatchState state, String player, GameCommand command)
+[xUnit.net 00:00:04.39]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/HighestUnitMightTests.cs(34,0): at Riftbound.ConformanceTests.HighestUnitMightTests.RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit()
+[xUnit.net 00:00:04.39]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:04.42]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:04.42]       Expected: 3
+[xUnit.net 00:00:04.42]       Actual:   6
+[xUnit.net 00:00:04.42]       Stack Trace:
+[xUnit.net 00:00:04.42]         /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/HighestUnitMightTests.cs(26,0): at Riftbound.ConformanceTests.HighestUnitMightTests.PreviewReducesEightManaByTheHighestCurrentMightOfFive()
+[xUnit.net 00:00:04.42]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:04.42]            at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:04.42]   Finished:    Riftbound.ConformanceTests
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T02:53:02.5649410+08:00">
+        <Text>[xUnit.net 00:00:04.39]     Riftbound.ConformanceTests.HighestUnitMightTests.RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="Mac-mini" outcome="Error" timestamp="2026-10-13T02:53:02.7106750+08:00">
+        <Text>[xUnit.net 00:00:04.42]     Riftbound.ConformanceTests.HighestUnitMightTests.PreviewReducesEightManaByTheHighestCurrentMightOfFive [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

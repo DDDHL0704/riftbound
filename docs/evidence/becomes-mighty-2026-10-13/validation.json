@@ -1,5 +1,5 @@
 {
-  "status": "SCOPED_COMMAND_BOUNDARY_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "status": "SCOPED_COMMAND_BOUNDARY_CHECK_NATIVE_AND_FIXED_COMMIT_FULL_PASS",
   "scope": "Exact four CN Fiora printings: command-boundary current-Might crossing, independent printed/copied skill instances, optional cost/response and recovery; no whole-card or complete instantaneous-event certification",
   "verifiedAtUtc": "2026-10-12T18:47:46.862441+00:00",
   "wholeCardCertification": false,
@@ -138,5 +138,6 @@
     "count": 24,
     "status": "PASSED",
     "logSha256": "33dcccba35b0d97248b80ea7552be9dc11f9c659f4d38bbe72225b68edfc4fa3"
-  }
+  },
+  "fixedCommitFullCi": "docs/evidence/becomes-mighty-2026-10-13/full-ci-6e719804.json"
 }

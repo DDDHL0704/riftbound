@@ -1,0 +1,21 @@
+{
+  "baselineCommit": "e1d667b5fac516f3a52fa4e68130a0ac15af1b42",
+  "workingScope": "After current-Might evaluator repair, before removing undocumented printed-mana cap",
+  "trx": "var/qa/highest-might-20261013/echo-cap-red/focus/results.trx",
+  "sha256": "ca25836f950699be458f6f55c54b8abb0f215c7142608d2ddc0368e82307a535",
+  "results": [
+    {
+      "test": "Riftbound.ConformanceTests.HighestUnitMightTests.TheHighestMightReductionCanAlsoReduceGrantedEchoAdditionalMana(stored: 8, cost: 5)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   8"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.HighestUnitMightTests.TheHighestMightReductionCanAlsoReduceGrantedEchoAdditionalMana(stored: 14, cost: 0)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 0\nActual:   8"
+    }
+  ],
+  "testAssemblySha256": "351e06eb081a806a14eaa0f120e2d3d2bbc53d116294b9c35fc30536559d3190",
+  "profile": "focus",
+  "planSha256": "ce70fbb1e959c56c0de3ecf1fa43167857187d3893a1a93edebb8968312f2be4"
+}

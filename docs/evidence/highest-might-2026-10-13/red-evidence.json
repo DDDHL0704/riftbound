@@ -1,0 +1,21 @@
+{
+  "baselineCommit": "e1d667b5fac516f3a52fa4e68130a0ac15af1b42",
+  "implementationCommit": "6e719804acfac8dcb5968b8c818b5a9cf869d735",
+  "trx": "var/qa/highest-might-20261013/red/focus/results.trx",
+  "sha256": "837754d60bf8c421276ad3828da5b29d10917096aab17c5b1c885f0a6782a69b",
+  "results": [
+    {
+      "test": "Riftbound.ConformanceTests.HighestUnitMightTests.PreviewReducesEightManaByTheHighestCurrentMightOfFive",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   6"
+    },
+    {
+      "test": "Riftbound.ConformanceTests.HighestUnitMightTests.RealPaymentAcceptsExactlyThreeManaAndOneRedPowerWithTheEquippedUnit",
+      "outcome": "Failed",
+      "message": "Not enough mana to play 霹天雳地."
+    }
+  ],
+  "testAssemblySha256": "31e700b33b245d308e21f57e568107911fafa7fdbcd446391946973c2b2c5b35",
+  "profile": "focus",
+  "planSha256": "7ac01fd23ba2e562de4d620fa37cb8e63813889031ffb53e3937993917cc8ece"
+}

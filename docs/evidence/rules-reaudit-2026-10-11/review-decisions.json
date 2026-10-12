@@ -9456,7 +9456,7 @@
     },
     {
       "id": "becomes-mighty-2026-10-13",
-      "status": "SCOPED_COMMAND_BOUNDARY_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "status": "SCOPED_COMMAND_BOUNDARY_CHECK_NATIVE_AND_FIXED_COMMIT_FULL_PASS",
       "scope": "Exact four CN Fiora printings: command-boundary current-Might crossing, independent printed/copied skill instances, optional cost/response and recovery; no whole-card or complete instantaneous-event certification",
       "subjects": [
         {
@@ -9664,6 +9664,135 @@
         "Historical input and result jointly altered require trusted full action/event replay",
         "Visible paired matches, Windows real runtime and real PostgreSQL",
         "EN sources retain snapshot references and are not freshly certified"
+      ],
+      "fixedCommitFullCi": "docs/evidence/becomes-mighty-2026-10-13/full-ci-6e719804.json"
+    },
+    {
+      "id": "highest-might-cost-2026-10-13",
+      "status": "SCOPED_CHECK_NATIVE_AND_COST_COMBINATION_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Exact CN OGN·014/298 highest-controlled-visible-field-current-Might mana reduction, zero floor, granted Echo additional mana, quote/real payment and native/recovery evidence; no whole-card/all-layer certification",
+      "subjects": [
+        {
+          "id": "OGN-014/298",
+          "activeCardNo": "OGN·014/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31220,
+              "cardNo": "OGN·014/298",
+              "name": "霹天雳地",
+              "sha256": "94ea4144a5f127380200c563f940a0c6638bc972b0b9f3b127270b8b332bb52e",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-014-298",
+              "cardNo": "OGN-014/298",
+              "name": "Sky Splitter",
+              "sha256": "c23660fff1688651ddc2de01ed356747392a212910557f2f5d2b202d8b309a8a",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": [],
+          "scope": "Exact CN OGN·014/298 highest-controlled-visible-field-current-Might mana reduction, zero floor, granted Echo additional mana, quote/real payment and native/recovery evidence; no whole-card/all-layer certification",
+          "wholeCardCertification": false,
+          "scopedEvidence": "docs/evidence/highest-might-2026-10-13/validation.json"
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P013-B016",
+        "DOC-04-P013-B019",
+        "DOC-04-P046-B016",
+        "DOC-04-P046-B017",
+        "DOC-04-P046-B018",
+        "DOC-04-P047-B001",
+        "DOC-04-P047-B002",
+        "DOC-04-P047-B003",
+        "DOC-04-P047-B004",
+        "DOC-04-P047-B005",
+        "DOC-04-P047-B006",
+        "DOC-04-P047-B007",
+        "DOC-04-P047-B008",
+        "DOC-04-P047-B010",
+        "DOC-04-P047-B011",
+        "DOC-04-P047-B012",
+        "DOC-04-P047-B014",
+        "DOC-04-P047-B015",
+        "DOC-04-P047-B016",
+        "DOC-04-P047-B017",
+        "DOC-04-P047-B018",
+        "DOC-04-P048-B002",
+        "DOC-04-P048-B003",
+        "DOC-04-P048-B004",
+        "DOC-04-P048-B005",
+        "DOC-04-P048-B006",
+        "DOC-04-P048-B007",
+        "DOC-04-P048-B008",
+        "DOC-04-P048-B009",
+        "DOC-04-P048-B010",
+        "DOC-04-P048-B011",
+        "DOC-04-P102-B016",
+        "DOC-04-P102-B017",
+        "DOC-04-P120-B002",
+        "DOC-04-P120-B003",
+        "DOC-04-P120-B004",
+        "DOC-04-P120-B005",
+        "DOC-04-P120-B006",
+        "DOC-04-P120-B007",
+        "DOC-04-P120-B008",
+        "DOC-04-P120-B009",
+        "DOC-04-P120-B010",
+        "DOC-04-P120-B012"
+      ],
+      "auditDocument": "docs/HIGHEST_MIGHT_COST_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/highest-might-2026-10-13/validation.json",
+        "docs/evidence/highest-might-2026-10-13/live-readback.json",
+        "docs/evidence/highest-might-2026-10-13/core-rules-readback.json",
+        "docs/evidence/highest-might-2026-10-13/front-image-readback.json",
+        "docs/evidence/highest-might-2026-10-13/rule-excerpts.json",
+        "docs/evidence/highest-might-2026-10-13/red-evidence.json",
+        "docs/evidence/highest-might-2026-10-13/echo-cap-red-evidence.json",
+        "docs/evidence/highest-might-2026-10-13/source-parity.json",
+        "docs/evidence/highest-might-2026-10-13/highest-source-queue.json",
+        "docs/evidence/highest-might-2026-10-13/godot-execution.json",
+        "docs/evidence/highest-might-2026-10-13/associated-source-references.json"
+      ],
+      "tests": [
+        "HighestUnitMightTests",
+        "HighestUnitMightNativeTests",
+        "PlayCostPreviewTests",
+        "OfficialEchoCostTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEngineReducesThunderingSkyByHighestControlledUnitPower"
+      ],
+      "validation": {
+        "nativeProductionCommands": 5,
+        "blockedNativeBranches": 2,
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "checkCases": 10419,
+        "checkMethods": 6644
+      },
+      "exclusions": [
+        "Whole card/Swift/target/damage/counter and all numeric-layer/dependency/timestamp semantics",
+        "All cost reducers, replacements and comparative-Might consumers",
+        "Intra-resolution Mighty crossings and becoming-Mighty event replacement",
+        "All 1738 whole-card identities, 14293 rule records and eight EN source gaps",
+        "Visible paired match, Windows real runtime and actual PostgreSQL",
+        "EN sources retain snapshot references without fresh certification"
       ]
     }
   ]

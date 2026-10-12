@@ -1,0 +1,9 @@
+{
+  "nativeRequest": false,
+  "canPay": false,
+  "mana": 6,
+  "power": {
+    "red": 1
+  },
+  "stateHash": "c49016cdd2fc67a081202aba32b6ce5cc063de9c10ca019ef857edf86914cb80"
+}
