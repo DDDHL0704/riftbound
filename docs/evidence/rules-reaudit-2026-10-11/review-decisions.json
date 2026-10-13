@@ -15335,6 +15335,278 @@
         "All simultaneous replacements, all-source semantics and eight unresolved EN source items",
         "Windows export root cause and user runtime, visible paired full match and real PostgreSQL"
       ]
+    },
+    {
+      "id": "empower-foundation-2026-10-13",
+      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Resource-only shared Empower activation and binary status, four exact promoted CN unit printings and their empowered-self Might/keywords, current attached text/copy-face instances, real cost and source-generation lifecycles. Full 84-source queue preserved; no whole-card certification.",
+      "subjects": [
+        {
+          "id": "VEN-001",
+          "activeCardNo": "VEN·001",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 37686,
+              "cardNo": "VEN·001",
+              "name": "巴凯旋沙者",
+              "sha256": "fc798b6f68506e4548c4329e95855877a360703e05099f1316ae74bda6ef4bbf",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T02:12:32.900545+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ven-001-166",
+              "cardNo": "VEN-001/166",
+              "name": "Baccai Sandspinner",
+              "sha256": "50381f2efc498da6a49fbe293b72d51afd6e01931fae9fcedb1972aba3018a4f",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "confirmedAt": "2026-10-13T03:02:34.467077+00:00"
+            }
+          ],
+          "implementation": [
+            "src/Riftbound.CardCatalog/EmpowerParser.cs",
+            "src/Riftbound.Engine/EmpowerRules.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs"
+          ],
+          "tests": [
+            "EmpowerTests",
+            "EmpowerNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/empower-2026-10-13/native-controls-replay.json"
+          ]
+        },
+        {
+          "id": "VEN-014",
+          "activeCardNo": "VEN·014",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 37699,
+              "cardNo": "VEN·014",
+              "name": "暗影之魔",
+              "sha256": "3754e961bb9e7a672ecd7a067077217305f67e5c9f909e06b7eabdcf52bc6f5c",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T02:12:32.900545+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ven-014-166",
+              "cardNo": "VEN-014/166",
+              "name": "Shadow Fiend",
+              "sha256": "9bd01d2b5a95d959b4e0e9fdff3b079629f8b3b90a3b76feace85df32e766214",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "confirmedAt": "2026-10-13T03:02:34.467077+00:00"
+            }
+          ],
+          "implementation": [
+            "src/Riftbound.CardCatalog/EmpowerParser.cs",
+            "src/Riftbound.Engine/EmpowerRules.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs"
+          ],
+          "tests": [
+            "EmpowerTests",
+            "EmpowerNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/empower-2026-10-13/native-controls-replay.json"
+          ]
+        },
+        {
+          "id": "VEN-030",
+          "activeCardNo": "VEN·030",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 37718,
+              "cardNo": "VEN·030",
+              "name": "无情苦修者",
+              "sha256": "4812ac19fe063c70e222d883b98eeb495354297b70646a6e896c4cd28bfb09e5",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T02:12:32.900545+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ven-030-166",
+              "cardNo": "VEN-030/166",
+              "name": "Serene Ascetic",
+              "sha256": "ed0db0bd4f3e79ab6a613a4e572ebabc11b6c0aa576d33e596e0bed6e9ae2f5b",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "confirmedAt": "2026-10-13T03:02:34.467077+00:00"
+            }
+          ],
+          "implementation": [
+            "src/Riftbound.CardCatalog/EmpowerParser.cs",
+            "src/Riftbound.Engine/EmpowerRules.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs"
+          ],
+          "tests": [
+            "EmpowerTests",
+            "EmpowerNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/empower-2026-10-13/native-controls-replay.json"
+          ]
+        },
+        {
+          "id": "VEN-074",
+          "activeCardNo": "VEN·074",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 37768,
+              "cardNo": "VEN·074",
+              "name": "军团掠阵兵",
+              "sha256": "1e9716572a5c1aab85f8b1c3094b21ec5a35a755f17641b1a0fb8682035a59dc",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T02:12:32.900545+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ven-074-166",
+              "cardNo": "VEN-074/166",
+              "name": "Legion Marauder",
+              "sha256": "a03d807ff1e64bedb5819ea9c5ae09531305486de1b41748073c8a8a1ee28c64",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "confirmedAt": "2026-10-13T03:02:34.467077+00:00"
+            }
+          ],
+          "implementation": [
+            "src/Riftbound.CardCatalog/EmpowerParser.cs",
+            "src/Riftbound.Engine/EmpowerRules.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs"
+          ],
+          "tests": [
+            "EmpowerTests",
+            "EmpowerNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/empower-2026-10-13/native-controls-replay.json"
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P084-B004",
+        "DOC-04-P084-B005",
+        "DOC-04-P084-B006",
+        "DOC-04-P084-B007",
+        "DOC-04-P084-B008",
+        "DOC-04-P084-B009",
+        "DOC-04-P084-B010",
+        "DOC-04-P084-B011",
+        "DOC-04-P084-B012",
+        "DOC-04-P084-B013",
+        "DOC-04-P084-B014",
+        "DOC-04-P084-B015",
+        "DOC-04-P084-B016",
+        "DOC-04-P084-B017",
+        "DOC-04-P084-B018",
+        "DOC-04-P084-B019",
+        "DOC-04-P123-B021",
+        "DOC-04-P123-B022",
+        "DOC-04-P123-B023",
+        "DOC-04-P124-B001",
+        "DOC-04-P124-B002",
+        "DOC-04-P124-B003",
+        "DOC-04-P124-B004",
+        "DOC-04-P124-B005",
+        "DOC-04-P124-B006",
+        "DOC-04-P124-B007",
+        "DOC-04-P124-B008",
+        "DOC-04-P124-B009",
+        "DOC-04-P124-B010",
+        "DOC-04-P124-B011",
+        "DOC-04-P124-B012",
+        "DOC-04-P124-B013",
+        "DOC-04-P124-B014",
+        "DOC-04-P124-B015",
+        "DOC-04-P124-B016",
+        "DOC-04-P124-B017",
+        "DOC-04-P124-B018",
+        "DOC-04-P124-B019",
+        "DOC-04-P124-B020"
+      ],
+      "auditDocument": "docs/EMPOWER_FOUNDATION_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/empower-2026-10-13/catalog-promotion.json",
+        "docs/evidence/empower-2026-10-13/check-parity.json",
+        "docs/evidence/empower-2026-10-13/ci-postgres-470dfda7.json",
+        "docs/evidence/empower-2026-10-13/code-inputs.json",
+        "docs/evidence/empower-2026-10-13/core-readback.json",
+        "docs/evidence/empower-2026-10-13/empower-source-queue.json",
+        "docs/evidence/empower-2026-10-13/en-readback.json",
+        "docs/evidence/empower-2026-10-13/failed-check-repair-inputs.json",
+        "docs/evidence/empower-2026-10-13/faq-readback.json",
+        "docs/evidence/empower-2026-10-13/full-ci-470dfda7.json",
+        "docs/evidence/empower-2026-10-13/full-plan-parity.json",
+        "docs/evidence/empower-2026-10-13/implementation-corrections.json",
+        "docs/evidence/empower-2026-10-13/native-controls-replay.json",
+        "docs/evidence/empower-2026-10-13/parser-classification.json",
+        "docs/evidence/empower-2026-10-13/remaining-scopes.json",
+        "docs/evidence/empower-2026-10-13/rule-excerpts.json",
+        "docs/evidence/empower-2026-10-13/source-readback.json",
+        "docs/evidence/empower-2026-10-13/theft-full-windows-failed.json",
+        "docs/evidence/empower-2026-10-13/validation.json",
+        "docs/evidence/empower-2026-10-13/windows-fixed-470dfda7.json"
+      ],
+      "tests": [
+        "EmpowerParserTests",
+        "EmpowerTests",
+        "EmpowerNativeTests",
+        "AbilityCounterAuditTests",
+        "CardCatalogBaselineTests",
+        "ShadySpectaclesNativeTests"
+      ],
+      "validation": {
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "fullExecutionCertified": false,
+        "newNativeProductionCommands": 24,
+        "priorNativeCommandsReplayed": 44,
+        "coldSessionsRestored": 6,
+        "dedupAfterColdRestore": true,
+        "sourcePrintings": 84,
+        "nonpreview": 81,
+        "preview": 3,
+        "parsedActivationPrintings": 57,
+        "promotedPrintings": 4,
+        "enReportedTotal": 1389,
+        "enReturnedDistinctIds": 1381,
+        "enSourceGap": 8,
+        "checkCases": 10741,
+        "checkMethods": 6759,
+        "oldCasesPreserved": 10689,
+        "oldMethodsPreserved": 6740,
+        "addedCases": 52,
+        "addedMethods": 19,
+        "nativeProductionCommands": 24,
+        "fullPlannedMethods": 6900,
+        "fullExpectedCases": 10890,
+        "checkSeconds": 142.1
+      },
+      "exclusions": [
+        "Nonresource costs, legends/equipment, altered timing, external reducers and Kayle repeat empowerment exception",
+        "Empower/disempower effects, dependent triggers and all 84 complete consumers",
+        "Mel counter protection and chosen negative-Might replacement, Gangplank actual-delta observer",
+        "Any consistent full-state forgery; visible paired matches and Windows user-device acceptance; full SQL match/concurrency/failover"
+      ]
     }
   ]
 }

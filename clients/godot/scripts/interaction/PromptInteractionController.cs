@@ -420,13 +420,19 @@ internal sealed class PromptInteractionController
         string? selectedMode = null;
         var copiedInstances = requirements.EnumerateArray().Any(r => r.GetProperty("sourceObjectId").GetString() == sourceId
             && r.TryGetProperty("abilityInstanceId", out var copyId) && copyId.ValueKind == JsonValueKind.String);
-        if (action.Option.Name == "LEGEND_ACT" || copiedInstances)
+        var multipleAbilities = requirements.EnumerateArray().Where(r => r.GetProperty("sourceObjectId").GetString() == sourceId)
+            .Select(r => r.TryGetProperty("abilityChoiceId", out var choice) ? choice.GetString() : r.GetProperty("abilityId").GetString())
+            .Distinct(StringComparer.Ordinal).Skip(1).Any();
+        if (action.Option.Name == "LEGEND_ACT" || copiedInstances || multipleAbilities)
         {
-            var allowedModes = requirements.EnumerateArray().Where(r => r.GetProperty("sourceObjectId").GetString() == sourceId)
-                .Select(r => r.TryGetProperty("abilityChoiceId", out var choiceId) ? choiceId.GetString()
-                    : r.GetProperty("abilityId").GetString()).ToHashSet(StringComparer.Ordinal);
+            var modeLabels = requirements.EnumerateArray().Where(r => r.GetProperty("sourceObjectId").GetString() == sourceId)
+                .GroupBy(r => r.TryGetProperty("abilityChoiceId", out var choiceId) ? choiceId.GetString()!
+                    : r.GetProperty("abilityId").GetString()!, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.First().GetProperty("abilityLabel").GetString()!, StringComparer.Ordinal);
+            var allowedModes = modeLabels.Keys.ToHashSet(StringComparer.Ordinal);
             var mode = action.Steps.First(s => s.Role == "mode");
-            mode = mode with { Index = prefix.Count, Required = true, Choices = mode.Choices.Where(c => allowedModes.Contains(c.Id)).ToArray() };
+            mode = mode with { Index = prefix.Count, Required = true, Choices = mode.Choices.Where(c => allowedModes.Contains(c.Id))
+                .Select(c => c with { Label = modeLabels[c.Id] }).ToArray() };
             prefix.Add(mode);
             if (!_selectedChoiceByStep.TryGetValue(mode.Index, out selectedMode) || !allowedModes.Contains(selectedMode))
                 return action with { Steps = prefix };

@@ -1,0 +1,616 @@
+{
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "fetchedAtUtc": "2026-10-13T03:02:34.467077+00:00",
+  "language": "en-US",
+  "region": "global",
+  "responseSha256": "7e00f3669d50d5ffc2856ed7c9b6b3cddfbcb17409009eccd55d778aea97e8fd",
+  "returned": 1381,
+  "metadata": {
+    "channelMachineName": "riftbound_website",
+    "channelHostname": "playriftbound.com",
+    "smartListMachineName": "riftbound_gallery_cards",
+    "from": 0,
+    "limit": 2000,
+    "overrideSize": 0,
+    "totalItems": 1389,
+    "totalPages": 1,
+    "locale": "en-us",
+    "resultsUpdatedAt": "2026-10-13T03:02:31.829359301Z"
+  },
+  "exactCounterpartRecords": [
+    {
+      "record": {
+        "id": "ven-001-166",
+        "collectorNumber": 1,
+        "name": "Baccai Sandspinner",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "VEN",
+            "label": "Vendetta"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "VEN-001/166",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "common",
+            "label": "Common",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a088ae851d94b5c34aa4900e8ccb4cc103144dce-354x354.png?accountingTag=RB",
+              "dimensions": {
+                "width": 354,
+                "height": 354,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#A4B8AA",
+                "secondary": "#293333",
+                "label": "#3A6C49"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "fury",
+              "label": "Fury",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#1A0D0E",
+                  "secondary": "#F9DCDE",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d8abab7f0df7c8ec9fff8c8dfa71c732e1ce2e6a-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Baccai Sandspinner. [Empower] [5]. This ability costs [3] less if you control 4 or fewer runes. (Pay the cost: Empower me. Use only if not Empowered.)\n[Empowered][>] I have [Deflect] and [Assault 2]. (Opponents must pay [A] to choose me with a spell or ability. +2 [S] while I'm an attacker.)",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#34261A",
+            "secondary": "#F9EEDC",
+            "label": "#050301"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "kudosproductions",
+              "label": "Kudos Productions",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Empower] :rb_energy_5:. This ability costs :rb_energy_3: less if you control 4 or fewer runes. (Pay the cost: Empower me. Use only if not Empowered.)<br />[Empowered][&gt;] I have [Deflect] and [Assault 2]. (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability. +2 :rb_might: while I'm an attacker.)</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 6,
+            "label": "6"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 6,
+            "label": "6",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Shurima"
+          ]
+        }
+      },
+      "sha256": "50381f2efc498da6a49fbe293b72d51afd6e01931fae9fcedb1972aba3018a4f"
+    },
+    {
+      "record": {
+        "id": "ven-074-166",
+        "collectorNumber": 74,
+        "name": "Legion Marauder",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "VEN",
+            "label": "Vendetta"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "VEN-074/166",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "common",
+            "label": "Common",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a088ae851d94b5c34aa4900e8ccb4cc103144dce-354x354.png?accountingTag=RB",
+              "dimensions": {
+                "width": 354,
+                "height": 354,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#A4B8AA",
+                "secondary": "#293333",
+                "label": "#3A6C49"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "body",
+              "label": "Body",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#221A11",
+                  "secondary": "#F9EADC",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/15ec9e813e58c9ba96f37e78f09faaaa184ecdad-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Legion Marauder. [Empower] — [1] or [C] (Pay either cost: Empower me. Use only if not Empowered.)\n[Empowered][>] I have +1 [S].",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#583F2C",
+            "secondary": "#F9EDDC",
+            "label": "#301C0C"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "sixmorevodka",
+              "label": "Six More Vodka",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Empower] — :rb_energy_1: or :rb_rune_body: (Pay either cost: Empower me. Use only if not Empowered.)<br />[Empowered][&gt;] I have +1 :rb_might:.</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 2,
+            "label": "2"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 2,
+            "label": "2",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Trifarian",
+            "Noxus"
+          ]
+        }
+      },
+      "sha256": "a03d807ff1e64bedb5819ea9c5ae09531305486de1b41748073c8a8a1ee28c64"
+    },
+    {
+      "record": {
+        "id": "ven-030-166",
+        "collectorNumber": 30,
+        "name": "Serene Ascetic",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "VEN",
+            "label": "Vendetta"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "VEN-030/166",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "common",
+            "label": "Common",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a088ae851d94b5c34aa4900e8ccb4cc103144dce-354x354.png?accountingTag=RB",
+              "dimensions": {
+                "width": 354,
+                "height": 354,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#A4B8AA",
+                "secondary": "#293333",
+                "label": "#3A6C49"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "calm",
+              "label": "Calm",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#152311",
+                  "secondary": "#E0FFD6",
+                  "label": "#080808"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7acc2f9fcdec5d2649e4a50dc3c96aeb31b87916-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Serene Ascetic. [Empower] [3] ([3]: Empower me. Use only if not Empowered.)\n[Empowered][>] I have [Deflect] and [Shield 3]. (Opponents must pay [A] to choose me with a spell or ability.+3 [S] while I'm a defender.)",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#57462B",
+            "secondary": "#F9F1DC",
+            "label": "#2F210C"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "kudosproductions",
+              "label": "Kudos Productions",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Empower] :rb_energy_3: (:rb_energy_3:: Empower me. Use only if not Empowered.)<br />[Empowered][&gt;] I have [Deflect] and [Shield 3]. (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.+3 :rb_might: while I'm a defender.)</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 3,
+            "label": "3"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 3,
+            "label": "3",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Ionia"
+          ]
+        }
+      },
+      "sha256": "ed0db0bd4f3e79ab6a613a4e572ebabc11b6c0aa576d33e596e0bed6e9ae2f5b"
+    },
+    {
+      "record": {
+        "id": "ven-014-166",
+        "collectorNumber": 14,
+        "name": "Shadow Fiend",
+        "set": {
+          "label": "Card Set",
+          "value": {
+            "id": "VEN",
+            "label": "Vendetta"
+          }
+        },
+        "cardType": {
+          "label": "Card Type",
+          "type": [
+            {
+              "id": "unit",
+              "label": "Unit",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "publicCode": "VEN-014/166",
+        "rarity": {
+          "label": "Rarity",
+          "value": {
+            "id": "uncommon",
+            "label": "Uncommon",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+              "dimensions": {
+                "width": 480,
+                "height": 410,
+                "aspectRatio": 1.170731707317073
+              },
+              "colors": {
+                "primary": "#41B4B8",
+                "secondary": "#293331",
+                "label": "#122021"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        },
+        "domain": {
+          "label": "Domain",
+          "values": [
+            {
+              "id": "fury",
+              "label": "Fury",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 64,
+                  "height": 64,
+                  "aspectRatio": 1
+                },
+                "colors": {
+                  "primary": "#1A0D0E",
+                  "secondary": "#F9DCDE",
+                  "label": "#000000"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          ]
+        },
+        "cardImage": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3bbeed15ac517c2e39c039e376553ce7e1c65f0c-744x1039.png?accountingTag=RB",
+          "accessibilityText": "Riftbound Unit: Shadow Fiend. [Empower] [2][C] ([2][C]: Empower me. Use only if not Empowered.)\n[Empowered][>] I have [Assault 3]. (+3 [S] while I'm an attacker.)",
+          "dimensions": {
+            "width": 744,
+            "height": 1039,
+            "aspectRatio": 0.7160731472569779
+          },
+          "colors": {
+            "primary": "#351A1F",
+            "secondary": "#F9E1DC",
+            "label": "#060202"
+          },
+          "mimeType": "image/png"
+        },
+        "orientation": "portrait",
+        "illustrator": {
+          "label": "Artist",
+          "values": [
+            {
+              "id": "sixmorevodka",
+              "label": "Six More Vodka",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+              }
+            }
+          ]
+        },
+        "text": {
+          "label": "Ability",
+          "richText": {
+            "type": "html",
+            "body": "<p>[Empower] :rb_energy_2::rb_rune_fury: (:rb_energy_2::rb_rune_fury:: Empower me. Use only if not Empowered.)<br />[Empowered][&gt;] I have [Assault 3]. (+3 :rb_might: while I'm an attacker.)</p>"
+          }
+        },
+        "energy": {
+          "label": "Energy",
+          "value": {
+            "id": 2,
+            "label": "2"
+          }
+        },
+        "might": {
+          "label": "Might",
+          "value": {
+            "id": 2,
+            "label": "2",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+            }
+          }
+        },
+        "tags": {
+          "label": "Tags",
+          "tags": [
+            "Ionia"
+          ]
+        }
+      },
+      "sha256": "9bd01d2b5a95d959b4e0e9fdff3b079629f8b3b90a3b76feace85df32e766214"
+    }
+  ],
+  "scope": "Four exact EN counterparts checked separately; no merged source denominator or missing-eight resolution"
+}

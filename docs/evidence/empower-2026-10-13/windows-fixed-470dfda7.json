@@ -1,0 +1,34 @@
+{
+  "status": "FIXED_COMMIT_WINDOWS_EXPORT_AND_PACKAGED_BOOT_VERIFIED",
+  "commit": "470dfda78cb5a96f57675b2ab62c9ff442e25e19",
+  "runId": 38334584081,
+  "jobId": 115091752334,
+  "verifiedAtUtc": "2026-10-13T02:04:32.976816+00:00",
+  "logs": [
+    {
+      "file": "build.log",
+      "sha256": "776a0d48dbed8e6745a3b50e209d16396cbfe8df6c8b8028db1fed2d330111e0",
+      "bytes": 552
+    },
+    {
+      "file": "import.log",
+      "sha256": "e13e9a3b125d68eb04d48f04e646d9465e3e3595de57f6f02a0c7b7b498b6b86",
+      "bytes": 17099
+    },
+    {
+      "file": "export.log",
+      "sha256": "361cce42d514dfa88eae77cbbda2916734b90635e6997600ba35cd9b34967f5c",
+      "bytes": 96854
+    },
+    {
+      "file": "exported-boot.log",
+      "sha256": "cfef71d4589d1b4c424360e26d91a8059872ac009430e866a7fc6ac21edde493",
+      "bytes": 10830
+    }
+  ],
+  "packagedClientBooted": true,
+  "packagedCatalogCards": 1016,
+  "exportErrors": [],
+  "scope": "Hosted Windows x64 headless export and exported executable boot; not user Windows device or visible full-match acceptance",
+  "fullIntegrationComplete": false
+}

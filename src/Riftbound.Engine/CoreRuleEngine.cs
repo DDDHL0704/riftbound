@@ -5440,6 +5440,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         ActivateAbilityCommand command)
     {
+        if (command.AbilityId.StartsWith("EMPOWER:", StringComparison.Ordinal))
+            return ResolveEmpowerActivation(state, intent, command);
         if (string.Equals(command.AbilityId, BattlefieldUnitGainExperienceAbilityId, StringComparison.Ordinal))
         {
             if (!string.IsNullOrWhiteSpace(command.AbilityInstanceId))
@@ -14605,6 +14607,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
             + CopiedRuleTextPowerContributions(state, card).Sum(c => c.Delta)
             + ArmamentMightContributions(state, zones, card).Sum(c => c.Delta)
+            + EmpowerRules.Might(state, card)
             + ResolveBattlefieldPowerStaticAuraBonus(state, zones, battlefieldId, card)
             + ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(state, zones, id, card);
 
@@ -25918,6 +25921,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveEzrealBlueSwiftMoveAbilityStackItem(state, stackItem);
         }
 
+        if (stackItem.EffectKind == EmpowerRules.Effect) return ResolveEmpowerStack(state, stackItem);
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var activatedAbility)
             && string.Equals(
                 activatedAbility.Kind,

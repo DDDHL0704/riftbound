@@ -1,0 +1,4577 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-13T02:12:32.900545+00:00",
+  "language": "zh-CN",
+  "region": "CN",
+  "total": 1502,
+  "pages": [
+    {
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "a1b47a39a9c2ddeca9f7fcdfb1a7d2bd92b1f1fd8c48bc244f14832f085f5ae7",
+      "fetchedAtUtc": "2026-10-13T02:12:31.987747+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 2,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "a8740381dc60347ba5af970e895d904f3c8941c845cda60b7b39b8c97293077e",
+      "fetchedAtUtc": "2026-10-13T02:12:32.237434+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 3,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "09b70335eddd5a72afee47ccc381063985e4276034063ae574cfffbf9e3fd44b",
+      "fetchedAtUtc": "2026-10-13T02:12:32.246948+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 4,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "287910b5fdac31b244ca53f78b4e87934d8ba1b22d2231495c3452caae57c7a8",
+      "fetchedAtUtc": "2026-10-13T02:12:32.242030+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 5,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "88301261267258e1f5ceff8fa73716ff1f3f292656b317e55586254962f77466",
+      "fetchedAtUtc": "2026-10-13T02:12:32.230840+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 6,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "ab740ded62d2d8410f8ae9f9d6e3d83985093b505911d6960d934a1750f36680",
+      "fetchedAtUtc": "2026-10-13T02:12:32.483734+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 7,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "5a768c7506aba0b9c6714337bf1084a5bc30e6a6e6dc3f1c7d4dc476059fb9f7",
+      "fetchedAtUtc": "2026-10-13T02:12:32.476683+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 8,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "09f3a93bd5750e2d3e7659ef5c9e4dc2d978b5e0d23412b62732e5e57450067d",
+      "fetchedAtUtc": "2026-10-13T02:12:32.454840+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 9,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "97542ed998c71c89a04f140232f9ae16c1db139e68c530a10ee5887685d2c393",
+      "fetchedAtUtc": "2026-10-13T02:12:32.492150+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 10,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "e9f84a9c615e733696007b6e1e1f5bc38238ac9ff97aab9ab78cbf4feffd4891",
+      "fetchedAtUtc": "2026-10-13T02:12:32.680319+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 11,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "24c5dce82aa33bb5e0a92a40f90bc43e89a37f29a6cc03fd0202d94248dba7c1",
+      "fetchedAtUtc": "2026-10-13T02:12:32.704020+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 12,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "5dc8ccb8970f389dfdf8d5b7a04c79504873b95014bd5bc90f9079b9d10ce8ee",
+      "fetchedAtUtc": "2026-10-13T02:12:32.694163+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 13,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "2c53f4af3f6e813b3b2d0245181f55066e24bc17b91b10a64ff99eb41ea9804f",
+      "fetchedAtUtc": "2026-10-13T02:12:32.709219+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 14,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "55272ec546b6114a9176306a088d6db60303d7fac62de1c7a72271e67c4804ee",
+      "fetchedAtUtc": "2026-10-13T02:12:32.876252+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 15,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "f5ff6bab21c75c5d3157b87878f4511ae2f7f7496e1dad27c305efae0acb708a",
+      "fetchedAtUtc": "2026-10-13T02:12:32.887354+00:00"
+    },
+    {
+      "request": {
+        "pageNum": 16,
+        "pageSize": 100,
+        "searchContent": "",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "8fcc340f60b454c4887006a72a07282d0d0a90ede86901b8ec716029cf760767",
+      "fetchedAtUtc": "2026-10-13T02:12:32.828379+00:00"
+    }
+  ],
+  "newCardNumbers": [],
+  "missingCardNumbers": [],
+  "changedCardNumbers": [],
+  "empowerRecords": [
+    {
+      "record": {
+        "id": 38003,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "T1S·001/005",
+        "cardName": "安蓓萨",
+        "subTitle": "恶狼意志",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "安蓓萨",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Pandart Studio",
+        "cardEffect": "{{强化3橙色}}\r\n{{已强化>}} 我获得{{S}}+3，且除非我处于战斗中，否则我无法受到伤害。",
+        "flavorText": "“我相信，这是属于我故事的序章而已。”——Doran",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [],
+        "productNameList": [],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260911/ee7c8e65f3414e69b59b6beaa1412e6c.webp",
+        "backImage": "",
+        "listSort": 3000,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "29540a56d591693ae299052cf0817c8551aeb1275206913c98f48a1eb56264ad",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 38477,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "RAD·139/167",
+        "cardName": "时间刺客",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "blue"
+        ],
+        "hero": "艾克",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "{{强化}} — 支付{{1}}，{{T}}（仅在未强化时可用。）\n解除我的强化，{{T}}：你在本回合内打出的下一名单位的费用减少{{2}}和{{A}}，并给予其“在回合结束时，将我摧毁。”",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [],
+        "productNameList": [],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/22d0a493ed9642bf967bccf4f9194ef0.png",
+        "backImage": "",
+        "listSort": 2744,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": true,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "0efbc900b760923df277d22150c2264221b61361f3a67f1f27ff17feb93ffbff",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 38506,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "RAD·168*/167",
+        "cardName": "时间刺客",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "blue"
+        ],
+        "hero": "艾克",
+        "region": "",
+        "tag": "",
+        "artist": "Blaine Burgos",
+        "cardEffect": "{{强化}} — 支付{{1}}，{{T}}\n解除我的强化，{{T}}：你在本回合内打出的下一名单位的费用减少{{2}}和{{A}}，并给予其“在回合结束时，将我摧毁。”",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [],
+        "productNameList": [],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/b266bf55f31e42e99d26aeb28e3e1b67.png",
+        "backImage": "",
+        "listSort": 2715,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": true,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "092c0bdca681ab9a47f655774e6a5e02db107cca83a4c58343b96c8cc763d7ff",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 38507,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "RAD·168/167",
+        "cardName": "时间刺客",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "blue"
+        ],
+        "hero": "艾克",
+        "region": "",
+        "tag": "",
+        "artist": "Blaine Burgos",
+        "cardEffect": "{{强化}} — 支付{{1}}，{{T}}\n解除我的强化，{{T}}：你在本回合内打出的下一名单位的费用减少{{2}}和{{A}}，并给予其“在回合结束时，将我摧毁。”",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [],
+        "productNameList": [],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/31c6cdeb518041b2b5797b703cb98e96.png",
+        "backImage": "",
+        "listSort": 2714,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": true,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "7ee5830950ae70b96b7c84bf92dc41896a98e41c0e2444f1266f3718ee72299e",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37686,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·001",
+        "cardName": "巴凯旋沙者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{强化5}}。如果你控制的符文数量不超过四枚，则此技能的费用减少{{3}}。（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{法盾}}和{{强攻2}}。（对手必须支付{{A}}才能将我选作法术或技能的目标。如果我是进攻方，则{{S}}+2。）",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": null,
+        "power": 6,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/bc33ab35eecb4d1695e2dafeff4a5565.png",
+        "backImage": "",
+        "listSort": 2000,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "fc798b6f68506e4548c4329e95855877a360703e05099f1316ae74bda6ef4bbf",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37692,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·007",
+        "cardName": "拳拳魄罗",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "艾欧尼亚",
+        "tag": "魄罗",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{强化}} — 弃置一张手牌（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+1。",
+        "flavorText": "绒毛软，拳头硬。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 2,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/080b3d87da34440baf324704e3504979.png",
+        "backImage": "",
+        "listSort": 1994,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "eec816984fb52bd07ce15b200c7092871aa33a7677405ff37feb0d7ef28f4cd5",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37699,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·014",
+        "cardName": "暗影之魔",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{强化2红色}}（支付{{2}}和{{红色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{强攻3}}。（如果我是进攻方，则{{S}}+3。）",
+        "flavorText": "怕黑是有道理的。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 2,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/3bc81d5134cc476cbff6b2f9736a2858.png",
+        "backImage": "",
+        "listSort": 1987,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "3754e961bb9e7a672ecd7a067077217305f67e5c9f909e06b7eabdcf52bc6f5c",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37703,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "VEN·018",
+        "cardName": "怒火放大器",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{强化6红色}}（支付{{6}}和{{红色}}：强化此牌。仅在未强化时可用。）\n你的单位获得{{S}}+1。如果我{{已强化}}，则改为让其获得{{S}}+2。",
+        "flavorText": "刺耳与悦耳，只隔一个分贝。",
+        "energy": 4,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/7d102b39acaf448b95bc0a16c8e3d22b.png",
+        "backImage": "",
+        "listSort": 1983,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "e0f71715a2c84ff48d4882a12740359aeb13f052390e7818c08e3aebfdd684e6",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37707,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·021",
+        "cardName": "阿卡丽",
+        "subTitle": "游离之刃",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "阿卡丽",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "莺之歌",
+        "cardEffect": "{{强化2红色}}（支付{{2}}和{{红色}}：强化我。仅在未强化时可用。）\n当我移动时，你可以选择对我移动起点或终点的战场上的一名单位造成1点伤害。如果我{{已强化}}，则改为造成2点伤害。\n{{已强化>}} 我获得{{S}}+1。",
+        "flavorText": "",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/536a8227b35748a29daa48c7eb9559fb.png",
+        "backImage": "",
+        "listSort": 1979,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "4f790fc513f2161e29e6b9fa2d014b27323465935c391ec6b8f636557bbd06c1",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37708,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·021a",
+        "cardName": "阿卡丽",
+        "subTitle": "游离之刃",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "阿卡丽",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{强化2红色}}\n当我移动时，你可以选择对我移动起点或终点的战场上的一名单位造成1点伤害。如果我{{已强化}}，则改为造成2点伤害。\n{{已强化>}} 我获得{{S}}+1。",
+        "flavorText": "“被星星撞昏头了？”",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/e9aeafb965da4a27b0d499dffeb19fef.png",
+        "backImage": "",
+        "listSort": 1978,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "4cb14546485f50b7dac26715579860dba3e62389e3607f809f1d4bbda9025a09",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37716,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·028",
+        "cardName": "悲悯见证者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "艾欧尼亚",
+        "tag": "仙灵",
+        "artist": "Kudos Productions",
+        "cardEffect": "当我参与的战斗结束时，强化我。（如果我未被强化，则变为已强化状态。）\n{{已强化>}} 我获得{{S}}+2。",
+        "flavorText": "记而不怨，乃自然之道。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 2,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/a498b5e6f8524d51a3ac65b92a5df55a.png",
+        "backImage": "",
+        "listSort": 1970,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "fc50033f2b81b5e2459856f77005bc8d9ddb4e124c1019576ce02648a5e89725",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37718,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·030",
+        "cardName": "无情苦修者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{法盾}}和{{坚守3}}。（对手必须支付{{A}}才能将我选作法术或技能的目标。如果我是防守方，则{{S}}+3。）",
+        "flavorText": "",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/8efa0305fd614c30a8456d8470abeaa6.png",
+        "backImage": "",
+        "listSort": 1968,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "4812ac19fe063c70e222d883b98eeb495354297b70646a6e896c4cd28bfb09e5",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37720,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·032",
+        "cardName": "霜衣狼母",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "弗雷尔卓德",
+        "tag": "犬形",
+        "artist": "Caravan Studio",
+        "cardEffect": "{{强化12}}。你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+3。",
+        "flavorText": "很少有人敢向护崽的霜衣狼母靠近一步。能活着靠近两步的，更是一个也没有。",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/11d50cf986d946dea73040f997b98aa5.png",
+        "backImage": "",
+        "listSort": 1966,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "f417682057662eb45ed6a3516e34a4a6c9a49f3ecbce0fb4bfd1c7dc33e1611e",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37723,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "VEN·035",
+        "cardName": "念化盈虚",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Wild Blue Studio",
+        "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一个效果 —\n- 强化一名单位。回合结束时，解除其强化。\n- 解除一名{{已强化}}单位的强化。在回合结束时，强化该单位。",
+        "flavorText": "",
+        "energy": 3,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/30204533ccc04c47a36e5edb29b52938.png",
+        "backImage": "",
+        "listSort": 1963,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "da4047e380da4e6c2b7c39d35a05474be370d6a5352f41a78d9bdb453782eed9",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37725,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·037",
+        "cardName": "盗墓贼芭芭拉",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Caravan Studio",
+        "cardEffect": "当你打出我时，如果你控制的符文不少于七枚，则选择一件敌方装备。如果该装备{{已强化}}，则解除其强化。否则将其摧毁。",
+        "flavorText": "等她的信号行事。别担心，到时候你就知道了。",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/c4f3ffa5b87e4917803ea62dca041644.png",
+        "backImage": "",
+        "listSort": 1961,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "88dc62d078a86e4e4300cd408bd517eb88c4e8ba63f05df708de9346e9ad9a57",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37733,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·043",
+        "cardName": "钢爪",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "皮尔特沃夫",
+        "tag": "猫科",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n{{强化7}}（支付{{7}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+7。",
+        "flavorText": "老鼠越变越大，小猫也要想办法。",
+        "energy": 1,
+        "returnEnergy": null,
+        "power": 0,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/df893a9f16fd4c68b4f28ecbb2d64f67.png",
+        "backImage": "",
+        "listSort": 1953,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "ba380042ceb49d3f93e5dc5ec2b47906148ef017069812b68d7b7fc808e2f2ad",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37735,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "VEN·045",
+        "cardName": "抑制之盔",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{强化4绿色}}（支付{{4}}和{{绿色}}：强化此牌。仅在未强化时可用。）\n对手的法术费用增加{{1}}。如果此牌{{已强化}}，则改为对手的法术费用增加{{1}}和{{A}}。",
+        "flavorText": "“玩够了吗？”",
+        "energy": 4,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/05a15caf3d8b458fab953e5da1c73af2.png",
+        "backImage": "",
+        "listSort": 1951,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "14d54d8f9d8587315e41055771b8efc3a5035ff02e08a6952d539ebff4e98629",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37736,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·046",
+        "cardName": "内瑟斯",
+        "subTitle": "飞升者",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "内瑟斯",
+        "region": "恕瑞玛",
+        "tag": "犬形",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{法盾2}}（对手必须支付{{A}}{{A}}才能将我选作法术或技能的目标。）\n{{强化8}}（支付{{8}}：强化我。仅在未强化时可用。）\n{{已强化>}} 当我征服一处战场时，你获得1分。",
+        "flavorText": "“你们没有来世可言。”",
+        "energy": 8,
+        "returnEnergy": 1,
+        "power": 8,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/3250b50d6a3b489ca0f76f191e548179.png",
+        "backImage": "",
+        "listSort": 1950,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "40e86fbea2b144244740755af924fb0b7964dd200ff90359abbf122332818802",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37737,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·046a",
+        "cardName": "内瑟斯",
+        "subTitle": "飞升者",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "内瑟斯",
+        "region": "恕瑞玛",
+        "tag": "犬形",
+        "artist": "League Splash Team",
+        "cardEffect": "{{法盾2}}\n{{强化8}}\n{{已强化>}} 当我征服一处战场时，你获得1分。",
+        "flavorText": "“你们没有来世可言。”",
+        "energy": 8,
+        "returnEnergy": 1,
+        "power": 8,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/3dc822ebf5f64bc69547fdb2789ec27d.png",
+        "backImage": "",
+        "listSort": 1949,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "2f83f0c6c5b5b6ea40ff639f06acf8d67c73abfe232cd8c5617328c2feca2210",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37738,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·047",
+        "cardName": "见习法师",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "比尔吉沃特",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "{{强化2}}（支付{{2}}：强化我。仅在未强化时可用。）\n当我变为{{已强化}}时，进行{{洞察2}}。（查看你主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）\n{{已强化>}} 我获得{{S}}+1。",
+        "flavorText": "",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/530a7ed2b1c04fa7adf85183ded35693.png",
+        "backImage": "",
+        "listSort": 1948,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "2b941b8cbbccf72e7068d0e03d56207030dd611b214b9a256423bc992ba413b2",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37741,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·050",
+        "cardName": "凶暴的岩熊",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Dao Trong Le",
+        "cardEffect": "{{强化12}}。你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{法盾}}和{{坚守3}}。（对手必须支付{{A}}才能将我选作法术或技能的目标。如果我是防守方，则{{S}}+3。）",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/cdc7a0b3a2c44e9e93db5c87a3c9b5da.png",
+        "backImage": "",
+        "listSort": 1945,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "c765b085319572137e592b81621e48fbe7a5bcd692eb757938d5da9fdd411779",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37745,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "VEN·054",
+        "cardName": "可疑之书",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{强化}} — {{横置}}（支付此费用：强化我。仅在未强化时可用。）\n解除此牌的强化，支付{{1}}，{{横置}}：抽一张牌。",
+        "flavorText": "真的……可疑吗？",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/27a8914b4d8b4b48be09374c3fac5b88.png",
+        "backImage": "",
+        "listSort": 1941,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "855096dcd6c11bbefaba0210c6401fee80bc49735ceacc37393268b65070d04b",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37746,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·055",
+        "cardName": "实干研究员",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Polar Engine Studio",
+        "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 你的法术费用减少{{1}}和{{A}}，不得低于{{1}}。",
+        "flavorText": "“预知测试第11次：成功，但第14和19次将会失败。如果跳过这两次，会发生什么呢？”",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/628d0ca60fb4422f86472886bfb50375.png",
+        "backImage": "",
+        "listSort": 1940,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "9c4a480c571d4593f8bc8aed3ccff7c80a2f3874fdbfc8bc266c7c3318adcbee",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37748,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·057",
+        "cardName": "秘密线人",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Grafit Studio",
+        "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 当我移动时，抽一张牌。",
+        "flavorText": "一人所知，是为秘密；两人所知，是为交易。",
+        "energy": 3,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/6b9efb9db2fa4146b38301f6d66eddaa.png",
+        "backImage": "",
+        "listSort": 1938,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "4928cce720d003724d05d3d07974738f3062beb4356ad7b6aa2de52734c909db",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37750,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "VEN·059",
+        "cardName": "电能震荡",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n如果你控制着{{已强化}}的物体，则此牌的费用减少{{2}}。\n对战场上的一名单位造成4点伤害，",
+        "flavorText": "“感受雷霆吧！”\n——杰斯",
+        "energy": 3,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/0f072f395b364fa8a1c30568cf322792.png",
+        "backImage": "",
+        "listSort": 1936,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "8ab0fd2b47a7be1ddf43ba7f3a3257eba81c2a5fe75cf2796b7e774f73791357",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37753,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "VEN·062",
+        "cardName": "海克斯方程式",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "此牌以休眠状态进场。\n{{横置}}：强化另一件装备。（如果其未被强化，则变为已强化状态。）",
+        "flavorText": "一看就对人畜无害。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/dee386220aa54d29b60c345c5a4acae5.png",
+        "backImage": "",
+        "listSort": 1933,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "5146f2047330ce39614926c27878e1afe88e2f9718030ff1f87aa646bc1809ab",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37762,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·069",
+        "cardName": "梅尔",
+        "subTitle": "奥法觉醒",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "梅尔",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Pandart Studio",
+        "cardEffect": "当你打出我时，抽一张牌。\n{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 你的法术和技能无法被无效化。如果你控制的法术或技能将给予其选作目标的一名单位-{{S}}，则其额外给予{{S}}-1。",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/bab238ec0d5d44b5923336bfe7eb3d2d.png",
+        "backImage": "",
+        "listSort": 1924,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "f3a5bc0c49736dd900da3e7db7119a70180c3946d63ac9b9a489aeafaacfcd31",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37763,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·069a",
+        "cardName": "梅尔",
+        "subTitle": "奥法觉醒",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "梅尔",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "当你打出我时，抽一张牌。\n{{强化3}}\n{{已强化>}} 你的法术和技能无法被无效化。如果你控制的法术或技能将给予其选作目标的一名单位-{{S}}，则其额外给予{{S}}-1。",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/f6216837df27434685826bc50aac754e.png",
+        "backImage": "",
+        "listSort": 1923,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "a37ac98b45e8469584623e91c055a372878f80fbedf0faac40990fa48a6e1feb",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37764,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·070",
+        "cardName": "残暴猎手",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+2和{{游走}}。（我可以向其他战场进行移动。）",
+        "flavorText": "她带回的战利品，往往……很难辨认。",
+        "energy": 3,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/dd46f8de81604175ba4946064058db15.png",
+        "backImage": "",
+        "listSort": 1922,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "30c89719ffd4798d5f3bdf41c4bc5dab0617d3fc29cb16a0f8ff8b512015cee9",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37766,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "VEN·072",
+        "cardName": "深沉咆哮",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n给予一名单位在本回合内{{S}}+2。如果该单位{{已强化}}，则改为给予其在本回合内{{S}}+4。",
+        "flavorText": "“荒漠屠夫”的雅号，可不是靠耐心挣来的。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/ea5f0d626f454b6f8a0a0ac4cd3ad845.png",
+        "backImage": "",
+        "listSort": 1920,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "4a711d41e3e1940fefe01c4e0dd7e7551ec0f439960131dabcc55ccd6e9ae02d",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37768,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·074",
+        "cardName": "军团掠阵兵",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "诺克萨斯",
+        "tag": "崔法利",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{强化}} — 支付{{1}}或{{橙色}}（支付其中一种费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+1。",
+        "flavorText": "哪怕只有一个人，崔法利军团也能靠数量制胜。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 2,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/c3d49abef43244bc9e9297dbc62323c3.png",
+        "backImage": "",
+        "listSort": 1918,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "1e9716572a5c1aab85f8b1c3094b21ec5a35a755f17641b1a0fb8682035a59dc",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37769,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "VEN·075",
+        "cardName": "剑头蛟的卵",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "此牌以休眠状态进场。\n{{强化}} — 支付{{1}}，{{横置}}（支付此费用：强化此牌。仅在未强化时可用。）\n{{反应>}} {{横置}}：{{获得}}{{1}}。如果此牌{{已强化}}，则改为{{获得}}{{2}}。",
+        "flavorText": "",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/0f27b6757c974de4ba806eb4eeec36cb.png",
+        "backImage": "",
+        "listSort": 1917,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "5a4056003f10e5b72c485dbf32e5d510fad0c5ed4b60a8334c45ea5c5c74cd50",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37771,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "VEN·077",
+        "cardName": "帝国工具",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Wild Blue Studio",
+        "cardEffect": "{{强化2}}（支付{{2}}：强化此牌。仅在未强化时可用。）\n{{横置}}：给予一名单位在本回合内{{S}}+2。如果此牌{{已强化}}，则改为给予该单位在本回合内{{S}}+4。",
+        "flavorText": "“我们会让早已遗失的东西重见天日。”\n——阿兹尔",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/460a56c009e94d398951c6b8c28021b2.png",
+        "backImage": "",
+        "listSort": 1915,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "9ba7bacefe98e0769ca22089fb880a54444331a028b83d7c8bba54ccba5f3eb8",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37772,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·078",
+        "cardName": "枯爪巴凯",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Will Gist",
+        "cardEffect": "{{强化1AA}}（支付{{1}}和{{A}}{{A}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+2。\n{{已强化>}}{{>绝念>}} 召出两枚休眠的符文。（当我在已强化状态下被摧毁时，发动此效果。）",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/6f2e3c2cb40242438fb162e58a3f4be0.png",
+        "backImage": "",
+        "listSort": 1914,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "0ba55ae6d015e676871af2c2c196a83c9e092d24eca7f2e9eaafad7ec8aa3070",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37773,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·079",
+        "cardName": "夺魂钩 妲姆",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{强化5橙色}}（支付{{5}}和{{橙色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 当我进攻或防守时，选择此处一名战力大于我的单位。在本回合内将我的战力提升至与其战力相同，然后给予我在本回合内{{S}}+1。",
+        "flavorText": "“我这一招下去，你可能会死。”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 5,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/61333594f6e34bb4ad5d8f06cb4ef186.png",
+        "backImage": "",
+        "listSort": 1913,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "c1cc0d248522a57471f0bb78da9230c9374f1c25fb8f8646200863b193ea94b7",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37776,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·082",
+        "cardName": "黑心商人",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Grafit Studio",
+        "cardEffect": "当你打出我时，你可以选择解除一个受你控制的物体的强化，以此强化一个传奇、单位、或装备。",
+        "flavorText": "“我们来谈笔交易，如何？”",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/f75f7a0ab19c43b6bf828847fe7632e4.png",
+        "backImage": "",
+        "listSort": 1910,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "f89aa5491b6677468401f0461aa7f8780d1d6a2cefb4baccc228cdfab6f1d161",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37778,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·084",
+        "cardName": "安蓓萨",
+        "subTitle": "恶狼意志",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "安蓓萨",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Pandart Studio",
+        "cardEffect": "{{强化3橙色}}（支付{{3}}和{{橙色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+3，且除非我处于战斗中，否则我无法受到伤害。",
+        "flavorText": "“我从不迷茫，也从不投降。”",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/e6bcd54ed4f3474b9ca5b485a853523a.png",
+        "backImage": "",
+        "listSort": 1908,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "0bb09f836ce7f89ac3eaee33525dccc0645f60a739944213a032dcbcf2ba3715",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37779,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·084a",
+        "cardName": "安蓓萨",
+        "subTitle": "恶狼意志",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "安蓓萨",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{强化3橙色}}\n{{已强化>}} 我获得{{S}}+3，且除非我处于战斗中，否则我无法受到伤害。",
+        "flavorText": "“我从不迷茫，也从不投降。”",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/8e0ec9b8099c4ae5981008b4edf074bc.png",
+        "backImage": "",
+        "listSort": 1907,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "c6a5d5370584b155c2b82890bfd7638c1614f799f0327246a9acedd1bdb2deaa",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37984,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·086",
+        "cardName": "普朗克",
+        "subTitle": "海上霸主",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "普朗克",
+        "region": "比尔吉沃特",
+        "tag": "海盗",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{强化橙色橙色}}（支付{{橙色}}{{橙色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。",
+        "flavorText": "“死亡把我吐了出来。”",
+        "energy": 6,
+        "returnEnergy": null,
+        "power": 6,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/d52dca4cab1746078dff7c5a59b7be3c.png",
+        "backImage": "",
+        "listSort": 1905,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{强化橙色橙色}}（支付{{橙色}}{{橙色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。",
+        "otherDesc": 0
+      },
+      "recordSha256": "ec0ec1edb161eed2d6cd5db7620b2c9586c97f0962d1ec3b49b3b3c14a5bcb89",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37782,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "VEN·087",
+        "cardName": "海克斯圆盘",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Polar Engine Studio",
+        "cardEffect": "{{强化}} — {{横置}}（支付此费用：强化此牌。仅在未强化时可用。）\n解除此牌的强化，支付{{1}}，{{横置}}：打出一名3{{S}}的“机器人”到你的基地。",
+        "flavorText": "适宜量产。",
+        "energy": 4,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/c46dd02f11bb4e9ea43a24ce29b0f0c8.png",
+        "backImage": "",
+        "listSort": 1904,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "cbbfc09eb502c59f424e81fe440c0252ef5bccd4c6bd8ba27ffb0696bb698895",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37785,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "VEN·089",
+        "cardName": "狂野钩爪",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "查看你主牌堆顶部的五张牌。你可以选择从中放逐一个单位或装备，将其法力费用减少{{5}}后打出。回收其余的卡牌。然后你可以选择进行一次：强化该牌。（如果其未被强化，则变为已强化状态。）",
+        "flavorText": "",
+        "energy": 7,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/fc0e42be0aa74091a258b79a8fc0831c.png",
+        "backImage": "",
+        "listSort": 1901,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "a8eed854580c4a109034a0b9f1b3f4bcdc21bd2a547f342020fe818312d7d3c5",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37788,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·092",
+        "cardName": "雷克顿",
+        "subTitle": "蛮荒巨兽",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "雷克顿",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "支付{{1}}：给予我在本回合内{{S}}+1。\n 当我的战力变为10或以上时，强化我。（如果我未被强化，则变为已强化状态。）\n {{已强化>}} 我获得{{法盾}}和{{游走}}。（对手必须支付{{A}}才能将我选作法术或技能的目标。我可以向其他战场进行移动。）",
+        "flavorText": "",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/eb070efbd6dc47e08e6cc69ae69d357a.png",
+        "backImage": "",
+        "listSort": 1898,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "87277c02f249f27fb8d51152a97326ccad1675e714e9b715304b7a2c95d7802a",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37789,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·092a",
+        "cardName": "雷克顿",
+        "subTitle": "蛮荒巨兽",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "雷克顿",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "支付{{1}}：给予我在本回合内{{S}}+1。\n当我的战力变为10或以上时，强化我。\n{{已强化>}} 我获得{{法盾}}和{{游走}}。",
+        "flavorText": "“拥抱死亡的血盆大口吧。”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/f62e74f1a7014fc29f1f8d0ed7c014bf.png",
+        "backImage": "",
+        "listSort": 1897,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "49113f9cda625a020ca623a162da0a99f220e9ebb9a47ac3404ba654571c41fa",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37790,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·093",
+        "cardName": "均衡渡命人",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{强化2}}（支付{{2}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+1和{{游走}}。（我可以向其他战场进行移动。）",
+        "flavorText": "他的生命已经与这把剑密不可分。",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/ac01912ff4704b838d15ff4d2fa49d33.png",
+        "backImage": "",
+        "listSort": 1896,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "c7978760ac42247f656c180b3227cce9a5b350e851dd5bd3e7befb88dc78f975",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37796,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·099",
+        "cardName": "旋风武者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当你将我从正面朝下的状态打出时，你可以选择强化此处的一个物体。在回合结束时，解除其强化。",
+        "flavorText": "旋风之中总有平静，好在别把它对准敌人并不难。",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/580f25dab317408190bc81cd0a89820b.png",
+        "backImage": "",
+        "listSort": 1890,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "0b5344cf66687371b67946328bda73788dcb11d9778194c105590d51f2587bc8",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37801,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·104",
+        "cardName": "披尾女族长",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "",
+        "region": "艾欧尼亚",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{强化2紫色}}（支付{{2}}和{{紫色}}：强化我。仅在未强化时可用。）\n当我变为{{已强化}}时，你可以选择从你的废牌堆中选择一名法力费用不高于{{3}}且符能费用不高于{{A}}的单位。将其打出到你的基地，无视其费用。",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/b2e9a6b9cdfa4068a28b4593d215cdf6.png",
+        "backImage": "",
+        "listSort": 1885,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "7b17dd0b0c3c2ed13e92fa6ce49b7c41a4bf3a7f8cc38b6006665cc2a803b800",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37807,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·110",
+        "cardName": "梅尔",
+        "subTitle": "镜转乾坤",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "梅尔",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Pandart Studio",
+        "cardEffect": "{{强化}} — 弃置一张法术牌（支付此费用：强化我。仅在未强化时可用。）\n当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+        "flavorText": "“米达尔达家族素来有勇有谋，能征善战。”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/baa6babfa04349d9be71a9ee3900f929.png",
+        "backImage": "",
+        "listSort": 1879,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "4771808a9d3d8ddc550b4515014a1bcbbf20d87d5ef20c7f4bc35d33f5134adc",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37808,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·110a",
+        "cardName": "梅尔",
+        "subTitle": "镜转乾坤",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "梅尔",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{强化}} — 弃置一张法术牌\n当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+        "flavorText": "“米达尔达家族素来有勇有谋，能征善战。”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/0e815259faff4c35992fe9ed61229f31.png",
+        "backImage": "",
+        "listSort": 1878,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "dba2c72ac902cbb00e522a330468c2daab0f4d980c1b9a40962c9426eb811157",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37814,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·114",
+        "cardName": "卡洛克斯",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "",
+        "region": "暗影岛",
+        "tag": "灵体",
+        "artist": "Envar Studio",
+        "cardEffect": "{{强化6紫色紫色}}（支付{{6}}和{{紫色}}{{紫色}}：强化我。仅在未强化时可用。）\n当我变为{{已强化}}时，选择一名对手。该玩家{{燃烧3}}。然后你可以选择进行一次：从其废牌堆中选择一名单位，并当作自己的牌打出，无视其费用。（将其主牌堆顶部的三张牌放入废牌堆，即为燃烧3。）",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": null,
+        "power": 5,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/10a970d1bf20440fad0314e2c05cba22.png",
+        "backImage": "",
+        "listSort": 1872,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "8dd7ad02d2badf5559a52cd068ec9e88e04a9a13d56566b4c70982317ac6c475",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37822,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·122",
+        "cardName": "烈阳之鹰",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "巨神峰",
+        "tag": "鸟类",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{强化2}}（支付{{2}}：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+1和{{法盾2}}。（对手必须支付{{A}}{{A}}才能将我选作法术或技能的目标。）",
+        "flavorText": "它的啼鸣，唤醒了黎明。",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/14381fa7f9ee4c3285f4168161915a91.png",
+        "backImage": "",
+        "listSort": 1864,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "c101fe29b1985366172df8b0bc3129e9ebff5693f14214830eb1d1875776cfde",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37824,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·124",
+        "cardName": "脱逃的灰背",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Michal Ivan",
+        "cardEffect": "{{强化}} — 摧毁一名友方单位（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+2。",
+        "flavorText": "“追求自由的意志，会给你莫大的力量。”",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/c267be86d98b4cb3837386e7662b0d3e.png",
+        "backImage": "",
+        "listSort": 1862,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "1d5f0077313b9905dca5f8a738f6a1d9736bac4e4afd67339c52c3ccd31c8c60",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37827,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "VEN·127",
+        "cardName": "血戮",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Polar Engine Studio",
+        "cardEffect": "选择一名单位。如果该单位{{已强化}}，则解除其强化。然后如果其战力不高于3{{S}}，则将其摧毁。\n {{流转4黄色黄色}}（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+        "flavorText": "“看看你，明明还能多活几年。”\n——安蓓萨",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/87e7085f7c5642a78f0dca07df038c65.png",
+        "backImage": "",
+        "listSort": 1859,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "5a90f936133a14e86851e2069126dd5f3795288d2771c388352662f58712514f",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37828,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·128",
+        "cardName": "诺克萨斯使节",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{强化1黄色}}（支付{{1}}和{{黄色}}：强化我。仅在未强化时可用。）\n{{已强化>}}{{>绝念>}} 打出两名1{{S}}的“随从”到你的基地。（当我在已强化状态下被摧毁时，发动此效果。）",
+        "flavorText": "他的每个字背后，都是整个诺克萨斯的力量。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 2,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/57fcade8fe364dbfb1f7c7eb0757d773.png",
+        "backImage": "",
+        "listSort": 1858,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "6beeef0eb0ea83a3c21bc2a31ca8a5e834333e1477896bdd4937d89b1f652f3e",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37830,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "VEN·130",
+        "cardName": "奥洛克将军",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "诺克萨斯",
+        "tag": "崔法利",
+        "artist": "Slawomir Maniak",
+        "cardEffect": "{{强化3黄色}}（支付{{3}}和{{黄色}}：强化我。仅在未强化时可用。）\n{{已强化>}} 你的{{已强化}}单位获得{{S}}+2（包括我在内）。",
+        "flavorText": "“听我号令。”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 5,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/1f8b4e8106cd450193094ea8792095ed.png",
+        "backImage": "",
+        "listSort": 1856,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "a5f920ba597af16337759eba22fe2d4fa025e6c6a468110dbc17af29d60bc59c",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37833,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "VEN·133",
+        "cardName": "发光石",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{强化AA}}（支付{{A}}{{A}}：强化我。仅在未强化时可用。）\n解除此牌的强化，{{横置}}：选择一名玩家。该玩家获得此牌的控制权，并将其召回。（将其送到该玩家的基地。）\n在你回合结束时，摧毁此牌，并对你控制的所有单位各造成5点伤害。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/f168d3bbbb13436eb0f69d8cf9ac2fa4.png",
+        "backImage": "",
+        "listSort": 1853,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "04a59b8734c3c79802a4ae4c21aad330feb980f9cbbafc6f480fb9d207c6d8c6",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37834,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·134",
+        "cardName": "凯尔",
+        "subTitle": "正义天降",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "凯尔",
+        "region": "巨神峰",
+        "tag": "",
+        "artist": "Michal Ivan",
+        "cardEffect": "{{强化3}}（支付{{3}}：强化我。）\n我最多可以拥有3个{{已强化}}。\n我每拥有1个{{已强化}}，便获得{{S}}+2。\n如果我拥有3个{{已强化}}，则我获得{{法盾3}}和{{游走}}。",
+        "flavorText": "",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/5d2dcdf24aba492fbd5755f67730e9e1.png",
+        "backImage": "",
+        "listSort": 1852,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "851faba2c2d9fd964108d557c3224796f563d3a54b06644b772801e87152e1e5",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37837,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·136",
+        "cardName": "安蓓萨",
+        "subTitle": "战狼尊母",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "安蓓萨",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Pandart Studio",
+        "cardEffect": "{{强化1黄色黄色}}（支付{{1}}和{{黄色}}{{黄色}}：强化我。仅在未强化时可用。）\n {{已强化>}} 我获得{{强攻2}}。（如果我是进攻方，则{{S}}+2。）\n {{已强化>}} 当我进攻时，摧毁此处一名战力低于我的敌方单位。",
+        "flavorText": "",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 5,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/375229bec8c340e5b6184187d07da382.png",
+        "backImage": "",
+        "listSort": 1849,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "756475617bf4d2ea9ddf3a47adee04f3e6f259705e53f5a18904451073e1a39d",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37838,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·136a",
+        "cardName": "安蓓萨",
+        "subTitle": "战狼尊母",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "安蓓萨",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{强化1黄色黄色}}\n{{已强化>}} 我获得{{强攻2}}。\n{{已强化>}} 当我进攻时，摧毁此处一名战力低于我的敌方单位。",
+        "flavorText": "“送你去见列祖列宗！”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 5,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/9cb3d763259b4c6ab2559ffc0af579e8.png",
+        "backImage": "",
+        "listSort": 1848,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "935b0781afab6dd494e0f982fb9e375d3a5c9653274fb9f450a86422341d577d",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37842,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·139",
+        "cardName": "离群之刺",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "green"
+        ],
+        "hero": "阿卡丽",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "{{强化3A}}（支付{{3}}和{{A}}：强化此牌。仅在未强化时可用。）\n{{迅捷>}}{{横置}}：如果这是你的回合，则将一名处于法术对决中的友方单位移动到基地，且如果我{{已强化}}，则让该单位变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/4c254b098b2048e9af96b833bc050e26.png",
+        "backImage": "",
+        "listSort": 1844,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "5ac0853eca56f4decba08be43dd86b99953d8f71c0a94f71cd6c6e0cbad52d7d",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37846,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·143",
+        "cardName": "影流之主",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "purple"
+        ],
+        "hero": "劫",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "当你放逐一张属于你的卡牌时，强化我。（如果我未被强化，则变为已强化状态。）\n{{迅捷>}}解除我的强化，{{横置}}：弃置一张手牌，然后抽一张牌。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/a72023aadbc540169e835d6c2ff3badc.png",
+        "backImage": "",
+        "listSort": 1840,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "963e32c8f1f036f24203aee9e14a299e679e07bc18dfc0f3f6653d19ba194c66",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37852,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·149",
+        "cardName": "未来守护者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "orange"
+        ],
+        "hero": "杰斯",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "{{强化2AA}}（支付{{2}}和{{A}}{{A}}：强化我。仅在未强化时可用。）\n支付{{1}}，{{横置}}：让一件装备变为活跃状态。 \n{{已强化>}} 支付{{1}}，{{横置}}：让两件装备变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/d5b77f7667794b9f9c41c0f3dcfd00a0.png",
+        "backImage": "",
+        "listSort": 1834,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "62b6593d4a51f29416fb359099a8d06c69b4d9cbc05f3ae40b48b450b7d8b989",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37854,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·151",
+        "cardName": "流光镜影",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "purple"
+        ],
+        "hero": "梅尔",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "当你强化其他物体时，强化我。（如果我未被强化，则变为已强化状态。）\n解除我的强化，{{横置}}：给予战场上的一名单位在本回合内{{S}}-2。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/c67adec2ea0a491e81b7e5b2d81d0c6c.png",
+        "backImage": "",
+        "listSort": 1832,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "38d3cbf83ab55a6ad99f82845a78259e78dcab6f97e7f10e9c66370ee0007bfd",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37856,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·153",
+        "cardName": "铁血狼母",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange",
+          "yellow"
+        ],
+        "hero": "安蓓萨",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "当你为其他物体强化时，强化我。（如果我未被强化，则变为已强化状态。）\n解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/b72818449fab4214b84c68d24091a63e.png",
+        "backImage": "",
+        "listSort": 1830,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "706355297f7cf272b789e3161ffb1c3f7b8118275523290a8a1b42b4bc28df25",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37858,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·155",
+        "cardName": "狂暴之心",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple",
+          "yellow"
+        ],
+        "hero": "凯南",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "当你从你的手牌以外的位置打出一张卡牌时，强化我。\n{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。（如果其为进攻方，则{{S}}+2。）",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/5895db732f85434c962619ed99d58b88.png",
+        "backImage": "",
+        "listSort": 1828,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "0885c7a6144d8958e2cc92155f300e322b405513454983f451d34c894609a055",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37866,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "VEN·163",
+        "cardName": "升格圣坛",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "你在此处的单位的{{强化}}费用减少{{1}}或{{A}}。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/c65bac83e4b14ca5ade3de0bf2c28022.png",
+        "backImage": "",
+        "listSort": 1820,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "92e1f8b41725fc83e866a1a66008465c03b06c85531cb4d46c80f119d3037ef6",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37880,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·177",
+        "cardName": "雷克顿",
+        "subTitle": "蛮荒巨兽",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "雷克顿",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Ziyan Lin",
+        "cardEffect": "支付{{1}}：给予我在本回合内{{S}}+1。\n当我的战力变为10或以上时，强化我。\n{{已强化>}} 我获得{{法盾}}和{{游走}}。",
+        "flavorText": "“你不是我的兄弟，叛徒！”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/06de41456646442fa94736bc1eb8aef0.png",
+        "backImage": "",
+        "listSort": 1806,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "1d1211fb26b979f2542a7a392e47e26b78f3acf275fc138208621d9c687ba0bb",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37985,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·181",
+        "cardName": "普朗克",
+        "subTitle": "海上霸主",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "普朗克",
+        "region": "比尔吉沃特",
+        "tag": "海盗",
+        "artist": "Grafit Studio",
+        "cardEffect": "{{强化橙色橙色}}\n{{已强化>}} 如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。",
+        "flavorText": "“我的心是铁做的。”",
+        "energy": 6,
+        "returnEnergy": null,
+        "power": 6,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/60df8f95b5d94da78a7049efa4bea8b1.png",
+        "backImage": "",
+        "listSort": 1802,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{强化橙色橙色}}\n{{已强化>}} 如果一个将我选作目标的法术或技能将眩晕我、或给予我-{{S}}、或把我送回手牌，则改为给予我在本回合内{{S}}+3。",
+        "otherDesc": 0
+      },
+      "recordSha256": "0b0b3f263477bea72bf8055f57a260bf19329b9bfd4ad10e0e26c7a6e177ab72",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37888,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·185",
+        "cardName": "凯尔",
+        "subTitle": "正义天降",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "凯尔",
+        "region": "巨神峰",
+        "tag": "",
+        "artist": "HCuu",
+        "cardEffect": "{{强化3}}（支付{{3}}：强化我。）\n我最多可以拥有3个{{已强化}}。\n我每拥有1个{{已强化}}，便获得{{S}}+2。\n如果我拥有3个{{已强化}}，则我获得{{法盾3}}和{{游走}}。",
+        "flavorText": "“不是杀人，是审判。”",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260720/05708c982cc440abb259647819244b58.png",
+        "backImage": "",
+        "listSort": 1798,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "c5006c8cb9ec2247d25c42961d5f472a07a3b4205ec4f59801411aef0762f209",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37890,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·187",
+        "cardName": "安蓓萨",
+        "subTitle": "战狼尊母",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "安蓓萨",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "蛋费鸡丁",
+        "cardEffect": "{{强化1黄色黄色}}\n{{已强化>}} 我获得{{强攻2}}。\n{{已强化>}} 当我进攻时，摧毁此处一名战力低于我的敌方单位。",
+        "flavorText": "“梅尔，终于知道自己的潜力了吗？”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 5,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/99c49562469045d291035ddf7eb5dde2.png",
+        "backImage": "",
+        "listSort": 1796,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "4beab521c73df2280b8c11eb417ed16bf5438640b5064008a4df21e137ffc0be",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37891,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·188",
+        "cardName": "梅尔",
+        "subTitle": "镜转乾坤",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "梅尔",
+        "region": "恕瑞玛",
+        "tag": "",
+        "artist": "Zhongqi Li",
+        "cardEffect": "{{强化}} — 弃置一个法术\n当我变为{{已强化}}时，放逐战场上一名不高于3{{S}}的敌方单位。",
+        "flavorText": "“我值得拥有我的一切。我值得。”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/d7e41c0aea7648839ce53615916320bb.png",
+        "backImage": "",
+        "listSort": 1795,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "29536ac6d1d5d2248987b968f12e5c03359cbbb9d8b2f08a17861025e7fd769e",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37893,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·189*",
+        "cardName": "离群之刺",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "green"
+        ],
+        "hero": "阿卡丽",
+        "region": "",
+        "tag": "",
+        "artist": "Jessica Oyhenart",
+        "cardEffect": "{{强化3A}}\n{{迅捷>}}{{横置}}：如果这是你的回合，则将一名处于法术对决中的友方单位移动到基地，且如果我{{已强化}}，则让该单位变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260724/ae8b0e77c4754807a1492e5830f411e2.png",
+        "backImage": "",
+        "listSort": 1794,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "96f46d555e03815e695357be633c17a594bf8fa490c031aec5a15dce361494e4",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37892,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·189",
+        "cardName": "离群之刺",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "green"
+        ],
+        "hero": "阿卡丽",
+        "region": "",
+        "tag": "",
+        "artist": "Jessica Oyhenart",
+        "cardEffect": "{{强化3A}}\n{{迅捷>}}{{横置}}：如果这是你的回合，则将一名处于法术对决中的友方单位移动到基地，且如果我{{已强化}}，则让该单位变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/bcbd74ef57c5469a867694bda30e3aaf.png",
+        "backImage": "",
+        "listSort": 1793,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "3ec5d34e7161cae1cf0d617acc36c9bdb6336cd1cc0afac74e62bafe83658f57",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37897,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·191*",
+        "cardName": "影流之主",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "purple"
+        ],
+        "hero": "劫",
+        "region": "",
+        "tag": "",
+        "artist": "Shen YH",
+        "cardEffect": "当你放逐一张属于你的卡牌时，强化我。\n{{迅捷>}}解除我的强化，{{横置}}：弃置一张手牌，然后抽一张牌。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260724/28f03f15b85a4efc9a55c2e34198904b.png",
+        "backImage": "",
+        "listSort": 1790,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "b538213b3d04064ccdd49a6212964394273d54ca125f7da33a201493bb3cc765",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37896,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·191",
+        "cardName": "影流之主",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "purple"
+        ],
+        "hero": "劫",
+        "region": "",
+        "tag": "",
+        "artist": "Shen YH",
+        "cardEffect": "当你放逐一张属于你的卡牌时，强化我。\n{{迅捷>}}解除我的强化，{{横置}}：弃置一张手牌，然后抽一张牌。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/50f098f1d9634dc59b4a10309f191e6e.png",
+        "backImage": "",
+        "listSort": 1789,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "df3af44eabeee8f2577c6dfa5fe887baf0f2c3f24c386e7671bea2842fe33abe",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37903,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·194*",
+        "cardName": "未来守护者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "orange"
+        ],
+        "hero": "杰斯",
+        "region": "",
+        "tag": "",
+        "artist": "Stella Chen Yui",
+        "cardEffect": "{{强化2AA}}\n支付{{1}}，{{横置}}：让一件装备变为活跃状态。 \n{{已强化>}} 支付{{1}}，{{横置}}：让两件装备变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260724/e5e64e6f2afb48f9b1a81c8708578663.png",
+        "backImage": "",
+        "listSort": 1784,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "356ba2e83cdf15ea33dce72675a78aaa0cca8e741b2fd9f5b6ae121e06249527",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37902,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·194",
+        "cardName": "未来守护者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "orange"
+        ],
+        "hero": "杰斯",
+        "region": "",
+        "tag": "",
+        "artist": "Stella Chen Yui",
+        "cardEffect": "{{强化2AA}}\n支付{{1}}，{{横置}}：让一件装备变为活跃状态。 \n{{已强化>}} 支付{{1}}，{{横置}}：让两件装备变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/fb8147f539964688ac0977ea1b7c1454.png",
+        "backImage": "",
+        "listSort": 1783,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "22db89a8c9b47bd483e7371059a4d65354bebdb0b09cdc422302f607d96c908a",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37905,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·195*",
+        "cardName": "流光镜影",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "purple"
+        ],
+        "hero": "梅尔",
+        "region": "",
+        "tag": "",
+        "artist": "Minji Kim",
+        "cardEffect": "当你强化其他物体时，强化我。\n解除我的强化，{{横置}}：给予战场上的一名单位在本回合内{{S}}-2。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260724/95b5a3d77ef645c3aa05f2469feb58bd.png",
+        "backImage": "",
+        "listSort": 1782,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "625f8b5a4ae249b9070fc1592354ea458a3c195be48f09c1d2aa48baf6c9fc3a",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37942,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·195",
+        "cardName": "流光镜影",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "purple"
+        ],
+        "hero": "梅尔",
+        "region": "",
+        "tag": "",
+        "artist": "Minji Kim",
+        "cardEffect": "当你强化其他物体时，强化我。\n解除我的强化，{{横置}}：给予战场上的一名单位在本回合内{{S}}-2。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/c6b373f8ac6b489bb49a608fe3df9da9.png",
+        "backImage": "",
+        "listSort": 1781,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "8048d0dc76d44905252d6bc648dccbf80cb7cabbb72bc7e924472396cb284730",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37907,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·196*",
+        "cardName": "铁血狼母",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange",
+          "yellow"
+        ],
+        "hero": "安蓓萨",
+        "region": "",
+        "tag": "",
+        "artist": "Aliya Chen",
+        "cardEffect": "当你强化其他物体时，强化我。\n解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260724/843ad90bf60f43d5a3e4f9f64f1b91c6.png",
+        "backImage": "",
+        "listSort": 1780,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "cb42c000c91c9feb91ddf4c7ffb8da4f0bcd6a6a75be00a37d456f6ae423caf9",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37906,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·196",
+        "cardName": "铁血狼母",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange",
+          "yellow"
+        ],
+        "hero": "安蓓萨",
+        "region": "",
+        "tag": "",
+        "artist": "Aliya Chen",
+        "cardEffect": "当你强化其他物体时，强化我。\n解除我的强化，支付{{A}}，{{横置}}：让一名单位变为活跃状态。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/8f1f67f608e948179284419b01a195de.png",
+        "backImage": "",
+        "listSort": 1779,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "697c3d453f9139d329922f8e0ee2df6f37b0cb2a04c2713fad891875de88492b",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37909,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·197*",
+        "cardName": "狂暴之心",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple",
+          "yellow"
+        ],
+        "hero": "凯南",
+        "region": "",
+        "tag": "",
+        "artist": "Shop Sun",
+        "cardEffect": "当你从你的手牌以外的位置打出一张卡牌时，强化我。\n{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260724/d82efdf8538e4460a3b38115c799cd37.png",
+        "backImage": "",
+        "listSort": 1778,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "873e223f10772c6975ae61973e1243e075c06baae27afac1be923b7456660c3e",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 37908,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·197",
+        "cardName": "狂暴之心",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple",
+          "yellow"
+        ],
+        "hero": "凯南",
+        "region": "",
+        "tag": "",
+        "artist": "Shop Sun",
+        "cardEffect": "当你从你的手牌以外的位置打出一张卡牌时，强化我。\n{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "VEN(标准补充包)",
+          "VEN(进阶补充包)"
+        ],
+        "productNameList": [
+          "化神争锋 标准补充包",
+          "化神争锋 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/7f238c8e112142f79ed1eb455e846365.png",
+        "backImage": "",
+        "listSort": 1777,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "cc422eaaf797eebb8daea1475b80642b2192a8986263f96d60f96f5fe937baf3",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 38298,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "VEN·069b",
+        "cardName": "梅尔",
+        "subTitle": "奥法觉醒",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "梅尔",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Anna Nikonova",
+        "cardEffect": "当你打出我时，抽一张牌。\n{{强化3}}\n{{已强化>}} 你的法术和技能无法被无效化。如果你控制的法术或技能将给予其选作目标的一名单位-{{S}}，则其额外给予{{S}}-1。",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [],
+        "productNameList": [],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20261008/629a2268cf3e454c88540173b9582463.png",
+        "backImage": "",
+        "listSort": 1746,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "c4e2a65453be33067dfc1159b32ef4f56072ae71d726721108308c01002cb7a1",
+      "previousSnapshotParity": true
+    },
+    {
+      "record": {
+        "id": 38299,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "VEN·155a",
+        "cardName": "狂暴之心",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple",
+          "yellow"
+        ],
+        "hero": "凯南",
+        "region": "",
+        "tag": "",
+        "artist": "Zhongqi Li",
+        "cardEffect": "当你从你的手牌以外的位置打出一张卡牌时，强化我。\n{{迅捷>}}解除我的强化，{{横置}}：给予一名单位在本回合内{{强攻2}}。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [],
+        "productNameList": [],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20261008/475761a41ac845a2bf705b614684a26a.png",
+        "backImage": "",
+        "listSort": 1745,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "recordSha256": "9ec522e2fbc87588ce066a5161f561a5d53a56b815ae0a07ce20ffd112dbc974",
+      "previousSnapshotParity": true
+    }
+  ],
+  "scope": "Live full CN pagination and exact 84 empower-related record readback; no runtime promotion or semantic certification"
+}

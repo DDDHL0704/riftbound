@@ -1,0 +1,15 @@
+{
+  "previousCases": 10740,
+  "previousPassed": 10735,
+  "previousFailed": 5,
+  "failedMethods": [
+    "EmpowerNativeTests.ProductionPlayAndAbilityControlsPayThenResolveWithColdRecoveryAndReplay"
+  ],
+  "changedInputs": [
+    "clients/godot/scripts/debug/ShadySpectaclesInteractionProof.cs",
+    "clients/godot/scripts/interaction/PromptInteractionController.cs",
+    "tests/Riftbound.ConformanceTests/EmpowerNativeTests.cs"
+  ],
+  "validationRelaxed": false,
+  "extraCase": "mixed source cost labels"
+}

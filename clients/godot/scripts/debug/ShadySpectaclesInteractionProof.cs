@@ -69,8 +69,19 @@ public partial class ShadySpectaclesInteractionProof : Control
                     var source = expected.GetProperty("sourceObjectId").GetString()!;
                     if (controller.Current!.SourceId != source) Check(controller.TrySelectChoice("source", source), "Select equipment or acquired ability source");
                     if (actionName == "ACTIVATE_ABILITY") {
-                        var instance = expected.GetProperty("abilityInstanceId").GetString()!;
-                        Check(controller.TrySelectChoice("mode", instance), "Select the acquired ability instance");
+                        var instance = expected.TryGetProperty("abilityInstanceId", out var copied) && copied.ValueKind == JsonValueKind.String
+                            ? copied.GetString()! : expected.GetProperty("abilityId").GetString()!;
+                        if (controller.CurrentStepRole == "mode") {
+                            foreach (var choice in controller.CurrentChoices) {
+                                var requirement = candidate.GetProperty("metadata").GetProperty("sourceRequirements").EnumerateArray()
+                                    .First(r => r.GetProperty("sourceObjectId").GetString() == source
+                                        && (r.TryGetProperty("abilityChoiceId", out var id) ? id.GetString() : r.GetProperty("abilityId").GetString()) == choice.Id);
+                                Check(choice.Label == requirement.GetProperty("abilityLabel").GetString(), "Mode labels use the selected source's actual cost");
+                            }
+                        }
+                        if (controller.Current!.Mode != instance && (expected.TryGetProperty("abilityInstanceId", out var acquired)
+                            && acquired.ValueKind == JsonValueKind.String || candidate.GetProperty("modes").GetArrayLength() > 1))
+                            Check(controller.TrySelectChoice("mode", instance), "Select the acquired ability instance");
                     }
                     var targets = actionName == "ASSEMBLE_EQUIPMENT" ? [expected.GetProperty("targetObjectId").GetString()!]
                         : expected.GetProperty("targetObjectIds").EnumerateArray().Select(target => target.GetString()!).ToArray();

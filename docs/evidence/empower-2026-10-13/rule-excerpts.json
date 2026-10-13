@@ -1,0 +1,470 @@
+[
+  {
+    "id": "DOC-04-P084-B004",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441"
+    ],
+    "text": "441.         强化",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B005",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.1"
+    ],
+    "text": "441.1.              强化 指的是使一个或多个游戏物体 变为已强化 状态的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B006",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.1.a"
+    ],
+    "text": "441.1.a.                 已强化 是一种二元状态——一个游戏物体 要么处于已强化 状态,要么不处于已强化状态。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B007",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.1.b"
+    ],
+    "text": "441.1.b.                 处于已强化状态的游戏物体无法再被强化。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B008",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.1.c"
+    ],
+    "text": "441.1.c.                 如果一个已经处于已强化状态的游戏物体被指示强化,则不会发生任何额外情况。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B009",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.1.c.1"
+    ],
+    "text": "441.1.c.1.                    某些效果可能会给予游戏物体权限让其可以多次强化。此类效果可以无视这一限制。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B010",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.2"
+    ],
+    "text": "441.2.              “已强化”是场上游戏物体的一种状态,可以被其他游戏效果和技能引用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B011",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.2.a"
+    ],
+    "text": "441.2.a.                 当一个游戏物体因强化游戏行动而变为已强化状态时,该事件同样可以被游戏效果和技能引用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B012",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.3"
+    ],
+    "text": "441.3.              强化 是一种限定行动 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B013",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "441.3.a"
+    ],
+    "text": "441.3.a.                 玩家只能在游戏效果的指示下才能强化游戏物体。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B014",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "442"
+    ],
+    "text": "442.         解除强化",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B015",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "442.1"
+    ],
+    "text": "442.1.              解除强化 指的是移除一个或多个游戏物体 的已强化 状态。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B016",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "442.1.a"
+    ],
+    "text": "442.1.a.                 解除强化 只会影响当前处于已强化 状态的卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B017",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "442.1.a.1"
+    ],
+    "text": "442.1.a.1.                    如果游戏效果指示玩家解除一张当前未处于已强化状态的卡牌的强化,则不会产生任何效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B018",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "442.2"
+    ],
+    "text": "442.2.              解除强化 是一种限定行动 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P084-B019",
+    "document": "DOC-04",
+    "page": 84,
+    "clauseAnchors": [
+      "442.2.a"
+    ],
+    "text": "442.2.a.                 玩家只能在游戏效果的指示下才能解除游戏物体的强化 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P123-B021",
+    "document": "DOC-04",
+    "page": 123,
+    "clauseAnchors": [
+      "827"
+    ],
+    "text": "827.         强化",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P123-B022",
+    "document": "DOC-04",
+    "page": 123,
+    "clauseAnchors": [
+      "827.1"
+    ],
+    "text": "827.1.            [强化]是一种主动技能关键词。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P123-B023",
+    "document": "DOC-04",
+    "page": 123,
+    "clauseAnchors": [
+      "827.1.a"
+    ],
+    "text": "827.1.a.              强化 通常出现在常驻牌和传奇卡牌上。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B001",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.1.b"
+    ],
+    "text": "827.1.b.               激活[强化]需要支付费用。支付费用后,会[强化]该技能的来源。\n                            想获取更多有关信息,请查阅规则 441.强化(游戏行动)。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B002",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.1.b.1"
+    ],
+    "text": "827.1.b.1.                   源游戏物体不是强化技能的目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B003",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.1.c"
+    ],
+    "text": "827.1.c.               [强化]的格式为“强化[费用]”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B004",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.1.c.1"
+    ],
+    "text": "827.1.c.1.                   [强化]为以下功能的简称:“支付[费用]:强化此牌。”仅在未强化时打出。”",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B005",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.1.c.2"
+    ],
+    "text": "827.1.c.2.                   [强化]费用可能包含资源费用和非资源费用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B006",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.1.c.3"
+    ],
+    "text": "827.1.c.3.                   [强化]技能也可能包含改变[强化]费用的文本。无论出于何种原因需要判定卡牌的[强化]费用\n                             时,均需考虑此类文本。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B007",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.1.c.4"
+    ],
+    "text": "827.1.c.4.                   [强化]技能可能包含改变该[强化]技能激活时机的文本。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B008",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.2"
+    ],
+    "text": "827.2.             当该关键词的[强化]行动完成时,作为来源的常驻牌或传奇会变为已强化状态。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B009",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.2.a"
+    ],
+    "text": "827.2.a.               这是一个其他游戏效果和触发式技能可以引用的事件。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B010",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.3"
+    ],
+    "text": "827.3.             多个[强化]等同于多个主动技能,可以通过支付相应费用分别激活。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B011",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "827.4"
+    ],
+    "text": "827.4.             [强化],以及常驻牌或传奇是否拥有[强化],是这些游戏物体的特性,其他游戏效果可以检查或引用这些特性。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B012",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828"
+    ],
+    "text": "828.         已强化",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B013",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828.1"
+    ],
+    "text": "828.1.             [已强化]是一种依赖性关键词。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B014",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828.1.a"
+    ],
+    "text": "828.1.a.               其格式为“[已强化][>] [文本]”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B015",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828.1.b"
+    ],
+    "text": "828.1.b.               从关键词开始到子句末尾的整句话都是已强化技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B016",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828.1.b.1"
+    ],
+    "text": "828.1.b.1.                   该关键词为以下功能的简称:“只要我处于已强化状态,此牌便获得‘[文本]’。”",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B017",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828.1.b.2"
+    ],
+    "text": "828.1.b.2.                   此处的[文本]指的是依赖性技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B018",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828.1.c"
+    ],
+    "text": "828.1.c.               只要该游戏物体处于已强化状态,其依赖性技能便会生效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B019",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828.1.d"
+    ],
+    "text": "828.1.d.               如果该依赖性技能是触发式技能,且其触发条件为“当我变为[已强化]时”或类似表达,则当其来源变为已\n                       强化 时,该技能会生效并触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P124-B020",
+    "document": "DOC-04",
+    "page": 124,
+    "clauseAnchors": [
+      "828.2"
+    ],
+    "text": "828.2.             [已强化],以及卡牌是否拥有[已强化]技能,是卡牌的一个特性,其他游戏效果可以检查或引用该特性。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

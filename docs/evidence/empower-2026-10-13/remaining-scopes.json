@@ -1,0 +1,21 @@
+{
+  "sourcePrintings": 84,
+  "keywordMentions": 58,
+  "consumerOrConditionalRecordsWithoutKeyword": 26,
+  "nonpreview": 81,
+  "preview": 3,
+  "runtimePromotion": 4,
+  "wholeCardCertification": false,
+  "openScopes": [
+    "Nonresource costs",
+    "Legend/equipment activation",
+    "Timing overrides",
+    "Conditional trigger text and empowerment observers",
+    "Disempower",
+    "Kayle repeat empowerment exception",
+    "External empower-cost reducers",
+    "Mel negative-Might replacement and counter prevention"
+  ],
+  "parsedActivatedKeywordRecords": 57,
+  "referenceOnlyKeywordRecords": 1
+}

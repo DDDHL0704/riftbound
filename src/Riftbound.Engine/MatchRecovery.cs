@@ -23009,6 +23009,7 @@ public static class MatchRecoveryValidator
             ValidateLocationDamageViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDamageMarkerViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDynamicPowerAuraViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateEmpoweredViews(view.Snapshot, authoritativeState, view.PlayerId, errors, $"snapshot for {view.PlayerId}");
             ValidateBeginningRecycleViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateBeginningDrawViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateEphemeralStartViews(view.Snapshot, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23067,6 +23068,23 @@ public static class MatchRecoveryValidator
                     errors.Add($"{label} per-location damage context differs from authoritative state");
             }
             catch (JsonException) { errors.Add($"{label} invalid per-location damage context"); }
+        }
+    }
+
+    private static void ValidateEmpoweredViews(SnapshotDto snapshot, MatchState state, string? viewer, List<string> errors, string label)
+    {
+        foreach (var player in snapshot.Players?.Values ?? [])
+        {
+            if (!TryReadObjectValue(player, "objects", out var objects) || !TryReadObjectDictionaryValue(objects, out var payloads)) continue;
+            foreach (var (id, payload) in payloads)
+            {
+                if (!state.CardObjects.TryGetValue(id, out var card)) continue;
+                var present = TryReadObjectValue(payload, "isEmpowered", out _);
+                var visible = !card.IsFaceDown || viewer is not null && CoreRuleEngine.CanInspectFaceDown(state, id, viewer);
+                if (present && (!visible || !card.IsEmpowered || !TryReadObjectBool(payload, "isEmpowered", out var value) || !value)
+                    || !present && visible && card.IsEmpowered)
+                    errors.Add($"{label} empowered status differs from authoritative visible object");
+            }
         }
     }
 
@@ -23749,6 +23767,8 @@ public static class MatchRecoveryValidator
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
             if (!CopyFaceTimeline.Valid(state, card)) errors.Add("invalid copied face timeline");
             if (!AttachmentUnitCopyRules.Valid(state, card)) errors.Add("invalid attached unit copy ledger");
+            if (card.IsEmpowered && !state.PlayerZones.Values.Any(z => z.Base.Contains(card.ObjectId) || z.Battlefields.Contains(card.ObjectId)
+                || z.LegendZone.Contains(card.ObjectId))) errors.Add("invalid empowered object outside play");
         }
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow != CoreRuleEngine.TemperedPaymentWindow))
@@ -23780,6 +23800,7 @@ public static class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidTemperedStack(state, item))
                 errors.Add("invalid captured weaponmaster ability");
             if (!CoreRuleEngine.ValidAzirMovement(state, item)) errors.Add("invalid captured Azir movement");
+            if (!EmpowerRules.Valid(state, item)) errors.Add("invalid captured empower activation");
             if (!CoreRuleEngine.ValidLegendAttachment(state, item)) errors.Add("invalid captured legend attachment");
         }
         foreach (var item in state.StackItems)
@@ -27703,6 +27724,7 @@ public static class MatchRecoveryValidator
             ValidateDamageMarkerViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBeginningDrawViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateDynamicPowerAuraViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
+            ValidateEmpoweredViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, null, errors, "spectator replay frame");
             ValidateBeginningRecycleViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateEphemeralStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateGrantedTagViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");

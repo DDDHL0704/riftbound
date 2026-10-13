@@ -1,0 +1,31 @@
+{
+  "status": "FULL_PLAN_METHOD_PARITY_ONLY_NOT_EXECUTION",
+  "methods": 6900,
+  "baselineMethods": 6881,
+  "oldMethodsPreserved": true,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.EmpowerNativeTests.ProductionPlayAndAbilityControlsPayThenResolveWithColdRecoveryAndReplay",
+    "Riftbound.ConformanceTests.EmpowerParserTests.AlternativeAndExhaustCostsRemainExplicitAndNonresourceCostsDoNotPretendToBeFree",
+    "Riftbound.ConformanceTests.EmpowerParserTests.CurrentSourceQueueClassifiesCostsWithoutCertifyingUnpromotedConsumers",
+    "Riftbound.ConformanceTests.EmpowerParserTests.PrintedResourceCostsKeepManaSeparateFromTypedAndGenericPower",
+    "Riftbound.ConformanceTests.EmpowerParserTests.RuneReducersAndEmpoweredSelfTextAreConditional",
+    "Riftbound.ConformanceTests.EmpowerTests.ARealExileAndReentryCreatesANewUnempoweredObjectBeforeTheOldAbilityResolves",
+    "Riftbound.ConformanceTests.EmpowerTests.AStillUnempoweredUnitCanResolveAnAcquiredAbilityAfterItsTextGearDetaches",
+    "Riftbound.ConformanceTests.EmpowerTests.CopyingAnEmpoweredUnitCopiesPrintedTraitsWithoutCopyingItsStatus",
+    "Riftbound.ConformanceTests.EmpowerTests.DestroyingTheUnempoweredSourceAsARealReactionCostMakesItsCapturedActivationDoNothing",
+    "Riftbound.ConformanceTests.EmpowerTests.InvalidActivationNeverChangesStateOrPaysAnything",
+    "Riftbound.ConformanceTests.EmpowerTests.LeavingPlayClearsTheStatusAndConditionalLayer",
+    "Riftbound.ConformanceTests.EmpowerTests.QuickCounterCannotCounterEmpowerBecauseItHasNoFriendlyTargets",
+    "Riftbound.ConformanceTests.EmpowerTests.RealPlayThenActivationPaysTheSelectedCostAndOnlyResolutionEnablesSelfEffects",
+    "Riftbound.ConformanceTests.EmpowerTests.RecoveryRejectsForgedCapturedEmpowerFields",
+    "Riftbound.ConformanceTests.EmpowerTests.RecoveryRejectsIncorrectEmpoweredStatusInPlayerProjection",
+    "Riftbound.ConformanceTests.EmpowerTests.RepulseCannotCounterEmpowerBecauseItsSourceIsNotATarget",
+    "Riftbound.ConformanceTests.EmpowerTests.RequiredTypedRuneRecyclingPaysWithoutTreatingTheSourceAsATarget",
+    "Riftbound.ConformanceTests.EmpowerTests.RuneThresholdUsesControlledFieldRunesAtActivation",
+    "Riftbound.ConformanceTests.EmpowerTests.TurnCleanupPreservesEmpowerStatusAndItsContinuousMight"
+  ],
+  "expectedCases": 10890,
+  "matrixSeed": 424242,
+  "matrixPairs": 110,
+  "fullExecutionCertified": false
+}

@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 internal static class StackObjectRules
 {
     internal static bool IsAbility(StackItemState item)
-        => item.AzirMovement is not null || item.Equip is not null || item.Tempered is not null
+        => item.EmpowerActivation is not null || item.AzirMovement is not null || item.Equip is not null || item.Tempered is not null
             || item.AttachmentObserver is not null || item.LegendAttachment is not null
             || item.UnitEntryContext is not null || item.ReflexiveCopy is not null
             || item.DeathRevealContext is not null || item.RecastContext is not null
