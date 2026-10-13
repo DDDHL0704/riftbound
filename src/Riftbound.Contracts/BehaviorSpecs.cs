@@ -342,6 +342,7 @@ public static class StaticAbilityKinds
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
+    public const string UnitExactOtherFriendlyBattlefieldKeywords = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_KEYWORDS";
     public const string SourceCostReductionPerControlledPowerfulUnit = "SOURCE_COST_REDUCTION_PER_CONTROLLED_POWERFUL_UNIT";
     public const string SourceUnitEnterReady = "SOURCE_UNIT_ENTER_READY";
     public const string FriendlyUnitsEnterReady = "FRIENDLY_UNITS_ENTER_READY";
@@ -654,7 +655,8 @@ public sealed record StaticAbilitySpec(
     int? RequiredOpponentControlledBattlefieldCount = null,
     int? RequiredOtherControllerBaseUnitCount = null,
     bool? RequiresBattlefieldDestination = null,
-    bool? RequiresUnitDestroyedThisTurn = null);
+    bool? RequiresUnitDestroyedThisTurn = null,
+    int? RequiredExactOtherFriendlyBattlefieldUnits = null);
 
 public sealed record StaticAuraSpec(
     string Kind,

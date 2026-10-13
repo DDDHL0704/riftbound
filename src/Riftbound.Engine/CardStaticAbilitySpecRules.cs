@@ -25,6 +25,11 @@ internal static class CardStaticAbilitySpecRules
             && ability.GrantedKeywords is { Count: > 0 };
     }
 
+    public static bool IsUnitConditionalSelfKeywordsAbility(StaticAbilitySpec ability)
+        => IsUnitPowerfulSelfKeywordsAbility(ability)
+            || ability.Kind == StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldKeywords
+                && ability.RequiredExactOtherFriendlyBattlefieldUnits is >= 0 && ability.GrantedKeywords is { Count: > 0 };
+
     public static bool IsSourceUnitEnterReadyAbility(StaticAbilitySpec ability)
     {
         return string.Equals(ability.Kind, StaticAbilityKinds.SourceUnitEnterReady, StringComparison.Ordinal);

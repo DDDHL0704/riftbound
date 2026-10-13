@@ -2695,6 +2695,19 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var exactOtherFriendlyBattlefieldKeywords = Regex.Match(segment,
+                @"^如果我所在的战场上受你控制的其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则我获得(?<keywords>(?:\{\{[^}]+\}\})+)[。]?$",
+                RegexOptions.CultureInvariant);
+            if (exactOtherFriendlyBattlefieldKeywords.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldKeywords,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Exact other friendly units at the source's current battlefield grant conditional keywords in the shared layer.",
+                    GrantedKeywords: ParseGrantedKeywords(exactOtherFriendlyBattlefieldKeywords.Groups["keywords"].Value),
+                    RequiredExactOtherFriendlyBattlefieldUnits: ParseChineseNumber(exactOtherFriendlyBattlefieldKeywords.Groups["count"].Value)));
+                continue;
+            }
+
             var unitPowerfulSelfKeywordsMatch = Regex.Match(
                 segment,
                 @"如果我变为\{\{强力\}\}单位，则我获得(?<keywords>.+?)(?:。?（战力达到(?<threshold>[0-9一两二三四五六七八九十]+)或以上时，即为强力单位。）)?。?$",

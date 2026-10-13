@@ -1,0 +1,221 @@
+{
+  "status": "HEADLESS_PRODUCTION_CONTROLS_READBACK_COLD_FULL_REPLAY_PASS",
+  "branches": [
+    {
+      "branch": "attack-1",
+      "path": "var/qa/shen-disciple-20261013/native/attack-1/replay.json",
+      "sha256": "3462d532085558ba2e54229604e1af56b9939d44c5f1a8a08ac5d4dbc5981935",
+      "nativeCommands": 4,
+      "accepted": 4,
+      "coldRestores": 4,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "3288214c9858f85d3e0ad934127caf1f644d9acd3e2bcb2cd84407b188d2e65a",
+        "expectedStateHash": "3288214c9858f85d3e0ad934127caf1f644d9acd3e2bcb2cd84407b188d2e65a",
+        "errors": []
+      }
+    },
+    {
+      "branch": "control-friend",
+      "path": "var/qa/shen-disciple-20261013/native/control-friend/replay.json",
+      "sha256": "9af67a5f8da14134ae55f37800cb49359bf7089b8dafaf474ec2bd4932749fe0",
+      "nativeCommands": 3,
+      "accepted": 3,
+      "coldRestores": 3,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "806365cc55dadfb6819a202d22dad9c91f020e5cf66fc4967048dbb8b2a761c6",
+        "expectedStateHash": "806365cc55dadfb6819a202d22dad9c91f020e5cf66fc4967048dbb8b2a761c6",
+        "errors": []
+      }
+    },
+    {
+      "branch": "control-source",
+      "path": "var/qa/shen-disciple-20261013/native/control-source/replay.json",
+      "sha256": "d583d0bcd3fc199404e60543e9aaa83369ff83e9ddac16278a8c93fba3a5c1a6",
+      "nativeCommands": 3,
+      "accepted": 3,
+      "coldRestores": 3,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "0be00b22cf7aa4907c60990c3e692e67a85b14c5de20a05c2d67956349644d3a",
+        "expectedStateHash": "0be00b22cf7aa4907c60990c3e692e67a85b14c5de20a05c2d67956349644d3a",
+        "errors": []
+      }
+    },
+    {
+      "branch": "copies-1",
+      "path": "var/qa/shen-disciple-20261013/native/copies-1/replay.json",
+      "sha256": "ed3bba0cd027930943897d6a38f97b941d08a75f6b434a38a64ab17d08341c50",
+      "nativeCommands": 7,
+      "accepted": 7,
+      "coldRestores": 7,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "922f95926fe46022d5322438783cc635500fa06508be115704332d987f191c4f",
+        "expectedStateHash": "922f95926fe46022d5322438783cc635500fa06508be115704332d987f191c4f",
+        "errors": []
+      }
+    },
+    {
+      "branch": "copies-2",
+      "path": "var/qa/shen-disciple-20261013/native/copies-2/replay.json",
+      "sha256": "9a5bbac7c1816ded7a59e9f4ebce30cff46bab5cb462dba492800c1615b8bcf5",
+      "nativeCommands": 10,
+      "accepted": 10,
+      "coldRestores": 10,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "74820206a7716468edd11a2ce18cf6c06d2f4d338b60f6e64ccbd8fe93d1ed1b",
+        "expectedStateHash": "74820206a7716468edd11a2ce18cf6c06d2f4d338b60f6e64ccbd8fe93d1ed1b",
+        "errors": []
+      }
+    },
+    {
+      "branch": "count-0",
+      "path": "var/qa/shen-disciple-20261013/native/count-0/replay.json",
+      "sha256": "144050bdda53ba8744ccf7626ca677c693b20099eab9bb0b07ba4b8d9633b025",
+      "nativeCommands": 1,
+      "accepted": 1,
+      "coldRestores": 1,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "bfe27522a3bc82b1d699e900c9bf64225069fa8fb30d6e5b9424e6b919e9c5a5",
+        "expectedStateHash": "bfe27522a3bc82b1d699e900c9bf64225069fa8fb30d6e5b9424e6b919e9c5a5",
+        "errors": []
+      }
+    },
+    {
+      "branch": "count-1",
+      "path": "var/qa/shen-disciple-20261013/native/count-1/replay.json",
+      "sha256": "bb48573f2c5ea2f464faeb87656a743f179d869e99e107ea65e60ac3e07d54c2",
+      "nativeCommands": 2,
+      "accepted": 2,
+      "coldRestores": 2,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "bb1d5e60edae2f9a0c1e1f021ac78b0d6d73e099c431bec4f1934d2e548491ad",
+        "expectedStateHash": "bb1d5e60edae2f9a0c1e1f021ac78b0d6d73e099c431bec4f1934d2e548491ad",
+        "errors": []
+      }
+    },
+    {
+      "branch": "count-2",
+      "path": "var/qa/shen-disciple-20261013/native/count-2/replay.json",
+      "sha256": "5bcf01624559c904a77b9bb84568c78c7a3a2e0ca3c09a32bf20bf3d54c9b00d",
+      "nativeCommands": 1,
+      "accepted": 1,
+      "coldRestores": 1,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "0bae614ec0c0db83040017269b72e3ca9a1fe6580c36d0b329e4511a4f4eb102",
+        "expectedStateHash": "0bae614ec0c0db83040017269b72e3ca9a1fe6580c36d0b329e4511a4f4eb102",
+        "errors": []
+      }
+    },
+    {
+      "branch": "defend-0",
+      "path": "var/qa/shen-disciple-20261013/native/defend-0/replay.json",
+      "sha256": "1520496d6b3bfe5f463fdf76e8470ec3bac9531df1a31a8530070ec1f9bc6636",
+      "nativeCommands": 4,
+      "accepted": 4,
+      "coldRestores": 4,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "d8a570e88c60b52f4ce76b7c8c27c3994a5915e8d3ebf6b6c7e76edd8ffcc6ac",
+        "expectedStateHash": "d8a570e88c60b52f4ce76b7c8c27c3994a5915e8d3ebf6b6c7e76edd8ffcc6ac",
+        "errors": []
+      }
+    },
+    {
+      "branch": "defend-1",
+      "path": "var/qa/shen-disciple-20261013/native/defend-1/replay.json",
+      "sha256": "9389ba813e11976ed7625a4bdda68de438bcde933a977f9b45153f60302d6bce",
+      "nativeCommands": 6,
+      "accepted": 6,
+      "coldRestores": 6,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "440c32e36e44bfa210c466288eead223125c71f38a255756ceccca8a4c63d64a",
+        "expectedStateHash": "440c32e36e44bfa210c466288eead223125c71f38a255756ceccca8a4c63d64a",
+        "errors": []
+      }
+    },
+    {
+      "branch": "defend-2",
+      "path": "var/qa/shen-disciple-20261013/native/defend-2/replay.json",
+      "sha256": "2da13aa844087758715b60befdc6233c4caedadcbcdfce21a644d6ff6d917dc7",
+      "nativeCommands": 6,
+      "accepted": 6,
+      "coldRestores": 6,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "c3d046151309f4b5a48cad9d121455130ff61199480bad0b646141e0b2bb5840",
+        "expectedStateHash": "c3d046151309f4b5a48cad9d121455130ff61199480bad0b646141e0b2bb5840",
+        "errors": []
+      }
+    },
+    {
+      "branch": "hand-play",
+      "path": "var/qa/shen-disciple-20261013/native/hand-play/replay.json",
+      "sha256": "082807564a043ea2fca29deddc05bb5fd1e249262433cdd8dfa186d32f9aa696",
+      "nativeCommands": 1,
+      "accepted": 1,
+      "coldRestores": 1,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "01852424b7ec9e769f8ccb5b3b93e27205732ec9476ccea0098655028efef59c",
+        "expectedStateHash": "01852424b7ec9e769f8ccb5b3b93e27205732ec9476ccea0098655028efef59c",
+        "errors": []
+      }
+    },
+    {
+      "branch": "hidden-companion",
+      "path": "var/qa/shen-disciple-20261013/native/hidden-companion/replay.json",
+      "sha256": "6cbc7993c33f86da6c698f5235172da518ccf14ab5a8ab1fd4663d220538ee00",
+      "nativeCommands": 2,
+      "accepted": 2,
+      "coldRestores": 2,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "5d51d240c5b860848a34e063ecd97054d7c29f69cf465c05a49f75b4eb4f623d",
+        "expectedStateHash": "5d51d240c5b860848a34e063ecd97054d7c29f69cf465c05a49f75b4eb4f623d",
+        "errors": []
+      }
+    },
+    {
+      "branch": "standby-play",
+      "path": "var/qa/shen-disciple-20261013/native/standby-play/replay.json",
+      "sha256": "415dc44f346796d092ebb904cc9b767a338533444bd552107e410f2908ba59a8",
+      "nativeCommands": 4,
+      "accepted": 4,
+      "coldRestores": 4,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "44b8a2e13a3de5ffd59cc6087c257e1d3a6801f100bb22aa931e524a3aa9c7c1",
+        "expectedStateHash": "44b8a2e13a3de5ffd59cc6087c257e1d3a6801f100bb22aa931e524a3aa9c7c1",
+        "errors": []
+      }
+    },
+    {
+      "branch": "tamper",
+      "path": "var/qa/shen-disciple-20261013/native/tamper/replay.json",
+      "sha256": "144050bdda53ba8744ccf7626ca677c693b20099eab9bb0b07ba4b8d9633b025",
+      "nativeCommands": 1,
+      "accepted": 1,
+      "coldRestores": 1,
+      "fullJournalReplay": {
+        "isMatch": true,
+        "replayedStateHash": "bfe27522a3bc82b1d699e900c9bf64225069fa8fb30d6e5b9424e6b919e9c5a5",
+        "expectedStateHash": "bfe27522a3bc82b1d699e900c9bf64225069fa8fb30d6e5b9424e6b919e9c5a5",
+        "errors": []
+      }
+    }
+  ],
+  "totalNativeCommands": 55,
+  "totalColdRestores": 55,
+  "godotVersion": "4.7.2.mono",
+  "logSha256": "4f63f778ac6ab20496cbb9187a2c37757625e20a6e074c10881ddfea2b97eb69",
+  "visiblePairedUserWindowsCertified": false,
+  "wholeCardCertification": false
+}

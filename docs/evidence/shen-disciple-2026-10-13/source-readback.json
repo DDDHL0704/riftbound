@@ -1,0 +1,68 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "慎的弟子",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-13T13:57:00.272789+00:00",
+  "record": {
+    "id": 37817,
+    "cardCategoryList": [
+      "unit"
+    ],
+    "cardCategoryNameList": [
+      "单位"
+    ],
+    "cardNo": "VEN·117",
+    "cardName": "慎的弟子",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "yellow"
+    ],
+    "hero": "",
+    "region": "艾欧尼亚",
+    "tag": "",
+    "artist": "Six More Vodka",
+    "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n如果我所在的战场上受你控制的其他单位有且仅有一个，则我获得{{坚守3}}。（如果我是防守方，则{{S}}+3。）",
+    "flavorText": "即使是暮光本尊，也有亲传弟子。",
+    "energy": 2,
+    "returnEnergy": null,
+    "power": 1,
+    "productCodeList": [
+      "VEN(标准补充包)",
+      "VEN(进阶补充包)"
+    ],
+    "productNameList": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_dust",
+    "rarityName": "普通",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/6ae62296d07146e2842d1b3b48539ab7.png",
+    "backImage": "",
+    "listSort": 1869,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "sourceRecordSha256": "8b19d6b56c0beef1f8e035b303d2229e1720724d2c436d68866119c2c762f9f6",
+  "language": "zh-CN",
+  "region": "CN",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "unknownDatesExplicit": true,
+  "wholeCardCertification": false
+}

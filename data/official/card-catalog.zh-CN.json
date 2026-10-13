@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1024,
+  "total": 1025,
   "cards": [
     {
       "id": 31005,
@@ -42421,6 +42421,50 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37817,
+      "cardNo": "VEN·117",
+      "cardName": "慎的弟子",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n如果我所在的战场上受你控制的其他单位有且仅有一个，则我获得{{坚守3}}。（如果我是防守方，则{{S}}+3。）",
+      "flavorText": "即使是暮光本尊，也有亲传弟子。",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": 1,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260715/6ae62296d07146e2842d1b3b48539ab7.png",
+      "backImage": "",
+      "listSort": 1869,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0,
+      "cardCategory": "unit",
+      "cardCategoryName": "单位"
     }
   ],
   "scopedAdditions": [
@@ -42723,6 +42767,26 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
       "scope": "Exact Rebuttal printing; optional resolution payment and spell control/choice remakes; not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·117",
+      "sourceId": 37817,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "慎的弟子",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-13T13:57:00.272789+00:00",
+      "sourceRecordSha256": "8b19d6b56c0beef1f8e035b303d2229e1720724d2c436d68866119c2c762f9f6",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact CN printing with shared exact-other-friendly-unit conditional keyword layer; existing records and historic acquisition metadata preserved; no whole-card certification or denominator merge."
     }
   ]
 }

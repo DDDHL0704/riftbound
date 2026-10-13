@@ -1,0 +1,100 @@
+{
+  "status": "FIXED_COMMIT_FULL_CI_FAILED",
+  "commit": "32b7b5819a4e481b97203d4adbda1ed2302e419f",
+  "runId": 38402687822,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38402687822",
+  "verifiedAtUtc": "2026-10-13T14:22:00.588794+00:00",
+  "jobs": {
+    "scope": "success",
+    "rules": "failure",
+    "desktop (windows-latest)": "success",
+    "desktop (macos-latest)": "success"
+  },
+  "trx": [
+    {
+      "path": "var/qa/shen-disciple-20261013/ci-32b7b581/ci-rules/games-2/results.trx",
+      "sha256": "54edbc2e52d0f0c1c55d8a8a250fd8bb570bc71a31189eef04a5902782e19faf",
+      "counters": {
+        "total": "49",
+        "executed": "49",
+        "passed": "49",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "path": "var/qa/shen-disciple-20261013/ci-32b7b581/ci-rules/games-4/results.trx",
+      "sha256": "97835d59d40edde0860fae7ad67eec757e679070b3dcb3eddbb74e8b7ce13894",
+      "counters": {
+        "total": "52",
+        "executed": "52",
+        "passed": "50",
+        "failed": "2",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "path": "var/qa/shen-disciple-20261013/ci-32b7b581/ci-rules/rules/results.trx",
+      "sha256": "f7877dc56d39e14187e3467cbb18d2f26fe4a0a0df6f53fea8bfce6ce8860fff",
+      "counters": {
+        "total": "10881",
+        "executed": "10881",
+        "passed": "10881",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    }
+  ],
+  "failures": [
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTreeAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "message": "System.InvalidOperationException : B0 standby driver could not find a deterministic official-deck battlefield extra-standby rejection score path. 424242: B0 standby driver could not find HIDE_CARD for P2. | 7: B0 standby driver could not find HIDE_CARD for P1. | 11: B0 standby driver could not find HIDE_CARD for P2. | 17: B0 standby driver could not find HIDE_CARD for P1. | 23: B0 standby driver could not find HIDE_CARD for P1. | 31: B0 standby driver could not find HIDE_CARD for P1. | 42: B0 standby driver could not find HIDE_CARD for P2. | 101: B0 standby driver could not find HIDE_CARD for P1. | 404: B0 standby driver could not find HIDE_CARD for P2. | 20260624: B0 standby driver could not find HIDE_CARD for P2. | 0: B0 standby driver could not find HIDE_CARD for P2. | 1: B0 standby driver could not find HIDE_CARD for P2. | 2: B0 standby driver could not find HIDE_CARD for P1. | 3: B0 standby driver could not find HIDE_CARD for P1. | 4: B0 standby driver could not find HIDE_CARD for P2. | 5: B0 standby driver could not find HIDE_CARD for P2. | 6: B0 standby driver could not find HIDE_CARD for P1. | 8: B0 standby driver could not find HIDE_CARD for P2. | 9: B0 standby driver could not find HIDE_CARD for P2. | 10: B0 standby driver could not find HIDE_CARD for P2. | 12: B0 standby driver could not find HIDE_CARD for P1. | 13: B0 standby driver could not find HIDE_CARD for P1. | 14: B0 standby driver could not find HIDE_CARD for P2. | 15: B0 standby driver could not find HIDE_CARD for P2. | 16: B0 standby driver could not find HIDE_CARD for P2. | 18: B0 standby driver could not find HIDE_CARD for P2. | 19: B0 standby driver could not find HIDE_CARD for P2. | 20: B0 standby driver could not find HIDE_CARD for P2. | 21: B0 standby driver could not find HIDE_CARD for P2. | 22: B0 standby driver could not find HIDE_CARD for P1. | 24: B0 standby driver could not find HIDE_CARD for P2. | 25: B0 standby driver could not find HIDE_CARD for P2. | 26: B0 standby driver could not find HIDE_CARD for P1. | 27: B0 standby driver could not find HIDE_CARD for P1. | 28: B0 standby driver could not find HIDE_CARD for P2. | 29: B0 standby driver could not find HIDE_CARD for P2. | 30: B0 standby driver could not find HIDE_CARD for P1. | 32: B0 standby driver could not find HIDE_CARD for P2. | 33: B0 standby driver could not find HIDE_CARD for P2. | 34: B0 standby driver could not find HIDE_CARD for P1.",
+      "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.DriveOfficialStandbyDecksToBattlefieldExtraStandbyRejectScoreVictoryForReplayAsync(String roomId, OfficialDecklist p1Deck, OfficialDecklist p2Deck) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 10983\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTreeAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 5418\n--- End of stack trace from previous location ---"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "message": "System.InvalidOperationException : B0 standby driver could not find a deterministic official-deck hide/reveal score path. 424242: B0 standby driver could not find HIDE_CARD for P2. | 7: B0 standby driver could not find HIDE_CARD for P1. | 11: B0 standby driver could not find HIDE_CARD for P2. | 17: B0 standby driver could not find HIDE_CARD for P1. | 23: B0 standby driver could not find HIDE_CARD for P1. | 31: B0 standby driver could not find HIDE_CARD for P1. | 42: B0 standby driver could not find HIDE_CARD for P2. | 101: B0 standby driver could not find HIDE_CARD for P1. | 404: B0 standby driver could not find HIDE_CARD for P2. | 20260624: B0 standby driver could not find HIDE_CARD for P2.",
+      "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.DriveOfficialStandbyDecksToHideRevealScoreVictoryForReplayAsync(String roomId, OfficialDecklist p1Deck, OfficialDecklist p2Deck) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 10876\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 5273\n--- End of stack trace from previous location ---"
+    }
+  ],
+  "mandatorySql": "skipped",
+  "mandatoryNetwork": "skipped",
+  "complete110PairsVerified": false,
+  "expectedCases": 11032,
+  "expectedMethods": 6954,
+  "laterDriverFixCommit": "3a20a0ea7102c55dfd7a290be0fe6e7d96c7ddd9",
+  "platformStatus": "NOT_READY"
+}

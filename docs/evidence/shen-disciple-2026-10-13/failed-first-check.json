@@ -1,0 +1,35 @@
+{
+  "status": "FAILED_COHERENT_CHECK",
+  "trxSha256": "5414be526c665dce8aaa57c8c69cf3552758bb37df3577ef05648c93b4af7d33",
+  "failures": [
+    {
+      "name": "Riftbound.ConformanceTests.AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025",
+      "stack": "   at Riftbound.ConformanceTests.AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource() in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/AhriCombatMightTests.cs:line 242\n--- End of stack trace from previous location ---"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.VendettaAmbushTests.CatalogStatisticsAreEvidenceOfRegistrationOnly",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025",
+      "stack": "   at Riftbound.ConformanceTests.VendettaAmbushTests.CatalogStatisticsAreEvidenceOfRegistrationOnly() in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/VendettaAmbushTests.cs:line 71\n--- End of stack trace from previous location ---"
+    }
+  ],
+  "counts": {
+    "total": "10913",
+    "executed": "10913",
+    "passed": "10911",
+    "failed": "2",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "laterRepairRequiresVerification": true
+}

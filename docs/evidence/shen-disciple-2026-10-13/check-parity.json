@@ -1,0 +1,84 @@
+{
+  "status": "PASS_AFTER_TWO_CATALOG_STAT_REPAIRS",
+  "profile": "check",
+  "cases": 10913,
+  "methods": 6826,
+  "seconds": 152.33,
+  "testSeconds": 148.36,
+  "baselineCommit": "a0b3c004e4d4cd6666dd55f8815106d29c3ff235",
+  "oldCasesPreserved": 10895,
+  "oldMethodsPreserved": 6816,
+  "missingCases": [],
+  "missingMethods": [],
+  "addedCases": [
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualBattleRolesApplySteadfastOnlyToDefenders(attacking: False, friends: 0, expectedMight: 1)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualBattleRolesApplySteadfastOnlyToDefenders(attacking: False, friends: 1, expectedMight: 4)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualBattleRolesApplySteadfastOnlyToDefenders(attacking: False, friends: 2, expectedMight: 1)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualBattleRolesApplySteadfastOnlyToDefenders(attacking: True, friends: 1, expectedMight: 1)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualCopiedConditionalTextHasIndependentCountedInstances(copies: 1, expected: \"坚守6\")",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualCopiedConditionalTextHasIndependentCountedInstances(copies: 2, expected: \"坚守9\")",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualHandOrLaterTurnStandbyPlayUsesCurrentBattlefieldCondition(standby: False)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualHandOrLaterTurnStandbyPlayUsesCurrentBattlefieldCondition(standby: True)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualTakeoverUsesCurrentControllerForCompanionCount(takeSource: False)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualTakeoverUsesCurrentControllerForCompanionCount(takeSource: True)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualUnitMovementsUpdateExactCountAndColdReplay(companions: 0, expected: False)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualUnitMovementsUpdateExactCountAndColdReplay(companions: 1, expected: True)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualUnitMovementsUpdateExactCountAndColdReplay(companions: 2, expected: False)",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.AddingThePrintingPreservesAllElevenOriginalPreconstructedDeckInputs",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.CurrentCountRejectsForgedDerivedKeywordAfterActualMovement",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.CurrentNonPreviewPrintingIsAvailableWithoutUnconditionalSteadfast",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.CurrentOfficialTextParsesExactOtherFriendlyUnitKeywordCondition",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.FaceDownStandbyDoesNotCountAsACompanion"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualBattleRolesApplySteadfastOnlyToDefenders",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualCopiedConditionalTextHasIndependentCountedInstances",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualHandOrLaterTurnStandbyPlayUsesCurrentBattlefieldCondition",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualTakeoverUsesCurrentControllerForCompanionCount",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.ActualUnitMovementsUpdateExactCountAndColdReplay",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.AddingThePrintingPreservesAllElevenOriginalPreconstructedDeckInputs",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.CurrentCountRejectsForgedDerivedKeywordAfterActualMovement",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.CurrentNonPreviewPrintingIsAvailableWithoutUnconditionalSteadfast",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.CurrentOfficialTextParsesExactOtherFriendlyUnitKeywordCondition",
+    "Riftbound.ConformanceTests.ShenDiscipleTests.FaceDownStandbyDoesNotCountAsACompanion"
+  ],
+  "frozenInputs": 2235,
+  "changedInputs": [],
+  "realSqlSmoke": {
+    "dedicatedInstanceOnly": true,
+    "loopbackPort": 55439,
+    "databaseVersion": "PostgreSQL16.13",
+    "cases": [
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift",
+        "outcome": "Passed",
+        "duration": "00:00:00.0898231"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit",
+        "outcome": "Passed",
+        "duration": "00:00:00.2037724"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands",
+        "outcome": "Passed",
+        "duration": "00:00:00.1905094"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry",
+        "outcome": "Passed",
+        "duration": "00:00:00.1858604"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift",
+        "outcome": "Passed",
+        "duration": "00:00:00.6035512"
+      }
+    ],
+    "serverStoppedAfterCheck": true
+  },
+  "trxSha256": "5cd3bbdec3878a756ed28625467585d459600287ce64da7aac906e8d763de1e0",
+  "assemblySha256": "619f26bb78ff5f42165cfc692c80e0dbc61893b08fa66bf5850c5cd69701a0a0",
+  "failedFirstCheckRetained": "failed-first-check.json",
+  "wholeCardCertification": false
+}

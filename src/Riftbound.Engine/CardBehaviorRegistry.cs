@@ -8572,6 +8572,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             DynamicDrawCountKind: CardDynamicDrawCountKinds.ControllerPowerfulUnits),
+        new("VEN·117", "慎的弟子", 2, "UNIT_CONDITIONAL_BATTLEFIELD_KEYWORD_PLAY:VEN117", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 1, SourceUnitTags: CardObjectTags.Standby),
         new("VEN·001", "巴凯旋沙者", 6, "UNIT_EMPOWER_PLAY:VEN001", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6),
         new("VEN·069", "梅尔", 4, "EMPOWERED_SPELL_UNIT_PLAY:VEN069", 0, 0,

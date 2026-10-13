@@ -15,11 +15,11 @@ public sealed partial class CoreRuleEngine
     {
         var field = state.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields)).Distinct(StringComparer.Ordinal);
         var candidates = field.Where(id => state.CardObjects.TryGetValue(id, out var card)
-            && CardStaticAbilitySpecRules.TryGetStaticAbility(AttachedRuleTextRules.Face(card), CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility, out _))
+            && CardStaticAbilitySpecRules.TryGetStaticAbility(AttachedRuleTextRules.Face(card), CardStaticAbilitySpecRules.IsUnitConditionalSelfKeywordsAbility, out _))
             .Concat(state.CardObjects.Values.Where(c => c.RuleDerivedTags is not null).Select(c => c.ObjectId))
             .Concat(state.CardObjects.Values.Where(c => c.IsEmpowered && c.Tags.Contains(CardObjectTags.UnitCard)).Select(c => c.ObjectId))
             .Concat(state.CardObjects.Values.Where(c => c.AttachedRuleText is { } copy
-                && CardStaticAbilitySpecRules.TryGetStaticAbility(copy.CardNo, CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility, out _)
+                && CardStaticAbilitySpecRules.TryGetStaticAbility(copy.CardNo, CardStaticAbilitySpecRules.IsUnitConditionalSelfKeywordsAbility, out _)
                 && AttachedRuleTextRules.Bound(state, c)).Select(c => c.AttachedToObjectId!)).Distinct(StringComparer.Ordinal).ToArray();
         if (candidates.Length == 0) return state;
         var grants = new Dictionary<string, (RuleTextInstance Instance, StaticAbilitySpec Spec)[]>();
@@ -27,7 +27,7 @@ public sealed partial class CoreRuleEngine
         foreach (var id in candidates) {
             if (!state.CardObjects.TryGetValue(id, out var card)) continue;
             var specs = AttachedRuleTextRules.Instances(state, card).Select(instance =>
-                CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo, CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility, out var spec)
+                CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo, CardStaticAbilitySpecRules.IsUnitConditionalSelfKeywordsAbility, out var spec)
                     ? (instance, spec) : ((RuleTextInstance, StaticAbilitySpec)?)null).Where(s => s.HasValue).Select(s => s!.Value).ToArray();
             if (specs.Length == 0 && card.RuleDerivedTags is null && EmpowerRules.Keywords(state, card).Length == 0) continue;
             // Independent printed/granted tags survive removal of this layer.
@@ -47,11 +47,14 @@ public sealed partial class CoreRuleEngine
             var changed = false; var next = new Dictionary<string, CardObjectState>(current.CardObjects, StringComparer.Ordinal);
             foreach (var (id, specs) in grants) {
                 var card = current.CardObjects[id]; var might = ResolveCurrentFieldUnitPowerFromEvaluatedKeywords(current, card);
-                var keywords = specs.Where(s => might >= s.Spec.RequiredPowerThreshold).SelectMany(s => s.Spec.GrantedKeywords ?? [])
+                var keywords = specs.Where(s => ConditionalSelfKeywordsApply(current, card, s.Spec, might)).SelectMany(s => s.Spec.GrantedKeywords ?? [])
                     .Concat(EmpowerRules.Keywords(current, card)).ToArray();
-                var tags = keywords.Where(k => k is not (CardCombatKeywordNames.Assault or CardCombatKeywordNames.Steadfast or CardObjectTags.Spellshield)).Distinct(StringComparer.Ordinal).ToList();
+                var countedKeywords = new[] { CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast, CardObjectTags.Spellshield };
+                var tags = keywords.Where(k => !countedKeywords.Any(name => k == name
+                    || k.StartsWith(name, StringComparison.Ordinal) && int.TryParse(k[name.Length..], out _)))
+                    .Distinct(StringComparer.Ordinal).ToList();
                 foreach (var counted in new[] { CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast, CardObjectTags.Spellshield }) {
-                    var amount = keywords.Count(k => k == counted);
+                    var amount = keywords.Sum(k => CombatKeywordAmount([k], counted));
                     if (amount > 0) tags.Add(counted + (amount == 1 ? "" : amount));
                 }
                 var derived = tags.Order(StringComparer.Ordinal).ToArray();
@@ -65,6 +68,20 @@ public sealed partial class CoreRuleEngine
         }
         return current.CardObjects.All(e => e.Value.Tags.SequenceEqual(state.CardObjects[e.Key].Tags)
             && (e.Value.RuleDerivedTags ?? []).SequenceEqual(state.CardObjects[e.Key].RuleDerivedTags ?? [])) ? state : current;
+    }
+
+    private static bool ConditionalSelfKeywordsApply(MatchState state, CardObjectState source, StaticAbilitySpec spec, int might)
+    {
+        if (CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility(spec)) return might >= spec.RequiredPowerThreshold;
+        if (spec.Kind != StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldKeywords
+            || !state.ObjectLocations.TryGetValue(source.ObjectId, out var sourceAt) || sourceAt.Zone != "BATTLEFIELD"
+            || sourceAt.BattlefieldObjectId is null) return false;
+        var count = state.CardObjects.Values.Count(card => card.ObjectId != source.ObjectId && !card.IsFaceDown && card.Tags.Contains(CardObjectTags.UnitCard)
+            && CardControlRules.IsControlledByPlayerOrLegacyOwned(card, source.ControllerId ?? source.OwnerId ?? "")
+            && IsObjectOnField(state.PlayerZones, card.ObjectId)
+            && state.ObjectLocations.TryGetValue(card.ObjectId, out var at) && at.Zone == "BATTLEFIELD"
+            && at.BattlefieldObjectId == sourceAt.BattlefieldObjectId);
+        return count == spec.RequiredExactOtherFriendlyBattlefieldUnits;
     }
 
     private static ResolutionResult RefreshRuleDerivedKeywordLayers(ResolutionResult result)

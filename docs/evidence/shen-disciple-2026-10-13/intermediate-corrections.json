@@ -1,0 +1,78 @@
+{
+  "status": "FAILED_INTERMEDIATE_RUN_PRESERVED",
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitsMatchCurrentBaselineCounts",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6SecondaryTemplateFamiliesReportEntryAndFunctionalUnitCoverage",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 258\nActual:   259"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6InteractionKeywordFamiliesReportSpecAndExecutionBoundaryCoverage",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 53\nActual:   54"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitIdsAreStableUniqueAndComplete",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.KeywordCoverageReportExposesDeferredKeywordFamilies",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 825\nActual:   826"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ShenDiscipleTests.ActualHandOrLaterTurnStandbyPlayUsesCurrentBattlefieldCondition(standby: False)",
+      "outcome": "Failed",
+      "message": "Not enough mana to play 慎的弟子."
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.BehaviorSpecsCoverEveryOfficialCardWithExplicitStatusAndReason",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.OfficialCatalogLoadsAllSnapshotCards",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6LifecycleTriggerReplacementFamiliesReportSpecAndExecutionBoundaryCoverage",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 540\nActual:   541"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.OfficialCatalogSchemaValidationCoversAllSnapshotCards",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ShenDiscipleTests.ActualHandOrLaterTurnStandbyPlayUsesCurrentBattlefieldCondition(standby: True)",
+      "outcome": "Failed",
+      "message": "Riftbound.Engine.MatchSessionException : 玩家编号不能为空。"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6CompletionAuditKeepsEveryFunctionalUnitImplementedOrExplicitlyDeferred",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1024\nActual:   1025"
+    }
+  ],
+  "trxSha256": "afe3c1ac34ded934c2a4e97ddab4a646f691d67e94570b95d420f030cf4a7c08",
+  "fixtureErrors": "Two hand/standby inputs omitted actual2mana or assumed plain unit play always creates a stack; corrected, not engine defects.",
+  "catalogDelta": "Original exact statistics retained with actual +1 entry/+1 functional unit; no rows removed."
+}

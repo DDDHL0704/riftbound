@@ -20,13 +20,98 @@ public partial class ShadySpectaclesInteractionProof : Control
                 using var steps = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, "steps.json")));
                 foreach (var step in steps.RootElement.EnumerateArray()) {
                     var name = step.GetProperty("name").GetString()!; var action = step.GetProperty("action").GetString()!;
-                    try { if (action == "PLAY_CARD") Play(dir, name); else Produce(dir, name, action); }
+                    try {
+                        if (action == "PLAY_CARD") Play(dir, name);
+                        else if (action == "MOVE_UNIT") Move(dir, name);
+                        else if (action == "DECLARE_BATTLE") Declare(dir, name);
+                        else if (action == "ASSIGN_COMBAT_DAMAGE") Damage(dir, name);
+                        else Produce(dir, name, action);
+                    }
                     catch (Exception error) { throw new InvalidOperationException($"Native step {branch}/{name}: {error.Message}", error); }
                     count++;
                 }
             }
             GD.Print($"SHADY_SPECTACLES_PASS: {count} production spell, original/copied ordering and independent response commands"); GetTree().Quit();
         } catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
+    }
+
+    private void Move(string dir, string step)
+    {
+        using var prompt = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-prompt.json")));
+        using var selection = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-selection.json")));
+        var p = prompt.RootElement; var expected = selection.RootElement;
+        var candidate = p.GetProperty("candidates").EnumerateArray().Single(c => c.GetProperty("action").GetString() == "MOVE_UNIT");
+        var overlay = new MovementOverlay { TableMode = true }; AddChild(overlay);
+        Check(overlay.Open(candidate, p.GetProperty("promptId").GetString()!, p.GetProperty("snapshotTick").GetInt64(),
+            _ => null, label => label), "Production movement prompt opens");
+        Check(!overlay.TrySelectTableDestination("BATTLEFIELD:FORGED"), "Unknown movement destination rejected");
+        Check(overlay.TrySelectTableDestination(expected.GetProperty("destination").GetString()!), "Select real movement destination");
+        var sources = expected.TryGetProperty("sourceObjectIds", out var group) && group.ValueKind == JsonValueKind.Array
+            ? group.EnumerateArray().Select(x => x.GetString()!).ToArray() : [expected.GetProperty("sourceObjectId").GetString()!];
+        foreach (var id in sources) Check(overlay.TryToggleTableSource(id), "Select a server-offered movement source");
+        Dictionary<string, object?>? payload = null;
+        overlay.Confirmed += command => { command["promptId"] = p.GetProperty("promptId").GetString();
+            command["snapshotTick"] = p.GetProperty("snapshotTick").GetInt64(); payload = command; };
+        ((Button)overlay.FindChild("ConfirmMovementButton", true, false)).EmitSignal(BaseButton.SignalName.Pressed);
+        Check(payload is not null, "Production movement confirmation emits command");
+        File.WriteAllText(Path.Combine(dir, step + "-command.json"), JsonSerializer.Serialize(payload)); overlay.Free();
+    }
+
+    private void Declare(string dir, string step)
+    {
+        using var prompt = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-prompt.json")));
+        using var selection = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-selection.json")));
+        var p = prompt.RootElement;
+        var candidate = p.GetProperty("candidates").EnumerateArray().Single(c => c.GetProperty("action").GetString() == "DECLARE_BATTLE");
+        var overlay = new BattleDeclarationOverlay(); AddChild(overlay);
+        Check(overlay.Open(candidate, p.GetProperty("promptId").GetString()!, p.GetProperty("snapshotTick").GetInt64(), id => id),
+            "Production battle declaration opens");
+        var picks = (IEnumerable<(string Field, OptionButton Picker, string[] Ids, bool Required)>)typeof(BattleDeclarationOverlay)
+            .GetField("_picks", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+        var selectedByField = new Dictionary<string, HashSet<string>>();
+        foreach (var pick in picks)
+        {
+            if (!selectedByField.TryGetValue(pick.Field, out var used)) selectedByField[pick.Field] = used = new(StringComparer.Ordinal);
+            var expected = selection.RootElement.GetProperty(pick.Field);
+            var id = pick.Field == "battlefieldId" ? expected.GetString()!
+                : expected.EnumerateArray().Select(value => value.GetString()!).FirstOrDefault(value => pick.Ids.Contains(value) && !used.Contains(value)) ?? "";
+            var position = Array.IndexOf(pick.Ids, id);
+            Check(position >= 0 && (!pick.Required || position > 0), "Select only legal server battle participants");
+            if (id.Length > 0) used.Add(id);
+            pick.Picker.Select(position); pick.Picker.EmitSignal(OptionButton.SignalName.ItemSelected, position);
+        }
+        var costs = (Dictionary<string, CheckBox>)typeof(BattleDeclarationOverlay).GetField("_costs", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+        var required = (string[])typeof(BattleDeclarationOverlay).GetField("_requiredCosts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+        foreach (var cost in selection.RootElement.GetProperty("optionalCosts").EnumerateArray())
+        {
+            var id = cost.GetString()!;
+            Check(costs.ContainsKey(id) || required.Contains(id), "Battle cost comes from current server prompt");
+            if (costs.TryGetValue(id, out var check)) check.ButtonPressed = true;
+        }
+        Dictionary<string, object?>? payload = null;
+        overlay.Confirmed += command => { command["promptId"] = p.GetProperty("promptId").GetString();
+            command["snapshotTick"] = p.GetProperty("snapshotTick").GetInt64(); payload = command; };
+        ((Button)overlay.FindChild("ConfirmBattleButton", true, false)).EmitSignal(BaseButton.SignalName.Pressed);
+        Check(payload is not null, "Production battle confirmation emits command");
+        File.WriteAllText(Path.Combine(dir, step + "-command.json"), JsonSerializer.Serialize(payload)); overlay.Free();
+    }
+
+    private void Damage(string dir, string step)
+    {
+        using var prompt = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-prompt.json")));
+        var p = prompt.RootElement;
+        var candidate = p.GetProperty("candidates").EnumerateArray().Single(c => c.GetProperty("action").GetString() == "ASSIGN_COMBAT_DAMAGE");
+        var action = new Godot.Collections.Dictionary { ["action"] = "ASSIGN_COMBAT_DAMAGE", ["enabled"] = true,
+            ["candidateJson"] = candidate.GetRawText() };
+        var overlay = GD.Load<PackedScene>("res://scenes/overlays/DamageAssignmentOverlay.tscn").Instantiate<DamageAssignmentOverlay>(); AddChild(overlay);
+        Check(overlay.ShowPrompt(action, out var reason), reason);
+        overlay.GetNode<Button>("%SuggestButton").EmitSignal(BaseButton.SignalName.Pressed);
+        Dictionary<string, object?>? payload = null;
+        overlay.Confirmed += choices => { Check(SpecialPromptCommandBuilder.TryBuildDamageAssignmentPayload(action, choices, out var command, out _, out var failure), failure);
+            command["promptId"] = p.GetProperty("promptId").GetString(); command["snapshotTick"] = p.GetProperty("snapshotTick").GetInt64(); payload = command; };
+        overlay.GetNode<Button>("%ConfirmButton").EmitSignal(BaseButton.SignalName.Pressed);
+        Check(payload is not null, "Production damage confirmation emits command");
+        File.WriteAllText(Path.Combine(dir, step + "-command.json"), JsonSerializer.Serialize(payload)); overlay.Free();
     }
 
     private void Produce(string dir, string step, string actionName)

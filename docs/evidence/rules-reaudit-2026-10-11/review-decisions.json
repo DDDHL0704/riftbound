@@ -17558,6 +17558,64 @@
         "Consistently forged free marker or arbitrary legend identity replay boundaries still require broader evidence.",
         "Visible paired clients,userWindows,fullSQLscore/concurrency/failover/network-with-SQL remain open."
       ]
+    },
+    {
+      "id": "shen-disciple-exact-other-friendly-keywords-2026-10-13",
+      "status": "SCOPED_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Exact current CN VEN·117 printing; other-unit exact-count conditional self keywords shared by original/copy instances and current controller/location; actual hand/standby play, movement, battle damage, control and recovery. No whole-entry certification.",
+      "subjects": [
+        "VEN-117",
+        "VEN-117/166"
+      ],
+      "ruleRecords": [
+        "DOC-04-P004-B008",
+        "DOC-04-P043-B019",
+        "DOC-04-P043-B020",
+        "DOC-04-P043-B021",
+        "DOC-04-P048-B012",
+        "DOC-04-P048-B013",
+        "DOC-04-P112-B020",
+        "DOC-04-P113-B012",
+        "DOC-04-P113-B013",
+        "DOC-04-P113-B014",
+        "DOC-04-P113-B015",
+        "DOC-04-P113-B016",
+        "DOC-04-P113-B017",
+        "DOC-04-P113-B018",
+        "DOC-04-P113-B019",
+        "DOC-04-P113-B020",
+        "DOC-04-P114-B001",
+        "DOC-04-P114-B002",
+        "DOC-04-P114-B003",
+        "DOC-04-P114-B017",
+        "DOC-04-P115-B012"
+      ],
+      "auditDocument": "docs/SHEN_DISCIPLE_AUDIT_2026-10-13.md",
+      "evidence": "docs/evidence/shen-disciple-2026-10-13",
+      "tests": [
+        "ShenDiscipleTests",
+        "PowerfulKeywordLayerTests",
+        "AttachedRuleTextTests",
+        "StandbySourceRulesTests",
+        "CardCatalogBaselineTests",
+        "VendettaAmbushTests.CatalogStatisticsAreEvidenceOfRegistrationOnly",
+        "AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource"
+      ],
+      "validation": {
+        "focus": "444 cases passed; 18 new source/semantic/deck-input cases",
+        "native": "55 actual production movement/group/declaration/damage/play/payment commands,55 cold/dedup/final replay,headless only",
+        "check": "10913 cases/6826 methods,152.33s;old10895/6816 preserved;2235 frozen inputs;actualSQL5/Python27;first failed check retained then two catalog stat guards repaired",
+        "full": "Plan6967/11062;old143 game methods/110 pairs+seed and11 exact generated decklists preserved;newfixedfull pending",
+        "priorFixedFull": "3a20a0ea full11034/6955 and a0b3c004 full11044/6957 individually verified; both actualSQL/network/desktops. Current working change excluded.",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "CN VEN·117 and EN VEN-117/166 identities are separately retained, no denominator merge.",
+        "Six other exact-count hold/draw/score or combat-damage restriction consumers remain unreconstructed.",
+        "No whole-card/all-source/rule certification or ledger promotion; English count gap8 remains.",
+        "All number/filter/type/position/copy/reentry/independent granted keywords and consistently forged histories still need broader evidence.",
+        "Visible paired clients,userWindows,fullSQLscore/concurrency/failover/network-with-SQL remain open."
+      ]
     }
   ]
 }
