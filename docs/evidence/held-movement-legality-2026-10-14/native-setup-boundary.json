@@ -1,0 +1,8 @@
+{
+  "initialState": "TurnStart synthetic fixture; first engine pass advances automatic start and is not a offered client candidate",
+  "nativeCommandScope": "Only offered CHOOSE_CARDS and subsequent priority passes; original complete journal still replays including setup command",
+  "branches": 6,
+  "nativeCommands": 16,
+  "setupCommands": 6,
+  "firstNativeAttemptRetained": "native-godot.log"
+}

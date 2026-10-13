@@ -1,0 +1,18 @@
+{
+  "status": "FULL_PLAN_ONLY_NOT_EXECUTION",
+  "methods": 7005,
+  "expectedCases": 11159,
+  "oldMethodsPreserved": 7001,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ADeclinedProhibitedTargetEndsConfirmationWithoutMovingAnything",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ARestrictionForTheOtherActorDoesNotPreventTheHeldMove",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ProhibitedMovementIsStillAConfirmableHeldTargetButIsIgnoredAtExecution",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.SuccessfulHeldMoveKeepsEquipmentDamageAndControllerWhileCapturingTheRealMovement"
+  ],
+  "originalGameMethods": 143,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "testAssemblySha256": "cc6641eed7fee4a9b6d51f6ed59aa8d9c5afaa218400c96a3b749334d95d7139",
+  "sameAssemblyAsCheck": true,
+  "matrixExecutionCertified": false
+}

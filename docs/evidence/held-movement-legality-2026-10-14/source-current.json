@@ -1,0 +1,71 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-13T17:09:29.025747+00:00",
+  "bytes": 1170,
+  "sha256": "f30c50cbfe709d741e2201767cdd0c9e414211d3fe370f37a599e482066a9e84",
+  "language": "zh-CN",
+  "region": "CN",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "业余排练厅",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "records": [
+    {
+      "id": 34760,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "UNL-207/219",
+      "cardName": "业余排练厅",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "当你据守此处时，你可以选择将战场上的一名单位移动到其基地。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)",
+        "UNL（英雄预组 薇古丝）"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包",
+        "破限系列 英雄预组 薇古丝"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260328/1f7232ec682b47cc801b1634d70925bd.webp",
+      "backImage": "",
+      "listSort": 1264,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "publicationDate": null,
+  "effectiveDate": null
+}

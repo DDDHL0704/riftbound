@@ -204,17 +204,10 @@ public sealed partial class CoreRuleEngine
             case "MOVE_BASE":
                 var target = resolvedTarget!;
                 var controller = cards[target].ControllerId!;
-                var origin = state.ObjectLocations[target];
-                var equipment = cards.Values.Where(c => c.AttachedToObjectId == target).Select(c => c.ObjectId).ToArray();
-                foreach (var owner in zones.Keys.ToArray()) zones[owner] = zones[owner] with { Battlefields = RemoveFromZone(zones[owner].Battlefields, target) };
-                zones[controller] = zones[controller] with { Base = zones[controller].Base.Concat([target]).ToArray() };
-                cards[target] = cards[target] with { IsAttacking = false, IsDefending = false };
-                events.Add(new("UNIT_MOVED_TO_BASE", "据守效果移动单位到其基地", new Dictionary<string,object?> {
-                    ["playerId"] = controller, ["sourceObjectId"] = target, ["targetObjectId"] = target,
-                    ["effectSourceObjectId"] = item.SourceObjectId, ["originZone"] = "BATTLEFIELD", ["destinationZone"] = "BASE",
-                    ["origin"] = "BATTLEFIELD:" + origin.BattlefieldObjectId, ["destination"] = "BASE" }));
-                events.AddRange(MoveAttachedEquipmentWithHost(zones, equipment, controller, target, "BASE"));
-                events.Add(CaptureMovementObservers(state, cards, target, item.ControllerId, "BASE"));
+                var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
+                var moved = MoveFieldUnitsToChosenLocation(state, zones, cards, locations, item,
+                    [target], "BASE:" + controller, events);
+                if (moved.Length != 0) cards[target] = cards[target] with { IsAttacking = false, IsDefending = false };
                 break;
             case "PAY_POWER_SCORE":
             case "SCORE":

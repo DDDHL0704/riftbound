@@ -17889,6 +17889,42 @@
         "Signature qualification/printed costs/all control/replacement/observer combinations not wholly certified.",
         "All-source/whole-card/visiblepaired/userWindows/fullSQLconcurrency-failover and eight source count gap open."
       ]
+    },
+    {
+      "id": "held-movement-legality-execution-separation-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "CN UNL207 held target legality vs movement prohibition at execution; shared moving actor/controller and gear/observer flow; no whole-card certification.",
+      "subjects": [
+        "UNL-207/219",
+        "OGN-295/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P050-B014",
+        "DOC-04-P052-B007",
+        "DOC-04-P052-B008"
+      ],
+      "auditDocument": "docs/HELD_MOVEMENT_LEGALITY_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/held-movement-legality-2026-10-14",
+      "tests": [
+        "HeldMovementLegalityTests",
+        "OfficialHeldConfirmationTests",
+        "HeldConfirmationNativeTests",
+        "OfficialHoldSequenceTests",
+        "MovementObserverAuditTests"
+      ],
+      "validation": {
+        "focus": "2022cases/1903methods recovery/armament/held/movement guards;108 adjacent;6newcases/4methods",
+        "native": "6branches16actualoffered Godot commands;22accepted/coldrestore including6automaticfixture setup;complete replay",
+        "check": "11010cases/6864methods;old11004/6860 preserved +6/4;164.90s;2244frozeninputs;actualSQL5/Python27;dedicatedclusterstopped",
+        "full": "7005methods plan only;old7001methods/143games retained;expected11159cases/110pairs seed424242;newfixedfull pending",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "All regional differences, printed costs and whole-card/source semantics open.",
+        "Optional setup advancement is automatic fixture command and not claimed native UI action.",
+        "Ruthless Pursuit complete movement/optional attachment/granted temporary conquer skill remains open.",
+        "Other prohibitions/control/replacement combinations and visiblepaired/userWindows/fullSQLconcurrency-failover/8sourcecount gap open."
+      ]
     }
   ]
 }

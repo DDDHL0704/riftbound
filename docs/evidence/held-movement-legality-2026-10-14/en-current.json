@@ -1,0 +1,115 @@
+{
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "fetchedAtUtc": "2026-10-13T16:45:12.062488+00:00",
+  "recordedAtUtc": "2026-10-13T17:10:37.061930+00:00",
+  "language": "en-US",
+  "region": "international",
+  "sourceSnapshotSha256": "4b5ea0b0683ddf64736276d3d39a721b8d42b47037e3747a8429a11ea8f55a31",
+  "records": [
+    {
+      "id": "unl-207-219",
+      "collectorNumber": 207,
+      "name": "Amateur Recital",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "UNL",
+          "label": "Unleashed"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "battlefield",
+            "label": "Battlefield",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1f37eb1bed2605bdaab8270a9dc4396cad746522-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "UNL-207/219",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "colorless",
+            "label": "Colorless"
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9372a1574aa077e8b02cc6f00a1add060ae3b520-1039x744.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Battlefield: Amateur Recital. When you hold here, you may move a unit at a battlefield to its base.",
+        "dimensions": {
+          "width": 1039,
+          "height": 744,
+          "aspectRatio": 1.396505376344086
+        },
+        "colors": {
+          "primary": "#271A35",
+          "secondary": "#DCE6F9",
+          "label": "#040206"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "landscape",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "envarstudio",
+            "label": "Envar Studio",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>When you hold here, you may move a unit at a battlefield to its base.</p>"
+        }
+      }
+    }
+  ],
+  "scope": "Current gallery read earlier in this active batch; exact EN identity retained separately from CN."
+}

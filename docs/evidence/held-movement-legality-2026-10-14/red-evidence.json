@@ -1,0 +1,14 @@
+{
+  "cases": 2,
+  "failures": [
+    {
+      "case": "Riftbound.ConformanceTests.HeldMovementLegalityTests.ProhibitedMovementIsStillAConfirmableHeldTargetButIsIgnoredAtExecution(temporary: False)",
+      "message": "Assert.Contains() Failure: Item not found in collection\nCollection: [\"UNIT\"]\nNot found:  \"ENEMY\""
+    },
+    {
+      "case": "Riftbound.ConformanceTests.HeldMovementLegalityTests.ProhibitedMovementIsStillAConfirmableHeldTargetButIsIgnoredAtExecution(temporary: True)",
+      "message": "Assert.Contains() Failure: Item not found in collection\nCollection: [\"UNIT\"]\nNot found:  \"ENEMY\""
+    }
+  ],
+  "trxSha256": "1e28d8665566e2efeaaa5635a0c3828ea10dc9f0f957a408c8918ce8a6db7b16"
+}

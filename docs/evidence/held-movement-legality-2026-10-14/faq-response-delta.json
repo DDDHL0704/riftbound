@@ -1,0 +1,906 @@
+{
+  "rawHashChanged": true,
+  "jsonChanges": [
+    [
+      "/props/pageProps/page/blades/3/items/0/media/dimensions/height",
+      {
+        "before": "1080",
+        "after": "734"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/media/dimensions/width",
+      {
+        "before": "1920",
+        "after": "1305"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/media/dimensions/aspectRatio",
+      {
+        "before": "1.7777777777777777",
+        "after": "1.7779291553133516"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/media/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0a047257f8cc65c3806f80e27984e81ed001dc39-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fc630fdb9141204f598e47c72ce3e4c3f8209327-1305x734.jpg?accoun"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/media/colors/label",
+      {
+        "before": "#000000",
+        "after": "#0A0A0A"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/media/colors/primary",
+      {
+        "before": "#0E0A07",
+        "after": "#1B1225"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/media/colors/secondary",
+      {
+        "before": "#FFF8D6",
+        "after": "#FFDDD6"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/promoCardSize",
+      {
+        "before": "medium",
+        "after": "small"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/action/payload/url",
+      {
+        "before": "/en-us/news/rules-and-releases/unleashed-rules-faq-and-clarifications",
+        "after": "/en-us/news/rules-and-releases/vendetta-rules-faq-and-clarifications"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/imageMedia/dimensions/height",
+      {
+        "before": "1080",
+        "after": "734"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/imageMedia/dimensions/width",
+      {
+        "before": "1920",
+        "after": "1305"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/imageMedia/dimensions/aspectRatio",
+      {
+        "before": "1.7777777777777777",
+        "after": "1.7779291553133516"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/imageMedia/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0a047257f8cc65c3806f80e27984e81ed001dc39-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fc630fdb9141204f598e47c72ce3e4c3f8209327-1305x734.jpg?accoun"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/imageMedia/colors/label",
+      {
+        "before": "#000000",
+        "after": "#0A0A0A"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/imageMedia/colors/primary",
+      {
+        "before": "#0E0A07",
+        "after": "#1B1225"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/imageMedia/colors/secondary",
+      {
+        "before": "#FFF8D6",
+        "after": "#FFDDD6"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/publishedAt",
+      {
+        "before": "2026-04-29T16:00:00.000Z",
+        "after": "2026-08-14T01:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/title",
+      {
+        "before": "Unleashed Rules FAQ and Clarifications",
+        "after": "Vendetta Rules FAQ and Clarifications"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/analytics/contentId",
+      {
+        "before": "349eb9f8-f497-456a-b26f-2fdeab277484.en-us",
+        "after": "6abdb427-7e82-4f0b-9c98-15b5b0ec892d.en-us"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/analytics/rev",
+      {
+        "before": "juolGRHVtjOsRLFYBEaf3Z",
+        "after": "xOUhMZ9vc49S6GmzdkrIRK"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/analytics/publishDate",
+      {
+        "before": "2026-04-29T16:00:00.000Z",
+        "after": "2026-08-14T01:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/0/description/body",
+      {
+        "before": "Sharing clarifications and answering some frequent questions regarding Unleashed’s core rules updates.",
+        "after": "Answers for some frequent questions regarding Vendetta’s core rules update."
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/media/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/7e0907583129fccba4402b6a0945dbf30785c2ac-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0a047257f8cc65c3806f80e27984e81ed001dc39-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/media/colors/primary",
+      {
+        "before": "#101C20",
+        "after": "#0E0A07"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/media/colors/secondary",
+      {
+        "before": "#F9F9DC",
+        "after": "#FFF8D6"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/promoCardSize",
+      {
+        "before": "small",
+        "after": "medium"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/action/payload/url",
+      {
+        "before": "/en-us/news/rules-and-releases/unleashed-errata-updates",
+        "after": "/en-us/news/rules-and-releases/unleashed-rules-faq-and-clarifications"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/imageMedia/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/7e0907583129fccba4402b6a0945dbf30785c2ac-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0a047257f8cc65c3806f80e27984e81ed001dc39-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/imageMedia/colors/primary",
+      {
+        "before": "#101C20",
+        "after": "#0E0A07"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/imageMedia/colors/secondary",
+      {
+        "before": "#F9F9DC",
+        "after": "#FFF8D6"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/publishedAt",
+      {
+        "before": "2026-04-03T01:00:00.000Z",
+        "after": "2026-04-29T16:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/title",
+      {
+        "before": "Unleashed Errata Updates",
+        "after": "Unleashed Rules FAQ and Clarifications"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/analytics/contentId",
+      {
+        "before": "31206604-cb02-4d41-a9fb-1ebd3b35d3e0.en-us",
+        "after": "349eb9f8-f497-456a-b26f-2fdeab277484.en-us"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/analytics/rev",
+      {
+        "before": "CBOnzl0gEDUl3TLD2Ros2W",
+        "after": "juolGRHVtjOsRLFYBEaf3Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/analytics/publishDate",
+      {
+        "before": "2026-04-03T01:00:00.000Z",
+        "after": "2026-04-29T16:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/1/description/body",
+      {
+        "before": "Updates on the rules wording for cards from Spiritforged and Unleashed.",
+        "after": "Sharing clarifications and answering some frequent questions regarding Unleashed’s core rules updates."
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/media/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/38a893c42ef18319509824dd412c0c57604e465b-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/7e0907583129fccba4402b6a0945dbf30785c2ac-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/media/colors/primary",
+      {
+        "before": "#12090C",
+        "after": "#101C20"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/media/colors/secondary",
+      {
+        "before": "#FFEED6",
+        "after": "#F9F9DC"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/promoCardSize",
+      {
+        "before": "medium",
+        "after": "small"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/action/payload/url",
+      {
+        "before": "/en-us/news/rules-and-releases/riftbound-core-rules-unleashed-patch-notes",
+        "after": "/en-us/news/rules-and-releases/unleashed-errata-updates"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/imageMedia/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/38a893c42ef18319509824dd412c0c57604e465b-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/7e0907583129fccba4402b6a0945dbf30785c2ac-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/imageMedia/colors/primary",
+      {
+        "before": "#12090C",
+        "after": "#101C20"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/imageMedia/colors/secondary",
+      {
+        "before": "#FFEED6",
+        "after": "#F9F9DC"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/publishedAt",
+      {
+        "before": "2026-03-30T16:00:00.000Z",
+        "after": "2026-04-03T01:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/title",
+      {
+        "before": "Riftbound Core Rules: Unleashed Patch Notes",
+        "after": "Unleashed Errata Updates"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/analytics/contentId",
+      {
+        "before": "265aee8a-dad8-496c-b470-7479413d7940.en-us",
+        "after": "31206604-cb02-4d41-a9fb-1ebd3b35d3e0.en-us"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/analytics/rev",
+      {
+        "before": "XCTgZQwSGIOEwOvRbvMYKc",
+        "after": "CBOnzl0gEDUl3TLD2Ros2W"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/analytics/publishDate",
+      {
+        "before": "2026-03-30T16:00:00.000Z",
+        "after": "2026-04-03T01:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/2/description/body",
+      {
+        "before": "Learn all about the updates to Riftbound’s rules which arrive with Unleashed.",
+        "after": "Updates on the rules wording for cards from Spiritforged and Unleashed."
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/media/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e462968216c1fe10c67f5eccba360ad8bddc338e-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/38a893c42ef18319509824dd412c0c57604e465b-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/media/colors/label",
+      {
+        "before": "#020103",
+        "after": "#000000"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/media/colors/primary",
+      {
+        "before": "#231932",
+        "after": "#12090C"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/media/colors/secondary",
+      {
+        "before": "#EFDCF9",
+        "after": "#FFEED6"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/promoCardSize",
+      {
+        "before": "small",
+        "after": "medium"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/action/payload/url",
+      {
+        "before": "/en-us/news/announcements/tournament-rules-january-update",
+        "after": "/en-us/news/rules-and-releases/riftbound-core-rules-unleashed-patch-notes"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/imageMedia/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e462968216c1fe10c67f5eccba360ad8bddc338e-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/38a893c42ef18319509824dd412c0c57604e465b-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/imageMedia/colors/label",
+      {
+        "before": "#020103",
+        "after": "#000000"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/imageMedia/colors/primary",
+      {
+        "before": "#231932",
+        "after": "#12090C"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/imageMedia/colors/secondary",
+      {
+        "before": "#EFDCF9",
+        "after": "#FFEED6"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/publishedAt",
+      {
+        "before": "2026-01-30T02:00:00.000Z",
+        "after": "2026-03-30T16:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/title",
+      {
+        "before": "Tournament Rules, January Update",
+        "after": "Riftbound Core Rules: Unleashed Patch Notes"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/analytics/contentId",
+      {
+        "before": "48481d4c-9cb6-4b6a-b19f-f8df71148490.en-us",
+        "after": "265aee8a-dad8-496c-b470-7479413d7940.en-us"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/analytics/rev",
+      {
+        "before": "K6OBYVD123yLLpF7jBugK5",
+        "after": "XCTgZQwSGIOEwOvRbvMYKc"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/analytics/publishDate",
+      {
+        "before": "2026-01-30T02:00:00.000Z",
+        "after": "2026-03-30T16:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/3/description/body",
+      {
+        "before": "Rules, responsibilities and procedures to be followed in all Riftbound competitions.",
+        "after": "Learn all about the updates to Riftbound’s rules which arrive with Unleashed."
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/media/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/92cabc219b2a863e28648045924809be2b8bc08e-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e462968216c1fe10c67f5eccba360ad8bddc338e-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/media/colors/label",
+      {
+        "before": "#000000",
+        "after": "#020103"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/media/colors/primary",
+      {
+        "before": "#221511",
+        "after": "#231932"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/media/colors/secondary",
+      {
+        "before": "#DCF9F9",
+        "after": "#EFDCF9"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/promoCardSize",
+      "key"
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/action/payload/url",
+      {
+        "before": "/en-us/news/rules-and-releases/riftbound-spiritforged-faq",
+        "after": "/en-us/news/announcements/tournament-rules-january-update"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/imageMedia/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/92cabc219b2a863e28648045924809be2b8bc08e-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e462968216c1fe10c67f5eccba360ad8bddc338e-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/imageMedia/colors/label",
+      {
+        "before": "#000000",
+        "after": "#020103"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/imageMedia/colors/primary",
+      {
+        "before": "#221511",
+        "after": "#231932"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/imageMedia/colors/secondary",
+      {
+        "before": "#DCF9F9",
+        "after": "#EFDCF9"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/publishedAt",
+      {
+        "before": "2026-01-14T02:00:00.000Z",
+        "after": "2026-01-30T02:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/title",
+      {
+        "before": "Riftbound Spiritforged FAQ",
+        "after": "Tournament Rules, January Update"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/analytics/contentId",
+      {
+        "before": "628e49c4-c7e1-48b7-8f86-de891d90d749.en-us",
+        "after": "48481d4c-9cb6-4b6a-b19f-f8df71148490.en-us"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/analytics/rev",
+      {
+        "before": "5xgDHibkxp25pk3FnVT0MH",
+        "after": "K6OBYVD123yLLpF7jBugK5"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/analytics/publishDate",
+      {
+        "before": "2026-01-14T02:00:00.000Z",
+        "after": "2026-01-30T02:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/4/description/body",
+      {
+        "before": "Everything you need to know about Origins and Spiritforged rules clarifications and errata",
+        "after": "Rules, responsibilities and procedures to be followed in all Riftbound competitions."
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/media/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2a626d9905ab5a582569d23301a5b25de637da90-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/92cabc219b2a863e28648045924809be2b8bc08e-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/media/colors/label",
+      {
+        "before": "#0F0904",
+        "after": "#000000"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/media/colors/primary",
+      {
+        "before": "#3C2D1E",
+        "after": "#221511"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/media/colors/secondary",
+      {
+        "before": "#F9EEDC",
+        "after": "#DCF9F9"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/promoCardSize",
+      "key"
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/action/payload/url",
+      {
+        "before": "/en-us/news/rules-and-releases/riftbound-spiritforged-errata",
+        "after": "/en-us/news/rules-and-releases/riftbound-spiritforged-faq"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/imageMedia/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2a626d9905ab5a582569d23301a5b25de637da90-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/92cabc219b2a863e28648045924809be2b8bc08e-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/imageMedia/colors/label",
+      {
+        "before": "#0F0904",
+        "after": "#000000"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/imageMedia/colors/primary",
+      {
+        "before": "#3C2D1E",
+        "after": "#221511"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/imageMedia/colors/secondary",
+      {
+        "before": "#F9EEDC",
+        "after": "#DCF9F9"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/title",
+      {
+        "before": "Riftbound Spiritforged Errata",
+        "after": "Riftbound Spiritforged FAQ"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/analytics/contentId",
+      {
+        "before": "8a37efa0-7ee4-4248-a882-e6ee1fc46da2.en-us",
+        "after": "628e49c4-c7e1-48b7-8f86-de891d90d749.en-us"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/analytics/rev",
+      {
+        "before": "lUOsIMoAHmGZdg2cOiAhmD",
+        "after": "5xgDHibkxp25pk3FnVT0MH"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/5/description/body",
+      {
+        "before": "A quick summary of the latest Origins and Spiritforged Errata",
+        "after": "Everything you need to know about Origins and Spiritforged rules clarifications and errata"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/media/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1562c655bbae2d9123d6bd08b11232d943f04bd4-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2a626d9905ab5a582569d23301a5b25de637da90-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/media/colors/label",
+      {
+        "before": "#2C180B",
+        "after": "#0F0904"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/media/colors/primary",
+      {
+        "before": "#543B2A",
+        "after": "#3C2D1E"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/promoCardSize",
+      "key"
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/action/payload/url",
+      {
+        "before": "/en-us/news/rules-and-releases/riftbound-core-rules-spiritforged-patch-notes",
+        "after": "/en-us/news/rules-and-releases/riftbound-spiritforged-errata"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/imageMedia/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1562c655bbae2d9123d6bd08b11232d943f04bd4-1920x1080.jpg?accou",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2a626d9905ab5a582569d23301a5b25de637da90-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/imageMedia/colors/label",
+      {
+        "before": "#2C180B",
+        "after": "#0F0904"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/imageMedia/colors/primary",
+      {
+        "before": "#543B2A",
+        "after": "#3C2D1E"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/publishedAt",
+      {
+        "before": "2025-12-05T02:00:00.000Z",
+        "after": "2026-01-14T02:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/title",
+      {
+        "before": "Riftbound Core Rules: Spiritforged Patch Notes",
+        "after": "Riftbound Spiritforged Errata"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/analytics/contentId",
+      {
+        "before": "0acb0450-27f4-4976-a1e7-4928cefdd1a6.en-us",
+        "after": "8a37efa0-7ee4-4248-a882-e6ee1fc46da2.en-us"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/analytics/rev",
+      {
+        "before": "P2jdEKc6GZf6O4yCyb7qAi",
+        "after": "lUOsIMoAHmGZdg2cOiAhmD"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/analytics/publishDate",
+      {
+        "before": "2025-12-05T02:00:00.000Z",
+        "after": "2026-01-14T02:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/6/description/body",
+      {
+        "before": "Here are the updates for Riftbound’s Core Rules that come with the arrival of Spiritforged.",
+        "after": "A quick summary of the latest Origins and Spiritforged Errata"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/media/dimensions/height",
+      {
+        "before": "717",
+        "after": "1080"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/media/dimensions/width",
+      {
+        "before": "1215",
+        "after": "1920"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/media/dimensions/aspectRatio",
+      {
+        "before": "1.6945606694560669",
+        "after": "1.7777777777777777"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/media/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/a19e3ea09171610ba6b87ef9874f5c1e3e35d824-1215x717.jpg?accoun",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1562c655bbae2d9123d6bd08b11232d943f04bd4-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/media/colors/label",
+      {
+        "before": "#020506",
+        "after": "#2C180B"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/media/colors/primary",
+      {
+        "before": "#1A2E35",
+        "after": "#543B2A"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/promoCardSize",
+      "key"
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/action/payload/url",
+      {
+        "before": "/en-us/news/rules-and-releases/riftbound-origins-card-errata",
+        "after": "/en-us/news/rules-and-releases/riftbound-core-rules-spiritforged-patch-notes"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/imageMedia/dimensions/height",
+      {
+        "before": "717",
+        "after": "1080"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/imageMedia/dimensions/width",
+      {
+        "before": "1215",
+        "after": "1920"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/imageMedia/dimensions/aspectRatio",
+      {
+        "before": "1.6945606694560669",
+        "after": "1.7777777777777777"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/imageMedia/url",
+      {
+        "before": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/a19e3ea09171610ba6b87ef9874f5c1e3e35d824-1215x717.jpg?accoun",
+        "after": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1562c655bbae2d9123d6bd08b11232d943f04bd4-1920x1080.jpg?accou"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/imageMedia/colors/label",
+      {
+        "before": "#020506",
+        "after": "#2C180B"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/imageMedia/colors/primary",
+      {
+        "before": "#1A2E35",
+        "after": "#543B2A"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/publishedAt",
+      {
+        "before": "2025-10-28T01:00:00.000Z",
+        "after": "2025-12-05T02:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/title",
+      {
+        "before": "Riftbound: Origins Card Errata",
+        "after": "Riftbound Core Rules: Spiritforged Patch Notes"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/analytics/contentId",
+      {
+        "before": "24c85d10-3c99-47d7-b629-0feee4a9f592.en-us",
+        "after": "0acb0450-27f4-4976-a1e7-4928cefdd1a6.en-us"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/analytics/publishDate",
+      {
+        "before": "2025-10-28T01:00:00.000Z",
+        "after": "2025-12-05T02:00:00.000Z"
+      }
+    ],
+    [
+      "/props/pageProps/page/blades/3/items/7/description/body",
+      {
+        "before": "The first batch of Riftbound cards errata for Origins.",
+        "after": "Here are the updates for Riftbound’s Core Rules that come with the arrival of Spiritforged."
+      }
+    ],
+    [
+      "/props/pageProps/page/mappersVersion",
+      {
+        "before": "v0.3.8",
+        "after": "groovy"
+      }
+    ]
+  ],
+  "semanticUnchangedConfirmed": true,
+  "classification": "Only related-article carousel blade3 and page mapper version changed. Every other blade, including authoritative FAQ article, identical.",
+  "unchangedArticleBladesSha256": "7651a8ae58224290a04070278f8f57bce9142c0d431a19ac450c1762904f2e88"
+}

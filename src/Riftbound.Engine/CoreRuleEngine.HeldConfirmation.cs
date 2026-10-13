@@ -14,8 +14,8 @@ public sealed partial class CoreRuleEngine
         var player = item.ControllerId;
         IEnumerable<string> targets = item.HeldContext!.Kind switch {
             "BOON" => HeldUnitsAt(state, item.HeldContext.BattlefieldObjectId),
-            "MOVE_BASE" => state.CardObjects.Keys.Where(id => BattlefieldLocalRules.AtUnit(state, id) is not null
-                && MovementRestrictionRules.CanMove(state.CardObjects[id], player) && !BattlefieldLocalRules.PreventsMoveToBase(state, id)),
+            // CN359.3.e.6: a prohibition affects execution, not target legality.
+            "MOVE_BASE" => state.CardObjects.Keys.Where(id => BattlefieldLocalRules.AtUnit(state, id) is not null),
             "RETURN_HERO" => ChosenChampionRules.CanReturnToChampionZone(state, player)
                 ? state.PlayerZones[player].Graveyard.Where(id => state.CardObjects.TryGetValue(id, out var card)
                     && ChosenChampionRules.Matches(state, player, card)) : [],

@@ -1,0 +1,66 @@
+{
+  "status": "SCOPED_CHECK_PASS",
+  "baselineCheck": "var/qa/ride-the-wind-20261014/check-repaired",
+  "cases": 11010,
+  "methods": 6864,
+  "seconds": 164.9,
+  "oldCasesPreserved": 11004,
+  "oldMethodsPreserved": 6860,
+  "addedCases": [
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ADeclinedProhibitedTargetEndsConfirmationWithoutMovingAnything",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ARestrictionForTheOtherActorDoesNotPreventTheHeldMove(restrictedPlayer: \"P1\")",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ARestrictionForTheOtherActorDoesNotPreventTheHeldMove(restrictedPlayer: \"P2\")",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ProhibitedMovementIsStillAConfirmableHeldTargetButIsIgnoredAtExecution(temporary: False)",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ProhibitedMovementIsStillAConfirmableHeldTargetButIsIgnoredAtExecution(temporary: True)",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.SuccessfulHeldMoveKeepsEquipmentDamageAndControllerWhileCapturingTheRealMovement"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ADeclinedProhibitedTargetEndsConfirmationWithoutMovingAnything",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ARestrictionForTheOtherActorDoesNotPreventTheHeldMove",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.ProhibitedMovementIsStillAConfirmableHeldTargetButIsIgnoredAtExecution",
+    "Riftbound.ConformanceTests.HeldMovementLegalityTests.SuccessfulHeldMoveKeepsEquipmentDamageAndControllerWhileCapturingTheRealMovement"
+  ],
+  "failed": 0,
+  "skipped": 0,
+  "duplicates": [],
+  "frozenInputs": 2244,
+  "testedInputsUnchanged": true,
+  "testAssemblySha256": "cc6641eed7fee4a9b6d51f6ed59aa8d9c5afaa218400c96a3b749334d95d7139",
+  "trxSha256": "aacdedc7317ec079f15ec783133682638e3b963cac0aafc94b4838c921ef7014",
+  "actualSqlSmoke": {
+    "dedicatedCluster": "var/qa/postgres-acceptance-20261013/cluster",
+    "port": 55439,
+    "connectionProvided": true,
+    "cases": [
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift",
+        "duration": "00:00:00.0410249",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit",
+        "duration": "00:00:00.0832339",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry",
+        "duration": "00:00:00.1031830",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift",
+        "duration": "00:00:00.5049736",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands",
+        "duration": "00:00:00.1596399",
+        "outcome": "Passed"
+      }
+    ],
+    "fullSqlCertified": false,
+    "clusterStoppedAfterCheck": true
+  },
+  "pythonTests": 27,
+  "fullExecutionCertified": false
+}
