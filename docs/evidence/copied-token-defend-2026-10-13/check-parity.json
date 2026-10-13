@@ -1,0 +1,61 @@
+{
+  "status": "PASS",
+  "profile": "check",
+  "cases": 10875,
+  "methods": 6810,
+  "seconds": 151.39,
+  "testSeconds": 147.78,
+  "oldCasesPreserved": 10871,
+  "oldMethodsPreserved": 6808,
+  "addedCases": [
+    "Riftbound.ConformanceTests.StandbyDefendObserverTests.ActuallyCreatedCopiedSandSoldierCombatMightRetainsAbilityButLosesHereOnCessation(card: \"SFD·227/221\")",
+    "Riftbound.ConformanceTests.StandbyDefendObserverTests.ActuallyCreatedCopiedSandSoldierDefendSurvivesSourceCessationAndColdRecovery(card: \"OGN·121/298\")",
+    "Riftbound.ConformanceTests.StandbyDefendObserverTests.ActuallyCreatedCopiedSandSoldierDefendSurvivesSourceCessationAndColdRecovery(card: \"SFD·230/221\")",
+    "Riftbound.ConformanceTests.StandbyDefendObserverTests.ActuallyCreatedCopiedSandSoldierCombatMightRetainsAbilityButLosesHereOnCessation(card: \"OGN·119/298\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.StandbyDefendObserverTests.ActuallyCreatedCopiedSandSoldierCombatMightRetainsAbilityButLosesHereOnCessation",
+    "Riftbound.ConformanceTests.StandbyDefendObserverTests.ActuallyCreatedCopiedSandSoldierDefendSurvivesSourceCessationAndColdRecovery"
+  ],
+  "missingCases": [],
+  "missingMethods": [],
+  "frozenInputs": 2020,
+  "changedInputs": [],
+  "realSqlSmoke": {
+    "database": "riftbound_acceptance",
+    "loopbackPort": 55439,
+    "dedicatedInstanceOnly": true,
+    "cases": [
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit",
+        "duration": "00:00:00.1089554",
+        "outcome": "Passed"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry",
+        "duration": "00:00:00.1096195",
+        "outcome": "Passed"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift",
+        "duration": "00:00:00.0364321",
+        "outcome": "Passed"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift",
+        "duration": "00:00:00.4225628",
+        "outcome": "Passed"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands",
+        "duration": "00:00:00.1667017",
+        "outcome": "Passed"
+      }
+    ],
+    "serverStoppedAfterCheck": true,
+    "version": "PostgreSQL 16.13 Homebrew"
+  },
+  "trxSha256": "c075de99faf0b02029abfbd05f14acfb184f30d652d1bf1cb7cc9490ddcff20d",
+  "nativeCasesRunWithoutEvidenceEnv": true,
+  "wholeCardCertification": false
+}

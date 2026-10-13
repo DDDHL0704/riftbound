@@ -19,7 +19,8 @@ public sealed partial class CoreRuleEngine
             {
                 if (StandbyDefendDefinition(instance.CardNo) is null) continue;
                 var context = new FieldTriggerContext(instance.CardNo, "STANDBY_DEFEND", source.ObjectGeneration,
-                    battlefield, returnFocusPlayer) { SourceLocation = new(source.ControllerId!, "BATTLEFIELD", battlefield), Origin = instance.Origin };
+                    battlefield, returnFocusPlayer) { SourceLocation = new(source.ControllerId!, "BATTLEFIELD", battlefield), Origin = instance.Origin,
+                        SourceTokenFactoryCardNo = IsTokenObject(source) ? source.TokenFactoryCardNo ?? source.CardNo : null };
                 queue.Add(new($"standby-defend-{state.Tick + 1}-{id}-{instance.Id}", source.ControllerId!, id,
                     FieldTriggerEffect, "BATTLE_ROLES_ESTABLISHED", timing) { FieldContext = context });
             }

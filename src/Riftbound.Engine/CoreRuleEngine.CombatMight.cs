@@ -19,7 +19,8 @@ public sealed partial class CoreRuleEngine
                 if (CombatMightSpec(instance.CardNo) is null) continue;
                 var context = new FieldTriggerContext(instance.CardNo, "COMBAT_MIGHT", source.ObjectGeneration,
                     battlefield, returnFocusPlayer) {
-                    SourceLocation = new(source.ControllerId!, "BATTLEFIELD", battlefield), Origin = instance.Origin };
+                    SourceLocation = new(source.ControllerId!, "BATTLEFIELD", battlefield), Origin = instance.Origin,
+                    SourceTokenFactoryCardNo = IsTokenObject(source) ? source.TokenFactoryCardNo ?? source.CardNo : null };
                 queue.Add(new($"combat-might-{state.Tick + 1}-{id}-{instance.Id}", source.ControllerId!, id,
                     FieldTriggerEffect, "BATTLE_ROLES_ESTABLISHED", timing) { FieldContext = context });
             }
@@ -32,14 +33,13 @@ public sealed partial class CoreRuleEngine
             && IsObjectOnField(state.PlayerZones, sourceId) && state.ObjectLocations.TryGetValue(sourceId, out var location)
             && location.Zone is "BASE" or "BATTLEFIELD" ? location : null;
 
-    private static ObjectLocationState CombatMightHere(MatchState state, StackItemState item)
-        => CombatMightSourceLocation(state, item.SourceObjectId, item.FieldContext!.SourceGeneration)
-            ?? item.FieldContext.SourceLocation!;
+    private static ObjectLocationState? CombatMightHere(MatchState state, StackItemState item)
+        => CombatMightSourceLocation(state, item.SourceObjectId, item.FieldContext!.SourceGeneration);
 
     private static bool IsCombatMightTargetHere(MatchState state, StackItemState item, string id)
     {
         var here = CombatMightHere(state, item);
-        return state.ObjectLocations.TryGetValue(id, out var target) && target.Zone == here.Zone
+        return here is not null && state.ObjectLocations.TryGetValue(id, out var target) && target.Zone == here.Zone
             && (here.Zone == "BASE" ? target.PlayerId == here.PlayerId : target.BattlefieldObjectId == here.BattlefieldObjectId);
     }
 
@@ -69,8 +69,7 @@ public sealed partial class CoreRuleEngine
             return ValidEnemyAttackMightState(state, context, sourceId, controller);
         if (context.Kind is not ("COMBAT_MIGHT" or "STANDBY_DEFEND")) return true;
         if (string.IsNullOrWhiteSpace(sourceId) || !state.Seats.ContainsKey(controller)
-            || !state.CardObjects.TryGetValue(sourceId, out var source) || source.ObjectGeneration < context.SourceGeneration
-            || context.Origin is null && source.ObjectGeneration == context.SourceGeneration && AttachedRuleTextRules.Face(source) != context.CardNo
+            || !ValidCapturedFieldSource(state, context, sourceId)
             || context.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(context.ReturnFocusPlayerId)
             || BattlefieldLocalRules.Battlefield(state, context.BattlefieldId) is null
             || context.SourceLocation is not { } location || !state.Seats.ContainsKey(location.PlayerId)
@@ -79,5 +78,18 @@ public sealed partial class CoreRuleEngine
             || !AttachedRuleTextRules.ValidCaptured(state, context.Origin, sourceId, context.SourceGeneration, context.CardNo)) return false;
         return CombatMightSourceLocation(state, sourceId, context.SourceGeneration) is not { } current
             || current == context.SourceLocation;
+    }
+
+    private static bool ValidCapturedFieldSource(MatchState state, FieldTriggerContext context, string sourceId)
+    {
+        if (context.SourceCeasedToExist)
+            return !state.CardObjects.ContainsKey(sourceId)
+                && TryReadBattleResponseDeclarationContext(state, context.BattlefieldId!, out var battle)
+                && battle.CeasedTokens?.TryGetValue(sourceId, out var token) == true
+                && token.Generation == context.SourceGeneration && token.FactoryCardNo == context.SourceTokenFactoryCardNo;
+        return state.CardObjects.TryGetValue(sourceId, out var source) && source.ObjectGeneration >= context.SourceGeneration
+            && (context.Origin is not null || source.ObjectGeneration != context.SourceGeneration || AttachedRuleTextRules.Face(source) == context.CardNo)
+            && (context.SourceTokenFactoryCardNo is null ? !IsTokenObject(source)
+                : IsTokenObject(source) && (source.TokenFactoryCardNo ?? source.CardNo) == context.SourceTokenFactoryCardNo);
     }
 }

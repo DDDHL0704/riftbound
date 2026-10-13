@@ -10,6 +10,10 @@ public sealed record FieldTriggerContext(string CardNo, string Kind, long Source
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public RuleTextInstanceBinding? Origin { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceTokenFactoryCardNo { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool SourceCeasedToExist { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ObjectBinding? AffectedUnit { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool AffectedUnitCeasedToExist { get; init; }
@@ -25,6 +29,12 @@ public sealed partial class CoreRuleEngine
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
         => effect == FieldTriggerEffect && context.SourceGeneration >= 0
+            && (context.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND"
+                ? (!context.SourceCeasedToExist || context.SourceTokenFactoryCardNo is not null)
+                    && (context.SourceTokenFactoryCardNo is null
+                        || P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
+                            && token.Tags.Contains(CardObjectTags.UnitCard))
+                : context.SourceTokenFactoryCardNo is null && !context.SourceCeasedToExist)
             && (cardNo is null || cardNo == context.CardNo)
             && (context.Kind == "ENEMY_ATTACK_MIGHT" ? EnemyAttackMightSpec(context.CardNo) is not null
                 && context.AffectedUnit is { Generation: >= 0 } && context.SourceLocation is null && context.Origin is null

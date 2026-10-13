@@ -8602,6 +8602,14 @@
         "Whole-card play/deck/chosen-champion/all interactions for each printing",
         "All current applicable cards/rules/FAQ items and source gaps",
         "Visible paired clients, Windows runtime and actual PostgreSQL execution"
+      ],
+      "supersededScopes": [
+        {
+          "date": "2026-10-13",
+          "scope": "Ordinary source departure cannot retain last field location for the execution-time here referent. Captured ability persists but local targets mistrarget; historical passing expectations corrected, methods and rows retained.",
+          "by": "copied-token-defend-current-here-2026-10-13",
+          "evidence": "docs/evidence/copied-token-defend-2026-10-13/source-decision.json"
+        }
       ]
     },
     {
@@ -16935,6 +16943,169 @@
         "Battlefield defend effects other than the counted unit trigger retain further shared timing work.",
         "Current 110-pair fixed full execution must be proved after the failed 840a2bce run; plan/source retention alone is insufficient.",
         "Visible paired clients, user Windows and full SQL gameplay/concurrency/failover remain open."
+      ],
+      "supersededScopes": [
+        {
+          "date": "2026-10-13",
+          "scope": "Ordinary source departure cannot retain last field location for the execution-time here referent. Captured ability persists but local targets mistrarget; historical passing expectations corrected, methods and rows retained.",
+          "by": "copied-token-defend-current-here-2026-10-13",
+          "evidence": "docs/evidence/copied-token-defend-2026-10-13/source-decision.json"
+        }
+      ]
+    },
+    {
+      "id": "copied-token-defend-current-here-2026-10-13",
+      "status": "SCOPED_CHECK_AND_HEADLESS_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Actual Sandcraft Sand Soldier birth, Shady copy, combat role, target confirmation and Gale cessation for Teemo and Ahri origins/spiritforged; validated ceased source identity/generation and current-source here referents. Corrections to earlier source departure expectations, not whole-card certification.",
+      "subjects": [
+        {
+          "id": "SFD-230/221",
+          "activeCardNo": "SFD·230/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33334,
+              "cardNo": "SFD·230/221",
+              "sha256": "8f6bd3ceed95f9f4034cccf8db0a4ce0a8a013a42df109b1ed03d5c77fdde03b",
+              "confirmedAt": "2026-10-13T10:29:02.965019+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "sfd-230-221",
+              "cardNo": "SFD-230/221",
+              "sha256": "c49e2c054d123b2d801468ae811a3bdc8fdcf4d0e47ad0eabc3ef8d463d32378",
+              "confirmedAt": "2026-10-13T10:25:25.778841+00:00",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0"
+            }
+          ]
+        },
+        {
+          "id": "OGN-121/298",
+          "activeCardNo": "OGN·121/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31342,
+              "cardNo": "OGN·121/298",
+              "sha256": "c3e07783a371affca9d6f2d315082cad8aa0118ae0f3748d6044786fb2869bf1",
+              "confirmedAt": "2026-10-13T10:29:02.965019+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ogn-121-298",
+              "cardNo": "OGN-121/298",
+              "sha256": "27aab7e63ef4b0b606343868ab4c99af4436c572177b7ed263e22685c733daf0",
+              "confirmedAt": "2026-10-13T10:25:25.778841+00:00",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0"
+            }
+          ]
+        },
+        {
+          "id": "SFD-031/221",
+          "activeCardNo": "SFD·031/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33107,
+              "cardNo": "SFD·031/221",
+              "sha256": "e8424509a6e797d467342dece5a5e499615345c4135437d4f79374deee4d8beb",
+              "confirmedAt": "2026-10-13T11:40:53.037066+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            }
+          ]
+        },
+        {
+          "id": "VEN-137",
+          "activeCardNo": "VEN·137",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 37839,
+              "cardNo": "VEN·137",
+              "sha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+              "confirmedAt": "2026-10-13T11:40:53.037066+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            }
+          ]
+        },
+        {
+          "id": "SFD-227/221",
+          "activeCardNo": "SFD·227/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33329,
+              "cardNo": "SFD·227/221",
+              "sha256": "b8cefd4f7d1b402c845bda41be9706931cab9a20e7acaa0c40afe02328906e5f",
+              "confirmedAt": "2026-10-13T11:40:53.037066+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            }
+          ]
+        },
+        {
+          "id": "OGN-119/298",
+          "activeCardNo": "OGN·119/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31339,
+              "cardNo": "OGN·119/298",
+              "sha256": "2c98f1c9c7eb6cfcf58c1f93c5f4080a4d34b4b1fff6f9d8258364982137e9d9",
+              "confirmedAt": "2026-10-13T11:40:53.037066+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            }
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P008-B005",
+        "DOC-04-P026-B007",
+        "DOC-04-P044-B004",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-06-P002-B005",
+        "DOC-06-P002-B006",
+        "DOC-06-P002-B007",
+        "DOC-06-P014-B007"
+      ],
+      "auditDocument": "docs/COPIED_TOKEN_DEFEND_AUDIT_2026-10-13.md",
+      "evidence": "docs/evidence/copied-token-defend-2026-10-13",
+      "tests": [
+        "StandbyDefendObserverTests",
+        "AhriCombatMightTests",
+        "EnemyAttackMightTests",
+        "ShadySpectaclesTests"
+      ],
+      "validation": {
+        "focus": "146 cases / 62 methods passed; original methods/Theory rows retained",
+        "native": "104 production commands / 104 cold restores / dedup / full action-log replay",
+        "check": "10875 cases / 6810 methods; all 10871/6808 old cases/methods retained, 2020 inputs unchanged, five actual dedicated PostgreSQL smoke",
+        "full": "Fixed full CI required; original 110 pair seed424242 retained as plan/input only"
+      },
+      "exclusions": [
+        "Whole-card and all-document coverage and source gaps remain open.",
+        "Missing copied-token sources are proven only for the four real Sandcraft/Shady/Gale combat-role paths, not all skills/token families.",
+        "Old history has no manufactured provenance; consistently forged historical fields require action-log proof and further security work.",
+        "Current-source here referents in damage distribution and other rule families need the same audit; historical passing fallback expectations are not authority.",
+        "Visible paired clients, user Windows, full SQL gameplay/concurrency/failover remain open.",
+        "Fixed full CI and original 110 pair/seed preservation must be verified at delivery SHA."
       ]
     }
   ]

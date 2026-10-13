@@ -108,8 +108,8 @@ public sealed class AhriCombatMightTests
         Assert.Contains(targetLeaves ? "ENEMY1" : "HOST", returned.State.PlayerZones[targetLeaves ? "P2" : "P1"].Hand);
         var done = await Top(returned.State);
         // OGN-001 is printed at 5 Might; entering hand starts a fresh object.
-        Assert.Equal(targetLeaves ? 5 : 2, done.State.CardObjects["ENEMY1"].Power);
-        Assert.Equal(targetLeaves, done.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifiers.Count == 0);
+        Assert.Equal(targetLeaves ? 5 : 4, done.State.CardObjects["ENEMY1"].Power);
+        Assert.Empty(done.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifiers);
         Restore(done.State); var errors = MinimumMightAuditTests.PublicErrors(done.State);
         Assert.True(errors.Count == 0, string.Join("; ", errors));
     }
@@ -190,9 +190,13 @@ public sealed class AhriCombatMightTests
     {
         var initial = EquipChainTests.Response(Board(), "OGN·169/298", "P2");
         var pending = await Pending(initial, "ENEMY1");
-        var passed = await Act(pending, "P1", new PassPriorityCommand());
+        var applied = await Top(pending);
+        Assert.Single(applied.State.CardObjects["ENEMY1"].UntilEndOfTurnPowerModifiers);
+        var offered = await Act(applied.State, applied.State.FocusPlayerId!, new PassFocusCommand());
+        var passed = offered.State.FocusPlayerId == "P2" ? offered
+            : await Act(offered.State, offered.State.FocusPlayerId!, new PassFocusCommand());
         var response = await Act(passed.State, "P2", new PlayCardCommand("RESPONSE", "OGN·169/298", ["HOST"]));
-        var returned = await Top(response.State); var done = await Top(returned.State); var state = done.State;
+        var returned = await Top(response.State); var state = returned.State;
         Assert.Empty(MinimumMightAuditTests.PublicErrors(state));
         var snapshot = ResolutionResult.BuildSnapshots(state)["P2"];
         var serialized = JsonSerializer.SerializeToElement(snapshot, new JsonSerializerOptions(JsonSerializerDefaults.Web));

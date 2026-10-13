@@ -1,0 +1,57 @@
+{
+  "status": "PASS",
+  "baselineCommit": "b34683bd7354e5c98210a595fa9286b1d7655164",
+  "files": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyDefendObserverTests.cs",
+      "beforeMethods": [
+        "RealShadyCopyDefendsWithAnIndependentCapturedAbilityAndSurvivesActualGaleDeparture",
+        "Act",
+        "Top"
+      ],
+      "afterMethods": [
+        "RealShadyCopyDefendsWithAnIndependentCapturedAbilityAndSurvivesActualGaleDeparture",
+        "ActuallyCreatedCopiedSandSoldierDefendSurvivesSourceCessationAndColdRecovery",
+        "ActuallyCreatedCopiedSandSoldierCombatMightRetainsAbilityButLosesHereOnCessation",
+        "Export",
+        "Act",
+        "Top"
+      ],
+      "allOldPublicMethodsRetained": true,
+      "allOldTheoryRowsRetained": true
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AhriCombatMightTests.cs",
+      "beforeMethods": [
+        "EachCurrentPrintingConfirmsOneLocalEnemyWhenItsBattleRoleIsEstablished",
+        "SelectedEnemyUsesCurrentMightAndAnIndependentTurnModifier",
+        "LowerMightIsNeitherRaisedNorDestroyedWithoutDamage",
+        "CopiedPrintedTextCreatesTwoSeparatelyConfirmedModifiers",
+        "AReactionCanRemoveTheSourceOrInvalidateTheChosenTarget",
+        "ACounterCancelsTheModifierWithoutDestroyingItsSource",
+        "HereFollowsAStillExistingSourceMovedToItsBase",
+        "DeflectMustBePaidAfterChoosingAndBeforeResponses",
+        "CopiedTriggersKeepTheirCapturedTextAfterTheEquipmentLeaves",
+        "AHistoricalModifierCannotAcquireForgedPublicProvenance",
+        "RecoveryRejectsForgedCombatTriggerProvenance",
+        "PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource"
+      ],
+      "afterMethods": [
+        "EachCurrentPrintingConfirmsOneLocalEnemyWhenItsBattleRoleIsEstablished",
+        "SelectedEnemyUsesCurrentMightAndAnIndependentTurnModifier",
+        "LowerMightIsNeitherRaisedNorDestroyedWithoutDamage",
+        "CopiedPrintedTextCreatesTwoSeparatelyConfirmedModifiers",
+        "AReactionCanRemoveTheSourceOrInvalidateTheChosenTarget",
+        "ACounterCancelsTheModifierWithoutDestroyingItsSource",
+        "HereFollowsAStillExistingSourceMovedToItsBase",
+        "DeflectMustBePaidAfterChoosingAndBeforeResponses",
+        "CopiedTriggersKeepTheirCapturedTextAfterTheEquipmentLeaves",
+        "AHistoricalModifierCannotAcquireForgedPublicProvenance",
+        "RecoveryRejectsForgedCombatTriggerProvenance",
+        "PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource"
+      ],
+      "allOldPublicMethodsRetained": true,
+      "allOldTheoryRowsRetained": true
+    }
+  ]
+}

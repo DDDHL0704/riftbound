@@ -1,5 +1,7 @@
 # 待命防守触发、勘误优先级及离场恢复
 
+2026-10-13 后续核对更正：来源离场后独立技能继续存在，但其普通“此处”引用无法取得当前场地位置，原目标失效。本文此前普通复制单位回手仍造成伤害的期望，以及复制指示物消失缺口，在 [后续限定审计](COPIED_TOKEN_DEFEND_AUDIT_2026-10-13.md) 中更正/补证。原始执行收据保留。
+
 2026-10-13。Goal active，平台 **NOT READY**。本批覆盖四个提莫军事家精确印次的共享防守触发和实际复制、离场、恢复路径；整卡和全量来源状态不提升。
 
 [新中文回读](evidence/standby-defend-2026-10-13/cn-teemo-readback.json)和[新英文回读](evidence/standby-defend-2026-10-13/en-teemo-readback.json)都保留旧的“防守或从待命打出”卡面文本。正式 [Origins 勘误](https://playriftbound.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/)发表于 2025-10-28，将军事家改为防守时选择一名此处敌方单位、展示顶部五张牌、按实际待命关键词计数并回收。当前中文核心规则 `DOC-04-P012-B016` 的示例也采用防守触发。[来源冲突记录](evidence/standby-defend-2026-10-13/teemo-effective-source-conflict.json)固定精确身份、网络取得时间、原文和哈希；[后续官方文档回读](evidence/standby-defend-2026-10-13/later-official-documents-readback.json)没有发现提莫的新替代勘误。没有改写旧目录或把接口文本一致误当成语义认证。

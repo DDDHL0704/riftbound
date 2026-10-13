@@ -26644,12 +26644,12 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateStackItemObjectReferences(
             authoritativeState.StackItems,
             knownObjectIds,
-            errors);
+            errors, authoritativeState);
 
         ValidateAuthoritativeStateTriggerQueueSourceObjectReferences(
             authoritativeState.TriggerQueue,
             knownObjectIds,
-            errors);
+            errors, authoritativeState);
 
         if (authoritativeState.PendingHandChoice is not null)
         {
@@ -26668,7 +26668,7 @@ public static class MatchRecoveryValidator
 
         if (authoritativeState.PendingEffectPlay is { } effectPlay)
         {
-            ValidateAuthoritativeStateStackItemObjectReferences([effectPlay.Parent], knownObjectIds, errors);
+            ValidateAuthoritativeStateStackItemObjectReferences([effectPlay.Parent], knownObjectIds, errors, authoritativeState);
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending effect play {effectPlay.ChoiceId} source", effectPlay.Sources.Keys.ToArray(), knownObjectIds, errors);
             if (!authoritativeState.Seats.ContainsKey(effectPlay.PlayerId)
@@ -26711,6 +26711,9 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            var historicalKnown = knownObjectIds.Concat(resolution.PublicObjectBindings?.Select(b => b.ObjectId) ?? [])
+                .ToHashSet(StringComparer.Ordinal);
+
             ValidateAuthoritativeStateRequiredObjectReferenceWithExpectedDetails(
                 $"battlefield resolution {resolution.ResolutionId} battlefield object",
                 resolution.BattlefieldObjectId,
@@ -26719,12 +26722,12 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"battlefield resolution {resolution.ResolutionId} source object",
                 resolution.SourceObjectId,
-                knownObjectIds,
+                historicalKnown,
                 errors);
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battlefield resolution {resolution.ResolutionId} participant object",
                 resolution.ParticipantObjectIds,
-                knownObjectIds,
+                historicalKnown,
                 errors);
         }
 
@@ -26772,7 +26775,7 @@ public static class MatchRecoveryValidator
     private static void ValidateAuthoritativeStateStackItemObjectReferences(
         IReadOnlyList<StackItemState>? stackItems,
         IReadOnlySet<string> knownObjectIds,
-        List<string> errors)
+        List<string> errors, MatchState authoritativeState)
     {
         if (stackItems is null)
         {
@@ -26788,7 +26791,9 @@ public static class MatchRecoveryValidator
 
             // Captured triggered abilities survive their source object leaving.
             // Only validated official contexts permit a missing source.
-            if (!(stackItem.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,stackItem.EffectKind,stackItem.CardNo))
+            if (!(stackItem.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
+                    field, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.EffectKind, stackItem.CardNo))
+                && !(stackItem.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,stackItem.EffectKind,stackItem.CardNo))
                 && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
@@ -26871,7 +26876,7 @@ public static class MatchRecoveryValidator
     private static void ValidateAuthoritativeStateTriggerQueueSourceObjectReferences(
         IReadOnlyList<TriggerQueueItemState>? triggerQueue,
         IReadOnlySet<string> knownObjectIds,
-        List<string> errors)
+        List<string> errors, MatchState authoritativeState)
     {
         if (triggerQueue is null)
         {
@@ -26894,7 +26899,9 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            if (!(trigger.ReflexiveDuel is { } duel && CoreRuleEngine.ValidReflexiveDuel(duel,trigger.EffectKind))
+            if (!(trigger.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
+                    field, trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind))
+                && !(trigger.ReflexiveDuel is { } duel && CoreRuleEngine.ValidReflexiveDuel(duel,trigger.EffectKind))
                 && !(trigger.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind))
                 && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
@@ -28168,7 +28175,9 @@ public static class MatchRecoveryValidator
                 ValidateBattlefieldResolutionObjectReferences(
                     resolutionPayload,
                     "spectator replay frame timing battlefield resolution item",
-                    spectatorKnownObjectIds,
+                    spectatorKnownObjectIds.Concat(authoritativeState.BattlefieldResolutions
+                        .FirstOrDefault(r => r.ResolutionId == resolutionId)?.PublicObjectBindings?.Select(b => b.ObjectId) ?? [])
+                        .ToHashSet(StringComparer.Ordinal),
                     "object registry",
                     errors);
                 ValidateBattlefieldResolutionPlayerReferences(
@@ -31555,6 +31564,9 @@ public static class MatchRecoveryValidator
                 ? stackItemId.Trim()
                 : $"#{index + 1}";
             var sourceReferences = knownObjectIds;
+            if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { FieldContext: { SourceCeasedToExist: true } field } ceased
+                && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, ceased.SourceObjectId, ceased.ControllerId, ceased.EffectKind, ceased.CardNo))
+                sourceReferences = knownObjectIds.Append(ceased.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { LastBreathMight: { } captured } earned
                 && CoreRuleEngine.ValidLastBreathMightContext(authoritativeState, captured, earned.EffectKind, earned.SourceObjectId, earned.ControllerId)
                 && MatchStateHasher.HashValue(ReadLastBreathMightView(stackItem)) == MatchStateHasher.HashValue(captured))
