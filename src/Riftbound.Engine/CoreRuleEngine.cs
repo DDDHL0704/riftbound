@@ -12494,7 +12494,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         FieldContext = new(cardObjects[id].CardNo!, "DEFEND", cardObjects[id].ObjectGeneration, battlefieldId) }));
             if (queue.Count > 0)
             {
-                var marker = BuildBattleResponseDeclarationContextMarker(battlefieldId, attackerObjectIds, defenderObjectIds, optionalCosts, command.BattlefieldTargetObjectIds);
+                var marker = BuildBattleResponseDeclarationContextMarker(battlefieldId, attackerObjectIds, defenderObjectIds, optionalCosts, command.BattlefieldTargetObjectIds,
+                    publicObjectBindings: CaptureBattlePublicBindings(attackState, attackerObjectIds.Concat(defenderObjectIds)));
                 var waiting = state with { Tick = state.Tick + 1, PlayerZones = playerZones, CardObjects = cardObjects,
                     UntilEndOfTurnEffects = SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects, marker),
                     TimingState = TimingStates.NeutralClosed, PriorityPlayerId = null, FocusPlayerId = null,
@@ -12518,7 +12519,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 attackerObjectIds,
                 defenderObjectIds,
                 optionalCosts,
-                command.BattlefieldTargetObjectIds);
+                command.BattlefieldTargetObjectIds,
+                publicObjectBindings: CaptureBattlePublicBindings(state with { CardObjects = cardObjects, PlayerZones = playerZones }, attackerObjectIds.Concat(defenderObjectIds)));
             var responseState = state with
             {
                 Tick = state.Tick + 1,
@@ -13080,7 +13082,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             attackerObjectIds,
             defenderObjectIds,
             playerZones,
-            cardObjects);
+            cardObjects, TryReadBattleResponseDeclarationContext(state, battlefieldId, out var publicBattle)
+                ? publicBattle.PublicObjectBindings : CaptureBattlePublicBindings(state, attackerObjectIds.Concat(defenderObjectIds)));
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, combatEvents);
         var nextState = state with
         {
@@ -13559,7 +13562,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects)
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<ObjectBinding>? publicObjectBindings = null)
     {
         var noResultEvent = combatEvents.FirstOrDefault(gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
@@ -13615,7 +13619,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     || string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal))
                 .Select(gameEvent => gameEvent.Kind)
                 .Distinct(StringComparer.Ordinal)
-                .ToArray());
+                .ToArray()) { PublicObjectBindings = publicObjectBindings?.Where(b => attackerObjectIds.Concat(defenderObjectIds).Contains(b.ObjectId, StringComparer.Ordinal)).ToArray() };
 
         return new[] { resolution }
             .Concat(existing)
@@ -13783,6 +13787,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public bool InitialRolesEstablished { get; init; }
         [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
         public IReadOnlyDictionary<string, CeasedBattleToken>? CeasedTokens { get; init; }
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+        public IReadOnlyList<ObjectBinding>? PublicObjectBindings { get; init; }
     }
 
     private static string BuildBattleResponseDeclarationContextMarker(
@@ -13795,7 +13801,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string? initialAttackingPlayerId = null,
         bool combatStarted = false,
         bool initialRolesEstablished = false,
-        IReadOnlyDictionary<string, CeasedBattleToken>? ceasedTokens = null)
+        IReadOnlyDictionary<string, CeasedBattleToken>? ceasedTokens = null,
+        IReadOnlyList<ObjectBinding>? publicObjectBindings = null)
     {
         var context = new BattleResponseDeclarationContext(
             battlefieldId,
@@ -13804,7 +13811,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             optionalCosts.ToArray(),
             NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []).ToArray()) {
                 InitialFocusPlayerId = initialFocusPlayerId, InitialAttackingPlayerId = initialAttackingPlayerId,
-                CombatStarted = combatStarted, InitialRolesEstablished = initialRolesEstablished, CeasedTokens = ceasedTokens };
+                CombatStarted = combatStarted, InitialRolesEstablished = initialRolesEstablished, CeasedTokens = ceasedTokens,
+                PublicObjectBindings = publicObjectBindings };
         var encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(context)));
         return $"{BattleResponseDeclarationContextPrefix}{encoded}";
     }
@@ -13861,6 +13869,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     || !parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Contains(e.Key, StringComparer.Ordinal)
                     || state.CardObjects.ContainsKey(e.Key) || !P6TokenFactoryCatalog.TryGetByCardNo(e.Value.FactoryCardNo, out var token)
                     || !token.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)))
+                || parsed.PublicObjectBindings is { } publicRefs && (publicRefs.Any(b => b is null || b.Generation < 0
+                    || !parsed.AttackerObjectIds.Concat(parsed.DefenderObjectIds).Contains(b.ObjectId, StringComparer.Ordinal)
+                    || (state.CardObjects.TryGetValue(b.ObjectId, out var current) ? b.Generation > current.ObjectGeneration
+                        : parsed.CeasedTokens is null || !parsed.CeasedTokens.TryGetValue(b.ObjectId, out var ceased) || ceased.Generation != b.Generation))
+                    || publicRefs.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != publicRefs.Count)
                 || (parsed.InitialFocusPlayerId is null) != (parsed.InitialAttackingPlayerId is null)
                 || parsed.InitialFocusPlayerId is not null && !state.Seats.ContainsKey(parsed.InitialFocusPlayerId)
                 || parsed.InitialAttackingPlayerId is not null && !state.Seats.ContainsKey(parsed.InitialAttackingPlayerId)

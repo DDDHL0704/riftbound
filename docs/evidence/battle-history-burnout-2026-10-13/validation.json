@@ -1,0 +1,35 @@
+{
+  "status": "SCOPED_CHECK_HEADLESS_NATIVE_PASS_FIXED_FULL_REQUIRED",
+  "focus": {
+    "cases": 165,
+    "methods": 89,
+    "testSeconds": 28.06,
+    "totalSeconds": 56.75,
+    "trxSha256": "4bbe40563c673be89130788c66b561d700d675d8d0104470cca7b4830a7a1769"
+  },
+  "native": {
+    "commands": 52,
+    "coldRestores": 52,
+    "replayCases": 4,
+    "trxSha256": "9f31edc89bcd81fea19c9e19da395b38bebd4b1ac7a265f5f553882c490c399e"
+  },
+  "check": {
+    "cases": 10879,
+    "methods": 6812,
+    "seconds": 153.16,
+    "oldCasesPreserved": 10875,
+    "oldMethodsPreserved": 6810,
+    "frozenInputs": 2021,
+    "actualSqlSmoke": 5
+  },
+  "godotBuild": {
+    "exitCode": 0,
+    "logSha256": "af9d6ce78db622e9dcbc4bad7407bcd5d6f8cef404e0536441ba2f6079fa8721"
+  },
+  "pythonSafeguards": {
+    "passed": 27,
+    "seconds": 2.359
+  },
+  "wholeCardCertification": false,
+  "wholeRuleCertification": false
+}

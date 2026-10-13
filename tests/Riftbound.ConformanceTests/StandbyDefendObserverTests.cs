@@ -195,7 +195,7 @@ public sealed class StandbyDefendObserverTests
         if (driver.NativeCommands > 0) Assert.Equal(driver.Commands().Length, driver.NativeCommands);
     }
 
-    private sealed class Driver : IMatchJournal
+    internal sealed class Driver : IMatchJournal
     {
         private readonly MatchState initial;
         private readonly List<MatchJournalEntry> entries = [];

@@ -1,0 +1,299 @@
+{
+  "status": "HEADLESS_PRODUCTION_CONTROLS_AND_SERVER_COLD_REPLAY_PASS",
+  "verifiedAtUtc": "2026-10-13T12:38:14.992601+00:00",
+  "nativeCommands": 52,
+  "coldRestores": 52,
+  "dedupAfterEachColdRestore": true,
+  "branches": [
+    {
+      "branch": "deck",
+      "replay": {
+        "nativeCommands": 13,
+        "accepted": 13,
+        "coldRestores": 13,
+        "attackerEmptyDeck": false,
+        "emptyDeck": false,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "c7e991968645a8b33ccea756b7af3b6922af1cb97eaca047830a4bff941799cf",
+          "expectedStateHash": "c7e991968645a8b33ccea756b7af3b6922af1cb97eaca047830a4bff941799cf",
+          "errors": []
+        },
+        "finalHash": "c7e991968645a8b33ccea756b7af3b6922af1cb97eaca047830a4bff941799cf"
+      },
+      "replaySha256": "75acd514e4ea6caeb76453accd2435387a702c3500fc025a090a796260f33e54",
+      "commands": [
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-0-command.json",
+          "sha256": "8a5d47cf698c462e7d108a966618e6aacfe79a9cd2f11aea6767212ebd16933c"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-1-command.json",
+          "sha256": "a16f6d534c5bbfecd4b2a6cb4a9e55f38421d2a4c5ed7af1762d9d7679a10125"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-10-command.json",
+          "sha256": "9d5307dd2ca67b0e33c815c021e8b2e44fa0b38a3d038a9846b5cc03ffbcfa64"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-11-command.json",
+          "sha256": "00870c579949ee33d26ce906b56725f68a4fe75029a75253c8404ac47e38e6e0"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-12-command.json",
+          "sha256": "5f7582feed647cd845c5dc7969ebf603bab3a69c9c6948c140bd244bf41a62dc"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-2-command.json",
+          "sha256": "00ec106d12bb66301d91895e4fa52ce052a5690552fbf1529f3b1dcb6f14dd4c"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-3-command.json",
+          "sha256": "337acd4a6739c8aea941655e5908508299bf913efe9c8a2c5915a7ed04db35d8"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-4-command.json",
+          "sha256": "c2e46e8cc2079ab453d893fda760e914340bf5aba3d75a95b53d789b7f52d9ce"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-5-command.json",
+          "sha256": "4cded514b7cccfc53f117845e304aff6ff43ad9bc47f3660d4f48d2f8c956132"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-6-command.json",
+          "sha256": "f771700088637f0adb8f286e988d305288aa33acba2e2b9ab2c0275689cab553"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-7-command.json",
+          "sha256": "4148086de7f61b082fb3a0fdb32f3ade7923ced7eec62e48e3ce753fa6cf2e1f"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-8-command.json",
+          "sha256": "28649b71e98f39023a2b3b3ea137cf2c5430dc530025969cf8859c4a4b2360a7"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/deck/defend-step-9-command.json",
+          "sha256": "18de8791b92d3cd041cf010478e036b9faac9c4aaf39c0bb7043c8f7a69bcd91"
+        }
+      ]
+    },
+    {
+      "branch": "burnout",
+      "replay": {
+        "nativeCommands": 13,
+        "accepted": 13,
+        "coldRestores": 13,
+        "attackerEmptyDeck": false,
+        "emptyDeck": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "f3be09389efd49cbb4d85ee071e2b736ca30f53000d925db8caf3d4f7a7389dc",
+          "expectedStateHash": "f3be09389efd49cbb4d85ee071e2b736ca30f53000d925db8caf3d4f7a7389dc",
+          "errors": []
+        },
+        "finalHash": "f3be09389efd49cbb4d85ee071e2b736ca30f53000d925db8caf3d4f7a7389dc"
+      },
+      "replaySha256": "faa4955ecaf5c5fe24ce650b23d15d7f8d5b1203c3876db7cc34107a483de234",
+      "commands": [
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-0-command.json",
+          "sha256": "8a5d47cf698c462e7d108a966618e6aacfe79a9cd2f11aea6767212ebd16933c"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-1-command.json",
+          "sha256": "a16f6d534c5bbfecd4b2a6cb4a9e55f38421d2a4c5ed7af1762d9d7679a10125"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-10-command.json",
+          "sha256": "9d5307dd2ca67b0e33c815c021e8b2e44fa0b38a3d038a9846b5cc03ffbcfa64"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-11-command.json",
+          "sha256": "00870c579949ee33d26ce906b56725f68a4fe75029a75253c8404ac47e38e6e0"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-12-command.json",
+          "sha256": "5f7582feed647cd845c5dc7969ebf603bab3a69c9c6948c140bd244bf41a62dc"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-2-command.json",
+          "sha256": "00ec106d12bb66301d91895e4fa52ce052a5690552fbf1529f3b1dcb6f14dd4c"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-3-command.json",
+          "sha256": "337acd4a6739c8aea941655e5908508299bf913efe9c8a2c5915a7ed04db35d8"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-4-command.json",
+          "sha256": "c2e46e8cc2079ab453d893fda760e914340bf5aba3d75a95b53d789b7f52d9ce"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-5-command.json",
+          "sha256": "4cded514b7cccfc53f117845e304aff6ff43ad9bc47f3660d4f48d2f8c956132"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-6-command.json",
+          "sha256": "f771700088637f0adb8f286e988d305288aa33acba2e2b9ab2c0275689cab553"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-7-command.json",
+          "sha256": "4148086de7f61b082fb3a0fdb32f3ade7923ced7eec62e48e3ce753fa6cf2e1f"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-8-command.json",
+          "sha256": "28649b71e98f39023a2b3b3ea137cf2c5430dc530025969cf8859c4a4b2360a7"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/burnout/defend-step-9-command.json",
+          "sha256": "18de8791b92d3cd041cf010478e036b9faac9c4aaf39c0bb7043c8f7a69bcd91"
+        }
+      ]
+    },
+    {
+      "branch": "attacker-deck",
+      "replay": {
+        "nativeCommands": 13,
+        "accepted": 13,
+        "coldRestores": 13,
+        "attackerEmptyDeck": true,
+        "emptyDeck": false,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "1c769b468ef32fcf19cee6747fb10ea02a814270ce410bd485efa9b4b9fe3386",
+          "expectedStateHash": "1c769b468ef32fcf19cee6747fb10ea02a814270ce410bd485efa9b4b9fe3386",
+          "errors": []
+        },
+        "finalHash": "1c769b468ef32fcf19cee6747fb10ea02a814270ce410bd485efa9b4b9fe3386"
+      },
+      "replaySha256": "75435c3d41afe6dcef63be1a32251277165759f1b3cd432124f5bd3a9035fe04",
+      "commands": [
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-0-command.json",
+          "sha256": "8a5d47cf698c462e7d108a966618e6aacfe79a9cd2f11aea6767212ebd16933c"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-1-command.json",
+          "sha256": "a16f6d534c5bbfecd4b2a6cb4a9e55f38421d2a4c5ed7af1762d9d7679a10125"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-10-command.json",
+          "sha256": "9d5307dd2ca67b0e33c815c021e8b2e44fa0b38a3d038a9846b5cc03ffbcfa64"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-11-command.json",
+          "sha256": "00870c579949ee33d26ce906b56725f68a4fe75029a75253c8404ac47e38e6e0"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-12-command.json",
+          "sha256": "5f7582feed647cd845c5dc7969ebf603bab3a69c9c6948c140bd244bf41a62dc"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-2-command.json",
+          "sha256": "00ec106d12bb66301d91895e4fa52ce052a5690552fbf1529f3b1dcb6f14dd4c"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-3-command.json",
+          "sha256": "337acd4a6739c8aea941655e5908508299bf913efe9c8a2c5915a7ed04db35d8"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-4-command.json",
+          "sha256": "c2e46e8cc2079ab453d893fda760e914340bf5aba3d75a95b53d789b7f52d9ce"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-5-command.json",
+          "sha256": "4cded514b7cccfc53f117845e304aff6ff43ad9bc47f3660d4f48d2f8c956132"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-6-command.json",
+          "sha256": "f771700088637f0adb8f286e988d305288aa33acba2e2b9ab2c0275689cab553"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-7-command.json",
+          "sha256": "4148086de7f61b082fb3a0fdb32f3ade7923ced7eec62e48e3ce753fa6cf2e1f"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-8-command.json",
+          "sha256": "28649b71e98f39023a2b3b3ea137cf2c5430dc530025969cf8859c4a4b2360a7"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-deck/defend-step-9-command.json",
+          "sha256": "18de8791b92d3cd041cf010478e036b9faac9c4aaf39c0bb7043c8f7a69bcd91"
+        }
+      ]
+    },
+    {
+      "branch": "attacker-burnout",
+      "replay": {
+        "nativeCommands": 13,
+        "accepted": 13,
+        "coldRestores": 13,
+        "attackerEmptyDeck": true,
+        "emptyDeck": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "27d11c656b8f6eef81efeb143d8c9e74893db082091ebe29c634100f93dff327",
+          "expectedStateHash": "27d11c656b8f6eef81efeb143d8c9e74893db082091ebe29c634100f93dff327",
+          "errors": []
+        },
+        "finalHash": "27d11c656b8f6eef81efeb143d8c9e74893db082091ebe29c634100f93dff327"
+      },
+      "replaySha256": "aadea51a8933caed14f886126598c4b96256f86979ecb995c5defefe9c0557e9",
+      "commands": [
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-0-command.json",
+          "sha256": "8a5d47cf698c462e7d108a966618e6aacfe79a9cd2f11aea6767212ebd16933c"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-1-command.json",
+          "sha256": "a16f6d534c5bbfecd4b2a6cb4a9e55f38421d2a4c5ed7af1762d9d7679a10125"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-10-command.json",
+          "sha256": "9d5307dd2ca67b0e33c815c021e8b2e44fa0b38a3d038a9846b5cc03ffbcfa64"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-11-command.json",
+          "sha256": "00870c579949ee33d26ce906b56725f68a4fe75029a75253c8404ac47e38e6e0"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-12-command.json",
+          "sha256": "5f7582feed647cd845c5dc7969ebf603bab3a69c9c6948c140bd244bf41a62dc"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-2-command.json",
+          "sha256": "00ec106d12bb66301d91895e4fa52ce052a5690552fbf1529f3b1dcb6f14dd4c"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-3-command.json",
+          "sha256": "337acd4a6739c8aea941655e5908508299bf913efe9c8a2c5915a7ed04db35d8"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-4-command.json",
+          "sha256": "c2e46e8cc2079ab453d893fda760e914340bf5aba3d75a95b53d789b7f52d9ce"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-5-command.json",
+          "sha256": "4cded514b7cccfc53f117845e304aff6ff43ad9bc47f3660d4f48d2f8c956132"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-6-command.json",
+          "sha256": "f771700088637f0adb8f286e988d305288aa33acba2e2b9ab2c0275689cab553"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-7-command.json",
+          "sha256": "4148086de7f61b082fb3a0fdb32f3ade7923ced7eec62e48e3ce753fa6cf2e1f"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-8-command.json",
+          "sha256": "28649b71e98f39023a2b3b3ea137cf2c5430dc530025969cf8859c4a4b2360a7"
+        },
+        {
+          "path": "var/qa/battle-history-burnout-20261013/native-final/attacker-burnout/defend-step-9-command.json",
+          "sha256": "18de8791b92d3cd041cf010478e036b9faac9c4aaf39c0bb7043c8f7a69bcd91"
+        }
+      ]
+    }
+  ],
+  "logSha256": "89da065208152397720b84c7fe709032595ebb483cb9dec2d0c0a9a8c5325b02",
+  "boundary": "Headless actual production controls; visible paired client/user Windows not accepted"
+}

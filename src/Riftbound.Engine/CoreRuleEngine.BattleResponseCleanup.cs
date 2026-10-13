@@ -44,7 +44,8 @@ public sealed partial class CoreRuleEngine
             settled = ResolveBattleWinLegendDraw(settled, zones, cards, winner, originalAttackers, originalDefenders, events);
         settled = settled with {
             BattleResolutions = AppendBattleResolutionEvents(state.BattleResolutions, events, settled.Tick, battlefield,
-                attackingPlayer, defendingPlayer, winner, originalAttackers, originalDefenders, zones, cards),
+                attackingPlayer, defendingPlayer, winner, originalAttackers, originalDefenders, zones, cards,
+                TryReadBattleResponseDeclarationContext(state, battlefield, out var publicBattle) ? publicBattle.PublicObjectBindings : null),
             UntilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(settled.UntilEndOfTurnEffects, events) };
         var advance = AdvancePendingBattlefieldTasksAfterStateChange(settled, attackingPlayer, state);
         events.AddRange(advance.Events);

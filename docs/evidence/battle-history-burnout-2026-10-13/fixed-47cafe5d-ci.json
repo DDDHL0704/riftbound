@@ -1,0 +1,78 @@
+{
+  "status": "FIXED_COMMIT_FULL_CI_FAILED",
+  "commit": "47cafe5da7e46a4b356d359d18ed9e7636a7f191",
+  "runId": 38394136498,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38394136498",
+  "verifiedAtUtc": "2026-10-13T12:44:33.768539+00:00",
+  "jobs": {
+    "scope": "success",
+    "desktop (windows-latest)": "success",
+    "desktop (macos-latest)": "success",
+    "rules": "failure"
+  },
+  "trx": [
+    {
+      "path": "var/qa/battle-history-burnout-20261013/ci-47cafe5d/conformance/ci-rules/games-2/results.trx",
+      "sha256": "9031c9cfd2e886caf8b0aa0b4eadbd1b3c44fb5ef2990228f6094b0db9c9fb66",
+      "counters": {
+        "total": "49",
+        "executed": "49",
+        "passed": "47",
+        "failed": "2",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "path": "var/qa/battle-history-burnout-20261013/ci-47cafe5d/conformance/ci-rules/rules/results.trx",
+      "sha256": "05d02936e479bebdf8d85247602a6b67c1f17f080cfbb694e1957cb2e93d3642",
+      "counters": {
+        "total": "10873",
+        "executed": "10873",
+        "passed": "10873",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    }
+  ],
+  "failures": [
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "message": "Assert.DoesNotContain() Failure: Item found in set\nSet:   [\"P2\", \"P1\", \"P1-RUNE-SFD-R05b-12\", \"P1-RUNE-OGN-166-298-04\", \"P1-RUNE-SFD-R02-07\", ···]\nFound: \"P1-MAIN-UNL-057-219-01\"",
+      "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.AssertNoHiddenZoneLeak(ResolutionResult result) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 25206\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.AssertAccepted(ResolutionResult result) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 25176\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.PayBattlefieldConquerSandSoldierPaymentAsync(MatchSession session, ResolutionResult current, String playerId, String intentId) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 16767\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 1252\n--- End of stack trace from previous location ---"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesKaisaTargetedGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "message": "Assert.DoesNotContain() Failure: Item found in set\nSet:   [\"P2\", \"P1\", \"P1-RUNE-SFD-R03-10\", \"P1-RUNE-SFD-R03b-12\", \"P1-RUNE-OGN-007b-298-03\", ···]\nFound: \"P1-MAIN-OGN-013-298-08\"",
+      "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.AssertNoHiddenZoneLeak(ResolutionResult result) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 25209\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.AssertAccepted(ResolutionResult result) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 25176\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.SubmitKaisaConquestGraveyardSpellDeclareBattleAsync(MatchSession session, ResolutionResult current, String kaisaPlayerId, String intentId, String graveyardSpellCardNo) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 16236\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesKaisaTargetedGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 498\n--- End of stack trace from previous location ---"
+    }
+  ],
+  "mandatorySql": "skipped",
+  "mandatoryNetwork": "skipped",
+  "complete110PairsVerified": false,
+  "expectedCases": 11024,
+  "expectedMethods": 6951,
+  "laterPrivacyFixtureFixCommit": "86adea6fa80cd5db366578a8d3c009db77431342",
+  "platformStatus": "NOT_READY"
+}

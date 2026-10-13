@@ -279,7 +279,11 @@ public sealed record BattleResolutionState(
     IReadOnlyList<string> SurvivingAttackerObjectIds,
     IReadOnlyList<string> SurvivingDefenderObjectIds,
     IReadOnlyList<string> DestroyedObjectIds,
-    IReadOnlyList<string> RelatedEventKinds);
+    IReadOnlyList<string> RelatedEventKinds)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ObjectBinding>? PublicObjectBindings { get; init; }
+}
 
 public sealed record PendingTaskQueueState(
     bool HasTasks,
@@ -4412,7 +4416,7 @@ public sealed record MatchState
                 NormalizeOrderedTextList(resolution.SurvivingAttackerObjectIds),
                 NormalizeOrderedTextList(resolution.SurvivingDefenderObjectIds),
                 NormalizeOrderedTextList(resolution.DestroyedObjectIds),
-                NormalizeOrderedTextList(resolution.RelatedEventKinds)))
+                NormalizeOrderedTextList(resolution.RelatedEventKinds)) { PublicObjectBindings = resolution.PublicObjectBindings })
             .Take(12)
             .ToArray();
     }
@@ -5926,9 +5930,12 @@ public sealed record ResolutionResult(
         BattleResolutionState resolution,
         string viewerPlayerId)
     {
+        string[] References(IReadOnlyList<string> ids) => ids.Select(id => resolution.PublicObjectBindings?.Any(b => b.ObjectId == id) == true
+            ? id : VisibleObjectIdForViewer(state, id, viewerPlayerId)!).ToArray();
         return new Dictionary<string, object?>
         {
-            ["resolutionId"] = VisibleMetadataIdForViewer(state, resolution.ResolutionId, viewerPlayerId),
+            ["resolutionId"] = resolution.PublicObjectBindings?.Any(b => b.ObjectId == resolution.AttackerObjectIds.FirstOrDefault()) == true
+                ? resolution.ResolutionId : VisibleMetadataIdForViewer(state, resolution.ResolutionId, viewerPlayerId),
             ["tick"] = resolution.Tick,
             ["kind"] = resolution.Kind,
             ["reason"] = resolution.Reason,
@@ -5936,11 +5943,11 @@ public sealed record ResolutionResult(
             ["attackingPlayerId"] = resolution.AttackingPlayerId,
             ["defendingPlayerId"] = resolution.DefendingPlayerId,
             ["winnerPlayerId"] = resolution.WinnerPlayerId,
-            ["attackerObjectIds"] = VisibleObjectIdsForViewer(state, resolution.AttackerObjectIds, viewerPlayerId),
-            ["defenderObjectIds"] = VisibleObjectIdsForViewer(state, resolution.DefenderObjectIds, viewerPlayerId),
-            ["survivingAttackerObjectIds"] = VisibleObjectIdsForViewer(state, resolution.SurvivingAttackerObjectIds, viewerPlayerId),
-            ["survivingDefenderObjectIds"] = VisibleObjectIdsForViewer(state, resolution.SurvivingDefenderObjectIds, viewerPlayerId),
-            ["destroyedObjectIds"] = VisibleObjectIdsForViewer(state, resolution.DestroyedObjectIds, viewerPlayerId),
+            ["attackerObjectIds"] = References(resolution.AttackerObjectIds),
+            ["defenderObjectIds"] = References(resolution.DefenderObjectIds),
+            ["survivingAttackerObjectIds"] = References(resolution.SurvivingAttackerObjectIds),
+            ["survivingDefenderObjectIds"] = References(resolution.SurvivingDefenderObjectIds),
+            ["destroyedObjectIds"] = References(resolution.DestroyedObjectIds),
             ["relatedEventKinds"] = resolution.RelatedEventKinds
         };
     }

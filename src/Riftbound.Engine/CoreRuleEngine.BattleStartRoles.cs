@@ -13,7 +13,7 @@ public sealed partial class CoreRuleEngine
         var defending = units.Where(c => EffectiveFieldControllerId(state.PlayerZones, c.ObjectId, c) != attacker).Select(c => c.ObjectId).ToArray();
         if (attacking.Length == 0 || defending.Length == 0) return state;
         var marker = BuildBattleResponseDeclarationContextMarker(battlefield, attacking, defending, [DeclareBattleOptionalCost], [],
-            state.FocusPlayerId ?? attacker, attacker);
+            state.FocusPlayerId ?? attacker, attacker, publicObjectBindings: CaptureBattlePublicBindings(state, attacking.Concat(defending)));
         return state with { UntilEndOfTurnEffects = SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects, marker) };
     }
 
@@ -39,7 +39,7 @@ public sealed partial class CoreRuleEngine
             BuildBattleResponseDeclarationContextMarker(context.BattlefieldId, context.AttackerObjectIds,
                 context.DefenderObjectIds, costs, targets ?? [],
                 context.InitialFocusPlayerId, context.InitialAttackingPlayerId, combatStarted: true, initialRolesEstablished: true,
-                ceasedTokens: context.CeasedTokens));
+                ceasedTokens: context.CeasedTokens, publicObjectBindings: context.PublicObjectBindings));
     }
 
     private static ResolutionResult RecordBattleDuelRoles(MatchState before, ResolutionResult result)
@@ -89,7 +89,9 @@ public sealed partial class CoreRuleEngine
             context.AttackerObjectIds.Concat(newAttackers.Where(id => !context.DefenderObjectIds.Contains(id))).Distinct(StringComparer.Ordinal).ToArray(),
             context.DefenderObjectIds.Concat(newDefenders.Where(id => !context.AttackerObjectIds.Contains(id))).Distinct(StringComparer.Ordinal).ToArray(), context.OptionalCosts,
             context.BattlefieldTargetObjectIds, context.InitialFocusPlayerId, context.InitialAttackingPlayerId, context.CombatStarted,
-            initialRolesEstablished: true, ceasedTokens: context.CeasedTokens);
+            initialRolesEstablished: true, ceasedTokens: context.CeasedTokens,
+            publicObjectBindings: context.PublicObjectBindings?.Concat(CaptureBattlePublicBindings(state, newAttackers.Concat(newDefenders)))
+                .GroupBy(b => b.ObjectId, StringComparer.Ordinal).Select(g => g.First()).ToArray());
         state = state with { UntilEndOfTurnEffects = SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects, marker),
             TriggerQueue = state.TriggerQueue.Concat(queue).ToArray() };
         var events = result.Events.ToList();
@@ -102,4 +104,9 @@ public sealed partial class CoreRuleEngine
         events.AddRange(queue.Select(BuildTriggerQueuedEvent));
         return result with { State = state, Events = events, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
+
+    private static ObjectBinding[] CaptureBattlePublicBindings(MatchState state, IEnumerable<string> participants)
+        => participants.Distinct(StringComparer.Ordinal).Where(id => state.CardObjects.TryGetValue(id, out var card)
+                && FieldObjectTypeRules.IsVisibleUnit(card) && IsObjectOnField(state.PlayerZones, id))
+            .Select(id => new ObjectBinding(id, state.CardObjects[id].ObjectGeneration)).ToArray();
 }

@@ -5543,12 +5543,16 @@ public static class MatchRecoveryValidator
                 resolutionPayload,
                 resolutionLabel,
                 errors);
+            var recorded = authoritativeState?.BattleResolutions.FirstOrDefault(r => r.ResolutionId == resolutionId);
+            var historicalKnown = knownObjectIds is null ? null : knownObjectIds.Concat(recorded?.PublicObjectBindings?.Select(b => b.ObjectId) ?? [])
+                .ToHashSet(StringComparer.Ordinal);
             ValidateBattleResolutionObjectReferences(
                 resolutionPayload,
                 resolutionLabel,
-                knownObjectIds,
+                historicalKnown,
                 "objects",
                 errors);
+            if (recorded is not null) ValidateCapturedPublicBattleHistoryView(resolutionPayload, recorded, resolutionLabel, errors);
             ValidateBattleResolutionPlayerReferences(
                 resolutionPayload,
                 resolutionLabel,
@@ -5560,6 +5564,19 @@ public static class MatchRecoveryValidator
                 errors.Add($"{resolutionLabel} resolution id {resolutionId} is duplicated");
             }
         }
+    }
+
+    private static void ValidateCapturedPublicBattleHistoryView(object? payload, BattleResolutionState recorded, string label, List<string> errors)
+    {
+        if (recorded.PublicObjectBindings is not { } bindings) return;
+        var fields = new Dictionary<string, IReadOnlyList<string>> {
+            ["attackerObjectIds"] = recorded.AttackerObjectIds, ["defenderObjectIds"] = recorded.DefenderObjectIds,
+            ["survivingAttackerObjectIds"] = recorded.SurvivingAttackerObjectIds, ["survivingDefenderObjectIds"] = recorded.SurvivingDefenderObjectIds,
+            ["destroyedObjectIds"] = recorded.DestroyedObjectIds };
+        foreach (var (field, expected) in fields)
+            if (!TryReadObjectStringList(payload, field, out var actual) || actual.Count != expected.Count
+                || actual.Where((id, index) => bindings.Any(b => b.ObjectId == expected[index]) && id != expected[index]).Any())
+                errors.Add($"{label} {field} differs from captured public battle history");
     }
 
     private static void ValidateSnapshotTimingResolutionHistoryListPayloadValues(
@@ -23745,6 +23762,16 @@ public static class MatchRecoveryValidator
                 || state.CardObjects.TryGetValue(b.ObjectId, out var current) && b.Generation > current.ObjectGeneration)
                 || publicRefs.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != publicRefs.Count))
                 errors.Add("invalid captured public battlefield history reference");
+        foreach (var resolution in state.BattleResolutions)
+            if (resolution.PublicObjectBindings is { } publicRefs && (publicRefs.Any(b => b is null || b.Generation < 0
+                || string.IsNullOrWhiteSpace(b.ObjectId)
+                || !resolution.AttackerObjectIds.Concat(resolution.DefenderObjectIds).Contains(b.ObjectId)
+                || state.CardObjects.TryGetValue(b.ObjectId, out var current) && (b.Generation > current.ObjectGeneration
+                    || b.Generation == current.ObjectGeneration && state.PlayerZones.Values.Any(z => z.Hand.Contains(b.ObjectId)
+                        || z.MainDeck.Contains(b.ObjectId) || z.RuneDeck.Contains(b.ObjectId))))
+                || publicRefs.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != publicRefs.Count
+                || resolution.ResolutionId != $"battle-result:{resolution.Tick}:{resolution.Kind}:{resolution.BattlefieldId}:{resolution.AttackerObjectIds.FirstOrDefault() ?? resolution.AttackingPlayerId}"))
+                errors.Add("invalid captured public battle history reference");
         foreach (var card in state.CardObjects.Values)
         {
             if (card.StandbyPlacement is not null && !StandbyRules.ValidPlacement(state, card)) errors.Add("invalid standby placement provenance");
@@ -26739,6 +26766,8 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
+            var historicalKnown = knownObjectIds.Concat(resolution.PublicObjectBindings?.Select(b => b.ObjectId) ?? []).ToHashSet(StringComparer.Ordinal);
+
             ValidateAuthoritativeStateRequiredObjectReferenceWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} battlefield object",
                 resolution.BattlefieldId,
@@ -26747,27 +26776,27 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} attacker object",
                 resolution.AttackerObjectIds,
-                knownObjectIds,
+                historicalKnown,
                 errors);
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} defender object",
                 resolution.DefenderObjectIds,
-                knownObjectIds,
+                historicalKnown,
                 errors);
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} surviving attacker object",
                 resolution.SurvivingAttackerObjectIds,
-                knownObjectIds,
+                historicalKnown,
                 errors);
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} surviving defender object",
                 resolution.SurvivingDefenderObjectIds,
-                knownObjectIds,
+                historicalKnown,
                 errors);
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"battle resolution {resolution.ResolutionId} destroyed object",
                 resolution.DestroyedObjectIds,
-                knownObjectIds,
+                historicalKnown,
                 errors);
         }
     }
@@ -28387,9 +28416,12 @@ public static class MatchRecoveryValidator
                 ValidateBattleResolutionObjectReferences(
                     resolutionPayload,
                     "spectator replay frame timing battle resolution item",
-                    spectatorKnownObjectIds,
+                    spectatorKnownObjectIds.Concat(authoritativeState.BattleResolutions.FirstOrDefault(r => r.ResolutionId == resolutionId)
+                        ?.PublicObjectBindings?.Select(b => b.ObjectId) ?? []).ToHashSet(StringComparer.Ordinal),
                     "object registry",
                     errors);
+                if (authoritativeState.BattleResolutions.FirstOrDefault(r => r.ResolutionId == resolutionId) is { } recorded)
+                    ValidateCapturedPublicBattleHistoryView(resolutionPayload, recorded, "spectator replay frame timing battle resolution item", errors);
                 ValidateBattleResolutionPlayerReferences(
                     resolutionPayload,
                     "spectator replay frame timing battle resolution item",

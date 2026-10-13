@@ -40,7 +40,7 @@ public sealed partial class CoreRuleEngine
                 state = state with { UntilEndOfTurnEffects = SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects,
                     BuildBattleResponseDeclarationContextMarker(context.BattlefieldId, context.AttackerObjectIds, context.DefenderObjectIds,
                         context.OptionalCosts, context.BattlefieldTargetObjectIds, context.InitialFocusPlayerId, context.InitialAttackingPlayerId,
-                        context.CombatStarted, context.InitialRolesEstablished, ceased)) };
+                        context.CombatStarted, context.InitialRolesEstablished, ceased, context.PublicObjectBindings)) };
         }
         var events = result.Events.ToList();
         foreach (var id in departed)

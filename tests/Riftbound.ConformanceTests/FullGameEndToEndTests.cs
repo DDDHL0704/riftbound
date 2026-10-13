@@ -25184,20 +25184,31 @@ public sealed partial class FullGameEndToEndTests
             var snapshot = JsonNode.Parse(JsonSerializer.Serialize(result.Snapshots[viewerId],
                 new JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
             CheckHistoricalBattlefieldReferences(snapshot, result.State);
+            CheckHistoricalBattleReferences(snapshot, result.State);
             if (snapshot["stack"] is JsonArray stack)
                 foreach (var row in stack.OfType<JsonObject>())
                 {
                     var id = row["stackItemId"]?.GetValue<string>();
                     var item = result.State.StackItems.SingleOrDefault(i => i.StackItemId == id);
-                    if (item?.FieldContext is not { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" } field
-                        || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
-                        || source.ObjectGeneration == field.SourceGeneration) continue;
-                    Assert.True(field.SourceGeneration >= 0 && field.SourceGeneration < source.ObjectGeneration);
+                    var generation = item?.FieldContext is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" } field
+                        ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation;
+                    if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
+                        || source.ObjectGeneration == generation) continue;
+                    Assert.True(generation >= 0 && generation < source.ObjectGeneration);
                     Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
-                    Assert.Equal(field.CardNo, item.CardNo);
-                    Assert.Equal("FIELD_TARGETED_TRIGGER", item.EffectKind);
+                    Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution!.CardNo, item.CardNo);
+                    Assert.Equal(item.DamageDistribution is null ? "FIELD_TARGETED_TRIGGER" : "CAPTURED_DISTRIBUTED_DAMAGE", item.EffectKind);
+                    if (item.DamageDistribution is { } distribution)
+                    {
+                        Assert.Equal(item.SourceObjectId, distribution.Source.ObjectId);
+                        var capturedSource = row["damageDistribution"]?["source"];
+                        Assert.Equal(distribution.Source.ObjectId, capturedSource?["objectId"]?.GetValue<string>());
+                        Assert.Equal(distribution.Source.Generation, capturedSource?["generation"]?.GetValue<long>());
+                        Assert.Equal(distribution.CardNo, row["damageDistribution"]?["cardNo"]?.GetValue<string>());
+                        capturedSource!["objectId"] = "CHECKED_CAPTURED_ABILITY_SOURCE";
+                    }
                     row["sourceObjectId"] = "CHECKED_CAPTURED_ABILITY_SOURCE";
                 }
             var snapshotJson = snapshot.ToJsonString();
@@ -25242,23 +25253,7 @@ public sealed partial class FullGameEndToEndTests
             var captured = state.BattlefieldResolutions.SingleOrDefault(r => r.ResolutionId == id);
             if (captured?.PublicObjectBindings is not { } bindings) continue;
             void ExcludeCheckedReference(JsonNode? value, string expected, Action replace)
-            {
-                var binding = bindings.SingleOrDefault(b => b.ObjectId == expected);
-                if (binding is null) return;
-                Assert.Equal(expected, value?.GetValue<string>());
-                Assert.True(binding.Generation >= 0);
-                if (state.CardObjects.TryGetValue(expected, out var current))
-                {
-                    Assert.True(binding.Generation <= current.ObjectGeneration);
-                    if (state.PlayerZones.Values.Any(z => z.Hand.Contains(expected) || z.MainDeck.Contains(expected) || z.RuneDeck.Contains(expected)))
-                        Assert.True(binding.Generation < current.ObjectGeneration,
-                            $"Historical {captured.ResolutionId}/{expected} generation {binding.Generation} must precede private generation {current.ObjectGeneration}");
-                }
-                // Only these exact already-public historical reference values
-                // are excluded from the current private-identity scan. Every
-                // other string/property remains subject to that scan.
-                replace();
-            }
+                => ExcludeCheckedHistoricalReference(state, bindings, value, expected, replace);
             if (captured.SourceObjectId is { } source)
                 ExcludeCheckedReference(record["sourceObjectId"], source, () => record["sourceObjectId"] = "CHECKED_PUBLIC_HISTORY");
             if (record["participantObjectIds"] is not JsonArray participants) continue;
@@ -25270,6 +25265,48 @@ public sealed partial class FullGameEndToEndTests
                     () => participants[position] = "CHECKED_PUBLIC_HISTORY");
             }
         }
+    }
+
+    private static void CheckHistoricalBattleReferences(JsonNode snapshot, MatchState state)
+    {
+        if (snapshot["timing"]?["battleResolutions"] is not JsonArray history) return;
+        foreach (var record in history.OfType<JsonObject>())
+        {
+            var id = record["resolutionId"]?.GetValue<string>();
+            var captured = state.BattleResolutions.SingleOrDefault(r => r.ResolutionId == id);
+            if (captured?.PublicObjectBindings is not { } bindings) continue;
+            var fields = new Dictionary<string, IReadOnlyList<string>> {
+                ["attackerObjectIds"] = captured.AttackerObjectIds, ["defenderObjectIds"] = captured.DefenderObjectIds,
+                ["survivingAttackerObjectIds"] = captured.SurvivingAttackerObjectIds, ["survivingDefenderObjectIds"] = captured.SurvivingDefenderObjectIds,
+                ["destroyedObjectIds"] = captured.DestroyedObjectIds };
+            foreach (var (field, expected) in fields)
+            {
+                var actual = Assert.IsType<JsonArray>(record[field]);
+                Assert.Equal(expected.Count, actual.Count);
+                for (var index = 0; index < actual.Count; index++)
+                {
+                    var position = index;
+                    ExcludeCheckedHistoricalReference(state, bindings, actual[index], expected[index], () => actual[position] = "CHECKED_PUBLIC_HISTORY");
+                }
+            }
+        }
+    }
+
+    private static void ExcludeCheckedHistoricalReference(MatchState state, IReadOnlyList<ObjectBinding> bindings, JsonNode? value, string expected, Action replace)
+    {
+        var binding = bindings.SingleOrDefault(b => b.ObjectId == expected);
+        if (binding is null) return;
+        Assert.Equal(expected, value?.GetValue<string>());
+        Assert.True(binding.Generation >= 0);
+        if (state.CardObjects.TryGetValue(expected, out var current))
+        {
+            Assert.True(binding.Generation <= current.ObjectGeneration);
+            if (state.PlayerZones.Values.Any(z => z.Hand.Contains(expected) || z.MainDeck.Contains(expected) || z.RuneDeck.Contains(expected)))
+                Assert.True(binding.Generation < current.ObjectGeneration);
+        }
+        // Exclude only the independently verified public historical value;
+        // every other field/string still undergoes the current-private scan.
+        replace();
     }
 
     private static void CollectJsonStringValues(JsonElement element, HashSet<string> values)
