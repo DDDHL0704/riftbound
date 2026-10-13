@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "profile": "check",
+  "cases": 10883,
+  "methods": 6813,
+  "seconds": 173.06,
+  "testSeconds": 168.86,
+  "baselineCommit": "e09fc8952a989d30c10b2a9aa2ed8a774a4148da",
+  "oldCasesPreserved": 10879,
+  "oldMethodsPreserved": 6812,
+  "missingCases": [],
+  "missingMethods": [],
+  "addedCases": [
+    "Riftbound.ConformanceTests.LoggedBattleHistoryScenarioTests.LoggedScenarioSetupAndOrdinaryCommandsReplayFromPersistedSeatOrigin(scenario: \"battle-history-attacker-burnout\", attackerEmpty: True, defenderEmpty: True)",
+    "Riftbound.ConformanceTests.LoggedBattleHistoryScenarioTests.LoggedScenarioSetupAndOrdinaryCommandsReplayFromPersistedSeatOrigin(scenario: \"battle-history-attacker-deck\", attackerEmpty: True, defenderEmpty: False)",
+    "Riftbound.ConformanceTests.LoggedBattleHistoryScenarioTests.LoggedScenarioSetupAndOrdinaryCommandsReplayFromPersistedSeatOrigin(scenario: \"battle-history-burnout\", attackerEmpty: False, defenderEmpty: True)",
+    "Riftbound.ConformanceTests.LoggedBattleHistoryScenarioTests.LoggedScenarioSetupAndOrdinaryCommandsReplayFromPersistedSeatOrigin(scenario: \"battle-history-deck\", attackerEmpty: False, defenderEmpty: False)"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.LoggedBattleHistoryScenarioTests.LoggedScenarioSetupAndOrdinaryCommandsReplayFromPersistedSeatOrigin"
+  ],
+  "frozenInputs": 2024,
+  "changedInputs": [],
+  "realSqlSmoke": {
+    "dedicatedInstanceOnly": true,
+    "loopbackPort": 55439,
+    "databaseVersion": "PostgreSQL16.13",
+    "cases": [
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry",
+        "outcome": "Passed",
+        "duration": "00:00:00.1002671"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands",
+        "outcome": "Passed",
+        "duration": "00:00:00.2455184"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit",
+        "outcome": "Passed",
+        "duration": "00:00:00.1707383"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift",
+        "outcome": "Passed",
+        "duration": "00:00:00.6097811"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift",
+        "outcome": "Passed",
+        "duration": "00:00:00.1024097"
+      }
+    ]
+  },
+  "trxSha256": "096ad92410d94b8cc02c3323c30175d87ca0f8f533780c30e45a2c97882ce27c",
+  "assemblySha256": "0a910883e9aad2394a14d016a7cd441a1434ef82f00d3a7d42a36d482f090cff",
+  "wholeCardCertification": false
+}

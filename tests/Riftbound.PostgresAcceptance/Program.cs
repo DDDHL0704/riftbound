@@ -99,6 +99,8 @@ try {
     await cleanup.ExecuteNonQueryAsync();
 }
 
+await BattleHistorySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battle-history"));
+
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {
     var prompt = session.PromptFor(actor);

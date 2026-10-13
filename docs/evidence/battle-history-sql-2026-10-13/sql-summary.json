@@ -1,0 +1,75 @@
+{
+  "status": "REAL_POSTGRES_SCOPED_PASS",
+  "verifiedAtUtc": "2026-10-13T13:05:36.237313+00:00",
+  "databaseVersion": "PostgreSQL16.13",
+  "loopbackPort": 55439,
+  "dedicatedInstanceOnly": true,
+  "scope": "Four logged QA setups from persisted seats followed by ordinary core command flow; original official-opening SQL gate remains independently mandatory.",
+  "branches": [
+    {
+      "scenario": "battle-history-attacker-burnout",
+      "counts": {
+        "commands": 14,
+        "events": 38,
+        "states": 14,
+        "snapshots": 28,
+        "prompts": 28
+      },
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "finalHash": "5e9f0499f63461b34cbc602fe48cff345b79024682a06aed481b99272869760e",
+      "receiptSha256": "7347150f21c7a3d000b978327e936f040112167c7f72e4699d52086ff0a45583"
+    },
+    {
+      "scenario": "battle-history-attacker-deck",
+      "counts": {
+        "commands": 14,
+        "events": 37,
+        "states": 14,
+        "snapshots": 28,
+        "prompts": 28
+      },
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "finalHash": "a09e1dd3eb1c4d430791d4c6bbd666ad831cd2efbe48e1021a05e15bc96c07d0",
+      "receiptSha256": "b0d5190fabf2a01243f23f2f44a8bf62f4d74584ea15ee8c5e470dfe2807c088"
+    },
+    {
+      "scenario": "battle-history-burnout",
+      "counts": {
+        "commands": 14,
+        "events": 37,
+        "states": 14,
+        "snapshots": 28,
+        "prompts": 28
+      },
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "finalHash": "ad1cd9ab500f4fe23f838ad389cf9ca9ab9a1906f39e6450184ff316eea8b3e2",
+      "receiptSha256": "7e9ccd07d47ba161982cd8e7931b164c9c8fcbba0bc09e396b393a31ad66216f"
+    },
+    {
+      "scenario": "battle-history-deck",
+      "counts": {
+        "commands": 14,
+        "events": 36,
+        "states": 14,
+        "snapshots": 28,
+        "prompts": 28
+      },
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "finalHash": "1d770f79d48fca40d7dd640688aa6b52b3fc8eadde854c9993b0addc15f02d79",
+      "receiptSha256": "89f07a18fe5e984891f1f4afe358bc2e445a0aafc6a467cc6170160bd9f9a1de"
+    }
+  ],
+  "totalCommands": 56,
+  "totalEvents": 148,
+  "totalColdCheckpoints": 60,
+  "allTamperRejections": true,
+  "wholeCardCertification": false,
+  "fullScoreConcurrencyFailoverCertified": false,
+  "platformStatus": "NOT_READY",
+  "generatedRoomsRemainingAfterCleanup": 0,
+  "dedicatedServerStoppedAfterCheck": true
+}

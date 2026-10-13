@@ -17043,7 +17043,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
     }
 }
 
-public sealed class MatchSession : IMatchSession
+public sealed partial class MatchSession : IMatchSession
 {
     private const string ClientIntentConflictMessage = "该客户端行动编号已用于其他命令。";
     private const string BattlefieldLegendAttachArmamentSeedCardNo = "SFD·208/221";
@@ -18646,6 +18646,10 @@ public sealed class MatchSession : IMatchSession
             "battle-multi-attacker" => BuildBattleMultiAttackerScenario(current, seed),
             "battle-multi-participant" => BuildBattleMultiParticipantScenario(current, seed),
             "battle-no-result" => BuildBattleNoResultScenario(current, seed),
+            "battle-history-deck" => BuildBattleHistoryBurnoutScenario(current, seed, false, false),
+            "battle-history-burnout" => BuildBattleHistoryBurnoutScenario(current, seed, false, true),
+            "battle-history-attacker-deck" => BuildBattleHistoryBurnoutScenario(current, seed, true, false),
+            "battle-history-attacker-burnout" => BuildBattleHistoryBurnoutScenario(current, seed, true, true),
             "battlefield-ephemeral-steadfast" => BuildBattlefieldEphemeralSteadfastScenario(current, seed),
             "battlefield-held-move-to-base" => BuildBattlefieldHeldMoveToBaseScenario(current, seed),
             "battlefield-held-minion" => BuildBattlefieldHeldMinionScenario(current, seed),

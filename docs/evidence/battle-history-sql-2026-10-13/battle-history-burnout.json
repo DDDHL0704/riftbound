@@ -1,0 +1,148 @@
+{
+  "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+  "executedAtUtc": "2026-10-13T12:56:11.675184+00:00",
+  "room": "postgres-battle-history-05f2e27ad8214a2e92e0b1b8d80d34d6",
+  "scenario": "battle-history-burnout",
+  "attackerEmpty": false,
+  "defenderEmpty": true,
+  "databaseVersion": "PostgreSQL 16.13 (Homebrew) on aarch64-apple-darwin25.2.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit",
+  "submitted": 14,
+  "counts": {
+    "commands": 14,
+    "events": 37,
+    "states": 14,
+    "snapshots": 28,
+    "prompts": 28
+  },
+  "checkpoints": [
+    {
+      "label": "setup",
+      "tick": 1,
+      "commands": 1,
+      "events": 1,
+      "hash": "3f3459eed9f9e31cc93bf9fd46d2a2aa9dfcb82ff38ba260042ee4c891c1839e",
+      "replayMatched": true
+    },
+    {
+      "label": "step-1",
+      "tick": 2,
+      "commands": 2,
+      "events": 7,
+      "hash": "96232ed6eb6566ec6dfdd21685d1a31056a5bef368e21188da2b3a68c7654c01",
+      "replayMatched": true
+    },
+    {
+      "label": "step-2",
+      "tick": 3,
+      "commands": 3,
+      "events": 8,
+      "hash": "41cc4dc220d22741f496836cdc83b740fd9a948b2da1b9c612098b92f59b3e74",
+      "replayMatched": true
+    },
+    {
+      "label": "step-3",
+      "tick": 4,
+      "commands": 4,
+      "events": 11,
+      "hash": "f668dac46f7f78ace030a90920ff832940b42459460b46e589244e033ff99cbb",
+      "replayMatched": true
+    },
+    {
+      "label": "step-4",
+      "tick": 5,
+      "commands": 5,
+      "events": 12,
+      "hash": "b9e1fde2c00442e727d01b6128a000ec0c27c02b5cb353632c016cbf5ebb9ac6",
+      "replayMatched": true
+    },
+    {
+      "label": "step-5",
+      "tick": 6,
+      "commands": 6,
+      "events": 17,
+      "hash": "0123509318432d2b1c5f8544ca0c9fd86883f3032f78eda522652fed531c9ba4",
+      "replayMatched": true
+    },
+    {
+      "label": "step-6",
+      "tick": 7,
+      "commands": 7,
+      "events": 18,
+      "hash": "3dea381abbc2dd9d5324c2ec26fc61b46db52f8f898ec4483939de6be5009c2a",
+      "replayMatched": true
+    },
+    {
+      "label": "step-7",
+      "tick": 8,
+      "commands": 8,
+      "events": 21,
+      "hash": "8eebf1b26192ff8b7d18c9823a5b6fb4b6a70c19c45db92e36f6287addca17ae",
+      "replayMatched": true
+    },
+    {
+      "label": "step-8",
+      "tick": 9,
+      "commands": 9,
+      "events": 22,
+      "hash": "118c309768161ed8f6862b420e5ef66a1f2637bdb6ce3c7193dfe6be2bbdf26a",
+      "replayMatched": true
+    },
+    {
+      "label": "step-9",
+      "tick": 10,
+      "commands": 10,
+      "events": 28,
+      "hash": "5fb9c24ec9cfd070662b1891232c9eb7ab2161c4312a015b2d21497b46eb020b",
+      "replayMatched": true
+    },
+    {
+      "label": "step-10",
+      "tick": 11,
+      "commands": 11,
+      "events": 29,
+      "hash": "d1b4b2a7819298157f4d8b114fbe2e1f28f579ecf1526dd3f6f20807d04d4495",
+      "replayMatched": true
+    },
+    {
+      "label": "step-11",
+      "tick": 12,
+      "commands": 12,
+      "events": 31,
+      "hash": "19a613ab15fbc7729e63b44aec9884a074fb1d9c2b590eef79b535cc03bc96d6",
+      "replayMatched": true
+    },
+    {
+      "label": "step-12",
+      "tick": 13,
+      "commands": 13,
+      "events": 32,
+      "hash": "04b0a2f31b222677075394de7d68d65c9659ff0bd88e5e00a4190e501b98598d",
+      "replayMatched": true
+    },
+    {
+      "label": "step-13",
+      "tick": 14,
+      "commands": 14,
+      "events": 37,
+      "hash": "ad1cd9ab500f4fe23f838ad389cf9ca9ab9a1906f39e6450184ff316eea8b3e2",
+      "replayMatched": true
+    },
+    {
+      "label": "restored-after-history-tamper",
+      "tick": 14,
+      "commands": 14,
+      "events": 37,
+      "hash": "ad1cd9ab500f4fe23f838ad389cf9ca9ab9a1906f39e6450184ff316eea8b3e2",
+      "replayMatched": true
+    }
+  ],
+  "tamper": {
+    "mutation": "public-battle-history-generation",
+    "rejected": true,
+    "errors": [
+      "invalid captured public battle history reference"
+    ]
+  },
+  "finalHash": "ad1cd9ab500f4fe23f838ad389cf9ca9ab9a1906f39e6450184ff316eea8b3e2",
+  "scope": "Logged QA setup from persisted seats plus actual core destruction/burnout and battle close; full official score gameplay/concurrency/failover/visible clients remain open."
+}
