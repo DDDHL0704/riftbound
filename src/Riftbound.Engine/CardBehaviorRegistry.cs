@@ -111,6 +111,7 @@ public sealed record CardBehaviorDefinition(
     bool MakesControllerDamageLethal = false,
     int PlayDamagePerLocation = 0,
     CommandedMovementSpec? CommandedMovement = null,
+    TargetReferencedMovementSpec? TargetReferencedMovement = null,
     bool AppliesStatusEffectToAllUnits = false,
     bool MovesFirstTargetToSecondTargetLocation = false,
     string TargetRequiredTag = "",
@@ -301,6 +302,7 @@ public static class CardTargetScopes
     public const string AttackingUnit = "ATTACKING_UNIT";
     public const string EnemyAttackingUnit = "ENEMY_ATTACKING_UNIT";
     public const string EnemyBattlefieldUnit = "ENEMY_BATTLEFIELD_UNIT";
+    public const string EnemyBattlefieldUnitThenFriendlyUnit = "ENEMY_BATTLEFIELD_UNIT_THEN_FRIENDLY_UNIT";
     public const string EnemyUnitAtSourceBattlefield = "ENEMY_UNIT_AT_SOURCE_BATTLEFIELD";
     public const string EnemyUnit = "ENEMY_UNIT";
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
@@ -572,13 +574,14 @@ public static class CardBehaviorRegistry
             "OGN·262/298",
             "天顶之刃",
             3,
-            "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE",
+            "STUN_ENEMY_BATTLEFIELD_UNIT_OPTIONAL_FRIENDLY_MOVE",
             0,
-            1,
+            2,
             CardDamageConditionKinds.None,
             0,
             "STUNNED",
-            TargetScope: CardTargetScopes.EnemyBattlefieldUnit),
+            TargetScope: CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit,
+            MinTargetCount: 1, StatusEffectTargetIndex: 0, TargetReferencedMovement: new(1, 0)),
         new(
             "OGN·053/298",
             "秘奥义！慈悲度魂落",

@@ -115,6 +115,7 @@ public sealed partial class CoreRuleEngine
             && StandbyTargetAllowed(state, behavior, objectId, index)
             && IsTargetObjectInScope(state, playerId, objectId, scope, index, behavior.CanCounterAbilities)
             && IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targets, index)
+            && IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targets, index)
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)
             && IsVisibleFieldUnitPrimitiveTargetAllowed(state, behavior, objectId)
             && IsPublicUnitMainDeckPrimitiveTargetAllowed(state, behavior, objectId)

@@ -1,0 +1,28 @@
+{
+  "runs": [
+    {
+      "run": "expanded-focus",
+      "cases": 108,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.ZenithBladeMovementTests.ExhaustedUnitCanBeMovedByTheSpellAndEquipmentFollowsThroughSharedFlow",
+          "message": "\u5f53\u524d\u88c5\u5907\u88c5\u914d\u8def\u5f84\u5c1a\u672a\u7531\u670d\u52a1\u7aef\u5f00\u653e\u3002"
+        }
+      ],
+      "trxSha256": "35fce8401189bb2c7d41b229cbb491ea2164975efa09238d712163fdde66c012"
+    },
+    {
+      "run": "native-readback",
+      "cases": 11,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.ZenithBladeMovementTests.TwoDeclaredEchoExecutionsRetainIndependentOptionalMovementTargets",
+          "message": "Assert.Equal() Failure: Strings differ\nExpected: \"F\"\nActual:   null"
+        }
+      ],
+      "trxSha256": "2a9de62c30cb08186fac59f5cfa5dfd973206b10c354d8634fab9dc97857fdae"
+    }
+  ],
+  "classification": "Red optional second target confirms missing movement. Expanded test used wrong assembly cost/source and was corrected to an actual green Song. First native Echo proof paid ECHO but retained original targets for repeat; debug harness now selects each repeat target/mode through actual OptionButtons. Compile name typos preserved in local logs. Original methods/Theory rows retained; no accepted history rewritten.",
+  "wholeCardCertification": false
+}

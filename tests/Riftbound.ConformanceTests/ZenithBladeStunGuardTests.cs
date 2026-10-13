@@ -10,7 +10,7 @@ public sealed class ZenithBladeStunGuardTests
     private const string ZenithBladeObjectId = "P1-SPELL-ZENITH-BLADE";
     private const string ZenithBladeCardNo = "OGN·262/298";
     private const string ZenithBladeTargetObjectId = "P2-ZENITH-BATTLEFIELD-UNIT";
-    private const string ZenithBladeEffectKind = "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE";
+    private const string ZenithBladeEffectKind = "STUN_ENEMY_BATTLEFIELD_UNIT_OPTIONAL_FRIENDLY_MOVE";
 
     [Fact]
     public async Task ZenithBladeStunsEnemyBattlefieldUnit()
@@ -25,7 +25,7 @@ public sealed class ZenithBladeStunGuardTests
         Assert.Single(played.State.StackItems);
         Assert.Contains(played.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "STUN_ENEMY_BATTLEFIELD_UNIT_OPTIONAL_FRIENDLY_MOVE", StringComparison.Ordinal));
 
         var p1Pass = await engine.ResolveAsync(
             played.State,

@@ -12869,7 +12869,7 @@ internal static class ActionPromptBuilder
         IReadOnlyList<IReadOnlyList<string>> choicesByIndex)
     {
         if (behavior.AnyNumberOfTargets) return false;
-        return behavior.SelectedBattlefieldEffect is not null
+        return behavior.SelectedBattlefieldEffect is not null || behavior.TargetReferencedMovement is not null
             || behavior.MaxTotalTargetPower > 0
             || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || behavior.SwapsTargetLocations
@@ -12914,7 +12914,8 @@ internal static class ActionPromptBuilder
             {
                 return false;
             }
-            if (!CoreRuleEngine.IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targetObjectIds, targetIndex))
+            if (!CoreRuleEngine.IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targetObjectIds, targetIndex)
+                || !CoreRuleEngine.IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex))
                 return false;
         }
 
@@ -13077,6 +13078,8 @@ internal static class ActionPromptBuilder
             CardTargetScopes.EnemyAttackingUnit => IsPromptEnemyFieldObject(state, playerId, objectId)
                 && IsPromptAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyBattlefieldUnit => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => targetIndex == 0
+                ? IsPromptEnemyBattlefieldObject(state, playerId, objectId) : IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
@@ -16771,6 +16774,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyGraveyardCard => "己方废牌堆牌",
             CardTargetScopes.AttackingUnit => "攻击中单位",
             CardTargetScopes.EnemyAttackingUnit => "敌方攻击中单位",
+            CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => "敌方战场单位，然后可选友方单位",
             CardTargetScopes.EnemyBattlefieldUnit => "敌方战场单位",
             CardTargetScopes.EnemyUnit => "敌方单位",
             CardTargetScopes.EnemyUnitThenEnemyUnit => "敌方单位，然后另一个敌方单位",

@@ -1,0 +1,67 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-13T16:21:40.045079+00:00",
+  "sha256": "af09c421555451637dab2a097f85df8fc649f4d4651e54adb61238476089ef90",
+  "bytes": 36247,
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "薇古丝",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "records": [
+    {
+      "id": 34697,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "UNL-150/219",
+      "cardName": "薇古丝",
+      "subTitle": "冷眼旁观",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "薇古丝",
+      "region": "暗影岛",
+      "tag": "约德尔人",
+      "artist": "League Splash Team",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当对手打出一名单位时，如果我位于战场上，则{{眩晕}}该单位。该对手在本回合内无法移动该单位。（使其在本回合内无法造成战斗伤害。）",
+      "flavorText": "“我要让他们看看什么叫真的无所谓……或者算了。”",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)",
+        "UNL（英雄预组 薇古丝）"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包",
+        "破限系列 英雄预组 薇古丝"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260326/74452408b9914686bf76bad25f41caf5.webp",
+      "backImage": "",
+      "listSort": 1327,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ]
+}

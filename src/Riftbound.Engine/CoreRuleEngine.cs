@@ -22146,6 +22146,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyAttackingUnit => IsEnemyFieldObject(state, playerId, objectId)
                 && IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyBattlefieldUnit => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
+            CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => targetIndex == 0
+                ? IsEnemyBattlefieldUnitObject(state, playerId, objectId) : IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
@@ -27770,6 +27772,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             for (var index = 0; index < stackItem.TargetObjectIds.Count; index++)
                 MoveFieldUnitsToChosenLocation(state with { PlayerZones = playerZones, CardObjects = cardObjects, ObjectLocations = movementLocations },
                     playerZones, cardObjects, movementLocations, stackItem, [stackItem.TargetObjectIds[index]], stackItem.MovementDestinations![index], events);
+            resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
+        }
+
+        if (behavior.TargetReferencedMovement is not null)
+        {
+            var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            ResolveTargetReferencedMovement(state, playerZones, cardObjects, movementLocations, stackItem, behavior, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }
 

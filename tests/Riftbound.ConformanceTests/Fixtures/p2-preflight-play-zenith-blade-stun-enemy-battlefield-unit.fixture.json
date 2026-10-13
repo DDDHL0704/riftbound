@@ -145,7 +145,7 @@
           "sourceObjectId": "P1-SPELL-ZENITH-BLADE",
           "cardNo": "OGN·262/298",
           "targetObjectIds": ["P2-UNIT-ZENITH-001"],
-          "effectKind": "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE"
+          "effectKind": "STUN_ENEMY_BATTLEFIELD_UNIT_OPTIONAL_FRIENDLY_MOVE"
         }
       },
       { "kind": "PRIORITY_PASSED" },

@@ -17748,6 +17748,83 @@
         "English report/returned gap8 and all source coverage remain open.",
         "Visible paired clients,userWindows,fullSQL concurrency/failover and network-with-SQL open."
       ]
+    },
+    {
+      "id": "zenith-blade-optional-friendly-movement-2026-10-14",
+      "status": "SCOPED_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Exact CN OGN262 optional friendly unit selection at confirmation, stun only enemy followed by current referenced battlefield movement; shared declared/remade/current legality and equipment/movement observers. No whole-card certification.",
+      "subjects": [
+        "OGN-262/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P043-B007",
+        "DOC-04-P043-B008",
+        "DOC-04-P043-B009",
+        "DOC-04-P043-B010",
+        "DOC-04-P043-B012",
+        "DOC-04-P050-B004",
+        "DOC-04-P050-B005",
+        "DOC-04-P050-B006",
+        "DOC-04-P050-B007",
+        "DOC-04-P050-B008",
+        "DOC-04-P050-B011",
+        "DOC-04-P050-B014",
+        "DOC-04-P051-B001",
+        "DOC-04-P051-B002",
+        "DOC-04-P051-B003",
+        "DOC-04-P051-B004",
+        "DOC-04-P051-B005",
+        "DOC-04-P051-B006",
+        "DOC-04-P052-B001",
+        "DOC-04-P052-B005",
+        "DOC-04-P052-B006",
+        "DOC-04-P052-B007",
+        "DOC-04-P052-B008",
+        "DOC-04-P052-B009",
+        "DOC-04-P052-B011",
+        "DOC-04-P053-B002",
+        "DOC-04-P053-B003",
+        "DOC-04-P053-B005",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-04-P053-B010",
+        "DOC-04-P053-B011",
+        "DOC-04-P053-B012",
+        "DOC-04-P053-B013",
+        "DOC-04-P073-B003",
+        "DOC-04-P073-B004",
+        "DOC-04-P073-B005",
+        "DOC-04-P073-B006",
+        "DOC-04-P073-B007",
+        "DOC-04-P073-B008"
+      ],
+      "auditDocument": "docs/ZENITH_BLADE_MOVEMENT_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/zenith-blade-movement-2026-10-14",
+      "tests": [
+        "ZenithBladeMovementTests",
+        "ZenithBladeStunGuardTests",
+        "PrimitiveTargetGuardSourceTests",
+        "MoonfallTests",
+        "LeonaStunnedMightTests",
+        "SacredProtectorTests",
+        "MovementThresholdTests",
+        "CurrentPowerTargetTests",
+        "CardCatalogBaselineTests"
+      ],
+      "validation": {
+        "focus": "590 cases/399methods passed;11newcases/6methods",
+        "native": "7branches34actual production commands/cold/dedup/full journal replay, includes two distinct Echo targets;headless only",
+        "check": "10990/6853,164.25s;old10979/6847+11/6 retained;2239frozeninputs;actualSQL5/Python27;cluster stopped",
+        "full": "Plan6994/11139;all143originalgames/110pairs/seed424242 retained;catalog/deckinputs unchanged;newfixedfull pending;ebdef634 full11085/6979/110pairshashes unchanged/SQL/network/desktops independently verified",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "All control/copy/reentry/protection and moved-reference-to-another-field combinations unreviewed.",
+        "Signature-card qualification,printed costs and repeated-stun observer semantics not independently certified.",
+        "Other partial movement consumers such as Ride the Wind,Ruthless Pursuit remain open.",
+        "Whole-card/all-source,Englishcountgap8,visiblepaired/userWindows/fullSQLconcurrency/failover open."
+      ]
     }
   ]
 }

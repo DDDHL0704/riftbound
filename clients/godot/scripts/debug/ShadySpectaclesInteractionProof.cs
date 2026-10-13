@@ -240,6 +240,37 @@ public partial class ShadySpectaclesInteractionProof : Control
                 check!.ButtonPressed = true;
             }
         }
+        if (expected.TryGetProperty("repeatChoices", out var repeated) && repeated.ValueKind == JsonValueKind.Array)
+        {
+            var repeats = (System.Collections.IList)typeof(PlayCardOverlay).GetField("_repeats", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+            Check(repeats.Count == repeated.GetArrayLength(), "Every declared Echo execution has production controls");
+            for (var repeatIndex = 0; repeatIndex < repeats.Count; repeatIndex++)
+            {
+                var selected = repeated[repeatIndex]; var repeat = repeats[repeatIndex]!; var type = repeat.GetType();
+                var picker = (OptionButton)type.GetField("Mode")!.GetValue(repeat)!;
+                var modes = (JsonElement[])type.GetField("Modes")!.GetValue(repeat)!;
+                var repeatMode = selected.GetProperty("mode").GetString() ?? "";
+                var choice = Array.FindIndex(modes, r => (r.GetProperty("mode").GetString() ?? "") == repeatMode);
+                Check(choice >= 0, "Echo mode comes from the server prompt");
+                picker.Select(choice); picker.EmitSignal(OptionButton.SignalName.ItemSelected, choice);
+                var picks = (List<(OptionButton Picker, string[] Ids, bool Required)>)type.GetField("Targets")!.GetValue(repeat)!;
+                var chosen = selected.GetProperty("targetObjectIds").EnumerateArray().Select(id => id.GetString()!).ToArray();
+                Check(chosen.Length <= picks.Count, "Echo target controls cover the selected targets");
+                for (var index = 0; index < picks.Count; index++)
+                {
+                    var id = index < chosen.Length ? chosen[index] : "";
+                    var selectedIndex = Array.IndexOf(picks[index].Ids, id);
+                    Check(selectedIndex >= 0 && (!picks[index].Required || selectedIndex > 0), "Echo target is a server-offered choice");
+                    picks[index].Picker.Select(selectedIndex);
+                    picks[index].Picker.EmitSignal(OptionButton.SignalName.ItemSelected, selectedIndex);
+                }
+            }
+            Check(request?.Command.RepeatChoices?.Count == repeated.GetArrayLength(), "Preview retains every Echo execution");
+            for (var index = 0; index < repeated.GetArrayLength(); index++)
+                Check(request!.Command.RepeatChoices![index].Mode == (repeated[index].GetProperty("mode").GetString() ?? "")
+                    && request.Command.RepeatChoices[index].TargetObjectIds.SequenceEqual(repeated[index].GetProperty("targetObjectIds").EnumerateArray().Select(id => id.GetString()!)),
+                    "Preview retains independent Echo targets and modes");
+        }
         var destination = expected.TryGetProperty("destination", out var entry) && entry.ValueKind == JsonValueKind.String ? entry.GetString()! : "";
         if (!string.IsNullOrEmpty(destination)) Check(overlay.TrySelectTableDestination(destination), "Select server-offered entry destination");
         var movementDestinations = expected.TryGetProperty("movementDestinations", out var movements) && movements.ValueKind == JsonValueKind.Array
