@@ -1,0 +1,26 @@
+{
+  "status": "FULL_METHOD_PLAN_RETENTION_NOT_EXECUTION",
+  "methods": 6914,
+  "baselineMethods": 6900,
+  "oldMethodsPreserved": true,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.MelNativeTests.ProductionControlsResolveEmpoweredSpellsAndAbilitiesAfterColdRecovery",
+    "Riftbound.ConformanceTests.MelPrivateDeckRecoveryTests.ChoosingPlayerStillRequiresThePrivateCounts",
+    "Riftbound.ConformanceTests.MelPrivateDeckRecoveryTests.RecoveryRejectsPrivateDeckInformationOrForgedWaitingIdentityInOpponentAndSpectatorViews",
+    "Riftbound.ConformanceTests.MelRulesTests.ASpellRespondingAbovePendingEmpowerCanStillBeCountered",
+    "Riftbound.ConformanceTests.MelRulesTests.AWholeUnitCopyUsesItsOwnStatusAndExpiresItsDependentRulesOnDetach",
+    "Riftbound.ConformanceTests.MelRulesTests.AbandonIsLegalButOnlyUnprotectedSpellsAreCounteredAndReturned",
+    "Riftbound.ConformanceTests.MelRulesTests.CurrentExactPrintingSupportsItsPrintedUnitAndDrawBehavior",
+    "Riftbound.ConformanceTests.MelRulesTests.MoonfallOnlyReplacesTheChosenEnemyAfterItsOptionalMove",
+    "Riftbound.ConformanceTests.MelRulesTests.RealEntryAndEmpowerEnableOnlyTheChosenNegativeMightEvent",
+    "Riftbound.ConformanceTests.MelRulesTests.RecoveryRejectsForgedNegativeMightReplacementFields",
+    "Riftbound.ConformanceTests.MelRulesTests.RemovingMelAboveAnAlreadyChosenCounterEndsProtectionBeforeThatCounterResolves",
+    "Riftbound.ConformanceTests.MelRulesTests.ReplacingStupefyInheritsItsMinimumAndNeverCreatesAnExtraReductionFromZero",
+    "Riftbound.ConformanceTests.MelRulesTests.SpellControlTransferIsAllowedAndRechecksTheNewControllersEmpoweredRules",
+    "Riftbound.ConformanceTests.MelRulesTests.TargetedExhaustAbilityReceivesTheReplacementAndCounterProtection"
+  ],
+  "expectedCases": 10934,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "fullExecutionCertified": false
+}

@@ -1,0 +1,75 @@
+{
+  "status": "REAL_POSTGRES_CORE_OPENING_RECOVERY_REPLAY_AND_TAMPER_PASS",
+  "databaseVersion": "PostgreSQL 16.13 (Debian 16.13-1.pgdg13\u002B1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "host": "127.0.0.1",
+  "port": 5432,
+  "database": "riftbound_acceptance",
+  "executedAtUtc": "2026-10-13T04:03:12.9410942+00:00",
+  "room": "postgres-core-3990fed0b7874964b06f36448ac6130a",
+  "submitted": 8,
+  "counts": {
+    "commands": 8,
+    "events": 19,
+    "states": 7,
+    "snapshots": 10,
+    "prompts": 10,
+    "currentSnapshots": 2,
+    "currentPrompts": 2
+  },
+  "expectedDistinctTicks": 5,
+  "expectedStateFrames": 7,
+  "checkpoints": [
+    {
+      "label": "pending-second-mulligan",
+      "tick": 3,
+      "commands": 5,
+      "events": 11,
+      "stateHash": "cbd552ffb6f6ea7e0c618a9486ed8c18abeb34863890995124d22bc81f35a88a",
+      "replayMatched": true
+    },
+    {
+      "label": "completed-opening",
+      "tick": 5,
+      "commands": 6,
+      "events": 18,
+      "stateHash": "ebd84039b35c27ab09e2de700c011e2c9854a421113bc28cf23d34ccfe198953",
+      "replayMatched": true
+    },
+    {
+      "label": "accepted-and-rejected-raw-commands",
+      "tick": 5,
+      "commands": 7,
+      "events": 18,
+      "stateHash": "ebd84039b35c27ab09e2de700c011e2c9854a421113bc28cf23d34ccfe198953",
+      "replayMatched": true
+    },
+    {
+      "label": "finished-match",
+      "tick": 6,
+      "commands": 8,
+      "events": 19,
+      "stateHash": "c5e18c5be5a81ed2b7ac4dc1ad10af37d5adafd4be40c72fbc3509cc581795d3",
+      "replayMatched": true
+    },
+    {
+      "label": "restored-after-tamper",
+      "tick": 6,
+      "commands": 8,
+      "events": 19,
+      "stateHash": "c5e18c5be5a81ed2b7ac4dc1ad10af37d5adafd4be40c72fbc3509cc581795d3",
+      "replayMatched": true
+    }
+  ],
+  "tamperResults": [
+    {
+      "mutation": "authoritative-tick",
+      "rejected": true,
+      "errors": [
+        "authoritative state tick 999999 does not match recovery tick 6",
+        "spectator replay frame tick 999999 does not match recovery tick 6"
+      ]
+    }
+  ],
+  "finalStateHash": "c5e18c5be5a81ed2b7ac4dc1ad10af37d5adafd4be40c72fbc3509cc581795d3",
+  "scope": "Actual core official opening, cold registry recovery, raw rejection, persisted surrender and SQL tamper detection; not full-score victory, all cards, visible clients or database failover."
+}

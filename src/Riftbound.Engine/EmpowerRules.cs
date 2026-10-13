@@ -17,10 +17,11 @@ internal static class EmpowerRules
     internal const string Effect = "EMPOWER_ACTIVATION";
     private static readonly Lazy<IReadOnlyDictionary<string, OfficialCard>> Cards = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards.ToDictionary(c => c.CardNo));
-    private static readonly Lazy<IReadOnlyDictionary<string, (IReadOnlyList<EmpowerSpec> Specs, EmpoweredSelfSpec Self)>> Profiles = new(() =>
-        Cards.Value.ToDictionary(p => p.Key, p => (EmpowerParser.Parse(p.Value.CardEffect), EmpowerParser.Self(p.Value.CardEffect))));
+    private static readonly Lazy<IReadOnlyDictionary<string, (IReadOnlyList<EmpowerSpec> Specs, EmpoweredSelfSpec Self, IReadOnlyList<EmpoweredSpellSpec> Spells)>> Profiles = new(() =>
+        Cards.Value.ToDictionary(p => p.Key, p => (EmpowerParser.Parse(p.Value.CardEffect), EmpowerParser.Self(p.Value.CardEffect), EmpowerParser.SpellEffects(p.Value.CardEffect))));
     internal static IReadOnlyList<EmpowerSpec> Specs(string cardNo) => Profiles.Value.TryGetValue(cardNo, out var p) ? p.Specs : [];
     internal static EmpoweredSelfSpec Self(string cardNo) => Profiles.Value.TryGetValue(cardNo, out var p) ? p.Self : new(0, []);
+    internal static IReadOnlyList<EmpoweredSpellSpec> SpellEffects(string cardNo) => Profiles.Value.TryGetValue(cardNo, out var p) ? p.Spells : [];
     internal static int Might(MatchState state, CardObjectState source) => source.IsEmpowered && !source.IsFaceDown
         && state.PlayerZones.Values.Any(z => z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId))
         ? AttachedRuleTextRules.Instances(state, source).Sum(i => Self(i.CardNo).Might) : 0;

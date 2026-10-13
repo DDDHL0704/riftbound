@@ -7,6 +7,7 @@ public sealed record EmpowerCostSpec(int Mana, int Power, IReadOnlyDictionary<st
 public sealed record EmpowerSpec(int Index, IReadOnlyList<EmpowerCostSpec> Alternatives,
     int ManaReductionAtMostRunes = 0, int? RuneLimit = null, bool ReduceManaPerRune = false);
 public sealed record EmpoweredSelfSpec(int Might, IReadOnlyList<string> Keywords);
+public sealed record EmpoweredSpellSpec(bool PreventsCounter, int AdditionalChosenNegativeMight);
 
 public static class EmpowerParser
 {
@@ -71,6 +72,18 @@ public static class EmpowerParser
                 keywords.Add(keyword.Groups["keyword"].Value + keyword.Groups["n"].Value);
         }
         return new(might, keywords);
+    }
+
+    public static IReadOnlyList<EmpoweredSpellSpec> SpellEffects(string text)
+    {
+        var result = new List<EmpoweredSpellSpec>();
+        foreach (Match clause in Regex.Matches(text, @"\{\{已强化>\}\}(?<body>[^\r\n]*)")) {
+            var body = clause.Groups["body"].Value;
+            var counter = body.Contains("你的法术和技能无法被无效化", StringComparison.Ordinal);
+            var negative = Regex.Match(body, @"你控制的法术或技能将给予其选作目标的一名单位-\{\{S\}\}.*?额外给予\{\{S\}\}-(?<n>[0-9]+)");
+            if (counter || negative.Success) result.Add(new(counter, negative.Success ? int.Parse(negative.Groups["n"].Value) : 0));
+        }
+        return result;
     }
 
     private static int Integer(string value) => int.TryParse(value, out var n) ? n : value switch {

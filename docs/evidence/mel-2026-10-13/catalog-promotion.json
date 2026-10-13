@@ -1,0 +1,15 @@
+{
+  "previousRecords": 1020,
+  "currentRecords": 1023,
+  "oldRecordsPreserved": true,
+  "added": [
+    "VEN\u00b7069",
+    "VEN\u00b7069a",
+    "VEN\u00b7069b"
+  ],
+  "wholeCardCertification": false,
+  "previousFunctionalUnits": 822,
+  "currentFunctionalUnits": 824,
+  "semanticAliasCertification": false,
+  "note": "Current exact-text grouping keeps base reminder text distinct from the pair of alternate printings. Registry behavior remains shared; grouping count is not a whole-card certification."
+}

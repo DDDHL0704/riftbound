@@ -15607,6 +15607,209 @@
         "Mel counter protection and chosen negative-Might replacement, Gangplank actual-delta observer",
         "Any consistent full-state forgery; visible paired matches and Windows user-device acceptance; full SQL match/concurrency/failover"
       ]
+    },
+    {
+      "id": "mel-empowered-dependent-rules-2026-10-13",
+      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Three exact CN Mel printings; real entry/draw/Empower, chosen negative-Might replacement with inherited minimum, shared counter prevention, actual copy expiry and spell control transfer; private deck-choice envelope recovery. No Rebuttal or complete Mel/all-source certification.",
+      "subjects": [
+        {
+          "id": "VEN-069",
+          "activeCardNo": "VEN·069",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 37762,
+              "cardNo": "VEN·069",
+              "name": "梅尔",
+              "sha256": "f3a5bc0c49736dd900da3e7db7119a70180c3946d63ac9b9a489aeafaacfcd31",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T03:35:19.764485+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ven-069-166",
+              "cardNo": "VEN-069/166",
+              "name": "Mel",
+              "sha256": "c1e59d90ab2c7aa32be7c637b195826328454c5f5a54594a95e82a8d0de57940",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "confirmedAt": "2026-10-13T03:39:13.366008+00:00"
+            }
+          ],
+          "implementation": [
+            "src/Riftbound.Engine/EmpoweredSpellRules.cs",
+            "src/Riftbound.CardCatalog/EmpowerParser.cs"
+          ],
+          "tests": [
+            "MelRulesTests",
+            "MelNativeTests",
+            "MelPrivateDeckRecoveryTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/mel-2026-10-13/native-controls-replay.json"
+          ]
+        },
+        {
+          "id": "VEN-069a",
+          "activeCardNo": "VEN·069a",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 37763,
+              "cardNo": "VEN·069a",
+              "name": "梅尔",
+              "sha256": "a37ac98b45e8469584623e91c055a372878f80fbedf0faac40990fa48a6e1feb",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T03:35:19.764485+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ven-069a-166",
+              "cardNo": "VEN-069A/166",
+              "name": "Mel",
+              "sha256": "b307c3a02040d15faee61a7956bb6ba8a31a8cf944216768f998711b19284e4a",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "confirmedAt": "2026-10-13T03:39:13.366008+00:00"
+            }
+          ],
+          "implementation": [
+            "src/Riftbound.Engine/EmpoweredSpellRules.cs",
+            "src/Riftbound.CardCatalog/EmpowerParser.cs"
+          ],
+          "tests": [
+            "MelRulesTests",
+            "MelNativeTests",
+            "MelPrivateDeckRecoveryTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/mel-2026-10-13/native-controls-replay.json"
+          ]
+        },
+        {
+          "id": "VEN-069b",
+          "activeCardNo": "VEN·069b",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 38298,
+              "cardNo": "VEN·069b",
+              "name": "梅尔",
+              "sha256": "c4e2a65453be33067dfc1159b32ef4f56072ae71d726721108308c01002cb7a1",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T03:35:19.764485+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [
+            "src/Riftbound.Engine/EmpoweredSpellRules.cs",
+            "src/Riftbound.CardCatalog/EmpowerParser.cs"
+          ],
+          "tests": [
+            "MelRulesTests",
+            "MelNativeTests",
+            "MelPrivateDeckRecoveryTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/mel-2026-10-13/native-controls-replay.json"
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P055-B014",
+        "DOC-04-P055-B015",
+        "DOC-04-P055-B016",
+        "DOC-04-P055-B018",
+        "DOC-04-P056-B002",
+        "DOC-04-P056-B004",
+        "DOC-04-P056-B005",
+        "DOC-04-P056-B006",
+        "DOC-04-P056-B007",
+        "DOC-04-P056-B008",
+        "DOC-04-P056-B009",
+        "DOC-04-P057-B011",
+        "DOC-04-P058-B012",
+        "DOC-04-P095-B010",
+        "DOC-04-P095-B011",
+        "DOC-04-P095-B012"
+      ],
+      "auditDocument": "docs/MEL_EMPOWERED_RULES_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/mel-2026-10-13/catalog-promotion.json",
+        "docs/evidence/mel-2026-10-13/check-parity.json",
+        "docs/evidence/mel-2026-10-13/ci-postgres-7dbe4887.json",
+        "docs/evidence/mel-2026-10-13/code-inputs.json",
+        "docs/evidence/mel-2026-10-13/consumer-readback.json",
+        "docs/evidence/mel-2026-10-13/core-readback.json",
+        "docs/evidence/mel-2026-10-13/en-readback.json",
+        "docs/evidence/mel-2026-10-13/failed-check-repair-inputs.json",
+        "docs/evidence/mel-2026-10-13/faq-readback.json",
+        "docs/evidence/mel-2026-10-13/full-ci-7dbe4887.json",
+        "docs/evidence/mel-2026-10-13/full-plan-parity.json",
+        "docs/evidence/mel-2026-10-13/implementation-corrections.json",
+        "docs/evidence/mel-2026-10-13/mel-source-queue.json",
+        "docs/evidence/mel-2026-10-13/native-controls-replay.json",
+        "docs/evidence/mel-2026-10-13/remaining-scopes.json",
+        "docs/evidence/mel-2026-10-13/rule-excerpts.json",
+        "docs/evidence/mel-2026-10-13/source-readback.json",
+        "docs/evidence/mel-2026-10-13/validation.json",
+        "docs/evidence/mel-2026-10-13/windows-7dbe4887.json"
+      ],
+      "tests": [
+        "MelRulesTests",
+        "MelNativeTests",
+        "MelPrivateDeckRecoveryTests",
+        "MatchRecoveryTests",
+        "MoonfallTests",
+        "OrbOfRegretTests"
+      ],
+      "validation": {
+        "validatedAtUtc": "2026-10-13T04:41:56.882669+00:00",
+        "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+        "checkCases": 10785,
+        "checkMethods": 6773,
+        "checkSeconds": 137.62,
+        "oldCasesPreserved": 10741,
+        "oldMethodsPreserved": 6759,
+        "addedCases": 44,
+        "addedMethods": 14,
+        "testedCodeInputs": 2055,
+        "testedCodeInputsUnchanged": true,
+        "pythonTests": 27,
+        "nativeProductionCommands": 59,
+        "coldSessionsRestored": 6,
+        "staleIntentsRejected": 5,
+        "fullExpectedCases": 10934,
+        "fullPlannedMethods": 6914,
+        "fullPlannedMethodParityVerified": true,
+        "fullExecutionCertified": false,
+        "wholeCardCertification": false,
+        "sourcePrintingsPromoted": 3,
+        "enReportedTotal": 1389,
+        "enReturnedDistinctIds": 1381,
+        "enSourceGap": 8,
+        "originalRealPostgresSmokeMethods": 5,
+        "dedicatedPostgresStopped": true,
+        "sqlWriteStats": "action_prompts|124|108|124\ncommand_log|104|0|104\nfunctional_units|0|0|0\ngame_events|148|0|148\nmatch_players|56|6|56\nmatch_result_players|0|0|0\nmatch_results|0|0|0\nmatches|34|168|34\nofficial_cards|0|0|0\noracle_fixtures|0|0|0\nplayer_identity|0|0|0\nsnapshots|124|108|124\nstate_snapshots|88|36|88\n",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/25",
+        "scope": "Three Mel printings and named spell/ability dependencies, private deck-choice redaction validation, actual Godot controls and session recovery. No Rebuttal or whole-card certification; no new positive-state/modifier SQL lifecycle claim."
+      },
+      "exclusions": [
+        "VEN152 Rebuttal optional resolution payment, counter/control branches and choice remakes",
+        "Multiple simultaneous replacement ordering and all dependent effect combinations",
+        "All Empower/disempower/trigger consumers, Kayle exception and nonresource costs",
+        "All-source coverage, eight EN missing identities and applicable-document audit",
+        "Visible paired matches, Windows user-device acceptance, full SQL match/concurrency/failover"
+      ]
     }
   ]
 }

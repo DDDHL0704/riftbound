@@ -29776,6 +29776,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (EmpoweredSpellRules.PreventsCounter(state with { PlayerZones = playerZones, CardObjects = cardObjects }, targetStackItem.ControllerId))
+            return false;
+
         if (StackObjectRules.IsAbility(targetStackItem))
         {
             counteredEvent = new GameEvent("STACK_ITEM_COUNTERED", $"{counteringStackItem.SourceObjectId}无效化技能",
@@ -32269,6 +32272,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // modifier if the unit later leaves the aura (Spiritforged FAQ).
             appliedPowerDelta = Math.Max(powerModifierAmount, -Math.Max(0, might - minimumPower));
         }
+        var replacement = appliedPowerDelta < 0 ? EmpoweredSpellRules.Replace(powerState, stackItem, targetState, powerModifierAmount) : null;
+        if (replacement is not null) {
+            powerModifierAmount = EmpoweredSpellRules.Delta(replacement);
+            appliedPowerDelta = snapshotMight.HasValue
+                ? Math.Max(powerModifierAmount, -Math.Max(0, snapshotMight.Value - minimumPower)) : powerModifierAmount;
+        }
         var resultingPower = previousPower + appliedPowerDelta;
         var appliedOrder = appliedPowerDelta == 0 ? 0 : NextPowerModifierAppliedOrder(targetState);
         var powerModifierLedger = appliedPowerDelta == 0
@@ -32289,7 +32298,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     minimumPower,
                     resultingPower,
                     appliedOrder,
-                    snapshotMight))
+                    snapshotMight) { ChosenNegativeMight = replacement })
                 .ToArray();
         var nextTargetState = targetState with
         {
@@ -32308,6 +32317,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["resultingPower"] = nextTargetState.Power
         };
         if (snapshotMight.HasValue) payload["snapshotMight"] = snapshotMight.Value;
+        if (replacement is not null) {
+            payload["originalPowerDelta"] = replacement.OriginalDelta;
+            payload["chosenNegativeMight"] = replacement;
+        }
         powerEvent = new GameEvent(
             "POWER_MODIFIED_UNTIL_END_OF_TURN",
             $"{behavior.DisplayName}临时修正战力",

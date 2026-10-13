@@ -79,14 +79,17 @@ public partial class ShadySpectaclesInteractionProof : Control
                                 Check(choice.Label == requirement.GetProperty("abilityLabel").GetString(), "Mode labels use the selected source's actual cost");
                             }
                         }
-                        if (controller.Current!.Mode != instance && (expected.TryGetProperty("abilityInstanceId", out var acquired)
-                            && acquired.ValueKind == JsonValueKind.String || candidate.GetProperty("modes").GetArrayLength() > 1))
+                        if (controller.Current!.Mode != instance && controller.CurrentStepRole == "mode")
                             Check(controller.TrySelectChoice("mode", instance), "Select the acquired ability instance");
                     }
                     var targets = actionName == "ASSEMBLE_EQUIPMENT" ? [expected.GetProperty("targetObjectId").GetString()!]
-                        : expected.GetProperty("targetObjectIds").EnumerateArray().Select(target => target.GetString()!).ToArray();
+                        : expected.TryGetProperty("targetObjectIds", out var chosenTargets)
+                            ? chosenTargets.EnumerateArray().Select(target => target.GetString()!).ToArray() : [];
                     foreach (var target in targets)
                         if (!controller.Current!.TargetIds.Contains(target)) Check(controller.TrySelectChoice("target", target), "Select legal target");
+                    if (expected.TryGetProperty("destination", out var destination) && destination.ValueKind == JsonValueKind.String)
+                        if (controller.Current!.DestinationId != destination.GetString())
+                            Check(controller.TrySelectChoice("destination", destination.GetString()!), "Select a server-offered destination");
                     if (expected.TryGetProperty("optionalCosts", out var costs)) foreach (var cost in costs.EnumerateArray())
                         if (!controller.Current!.OptionalCostIds.Contains(cost.GetString()!)) Check(controller.TrySelectChoice("optionalCost", cost.GetString()!), "Select printed cost");
                 }

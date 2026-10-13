@@ -1,0 +1,45 @@
+{
+  "records": [
+    {
+      "cardNo": "VEN·069",
+      "sourceId": 37762,
+      "name": "梅尔",
+      "subtitle": "奥法觉醒",
+      "publishedPreview": false,
+      "empowerTokens": [
+        "3"
+      ],
+      "effectText": "当你打出我时，抽一张牌。\n{{强化3}}（支付{{3}}：强化我。仅在未强化时可用。）\n{{已强化>}} 你的法术和技能无法被无效化。如果你控制的法术或技能将给予其选作目标的一名单位-{{S}}，则其额外给予{{S}}-1。",
+      "status": "NOT_REVIEWED",
+      "sourceSnapshot": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json"
+    },
+    {
+      "cardNo": "VEN·069a",
+      "sourceId": 37763,
+      "name": "梅尔",
+      "subtitle": "奥法觉醒",
+      "publishedPreview": false,
+      "empowerTokens": [
+        "3"
+      ],
+      "effectText": "当你打出我时，抽一张牌。\n{{强化3}}\n{{已强化>}} 你的法术和技能无法被无效化。如果你控制的法术或技能将给予其选作目标的一名单位-{{S}}，则其额外给予{{S}}-1。",
+      "status": "NOT_REVIEWED",
+      "sourceSnapshot": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json"
+    },
+    {
+      "cardNo": "VEN·069b",
+      "sourceId": 38298,
+      "name": "梅尔",
+      "subtitle": "奥法觉醒",
+      "publishedPreview": false,
+      "empowerTokens": [
+        "3"
+      ],
+      "effectText": "当你打出我时，抽一张牌。\n{{强化3}}\n{{已强化>}} 你的法术和技能无法被无效化。如果你控制的法术或技能将给予其选作目标的一名单位-{{S}}，则其额外给予{{S}}-1。",
+      "status": "NOT_REVIEWED",
+      "sourceSnapshot": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json"
+    }
+  ],
+  "wholeCardCertification": false,
+  "allEmpowerSourceQueue": "docs/evidence/empower-2026-10-13/empower-source-queue.json"
+}

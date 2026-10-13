@@ -2326,7 +2326,7 @@ public static class MatchRecoveryValidator
                 "pendingCardChoice",
                 "pending card choice",
                 errors);
-            ValidateSnapshotTimingPendingCardChoicePayloadValues(view, errors);
+            ValidateSnapshotTimingPendingCardChoicePayloadValues(view, errors, authoritativeState);
             ValidateSnapshotTimingTopLevelObjectListPayloadShapes(view, errors);
             ValidateSnapshotTimingListItemPayloadShapes(
                 view,
@@ -3755,7 +3755,8 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSnapshotTimingPendingCardChoicePayloadValues(
         RecoveredPlayerView view,
-        List<string> errors)
+        List<string> errors,
+        MatchState? authoritativeState)
     {
         if (view.Snapshot.Timing is null
             || !TryReadObjectValue(view.Snapshot.Timing, "pendingCardChoice", out var choicePayload)
@@ -3765,11 +3766,13 @@ public static class MatchRecoveryValidator
         }
 
         var payloadLabel = $"snapshot for {view.PlayerId} timing pending card choice";
+        var privateChoice = authoritativeState?.PendingCardChoice is { DeckContext: not null } choice && choice.PlayerId != view.PlayerId;
         ValidatePendingCardChoicePayloadValues(
             choicePayload,
             payloadLabel,
             IsKnownSnapshotPendingHandChoiceState,
-            errors);
+            errors, privateChoice);
+        if (privateChoice) ValidatePrivateDeckChoiceEnvelope(choicePayload, authoritativeState!.PendingCardChoice!, payloadLabel, errors);
         ValidateSnapshotPayloadRequiredStringListPayloadShape(
             choicePayload,
             "legalObjectIds",
@@ -22001,7 +22004,9 @@ public static class MatchRecoveryValidator
             choicePayload,
             "spectator replay frame timing pending card choice",
             value => string.Equals(value, "WAITING_FOR_CHOICE", StringComparison.Ordinal),
-            errors);
+            errors, authoritativeChoice.DeckContext is not null);
+        if (authoritativeChoice.DeckContext is not null)
+            ValidatePrivateDeckChoiceEnvelope(choicePayload, authoritativeChoice, "spectator replay frame timing pending card choice", errors);
 
         ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
             choicePayload,
@@ -22021,18 +22026,14 @@ public static class MatchRecoveryValidator
             "spectator replay frame timing pending card choice player does not match authoritative state pending card choice player",
             authoritativeChoice.PlayerId,
             errors);
-        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
-            choicePayload,
-            "requiredCount",
-            "spectator replay frame timing pending card choice required count does not match authoritative state pending card choice required count",
-            authoritativeChoice.RequiredCount,
-            errors);
-        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
-            choicePayload,
-            "maxCount",
-            "spectator replay frame timing pending card choice max count does not match authoritative state pending card choice max count",
-            authoritativeChoice.MaxCount,
-            errors);
+        if (authoritativeChoice.DeckContext is null) {
+            ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(choicePayload,"requiredCount",
+                "spectator replay frame timing pending card choice required count does not match authoritative state pending card choice required count",
+                authoritativeChoice.RequiredCount,errors);
+            ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(choicePayload,"maxCount",
+                "spectator replay frame timing pending card choice max count does not match authoritative state pending card choice max count",
+                authoritativeChoice.MaxCount,errors);
+        }
         ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
             choicePayload,
             "reason",
@@ -22057,12 +22058,10 @@ public static class MatchRecoveryValidator
             "spectator replay frame timing pending card choice state does not match authoritative spectator pending card choice state",
             "WAITING_FOR_CHOICE",
             errors);
-        ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
-            choicePayload,
-            "legalCount",
-            "spectator replay frame timing pending card choice legal count does not match authoritative state pending card choice legal count",
-            authoritativeChoice.LegalObjectIds.Count,
-            errors);
+        if (authoritativeChoice.DeckContext is null)
+            ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(choicePayload,"legalCount",
+                "spectator replay frame timing pending card choice legal count does not match authoritative state pending card choice legal count",
+                authoritativeChoice.LegalObjectIds.Count,errors);
         ValidateSpectatorPendingHandChoiceRequiredIntAuthoritativeValue(
             choicePayload,
             "contextCount",
@@ -22182,7 +22181,8 @@ public static class MatchRecoveryValidator
         object? choicePayload,
         string payloadLabel,
         Func<string, bool> isKnownChoiceState,
-        List<string> errors)
+        List<string> errors,
+        bool privateDeckChoice = false)
     {
         ValidateSnapshotPayloadRequiredStringValue(
             choicePayload,
@@ -22202,13 +22202,13 @@ public static class MatchRecoveryValidator
             payloadLabel,
             "player id",
             errors);
-        var requiredCount = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+        var requiredCount = privateDeckChoice ? null : ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             choicePayload,
             "requiredCount",
             payloadLabel,
             "required count",
             errors);
-        var maxCount = ValidateSnapshotPayloadRequiredNonNegativeIntValue(
+        var maxCount = privateDeckChoice ? null : ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             choicePayload,
             "maxCount",
             payloadLabel,
@@ -22246,18 +22246,23 @@ public static class MatchRecoveryValidator
             "state",
             errors,
             isKnownChoiceState);
-        ValidateSnapshotPayloadRequiredNonNegativeIntValue(
-            choicePayload,
-            "legalCount",
-            payloadLabel,
-            "legal count",
-            errors);
+        if (!privateDeckChoice) ValidateSnapshotPayloadRequiredNonNegativeIntValue(choicePayload,"legalCount",payloadLabel,"legal count",errors);
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             choicePayload,
             "contextCount",
             payloadLabel,
             "context count",
             errors);
+    }
+
+    private static void ValidatePrivateDeckChoiceEnvelope(object? payload, PendingCardChoiceState choice, string label, List<string> errors)
+    {
+        foreach (var key in new[] {"requiredCount","maxCount","legalCount","legalObjectIds","cardChoices","viewedCards"})
+            if (TryReadObjectValue(payload,key,out _)) errors.Add($"{label} private deck choice exposes {key}");
+        foreach (var (key,expected) in new Dictionary<string,string> {
+            ["choiceId"]=choice.ChoiceId,["choiceWindow"]=choice.ChoiceWindow,["playerId"]=choice.PlayerId,["choiceState"]="WAITING_FOR_CHOICE" })
+            if (!TryReadObjectString(payload,key,out var actual) || actual!=expected)
+                errors.Add($"{label} private deck choice {key} differs from authoritative choice");
     }
 
     private static void ValidateSpectatorRuleQueueCoveragePayloads(
@@ -23767,6 +23772,8 @@ public static class MatchRecoveryValidator
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
             if (!CopyFaceTimeline.Valid(state, card)) errors.Add("invalid copied face timeline");
             if (!AttachmentUnitCopyRules.Valid(state, card)) errors.Add("invalid attached unit copy ledger");
+            foreach (var modifier in card.UntilEndOfTurnPowerModifiers ?? [])
+                if (!EmpoweredSpellRules.Valid(state, card, modifier)) errors.Add("invalid captured chosen negative Might replacement");
             if (card.IsEmpowered && !state.PlayerZones.Values.Any(z => z.Base.Contains(card.ObjectId) || z.Battlefields.Contains(card.ObjectId)
                 || z.LegendZone.Contains(card.ObjectId))) errors.Add("invalid empowered object outside play");
         }

@@ -1,0 +1,411 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "language": "zh-CN",
+  "region": "CN",
+  "requests": [
+    {
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "月之降临",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "8b76cac9b08cb570be6df663566980dc47356ff5fa173311a3080003bbe35a55",
+      "fetchedAtUtc": "2026-10-13T03:45:43.580186+00:00",
+      "records": [
+        {
+          "record": {
+            "id": 34751,
+            "cardCategoryList": [
+              "exclusive_spell"
+            ],
+            "cardCategoryNameList": [
+              "专属法术"
+            ],
+            "cardNo": "UNL-198/219",
+            "cardName": "月之降临",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "blue",
+              "purple"
+            ],
+            "hero": "黛安娜",
+            "region": "",
+            "tag": "",
+            "artist": "Grafit Studio",
+            "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n选择一处你拥有单位的战场。你可以选择将最多一名敌方单位移动至该战场，然后让该处的敌方单位本回合内{{S}}-2。",
+            "flavorText": "“夜色降临！”\n——黛安娜",
+            "energy": 3,
+            "returnEnergy": 1,
+            "power": null,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_core",
+            "rarityName": "史诗",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/c0edba2c21f7498493c0d00c308f1d7a.webp",
+            "backImage": "",
+            "listSort": 1273,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "recordSha256": "d5ee8d1dc20d2dc89b798a807bf09f1202248ed8d2f9e8dea10cffaf76f4ba72"
+        }
+      ]
+    },
+    {
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "“敲”诈",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "495ad34981c3b22475e40770af1bb16e59f56424c9c857a192a0b657da88605e",
+      "fetchedAtUtc": "2026-10-13T03:45:43.696703+00:00",
+      "records": [
+        {
+          "record": {
+            "id": 31313,
+            "cardCategoryList": [
+              "spell"
+            ],
+            "cardCategoryNameList": [
+              "法术"
+            ],
+            "cardNo": "OGN·095/298",
+            "cardName": "“敲”诈",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "blue"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Kudos Productions",
+            "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名单位在本回合内{{S}}-1，不得低于1{{S}}。抽一张牌。",
+            "flavorText": "对手比你聪明，把他敲傻就好了。",
+            "energy": 1,
+            "returnEnergy": null,
+            "power": null,
+            "productCodeList": [
+              "OGS",
+              "OGN(英雄预组 维克托)",
+              "OGN(标准补充包)",
+              "OGN(进阶补充包)",
+              "SFD(英雄预组 兰博)"
+            ],
+            "productNameList": [
+              "起源 试炼之地",
+              "起源 英雄预组 维克托",
+              "起源 标准补充包",
+              "起源 进阶补充包",
+              "铸魂淬炼 英雄预组 兰博"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_dust",
+            "rarityName": "普通",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/9875d7cd562e40eba0764deb1351a07e.png",
+            "backImage": "",
+            "listSort": 392,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "recordSha256": "5bea928ed9d362e0e6c7ec19afd394d4fc6f24cccbd78855b6291bd724463448"
+        }
+      ]
+    },
+    {
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "遗弃",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "60182855775cc2540fb23891c9076cd4943b0d1ac02b010b39ea6dad17e58367",
+      "fetchedAtUtc": "2026-10-13T03:45:43.806723+00:00",
+      "records": [
+        {
+          "record": {
+            "id": 34674,
+            "cardCategoryList": [
+              "spell"
+            ],
+            "cardCategoryNameList": [
+              "法术"
+            ],
+            "cardNo": "UNL-131/219",
+            "cardName": "遗弃",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "purple"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Kudos Productions",
+            "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n无效化一个法术。让其返回所属的手牌，而不是将其放入废牌堆。\n进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+            "flavorText": "",
+            "energy": 2,
+            "returnEnergy": null,
+            "power": null,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_glimmer",
+            "rarityName": "不凡",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/7f1504678e7c446bacbf712ca1aa0d84.webp",
+            "backImage": "",
+            "listSort": 1350,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "recordSha256": "08338c83884c1b788a9e8cabea256d9e26de85b35f071eefa5f6e5a250dbf625"
+        }
+      ]
+    },
+    {
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "风之障壁",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "ea5085cd6f5f33142af138f0e3bca7d79c3676590611aee109b7647a0c8794d4",
+      "fetchedAtUtc": "2026-10-13T03:45:43.923559+00:00",
+      "records": [
+        {
+          "record": {
+            "id": 31276,
+            "cardCategoryList": [
+              "spell"
+            ],
+            "cardCategoryNameList": [
+              "法术"
+            ],
+            "cardNo": "OGN·064/298",
+            "cardName": "风之障壁",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "green"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Max Grecke",
+            "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n无效化一个法术。",
+            "flavorText": "“面对疾风吧！”\n——亚索",
+            "energy": 3,
+            "returnEnergy": 2,
+            "power": null,
+            "productCodeList": [
+              "OGN(标准补充包)",
+              "OGN(进阶补充包)"
+            ],
+            "productNameList": [
+              "起源 标准补充包",
+              "起源 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_glimmer",
+            "rarityName": "不凡",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/a1e6b60280564d6e8b31e3f6e38b38c3.png",
+            "backImage": "",
+            "listSort": 429,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "recordSha256": "05cfcc088314951285e46bc1cd1ce4c249ffd798b6b06ab63412c1f54a570ab6"
+        }
+      ]
+    },
+    {
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "倒转神通",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "7bd62c9a6d6b9488435fcb77c2758f5374ca1d4ca33df016df7b6d46dce4dc6e",
+      "fetchedAtUtc": "2026-10-13T03:45:44.058234+00:00",
+      "records": [
+        {
+          "record": {
+            "id": 31296,
+            "cardCategoryList": [
+              "spell"
+            ],
+            "cardCategoryNameList": [
+              "法术"
+            ],
+            "cardNo": "OGN·080/298",
+            "cardName": "倒转神通",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "green"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Polar Engine Studio",
+            "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n获得一个法术的控制权。你可以选择为其指定新的目标。",
+            "flavorText": "二流法师只想借，一流法师直接偷。",
+            "energy": 4,
+            "returnEnergy": 3,
+            "power": null,
+            "productCodeList": [
+              "OGN(标准补充包)",
+              "OGN(进阶补充包)"
+            ],
+            "productNameList": [
+              "起源 标准补充包",
+              "起源 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_core",
+            "rarityName": "史诗",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/ffe2498048ae4bd9b218ac8e86fd0dbf.png",
+            "backImage": "",
+            "listSort": 409,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "recordSha256": "ad3e01111acfaa9bbc2ce44c093d41228de946c7edaec8f37a89a3658316fcda"
+        }
+      ]
+    },
+    {
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "灵魂折镜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "responseSha256": "de01f267cca184e97a842ce7bcac7b95ea8dc32c305ba3a2c3725f536c0051be",
+      "fetchedAtUtc": "2026-10-13T03:45:44.176574+00:00",
+      "records": [
+        {
+          "record": {
+            "id": 37855,
+            "cardCategoryList": [
+              "exclusive_spell"
+            ],
+            "cardCategoryNameList": [
+              "专属法术"
+            ],
+            "cardNo": "VEN·152",
+            "cardName": "灵魂折镜",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "blue",
+              "purple"
+            ],
+            "hero": "梅尔",
+            "region": "",
+            "tag": "",
+            "artist": "小牛设计",
+            "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一个法力费用不高于{{4}}的法术。你可以选择支付{{A}}。若如此做，则你获得此法术的控制权，你可以选择为其做出新的选择。否则将其无效化。",
+            "flavorText": "“斗转乾坤！”\n——梅尔",
+            "energy": 1,
+            "returnEnergy": 1,
+            "power": null,
+            "productCodeList": [
+              "VEN(标准补充包)",
+              "VEN(进阶补充包)"
+            ],
+            "productNameList": [
+              "化神争锋 标准补充包",
+              "化神争锋 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_core",
+            "rarityName": "史诗",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/436ec0b21d0740bf971935953c9acbd2.png",
+            "backImage": "",
+            "listSort": 1831,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "recordSha256": "d73a5646db65de2941cb3901799d28014c0055d61a2b6ba77b2bbcb4a081097e"
+        }
+      ]
+    }
+  ]
+}
