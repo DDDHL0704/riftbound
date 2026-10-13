@@ -18022,7 +18022,7 @@
     },
     {
       "id": "dancing-grenade-shared-source-replay-damage-history-2026-10-14",
-      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "status": "SCOPED_CURRENT_FIXED_FULL_AND_CI_SQL_PASS",
       "scope": "Current UNL020 generic-cost same-source replay, target-controller choices, positive damage occurrence bonus, independent responses and Echo continuation. No whole-card/all-source certification.",
       "subjects": [
         "UNL-020/219"
@@ -18052,9 +18052,61 @@
         "focus": "1995cases/1901methods18.99s;34newcases/14methods",
         "native": "17branches/114productioncommands; final code rebuild command-byte parity;35 final readbackcases; all commands cold restore/dedup/full journal pass",
         "check": "11111cases/6906methods180.84s; all11077priorcases/6892methods retained;34newcases/14methods;2251frozen no drift;actualPostgres5;Python27",
-        "fixedFull": "REQUIRED",
+        "fixedFull": "87cf4448 actual11260cases/7047methods2009.86s; all11226/7033 retained;110pairs/hash unchanged; alljobs success; direct completed job log native network pass (API step pending/null discrepancy retained); actual SQL verified",
         "previousFixed4933": "Actual11198cases/7021methods3008.29s;110pairs all preserved; actual SQL opening and4battlehistories verified",
         "previousFixed2d": "Actual11226cases/7033methods2220.21s;28newcases/12methods,110pairs/hash unchanged; all jobs/mandatorynetwork/actual SQL verified"
+      },
+      "exclusions": [
+        "Whole card/source coverage",
+        "Visible paired native clients and user Windows runtime",
+        "Source gaps remain"
+      ]
+    },
+    {
+      "id": "secret-art-mercy-shared-turn-boon-amplifier-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Current CN OGN053 and independent EN Stand United: one friendly boon, independent all-friendly current-boon turn amplifier, invalid target continuation, later boon, current control, repeats, expiry, actual combat and lethal cleanup, captured source recovery. No whole-card/all-source certification.",
+      "subjects": [
+        "OGN·053/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P036-B012",
+        "DOC-04-P036-B013",
+        "DOC-04-P036-B014",
+        "DOC-04-P037-B008",
+        "DOC-04-P052-B007",
+        "DOC-04-P074-B019",
+        "DOC-04-P095-B005",
+        "DOC-04-P102-B004",
+        "DOC-04-P102-B006",
+        "DOC-04-P102-B007",
+        "DOC-04-P102-B009",
+        "DOC-04-P115-B005"
+      ],
+      "auditDocument": "docs/SECRET_ART_MERCY_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/secret-art-mercy-2026-10-14",
+      "tests": [
+        "SecretArtMercyCurrentTests",
+        "SecretArtMercyBoonGuardTests",
+        "CurrentPowerTargetTests",
+        "MatchRecoveryTests",
+        "StandbySourceRulesTests",
+        "OfficialSpellCompletionTests",
+        "EchoSingleDestinationTests",
+        "MightyTransitionTests",
+        "PowerfulKeywordNativeTests",
+        "TriggerPaymentTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysSecretArtMercyGrantBoon",
+        "ConformanceFixtureRunnerTests.P4SpellshieldTaxDoesNotApplyToFriendlySpellTarget",
+        "ConformanceFixtureRunnerTests.P79MountainApeElderReadiesWhenGrantedBoon",
+        "ConformanceFixtureRunnerTests.P79MountainApeElderSkipsReadyWhenBoonAlreadyPresent"
+      ],
+      "validation": {
+        "focus": "2041cases/1942methods18.67s;30newcases/11methods",
+        "native": "10branches/67productioncommands;155cases/88methods15.01s final native/consumer readback; each command cold restore/dedup/full journal pass",
+        "check": "11141cases/6917methods181.05s; all11111/6906retained;30newcases/11methods;2253frozen no drift;actualPostgres5;Python27;owned cluster stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixed87cf": "11260cases/7047methods2009.86s; all11226/7033retained;110pairs/hash unchanged; alljobs success; direct completed job log verifies network despite raw API step pending/null; actual SQL verified"
       },
       "exclusions": [
         "Whole card/source coverage",

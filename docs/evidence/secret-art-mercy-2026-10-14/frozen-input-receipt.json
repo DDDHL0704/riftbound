@@ -1,0 +1,12 @@
+{
+  "status": "FINAL_CHECK_INPUTS_UNCHANGED",
+  "count": 2253,
+  "manifestSha256": "89c5e8d3bf40e9b7d4f001d7d2e055d7cc51b80a694ab6953a767d806833f438",
+  "allInputsUnchanged": true,
+  "realPostgresPort": 55439,
+  "realPostgresUser": "codex_riftbound_audit",
+  "ownedClusterStopped": true,
+  "checkTrxSha256": "2a56ece14d164bf6100ecd96e9f3bf4c9b6ea8369bb3ba09134ef506427cceea",
+  "firstCheckFailureRetained": true,
+  "wholeGoalComplete": false
+}

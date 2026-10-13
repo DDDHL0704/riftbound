@@ -3975,8 +3975,10 @@ public static class MatchRecoveryValidator
                 errors);
             string? historicalSource = null;
             if (effectValues.EffectId is { } id && expectedEffects?.TryGetValue(id, out var expected) == true
-                && expected.Scope == "OBJECT" && expected.Layer == ContinuousEffectLayers.PowerModifier
-                && expected.Duration == "UNTIL_END_OF_TURN")
+                && expected.Scope == "OBJECT" && expected.Duration == "UNTIL_END_OF_TURN"
+                && (expected.Layer == ContinuousEffectLayers.PowerModifier
+                    || expected.Layer == ContinuousEffectLayers.StaticAura && expected.EffectKind == CoreRuleEngine.BoonAmplifierEffect
+                        && authoritativeState is not null && CoreRuleEngine.ValidCurrentBoonAmplifiers(authoritativeState)))
             {
                 var sourceMatches = OptionalStringSnapshotValueMatches(effectPayload, "sourceObjectId", expected.SourceObjectId)
                     && OptionalStringSnapshotValueMatches(effectPayload, "sourceCardNo", expected.SourceCardNo)
@@ -14818,7 +14820,7 @@ public static class MatchRecoveryValidator
             effectPayload,
             "sourceDependencyObjectIds",
             $"{effectLabel} source dependency object id",
-            knownObjectIds,
+            historicalSourceObjectId is null ? knownObjectIds : knownObjectIds.Append(historicalSourceObjectId).ToHashSet(StringComparer.Ordinal),
             knownObjectLabel,
             errors);
         ValidateTimingObjectReferenceListWithExpectedDetails(
@@ -15459,8 +15461,9 @@ public static class MatchRecoveryValidator
             "duration",
             errors,
             IsKnownContinuousEffectDuration);
-        ValidateContinuousEffectLayerDurationConsistency(effectLabel, layer, duration, errors);
-        ValidateContinuousEffectStaticAuraScopeDurationConsistency(effectLabel, scope, layer, duration, errors);
+        TryReadObjectString(effectPayload, "effectKind", out var durationEffectKind);
+        ValidateContinuousEffectLayerDurationConsistency(effectLabel, layer, duration, errors, durationEffectKind);
+        ValidateContinuousEffectStaticAuraScopeDurationConsistency(effectLabel, scope, layer, duration, errors, durationEffectKind);
         var targetObjectId = ValidateSnapshotPayloadRequiredNullableStringValue(
             effectPayload,
             "targetObjectId",
@@ -15947,6 +15950,16 @@ public static class MatchRecoveryValidator
             return;
         }
 
+        if (effectKind == CoreRuleEngine.BoonAmplifierEffect) {
+            if (scope != "OBJECT" || duration != "UNTIL_END_OF_TURN" || !effectId.StartsWith("BOON_MIGHT:", StringComparison.Ordinal)
+                || !effectId.EndsWith(":" + targetObjectId, StringComparison.Ordinal)
+                || effectId.Length <= 12 + targetObjectId.Length
+                || CoreRuleEngine.ReadBoonAmplifier(effectId[11..^(targetObjectId.Length + 1)]) is not { } grant
+                || grant.Source.ObjectId != sourceObjectId)
+                errors.Add($"{effectLabel} temporary Boon amplifier identity is invalid");
+            return;
+        }
+
         if (effectKind == StaticAuraKinds.SameLocationEnemyFilteredPower) {
             if (scope != "OBJECT" || duration != "WHILE_SOURCE_AND_TARGET_ON_PUBLIC_FIELD"
                 || !effectId.StartsWith($"CONDITIONAL_POWER_AURA:{sourceObjectId}:", StringComparison.Ordinal)
@@ -16334,6 +16347,16 @@ public static class MatchRecoveryValidator
             || !string.Equals(layer, ContinuousEffectLayers.StaticAura, StringComparison.Ordinal)
             || !IsContinuousEffectLayerScopeValid(scope, layer))
         {
+            return;
+        }
+
+        if (effectKind == CoreRuleEngine.BoonAmplifierEffect) {
+            if (scope != "OBJECT" || duration != "UNTIL_END_OF_TURN"
+                || sourceCardNo is null || !CardBehaviorRegistry.TryGetByCardNo(sourceCardNo, out var b) || b.FriendlyBoonBonusUntilEndOfTurn <= 0)
+                errors.Add($"{effectLabel} temporary Boon amplifier requires matching source and scope");
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, sourcePath, "CoreRuleEngine.BoonAmplifiersFor", "Boon amplifier source path", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, condition, "CURRENT_FRIENDLY_UNIT_HAS_BOON", "Boon amplifier condition", errors);
+            ValidateContinuousEffectStaticAuraMetadataValue(effectLabel, lifecycle, "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON", "Boon amplifier lifecycle", errors);
             return;
         }
 
@@ -17400,8 +17423,10 @@ public static class MatchRecoveryValidator
         string effectLabel,
         string? layer,
         string? duration,
-        List<string> errors)
+        List<string> errors, string? effectKind = null)
     {
+        if (effectKind == CoreRuleEngine.BoonAmplifierEffect && layer == ContinuousEffectLayers.StaticAura
+            && duration == "UNTIL_END_OF_TURN") return;
         if (layer is null
             || duration is null
             || !IsKnownContinuousEffectLayer(layer)
@@ -17452,8 +17477,10 @@ public static class MatchRecoveryValidator
         string? scope,
         string? layer,
         string? duration,
-        List<string> errors)
+        List<string> errors, string? effectKind = null)
     {
+        if (effectKind == CoreRuleEngine.BoonAmplifierEffect && layer == ContinuousEffectLayers.StaticAura
+            && duration == "UNTIL_END_OF_TURN") return;
         if (scope is null
             || layer is null
             || duration is null
@@ -17572,7 +17599,7 @@ public static class MatchRecoveryValidator
         // A graveyard-count aura is not a fixed delta per field participant.
         // ValidateDynamicPowerAuraViews checks its exact amount
         // against the current authoritative effect, including zero.
-        if (effectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower) return;
+        if (effectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect) return;
 
         if (string.Equals(scope, "OBJECT", StringComparison.Ordinal))
         {
@@ -23095,7 +23122,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateDynamicPowerAuraViews(SnapshotDto snapshot, MatchState state, List<string> errors, string label)
     {
-        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
+        var expected = state.ContinuousEffects.Where(e => e.EffectKind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
             .ToDictionary(e => e.EffectId, StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "continuousEffects", out var effects))
@@ -23104,7 +23131,7 @@ public static class MatchRecoveryValidator
                 if (!TryReadObjectString(payload, "effectId", out var id) || string.IsNullOrWhiteSpace(id)) continue;
                 if (!expected.TryGetValue(id, out var effect))
                 {
-                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD")
+                    if (TryReadObjectString(payload, "effectKind", out var kind) && kind is StaticAuraKinds.SourceGraveyardCountPower or StaticAuraKinds.SameLocationEnemyFilteredPower or "ATTACHED_ARMAMENT_BASE_MIGHT" or "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or CoreRuleEngine.BoonAmplifierEffect)
                         errors.Add($"{label} unexpected dynamic power aura");
                     continue;
                 }
@@ -23114,6 +23141,9 @@ public static class MatchRecoveryValidator
                 foreach (var (key, value) in scalars)
                     if (!TryReadObjectInt(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
+                if (effect.EffectKind == CoreRuleEngine.BoonAmplifierEffect
+                    && (!TryReadObjectInt(payload, "sourceOrder", out var sourceOrder) || sourceOrder != effect.SourceOrder))
+                    errors.Add($"{label} temporary Boon amplifier source order differs from authoritative state");
                 var strings = new Dictionary<string, string?> { ["sourceObjectId"] = effect.SourceObjectId,
                     ["targetObjectId"] = effect.TargetObjectId, ["sourceCardNo"] = effect.SourceCardNo,
                     ["effectKind"] = effect.EffectKind, ["sourcePath"] = effect.SourcePath,
@@ -23122,7 +23152,7 @@ public static class MatchRecoveryValidator
                 foreach (var (key, value) in strings)
                     if (!TryReadObjectString(payload, key, out var actual) || actual != value)
                         errors.Add($"{label} dynamic power aura {key} differs from authoritative state");
-                if (effect.EffectKind is "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower)
+                if (effect.EffectKind is "ATTACHED_RULE_TEXT_POWER" or "ATTACHED_RULE_TEXT_KEYWORD" or StaticAuraKinds.SameLocationEnemyFilteredPower or CoreRuleEngine.BoonAmplifierEffect)
                     foreach (var (key, value) in new Dictionary<string, IReadOnlyList<string>> {
                         ["sourceDependencyObjectIds"] = effect.SourceDependencyObjectIds ?? [],
                         ["targetDependencyObjectIds"] = effect.TargetDependencyObjectIds ?? [],
@@ -23817,6 +23847,7 @@ public static class MatchRecoveryValidator
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
         if (!CoreRuleEngine.ValidCurrentConquestGrants(state)) errors.Add("invalid temporary conquest grant");
+        if (!CoreRuleEngine.ValidCurrentBoonAmplifiers(state)) errors.Add("invalid temporary friendly Boon amplifier");
         if (state.PendingEffectPlay is { } sourcePending && (sourcePending.SourceReplay is not null || sourcePending.SourceZone == "STACK")
             && !CoreRuleEngine.ValidSourceReplayPending(state, sourcePending)) errors.Add("invalid source replay continuation");
         foreach (var item in state.StackItems)

@@ -25233,6 +25233,7 @@ public sealed partial class FullGameEndToEndTests
                 new JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
             CheckHistoricalBattlefieldReferences(snapshot, result.State);
             CheckHistoricalBattleReferences(snapshot, result.State);
+            CheckHistoricalBoonAmplifierSources(snapshot, result.State);
             if (snapshot["stack"] is JsonArray stack)
                 foreach (var row in stack.OfType<JsonObject>())
                 {
@@ -25386,6 +25387,57 @@ public sealed partial class FullGameEndToEndTests
                 foreach (var objectId in zones.MainDeck.Concat(zones.RuneDeck))
                     Assert.DoesNotContain(objectId, exposedStringValues);
             }
+        }
+    }
+
+    private static void CheckHistoricalBoonAmplifierSources(JsonNode snapshot, MatchState state)
+    {
+        if (snapshot["timing"]?["continuousEffects"] is not JsonArray effects) return;
+        foreach (var effect in effects.OfType<JsonObject>().Where(e => e["effectKind"]?.GetValue<string>() == "TEMPORARY_FRIENDLY_BOON_MIGHT"))
+        {
+            var target = effect["targetObjectId"]!.GetValue<string>();
+            var identity = effect["effectId"]!.GetValue<string>();
+            Assert.StartsWith("BOON_MIGHT:", identity);
+            Assert.EndsWith(":" + target, identity);
+            var marker = identity[11..^(target.Length + 1)];
+            Assert.Contains(marker, state.UntilEndOfTurnEffects);
+            var fields = marker.Split('|');
+            Assert.Equal(9, fields.Length);
+            Assert.Equal("FRIENDLY_BOON_MIGHT", fields[0]);
+            Assert.Equal(state.TurnNumber.ToString(), fields[1]);
+            var controller = Encoding.UTF8.GetString(Convert.FromBase64String(fields[2]));
+            var sourceId = Encoding.UTF8.GetString(Convert.FromBase64String(fields[3]));
+            var generation = long.Parse(fields[4]);
+            var cardNo = Encoding.UTF8.GetString(Convert.FromBase64String(fields[5]));
+            var stackId = Encoding.UTF8.GetString(Convert.FromBase64String(fields[6]));
+            Assert.Contains(controller, state.Seats.Keys);
+            Assert.Equal("OGN·053/298", cardNo);
+            Assert.InRange(int.Parse(fields[7]), 0, int.MaxValue);
+            Assert.Equal("1", fields[8]);
+            Assert.EndsWith("-" + sourceId, stackId);
+            Assert.StartsWith("STACK-", stackId);
+            var tick = long.Parse(stackId[6..^(sourceId.Length + 1)]);
+            Assert.InRange(tick, 1, state.Tick);
+            Assert.Equal($"STACK-{tick}-{sourceId}", stackId);
+            Assert.Equal(sourceId, effect["sourceObjectId"]!.GetValue<string>());
+            Assert.Equal(cardNo, effect["sourceCardNo"]!.GetValue<string>());
+            Assert.Equal(1, effect["powerDelta"]!.GetValue<int>());
+            Assert.Equal("UNTIL_END_OF_TURN", effect["duration"]!.GetValue<string>());
+            Assert.Equal("CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON", effect["lifecycle"]!.GetValue<string>());
+            var source = state.CardObjects[sourceId];
+            Assert.InRange(generation, 0, source.ObjectGeneration);
+            if (source.ObjectGeneration == generation)
+            {
+                Assert.Equal(cardNo, source.CardNo);
+                continue;
+            }
+            // The checked reference identifies a public prior incarnation. The
+            // current private hand/deck object remains subject to every check below.
+            effect["sourceObjectId"] = "CHECKED_CAPTURED_BOON_SOURCE";
+            var dependencies = Assert.IsType<JsonArray>(effect["sourceDependencyObjectIds"]);
+            Assert.Single(dependencies);
+            Assert.Equal(sourceId, dependencies[0]!.GetValue<string>());
+            dependencies[0] = "CHECKED_CAPTURED_BOON_SOURCE";
         }
     }
 

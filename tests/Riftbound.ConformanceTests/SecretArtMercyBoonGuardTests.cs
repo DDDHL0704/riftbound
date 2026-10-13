@@ -31,7 +31,7 @@ public sealed class SecretArtMercyBoonGuardTests
         Assert.Contains(played.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SPELL-SECRET-ART-MERCY", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "SECRET_ART_MERCY_GRANT_BOON_AMPLIFY_THIS_TURN", StringComparison.Ordinal));
 
         var p1Pass = await engine.ResolveAsync(
             played.State,
@@ -53,6 +53,7 @@ public sealed class SecretArtMercyBoonGuardTests
 
         var target = p2Pass.State.CardObjects["P1-FRIENDLY-SPELLSHIELD-UNIT"];
         Assert.Equal(3, target.Power);
+        Assert.Equal(4, SecretArtMercyCurrentTests.Power(p2Pass.State, "P1-FRIENDLY-SPELLSHIELD-UNIT"));
         Assert.Equal(0, target.UntilEndOfTurnPowerModifier);
         Assert.Contains(CardObjectTags.Boon, target.Tags);
         Assert.Contains(CardObjectTags.UnitCard, target.Tags);
@@ -61,7 +62,7 @@ public sealed class SecretArtMercyBoonGuardTests
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SPELL-SECRET-ART-MERCY", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "SECRET_ART_MERCY_GRANT_BOON_AMPLIFY_THIS_TURN", StringComparison.Ordinal));
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "OBJECT_TAG_ADDED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SPELL-SECRET-ART-MERCY", StringComparison.Ordinal)
@@ -497,7 +498,7 @@ public sealed class SecretArtMercyBoonGuardTests
         Assert.Equal("OGN·053/298", stackItem.CardNo);
         Assert.Equal(["P1-FRIENDLY-UNIT"], stackItem.TargetObjectIds);
         Assert.Empty(stackItem.OptionalCosts);
-        Assert.Equal("SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS", stackItem.EffectKind);
+        Assert.Equal("SECRET_ART_MERCY_GRANT_BOON_AMPLIFY_THIS_TURN", stackItem.EffectKind);
         Assert.Equal(0, stackItem.DamageAmount);
         Assert.Equal(1, stackItem.EffectRepeatCount);
         if (expectedStackItem is not null)

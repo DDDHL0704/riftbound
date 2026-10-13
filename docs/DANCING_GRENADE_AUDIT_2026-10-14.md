@@ -15,3 +15,5 @@
 此前[冷酷追击固定4933afc7完整CI](evidence/dancing-grenade-2026-10-14/fixed-4933afc7-ci.json)实际11,198用例/7,021方法、3,008.29秒通过，相比d9全部11,159/7,005保留，新增39/16；110配对seed424242与所有最终哈希保持。双平台桌面及必需网络步骤成功。[实际SQL](evidence/dancing-grenade-2026-10-14/fixed-4933afc7-sql.json)核对开局8命令19事件5冷检查及四分支56命令148事件60冷检查/4篡改拒绝。此证据仅认证该固定提交范围，当前工作树不继承完整认证。
 
 [致命华彩固定2d121cc9完整CI](evidence/dancing-grenade-2026-10-14/fixed-2d121cc9-ci.json)实际11,226用例/7,033方法、2,220.21秒通过，旧4933的11,198/7,021全保留，新增28/12；110配对和最终哈希不变，双平台/网络步骤通过。[实际SQL收据](evidence/dancing-grenade-2026-10-14/fixed-2d121cc9-sql.json)再次核对开局及四条战斗历史分支，不借用本地五项冒烟证明。
+
+[固定87cf4448完整CI](evidence/secret-art-mercy-2026-10-14/fixed-87cf4448-ci.json)终态成功：实际11,260用例/7,047方法2,009.86秒，原2d的11,226/7,033全部保留，新增34/14，110配对seed424242及哈希不变，双平台job成功。[SQL](evidence/secret-art-mercy-2026-10-14/fixed-87cf4448-sql.json)核对开局及四战斗历史、65冷检查和5篡改拒绝。API step字段终态后仍pending/null，原始差异保留；[完成job日志](evidence/secret-art-mercy-2026-10-14/fixed-87cf4448-network-log.json)独立确认原生投影和断线恢复成功。只认证87cf实现，不继承到后续工作树。

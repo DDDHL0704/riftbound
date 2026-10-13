@@ -1,0 +1,26 @@
+{
+  "status": "FULL_DISCOVERY_PLAN_PARITY_ONLY",
+  "baselineMethods": 7047,
+  "methods": 7058,
+  "allPreviousMethodsPreserved": true,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.ARealReturnResponseSkipsTheTargetBoonButKeepsTheIndependentGlobalEffect",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.ActualCombatDamagePoolsAndLethalThresholdUseTheAmplifiedCurrentMight",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.ActualControlChangeAppliesTheNewControllersBonusToTheMovedUnit",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.ActualEchoAndSeparateSpellsCreateIndependentAmplifiersWithoutDuplicatingBoons",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.ActualSpellAmplifiesAllCurrentFriendlyBoonsAcrossLocations",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.AmplifiedCurrentMightIsUsedByActualLethalDamageCleanup",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.LaterBoonGainsUseTheExistingAmplifierAndItsBonusExpiresAtRealTurnEnd",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.PublicRecoveryRejectsForgedBoonAmplifierViewFields",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.RealStandbyKeepsItsChosenTargetLocalWhileAmplifyingBoonsAtOtherLocations",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.RecoveryRejectsIndependentGlobalAmplifierProvenanceTampering",
+    "Riftbound.ConformanceTests.SecretArtMercyCurrentTests.ReturningThePhysicalSpellToPrivateHandDoesNotCancelItsCapturedAmplifier"
+  ],
+  "fullGameMethods": 143,
+  "matrixPairsRequired": 110,
+  "matrixSeed": 424242,
+  "expectedCases": 11290,
+  "testAssemblySha256": "97b7726aade46a93caeb9f30a78a388038cdb240fc518a512c45fc5e65363b76",
+  "currentCheckAssemblyMatchesFullPlan": true,
+  "fullExecuted": false
+}

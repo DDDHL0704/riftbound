@@ -1,0 +1,59 @@
+{
+  "status": "PRODUCTION_NATIVE_COMMAND_READBACK_COLD_RESTORE_DEDUP_FULL_JOURNAL_PASS",
+  "branches": [
+    {
+      "branch": "all-friendly-boons",
+      "commands": 3,
+      "replaySha256": "b0b68674a06b98b1f73b68e9f43e0db2496a10fa9d3850f9c9f001c5ffc22f87"
+    },
+    {
+      "branch": "combat-current-might",
+      "commands": 9,
+      "replaySha256": "f08f308ee9ca36a6b37f586996aa00f888dd693bd0ee609d45a58725ac579c35"
+    },
+    {
+      "branch": "current-controller",
+      "commands": 6,
+      "replaySha256": "9d7a9cd356b8a4da9196199b048aadaa2deb5639a5d833856707fada8615b25f"
+    },
+    {
+      "branch": "echo-two-instances",
+      "commands": 3,
+      "replaySha256": "1d08f9c4cc116301a4d3d40afec75dd524b5b3ba2e993b6162a06a123ddc0724"
+    },
+    {
+      "branch": "invalid-target-global-survives",
+      "commands": 6,
+      "replaySha256": "bb4944c5529a3ccf5410d0959a919d3c4d907519405b0a678e726d93ef8360d3"
+    },
+    {
+      "branch": "later-boon-expiry",
+      "commands": 7,
+      "replaySha256": "5fb75d6d28424a54c27c4c1eeee6cc790f7102d42cc6d89f0ac79e961893c967"
+    },
+    {
+      "branch": "lethal-threshold",
+      "commands": 8,
+      "replaySha256": "1d89ed1adfee05aa3325f57c5c30a8b886a6c960217c9cbff11a2ece5f38f690"
+    },
+    {
+      "branch": "source-private-hand",
+      "commands": 7,
+      "replaySha256": "3efae81229dc6ee5a0dbcccfc1541bc0ac78467b5249166b4bb67908e263b70c"
+    },
+    {
+      "branch": "standby-global",
+      "commands": 12,
+      "replaySha256": "2772692826dfb62bce89ea053fefda3c07e6bd41d80af78dd1c88c432e3c7022"
+    },
+    {
+      "branch": "two-spells",
+      "commands": 6,
+      "replaySha256": "8b3d7ac759431d3fcd636cdbbf1caec018833e9c4f451e629b7112467646d15d"
+    }
+  ],
+  "commands": 67,
+  "godotLogSha256": "8eeeebd06f018adf83d1b4eb56e46247143d6d46caed24b7a93c003b49d1be38",
+  "visibleTwoClientAcceptance": false,
+  "windowsRealRuntime": false
+}

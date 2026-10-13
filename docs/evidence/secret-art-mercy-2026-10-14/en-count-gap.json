@@ -1,0 +1,22 @@
+{
+  "status": "UNRESOLVED_OFFICIAL_SOURCE_COUNT_GAP",
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "rawSha256": "7bb1059f6fa1a4347316b98dca90e5f3068b87a59d6bc4b30f553dd124455ca5",
+  "metadata": {
+    "channelMachineName": "riftbound_website",
+    "channelHostname": "playriftbound.com",
+    "smartListMachineName": "riftbound_gallery_cards",
+    "from": 0,
+    "limit": 2000,
+    "overrideSize": 0,
+    "totalItems": 1415,
+    "totalPages": 1,
+    "locale": "en-us",
+    "resultsUpdatedAt": "2026-10-13T20:49:01.958745677Z"
+  },
+  "rawDataEntries": 1407,
+  "rawDistinctIds": 1407,
+  "reportedMinusRawReturned": 8,
+  "explanationConfirmed": false,
+  "localFilteringCausedGap": false
+}

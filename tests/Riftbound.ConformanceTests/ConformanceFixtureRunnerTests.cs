@@ -26733,6 +26733,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(3, result.FinalState.CardObjects["P1-BOON-UNIT-001"].Power);
+        Assert.Equal(4, SecretArtMercyCurrentTests.Power(result.FinalState, "P1-BOON-UNIT-001"));
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Boon], result.FinalState.CardObjects["P1-BOON-UNIT-001"].Tags);
     }
 
@@ -33769,6 +33770,7 @@ public sealed class ConformanceFixtureRunnerTests
             [CardObjectTags.UnitCard, CardObjectTags.Boon, CardObjectTags.Spellshield],
             result.FinalState.CardObjects["P1-BOON-SPELLSHIELD-UNIT-001"].Tags);
         Assert.Equal(3, result.FinalState.CardObjects["P1-BOON-SPELLSHIELD-UNIT-001"].Power);
+        Assert.Equal(4, SecretArtMercyCurrentTests.Power(result.FinalState, "P1-BOON-SPELLSHIELD-UNIT-001"));
         var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
         Assert.Equal(3, costPaidEvent.Payload["mana"]);
         Assert.Equal(3, costPaidEvent.Payload["baseMana"]);
@@ -64572,6 +64574,8 @@ public sealed class ConformanceFixtureRunnerTests
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["P1-SPELL-SECRET-ART-MERCY"] = new("P1-SPELL-SECRET-ART-MERCY", cardNo: "OGN·053/298",
+                    ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.SpellCard]),
                 ["P1-UNIT-MOUNTAIN-APE-ELDER"] = new(
                     "P1-UNIT-MOUNTAIN-APE-ELDER",
                     cardNo: "SFD·047/221",

@@ -1,0 +1,70 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "秘奥义",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-13T20:49:00.092691+00:00",
+  "rawSha256": "180597c0d9da62b1c3533b64de8f410ba0547885afb00f93ba4b56df927a539b",
+  "records": [
+    {
+      "id": 31265,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·053/298",
+      "cardName": "秘奥义！慈悲度魂落",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{迅捷}}（可在你的回合或法术对决中打出。）\n给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。）\n在本回合内，所有增益可额外给予友方单位{{S}}+1。",
+      "flavorText": "",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(英雄预组 李青)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 李青",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/a86bb819a5434a03a50fbc64a4a37aac.png",
+      "backImage": "",
+      "listSort": 440,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "language": "zh-CN",
+  "region": "CN",
+  "publicationDate": null,
+  "effectiveDate": null
+}

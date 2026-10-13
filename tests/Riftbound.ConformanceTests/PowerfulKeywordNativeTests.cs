@@ -51,7 +51,8 @@ public sealed class PowerfulKeywordNativeTests
             done = await session.SubmitAsync(actor, name, Assert.IsType<PassPriorityCommand>(GameCommandJsonMapper.Map(passRaw)), passRaw, default);
             Assert.True(done.Accepted, done.ErrorMessage);
         }
-        Assert.Equal(loss ? 4 : 5, ArmamentMightTests.Might(done.State));
+        Assert.Equal(loss ? 4 : 5, ArmamentMightTests.Might(done.State with { UntilEndOfTurnEffects = [] }));
+        Assert.Equal(loss ? 4 : 6, ArmamentMightTests.Might(done.State));
         Assert.Equal(loss ? 0 : 3, done.State.CardObjects["HOST"].RuleDerivedTags?.Count ?? 0);
         foreach (var keyword in new[] { CardObjectTags.Spellshield, CardCombatKeywordNames.Roam, CardCombatKeywordNames.Steadfast })
             Assert.Equal(!loss, done.State.CardObjects["HOST"].Tags.Contains(keyword));

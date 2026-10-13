@@ -206,7 +206,9 @@ public sealed class MightyTransitionTests
         var state = PowerfulConsumerMightTests.Hand(UnitSource(alreadyMighty: true), "OGN·053/298");
         Assert.Equal(6, ArmamentMightTests.Might(state)); Assert.Equal(4, state.CardObjects["HOST"].Power);
         var done = await Top((await Act(state, "P1", new PlayCardCommand("SPELL", "OGN·053/298", ["HOST"]))).State);
-        Assert.Equal(7, ArmamentMightTests.Might(done.State));
+        Assert.Equal(5, done.State.CardObjects["HOST"].Power);
+        Assert.Equal(7, ArmamentMightTests.Might(done.State with { UntilEndOfTurnEffects = [] }));
+        Assert.Equal(8, ArmamentMightTests.Might(done.State));
         Assert.Null(done.State.PendingPayment); Assert.Empty(done.State.TriggerQueue); Assert.Empty(done.State.StackItems);
     }
 }

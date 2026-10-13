@@ -2185,6 +2185,15 @@ public sealed record MatchState
                     ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [bonus.SourceId],
                     TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId]));
             }
+            foreach (var grant in CoreRuleEngine.BoonAmplifiersFor(state, state.PlayerZones, cardObject))
+                effects.Add(new ContinuousEffectState($"BOON_MIGHT:{grant.Marker}:{objectId}", "OBJECT",
+                    ContinuousEffectLayers.StaticAura, "UNTIL_END_OF_TURN", objectId, grant.Source.ObjectId,
+                    grant.Amount, cardObject.Power, cardObject.Power + grant.Amount, CoreRuleEngine.BoonAmplifierEffect,
+                    grant.CardNo, "CoreRuleEngine.BoonAmplifiersFor", true, LayerEngineFoundationResiduals(),
+                    Condition: "CURRENT_FRIENDLY_UNIT_HAS_BOON", Lifecycle: "CAPTURED_SOURCE_CURRENT_CONTROLLER_AND_BOON",
+                    ParticipantObjectIds: [objectId], SourceDependencyObjectIds: [grant.Source.ObjectId],
+                    TargetDependencyObjectIds: [objectId], ParticipantDependencyObjectIds: [objectId],
+                    SourceOrder: (int)Math.Min(int.MaxValue, long.Parse(grant.StackItemId[6..^(grant.Source.ObjectId.Length + 1)]))));
             foreach (var aura in CoreRuleEngine.ConditionalPowerAuraContributions(state, cardObject))
             {
                 var dependencies = aura.Instance.Origin is { } copied
@@ -2320,7 +2329,8 @@ public sealed record MatchState
 
     private static bool IsInternalUntilEndOfTurnMarker(string effectId)
     {
-        return effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
+        return effectId.StartsWith(CoreRuleEngine.BoonAmplifierPrefix, StringComparison.Ordinal)
+            || effectId.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattlefieldTaskMarkers.BattleSkippedPrefix, StringComparison.Ordinal)
             || effectId.StartsWith(BattlefieldContestRules.InitiatorPrefix, StringComparison.Ordinal);

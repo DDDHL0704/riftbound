@@ -14300,6 +14300,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             + ResolveSourceObjectPowerStaticAuraBonus(state, card)
             + CopiedRuleTextPowerContributions(state, card).Sum(c => c.Delta)
             + ArmamentMightContributions(state, zones, card).Sum(c => c.Delta)
+            + BoonAmplifiersFor(state, zones, card).Sum(c => c.Amount)
             + EmpowerRules.Might(state, card)
             + ResolveBattlefieldPowerStaticAuraBonus(state, zones, battlefieldId, card)
             + ResolveSameBattlefieldOtherFriendlyPowerStaticAuraBonus(state, zones, id, card);
@@ -27750,12 +27751,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rngCursor = recycleResult.RngCursor;
         }
 
+        AddBoonAmplifiers(state, stackItem, behavior, untilEndOfTurnEffects, events);
+
         // CN 321: repeats belong to one resolving item; lethal cleanup waits
         // until its last instruction. Explicit destroy instructions still execute.
         if (!deferCompletion && sourceReplayChoice is null)
         {
             var lethalCleanupObjectLocations = ReconcileObjectLocations(resolvedObjectLocations ?? state.ObjectLocations, playerZones);
-            var lethalCleanup = RunStateBasedCleanupLoop(state with { PlayerScores = playerScores, PlayerExperience = playerExperience },
+            var lethalCleanup = RunStateBasedCleanupLoop(state with { PlayerScores = playerScores, PlayerExperience = playerExperience, UntilEndOfTurnEffects = untilEndOfTurnEffects },
                 playerZones,
                 cardObjects,
                 stackItem,
