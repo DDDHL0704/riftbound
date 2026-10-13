@@ -73,16 +73,29 @@ public sealed partial class CoreRuleEngine
     private static bool ConditionalSelfKeywordsApply(MatchState state, CardObjectState source, StaticAbilitySpec spec, int might)
     {
         if (CardStaticAbilitySpecRules.IsUnitPowerfulSelfKeywordsAbility(spec)) return might >= spec.RequiredPowerThreshold;
-        if (spec.Kind != StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldKeywords
+        return spec.Kind == StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldKeywords
+            && HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits);
+    }
+
+    private static bool HasExactOtherFriendlyBattlefieldUnitCount(MatchState state, CardObjectState source, int? required)
+    {
+        if (required is null || !IsFaceUpNonStandbyUnit(source) || !IsObjectOnField(state.PlayerZones, source.ObjectId)
             || !state.ObjectLocations.TryGetValue(source.ObjectId, out var sourceAt) || sourceAt.Zone != "BATTLEFIELD"
-            || sourceAt.BattlefieldObjectId is null) return false;
+            || sourceAt.BattlefieldObjectId is null || BattlefieldLocalRules.Battlefield(state, sourceAt.BattlefieldObjectId) is null) return false;
+        var controller = EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source);
         var count = state.CardObjects.Values.Count(card => card.ObjectId != source.ObjectId && !card.IsFaceDown && card.Tags.Contains(CardObjectTags.UnitCard)
-            && CardControlRules.IsControlledByPlayerOrLegacyOwned(card, source.ControllerId ?? source.OwnerId ?? "")
+            && CardControlRules.IsControlledByPlayerOrLegacyOwned(card, controller)
             && IsObjectOnField(state.PlayerZones, card.ObjectId)
             && state.ObjectLocations.TryGetValue(card.ObjectId, out var at) && at.Zone == "BATTLEFIELD"
             && at.BattlefieldObjectId == sourceAt.BattlefieldObjectId);
-        return count == spec.RequiredExactOtherFriendlyBattlefieldUnits;
+        return count == required;
     }
+
+    private static bool CanDealCombatDamage(MatchState state, CardObjectState source)
+        => !AttachedRuleTextRules.Instances(state, source).Any(instance =>
+            CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
+                ability => ability.Kind == StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage, out var spec)
+            && !HasExactOtherFriendlyBattlefieldUnitCount(state, source, spec.RequiredExactOtherFriendlyBattlefieldUnits));
 
     private static ResolutionResult RefreshRuleDerivedKeywordLayers(ResolutionResult result)
     {

@@ -1,0 +1,170 @@
+{
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "fetchedAtUtc": "2026-10-13T15:02:32.124391+00:00",
+  "bytes": 3766413,
+  "sha256": "a3d0f0af778e87a446536b346d6ae3776d3651aea544c70a4a19a194ae113c6b",
+  "status": "LIVE_READBACK",
+  "record": {
+    "id": "ven-129-166",
+    "collectorNumber": 129,
+    "name": "Sacred Protector",
+    "set": {
+      "label": "Card Set",
+      "value": {
+        "id": "VEN",
+        "label": "Vendetta"
+      }
+    },
+    "cardType": {
+      "label": "Card Type",
+      "type": [
+        {
+          "id": "unit",
+          "label": "Unit",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+            "dimensions": {
+              "width": 64,
+              "height": 64,
+              "aspectRatio": 1
+            },
+            "mimeType": "image/png"
+          }
+        }
+      ]
+    },
+    "publicCode": "VEN-129/166",
+    "rarity": {
+      "label": "Rarity",
+      "value": {
+        "id": "uncommon",
+        "label": "Uncommon",
+        "icon": {
+          "type": "image",
+          "provider": "sanity",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+          "dimensions": {
+            "width": 480,
+            "height": 410,
+            "aspectRatio": 1.170731707317073
+          },
+          "colors": {
+            "primary": "#41B4B8",
+            "secondary": "#293331",
+            "label": "#122021"
+          },
+          "mimeType": "image/png"
+        }
+      }
+    },
+    "domain": {
+      "label": "Domain",
+      "values": [
+        {
+          "id": "order",
+          "label": "Order",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8bb1b193a8e1adc26ca28e1a21da8d1e2f5d2f72-64x64.png?accountingTag=RB",
+            "dimensions": {
+              "width": 64,
+              "height": 64,
+              "aspectRatio": 1
+            },
+            "colors": {
+              "primary": "#14120A",
+              "secondary": "#FFF7D6",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      ]
+    },
+    "cardImage": {
+      "type": "image",
+      "provider": "sanity",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a93887af1128d19cdec798611ffdd29900ac5d85-744x1039.png?accountingTag=RB",
+      "accessibilityText": "Riftbound Unit: Sacred Protector. I don't deal combat damage unless I'm at a battlefield with exactly one other unit you control.",
+      "dimensions": {
+        "width": 744,
+        "height": 1039,
+        "aspectRatio": 0.7160731472569779
+      },
+      "colors": {
+        "primary": "#403420",
+        "secondary": "#F9EDDC",
+        "label": "#140E05"
+      },
+      "mimeType": "image/png"
+    },
+    "orientation": "portrait",
+    "illustrator": {
+      "label": "Artist",
+      "values": [
+        {
+          "id": "kudosproductions",
+          "label": "Kudos Productions",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+          }
+        }
+      ]
+    },
+    "text": {
+      "label": "Ability",
+      "richText": {
+        "type": "html",
+        "body": "<p>I don't deal combat damage unless I'm at a battlefield with exactly one other unit you control.</p>"
+      }
+    },
+    "energy": {
+      "label": "Energy",
+      "value": {
+        "id": 4,
+        "label": "4"
+      }
+    },
+    "might": {
+      "label": "Might",
+      "value": {
+        "id": 6,
+        "label": "6",
+        "icon": {
+          "type": "image",
+          "provider": "web",
+          "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+        }
+      }
+    },
+    "power": {
+      "label": "Power",
+      "value": {
+        "id": 1,
+        "label": "1",
+        "icon": {
+          "type": "image",
+          "provider": "web",
+          "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+        }
+      }
+    },
+    "tags": {
+      "label": "Tags",
+      "tags": [
+        "Fae",
+        "Ionia"
+      ]
+    }
+  },
+  "language": "en-US",
+  "region": "International",
+  "reportedTotal": 1389,
+  "returned": 1381,
+  "sourceRecordSha256": "28a189e581b9ed45c901946b2791c118766df39f8c949ec0c6f13ff4056a7eca"
+}

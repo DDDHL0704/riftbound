@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1025,
+  "total": 1026,
   "cards": [
     {
       "id": 31005,
@@ -42465,6 +42465,50 @@
       "otherDesc": 0,
       "cardCategory": "unit",
       "cardCategoryName": "单位"
+    },
+    {
+      "id": 37829,
+      "cardNo": "VEN·129",
+      "cardName": "神圣守护者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "仙灵",
+      "artist": "Kudos Productions",
+      "cardEffect": "除非我所在的战场上受你控制的其他单位有且仅有一个，否则我无法造成战斗伤害。",
+      "flavorText": "它的目标只有一个：坚守自己的任务。",
+      "energy": 4,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/230a13e60ec145e3b06b6c12159c6d86.png",
+      "backImage": "",
+      "listSort": 1857,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0,
+      "cardCategory": "unit",
+      "cardCategoryName": "单位"
     }
   ],
   "scopedAdditions": [
@@ -42787,6 +42831,26 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
       "scope": "Exact CN printing with shared exact-other-friendly-unit conditional keyword layer; existing records and historic acquisition metadata preserved; no whole-card certification or denominator merge."
+    },
+    {
+      "cardNo": "VEN·129",
+      "sourceId": 37829,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "神圣守护者",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-13T15:00:14.011033+00:00",
+      "sourceRecordSha256": "fd4a60710db1e709a9f2ee1eeb15aee78a07f6f443dc8716e7fee78073653254",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact CN printing using shared exact-other-friendly field count for combat damage permission. Original records preserved; no whole-card certification or CN/EN denominator merge."
     }
   ]
 }

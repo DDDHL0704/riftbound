@@ -1,0 +1,68 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "神圣守护者",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-13T15:00:14.011033+00:00",
+  "record": {
+    "id": 37829,
+    "cardCategoryList": [
+      "unit"
+    ],
+    "cardCategoryNameList": [
+      "单位"
+    ],
+    "cardNo": "VEN·129",
+    "cardName": "神圣守护者",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "yellow"
+    ],
+    "hero": "",
+    "region": "艾欧尼亚",
+    "tag": "仙灵",
+    "artist": "Kudos Productions",
+    "cardEffect": "除非我所在的战场上受你控制的其他单位有且仅有一个，否则我无法造成战斗伤害。",
+    "flavorText": "它的目标只有一个：坚守自己的任务。",
+    "energy": 4,
+    "returnEnergy": 1,
+    "power": 6,
+    "productCodeList": [
+      "VEN(标准补充包)",
+      "VEN(进阶补充包)"
+    ],
+    "productNameList": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_glimmer",
+    "rarityName": "不凡",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/230a13e60ec145e3b06b6c12159c6d86.png",
+    "backImage": "",
+    "listSort": 1857,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "sourceRecordSha256": "fd4a60710db1e709a9f2ee1eeb15aee78a07f6f443dc8716e7fee78073653254",
+  "language": "zh-CN",
+  "region": "CN",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "unknownDatesExplicit": true,
+  "wholeCardCertification": false
+}

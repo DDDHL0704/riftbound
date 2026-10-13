@@ -2695,6 +2695,18 @@ public static class StaticAbilityParser
                 continue;
             }
 
+            var exactOtherFriendlyBattlefieldCombatDamage = Regex.Match(segment,
+                @"^除非我所在的战场上受你控制的其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，否则我无法造成战斗伤害[。]?$",
+                RegexOptions.CultureInvariant);
+            if (exactOtherFriendlyBattlefieldCombatDamage.Success)
+            {
+                staticSpecs.Add(new StaticAbilitySpec(StaticAbilityKinds.UnitExactOtherFriendlyBattlefieldCombatDamage,
+                    segment, BehaviorImplementationStatuses.Unimplemented,
+                    "Current exact other friendly battlefield-unit count gates combat damage without changing Might or lethal thresholds.",
+                    RequiredExactOtherFriendlyBattlefieldUnits: ParseChineseNumber(exactOtherFriendlyBattlefieldCombatDamage.Groups["count"].Value)));
+                continue;
+            }
+
             var exactOtherFriendlyBattlefieldKeywords = Regex.Match(segment,
                 @"^如果我所在的战场上受你控制的其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则我获得(?<keywords>(?:\{\{[^}]+\}\})+)[。]?$",
                 RegexOptions.CultureInvariant);

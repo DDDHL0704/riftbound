@@ -343,6 +343,7 @@ public static class StaticAbilityKinds
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";
     public const string UnitPowerfulSelfKeywords = "UNIT_POWERFUL_SELF_KEYWORDS";
     public const string UnitExactOtherFriendlyBattlefieldKeywords = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_KEYWORDS";
+    public const string UnitExactOtherFriendlyBattlefieldCombatDamage = "UNIT_EXACT_OTHER_FRIENDLY_BATTLEFIELD_COMBAT_DAMAGE";
     public const string SourceCostReductionPerControlledPowerfulUnit = "SOURCE_COST_REDUCTION_PER_CONTROLLED_POWERFUL_UNIT";
     public const string SourceUnitEnterReady = "SOURCE_UNIT_ENTER_READY";
     public const string FriendlyUnitsEnterReady = "FRIENDLY_UNITS_ENTER_READY";

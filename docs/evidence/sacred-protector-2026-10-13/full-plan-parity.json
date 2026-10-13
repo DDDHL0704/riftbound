@@ -1,0 +1,28 @@
+{
+  "status": "FULL_PLAN_IDENTITY_PARITY_VERIFIED_EXECUTION_PENDING",
+  "baselineCommit": "37971a42943ae5a1c82afd9f5c13b1fb008ff4b7",
+  "methods": 6979,
+  "expectedCases": 11085,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.SacredProtectorTests.ActualCombatKeepsSixMightAndLethalThresholdWhileGatingOnlyDamage",
+    "Riftbound.ConformanceTests.SacredProtectorTests.ActualCopiedRestrictionAppliesToItsHostWithoutChangingMight",
+    "Riftbound.ConformanceTests.SacredProtectorTests.ActualEquipmentUnitCopyUsesItsOwnBattlefieldAndCurrentCompanions",
+    "Riftbound.ConformanceTests.SacredProtectorTests.ActualResponseReevaluatesCountBeforeDamage",
+    "Riftbound.ConformanceTests.SacredProtectorTests.AddingThePrintingPreservesAllElevenOriginalPreconstructedDeckInputs",
+    "Riftbound.ConformanceTests.SacredProtectorTests.CurrentNonPreviewPrintingPreservesActualPrintedCharacteristics",
+    "Riftbound.ConformanceTests.SacredProtectorTests.CurrentOfficialTextParsesConditionalCombatDamagePermission",
+    "Riftbound.ConformanceTests.SacredProtectorTests.HiddenStandbyAndBaseUnitsDoNotCountAsBattlefieldCompanions",
+    "Riftbound.ConformanceTests.SacredProtectorTests.PowerCappedSpellStillRejectsTheSixMightUnitWhenItsCombatDamageIsZero",
+    "Riftbound.ConformanceTests.SacredProtectorTests.SimultaneouslyKilledCompanionDoesNotRevokeAlreadyPermittedCombatDamage",
+    "Riftbound.ConformanceTests.SacredProtectorTests.SpellDamageAndTrueSixMightLethalThresholdRemainIndependentOfCombatPermission",
+    "Riftbound.ConformanceTests.SacredProtectorTests.ZeroDamageSourceCannotForgeAnAssignmentWhileRemainingALegalDamageTarget"
+  ],
+  "oldMethodsPreserved": true,
+  "originalFullGameMethods": 143,
+  "allOriginalFullGameMethodsPreserved": true,
+  "matrixPairs": 110,
+  "matrixSeed": 424242,
+  "allElevenConcreteDeckJsonInputsPreserved": "SacredProtectorTests.AddingThePrintingPreservesAllElevenOriginalPreconstructedDeckInputs passed in check",
+  "testAssemblySha256": "5e159f4069a4e309745b61b0887779853595926e4a31c6eca1023507980bc82b",
+  "fullExecutionCertified": false
+}

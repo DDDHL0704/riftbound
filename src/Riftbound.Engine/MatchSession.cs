@@ -4947,8 +4947,7 @@ public sealed record ResolutionResult(
         return BattleParticipantObjectIds(battle)
             .ToDictionary(
                 objectId => objectId,
-                objectId => state.CardObjects.TryGetValue(objectId, out var card) && IsStunnedForBattle(card)
-                    ? 0 : Math.Max(0, BattleEffectivePowerFor(state, battle, objectId)),
+                objectId => Math.Max(0, CoreRuleEngine.ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _)),
                 StringComparer.Ordinal);
     }
 

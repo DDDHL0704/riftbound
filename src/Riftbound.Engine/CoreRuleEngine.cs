@@ -14210,9 +14210,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         keywordBonus = 0;
         staticPowerBonus = 0;
-        // CN 423.1.b/c: stun suppresses damage contribution, not actual might
-        // or the amount of damage required to destroy this unit.
-        if (damageContribution && IsStunnedForBattle(cardObject))
+        // Damage restrictions suppress damage contribution, not actual Might
+        // or the amount of damage required to destroy this unit (CN423/464).
+        if (damageContribution && (IsStunnedForBattle(cardObject) || !CanDealCombatDamage(state, cardObject)))
         {
             return 0;
         }

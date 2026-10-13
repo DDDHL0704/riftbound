@@ -17616,6 +17616,73 @@
         "All number/filter/type/position/copy/reentry/independent granted keywords and consistently forged histories still need broader evidence.",
         "Visible paired clients,userWindows,fullSQLscore/concurrency/failover/network-with-SQL remain open."
       ]
+    },
+    {
+      "id": "sacred-protector-combat-damage-permission-2026-10-13",
+      "status": "SCOPED_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Exact current CN VEN·129 and shared original/copied conditional combat-damage permission; current friendly face-up other battlefield UNIT count. No whole-entry certification.",
+      "subjects": [
+        "VEN-129",
+        "VEN-129/166"
+      ],
+      "ruleRecords": [
+        "DOC-04-P024-B012",
+        "DOC-04-P014-B009",
+        "DOC-04-P014-B010",
+        "DOC-04-P014-B011",
+        "DOC-04-P073-B003",
+        "DOC-04-P073-B004",
+        "DOC-04-P073-B005",
+        "DOC-04-P073-B006",
+        "DOC-04-P073-B007",
+        "DOC-04-P073-B008",
+        "DOC-04-P088-B019",
+        "DOC-04-P088-B020",
+        "DOC-04-P088-B021",
+        "DOC-04-P088-B022",
+        "DOC-04-P089-B001",
+        "DOC-04-P089-B002",
+        "DOC-04-P089-B003",
+        "DOC-04-P089-B004",
+        "DOC-04-P089-B005",
+        "DOC-04-P089-B006",
+        "DOC-04-P089-B007",
+        "DOC-04-P089-B010",
+        "DOC-04-P089-B011",
+        "DOC-04-P090-B002",
+        "DOC-04-P090-B003",
+        "DOC-04-P090-B004",
+        "DOC-04-P090-B006",
+        "DOC-04-P090-B009",
+        "DOC-04-P090-B010",
+        "DOC-04-P090-B011",
+        "DOC-04-P090-B012"
+      ],
+      "auditDocument": "docs/SACRED_PROTECTOR_AUDIT_2026-10-13.md",
+      "evidence": "docs/evidence/sacred-protector-2026-10-13",
+      "tests": [
+        "SacredProtectorTests",
+        "ShenDiscipleTests",
+        "LeonaStunnedMightTests",
+        "CurrentPowerTargetTests",
+        "AttachedRuleTextTests",
+        "ShadySpectaclesTests",
+        "CardCatalogBaselineTests"
+      ],
+      "validation": {
+        "focus": "595 cases/393 methods passed;23 new cases/12methods",
+        "native": "19 branches135 production commands/cold restore/dedup/replay;headless only",
+        "check": "10936/6838,161.73s;old10913/6826+23/12 retained;2236 frozen inputs;actualSQL5/Python27;dedicated cluster stopped",
+        "full": "Plan6979/11085;all143 original games/110pairs/seed424242 and11 concrete deck JSON retained;newfixedfull pending",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Five other exact-count hold/draw/score prints remain unreconstructed.",
+        "Zenith Blade optional movement remains unimplemented;this batch uses actual stun only.",
+        "English8count gap, all-source/whole-card/other copy/control/reentry combinations open.",
+        "Visible paired clients,userWindows,fullSQL concurrency/failover and network-with-SQL open.",
+        "VEN129 actual hand-play/printed cost and all reentry combinations are not independently certified by these midgame fixtures."
+      ]
     }
   ]
 }
