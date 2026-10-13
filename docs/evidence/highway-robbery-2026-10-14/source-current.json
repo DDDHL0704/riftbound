@@ -1,0 +1,68 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "巧取豪夺",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-13T21:54:33.642139+00:00",
+  "rawSha256": "583b7a78f430c8954a1bb553079d07c9b579baa6fa25bab47cf3b39ce63a4645",
+  "records": [
+    {
+      "id": 31241,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·033/298",
+      "cardName": "巧取豪夺",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一名敌方单位。除非其控制者选择让你抽两张牌，否则对该单位造成6点伤害。\n",
+      "flavorText": "“同意的话，就眨眨眼。”",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/c8ba08f01a49471287a2efc66d8f819c.png",
+      "backImage": "",
+      "listSort": 464,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "language": "zh-CN",
+  "region": "CN",
+  "publicationDate": null,
+  "effectiveDate": null
+}

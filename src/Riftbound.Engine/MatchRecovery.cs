@@ -23028,6 +23028,7 @@ public static class MatchRecoveryValidator
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23810,6 +23811,25 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateResolutionDamageChoiceViews(IReadOnlyList<object?> payloads, MatchState state, List<string> errors)
+    {
+        foreach (var payload in payloads)
+        {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            var expected = state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.ResolutionDamageChoice;
+            try
+            {
+                var json = JsonSerializer.SerializeToElement(payload);
+                if (json.ValueKind != JsonValueKind.Object) continue;
+                var actual = json.TryGetProperty("resolutionDamageChoice", out var raw) && raw.ValueKind != JsonValueKind.Null
+                    ? raw.Deserialize<ResolutionDamageChoiceContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+                if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(expected))
+                    errors.Add("public target controller damage alternative choice differs from authoritative state");
+            }
+            catch (JsonException) { errors.Add("invalid public target controller damage alternative choice"); }
+        }
+    }
+
     private static void ValidateDelayedDestructionState(MatchState state, List<string> errors)
     {
         if (!CoreRuleEngine.ValidCurrentDelayedDestructions(state)) errors.Add("invalid delayed destruction instruction");
@@ -23858,6 +23878,11 @@ public static class MatchRecoveryValidator
         ValidateDelayedDestructionState(state, errors);
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidMovementFollowUp(state, item)) errors.Add("invalid movement optional attachment continuation");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidResolutionDamageChoice(state, item)) errors.Add("invalid target controller damage alternative choice");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.ResolutionDamageChoiceWindow } damageChoice
+            && !state.StackItems.Any(i => i.StackItemId == damageChoice.ResolvingStackItemId && i.ResolutionDamageChoice is not null))
+            errors.Add("orphan target controller damage alternative choice");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.MovementAttachmentWindow } movementChoice
             && !state.StackItems.Any(i => i.StackItemId == movementChoice.ResolvingStackItemId && i.MovementFollowUp is not null))
             errors.Add("orphan movement optional attachment choice");
@@ -26837,7 +26862,7 @@ public static class MatchRecoveryValidator
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,
                 errors);
-            if (authoritativeState.PendingCardChoice.ChoiceWindow != CoreRuleEngine.AttachmentModeWindow)
+            if (authoritativeState.PendingCardChoice.ChoiceWindow is not (CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.ResolutionDamageChoiceWindow))
                 ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} legal object",
                 authoritativeState.PendingCardChoice.LegalObjectIds,
@@ -31764,6 +31789,7 @@ public static class MatchRecoveryValidator
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
         ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
+        ValidateResolutionDamageChoiceViews(stackItems, authoritativeState, errors);
         ValidateBattlefieldConquestMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateMightySkillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");

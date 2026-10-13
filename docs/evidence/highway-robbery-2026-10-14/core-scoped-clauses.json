@@ -1,0 +1,170 @@
+[
+  {
+    "id": "DOC-04-P027-B020",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.6.a"
+    ],
+    "text": "190.6.a.               战场 受到玩家控制 时,其技能 由其控制者 控制,除非技能指示由其他玩家控制。控制者玩家负责在适当时\n                       机将技能添加至结算链,并在需要时进行相应技能的所有决策(除非另行说明)。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P028-B001",
+    "document": "DOC-04",
+    "page": 28,
+    "clauseAnchors": [
+      "190.6.b"
+    ],
+    "text": "190.6.b.            若战场未受控制,则其技能也视为未受控制,除非技能指示该技能由某玩家控制。若没有此类指示,则当\n                    有战场技能在未受控制状态下触发时,由回合玩家负责在适当时机将该技能添加至结算链,并在需要时进\n                    行相应技能的所有决策(除非另行说明)。如果游戏规则或效果需要明确该技能的控制者,则将回合玩家\n                    视为控制者。\n                          举例:“荣耀竞技场”是一张战场牌,其描述为:“每名玩家在各自的第一个回合开始阶段,获得 1\n                          分”。这个技能通常会在战场未受控制时触发。如果技能触发,则由回合玩家完成将技能添加至\n                          结算链的步骤,并在完成后获得优先行动权(与其控制该技能的情况一致)。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P037-B008",
+    "document": "DOC-04",
+    "page": 37,
+    "clauseAnchors": [
+      "321"
+    ],
+    "text": "321.       同样,在结算链项目结算 期间,不会发生清理。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B005",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.10"
+    ],
+    "text": "355.10.       在法术、主动技能或触发式技能的文本中提及的游戏物体、玩家或区域均被视为目标,除非出现下列任一情况:",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B005",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.1"
+    ],
+    "text": "359.3.e.1.        即使部分或所有目标不合法,法术依旧会进行结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B006",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.2"
+    ],
+    "text": "359.3.e.2.        如果目标不再符合法术的目标要求,或者所在区域在场地区域和非场地区域之间发生了变化,\n                  则该目标会在法术结算时被视为非法。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B007",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.3"
+    ],
+    "text": "359.3.e.3.        如果目标在法术位于结算链上时一度不再满足目标条件,之后又再度符合,则依旧被视为合法\n                  目标。\n                       举例:一张法术牌的目标为“战场上的一名单位”。一名玩家以法术进行应对,将该单\n                       位移动到基地,然后另一名玩家也以法术进行应对,将其移动回战场。随后,原先的\n                       法术进行结算。这种情况下,该单位仍然视为合法目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B007",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14"
+    ],
+    "text": "359.3.e.14.     有些指示可能会引用受卡牌中其他指示影响的游戏物体,或是引用在其他指示中执行的游戏行\n                动。这些被引用和引用的指示称为“关联指示”。\n                      举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”第二条指示\n                      中的“其”指的是第一条指示中的单位,因此该法术的两条指示是相互关联的。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B009",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14.b"
+    ],
+    "text": "359.3.e.14.b.         如果在前置关联指示中执行的游戏行动被替换,后续的关联指示并不会受影响(除非\n                      后续关联指示直接引用了该游戏行动)。\n                            举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”该\n                            效果分为两条指示:摧毁该单位,以及目标单位的控制者抽两张牌。后续\n                            关联指示并未直接引用任何行动,因此即使前置关联指示中的摧毁行行动\n                            被其他事件替换,该后续关联指示仍会执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P067-B014",
+    "document": "DOC-04",
+    "page": 67,
+    "clauseAnchors": [
+      "413.1.a"
+    ],
+    "text": "413.1.a.               除非另有说明,否则抽牌即为从主牌堆的顶部抽取卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B001",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.7"
+    ],
+    "text": "359.3.e.7.     如果一张法术卡牌开始结算时,指示的所有目标均处于无效或不可用状态,则该指示不会执\n               行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B006",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.11"
+    ],
+    "text": "359.3.e.11.    如果玩家只能遵循部分指示,则尽量遵循,否则便无视。\n                   举例:一名玩家打出一张法术牌,其效果为“弃置两张手牌,然后抽两张牌”。如果该\n                    玩家没有手牌,则无视“弃置两张手牌”的指示,但仍然会抽两张牌。如果该玩家只有\n                    一张手牌,则将其弃置,并抽两张牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B001",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.12"
+    ],
+    "text": "359.3.e.12.     如果一个法术需要查询某个目标的信息,但该目标已经不再是合法目标;或者需要查询的卡牌\n                或常驻牌由于其所在位置、区域或状态发生了变化,导致其相关信息不再可用,则查询返回的\n                结果为“无”,基于它的所有计算都将被无视。\n                      举例:\n                      不再位于场上的单位被视为无战力、无费用,等等。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B005",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.12.a"
+    ],
+    "text": "359.3.e.12.a.         如果一个法术需要查询信息的目标为合法,或者需要查询的卡牌/常驻牌的所在位置、\n                      区域或状态未发生导致其相关信息不再可用的变化,则该信息可以被查询并获取。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

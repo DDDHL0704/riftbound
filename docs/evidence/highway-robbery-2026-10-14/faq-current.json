@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-origins-faq/",
+    "fetchedAtUtc": "2026-10-13T22:16:56.193838+00:00",
+    "sha256": "62858a258a88af7b24671bf235db8476b0a1072a87674de92a9b5f11741814af",
+    "bytes": 373159,
+    "language": "en-US",
+    "region": "international",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "rawHtmlContainsShakedown": false,
+    "scope": "Current page text lookup only; no inference that absent text certifies embedded images or all FAQ."
+  },
+  {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-spiritforged-faq/",
+    "fetchedAtUtc": "2026-10-13T22:16:57.479215+00:00",
+    "sha256": "75d0985addac19d1b4ffb6d29e762c5b0a1cbf599f37cfd6d7a37a7c50bb724c",
+    "bytes": 218335,
+    "language": "en-US",
+    "region": "international",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "rawHtmlContainsShakedown": false,
+    "scope": "Current page text lookup only; no inference that absent text certifies embedded images or all FAQ."
+  }
+]

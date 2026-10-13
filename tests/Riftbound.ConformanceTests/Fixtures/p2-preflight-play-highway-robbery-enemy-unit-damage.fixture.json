@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-highway-robbery-enemy-unit-damage",
-  "description": "Highway Robbery deals 6 damage to an enemy unit when its controller does not choose the draw-two branch.",
+  "description": "Shakedown resolves after the actual target controller chooses damage6.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -71,6 +71,7 @@
       }
     },
     "cardObjects": {
+      "P1-SPELL-HIGHWAY-ROBBERY": {"cardNo": "OGN·033/298", "ownerId": "P1", "controllerId": "P1", "tags": ["CARD_TYPE:SPELL"]},
       "P1-FRIENDLY-UNIT-001": {
         "damage": 0,
         "power": 2,
@@ -115,16 +116,29 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "p2-preflight-play-highway-robbery-enemy-unit-damage-actual-controller-choice",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "RESOLUTION-ALTERNATIVE:STACK-1-P1-SPELL-HIGHWAY-ROBBERY:0",
+        "choiceWindow": "TARGET_CONTROLLER_DRAW_REPLACEMENT",
+        "chosenObjectIds": []
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
+      "STACK_ITEM_SUSPENDED",
+      "RESOLUTION_ALTERNATIVE_REQUESTED",
+      "RESOLUTION_ALTERNATIVE_SELECTED",
       "STACK_ITEM_RESOLVED",
       "DAMAGE_APPLIED"
     ],
@@ -145,11 +159,14 @@
           "sourceObjectId": "P1-SPELL-HIGHWAY-ROBBERY",
           "cardNo": "OGN·033/298",
           "targetObjectIds": ["P2-BASE-UNIT-HIGHWAY-ROBBERY-001"],
-          "effectKind": "HIGHWAY_ROBBERY_DAMAGE_6_NO_DRAW_CHOICE"
+          "effectKind": "TARGET_CONTROLLER_CHOICE_DAMAGE_6_OR_CASTER_DRAW_2"
         }
       },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
+      {"kind": "STACK_ITEM_SUSPENDED"},
+      {"kind": "RESOLUTION_ALTERNATIVE_REQUESTED", "payload": {"playerId": "P2"}},
+      {"kind": "RESOLUTION_ALTERNATIVE_SELECTED", "payload": {"playerId": "P2", "drawInstead": false}},
       { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "DAMAGE_APPLIED",

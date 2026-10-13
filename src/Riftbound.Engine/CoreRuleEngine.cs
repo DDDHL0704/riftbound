@@ -3167,6 +3167,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (pendingChoice.ChoiceWindow is AttachmentModeWindow or AttachmentModeTargetWindow) return ResolveAttachmentModeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == MovementAttachmentWindow) return ResolveMovementAttachmentChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == ResolutionDamageChoiceWindow) return ResolveDamageAlternativeChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == AzirAttachmentWindow) return ResolveAzirAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
@@ -25385,6 +25386,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!confirmPermanent && IsDeferredDeckChoice(behavior) && !stackItem.DeckChoiceCompleted)
             return BeginDeckChoice(state, stackItem, behavior);
         stackItem = ResolveTargetGroup(state, MaskTargetsNoLongerLegal(state, stackItem, behavior), behavior);
+        if (behavior.DamageAlternativeDrawCount > 0)
+        {
+            if (stackItem.ResolutionDamageChoice is null && stackItem.TargetObjectIds.Count == 1
+                && !string.IsNullOrWhiteSpace(stackItem.TargetObjectIds[0]))
+                return BeginDamageAlternative(state, stackItem, behavior);
+            if (stackItem.ResolutionDamageChoice?.DrawInstead is { } drawInstead)
+                behavior = behavior with { DamageAmount = drawInstead ? 0 : behavior.DamageAmount,
+                    DamageTargetIndex = drawInstead ? int.MaxValue : behavior.DamageTargetIndex,
+                    DrawCount = drawInstead ? behavior.DamageAlternativeDrawCount : 0 };
+        }
         if (stackItem.SourceConfirmed && !stackItem.EffectPlayCompleted && RecastSpec(stackItem) is not null)
             return BeginRecastPlay(state, stackItem);
         if (!stackItem.EffectPlayCompleted && !string.IsNullOrEmpty(behavior.EffectPlaySourceZone)

@@ -1,0 +1,23 @@
+{
+  "status": "PLAN_PARITY_ONLY",
+  "methods": 7068,
+  "allPrevious7058MethodsPreserved": true,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.ADeclarationCannotSelectTheRetiredCasterControlledDrawMode",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.ActualCounterRemovesTheSpellBeforeItsOpponentDecision",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.ActualEchoRequestsIndependentChoicesAndDefersLethalCleanupUntilItsFinalInstruction",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.ActualResolutionWaitsForTheTargetsControllerToChooseDamageOrCasterDraw",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.ActualReturnResponseSkipsDamageAndTheDependentOpponentChoice",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.DamagePreventionDoesNotRemoveTheOpponentsChoiceOrChangeTheDrawAlternative",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.NoPlayerCanBypassOrForgeTheActiveResolutionDecision",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.PublicAndSpectatorRecoveryRejectForgedResolutionDecisionProjections",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.RecoveryRejectsIndependentCapturedResolutionDecisionMutations",
+    "Riftbound.ConformanceTests.HighwayRobberyCurrentTests.SpellshieldIsPaidOnceAtDeclarationBeforeTheOpponentsResolutionChoice"
+  ],
+  "fullGameMethods": 143,
+  "requiredMatrixPairs": 110,
+  "requiredSeed": 424242,
+  "expectedCases": 11323,
+  "testAssemblySha256": "b1033fc39e2ff6769c00dd5bd22357d5c94a80cbf71ec01299e1b788f97bac49",
+  "fullExecuted": false
+}

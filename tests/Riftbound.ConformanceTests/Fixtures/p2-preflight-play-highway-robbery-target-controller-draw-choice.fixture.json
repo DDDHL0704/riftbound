@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-highway-robbery-target-controller-draw-choice",
-  "description": "Highway Robbery lets the source controller draw two cards when the target controller chooses that branch to avoid damage.",
+  "description": "Shakedown resolves after the actual target controller chooses caster draw2.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -71,6 +71,7 @@
       }
     },
     "cardObjects": {
+      "P1-SPELL-HIGHWAY-ROBBERY-DRAW-CHOICE": {"cardNo": "OGN·033/298", "ownerId": "P1", "controllerId": "P1", "tags": ["CARD_TYPE:SPELL"]},
       "P2-BASE-UNIT-HIGHWAY-ROBBERY-DRAW-CHOICE-001": {
         "damage": 0,
         "power": 7,
@@ -87,7 +88,6 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-HIGHWAY-ROBBERY-DRAW-CHOICE",
         "cardNo": "OGN·033/298",
-        "mode": "TARGET_CONTROLLER_CHOOSES_DRAW_2",
         "targetObjectIds": ["P2-BASE-UNIT-HIGHWAY-ROBBERY-DRAW-CHOICE-001"]
       }
     },
@@ -104,16 +104,31 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "p2-preflight-play-highway-robbery-target-controller-draw-choice-actual-controller-choice",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "RESOLUTION-ALTERNATIVE:STACK-1-P1-SPELL-HIGHWAY-ROBBERY-DRAW-CHOICE:0",
+        "choiceWindow": "TARGET_CONTROLLER_DRAW_REPLACEMENT",
+        "chosenObjectIds": [
+          "ALLOW_CASTER_DRAW"
+        ]
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
+      "STACK_ITEM_SUSPENDED",
+      "RESOLUTION_ALTERNATIVE_REQUESTED",
+      "RESOLUTION_ALTERNATIVE_SELECTED",
       "STACK_ITEM_RESOLVED",
       "CARD_DRAWN"
     ],
@@ -133,13 +148,15 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-HIGHWAY-ROBBERY-DRAW-CHOICE",
           "cardNo": "OGN·033/298",
-          "mode": "TARGET_CONTROLLER_CHOOSES_DRAW_2",
-          "targetObjectIds": ["P2-BASE-UNIT-HIGHWAY-ROBBERY-DRAW-CHOICE-001"],
-          "effectKind": "HIGHWAY_ROBBERY_DRAW_2_TARGET_CONTROLLER_CHOICE"
+            "targetObjectIds": ["P2-BASE-UNIT-HIGHWAY-ROBBERY-DRAW-CHOICE-001"],
+          "effectKind": "TARGET_CONTROLLER_CHOICE_DAMAGE_6_OR_CASTER_DRAW_2"
         }
       },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
+      {"kind": "STACK_ITEM_SUSPENDED"},
+      {"kind": "RESOLUTION_ALTERNATIVE_REQUESTED", "payload": {"playerId": "P2"}},
+      {"kind": "RESOLUTION_ALTERNATIVE_SELECTED", "payload": {"playerId": "P2", "drawInstead": true}},
       { "kind": "STACK_ITEM_RESOLVED" },
       {
         "kind": "CARD_DRAWN",

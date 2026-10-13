@@ -18114,6 +18114,51 @@
         "Visible paired native clients and user Windows runtime",
         "Source gaps remain"
       ]
+    },
+    {
+      "id": "highway-robbery-shared-target-controller-resolution-choice-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Current CN OGN033 / EN Shakedown: actual target-controller choice before damage, caster draw alternative, independent repeats and no intra-item lethal cleanup, invalid target/counter, prevention, taxes and current recovery projections. No whole-card/all-source certification.",
+      "subjects": [
+        "OGN·033/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P037-B008",
+        "DOC-04-P044-B005",
+        "DOC-04-P050-B005",
+        "DOC-04-P050-B006",
+        "DOC-04-P051-B001",
+        "DOC-04-P051-B006",
+        "DOC-04-P052-B001",
+        "DOC-04-P052-B007",
+        "DOC-04-P067-B014"
+      ],
+      "auditDocument": "docs/HIGHWAY_ROBBERY_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/highway-robbery-2026-10-14",
+      "tests": [
+        "HighwayRobberyCurrentTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysHighwayRobberyEnemyUnitDamageBranch",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysHighwayRobberyTargetControllerDrawChoice",
+        "ConformanceFixtureRunnerTests.CoreRuleEngineRejectsHighwayRobberyAgainstFriendlyOrOffFieldUnit",
+        "ConformanceFixtureRunnerTests.CoreRuleEngineRejectsHighwayRobberyWhenEnemyTargetIsNotControlledByOpponentZonePlayer",
+        "ConformanceFixtureRunnerTests.P4HighwayRobberyOffFieldTargetRejectedFixture",
+        "MatchRecoveryTests",
+        "EchoSingleDestinationTests",
+        "SpellCompletionContinuationTests"
+      ],
+      "validation": {
+        "focus": "1862cases/1827methods10.23s;33newcases/10methods",
+        "native": "10branches/46productioncommands;38cases/15methods9.13s readback; all commands cold restore/dedup/full journal pass",
+        "check": "11174cases/6927methods184.00s; all11141/6917 retained;33newcases/10methods;2255frozen no drift;actualPostgres5;Python27;owned cluster stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixedDbe": "in_progress38473724127 at observation; desktopjobs successful; no full certification"
+      },
+      "exclusions": [
+        "Whole card/source coverage",
+        "Full fixed candidate CI not yet terminal",
+        "Visible paired native clients and user Windows runtime",
+        "Source gaps remain"
+      ]
     }
   ]
 }

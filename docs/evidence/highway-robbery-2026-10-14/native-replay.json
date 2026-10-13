@@ -1,0 +1,62 @@
+{
+  "status": "NATIVE_PRODUCTION_COMMAND_READBACK_COLD_RESTORE_DEDUP_FULL_JOURNAL_PASS",
+  "branches": [
+    {
+      "branch": "counter-before-choice",
+      "commands": 5,
+      "replaySha256": "0969407285064358e35018584b9784cbf7d3cc7c89a17aa15179e1526ebbfd95"
+    },
+    {
+      "branch": "echo-independent-decisions",
+      "commands": 5,
+      "replaySha256": "0600f301fba095f0986244ef0af5aadc6ddd1b66259d0536b8a63496dac657ee"
+    },
+    {
+      "branch": "echo-lethal-cleanup",
+      "commands": 5,
+      "replaySha256": "f9d8ff4dc1b7d913545375568e40ad5035e731bba354a147e3d5e97f848a0554"
+    },
+    {
+      "branch": "invalid-target",
+      "commands": 7,
+      "replaySha256": "81c474d63b510407e268be345b98a649c0cea33610b5645a522dee3b0700f39e"
+    },
+    {
+      "branch": "opponent-chooses-damage",
+      "commands": 4,
+      "replaySha256": "18cf8b23c8beb7df7089b1b6af7214b578c248910fedc4f4d387d5aa2c8db73c"
+    },
+    {
+      "branch": "opponent-chooses-draw",
+      "commands": 4,
+      "replaySha256": "c850f2df8e0398f62d193ecd6f4c5f4755c3bf02e6ba23e9f76e535c06839cbe"
+    },
+    {
+      "branch": "prevented-choose-damage",
+      "commands": 4,
+      "replaySha256": "eb079a07a5f02b5a13dea2d0b4b2874fa68f407bb47614e0e2385fc016388ccb"
+    },
+    {
+      "branch": "prevented-choose-draw",
+      "commands": 4,
+      "replaySha256": "b15f408771d80406ffae3f36bcd198031be58181999699b6334e5e745b264f1f"
+    },
+    {
+      "branch": "spellshield-damage",
+      "commands": 4,
+      "replaySha256": "a363a2670ae37e0ef9e478b67652d07222ad28cca3dfb852ef174e418335cea5"
+    },
+    {
+      "branch": "spellshield-draw",
+      "commands": 4,
+      "replaySha256": "944345368bcd3b82527cd7890eb3b6599aa950fcd42ea351f8421cf3c8518a3a"
+    }
+  ],
+  "commands": 46,
+  "nativeReadbackCases": 38,
+  "nativeReadbackMethods": 15,
+  "nativeReadbackSeconds": 9.13,
+  "godotLogSha256": "9ee1c7e4ed70d91d977d89cf821baa40b255b333e2e7f425cd22f408633b6eba",
+  "visibleTwoClientAcceptance": false,
+  "windowsRealRuntime": false
+}

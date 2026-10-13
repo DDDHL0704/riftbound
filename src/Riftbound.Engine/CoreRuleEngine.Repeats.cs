@@ -87,7 +87,8 @@ public sealed partial class CoreRuleEngine
             var execution = executions[index];
             var item = original with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
                 TargetGenerations = execution.TargetGenerations, Destination = execution.Destination, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var repeatedBehavior)
-                    && (repeatedBehavior.OptionalEquipmentAfterMovement || repeatedBehavior.CreatesGoldWhenTargetDestroyedThisTurn || repeatedBehavior.FriendlyBoonBonusUntilEndOfTurn > 0) ? index : 0,
+                    && (repeatedBehavior.OptionalEquipmentAfterMovement || repeatedBehavior.CreatesGoldWhenTargetDestroyedThisTurn || repeatedBehavior.FriendlyBoonBonusUntilEndOfTurn > 0 || repeatedBehavior.DamageAlternativeDrawCount > 0) ? index : 0,
+                ResolutionDamageChoice = original.ResolutionDamageChoice?.ExecutionIndex == index ? original.ResolutionDamageChoice : null,
                 MovementFollowUp = index == original.CompletedRepeatExecutions ? original.MovementFollowUp : null,
                 SourceReplayDecisionCompleted = false,
                 TokenEntryPlan = index == original.CompletedRepeatExecutions ? original.TokenEntryPlan : null };
@@ -105,6 +106,14 @@ public sealed partial class CoreRuleEngine
             if (result.PendingCardChoice?.ChoiceWindow == MovementAttachmentWindow)
             {
                 var suspended = original with { CompletedRepeatExecutions = index, MovementFollowUp = result.StackItems![^1].MovementFollowUp };
+                return result with { Events = events, TriggerQueue = triggers,
+                    DestroyedUnitOwnerIds = destroyed.Distinct(StringComparer.Ordinal).ToArray(), CounteredStackItemIds = countered,
+                    StackItems = current.StackItems.Where(i => i.StackItemId != original.StackItemId).Append(suspended).ToArray() };
+            }
+            if (result.PendingCardChoice?.ChoiceWindow == ResolutionDamageChoiceWindow)
+            {
+                var suspended = original with { CompletedRepeatExecutions = index,
+                    ResolutionDamageChoice = result.StackItems![^1].ResolutionDamageChoice };
                 return result with { Events = events, TriggerQueue = triggers,
                     DestroyedUnitOwnerIds = destroyed.Distinct(StringComparer.Ordinal).ToArray(), CounteredStackItemIds = countered,
                     StackItems = current.StackItems.Where(i => i.StackItemId != original.StackItemId).Append(suspended).ToArray() };

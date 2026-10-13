@@ -1,0 +1,14 @@
+{
+  "status": "SCOPED_VISUAL_REVIEW",
+  "pages": [
+    37,
+    50
+  ],
+  "sourceSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "confirmedClauses": [
+    "321",
+    "359.3.e.1",
+    "359.3.e.2"
+  ],
+  "wholeDocumentCertified": false
+}
