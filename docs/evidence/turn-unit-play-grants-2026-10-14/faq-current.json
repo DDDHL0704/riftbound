@@ -1,0 +1,32 @@
+[
+  {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-origins-faq/",
+    "fetchedAtUtc": "2026-10-13T22:48:18.656895+00:00",
+    "sha256": "cc51a0eb998eef286b3707ad7948db65f251e8bdbb6512b1ffd61a7c5038731f",
+    "bytes": 372955,
+    "language": "en-US",
+    "region": "international",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "lookup": {
+      "Rally the Troops": false,
+      "Confront": false
+    },
+    "scope": "Current page text lookup only; absent text does not certify embedded images or all FAQ."
+  },
+  {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-spiritforged-faq/",
+    "fetchedAtUtc": "2026-10-13T22:48:20.954782+00:00",
+    "sha256": "e00ae42bdf1642816a835b72c661c75ac04b1c7c01e905c44e59826abc0d950d",
+    "bytes": 218426,
+    "language": "en-US",
+    "region": "international",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "lookup": {
+      "Rally the Troops": false,
+      "Confront": false
+    },
+    "scope": "Current page text lookup only; absent text does not certify embedded images or all FAQ."
+  }
+]

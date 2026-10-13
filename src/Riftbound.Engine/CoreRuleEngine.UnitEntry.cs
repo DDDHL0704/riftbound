@@ -22,7 +22,8 @@ public sealed partial class CoreRuleEngine
         StackItemState stackItem,
         IReadOnlyDictionary<string, int> playerExperience,
         IReadOnlyList<string> destroyedUnitOwnerIdsThisTurn,
-        IReadOnlyList<string> untilEndOfTurnEffects)
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        bool countsAsPlay = true)
     {
         var zones = playerZones[stackItem.ControllerId];
         var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
@@ -95,6 +96,7 @@ public sealed partial class CoreRuleEngine
             Power = unitPower,
             IsExhausted = entersReadyFromSourceUnitStaticAbility
                 || entersReadyFromOtherFriendlyStaticAbility
+                || countsAsPlay && ActiveUnitPlayGrants(untilEndOfTurnEffects, stackItem.ControllerId, "READY_ENTRY").Count > 0
                 || sourceReadyOptionalCostPaid
                 || hasteReadyOptionalCostPaid
                     ? false
@@ -123,7 +125,8 @@ public sealed partial class CoreRuleEngine
         string controllerId,
         bool toBattlefield = false,
         string statusEffectId = "",
-        int crossedZones = 1)
+        int crossedZones = 1,
+        bool countsAsPlay = false)
     {
         var unit = PrintedCardFactory.TryRestoreOutsidePlay(previous, ownerId, out var printed)
             ? printed : previous with
@@ -144,7 +147,7 @@ public sealed partial class CoreRuleEngine
             var entry = PrepareUnitEntry(playerZones, cardObjects, behavior,
                 new StackItemState(controllerId: controllerId, sourceObjectId: unit.ObjectId,
                     cardNo: unit.CardNo, destination: toBattlefield ? "BATTLEFIELD:ENTRY" : "BASE"),
-                context.PlayerExperience, context.DestroyedUnitOwnerIdsThisTurn, context.UntilEndOfTurnEffects);
+                context.PlayerExperience, context.DestroyedUnitOwnerIdsThisTurn, context.UntilEndOfTurnEffects, countsAsPlay);
             unit = entry.UnitState;
         }
         if (!string.IsNullOrWhiteSpace(statusEffectId))

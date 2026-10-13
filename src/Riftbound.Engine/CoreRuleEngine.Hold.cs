@@ -169,7 +169,7 @@ public sealed partial class CoreRuleEngine
             case "DRAW": case "EXACT_OTHER_DRAW": Draw(context.Amount); break;
             case "MINION": case "ROBOT":
                 CreateBattlefieldUnitTokensInBase(zones, cards, player, item.SourceObjectId,
-                    context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events);
+                    context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events, effects);
                 break;
             case "GOLD": case "RENATA":
                 for (var i = 0; i < context.Amount; i++)

@@ -1,0 +1,80 @@
+{
+  "status": "FIXED_COMMIT_ACTUAL_CI_SQL_SCOPED_PASS",
+  "commit": "2640582d462bf53c70d2bd9d8260160794440576",
+  "runId": 38477195105,
+  "verifiedAtUtc": "2026-10-13T22:53:27.020822+00:00",
+  "branches": [
+    {
+      "counts": {
+        "commands": 14,
+        "events": 38,
+        "states": 14,
+        "snapshots": 28,
+        "prompts": 28
+      },
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "receiptSha256": "afbf631c4f1bbc4a2a0f121c0fa7f0494cc27467c85525a3616145808a208f57",
+      "databaseVersion": "PostgreSQL 16.13 (Debian 16.13-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+      "scenario": "battle-history-attacker-burnout"
+    },
+    {
+      "counts": {
+        "commands": 14,
+        "events": 37,
+        "states": 14,
+        "snapshots": 28,
+        "prompts": 28
+      },
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "receiptSha256": "1c59ac129a0e6ada9514ecd1e29cda52593b036819211c19e4b5ba6b24b0e8c3",
+      "databaseVersion": "PostgreSQL 16.13 (Debian 16.13-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+      "scenario": "battle-history-attacker-deck"
+    },
+    {
+      "counts": {
+        "commands": 14,
+        "events": 37,
+        "states": 14,
+        "snapshots": 28,
+        "prompts": 28
+      },
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "receiptSha256": "e11ddbd18b864854f307872c8fc0161e525e6e04ccb06d18288b4ebd7d8c9977",
+      "databaseVersion": "PostgreSQL 16.13 (Debian 16.13-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+      "scenario": "battle-history-burnout"
+    },
+    {
+      "counts": {
+        "commands": 14,
+        "events": 36,
+        "states": 14,
+        "snapshots": 28,
+        "prompts": 28
+      },
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "receiptSha256": "2cd9ed3afbab51a4fb61dd565be294faf6bf9d8f46df8c4195ce6b989c290923",
+      "databaseVersion": "PostgreSQL 16.13 (Debian 16.13-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+      "scenario": "battle-history-deck"
+    }
+  ],
+  "allSourceOrVisibleClientAcceptance": false,
+  "coreOpening": {
+    "counts": {
+      "commands": 8,
+      "events": 19,
+      "states": 7,
+      "snapshots": 10,
+      "prompts": 10,
+      "currentSnapshots": 2,
+      "currentPrompts": 2
+    },
+    "coldCheckpoints": 5,
+    "tamperRejected": true,
+    "receiptSha256": "9d009659f9fc8a9e109d00ce7649333bb3a8b747ce2042f95c2cd16df4c3104a",
+    "databaseVersion": "PostgreSQL 16.13 (Debian 16.13-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit"
+  }
+}

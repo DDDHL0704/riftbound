@@ -13,3 +13,5 @@
 [相邻focus](evidence/highway-robbery-2026-10-14/adjacent-focus.json)1,862用例/1,827方法10.23秒通过，新增33用例/10方法。[原生回读](evidence/highway-robbery-2026-10-14/native-replay.json)10分支46条Godot生产命令、38用例/15方法通过，每条命令冷恢复、去重及完整journal重放通过。[check](evidence/highway-robbery-2026-10-14/check-parity.json)实际11,174用例/6,927方法184.00秒通过，原11,141/6,917全部保留，2,255冻结输入无漂移，真实PostgreSQL五项和Python27项通过，专用集群已停止。运行目录1,031/830不变，限定审查77条；新固定提交完整CI仍待终态，不据局部通过提升整卡、全量来源或可见双客户端/用户Windows验收状态。
 
 [完整计划](evidence/highway-robbery-2026-10-14/full-plan-parity.json)保留原7,058方法及143完整对局，新增10方法，共7,068方法/预计11,323用例；110配对及seed424242仍须固定提交实际执行核对。上一慈悲度魂落固定dbe86315完整CI在本次观察时仍运行，不宣称完整通过。
+
+固定2640582d [CI38477195105](https://github.com/DDDHL0704/riftbound/actions/runs/38477195105)后续已独立核验：11,323用例/7,068方法、1,598.93秒，旧11,290/7,058全部保留，110配对与最终哈希不变，实际SQL、网络及macOS/Windows构建成功。[完整收据](evidence/turn-unit-play-grants-2026-10-14/fixed-2640582d-ci.json)和[SQL收据](evidence/turn-unit-play-grants-2026-10-14/fixed-2640582d-sql.json)不覆盖之后候选源码。Goal active，NOT READY。

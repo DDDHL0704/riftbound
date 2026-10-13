@@ -234,7 +234,7 @@ public sealed partial class CoreRuleEngine
             battlefieldId,
             sourceObjectId,
             assignedOverkillDamageToEnemyUnits,
-            events);
+            events, untilEndOfTurnEffects);
 
         if (winnerPlayerId is null
             && CountControlledBattlefieldUnits(playerZones, cardObjects, playerId) >= 4

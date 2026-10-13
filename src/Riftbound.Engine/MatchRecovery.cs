@@ -8199,7 +8199,8 @@ public static class MatchRecoveryValidator
         string payloadLabel,
         string itemLabel,
         List<string> errors,
-        Func<string, bool>? isKnownValue = null)
+        Func<string, bool>? isKnownValue = null,
+        bool allowRepeatedHiddenTargets = false)
     {
         if (!TryReadObjectValue(payload, key, out var listPayload)
             || IsNullSnapshotPayloadValue(listPayload))
@@ -8214,7 +8215,7 @@ public static class MatchRecoveryValidator
             return null;
         }
 
-        return ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue);
+        return ValidateSnapshotStringListValues(values, payloadLabel, itemLabel, errors, isKnownValue, allowRepeatedHiddenTargets);
     }
 
     private static IReadOnlyList<string>? ValidateSnapshotPayloadOptionalStringListValues(
@@ -8439,7 +8440,8 @@ public static class MatchRecoveryValidator
         string payloadLabel,
         string itemLabel,
         List<string> errors,
-        Func<string, bool>? isKnownValue = null)
+        Func<string, bool>? isKnownValue = null,
+        bool allowRepeatedHiddenTargets = false)
     {
         var seenValues = new HashSet<string>(StringComparer.Ordinal);
         var normalizedValues = new List<string>();
@@ -8463,7 +8465,7 @@ public static class MatchRecoveryValidator
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is invalid");
             }
 
-            if (!seenValues.Add(normalizedValue))
+            if (!seenValues.Add(normalizedValue) && !(allowRepeatedHiddenTargets && normalizedValue == "HIDDEN"))
             {
                 errors.Add($"{payloadLabel} {itemLabel} {normalizedValue} is duplicated");
             }
@@ -23029,6 +23031,7 @@ public static class MatchRecoveryValidator
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23830,6 +23833,31 @@ public static class MatchRecoveryValidator
         }
     }
 
+    private static void ValidateTurnUnitPlayBoonViews(SnapshotDto snapshot, MatchState state, List<string> errors)
+    {
+        void Check(IReadOnlyList<object?> payloads, bool queue)
+        {
+            foreach (var payload in payloads)
+            {
+                TryReadObjectString(payload, queue ? "triggerId" : "stackItemId", out var id);
+                var expected = queue ? state.TriggerQueue.FirstOrDefault(i => i.TriggerId == id)?.TurnUnitPlayBoon
+                    : state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.TurnUnitPlayBoon;
+                try
+                {
+                    var json = JsonSerializer.SerializeToElement(payload);
+                    if (json.ValueKind != JsonValueKind.Object) continue;
+                    var actual = json.TryGetProperty("turnUnitPlayBoon", out var raw) && raw.ValueKind != JsonValueKind.Null
+                        ? raw.Deserialize<TurnUnitPlayBoonContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+                    if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(expected))
+                        errors.Add("public captured unit play boon differs from authoritative state");
+                }
+                catch (JsonException) { errors.Add("invalid public captured unit play boon"); }
+            }
+        }
+        Check(snapshot.Stack, false);
+        if (snapshot.Timing is not null && TryReadObjectList(snapshot.Timing, "triggerQueue", out var queue)) Check(queue, true);
+    }
+
     private static void ValidateDelayedDestructionState(MatchState state, List<string> errors)
     {
         if (!CoreRuleEngine.ValidCurrentDelayedDestructions(state)) errors.Add("invalid delayed destruction instruction");
@@ -23868,6 +23896,13 @@ public static class MatchRecoveryValidator
     {
         if (!CoreRuleEngine.ValidCurrentConquestGrants(state)) errors.Add("invalid temporary conquest grant");
         if (!CoreRuleEngine.ValidCurrentBoonAmplifiers(state)) errors.Add("invalid temporary friendly Boon amplifier");
+        if (!CoreRuleEngine.ValidCurrentTurnUnitPlayGrants(state)) errors.Add("invalid temporary unit play grant");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.CardNo))
+                errors.Add("invalid captured unit play boon stack");
+        foreach (var item in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.SourceCardNo))
+                errors.Add("invalid captured unit play boon trigger");
         if (state.PendingEffectPlay is { } sourcePending && (sourcePending.SourceReplay is not null || sourcePending.SourceZone == "STACK")
             && !CoreRuleEngine.ValidSourceReplayPending(state, sourcePending)) errors.Add("invalid source replay continuation");
         foreach (var item in state.StackItems)
@@ -27901,6 +27936,7 @@ public static class MatchRecoveryValidator
             ValidateDamageMarkerViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateBeginningDrawViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateDynamicPowerAuraViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
+            ValidateTurnUnitPlayBoonViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors);
             ValidateEmpoweredViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, null, errors, "spectator replay frame");
             ValidateBeginningRecycleViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
             ValidateEphemeralStartViews(spectatorReplayFrame.SpectatorSnapshot, authoritativeState, errors, "spectator replay frame");
@@ -32057,7 +32093,8 @@ public static class MatchRecoveryValidator
             "targetObjectIds",
             payloadLabel,
             "target object id",
-            errors);
+            errors,
+            allowRepeatedHiddenTargets: true); // Keyed state comparison below still requires exact redaction and multiplicity.
         ValidateSnapshotPayloadRequiredNonNegativeIntValue(
             stackItem,
             "damageAmount",

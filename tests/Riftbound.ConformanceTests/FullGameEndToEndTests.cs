@@ -25234,6 +25234,7 @@ public sealed partial class FullGameEndToEndTests
             CheckHistoricalBattlefieldReferences(snapshot, result.State);
             CheckHistoricalBattleReferences(snapshot, result.State);
             CheckHistoricalBoonAmplifierSources(snapshot, result.State);
+            CheckHistoricalTurnUnitPlayBoons(snapshot, result.State);
             if (snapshot["stack"] is JsonArray stack)
                 foreach (var row in stack.OfType<JsonObject>())
                 {
@@ -25388,6 +25389,56 @@ public sealed partial class FullGameEndToEndTests
                     Assert.DoesNotContain(objectId, exposedStringValues);
             }
         }
+    }
+
+    private static void CheckHistoricalTurnUnitPlayBoons(JsonNode snapshot, MatchState state)
+    {
+        void Check(JsonNode? payloads, bool queue)
+        {
+            if (payloads is not JsonArray rows) return;
+            foreach (var row in rows.OfType<JsonObject>())
+            {
+                var id = row[queue ? "triggerId" : "stackItemId"]?.GetValue<string>();
+                var item = queue ? null : state.StackItems.SingleOrDefault(i => i.StackItemId == id);
+                var trigger = queue ? state.TriggerQueue.SingleOrDefault(i => i.TriggerId == id) : null;
+                var c = queue ? trigger?.TurnUnitPlayBoon : item?.TurnUnitPlayBoon;
+                if (c is null) continue;
+                var sourceId = queue ? trigger!.SourceObjectId : item!.SourceObjectId;
+                var controller = queue ? trigger!.ControllerId : item!.ControllerId;
+                Assert.Equal("DELAYED_FRIENDLY_UNIT_PLAYED_BOON", queue ? trigger!.EffectKind : item!.EffectKind);
+                Assert.Equal("SFD·166/221", c.Grant.CardNo);
+                Assert.Equal(controller, c.Grant.ControllerId); Assert.Equal(controller, c.UnitControllerId);
+                Assert.Contains(c.Grant.Marker, state.UntilEndOfTurnEffects);
+                var fields = c.Grant.Marker.Split('|');
+                Assert.Equal(9, fields.Length); Assert.Equal("TURN_UNIT_PLAY_GRANT", fields[0]);
+                Assert.Equal(state.TurnNumber.ToString(), fields[1]); Assert.Equal("PLAY_BOON", fields[8]);
+                Assert.Equal(controller, Encoding.UTF8.GetString(Convert.FromBase64String(fields[2])));
+                Assert.Equal(sourceId, Encoding.UTF8.GetString(Convert.FromBase64String(fields[3])));
+                Assert.Equal(c.Grant.Source.Generation, long.Parse(fields[4]));
+                Assert.Equal(c.Grant.CardNo, Encoding.UTF8.GetString(Convert.FromBase64String(fields[5])));
+                Assert.Equal(c.Grant.StackItemId, Encoding.UTF8.GetString(Convert.FromBase64String(fields[6])));
+                Assert.Equal(c.Grant.ExecutionIndex, int.Parse(fields[7])); Assert.True(c.Grant.ExecutionIndex >= 0);
+                Assert.StartsWith("STACK-", c.Grant.StackItemId); Assert.EndsWith("-" + sourceId, c.Grant.StackItemId);
+                var tick = long.Parse(c.Grant.StackItemId[6..^(sourceId.Length + 1)]);
+                Assert.InRange(tick, 1, state.Tick); Assert.Equal($"STACK-{tick}-{sourceId}", c.Grant.StackItemId);
+                Assert.Equal(sourceId, row["turnUnitPlayBoon"]?["grant"]?["source"]?["objectId"]?.GetValue<string>());
+                Assert.Equal(c.Unit.ObjectId, row["turnUnitPlayBoon"]?["unit"]?["objectId"]?.GetValue<string>());
+                var unit = state.CardObjects.GetValueOrDefault(c.Unit.ObjectId);
+                Assert.True(unit is null || unit.ObjectGeneration >= c.Unit.Generation);
+                if (unit is null || unit.ObjectGeneration != c.Unit.Generation)
+                    row["turnUnitPlayBoon"]!["unit"]!["objectId"] = "CHECKED_CAPTURED_PLAYED_UNIT";
+                else Assert.Equal(c.UnitCardNo, unit.CardNo ?? "");
+                var source = state.CardObjects[sourceId];
+                Assert.InRange(c.Grant.Source.Generation, 0, source.ObjectGeneration);
+                if (source.ObjectGeneration != c.Grant.Source.Generation)
+                {
+                    row["sourceObjectId"] = "CHECKED_CAPTURED_TURN_GRANT_SOURCE";
+                    row["turnUnitPlayBoon"]!["grant"]!["source"]!["objectId"] = "CHECKED_CAPTURED_TURN_GRANT_SOURCE";
+                }
+                else Assert.Equal(c.Grant.CardNo, source.CardNo);
+            }
+        }
+        Check(snapshot["stack"], false); Check(snapshot["timing"]?["triggerQueue"], true);
     }
 
     private static void CheckHistoricalBoonAmplifierSources(JsonNode snapshot, MatchState state)

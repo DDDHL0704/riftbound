@@ -29,7 +29,8 @@ public sealed partial class CoreRuleEngine
     // Capture at the entry instruction, before later instructions can move, kill,
     // copy or change control of an observer. Final-state scans lose that timing.
     private static GameEvent CaptureUnitEntry(GameEvent ev,
-        IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards)
+        IReadOnlyDictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
+        IReadOnlyList<string> turnEffects)
     {
         var id = ev.Payload.GetValueOrDefault("tokenObjectId") as string
             ?? ev.Payload.GetValueOrDefault("unitObjectId") as string
@@ -39,6 +40,7 @@ public sealed partial class CoreRuleEngine
         var player = ev.Payload.GetValueOrDefault("playedByPlayerId") as string
             ?? ev.Payload.GetValueOrDefault("playerId") as string ?? entered.ControllerId;
         if (player is null) return ev;
+        ev = CaptureTurnUnitPlayGrants(ev, cards, entered, player, turnEffects);
         if (entered.LastStandbyPlay is not null && ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
             ev = CaptureStandbyPlayed(ev, zones, cards, player);
         var sources = zones.Values.SelectMany(z => z.Battlefields).Distinct(StringComparer.Ordinal)

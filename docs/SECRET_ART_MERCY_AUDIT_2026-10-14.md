@@ -17,3 +17,5 @@
 [完整计划](evidence/secret-art-mercy-2026-10-14/full-plan-parity.json)在同一最终程序集发现7,058方法，原7,047方法和143完整对局全保留，预计11,290用例；110配对及seed424242必须由固定提交完整执行核对。计划不算执行通过。
 
 此前[曼舞手雷固定87cf4448完整CI](evidence/secret-art-mercy-2026-10-14/fixed-87cf4448-ci.json)实际11,260用例/7,047方法、2,009.86秒通过，旧2d121cc9的11,226/7,033全部保留，新增34/14；110配对seed424242及最终哈希不变，双平台job成功。[SQL](evidence/secret-art-mercy-2026-10-14/fixed-87cf4448-sql.json)核对开局8命令19事件5冷检查和四战斗分支56命令148事件60冷检查及5个篡改拒绝。GitHub原始step字段在job成功后仍返回pending/null，此差异原样保留；独立读取[完成job日志](evidence/secret-art-mercy-2026-10-14/fixed-87cf4448-network-log.json)核对原生投影及断线恢复的明确成功输出。该完整结果只覆盖87cf4448，当前慈悲度魂落工作树不继承认证。
+
+固定dbe86315 [CI38473724127](https://github.com/DDDHL0704/riftbound/actions/runs/38473724127)后续已核验：11,290用例/7,058方法、2,295.00秒，旧11,260/7,047全部保留，110配对与最终哈希不变，SQL、网络及双平台构建均成功。[完整收据](evidence/turn-unit-play-grants-2026-10-14/fixed-dbe86315-ci.json)和[实际SQL](evidence/turn-unit-play-grants-2026-10-14/fixed-dbe86315-sql.json)只认证该固定提交及记录范围。全量语义和可见双客户端/用户Windows验收继续。

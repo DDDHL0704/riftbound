@@ -1,0 +1,205 @@
+{
+  "status": "SCOPED_NATIVE_PRODUCTION_COMMANDS_COLD_RECOVERY_AND_JOURNAL_PASS",
+  "branches": [
+    {
+      "branch": "confront-battlefield-play",
+      "nativeCommands": 6,
+      "coldRestores": 6,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "2b1ceb2a568972ddebdc8e1c48726849f0b0543c8151fd2b0e85d587e3aaefea"
+    },
+    {
+      "branch": "confront-countered",
+      "nativeCommands": 5,
+      "coldRestores": 5,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "ea1fce3bb2fada1901a19a319b1d43d635e458f3eef19af19fbd6f3f3849a97c"
+    },
+    {
+      "branch": "confront-echo",
+      "nativeCommands": 4,
+      "coldRestores": 4,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "4f6781ce75309eec2d599d4a681c7b4080f5b518ce4e93a9f72c4bf9bef0d05c"
+    },
+    {
+      "branch": "confront-entry",
+      "nativeCommands": 4,
+      "coldRestores": 4,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "15ad1d356a7ef05d9e12f1ef747557d3e10c7aae2c5e07fdb80e0281600b523a"
+    },
+    {
+      "branch": "confront-expiry",
+      "nativeCommands": 10,
+      "coldRestores": 10,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "a87829de05eed622b3e9d63fbbc74c2c8ba6ab0143bebf68fa6318d413038c5f"
+    },
+    {
+      "branch": "confront-graveyard-play",
+      "nativeCommands": 7,
+      "coldRestores": 7,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "8e5c042bd94645c4847a4bd6ddea826dc19c12414d5fdd8cc82e14cbd0354835"
+    },
+    {
+      "branch": "confront-movement-excluded",
+      "nativeCommands": 6,
+      "coldRestores": 6,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "6fee6c0fd0fff8630b2b50fa427a1214d35c20f76b649ae3b802233ab4702f96"
+    },
+    {
+      "branch": "confront-recall-excluded",
+      "nativeCommands": 10,
+      "coldRestores": 10,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "c78588fc7c6577e0dd752c456a7d4e0192c0b3f700c1f1887c71b6413933d97c"
+    },
+    {
+      "branch": "confront-token",
+      "nativeCommands": 6,
+      "coldRestores": 6,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "060a4d15000a3b14f67a91a1bffbe49c5e1d9aeb6c995080516a57b89f3c755c"
+    },
+    {
+      "branch": "rally-battlefield-play",
+      "nativeCommands": 8,
+      "coldRestores": 8,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "33733ecf3e4262541f6e516f907a65dc0be3fb0f0cd4ca4a5afa61662168c3a7"
+    },
+    {
+      "branch": "rally-boon",
+      "nativeCommands": 6,
+      "coldRestores": 6,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "df793c03932ef1309d3981afda2e59ca8018c18fc00168a97ea12a8da5a3ab0a"
+    },
+    {
+      "branch": "rally-countered",
+      "nativeCommands": 5,
+      "coldRestores": 5,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "1973cdab6e0998eb1464c56e135fa988f6281e41ac8f30e9a46069844f9a7e8c"
+    },
+    {
+      "branch": "rally-echo",
+      "nativeCommands": 9,
+      "coldRestores": 9,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "e49718dc19b362199a7b2b262befedd7e6f4712949ab85a4d6370a357c4e6136"
+    },
+    {
+      "branch": "rally-expiry",
+      "nativeCommands": 10,
+      "coldRestores": 10,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "4a4d1a7b3c97beda84c38f39af6c8c6c151461515a78d2170b51ac3b0ecb74f9"
+    },
+    {
+      "branch": "rally-graveyard-play",
+      "nativeCommands": 9,
+      "coldRestores": 9,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "1c4ee053579e0f3dae41eef37e816e87612202538e8555e2898cdc4fd0da8d6e"
+    },
+    {
+      "branch": "rally-movement-excluded",
+      "nativeCommands": 6,
+      "coldRestores": 6,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "a200ed2ab85e3699308e6dc2517695ac23d69af168ebe714504dcd6e412d1e2e"
+    },
+    {
+      "branch": "rally-recall-excluded",
+      "nativeCommands": 10,
+      "coldRestores": 10,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "5d867a5969129a7b9642f27eb20018c4b3c47087a49a29407dc2f36e2fda6ab2"
+    },
+    {
+      "branch": "rally-returned-unit",
+      "nativeCommands": 9,
+      "coldRestores": 9,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "ef30e27f62cadf923fd5282f622cf92a26548574baac94f9a40bd359a54a4eca"
+    },
+    {
+      "branch": "rally-source-private-hand",
+      "nativeCommands": 12,
+      "coldRestores": 12,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "bf1947403d56123e8119bd7c76b20f79aba88dcdbdde0ed4829dbf77eec78356"
+    },
+    {
+      "branch": "rally-token",
+      "nativeCommands": 8,
+      "coldRestores": 8,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "30ee5a2e0dce854e9a53eb4a25a71ac65a07380302a540f582ab1ff65047f9fd"
+    },
+    {
+      "branch": "two-rallies",
+      "nativeCommands": 12,
+      "coldRestores": 12,
+      "fullJournalReplay": true,
+      "replayReceiptSha256": "abb121dcc01f95c7bdb86b498a7fb6595318a647e90992851c5bca7b7bd6a316"
+    }
+  ],
+  "branchCount": 21,
+  "productionCommands": 162,
+  "readback": {
+    "cases": 1995,
+    "methods": 1883,
+    "seconds": 19.28,
+    "assemblySha256": "bb58ad5885c53b4fe622b060cadaae6e80ab7c24385b1563752ce689722e5fd4",
+    "trxSha256": "23da4eb169e5e5f4cebadbf6ab67104979490284238e76e31829f03f8239e1aa"
+  },
+  "godotProofSha256": "59a2cc4717f2b5d8ec9fdc72f0ca01371ac009f204d0cd86a6627b6b170a27c8",
+  "nativeExclusions": [
+    {
+      "branch": "rally-opponent-owned-play",
+      "missingNativeSourceRequirements": [
+        {
+          "step": "defend-step-3",
+          "cardNo": "OGN·025/298"
+        }
+      ],
+      "backendColdReplayPreserved": true
+    },
+    {
+      "branch": "confront-opponent-excluded",
+      "missingNativeSourceRequirements": [
+        {
+          "step": "defend-step-3",
+          "cardNo": "OGN·115/298"
+        }
+      ],
+      "backendColdReplayPreserved": true
+    },
+    {
+      "branch": "rally-opponent-excluded",
+      "missingNativeSourceRequirements": [
+        {
+          "step": "defend-step-3",
+          "cardNo": "OGN·115/298"
+        }
+      ],
+      "backendColdReplayPreserved": true
+    },
+    {
+      "branch": "confront-opponent-owned-play",
+      "missingNativeSourceRequirements": [
+        {
+          "step": "defend-step-3",
+          "cardNo": "OGN·025/298"
+        }
+      ],
+      "backendColdReplayPreserved": true
+    }
+  ],
+  "visiblePairedOrUserWindowsCertified": false
+}

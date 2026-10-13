@@ -34,7 +34,7 @@ public sealed partial class CoreRuleEngine
                 ["tokenName"] = factory.TokenFamilyName, ["power"] = token.Power, ["destinationZone"] = destination, ["battlefieldId"] = battlefieldId, ["tokenFactoryCardNo"] = token.TokenFactoryCardNo,
                 ["tokenTags"] = token.Tags.ToArray(), ["isExhausted"] = token.IsExhausted, ["azirTempered"] = token.Tags.Contains(CardEquipmentKeywordNames.Tempered) };
             AddEntryStaticAbilityPayload(payload, ready ? staticAbility : null, staticSourceId, staticSource.CardNo);
-            events.Add(CaptureUnitEntry(new("UNIT_TOKEN_CREATED", $"{item.SourceObjectId}打出{factory.TokenFamilyName}", payload), zones, cards));
+            events.Add(CaptureUnitEntry(new("UNIT_TOKEN_CREATED", $"{item.SourceObjectId}打出{factory.TokenFamilyName}", payload), zones, cards, state.UntilEndOfTurnEffects));
         }
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations, Events = events };
     }

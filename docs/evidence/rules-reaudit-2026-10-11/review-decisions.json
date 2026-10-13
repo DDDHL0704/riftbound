@@ -18064,7 +18064,7 @@
     },
     {
       "id": "secret-art-mercy-shared-turn-boon-amplifier-2026-10-14",
-      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_FIXED_FULL_PASS",
       "scope": "Current CN OGN053 and independent EN Stand United: one friendly boon, independent all-friendly current-boon turn amplifier, invalid target continuation, later boon, current control, repeats, expiry, actual combat and lethal cleanup, captured source recovery. No whole-card/all-source certification.",
       "subjects": [
         "OGN·053/298"
@@ -18105,19 +18105,32 @@
         "focus": "2041cases/1942methods18.67s;30newcases/11methods",
         "native": "10branches/67productioncommands;155cases/88methods15.01s final native/consumer readback; each command cold restore/dedup/full journal pass",
         "check": "11141cases/6917methods181.05s; all11111/6906retained;30newcases/11methods;2253frozen no drift;actualPostgres5;Python27;owned cluster stopped",
-        "fixedFull": "REQUIRED",
+        "fixedFull": {
+          "status": "FIXED_COMMIT_FULL_CI_AND_PARITY_VERIFIED",
+          "commit": "dbe8631505b6a2ad6ca21f5b5612bc2d57b524ca",
+          "runId": 38473724127,
+          "cases": 11290,
+          "methods": 7058,
+          "seconds": 2295.0,
+          "pairs": 110,
+          "matrixSeed": 424242,
+          "oldCasesMethodsAndPairsPreserved": true,
+          "matrixHashesUnchanged": true,
+          "sqlNetworkAndBothDesktopJobs": "SUCCESS",
+          "receipt": "docs/evidence/turn-unit-play-grants-2026-10-14/fixed-dbe86315-ci.json",
+          "actualSqlReceipt": "docs/evidence/turn-unit-play-grants-2026-10-14/fixed-dbe86315-sql.json"
+        },
         "previousFixed87cf": "11260cases/7047methods2009.86s; all11226/7033retained;110pairs/hash unchanged; alljobs success; direct completed job log verifies network despite raw API step pending/null; actual SQL verified"
       },
       "exclusions": [
         "Whole card/source coverage",
-        "Full fixed candidate CI not yet terminal",
         "Visible paired native clients and user Windows runtime",
         "Source gaps remain"
       ]
     },
     {
       "id": "highway-robbery-shared-target-controller-resolution-choice-2026-10-14",
-      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_FIXED_FULL_PASS",
       "scope": "Current CN OGN033 / EN Shakedown: actual target-controller choice before damage, caster draw alternative, independent repeats and no intra-item lethal cleanup, invalid target/counter, prevention, taxes and current recovery projections. No whole-card/all-source certification.",
       "subjects": [
         "OGN·033/298"
@@ -18150,12 +18163,79 @@
         "focus": "1862cases/1827methods10.23s;33newcases/10methods",
         "native": "10branches/46productioncommands;38cases/15methods9.13s readback; all commands cold restore/dedup/full journal pass",
         "check": "11174cases/6927methods184.00s; all11141/6917 retained;33newcases/10methods;2255frozen no drift;actualPostgres5;Python27;owned cluster stopped",
-        "fixedFull": "REQUIRED",
+        "fixedFull": {
+          "status": "FIXED_COMMIT_FULL_CI_AND_PARITY_VERIFIED",
+          "commit": "2640582d462bf53c70d2bd9d8260160794440576",
+          "runId": 38477195105,
+          "cases": 11323,
+          "methods": 7068,
+          "seconds": 1598.93,
+          "pairs": 110,
+          "matrixSeed": 424242,
+          "oldCasesMethodsAndPairsPreserved": true,
+          "matrixHashesUnchanged": true,
+          "sqlNetworkAndBothDesktopJobs": "SUCCESS",
+          "receipt": "docs/evidence/turn-unit-play-grants-2026-10-14/fixed-2640582d-ci.json",
+          "actualSqlReceipt": "docs/evidence/turn-unit-play-grants-2026-10-14/fixed-2640582d-sql.json"
+        },
         "previousFixedDbe": "in_progress38473724127 at observation; desktopjobs successful; no full certification"
       },
       "exclusions": [
         "Whole card/source coverage",
+        "Visible paired native clients and user Windows runtime",
+        "Source gaps remain"
+      ]
+    },
+    {
+      "id": "turn-unit-play-grants-shared-entry-delayed-boon-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_WITH_PRIVATE_DECK_NATIVE_GAPS_FIXED_FULL_REQUIRED",
+      "scope": "Current CN SFD166 Rally and OGN129 Confront with independent EN comparison: temporary ready entry and friendly actual-unit-play boon trigger, normal/effect plays, tokens, repeated spells, expiry, movement/recall exclusion, independent source and captured unit generations; cold/player/spectator projections. Not whole-card/all-source/native consumer certification.",
+      "subjects": [
+        "SFD·166/221",
+        "OGN·129/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P017-B011",
+        "DOC-04-P017-B012",
+        "DOC-04-P063-B013",
+        "DOC-04-P063-B014",
+        "DOC-04-P063-B015",
+        "DOC-04-P063-B018",
+        "DOC-04-P064-B004",
+        "DOC-04-P064-B006",
+        "DOC-04-P071-B009",
+        "DOC-04-P071-B010",
+        "DOC-04-P071-B011",
+        "DOC-04-P071-B012",
+        "DOC-04-P071-B013",
+        "DOC-04-P071-B014",
+        "DOC-04-P071-B015",
+        "DOC-04-P071-B016"
+      ],
+      "auditDocument": "docs/TURN_UNIT_PLAY_GRANTS_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/turn-unit-play-grants-2026-10-14",
+      "tests": [
+        "TurnUnitPlayGrantsTests",
+        "MatchRecoveryTests",
+        "LocalDestructionRecallTests",
+        "LocalDestructionRecallNativeTests",
+        "OfficialUnitRevivalTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysAssembleTheRanksDraw",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysCallToActionDraw",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysHuntingRhythmBanishPlayBattlefield",
+        "BerserkImpulseGuardTests"
+      ],
+      "validation": {
+        "focus": "1995cases/1883methods19.53s;41newcases/17methods",
+        "native": "21branches/162Godot productioncommands;1995cases/1883methods19.28s readback; cold/dedup/full journal pass; four explicitly excluded OGN025/OGN115 private deck composer branches remain open",
+        "check": "11215cases/6944methods196.29s; all11174/6927retained;41newcases/17methods;2257frozen no drift;actualPostgres5;Python27;owned cluster stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixed2640582d": "11323cases/7068methods1598.93s;all11290/7058retained;110pairs/hash unchanged;SQL/network/bothdesktopjobs success"
+      },
+      "exclusions": [
+        "Whole card/source coverage",
         "Full fixed candidate CI not yet terminal",
+        "OGN025 and OGN115 private deck native composers absent; four backend branches not native certified",
         "Visible paired native clients and user Windows runtime",
         "Source gaps remain"
       ]
