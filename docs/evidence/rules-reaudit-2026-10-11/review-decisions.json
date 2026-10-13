@@ -16728,6 +16728,214 @@
         "Complete SQL gameplay, concurrent updates, failover and combined SQL/network match remain open.",
         "All 1738 identities and 36 documents / 14293 blocks retain unresolved whole-entry statuses; English returned/reported eight-printing gap remains open."
       ]
+    },
+    {
+      "id": "standby-defend-errata-independent-confirmation-2026-10-13",
+      "status": "SCOPED_CHECK_AND_HEADLESS_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Four exact Teemo Strategist printings; authoritative errata/current CN core precedence over stale card APIs; independent copied defender-owned confirmation, shared counted damage/recycle, actual source departure with captured public history, and the failed complete game driver correction. Whole-card certification remains false.",
+      "subjects": [
+        {
+          "id": "SFD-230/221",
+          "activeCardNo": "SFD·230/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33334,
+              "cardNo": "SFD·230/221",
+              "sha256": "8f6bd3ceed95f9f4034cccf8db0a4ce0a8a013a42df109b1ed03d5c77fdde03b",
+              "confirmedAt": "2026-10-13T10:29:02.965019+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "sfd-230-221",
+              "cardNo": "SFD-230/221",
+              "sha256": "c49e2c054d123b2d801468ae811a3bdc8fdcf4d0e47ad0eabc3ef8d463d32378",
+              "confirmedAt": "2026-10-13T10:25:25.778841+00:00",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0"
+            }
+          ]
+        },
+        {
+          "id": "SFD-230*/221",
+          "activeCardNo": "SFD·230*/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33335,
+              "cardNo": "SFD·230*/221",
+              "sha256": "a983db2df80f20c12a512ecdcccc649ab1c9b341397aacabf4ee4bdfa95f1d3a",
+              "confirmedAt": "2026-10-13T10:29:02.965019+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "sfd-230-star-221",
+              "cardNo": "SFD-230*/221",
+              "sha256": "0004040358ce5d2f8ace20d09e66f54426406201063b748fee1bdc761001dd26",
+              "confirmedAt": "2026-10-13T10:25:25.778841+00:00",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0"
+            }
+          ]
+        },
+        {
+          "id": "OGN-121/298",
+          "activeCardNo": "OGN·121/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31342,
+              "cardNo": "OGN·121/298",
+              "sha256": "c3e07783a371affca9d6f2d315082cad8aa0118ae0f3748d6044786fb2869bf1",
+              "confirmedAt": "2026-10-13T10:29:02.965019+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ogn-121-298",
+              "cardNo": "OGN-121/298",
+              "sha256": "27aab7e63ef4b0b606343868ab4c99af4436c572177b7ed263e22685c733daf0",
+              "confirmedAt": "2026-10-13T10:25:25.778841+00:00",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0"
+            }
+          ]
+        },
+        {
+          "id": "OGN-121a/298",
+          "activeCardNo": "OGN·121a/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31343,
+              "cardNo": "OGN·121a/298",
+              "sha256": "0574eb082b44f6c19e08d4f6ab325d0b7ad0a6a414314bf120ef471f3425c042",
+              "confirmedAt": "2026-10-13T10:29:02.965019+00:00",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb"
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ogn-121a-298",
+              "cardNo": "OGN-121a/298",
+              "sha256": "94842d28e37970d2139a283cef8550165ea68f4f58516fee2ec4063935eb1b2b",
+              "confirmedAt": "2026-10-13T10:25:25.778841+00:00",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0"
+            }
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P012-B016",
+        "DOC-04-P029-B002",
+        "DOC-04-P039-B023",
+        "DOC-04-P040-B002",
+        "DOC-04-P040-B003",
+        "DOC-04-P053-B005",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-04-P053-B010",
+        "DOC-04-P053-B011",
+        "DOC-04-P053-B012",
+        "DOC-04-P053-B013",
+        "DOC-04-P058-B018",
+        "DOC-04-P058-B021",
+        "DOC-04-P059-B001",
+        "DOC-04-P060-B013",
+        "DOC-04-P060-B014",
+        "DOC-04-P060-B015",
+        "DOC-04-P061-B001",
+        "DOC-04-P061-B002",
+        "DOC-04-P061-B003",
+        "DOC-04-P061-B004",
+        "DOC-04-P061-B005",
+        "DOC-04-P061-B006",
+        "DOC-04-P061-B007",
+        "DOC-04-P061-B008",
+        "DOC-04-P061-B009",
+        "DOC-04-P061-B010",
+        "DOC-04-P061-B011",
+        "DOC-04-P061-B012",
+        "DOC-04-P061-B013",
+        "DOC-04-P061-B014",
+        "DOC-04-P061-B015",
+        "DOC-04-P061-B016",
+        "DOC-04-P061-B017",
+        "DOC-04-P061-B018",
+        "DOC-04-P061-B019",
+        "DOC-04-P061-B020",
+        "DOC-04-P061-B021",
+        "DOC-04-P061-B022",
+        "DOC-04-P062-B001",
+        "DOC-04-P062-B002",
+        "DOC-04-P062-B003",
+        "DOC-04-P062-B004",
+        "DOC-04-P062-B005",
+        "DOC-04-P062-B006",
+        "DOC-04-P062-B007",
+        "DOC-04-P062-B008",
+        "DOC-04-P062-B009",
+        "DOC-04-P062-B010",
+        "DOC-04-P062-B011",
+        "DOC-04-P062-B012",
+        "DOC-04-P062-B013",
+        "DOC-04-P062-B014",
+        "DOC-04-P115-B008",
+        "DOC-04-P115-B009"
+      ],
+      "auditDocument": "docs/STANDBY_DEFEND_TRIGGER_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/standby-defend-2026-10-13/cn-teemo-readback.json",
+        "docs/evidence/standby-defend-2026-10-13/retention.json",
+        "docs/evidence/standby-defend-2026-10-13/fixed-840a2bce-ci.json",
+        "docs/evidence/standby-defend-2026-10-13/full-plan-parity.json",
+        "docs/evidence/standby-defend-2026-10-13/code-inputs.json",
+        "docs/evidence/standby-defend-2026-10-13/rule-excerpts.json",
+        "docs/evidence/standby-defend-2026-10-13/remaining-scopes.json",
+        "docs/evidence/standby-defend-2026-10-13/teemo-effective-source-conflict.json",
+        "docs/evidence/standby-defend-2026-10-13/scoped-validation.json",
+        "docs/evidence/standby-defend-2026-10-13/later-official-documents-readback.json",
+        "docs/evidence/standby-defend-2026-10-13/native-controls-replay.json",
+        "docs/evidence/standby-defend-2026-10-13/en-teemo-readback.json",
+        "docs/evidence/standby-defend-2026-10-13/check-parity.json",
+        "docs/evidence/standby-defend-2026-10-13/full-plan-parity.json"
+      ],
+      "tests": [
+        "StandbyDefendTeemoTests",
+        "StandbyDefendObserverTests",
+        "StandbyNativeTests",
+        "StandbyReactionSfdTeemoTests",
+        "ConformanceFixtureRunnerTests",
+        "MatchRecoveryTests",
+        "FullGameEndToEndTests.OfficialDecksResolveStandbyReactionDuringShadowResponseScoreVictoryActionLogReplaysToFinalStateHash"
+      ],
+      "validation": {
+        "focus": "5247 adjacent cases, 9 copied/native cases and 2 original full-game paths PASS; all original methods/rows/seeds preserved.",
+        "native": "66 production commands and cold restores; actual server replay PASS.",
+        "check": "10871 cases / 6808 methods PASS in 148.77 s; all prior 10858 / 6805 preserved; 2149 inputs unchanged; actual PostgreSQL five smoke passed.",
+        "full": "6949 method plan, expected 11020 cases; fixed 840a2bce full FAILED and never promoted. New fixed complete CI required.",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "All 54 standby keyword printings / 69 consumers remain without whole-card certification; seven missing nonpreview entries and the EN returned/reported gap remain open.",
+        "Current card APIs still show obsolete Teemo wording; UI display of effective corrected text across all errata families needs separate work while raw source catalogs are preserved.",
+        "Captured battlefield public references are emitted for new authoritative history; old snapshots are not retroactively supplied with provenance. Consistently forged histories are not fully excluded by structural validation.",
+        "Copied token sources that cease to exist, all control acquisition cases, reentry and all battlefield-generation variants need complete source-specific evidence.",
+        "Battlefield defend effects other than the counted unit trigger retain further shared timing work.",
+        "Current 110-pair fixed full execution must be proved after the failed 840a2bce run; plan/source retention alone is insufficient.",
+        "Visible paired clients, user Windows and full SQL gameplay/concurrency/failover remain open."
+      ]
     }
   ]
 }

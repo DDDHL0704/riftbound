@@ -1,0 +1,37 @@
+[
+  {
+    "file": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+    "beforeMethods": 135,
+    "afterMethods": 135,
+    "removedMethods": [],
+    "removedTheoryAttributes": []
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/StandbyDefendTeemoTests.cs",
+    "beforeMethods": 10,
+    "afterMethods": 12,
+    "removedMethods": [],
+    "removedTheoryAttributes": []
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/StandbyNativeTests.cs",
+    "beforeMethods": 1,
+    "afterMethods": 1,
+    "removedMethods": [],
+    "removedTheoryAttributes": []
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/StandbyReactionSfdTeemoTests.cs",
+    "beforeMethods": 2,
+    "afterMethods": 2,
+    "removedMethods": [],
+    "removedTheoryAttributes": []
+  },
+  {
+    "file": "tests/Riftbound.ConformanceTests/StandbyTestDriver.cs",
+    "beforeMethods": 0,
+    "afterMethods": 0,
+    "removedMethods": [],
+    "removedTheoryAttributes": []
+  }
+]

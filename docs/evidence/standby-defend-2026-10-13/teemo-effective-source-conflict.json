@@ -1,0 +1,942 @@
+{
+  "status": "OFFICIAL_CARD_API_TEXT_CONFLICT_REQUIRES_ERRATA_PRECEDENCE",
+  "errata": {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/",
+    "fetchedAtUtc": "2026-10-13T10:27:05.464897+00:00",
+    "published": "2025-10-28",
+    "effectiveDate": null,
+    "sha256": "e01fb97d250ce6d254479ef1ca921ac82e6de4d905efa6f2b5a02e0a342542e2",
+    "summary": "Teemo Strategist trigger condition is defend, with one chosen enemy unit here; played-from-hidden clause removed."
+  },
+  "currentCnCoreRecord": {
+    "id": "DOC-04-P012-B016",
+    "document": "DOC-04",
+    "page": 12,
+    "clauseAnchors": [],
+    "text": "举例:“提莫 - 军事家”的防守触发效果为:“当我防守时,选择此处的一名\n                                          敌方单位,并展示你主牌堆顶部的五张牌。每以此方式展示一张带有待命\n                                          技能的卡牌,对该单位造成 1 点伤害,然后回收展示的卡牌。”这里共有四\n                                          条指示:“选择此处的一名敌方单位”、“展示你主牌堆顶部的五张牌”、“每\n                                          以此方式展示一张带有待命技能的卡牌,对该单位造成 1 点伤害”,以及“回\n                                          收展示的卡牌”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  "cnCards": [
+    {
+      "record": {
+        "id": 33334,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·230/221",
+        "cardName": "提莫",
+        "subTitle": "军事家",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "提莫",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "Mo Yan",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": 2,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/edfab38121784201af2d3ab4630b452b.png",
+        "backImage": "",
+        "listSort": 739,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。",
+        "otherDesc": 0
+      },
+      "recordSha256": "8f6bd3ceed95f9f4034cccf8db0a4ce0a8a013a42df109b1ed03d5c77fdde03b"
+    },
+    {
+      "record": {
+        "id": 33335,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·230*/221",
+        "cardName": "提莫",
+        "subTitle": "军事家",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "提莫",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "Mo Yan",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": 2,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/cb2fddd782d84f4b980913ec2a40330e.png",
+        "backImage": "",
+        "listSort": 738,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。",
+        "otherDesc": 0
+      },
+      "recordSha256": "a983db2df80f20c12a512ecdcccc649ab1c9b341397aacabf4ee4bdfa95f1d3a"
+    },
+    {
+      "record": {
+        "id": 31342,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·121/298",
+        "cardName": "提莫",
+        "subTitle": "军事家",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "提莫",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": 2,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/902a1e2f9a0c4b2d86146da776c58cfd.png",
+        "backImage": "",
+        "listSort": 363,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。",
+        "otherDesc": 0
+      },
+      "recordSha256": "c3e07783a371affca9d6f2d315082cad8aa0118ae0f3748d6044786fb2869bf1"
+    },
+    {
+      "record": {
+        "id": 31343,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·121a/298",
+        "cardName": "提莫",
+        "subTitle": "军事家",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "提莫",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "League Splash Team",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": 2,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/d22263b7fa3a4134b170dc2a9f8a7b67.png",
+        "backImage": "",
+        "listSort": 362,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。",
+        "otherDesc": 0
+      },
+      "recordSha256": "0574eb082b44f6c19e08d4f6ab325d0b7ad0a6a414314bf120ef471f3425c042"
+    }
+  ],
+  "enCards": [
+    {
+      "id": "ogn-121-298",
+      "collectorNumber": 121,
+      "name": "Teemo",
+      "subtitle": "Strategist",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-121/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "epic",
+          "label": "Epic",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+            "dimensions": {
+              "width": 455,
+              "height": 419,
+              "aspectRatio": 1.0859188544152745
+            },
+            "colors": {
+              "primary": "#B8794C",
+              "secondary": "#332F29",
+              "label": "#604634"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b05f31bf744972983f61a9f5801b4ffd68fb9ebf-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Teemo, Strategist. [Hidden] (Hide now for [A] to react with later for [0].)\nWhen I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#51294C",
+          "secondary": "#F9DCEF",
+          "label": "#280A25"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "sixmorevodka",
+            "label": "Six More Vodka",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)<br />When I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Yordle",
+          "Teemo",
+          "Bandle City"
+        ]
+      }
+    },
+    {
+      "id": "sfd-230-star-221",
+      "collectorNumber": 230,
+      "name": "Teemo",
+      "subtitle": "Strategist",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "SFD-230*/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "showcase",
+          "label": "Showcase",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+            "dimensions": {
+              "width": 376,
+              "height": 426,
+              "aspectRatio": 0.8826291079812206
+            },
+            "colors": {
+              "primary": "#B89D3B",
+              "secondary": "#333229",
+              "label": "#4F472B"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e31f0ea037604aa531d84c1d56d26f255210b7c-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Teemo, Strategist. [Hidden] (Hide now for [A] to react with later for [0].)\nWhen I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#21413B",
+          "secondary": "#DCF9F8",
+          "label": "#051512"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "moyan",
+            "label": "Mo Yan",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)<br />When I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Yordle",
+          "Teemo"
+        ]
+      }
+    },
+    {
+      "id": "ogn-121a-298",
+      "collectorNumber": 121,
+      "name": "Teemo",
+      "subtitle": "Strategist",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-121a/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "showcase",
+          "label": "Showcase",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+            "dimensions": {
+              "width": 376,
+              "height": 426,
+              "aspectRatio": 0.8826291079812206
+            },
+            "colors": {
+              "primary": "#B89D3B",
+              "secondary": "#333229",
+              "label": "#4F472B"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0709ab02b75d9acc8f3c4037ec3a4140323150d8-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Teemo, Strategist. [Hidden] (Hide now for [A] to react with later for [0].)\nWhen I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#070F0B",
+          "secondary": "#FFF4D6",
+          "label": "#000000"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "leaguesplashteam",
+            "label": "League Splash Team",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)<br />When I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Yordle",
+          "Teemo",
+          "Bandle City"
+        ]
+      }
+    },
+    {
+      "id": "sfd-230-221",
+      "collectorNumber": 230,
+      "name": "Teemo",
+      "subtitle": "Strategist",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "SFD-230/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "showcase",
+          "label": "Showcase",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+            "dimensions": {
+              "width": 376,
+              "height": 426,
+              "aspectRatio": 0.8826291079812206
+            },
+            "colors": {
+              "primary": "#B89D3B",
+              "secondary": "#333229",
+              "label": "#4F472B"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7f0962b840d228ad551fb9334fe9bdf76d209e7d-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Teemo, Strategist. [Hidden] (Hide now for [A] to react with later for [0].)\nWhen I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#21413B",
+          "secondary": "#DCF9F8",
+          "label": "#051512"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "moyan",
+            "label": "Mo Yan",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)<br />When I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Yordle",
+          "Teemo"
+        ]
+      }
+    }
+  ],
+  "enFetchedAtUtc": "2026-10-13T10:25:25.778841+00:00",
+  "enReturned": 1381,
+  "enReported": 1389,
+  "resolution": "Implement the official corrected defend trigger shared across the exact printings; retain raw source records and unresolved whole-card coverage. Current CN core corroborates the final errata condition. Later Spiritforged and Unleashed errata pages contain no Teemo replacement; Vendetta FAQ has no Teemo replacement.",
+  "wholeCardCertification": false,
+  "cnFetchedAtUtc": "2026-10-13T10:29:02.965019+00:00",
+  "cnResponseSha256": "7511fe21e458833f55609889978f1a2fffa29078131f0ba1ec03663e18c3fb3c"
+}

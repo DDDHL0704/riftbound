@@ -79,6 +79,8 @@ public sealed partial class CoreRuleEngine
             context.BattlefieldId, TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
         queue.AddRange(CaptureEnemyAttackMightTriggers(state, newAttackers, context.BattlefieldId,
             TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
+        queue.AddRange(CaptureStandbyDefendTriggers(state, newDefenders, context.BattlefieldId,
+            TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
         foreach (var id in newDefenders.Where(id => HasFieldTrigger(cards[id].CardNo, "DEFEND")))
             queue.Add(new TriggerQueueItemState($"defend-{state.Tick}-{id}", cards[id].ControllerId!, id,
                 FieldTriggerEffect, roleKind, TimingStates.SpellDuelOpen) {

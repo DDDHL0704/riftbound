@@ -2395,7 +2395,7 @@ public static class MatchRecoveryValidator
                 "battleResolutions",
                 "battle resolution",
                 errors);
-            ValidateSnapshotTimingResolutionHistoryScalarPayloadValues(view, errors);
+            ValidateSnapshotTimingResolutionHistoryScalarPayloadValues(view, errors, authoritativeState);
             ValidateSnapshotTimingResolutionHistoryListPayloadValues(view, errors);
         }
     }
@@ -5445,7 +5445,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateSnapshotTimingResolutionHistoryScalarPayloadValues(
         RecoveredPlayerView view,
-        List<string> errors)
+        List<string> errors, MatchState? authoritativeState)
     {
         if (view.Snapshot.Timing is null)
         {
@@ -5482,12 +5482,27 @@ public static class MatchRecoveryValidator
                     resolutionPayload,
                     resolutionLabel,
                     errors);
+                var recorded = authoritativeState?.BattlefieldResolutions.FirstOrDefault(r => r.ResolutionId == resolutionId);
+                var historicalIds = recorded?.PublicObjectBindings?.Select(b => b.ObjectId).ToArray() ?? [];
+                var historicalKnown = knownObjectIds is null ? null : knownObjectIds.Concat(historicalIds).ToHashSet(StringComparer.Ordinal);
                 ValidateBattlefieldResolutionObjectReferences(
                     resolutionPayload,
                     resolutionLabel,
-                    knownObjectIds,
+                    historicalKnown,
                     "objects",
                     errors);
+                if (recorded is not null && recorded.PublicObjectBindings is not null)
+                {
+                    if (!TryReadObjectString(resolutionPayload, "sourceObjectId", out var sourceId)) sourceId = "";
+                    var expectedSource = recorded.SourceObjectId ?? "";
+                    if (recorded.PublicObjectBindings.Any(b => b.ObjectId == expectedSource) && sourceId != expectedSource)
+                        errors.Add($"{resolutionLabel} public historical source differs from authoritative captured reference");
+                    if (!TryReadObjectStringList(resolutionPayload, "participantObjectIds", out var participants)
+                        || participants.Count != recorded.ParticipantObjectIds.Count
+                        || participants.Where((id, index) => recorded.PublicObjectBindings.Any(b => b.ObjectId == recorded.ParticipantObjectIds[index])
+                            && id != recorded.ParticipantObjectIds[index]).Any())
+                        errors.Add($"{resolutionLabel} public historical participants differ from authoritative captured references");
+                }
                 ValidateBattlefieldResolutionPlayerReferences(
                     resolutionPayload,
                     resolutionLabel,
@@ -23724,6 +23739,12 @@ public static class MatchRecoveryValidator
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.AttachmentModeWindow or CoreRuleEngine.AttachmentModeTargetWindow } modeChoice
             && !CoreRuleEngine.ValidAttachmentModeChoice(state, modeChoice)) errors.Add("invalid attachment mode confirmation");
         if (state.StackItems.Any(item => !CoreRuleEngine.ValidConfirmedAttachmentMode(state, item))) errors.Add("invalid confirmed attachment mode");
+        foreach (var resolution in state.BattlefieldResolutions)
+            if (resolution.PublicObjectBindings is { } publicRefs && (publicRefs.Any(b => b is null || b.Generation < 0
+                || string.IsNullOrWhiteSpace(b.ObjectId) || !resolution.ParticipantObjectIds.Contains(b.ObjectId)
+                || state.CardObjects.TryGetValue(b.ObjectId, out var current) && b.Generation > current.ObjectGeneration)
+                || publicRefs.Select(b => b.ObjectId).Distinct(StringComparer.Ordinal).Count() != publicRefs.Count))
+                errors.Add("invalid captured public battlefield history reference");
         foreach (var card in state.CardObjects.Values)
         {
             if (card.StandbyPlacement is not null && !StandbyRules.ValidPlacement(state, card)) errors.Add("invalid standby placement provenance");

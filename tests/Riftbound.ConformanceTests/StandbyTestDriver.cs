@@ -75,7 +75,7 @@ internal static class StandbyTestDriver
         Assert.DoesNotContain("SHADOW", result.State.PlayerZones["P1"].Base);
         Assert.DoesNotContain("SHADOW", result.State.PlayerZones["P1"].Hand);
         Assert.Equal("REPLY", Assert.Single(result.State.StackItems).SourceObjectId);
-        Assert.Equal(["CARD_REVEALED", "CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BATTLEFIELD", "TRIGGER_QUEUED", "TRIGGER_NOT_CONFIRMED"], result.Events.Select(e => e.Kind));
+        Assert.Equal(["CARD_REVEALED", "CARD_PLAYED", "COST_PAID", "PERMANENT_CONFIRMED", "UNIT_PLAYED_TO_BATTLEFIELD"], result.Events.Select(e => e.Kind));
         Assert.Equal("P2", result.State.PriorityPlayerId);
         foreach (var snapshot in result.Snapshots.Values)
         {
@@ -101,11 +101,17 @@ internal static class StandbyTestDriver
                 mode, ["STANDBY_REVEAL_0"], "BATTLEFIELD:F"), ErrorCodes.InvalidTarget);
         var beforeResources = state.RunePools["P1"];
         var result = await OfficialInsightAndSpellLockTests.Act(state, "P1", new RevealCardCommand("SHADOW", cardNo,
-            postEntrySelection ? [] : [enemy], mode, ["STANDBY_REVEAL_0"], "BATTLEFIELD:F"));
+            [], mode, ["STANDBY_REVEAL_0"], "BATTLEFIELD:F"));
         Assert.Equal(beforeResources, result.State.RunePools["P1"]);
         Assert.Equal("F", result.State.ObjectLocations["SHADOW"].BattlefieldObjectId);
         Assert.Equal(0, result.State.CardObjects[enemy].Damage);
-        if (postEntrySelection)
+        if (!postEntrySelection)
+        {
+            var premature = await new CoreRuleEngine().ResolveAsync(state, new("premature-defend-target", "P1", CommandTypes.RevealCard),
+                new RevealCardCommand("SHADOW", cardNo, [enemy], mode, ["STANDBY_REVEAL_0"], "BATTLEFIELD:F"), default);
+            Assert.False(premature.Accepted);
+            Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(premature.State));
+        }
         {
             var choice = Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
             Assert.Equal(1, choice.RequiredCount);
@@ -115,10 +121,10 @@ internal static class StandbyTestDriver
             result = await OfficialInsightAndSpellLockTests.Act(result.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [enemy]));
         }
         var ability = Assert.Single(result.State.StackItems, i => i.SourceObjectId == "SHADOW");
-        Assert.True(ability.SourceConfirmed);
+        Assert.Equal("STANDBY_DEFEND", ability.FieldContext!.Kind);
         Assert.Equal([enemy], ability.TargetObjectIds);
-        Assert.Equal("F", ability.PlayedFromStandby!.Battlefield.ObjectId);
-        Assert.Equal("BATTLEFIELD:F", ability.Destination);
+        Assert.Equal("F", ability.FieldContext.BattlefieldId);
+        Assert.Equal("F", result.State.CardObjects["SHADOW"].LastStandbyPlay!.Battlefield.ObjectId);
         OfficialGraveyardRecastTests.Restore(result.State);
         var done = await OfficialGraveyardRecastTests.Top(result.State);
         Assert.Equal(2, done.State.CardObjects[enemy].Damage);
@@ -152,7 +158,7 @@ internal static class StandbyTestDriver
         Assert.Equal("STANDBY_REACTION", requirement["mode"]);
         Assert.Equal(0, requirement["minTargetCount"]);
         Assert.Equal(0, requirement["maxTargetCount"]);
-        Assert.Equal(CardTargetScopes.EnemyUnitAtSourceBattlefield, requirement["targetScope"]);
+        Assert.Equal(CardTargetScopes.BattlefieldUnit, requirement["targetScope"]);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(requirement["targetChoicesByIndex"]));
         var played = await OfficialInsightAndSpellLockTests.Act(state, "P1", new RevealCardCommand(
             "SHADOW", "OGN·121/298", [], "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "BATTLEFIELD:F"));
@@ -231,19 +237,22 @@ internal static class StandbyTestDriver
         Assert.DoesNotContain("STUNNED", state.CardObjects[enemy].UntilEndOfTurnEffects);
         Assert.Equal("P1", state.PriorityPlayerId);
         NextNotAdvanced(state);
-        var entered = await OfficialInsightAndSpellLockTests.Act(state, "P1", new RevealCardCommand("SHADOW", "OGN·121/298", [enemy],
+        var entered = await OfficialInsightAndSpellLockTests.Act(state, "P1", new RevealCardCommand("SHADOW", "OGN·121/298", [],
             "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "BATTLEFIELD:F"));
         Assert.Equal(2, entered.State.StackItems.Count);
         Assert.Equal(bottom.StackItemId, entered.State.StackItems[0].StackItemId);
         var top = entered.State.StackItems[1];
         Assert.Equal("SHADOW", top.SourceObjectId);
-        Assert.True(top.SourceConfirmed);
-        Assert.Equal("F", top.PlayedFromStandby!.Battlefield.ObjectId);
+        Assert.Equal("STANDBY_DEFEND", top.FieldContext!.Kind);
+        Assert.Equal("F", top.FieldContext.BattlefieldId);
         Assert.Equal("F", entered.State.ObjectLocations["SHADOW"].BattlefieldObjectId);
         Assert.Contains(entered.Events, e => e.Kind == "PERMANENT_CONFIRMED");
         Assert.DoesNotContain(entered.Events, e => e.Kind is "SPELL_DUEL_CLOSED" or "BATTLE_DAMAGE_ASSIGNMENT_OPENED");
         NextNotAdvanced(entered.State);
         OfficialGraveyardRecastTests.Restore(entered.State);
+        var defendChoice = Assert.IsType<PendingCardChoiceState>(entered.State.PendingCardChoice);
+        entered = await OfficialInsightAndSpellLockTests.Act(entered.State, "P1",
+            new ChooseCardsCommand(defendChoice.ChoiceId, defendChoice.ChoiceWindow, [enemy]));
         var first = await OfficialGraveyardRecastTests.Top(entered.State);
         Assert.Equal(bottom.StackItemId, Assert.Single(first.State.StackItems).StackItemId);
         Assert.Equal(2, first.State.CardObjects[enemy].Damage);

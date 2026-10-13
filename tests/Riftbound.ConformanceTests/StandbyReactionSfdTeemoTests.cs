@@ -37,7 +37,7 @@ public sealed class StandbyReactionSfdTeemoTests
         Assert.Equal("STANDBY_REACTION", requirement["mode"]);
         Assert.Equal(0, requirement["minTargetCount"]);
         Assert.Equal(0, requirement["maxTargetCount"]);
-        Assert.Equal(CardTargetScopes.EnemyUnitAtSourceBattlefield, requirement["targetScope"]);
+        Assert.Equal(CardTargetScopes.BattlefieldUnit, requirement["targetScope"]);
         var choices = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(requirement["targetChoicesByIndex"]);
         Assert.Empty(choices);
         var played = await OfficialInsightAndSpellLockTests.Act(initial, "P1", new RevealCardCommand(
@@ -64,15 +64,22 @@ public sealed class StandbyReactionSfdTeemoTests
         var initial = await BuildClosedPriorityState(cardNo);
         var bottom = Assert.Single(initial.StackItems);
         var played = await OfficialInsightAndSpellLockTests.Act(initial, "P1", new RevealCardCommand(
-            TeemoObjectId, cardNo, [EnemyTargetObjectId], "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
+            TeemoObjectId, cardNo, [], "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
+        var choice = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        var entered = played;
+        played = await OfficialInsightAndSpellLockTests.Act(played.State, "P1",
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [EnemyTargetObjectId]));
         Assert.Equal(2, played.State.StackItems.Count);
         Assert.Equal(bottom, played.State.StackItems[0]);
         var ability = Assert.Single(played.State.StackItems, s => s.SourceObjectId == TeemoObjectId);
-        Assert.True(ability.SourceConfirmed);
-        Assert.Equal(effectKind, ability.EffectKind);
+        Assert.Equal("STANDBY_DEFEND", ability.FieldContext!.Kind);
+        Assert.Equal("FIELD_TARGETED_TRIGGER", ability.EffectKind);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+        Assert.Equal(effectKind, definition.EffectKind);
+        Assert.Single(entered.Events, e => e.Kind == "TRIGGER_QUEUED" && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), TeemoObjectId));
         Assert.Equal([EnemyTargetObjectId], ability.TargetObjectIds);
-        Assert.Equal("BATTLEFIELD:" + BattlefieldObjectId, ability.Destination);
-        Assert.Equal(BattlefieldObjectId, ability.PlayedFromStandby!.Battlefield.ObjectId);
+        Assert.Equal(BattlefieldObjectId, ability.FieldContext.BattlefieldId);
+        Assert.Equal(BattlefieldObjectId, played.State.CardObjects[TeemoObjectId].LastStandbyPlay!.Battlefield.ObjectId);
         Assert.Equal(BattlefieldObjectId, played.State.ObjectLocations[TeemoObjectId].BattlefieldObjectId);
         Assert.Equal(0, played.State.CardObjects[EnemyTargetObjectId].Damage);
         OfficialGraveyardRecastTests.Restore(played.State);

@@ -54,9 +54,7 @@
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "UNIT_PLAYED_TO_BATTLEFIELD",
-      "TRIGGER_QUEUED",
-      "TRIGGER_NOT_CONFIRMED"
+      "UNIT_PLAYED_TO_BATTLEFIELD"
     ],
     "events": [
       {
@@ -73,12 +71,6 @@
       },
       {
         "kind": "UNIT_PLAYED_TO_BATTLEFIELD"
-      },
-      {
-        "kind": "TRIGGER_QUEUED"
-      },
-      {
-        "kind": "TRIGGER_NOT_CONFIRMED"
       }
     ],
     "promptActions": {

@@ -1,0 +1,156 @@
+{
+  "status": "SCOPED_CHECK_AND_HEADLESS_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+  "receipts": [
+    {
+      "path": "var/qa/standby-count-20261013/independent-defend-canonical/focus/results.trx",
+      "sha256": "c3769dd575a5c98fd8c04f21ef2c1a004d38ecc02258f21b07ec1d0935b84aaf",
+      "counters": {
+        "total": "4",
+        "executed": "4",
+        "passed": "0",
+        "failed": "4",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "wholeCardCertification": false
+    },
+    {
+      "path": "var/qa/standby-count-20261013/adjacent-original-repaired/focus/results.trx",
+      "sha256": "9f5ed6416a90648a9aea1d4f10c602f95edc7b090516875730855123fbed6c7c",
+      "counters": {
+        "total": "5247",
+        "executed": "5247",
+        "passed": "5247",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "wholeCardCertification": false
+    },
+    {
+      "path": "var/qa/standby-count-20261013/captured-public-history/focus/results.trx",
+      "sha256": "e95e02c6d8dd86de019af604a9e553d8f84b9531430f3b2fa8374c0346ec08f5",
+      "counters": {
+        "total": "9",
+        "executed": "9",
+        "passed": "9",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "wholeCardCertification": false
+    },
+    {
+      "path": "var/qa/standby-count-20261013/full-game-standby-regression/focus/results.trx",
+      "sha256": "e5120a7df586d80637453ee5f27395f72321c139524ebc570d644b4acb3bb5e8",
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "2",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "wholeCardCertification": false
+    }
+  ],
+  "originalMethodsAndRowsPreserved": true,
+  "all110PairingsFullExecutionVerified": false,
+  "visiblePairedAndUserWindowsVerified": false,
+  "wholeCardCertification": false,
+  "platformStatus": "NOT_READY",
+  "check": {
+    "status": "PASS",
+    "profile": "check",
+    "cases": 10871,
+    "methods": 6808,
+    "seconds": 148.77,
+    "oldCasesPreserved": 10858,
+    "oldMethodsPreserved": 6805,
+    "addedCases": [
+      "Riftbound.ConformanceTests.StandbyDefendObserverTests.RealShadyCopyDefendsWithAnIndependentCapturedAbilityAndSurvivesActualGaleDeparture(card: \"OGN·121/298\", sourceLeaves: False)",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.DefendCountUsesPrintedKeywordsWithoutTrustingOrRequiringObjectTags(teemoCardNo: \"SFD·230/221\")",
+      "Riftbound.ConformanceTests.StandbyDefendObserverTests.RealShadyCopyDefendsWithAnIndependentCapturedAbilityAndSurvivesActualGaleDeparture(card: \"OGN·121/298\", sourceLeaves: True)",
+      "Riftbound.ConformanceTests.StandbyDefendObserverTests.RealShadyCopyDefendsWithAnIndependentCapturedAbilityAndSurvivesActualGaleDeparture(card: \"SFD·230/221\", sourceLeaves: False)",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.ActualMovementIntoTeemoBattleConfirmsIndependentDefendTargetsBeforeRevealingCards(teemoCardNo: \"OGN·121a/298\")",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.DefendCountUsesPrintedKeywordsWithoutTrustingOrRequiringObjectTags(teemoCardNo: \"OGN·121/298\")",
+      "Riftbound.ConformanceTests.StandbyNativeTests.ActualHideTurnResourcesAndReactionUseProductionControlsWithColdReplay(branch: \"defend\", card: \"SFD·230/221\")",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.ActualMovementIntoTeemoBattleConfirmsIndependentDefendTargetsBeforeRevealingCards(teemoCardNo: \"OGN·121/298\")",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.ActualMovementIntoTeemoBattleConfirmsIndependentDefendTargetsBeforeRevealingCards(teemoCardNo: \"SFD·230/221\")",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.ActualMovementIntoTeemoBattleConfirmsIndependentDefendTargetsBeforeRevealingCards(teemoCardNo: \"SFD·230*/221\")",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.DefendCountUsesPrintedKeywordsWithoutTrustingOrRequiringObjectTags(teemoCardNo: \"OGN·121a/298\")",
+      "Riftbound.ConformanceTests.StandbyDefendObserverTests.RealShadyCopyDefendsWithAnIndependentCapturedAbilityAndSurvivesActualGaleDeparture(card: \"SFD·230/221\", sourceLeaves: True)",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.DefendCountUsesPrintedKeywordsWithoutTrustingOrRequiringObjectTags(teemoCardNo: \"SFD·230*/221\")"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.StandbyDefendObserverTests.RealShadyCopyDefendsWithAnIndependentCapturedAbilityAndSurvivesActualGaleDeparture",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.ActualMovementIntoTeemoBattleConfirmsIndependentDefendTargetsBeforeRevealingCards",
+      "Riftbound.ConformanceTests.StandbyDefendTeemoTests.DefendCountUsesPrintedKeywordsWithoutTrustingOrRequiringObjectTags"
+    ],
+    "originalMethodsAndTheoryRowsPreserved": true,
+    "original110PairingInputsAndSeedsPreserved": true,
+    "all110PairingsExecutionVerified": false,
+    "codeInputs": 2149,
+    "codeInputsUnchanged": true,
+    "realPostgresLegacyFiveSmokeExecuted": true,
+    "sqlMethods": [
+      "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit",
+      "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands",
+      "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift",
+      "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry",
+      "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift"
+    ],
+    "dedicatedPostgres": {
+      "port": 55439,
+      "database": "riftbound_acceptance",
+      "stoppedAfterCheck": true
+    },
+    "wholeCardCertification": false,
+    "trxSha256": "04bbd683e4993e178f8bd739c93ff0d91a74b2b763f35ec1e2f269e79c0c86a1"
+  },
+  "pythonSafeguards": {
+    "tests": 27,
+    "passed": 27,
+    "seconds": 2.407
+  }
+}

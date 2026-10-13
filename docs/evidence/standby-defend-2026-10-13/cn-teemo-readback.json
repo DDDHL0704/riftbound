@@ -1,0 +1,220 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "提莫",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-13T10:29:02.965019+00:00",
+  "sha256": "7511fe21e458833f55609889978f1a2fffa29078131f0ba1ec03663e18c3fb3c",
+  "records": [
+    {
+      "record": {
+        "id": 33334,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·230/221",
+        "cardName": "提莫",
+        "subTitle": "军事家",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "提莫",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "Mo Yan",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": 2,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "exalted_script",
+        "extendRarityName": "超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/edfab38121784201af2d3ab4630b452b.png",
+        "backImage": "",
+        "listSort": 739,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。",
+        "otherDesc": 0
+      },
+      "recordSha256": "8f6bd3ceed95f9f4034cccf8db0a4ce0a8a013a42df109b1ed03d5c77fdde03b"
+    },
+    {
+      "record": {
+        "id": 33335,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·230*/221",
+        "cardName": "提莫",
+        "subTitle": "军事家",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "提莫",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "Mo Yan",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": 2,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "runemaster_mark",
+        "extendRarityName": "签名超编",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/cb2fddd782d84f4b980913ec2a40330e.png",
+        "backImage": "",
+        "listSort": 738,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。",
+        "otherDesc": 0
+      },
+      "recordSha256": "a983db2df80f20c12a512ecdcccc649ab1c9b341397aacabf4ee4bdfa95f1d3a"
+    },
+    {
+      "record": {
+        "id": 31342,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·121/298",
+        "cardName": "提莫",
+        "subTitle": "军事家",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "提莫",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": 2,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/902a1e2f9a0c4b2d86146da776c58cfd.png",
+        "backImage": "",
+        "listSort": 363,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。",
+        "otherDesc": 0
+      },
+      "recordSha256": "c3e07783a371affca9d6f2d315082cad8aa0118ae0f3748d6044786fb2869bf1"
+    },
+    {
+      "record": {
+        "id": 31343,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·121a/298",
+        "cardName": "提莫",
+        "subTitle": "军事家",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "提莫",
+        "region": "班德尔城",
+        "tag": "约德尔人",
+        "artist": "League Splash Team",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": 2,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/d22263b7fa3a4134b170dc2a9f8a7b67.png",
+        "backImage": "",
+        "listSort": 362,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。",
+        "otherDesc": 0
+      },
+      "recordSha256": "0574eb082b44f6c19e08d4f6ab325d0b7ad0a6a414314bf120ef471f3425c042"
+    }
+  ]
+}

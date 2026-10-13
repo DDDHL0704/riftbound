@@ -29,7 +29,8 @@ public sealed partial class CoreRuleEngine
             && (context.Kind == "ENEMY_ATTACK_MIGHT" ? EnemyAttackMightSpec(context.CardNo) is not null
                 && context.AffectedUnit is { Generation: >= 0 } && context.SourceLocation is null && context.Origin is null
                 && !string.IsNullOrWhiteSpace(context.BattlefieldId)
-                : context.AffectedUnit is null && !context.AffectedUnitCeasedToExist && (context.Kind == "COMBAT_MIGHT" ? CombatMightSpec(context.CardNo) is not null && context.SourceLocation is not null
+                : context.AffectedUnit is null && !context.AffectedUnitCeasedToExist && (context.Kind == "STANDBY_DEFEND" ? StandbyDefendDefinition(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
+                : context.Kind == "COMBAT_MIGHT" ? CombatMightSpec(context.CardNo) is not null && context.SourceLocation is not null
                 : context.Kind is "SECOND_DRAW" or "DEFEND" && HasFieldTrigger(context.CardNo, context.Kind)
                     && context.SourceLocation is null && context.Origin is null
                     && (context.Kind == "SECOND_DRAW" ? context.BattlefieldId is null : !string.IsNullOrWhiteSpace(context.BattlefieldId))));
@@ -77,7 +78,7 @@ public sealed partial class CoreRuleEngine
     private static string[] FieldTriggerTargets(MatchState state, StackItemState item) => state.CardObjects.Values
         .Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
-            && (item.FieldContext!.Kind == "COMBAT_MIGHT" ? c.ControllerId != item.ControllerId
+            && (item.FieldContext!.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
                 : item.FieldContext.Kind == "SECOND_DRAW" ? c.ControllerId == item.ControllerId
                 : c.ControllerId != item.ControllerId && state.BattleState.AttackerObjectIds.Contains(c.ObjectId)
@@ -127,6 +128,7 @@ public sealed partial class CoreRuleEngine
             choice = new("TRIGGER-TARGET:" + item.StackItemId, "TRIGGER_CONFIRMATION", item.ControllerId,
                 item.FieldContext.Kind == "DEFEND" ? 0 : 1, 1, legal, legal,
                 item.FieldContext.Kind == "DEFEND" ? "选择一名进攻单位并摧毁狂热粉丝，或不选以放弃；确认后开放响应"
+                    : item.FieldContext.Kind == "STANDBY_DEFEND" ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时展示并按待命关键词造成伤害、回收"
                     : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
                     : "选择一名友方单位获得本回合 +2 战力；确认后开放响应",
                 item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
@@ -243,6 +245,7 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveFieldTrigger(MatchState state, StackItemState item)
     {
         if (item.FieldContext is { Kind: "ENEMY_ATTACK_MIGHT" }) return ResolveEnemyAttackMight(state, item);
+        if (item.FieldContext is { Kind: "STANDBY_DEFEND" }) return ResolveStandbyDefendTrigger(state, item);
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var events = new List<GameEvent>(); var triggers = new List<TriggerQueueItemState>();
         var target = item.TargetObjectIds.SingleOrDefault();

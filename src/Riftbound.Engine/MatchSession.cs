@@ -259,7 +259,11 @@ public sealed record BattlefieldResolutionState(
     string? ControllerId,
     string? SourceObjectId,
     IReadOnlyList<string> ParticipantObjectIds,
-    IReadOnlyList<string> RelatedEventKinds);
+    IReadOnlyList<string> RelatedEventKinds)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ObjectBinding>? PublicObjectBindings { get; init; }
+}
 
 public sealed record BattleResolutionState(
     string ResolutionId,
@@ -4383,7 +4387,7 @@ public sealed record MatchState
                 NormalizeOptionalText(resolution.ControllerId),
                 NormalizeOptionalText(resolution.SourceObjectId),
                 NormalizeOrderedTextList(resolution.ParticipantObjectIds),
-                NormalizeOrderedTextList(resolution.RelatedEventKinds)))
+                NormalizeOrderedTextList(resolution.RelatedEventKinds)) { PublicObjectBindings = resolution.PublicObjectBindings })
             .Where(resolution => !string.IsNullOrWhiteSpace(resolution.BattlefieldObjectId))
             .Take(12)
             .ToArray();
@@ -5909,8 +5913,10 @@ public sealed record ResolutionResult(
             ["playerId"] = resolution.PlayerId,
             ["previousControllerId"] = resolution.PreviousControllerId,
             ["controllerId"] = resolution.ControllerId,
-            ["sourceObjectId"] = VisibleObjectIdForViewer(state, resolution.SourceObjectId, viewerPlayerId),
-            ["participantObjectIds"] = VisibleObjectIdsForViewer(state, resolution.ParticipantObjectIds, viewerPlayerId),
+            ["sourceObjectId"] = resolution.PublicObjectBindings?.Any(b => b.ObjectId == resolution.SourceObjectId) == true
+                ? resolution.SourceObjectId : VisibleObjectIdForViewer(state, resolution.SourceObjectId, viewerPlayerId),
+            ["participantObjectIds"] = resolution.ParticipantObjectIds.Select(id => resolution.PublicObjectBindings?.Any(b => b.ObjectId == id) == true
+                ? id : VisibleObjectIdForViewer(state, id, viewerPlayerId)).ToArray(),
             ["relatedEventKinds"] = resolution.RelatedEventKinds
         };
     }
@@ -13938,48 +13944,10 @@ internal static class ActionPromptBuilder
         return [];
     }
 
+    // Unit defend targets are confirmed independently by the defender when the role is acquired.
     private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> DeclareBattleDefendTriggerTargetChoicesByIndex(
-        MatchState state,
-        string playerId,
-        string battlefieldObjectId,
-        IReadOnlyList<string> defenderObjectIds)
-    {
-        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
-            || !defenderObjectIds.Any(defenderObjectId => IsDefendTriggerMainDeckCountedDamageSource(state, defenderObjectId)))
-        {
-            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
-        }
-
-        var choices = state.ObjectLocations
-            .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
-                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal))
-            .Select(entry => entry.Key)
-            .Where(objectId => IsPromptControlledBattlefieldObject(state, playerId, objectId))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
-            .Select(objectId => ObjectChoice(state, objectId, "防守触发同战场敌方单位"))
-            .ToArray();
-
-        return choices.Length == 0
-            ? new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
-            : new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
-            {
-                ["0"] = choices
-            };
-    }
-
-    private static bool IsDefendTriggerMainDeckCountedDamageSource(MatchState state, string objectId)
-    {
-        return state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && !cardObject.IsFaceDown
-            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
-            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
-            && behavior.DefendTriggerMaxTargetCount > 0
-            && behavior.DefendTriggerMainDeckLookCount > 0
-            && !string.IsNullOrWhiteSpace(behavior.DefendTriggerCountedTag)
-            && behavior.DefendTriggerDamagePerCountedCard > 0;
-    }
+        MatchState state, string playerId, string battlefieldObjectId, IReadOnlyList<string> defenderObjectIds)
+        => new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
 
     private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> MergeDeclareBattlefieldTargetChoicesByIndex(
         params IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>[] choiceGroups)

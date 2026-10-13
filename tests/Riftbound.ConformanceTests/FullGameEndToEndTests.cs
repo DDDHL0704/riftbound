@@ -5578,10 +5578,12 @@ public sealed partial class FullGameEndToEndTests
             string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(revealed.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3", StringComparison.Ordinal));
         Assert.Contains(teemoResolved.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
-        Assert.Contains(teemoObjectId, teemoResolved.State.PlayerZones[teemoResolved.State.ObjectLocations[teemoObjectId].PlayerId].Base, StringComparer.Ordinal);
+        Assert.Contains(teemoObjectId, teemoResolved.State.PlayerZones[teemoResolved.State.ObjectLocations[teemoObjectId].PlayerId].Battlefields, StringComparer.Ordinal);
+        Assert.Equal(revealed.State.CardObjects[teemoObjectId].LastStandbyPlay!.Battlefield.ObjectId,
+            teemoResolved.State.ObjectLocations[teemoObjectId].BattlefieldObjectId);
         Assert.False(teemoResolved.State.CardObjects[teemoObjectId].IsFaceDown);
         Assert.Equal(4, teemoResolved.State.CardObjects[teemoObjectId].Power);
         Assert.Contains(shadowResolved.Events, gameEvent =>
@@ -5627,10 +5629,12 @@ public sealed partial class FullGameEndToEndTests
             string.Equals(gameEvent.Kind, "FOCUS_PASSED", StringComparison.Ordinal));
         Assert.Contains(activated.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(revealed.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["effectKind"] as string, "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3", StringComparison.Ordinal));
         Assert.Contains(teemoResolved.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
-        Assert.Contains(teemoObjectId, teemoResolved.State.PlayerZones[teemoResolved.State.ObjectLocations[teemoObjectId].PlayerId].Base, StringComparer.Ordinal);
+        Assert.Contains(teemoObjectId, teemoResolved.State.PlayerZones[teemoResolved.State.ObjectLocations[teemoObjectId].PlayerId].Battlefields, StringComparer.Ordinal);
+        Assert.Equal(revealed.State.CardObjects[teemoObjectId].LastStandbyPlay!.Battlefield.ObjectId,
+            teemoResolved.State.ObjectLocations[teemoObjectId].BattlefieldObjectId);
         Assert.False(teemoResolved.State.CardObjects[teemoObjectId].IsFaceDown);
         Assert.Equal(4, teemoResolved.State.CardObjects[teemoObjectId].Power);
         Assert.Contains(shadowResolved.Events, gameEvent =>
@@ -10778,6 +10782,19 @@ public sealed partial class FullGameEndToEndTests
             }
             if (hidden is null)
             {
+                if (result.State.RunePools[battlefieldOwnerId].TotalPower == 0
+                    && result.State.PlayerZones[battlefieldOwnerId].Hand.Any(id => result.State.CardObjects[id].CardNo == TeemoSelfPowerCardNo)
+                    && result.State.BattlefieldStates.Values.Any(field => field.ControllerId == battlefieldOwnerId))
+                {
+                    var rune = EnabledCandidate(result.Prompts[battlefieldOwnerId], CommandTypes.RecycleRune)?.Sources?.FirstOrDefault();
+                    if (rune is not null)
+                    {
+                        var recycle = new RecycleRuneCommand(rune.Id);
+                        result = await session.SubmitAsync(battlefieldOwnerId, $"{intentPrefix}-hide-power-{turnIndex}",
+                            recycle, RawCommand(recycle), CancellationToken.None);
+                        AssertAccepted(result); AssertNoHiddenZoneLeak(result);
+                    }
+                }
                 var hideCandidate = EnabledCandidate(result.Prompts[battlefieldOwnerId], CommandTypes.HideCard);
                 var canHideTeemo = hideCandidate?.Sources?.Any(source =>
                     result.State.CardObjects.TryGetValue(source.Id, out var cardObject)
@@ -11353,8 +11370,8 @@ public sealed partial class FullGameEndToEndTests
             .FirstOrDefault(sourceObjectId => current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
                 && string.Equals(cardObject.CardNo, expectedCardNo, StringComparison.Ordinal))
             ?? throw new InvalidOperationException($"B0 standby-reaction driver could not find {expectedCardNo} in HIDE_CARD sources.");
-        var destination = candidate.Destinations?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY", StringComparison.Ordinal))?.Id
-            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STANDBY hide destination.");
+        var destination = candidate.Destinations?.FirstOrDefault(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find a controlled battlefield hide destination.");
         var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_A", StringComparison.Ordinal))?.Id
             ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STANDBY_A hide optional cost.");
         var command = new HideCardCommand(sourceObjectId, expectedCardNo, destination, [optionalCost]);
@@ -11385,8 +11402,8 @@ public sealed partial class FullGameEndToEndTests
             ?? throw new InvalidOperationException($"B0 standby-reaction driver could not find {expectedCardNo} in REVEAL_CARD sources.");
         var mode = candidate.Modes?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_REACTION", StringComparison.Ordinal))?.Id
             ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STANDBY_REACTION reveal mode.");
-        var destination = candidate.Destinations?.FirstOrDefault(choice => string.Equals(choice.Id, "STACK", StringComparison.Ordinal))?.Id
-            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STACK reveal destination.");
+        var destination = candidate.Destinations?.FirstOrDefault(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby-reaction driver could not find the original battlefield reveal destination.");
         var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_REVEAL_0", StringComparison.Ordinal))?.Id
             ?? throw new InvalidOperationException("B0 standby-reaction driver could not find STANDBY_REVEAL_0 optional cost.");
         var command = new RevealCardCommand(

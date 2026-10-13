@@ -1,0 +1,20 @@
+[
+  {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-spiritforged-errata/",
+    "sha256": "20b61d75e7077f77d628932e195b18a872737d3d8059202d88ef29e9eca5c576",
+    "fetchedAtUtc": "2026-10-13T10:55:02.092723+00:00",
+    "teemoTextMentions": 0
+  },
+  {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/unleashed-errata-updates/",
+    "sha256": "a82509f2ef264b4af1d86886178bfc4aee369ab50408c2ed452cf6621e4823af",
+    "fetchedAtUtc": "2026-10-13T10:55:03.054407+00:00",
+    "teemoTextMentions": 0
+  },
+  {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/vendetta-rules-faq-and-clarifications/",
+    "sha256": "c5cd5ecd193c775accb02b72e00225e1b24b50e0aa6ba1003d5fcbda91f37b1b",
+    "fetchedAtUtc": "2026-10-13T10:55:04.182254+00:00",
+    "teemoTextMentions": 0
+  }
+]

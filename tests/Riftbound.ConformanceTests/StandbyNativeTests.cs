@@ -13,6 +13,7 @@ public sealed class StandbyNativeTests
     [InlineData("draw", "OGN·083/298")]
     [InlineData("equipment", "SFD·139/221")]
     [InlineData("mixed", "OGN·057/298")]
+    [InlineData("defend", "SFD·230/221")]
     public async Task ActualHideTurnResourcesAndReactionUseProductionControlsWithColdReplay(string branch, string card)
     {
         var initial = StandbySourceRulesTests.Position(card);
@@ -22,6 +23,18 @@ public sealed class StandbyNativeTests
             initial = StandbyTestDriver.WithControlledBattlefield(initial);
             initial = OfficialHoldSequenceTests.AddUnit(initial, "MIXED-ANCHOR", "OGN·001/298", StandbyTestDriver.BattlefieldId, "P1");
             initial = AttackDamageDistributionTests.Spell(initial, "MIXED-DRAW", "OGN·083/298", "P1");
+        }
+        if (branch == "defend")
+        {
+            initial = OfficialHoldSequenceTests.AddUnit(initial, "DEFEND-NATIVE-ATTACKER", "UNL-057/219", "F", "P2");
+            initial = LocalDestructionRecallTests.At(initial, "DEFEND-NATIVE-ATTACKER", "P2", "BASE");
+            var cards = initial.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+            var deck = initial.PlayerZones["P1"].MainDeck;
+            cards[deck[0]] = cards[deck[0]] with { CardNo = "OGN·121/298" };
+            cards[deck[1]] = cards[deck[1]] with { CardNo = "OGN·199/298" };
+            foreach (var id in initial.PlayerZones["P1"].RuneDeck)
+                cards[id] = cards[id] with { CardNo = "UNL-R01", Tags = [CardObjectTags.RuneCard, "COLOR:red"] };
+            initial = initial with { CardObjects = cards };
         }
         var root = Environment.GetEnvironmentVariable("RIFTBOUND_STANDBY_EVIDENCE");
         var dir = root is null ? null : Path.Combine(root, branch);
@@ -103,6 +116,12 @@ public sealed class StandbyNativeTests
         foreach (var i in new[] { 4, 5 }) await Submit("recycle-" + i, "P2", new RecycleRuneCommand("SHADOW-P2-RUNE-" + i));
         await Submit("reply", "P2", new PlayCardCommand("REPLY", "OGN·048/298", []));
         await Submit("offer", "P2", new PassPriorityCommand());
+        if (branch == "defend")
+        {
+            await Submit("resolve-reply", "P1", new PassPriorityCommand());
+            await Submit("move-attacker", "P2", new MoveUnitCommand("DEFEND-NATIVE-ATTACKER", "BASE", "BATTLEFIELD:F", []));
+            await Submit("offer-focus", "P2", new PassFocusCommand());
+        }
         var resources = current.RunePools["P1"];
         if (branch == "mixed")
             await Submit("shadow-play", "P1", new RevealCardCommand("SHADOW", card, ["HOST"], "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
@@ -114,12 +133,27 @@ public sealed class StandbyNativeTests
             var choice = current.PendingCardChoice!;
             await Submit("attach-target", "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["HOST"]));
         }
+        if (branch == "defend")
+        {
+            var choice = Assert.IsType<PendingCardChoiceState>(current.PendingCardChoice);
+            await Submit("defend-target", "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["DEFEND-NATIVE-ATTACKER"]));
+            Assert.Equal("STANDBY_DEFEND", Assert.Single(current.StackItems).FieldContext!.Kind);
+            Assert.Equal(0, current.CardObjects["DEFEND-NATIVE-ATTACKER"].Damage);
+        }
         await Submit("shadow-pass-1", current.PriorityPlayerId!, new PassPriorityCommand());
         await Submit("shadow-pass-2", current.PriorityPlayerId!, new PassPriorityCommand());
         if (branch == "equipment")
         {
             Assert.Equal("HOST", current.CardObjects["SHADOW"].AttachedToObjectId);
             Assert.Equal("F", current.ObjectLocations["SHADOW"].BattlefieldObjectId);
+        }
+        else if (branch == "defend")
+        {
+            Assert.Contains("SHADOW", current.PlayerZones["P1"].Battlefields);
+            Assert.True(current.CardObjects["SHADOW"].IsDefending);
+            Assert.Equal(2, current.CardObjects["DEFEND-NATIVE-ATTACKER"].Damage);
+            Assert.Empty(current.StackItems);
+            Assert.Equal(TimingStates.SpellDuelOpen, current.TimingState);
         }
         else Assert.Contains("SHADOW", current.PlayerZones["P1"].Graveyard);
         if (branch == "mixed")

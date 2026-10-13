@@ -1,0 +1,34 @@
+{
+  "status": "FIXED_COMMIT_FULL_CI_FAILED",
+  "commit": "840a2bcec53f0708bfb6b6ac9172460ff57be7d6",
+  "runId": 38381647247,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38381647247",
+  "lastObservedAtUtc": "2026-10-13T11:08:20.531061+00:00",
+  "verifiedTerminal": true,
+  "expectedCases": 11007,
+  "expectedMethods": 6946,
+  "baselineCommit": "96716eee5010991ec254d9fc11feb2bda3cbbcc3",
+  "baselineCases": 10970,
+  "baselineMethods": 6929,
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/27",
+  "acceptanceBoundary": "Full CI still running; check and headless production replay do not certify whole-card or visible paired/user Windows/full SQL scopes.",
+  "conclusion": "failure",
+  "jobs": {
+    "scope": "success",
+    "desktop (windows-latest)": "success",
+    "desktop (macos-latest)": "success",
+    "rules": "failure"
+  },
+  "ordinaryRulesPassed": 10856,
+  "failedGames": [
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveStandbyReactionDuringShadowResponseScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Failed",
+      "message": "System.InvalidOperationException : B0 standby-reaction driver could not find a deterministic official-deck standby reaction response path. 7: match ended before standby reaction response path | 11: match ended before standby reaction response path | 17: match ended before standby reaction response path | 23: match ended before standby reaction response path | 31: match ended before standby reaction response path | 42: match ended before standby reaction response path | 101: match ended before standby reaction response path | 404: match ended before standby reaction response path | 20260624: match ended before standby reaction response path | 424242: match ended before standby reaction response path",
+      "trace": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.DriveOfficialDecksToStandbyReactionShadowBattleCloseForReplayAsync(String roomId, OfficialDecklist p1Deck, OfficialDecklist p2Deck) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 10647\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveStandbyReactionDuringShadowResponseScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 5607\n--- End of stack trace from previous location ---"
+    }
+  ],
+  "completeSuiteExecuted": false,
+  "original110PairingsExecutionVerified": false,
+  "mandatorySqlAndNetworkStepsExecuted": false
+}
