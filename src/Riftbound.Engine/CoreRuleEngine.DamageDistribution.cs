@@ -21,7 +21,7 @@ public sealed partial class CoreRuleEngine
             && t.TargetScope == TriggerTargetScopes.EnemyUnitHere && t.DamageAmount > 0);
 
     private static IReadOnlyList<DistributedDamageBonus> DistributionBonuses(MatchState state, string controller,
-        ObjectLocationState location)
+        ObjectLocationState? location)
     {
         var bonuses = new List<DistributedDamageBonus>();
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal)
@@ -30,7 +30,7 @@ public sealed partial class CoreRuleEngine
                 if (CardStaticAbilitySpecRules.TryGetStaticAbility(instance.CardNo,
                     a => a.Kind == StaticAbilityKinds.ControllerSpellSkillDamageBonus && a.Amount > 0, out var bonus))
                     bonuses.Add(new(instance.CardNo, bonus.Kind, bonus.Amount, new(source.ObjectId, source.ObjectGeneration), instance.Origin));
-        if (location.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, location.BattlefieldObjectId) is { } field
+        if (location?.Zone == "BATTLEFIELD" && BattlefieldLocalRules.Battlefield(state, location.BattlefieldObjectId) is { } field
             && BattlefieldStaticAbilitySpecRules.TryGetAbility(field.CardNo,
                 BattlefieldStaticAbilitySpecRules.IsBattlefieldTargetSpellSkillDamageBonusAbility, out var fieldBonus))
             bonuses.Add(new(field.CardNo!, fieldBonus.Kind, fieldBonus.Amount, new(field.ObjectId, field.ObjectGeneration)));
@@ -60,7 +60,8 @@ public sealed partial class CoreRuleEngine
     }
 
     // "Here" follows the source while it remains the same object on the field.
-    // On departure retain its last field location, independently of later re-entry.
+    // Retain its last field location only as recovery provenance. Execution-time
+    // "here" needs a current location and cannot use this after departure.
     private static ResolutionResult RecordDistributionSourceLocations(MatchState before, ResolutionResult result)
     {
         if (!result.Accepted || !result.State.StackItems.Any(i => i.DamageDistribution is not null)
@@ -80,14 +81,15 @@ public sealed partial class CoreRuleEngine
         return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 
-    private static ObjectLocationState DistributionHere(MatchState state, DamageDistributionContext context)
+    private static ObjectLocationState? DistributionHere(MatchState state, DamageDistributionContext context)
         => state.CardObjects.TryGetValue(context.Source.ObjectId, out var source) && source.ObjectGeneration == context.Source.Generation
             && state.ObjectLocations.TryGetValue(source.ObjectId, out var location) && location.Zone is "BASE" or "BATTLEFIELD"
-            ? location : context.SourceLocation;
+            ? location : null;
 
     private static string[] DistributionTargets(MatchState state, StackItemState item)
     {
         var here = DistributionHere(state, item.DamageDistribution!);
+        if (here is null) return [];
         return state.CardObjects.Values.Where(c => IsFaceUpNonStandbyUnit(c) && c.ControllerId != item.ControllerId
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && state.ObjectLocations.TryGetValue(c.ObjectId, out var location)
             && location.Zone == here.Zone && (here.Zone == "BASE" ? location.PlayerId == here.PlayerId : location.BattlefieldObjectId == here.BattlefieldObjectId)

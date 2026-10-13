@@ -274,10 +274,12 @@ public sealed class AttackDamageDistributionTests
         var killed = await Top((await Act(confirmed.State, "P1", new PlayCardCommand("SOUL", "SFD·163/221", ["HOST", "ALLY"]))).State);
         Assert.Contains("HOST", killed.State.PlayerZones["P1"].Graveyard);
         Assert.True(killed.State.CardObjects["HOST"].ObjectGeneration > killed.State.StackItems.Single().DamageDistribution!.Source.Generation);
-        var pending = await Top(killed.State);
-        Assert.Equal(new[] { "ENEMY1", "ENEMY2", "ENEMY3" }, pending.State.PendingCardChoice!.LegalObjectIds);
-        var done = await Act(pending.State, "P1", Allocation(pending.State, ("ENEMY1", 2), ("ENEMY2", 2), ("ENEMY3", 1)));
-        Assert.Equal(5, done.Events.Where(e => e.Kind == "DAMAGE_APPLIED").Sum(e => (int)e.Payload["damage"]!));
+        // Current CN 359.3.f.2 and Vendetta FAQ: the ability survives, but
+        // "here" needs the same source's current field location on execution.
+        var done = await Top(killed.State);
+        Assert.Null(done.State.PendingCardChoice);
+        Assert.DoesNotContain(done.Events, e => e.Kind == "DAMAGE_APPLIED");
+        Assert.All(new[] { "ENEMY1", "ENEMY2", "ENEMY3" }, id => Assert.Equal(0, done.State.CardObjects[id].Damage));
         Assert.Contains("HOST", done.State.PlayerZones["P1"].Graveyard); Assert.Empty(done.State.StackItems);
         Restore(done.State); ArmamentMightTests.PublicRecovery(done.State);
     }
@@ -318,6 +320,21 @@ public sealed class AttackDamageDistributionTests
         }
         initial = At(OfficialHoldSequenceTests.AddUnit(initial, "ALLY", "OGN·001/298", "F", "P1"), "ALLY", "P1", "BASE");
         if (scenario != "defenders-gone") initial = Spell(initial, "SOUL", "SFD·163/221", "P1");
+        if (scenario == "both-gone")
+        {
+            initial = At(OfficialHoldSequenceTests.AddUnit(initial, "P2-ALLY", "OGN·001/298", "F", "P2"), "P2-ALLY", "P2", "BASE");
+            initial = Spell(initial, "P2-SOUL", "SFD·163/221", "P2");
+            // Keep the destruction response's draw on an actual deck; an empty
+            // fixture would burn out and move the just-destroyed unit to hand.
+            initial = initial with {
+                CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
+                    ["P2-DRAW"] = new("P2-DRAW", cardNo: "OGN·001/298", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.UnitCard]) },
+                ObjectLocations = new Dictionary<string, ObjectLocationState>(initial.ObjectLocations) {
+                    ["P2-DRAW"] = new("P2", "MAIN_DECK") },
+                PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                    ["P2"] = initial.PlayerZones["P2"] with { MainDeck = initial.PlayerZones["P2"].MainDeck.Prepend("P2-DRAW").ToArray() } }
+            };
+        }
         var current = await Act(initial, "P1", new MoveUnitCommand("HOST", "BASE", "BATTLEFIELD:F", []));
         Assert.Equal("TRIGGER_CONFIRMATION", current.State.PendingCardChoice!.ChoiceWindow);
         current = await Confirm(current.State, onlyOneDefender ? ["ENEMY1"] : ["ENEMY1", "ENEMY2", "ENEMY3"]);
@@ -325,9 +342,22 @@ public sealed class AttackDamageDistributionTests
             current = await Top((await Act(current.State, "P1", new PlayCardCommand("SOUL", "SFD·163/221", ["HOST", "ALLY"]))).State);
             Assert.Contains("HOST", current.State.PlayerZones["P1"].Graveyard);
         }
+        if (scenario == "both-gone")
+        {
+            if (current.State.PriorityPlayerId != "P2")
+                current = await Act(current.State, current.State.PriorityPlayerId!, new PassPriorityCommand());
+            current = await Top((await Act(current.State, "P2", new PlayCardCommand("P2-SOUL", "SFD·163/221", ["ENEMY1", "P2-ALLY"]))).State);
+            Assert.Contains(current.Events, e => e.Kind == "UNIT_DESTROYED" && Equals(e.Payload["targetObjectId"], "ENEMY1"));
+            Assert.DoesNotContain("ENEMY1", current.State.PlayerZones["P2"].Battlefields);
+        }
         current = await Top(current.State);
-        current = await Act(current.State, "P1", onlyOneDefender ? Allocation(current.State, ("ENEMY1", 5))
-            : Allocation(current.State, ("ENEMY1", 2), ("ENEMY2", 2), ("ENEMY3", 1)));
+        if (scenario == "defenders-gone")
+            current = await Act(current.State, "P1", Allocation(current.State, ("ENEMY1", 5)));
+        else
+        {
+            Assert.Null(current.State.PendingCardChoice);
+            Assert.DoesNotContain(current.Events, e => e.Kind == "DAMAGE_APPLIED");
+        }
         var closed = await Top(current.State);
         Assert.False(closed.State.BattleState.IsActive);
         Assert.Null(closed.State.PendingCardChoice);

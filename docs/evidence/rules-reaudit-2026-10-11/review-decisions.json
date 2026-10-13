@@ -7905,6 +7905,14 @@
         "Late arriving participants, role changes and the complete battle trigger lifecycle.",
         "Full official corpus semantic rebuild and all remaining attached-rule consumers.",
         "Reentered counter references are restored binding fixtures; actual leave/replay command sequence still needed."
+      ],
+      "supersededScopes": [
+        {
+          "date": "2026-10-13",
+          "scope": "Current here must not reuse source last field location after departure; finalized ability remains but local targets mistrarget. Original methods/rows and evidence retained.",
+          "by": "distribution-current-here-2026-10-13",
+          "evidence": "docs/evidence/distribution-current-here-2026-10-13/source-decision.json"
+        }
       ]
     },
     {
@@ -17106,6 +17114,97 @@
         "Current-source here referents in damage distribution and other rule families need the same audit; historical passing fallback expectations are not authority.",
         "Visible paired clients, user Windows, full SQL gameplay/concurrency/failover remain open.",
         "Fixed full CI and original 110 pair/seed preservation must be verified at delivery SHA."
+      ]
+    },
+    {
+      "id": "distribution-current-here-2026-10-13",
+      "status": "SCOPED_CHECK_AND_HEADLESS_NATIVE_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Execution-time current source location for distributed attack damage; ability survives source departure but local targets mistrarget. Original source-death and three entire-side-exit tests retained with real independent both-side destruction. Whole-card not certified; empty-deck battle-history gap remains open.",
+      "subjects": [
+        {
+          "id": "OGN-041/298",
+          "activeCardNo": "OGN·041/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "sourceId": 31250,
+              "cardNo": "OGN·041/298",
+              "language": "zh-CN",
+              "region": "CN",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "sha256": "ef97aa283fbc47aa716f3d84e3d07136ff528d005603a45d04b77bf203580543",
+              "confirmedAt": "2026-10-13T11:48:29.668745+00:00"
+            },
+            {
+              "sourceId": "ogn-041-298",
+              "cardNo": "OGN-041/298",
+              "language": "en-US",
+              "region": "global",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "sha256": "884834cfef6193bba55d1632566cbd2e5754452a79823056b46e6b4feb4c925b",
+              "confirmedAt": "2026-10-13T11:49:29.895919+00:00"
+            }
+          ]
+        },
+        {
+          "id": "OGN-041a/298",
+          "activeCardNo": "OGN·041a/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "sourceId": 31251,
+              "cardNo": "OGN·041a/298",
+              "language": "zh-CN",
+              "region": "CN",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "sha256": "6bddbc606acf54246fc08a3a63c4b77d2814be4eb5b4985e1284f806099fd9d2",
+              "confirmedAt": "2026-10-13T11:48:29.668745+00:00"
+            },
+            {
+              "sourceId": "ogn-041a-298",
+              "cardNo": "OGN-041a/298",
+              "language": "en-US",
+              "region": "global",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "sha256": "ea9f8cbb5ca739226f32fc77d99e188c5bf4bce7d92d1c9bbd30ee4519e9acdd",
+              "confirmedAt": "2026-10-13T11:49:29.895919+00:00"
+            }
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P008-B005",
+        "DOC-04-P026-B007",
+        "DOC-04-P044-B004",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-06-P002-B005",
+        "DOC-06-P002-B006",
+        "DOC-06-P002-B007",
+        "DOC-06-P014-B007"
+      ],
+      "auditDocument": "docs/DISTRIBUTION_CURRENT_HERE_AUDIT_2026-10-13.md",
+      "evidence": "docs/evidence/distribution-current-here-2026-10-13",
+      "tests": [
+        "AttackDamageDistributionTests",
+        "AttackDamageNativeTests",
+        "AhriCombatMightTests",
+        "StandbyDefendObserverTests"
+      ],
+      "validation": {
+        "focus": "109 cases / 44 methods passed",
+        "native": "17 production commands with matching server action-log replay; headless target/response/allocation only",
+        "check": "10875 cases / 6810 methods and complete previous case identity/count parity; 2020 frozen inputs; five real PostgreSQL smoke",
+        "full": "Fixed full CI required; original 110 pair/seed inputs unchanged"
+      },
+      "exclusions": [
+        "Whole-card and complete official-source semantics remain open.",
+        "Empty-deck burnout moves a destroyed battle participant into hand: retained BattleResolutions public-history projection/cold recovery is not yet fixed.",
+        "Copied-token distributed damage cessation and all control/battlefield-generation variants remain unverified.",
+        "Other current-source referent consumers and consistent history forgery remain open.",
+        "Fixed complete 11024-case / 6951-method / 110-pair CI and real SQL/network later steps need terminal proof.",
+        "Visible paired clients, user Windows and full SQL gameplay/concurrency/failover remain open."
       ]
     }
   ]

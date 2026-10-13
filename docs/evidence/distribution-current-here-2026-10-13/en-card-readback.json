@@ -1,0 +1,363 @@
+{
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "fetchedAtUtc": "2026-10-13T11:49:29.895919+00:00",
+  "responseSha256": "bbd0902fd52e3211102b1ab96130fe34d15a1ae8f35ddbbb0981c0385b9c0ef1",
+  "language": "en-US",
+  "region": "global",
+  "reported": 1389,
+  "returned": 1381,
+  "records": [
+    {
+      "id": "ogn-041-298",
+      "collectorNumber": 41,
+      "name": "Volibear",
+      "subtitle": "Furious",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-041/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "epic",
+          "label": "Epic",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+            "dimensions": {
+              "width": 455,
+              "height": 419,
+              "aspectRatio": 1.0859188544152745
+            },
+            "colors": {
+              "primary": "#B8794C",
+              "secondary": "#332F29",
+              "label": "#604634"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "fury",
+            "label": "Fury",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#1A0D0E",
+                "secondary": "#F9DCDE",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c9165d49b8caae9a856433cd5151e8b368eb80b5-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Volibear, Furious. [Deflect 2] (Opponents must pay [A][A] to choose me with a spell or ability.)\nWhen I attack, deal 5 damage split among any number of enemy units here.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#222D44",
+          "secondary": "#F6F9DC",
+          "label": "#060C18"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "envarstudio",
+            "label": "Envar Studio",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Deflect 2] (Opponents must pay :rb_rune_rainbow::rb_rune_rainbow: to choose me with a spell or ability.)<br />When I attack, deal 5 damage split among any number of enemy units here.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 10,
+          "label": "10"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 9,
+          "label": "9",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Volibear",
+          "Freljord"
+        ]
+      }
+    },
+    {
+      "id": "ogn-041a-298",
+      "collectorNumber": 41,
+      "name": "Volibear",
+      "subtitle": "Furious",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "OGN",
+          "label": "Origins"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "unit",
+            "label": "Unit",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "champion",
+            "label": "Champion",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "OGN-041a/298",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "showcase",
+          "label": "Showcase",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+            "dimensions": {
+              "width": 376,
+              "height": 426,
+              "aspectRatio": 0.8826291079812206
+            },
+            "colors": {
+              "primary": "#B89D3B",
+              "secondary": "#333229",
+              "label": "#4F472B"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "fury",
+            "label": "Fury",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#1A0D0E",
+                "secondary": "#F9DCDE",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/744d1b950ae7ef1e6e5b244538a6afb9802e5e3d-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Unit: Volibear, Furious. [Deflect 2] (Opponents must pay [A][A] to choose me with a spell or ability.)\nWhen I attack, deal 5 damage split among any number of enemy units here.",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#0C0609",
+          "secondary": "#FFF3D6",
+          "label": "#000000"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "leaguesplashteam",
+            "label": "League Splash Team",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Deflect 2] (Opponents must pay :rb_rune_rainbow::rb_rune_rainbow: to choose me with a spell or ability.)<br />When I attack, deal 5 damage split among any number of enemy units here.</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 10,
+          "label": "10"
+        }
+      },
+      "might": {
+        "label": "Might",
+        "value": {
+          "id": 9,
+          "label": "9",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+          }
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 2,
+          "label": "2",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Volibear",
+          "Freljord"
+        ]
+      }
+    }
+  ]
+}

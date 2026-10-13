@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "baselineCommit": "8f637fdb23498a7b700c707be2b35a934048be67",
+  "file": "tests/Riftbound.ConformanceTests/AttackDamageDistributionTests.cs",
+  "methods": [
+    "AttackConfirmsItsPrintedDamageTargetsBeforeResponses",
+    "ConfirmedTargetsArePublicButAmountsWaitForResolutionAndRemainIndependentOfMight",
+    "InvalidAllocationCannotChangeTargetsSpendResourcesOrAdvanceBattle",
+    "AttachedPrintedCopyCreatesTwoIndependentAttackTriggersAndConfirmationWindows",
+    "FlashingTwoConfirmedTargetsToBaseStillPreventsRepulseButLeavesOneAllocationTarget",
+    "TwoCruelRevivalCostsMoveTargetsToNonfieldAndPermitRepulseWithoutDestroyingTheAbilitySource",
+    "MovingSourceToBaseChangesHereAtResolutionAndDoesNotRetargetOriginalEnemies",
+    "AnnieAddsOneToTheWholePoolAndItsDepartureReducesTheNumberOfSurvivingChosenTargets",
+    "RecoveryRejectsForgedDistributionAndContinuation",
+    "SourceDestroyedAfterConfirmationKeepsItsCapturedAbilityAndLastFieldLocation",
+    "MultipleChosenSpellshieldTargetsRequireOneCombinedPaymentBeforeAnyResponse",
+    "AnEntireSideLeavingDuringAttackResponsesClosesBattleWithoutCombatDamage",
+    "RecoveryRejectsForgedCapturedBattleDeclarations",
+    "PublicRecoveryRejectsAChangedCapturedDamagePool",
+    "RepulseReferencesTheConfirmedGameObjectRatherThanAReenteredCardWithTheSameId"
+  ],
+  "oldMethodsAndRowsRetained": true,
+  "noNewOrRemovedMethods": true
+}
