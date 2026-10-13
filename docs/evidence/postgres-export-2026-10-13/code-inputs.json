@@ -1,0 +1,18 @@
+{
+  ".github/workflows/native-desktop.yml": "b97d347ed18d28f3b868cc97e1e8e2cc863664e1b5099e53c5051626413eaead",
+  "clients/godot/export_presets.cfg": "c64191b9d4462a82a012f347349111a5844d198f787c6eed589e5c5874afed57",
+  "clients/godot/icon.svg": "522d7e5fe5b6700b081d0e0573d50a27f169c9b7755b8e01ed7a1815bd42c9e0",
+  "clients/godot/assets/windows-icon.ico": "9420140e9fe65f24c7d3fec3b02aad06a561a0618c4aa570b10e45c7545ad5a6",
+  "clients/godot/tools/build-windows-icon.gd": "e1ca0c64569af96a964d728008198bd7af215eade7760ecd977a7094b2b324a4",
+  "clients/godot/tools/ci-desktop.py": "7df906d30b7abfe9f4926e398b1643bd28ccc8fb0ffaf4cb114af85042ae8e94",
+  "scripts/tests/test_desktop_export_config.py": "7efeb46d625793c9a4b3e6f6ccc1a660978e7bad6df09e7c73e12f7427553a4f",
+  "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj": "7ddf1e581c5606d5a77ca702be22dd41d084e37afc7caea409ba78c48c727e03",
+  "tests/Riftbound.PostgresAcceptance/Program.cs": "4aa4dd46d3cafb5de79e12dd1734226c0ef46a1519e5bff4855d5cab14caec5f",
+  "tests/Riftbound.ConformanceTests/PostgresMatchRecoveryStoreSmokeTests.cs": "e5fcf6a631fe513094eb049e0bc5f3f3812dc80f472dec3431e8be3710900cff",
+  "src/Riftbound.Persistence/PostgresMatchJournal.cs": "d2de3d33013757277ecb9b7ac042c31abf23b4bcb2122939a8435f9875c00dba",
+  "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs": "72dcd85521f54007dfe022b087432554ed0fc5def536bcc4acc9b7ef6ffb94f1",
+  "src/Riftbound.Engine/MatchRecovery.cs": "5284360c31ea73dc506cce82e1d3b3cff96ef1156b5ca3a0200dfd916198f050",
+  "src/Riftbound.Engine/MatchSession.cs": "88de72fecaabc874d4e850c2ed33b25b40713489c27e3ca3313d4f5939ad5b95",
+  "src/Riftbound.Engine/CoreRuleEngine.cs": "1bb0c7cf8ebc9567d4791b01b39a1a2188df2404ef4db9dedcdd20c8a43ca3be",
+  "data/official/card-catalog.zh-CN.json": "de6783ea7912e40fd9e96afff0cedd24b14db98c6f79fa1d904fa6f86019138a"
+}

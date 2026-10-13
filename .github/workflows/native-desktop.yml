@@ -64,6 +64,20 @@ jobs:
     concurrency:
       group: rules-${{ github.ref }}-${{ github.sha }}
       cancel-in-progress: true
+    services:
+      postgres:
+        image: postgres:16.13@sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: riftbound_ci
+          POSTGRES_DB: riftbound_acceptance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d riftbound_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ConnectionStrings__Riftbound: Host=127.0.0.1;Port=5432;Database=riftbound_acceptance;Username=postgres;Password=riftbound_ci;SSL Mode=Disable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
@@ -75,6 +89,10 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -v
       - name: Complete rule suite with checked process shards
         run: python3 scripts/test-rules.py full --output var/qa/ci-rules
+      - name: Real PostgreSQL core recovery and replay
+        env:
+          RIFTBOUND_POSTGRES_EVIDENCE: var/qa/ci-postgres
+        run: dotnet run --project tests/Riftbound.PostgresAcceptance
       - name: Native client connection recovery
         env:
           ASPNETCORE_ENVIRONMENT: Development
@@ -94,7 +112,9 @@ jobs:
         if: always()
         with:
           name: conformance-results
-          path: var/qa/ci-rules/
+          path: |
+            var/qa/ci-rules/
+            var/qa/ci-postgres/
           retention-days: 7
 
   desktop:

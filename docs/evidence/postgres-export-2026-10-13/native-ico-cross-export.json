@@ -1,0 +1,22 @@
+{
+  "status": "CROSS_EXPORT_EXECUTED_NOT_WINDOWS_RUNTIME",
+  "command": [
+    "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+    "--headless",
+    "--verbose",
+    "--path",
+    "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+    "--export-release",
+    "Windows Desktop",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/windows-export-image-20261013/native-ico/Riftbound.exe"
+  ],
+  "exitCode": 0,
+  "executedAtUtc": "2026-10-13T01:39:26.433119+00:00",
+  "outputSha256": "4a13e6302c8286bcb2a1080d32eae85721d324f06bf892f0dedf6c1807726ae8",
+  "projectBytesRestored": true,
+  "errors": [],
+  "oldExportsBundled": [],
+  "leakedImages": [],
+  "packageExists": true,
+  "scope": "Native ICO candidate and export-output exclusion verified on macOS cross-export only; Windows runner required"
+}

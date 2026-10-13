@@ -1,0 +1,50 @@
+{
+  "actualSqlConnected": true,
+  "smokeSummary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 42.68,
+    "total": 5,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 3.08
+      }
+    ]
+  },
+  "smokeTrxSha256": "998bd301e90ac664c8b6041c78a818d6c48507ddfd6fda5a6c43772c04e8edb3",
+  "originalFiveMethodsUnchanged": true,
+  "noConnectionGateFails": true,
+  "actionlintPassed": true,
+  "toolTestsPassed": 27,
+  "originalSvgMacCrossExport": "NO_LEAK_REPRODUCED",
+  "nativeIcoMacCrossExport": "PASSED_NOT_WINDOWS_RUNTIME",
+  "icoRebuildByteParity": true,
+  "windowsRootCauseConfirmed": false,
+  "windowsRuntimePassed": false,
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 182.67,
+    "total": 10689,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10689,
+        "passed": 10689,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 177.33
+      }
+    ]
+  },
+  "platformReady": false,
+  "checkMethods": 6740,
+  "checkCaseMethodParityVerified": true
+}

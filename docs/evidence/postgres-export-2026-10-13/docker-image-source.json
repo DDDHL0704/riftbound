@@ -1,0 +1,8 @@
+{
+  "url": "https://registry-1.docker.io/v2/library/postgres/manifests/16.13",
+  "fetchedAtUtc": "2026-10-13T01:45:35.221035+00:00",
+  "tag": "postgres:16.13",
+  "indexDigest": "sha256:5d143123fdf80462d1778cd4f24b9f7ca13c87174bca19141fb194c5a1ebca59",
+  "linuxAmd64Digest": "sha256:3102b2114b39383b61fa194e5929734c72a56ce366dbb391509b1f07aef10f9f",
+  "source": "Docker Official Image library/postgres"
+}

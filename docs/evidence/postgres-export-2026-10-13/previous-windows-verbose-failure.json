@@ -1,0 +1,23 @@
+{
+  "status": "WINDOWS_VERBOSE_EXPORT_FAILED",
+  "commit": "da39ac3fae6659fa1b78c6082629a263f51c28b1",
+  "runId": 38332066961,
+  "jobId": 115083874758,
+  "recordedAtUtc": "2026-10-13T01:31:06.196244+00:00",
+  "jobLogSha256": "14b5b4da2bb95642abaad76f3f8ff9973bdbd87d7989422f29806c265da901e6",
+  "diagnosticLines": [
+    "2026-10-13T01:27:12.5717785Z ERROR: 2 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+    "2026-10-13T01:27:12.5718112Z Leaked instance: Image:9223372088226614125 - Reference count: 1",
+    "2026-10-13T01:27:12.5718342Z Leaked instance: Image:9223372088260168559 - Reference count: 1",
+    "2026-10-13T01:27:12.5721339Z RuntimeError: Command failed; see export.log"
+  ],
+  "identifiedLeakedObjectType": "Image",
+  "identifiedLeakedObjectCount": 2,
+  "objectReferenceCounts": [
+    1,
+    1
+  ],
+  "rootCause": "UNKNOWN",
+  "packagedBoot": "NOT_EXECUTED",
+  "nextAction": "Inspect current Godot Windows export image/icon paths; retain exact head failure and ERROR gate"
+}

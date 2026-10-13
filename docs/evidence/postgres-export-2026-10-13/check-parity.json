@@ -1,0 +1,18 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_VERIFIED",
+  "baselineCases": 10689,
+  "baselineMethods": 6740,
+  "cases": 10689,
+  "methods": 6740,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "failed": 0,
+  "skipped": 0,
+  "duplicates": [],
+  "addedCases": [],
+  "addedMethods": [],
+  "baselineTrxSha256": "e2e7587817776ec69a7317e23d184b66d9defdc26461fc10a1bfd08b71735fe9",
+  "currentTrxSha256": "630964f24dcb3651867599753e1fb3272d448134a7463c934261a62b1b6711b1",
+  "testedCodeInputsUnchanged": true,
+  "fullExecutionCertified": false
+}

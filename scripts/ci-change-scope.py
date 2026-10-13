@@ -37,6 +37,7 @@ DOCUMENTATION = frozenset({
     'docs/COPIED_FACE_AUTHORITY_AUDIT_2026-10-13.md',
     'docs/SHADY_SPECTACLES_AUDIT_2026-10-13.md',
     'docs/ATTACHMENT_THEFT_COPY_AUDIT_2026-10-13.md',
+    'docs/POSTGRES_EXPORT_ACCEPTANCE_2026-10-13.md',
     'docs/RULE_TEST_WORKFLOW.md', 'docs/RULE_TEST_SPEED_2026-10-09.md',
     'docs/RULE_TEST_SPEED_2026-10-12.md',
     'docs/rules-authority-and-audit.md', 'docs/rules-evidence-index.md',

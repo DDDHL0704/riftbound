@@ -14918,6 +14918,7 @@
       ],
       "auditDocument": "docs/SHADY_SPECTACLES_AUDIT_2026-10-13.md",
       "evidence": [
+        "docs/evidence/postgres-export-2026-10-13/shady-rule-full-eedba831-windows-failed.json",
         "docs/evidence/shady-spectacles-2026-10-13/associated-readback.json",
         "docs/evidence/shady-spectacles-2026-10-13/check-parity.json",
         "docs/evidence/shady-spectacles-2026-10-13/check-stale-catalog-counts.json",
@@ -14970,7 +14971,15 @@
         "fullPlannedMethods": 6876,
         "fullExpectedCases": 10826,
         "fullPlannedMethodParityVerified": true,
-        "fullExecutionCertified": false
+        "fullExecutionCertified": false,
+        "fullRuleCiStatus": "PASSED",
+        "fullIntegrationCiStatus": "FAILED",
+        "fullRuleCases": 10826,
+        "fullRuleMethods": 6876,
+        "fullRuleSeconds": 2635.31,
+        "matrixPairs": 110,
+        "matrixIdentityAndFinalHashesPreserved": true,
+        "windowsExportStatus": "FAILED"
       },
       "exclusions": [
         "Gear theft and all copy interactions and original text reacquisition",

@@ -1,0 +1,21 @@
+{
+  "status": "ACCEPTANCE_EXPECTATION_FAILED",
+  "scope": "Acceptance tool expectation, not demonstrated database defect",
+  "failureLog": "core-identity.log",
+  "reason": "Historical snapshots/prompts retain two views for every accepted state; total row count is not two",
+  "correction": "Keep exact history counts and separately verify exactly two latest snapshot/prompt rows; previous SQL recovery/replay and tamper checks had already executed",
+  "observedCounters": {
+    "submitted": 8,
+    "counts": {
+      "commands": 8,
+      "events": 19,
+      "states": 7,
+      "snapshots": 10,
+      "prompts": 10,
+      "currentSnapshots": 2,
+      "currentPrompts": 2
+    }
+  },
+  "additionalCause": "View rows are keyed by player/tick; authoritative state frames are keyed by tick/event sequence. Several accepted room commands share a tick but advance events.",
+  "finalCorrection": "Compute distinct ticks and tick/event-sequence frames independently from every executed result, verify all row histories and both latest views; no conditional SQL skip or weaker count assertion"
+}

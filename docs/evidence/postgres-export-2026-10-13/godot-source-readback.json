@@ -1,0 +1,32 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/godotengine/godot/4.7.2-stable/platform/windows/export/export_plugin.cpp",
+    "sha256": "0305ee0406b90db7e4a66b8725f569e0294873f2c5a7907ca75442290432242c",
+    "bytes": 45520,
+    "fetchedAtUtc": "2026-10-13T01:32:48.055540+00:00"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/godotengine/godot/4.7.2-stable/platform/windows/export/export_plugin.h",
+    "sha256": "0a30e76c669065963182266b7b3acabae6b5b7591460f7f28c1752a4f0d152fd",
+    "bytes": 5819,
+    "fetchedAtUtc": "2026-10-13T01:32:48.656974+00:00"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/godotengine/godot/4.7.2-stable/platform/windows/export/export.cpp",
+    "sha256": "c189e5e6b3cdf6521565e7d3adf1f8e26f40d1d420bfdf15ab17cd77a48e0961",
+    "bytes": 3217,
+    "fetchedAtUtc": "2026-10-13T01:32:49.284735+00:00"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/godotengine/godot/4.7.2-stable/editor/export/editor_export_platform.cpp",
+    "sha256": "91d3c3866198da92686067b8bf72cbb1c29649494582aa3920dd5d9b79210516",
+    "bytes": 95945,
+    "fetchedAtUtc": "2026-10-13T01:33:48.931963+00:00"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/godotengine/godot/4.7.2-stable/editor/export/editor_export_platform.h",
+    "sha256": "e4483cdfdfb9c35c258e28cbc904ef878f2b51a9a128aff3f8da39984f025794",
+    "bytes": 19738,
+    "fetchedAtUtc": "2026-10-13T01:33:49.637616+00:00"
+  }
+]
