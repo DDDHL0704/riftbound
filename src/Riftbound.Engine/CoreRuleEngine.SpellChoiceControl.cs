@@ -154,6 +154,8 @@ public sealed partial class CoreRuleEngine
                         }
                 void Add(SpellExecutionState draft, string label, IReadOnlyList<string>? ids = null)
                 {
+                    draft = draft with { MovementDeclarationPlayerId = CardBehaviorRegistry.TryGetByEffectKind(draft.EffectKind, out var movement)
+                        && movement.MovesTargetsToChosenLocation ? spell.ControllerId : null };
                     var key = "EDIT:" + i + ":" + MatchStateHasher.HashValue(draft);
                     if (edits.TryAdd(key, (i, draft))) options.Add(new(key, label, ids));
                 }
@@ -177,7 +179,9 @@ public sealed partial class CoreRuleEngine
         var chosen = executions.SelectMany(e => e.TargetObjectIds).ToHashSet(StringComparer.Ordinal);
         return spell with { EffectKind = first.EffectKind, TargetObjectIds = first.TargetObjectIds,
             TargetGenerations = first.TargetGenerations, Destination = first.Destination, MovementDestinations = first.MovementDestinations,
-            RepeatExecutions = spell.RepeatExecutions is null ? null : executions,
+            RepeatExecutions = spell.RepeatExecutions is null ? null : executions.Select(e => e with {
+                MovementDeclarationPlayerId = CardBehaviorRegistry.TryGetByEffectKind(e.EffectKind, out var movement)
+                    && movement.MovesTargetsToChosenLocation ? spell.ControllerId : null }).ToArray(),
             TargetStackSources = state.StackItems.Where(s => chosen.Contains(s.StackItemId)).ToDictionary(s => s.StackItemId, s => s.SourceObjectId, StringComparer.Ordinal) };
     }
 }
