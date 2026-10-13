@@ -1,0 +1,21 @@
+{
+  "status": "PASSED",
+  "profile": "focus",
+  "seconds": 74.62,
+  "total": 668,
+  "caseParityVerified": false,
+  "shards": [
+    {
+      "shard": "focus",
+      "total": 668,
+      "passed": 668,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 70.97
+    }
+  ],
+  "methods": 6988,
+  "newCases": 43,
+  "newMethods": 9,
+  "trxSha256": "61c6e1d11ddf7956068034d18f53d7065d8e69f9b4515ff343e3714e4c6642e8"
+}

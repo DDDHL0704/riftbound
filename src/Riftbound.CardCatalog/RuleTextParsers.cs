@@ -784,6 +784,21 @@ public static class TriggerParser
 
     private static TriggerSpec ToTriggerSpec(string segment)
     {
+        var exactOtherFriendlyHeld = Regex.Match(segment,
+            @"^当我据守一处战场时，如果(?:你在此处控制的|此处受你控制的)其他单位有且仅有(?<count>[0-9一两二三四五六七八九十]+)个，则(?:(?:抽(?<draw>[0-9一两二三四五六七八九十]+)张牌)|(?:你获得(?<score>[0-9一两二三四五六七八九十]+)分))[。]?$",
+            RegexOptions.CultureInvariant);
+        if (exactOtherFriendlyHeld.Success)
+        {
+            var draws = exactOtherFriendlyHeld.Groups["draw"].Success;
+            return new TriggerSpec(draws ? TriggerKinds.UnitBattlefieldHeldDraw : TriggerKinds.UnitBattlefieldHeldScore,
+                TriggerTimings.BattlefieldHeld, segment,
+                "Exact other friendly battlefield-unit condition is checked at Hold capture, not when the independent ability resolves (CN383.2.a.1).",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                DrawCount: draws ? ParseChineseNumber(exactOtherFriendlyHeld.Groups["draw"].Value) : null,
+                ScoreAmount: draws ? null : ParseChineseNumber(exactOtherFriendlyHeld.Groups["score"].Value),
+                RequiredExactOtherFriendlyBattlefieldUnits: ParseChineseNumber(exactOtherFriendlyHeld.Groups["count"].Value));
+        }
+
         var unitBattlefieldHeldDrawMatch = Regex.Match(
             segment,
             @"当我据守一处战场时，抽([0-9一两二三四五六七八九十]+)张牌。?$",

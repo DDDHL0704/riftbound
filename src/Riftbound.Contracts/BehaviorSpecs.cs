@@ -180,6 +180,7 @@ public static class TriggerKinds
         "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN";
     public const string UnitConquestDestroyEquipmentGrantSelfBoon =
         "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON";
+    public const string UnitBattlefieldHeldScore = "UNIT_BATTLEFIELD_HELD_SCORE";
     public const string UnitBattlefieldHeldDraw =
         "UNIT_BATTLEFIELD_HELD_DRAW";
     public const string UnitBoonGrantedReadySelf =
@@ -605,7 +606,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? DistinctModesPerTurn = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? MinimumPowerAfterModifier = null);
+    int? MinimumPowerAfterModifier = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? RequiredExactOtherFriendlyBattlefieldUnits = null);
 
 public sealed record ReplacementSpec(
     string Kind,

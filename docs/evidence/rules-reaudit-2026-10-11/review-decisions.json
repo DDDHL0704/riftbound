@@ -17683,6 +17683,71 @@
         "Visible paired clients,userWindows,fullSQL concurrency/failover and network-with-SQL open.",
         "VEN129 actual hand-play/printed cost and all reentry combinations are not independently certified by these midgame fixtures."
       ]
+    },
+    {
+      "id": "exact-other-friendly-hold-draw-score-2026-10-13",
+      "status": "SCOPED_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Five current CN conditional Hold draw/score prints, capture-time exact other friendly battlefield UNIT count, independent original/copied triggers, real return response and score victory. Shared ordered-trigger closed priority fixed. No whole-card certification.",
+      "subjects": [
+        "VEN-042",
+        "VEN-042A",
+        "VEN-170",
+        "VEN-138",
+        "VEN-138A",
+        "VEN-042/166",
+        "VEN-170/166",
+        "VEN-138/166"
+      ],
+      "ruleRecords": [
+        "DOC-04-P034-B005",
+        "DOC-04-P034-B006",
+        "DOC-04-P034-B007",
+        "DOC-04-P034-B008",
+        "DOC-04-P034-B009",
+        "DOC-04-P034-B010",
+        "DOC-04-P034-B011",
+        "DOC-04-P053-B005",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-04-P053-B010",
+        "DOC-04-P053-B011",
+        "DOC-04-P053-B012",
+        "DOC-04-P053-B013",
+        "DOC-04-P059-B002",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B004",
+        "DOC-04-P059-B006",
+        "DOC-04-P059-B007",
+        "DOC-04-P059-B008",
+        "DOC-04-P059-B009",
+        "DOC-04-P060-B006",
+        "DOC-04-P060-B007"
+      ],
+      "auditDocument": "docs/EXACT_OTHER_FRIENDLY_HOLD_AUDIT_2026-10-13.md",
+      "evidence": "docs/evidence/exact-other-friendly-hold-2026-10-13",
+      "tests": [
+        "ExactOtherFriendlyHoldTests",
+        "OfficialHoldSequenceTests",
+        "FrostHoldTests",
+        "SacredProtectorTests",
+        "ShenDiscipleTests",
+        "CardCatalogBaselineTests",
+        "FullGameEndToEndTests.AssertNoHiddenZoneLeak"
+      ],
+      "validation": {
+        "focus": "668 cases/451methods,43newcases/9methods;old methods/Theory rows preserved",
+        "native": "37branches199 actual production commands/cold/dedup/full journal replay;headless only",
+        "check": "10979/6847,165.62s;old10936/6838+43/9 retained;2237 frozen inputs;actual dedicatedSQL5/Python27;cluster stopped",
+        "full": "Plan6988/11128;all143originalgames/110pairs/seed424242 and11actualdeckJSON retained;newfixedfull pending;37971a42 full11062/6967 withactualSQL/network/desktops individually verified",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Exact-count consumer inventory has scoped keyword/damage/Hold paths, all whole-entry certification remains false.",
+        "No actual hand-play/printed costs/all copy unit, blue amplification and control/reentry combinations certification from fixtures.",
+        "English report/returned gap8 and all source coverage remain open.",
+        "Visible paired clients,userWindows,fullSQL concurrency/failover and network-with-SQL open."
+      ]
     }
   ]
 }

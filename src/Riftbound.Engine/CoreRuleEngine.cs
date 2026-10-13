@@ -2771,7 +2771,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             StackItems = state.StackItems.Concat(stackItemsToAppend).ToArray(),
             PriorityPlayerId = topStackItem?.ControllerId,
             PassedPriorityPlayerIds = [],
-            TimingState = TimingStates.NeutralOpen
+            TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed
         };
         var events = new GameEvent[]
         {

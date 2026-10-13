@@ -1,0 +1,144 @@
+{
+  "runs": [
+    {
+      "run": "initial-compiled",
+      "cases": 87,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·138\", returnSource: False)",
+          "message": "择日再战 requires 1 friendly unit target(s)."
+        },
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·042\", returnSource: False)",
+          "message": "择日再战 requires 1 friendly unit target(s)."
+        },
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·042\", returnSource: True)",
+          "message": "择日再战 requires 1 friendly unit target(s)."
+        },
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·138\", returnSource: True)",
+          "message": "择日再战 requires 1 friendly unit target(s)."
+        }
+      ],
+      "trxSha256": "1ae046e16df452573d8aa9c2af9ebb61ee147cb60c252936edc8e99acea68fca"
+    },
+    {
+      "run": "captured-focus",
+      "cases": 93,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·138\", returnSource: False)",
+          "message": "Not enough mana to play 择日再战."
+        },
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·042\", returnSource: False)",
+          "message": "Not enough mana to play 择日再战."
+        },
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·138\", returnSource: True)",
+          "message": "Not enough mana to play 择日再战."
+        },
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·042\", returnSource: True)",
+          "message": "Not enough mana to play 择日再战."
+        }
+      ],
+      "trxSha256": "a0edcafdc4ee672775879f9a055e84489efd67f1213985905e597150d89da3fc"
+    },
+    {
+      "run": "funded-focus",
+      "cases": 93,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·138\", returnSource: True)",
+          "message": "Assert.DoesNotContain() Failure: Item found in set\nSet:   [\"P1\", \"GEAR\", \"RESPONSE-RUNE\", \"R1\", \"F\", ···]\nFound: \"HOST\""
+        },
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion(no: \"VEN·042\", returnSource: True)",
+          "message": "Assert.DoesNotContain() Failure: Item found in set\nSet:   [\"P1\", \"GEAR\", \"RESPONSE-RUNE\", \"R1\", \"F\", ···]\nFound: \"HOST\""
+        }
+      ],
+      "trxSha256": "d60999cb9c4a5f903a4b97810397a4bbca63696964d3d4733e283deebe83b826"
+    },
+    {
+      "run": "history-focus",
+      "cases": 528,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitIdsAreStableUniqueAndComplete",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 829\nActual:   830"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6LifecycleTriggerReplacementFamiliesReportSpecAndExecutionBoundaryCoverage",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 541\nActual:   546"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6CompletionAuditKeepsEveryFunctionalUnitImplementedOrExplicitlyDeferred",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 829\nActual:   830"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 829\nActual:   830"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitsMatchCurrentBaselineCounts",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 829\nActual:   830"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 829\nActual:   830"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6HighFrequencyTemplateFamiliesReportEntryAndFunctionalUnitCoverage",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 134\nActual:   137"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6SecondaryTemplateFamiliesReportEntryAndFunctionalUnitCoverage",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 259\nActual:   260"
+        }
+      ],
+      "trxSha256": "56a276a3198821a107c0b77fe10bcf7d217352e164c57648905065f78f9d35bf"
+    },
+    {
+      "run": "stat-focus",
+      "cases": 4,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6LifecycleTriggerReplacementFamiliesReportSpecAndExecutionBoundaryCoverage",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 433\nActual:   436"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitsMatchCurrentBaselineCounts",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 116\nActual:   115"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6HighFrequencyTemplateFamiliesReportEntryAndFunctionalUnitCoverage",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 118\nActual:   117"
+        }
+      ],
+      "trxSha256": "24bc42e939a567aa39da2bade93fdafddac29fe562ee2fb4f63aef1474c508fc"
+    },
+    {
+      "run": "adjacent-focus",
+      "cases": 607,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.OriginalAndCopiedCapturedHoldSurviveSourceReturnAndArmamentDetachment(no: \"VEN·138\")",
+          "message": "当前玩家没有使用符文资源的行动权或焦点。"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 114\nActual:   115"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.OriginalAndCopiedCapturedHoldSurviveSourceReturnAndArmamentDetachment(no: \"VEN·042\")",
+          "message": "当前玩家没有使用符文资源的行动权或焦点。"
+        }
+      ],
+      "trxSha256": "839eda8ffa91dfaa6b01cd7d519d7c73e12ca5e612b6d01ebdb439365ec27616"
+    }
+  ],
+  "classification": "Original/copied return exposed shared ordered-trigger timing NeutralOpen with a live stack, causing legal rune resource response rejection; fixed to corresponding closed timing. Other intermediate failures: wrong-player friendly target, cleared initial rune pool, compile typo, public historical source fixture assertion and exact new catalog counts. All old methods/Theory rows retained. Native intermediate assumed reversed orders; changed debug harness to actual button-driven desired permutation.",
+  "wholeCardCertification": false
+}

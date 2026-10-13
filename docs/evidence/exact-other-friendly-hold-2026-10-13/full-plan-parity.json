@@ -1,0 +1,25 @@
+{
+  "status": "FULL_PLAN_IDENTITY_PARITY_VERIFIED_EXECUTION_PENDING",
+  "baselineCommit": "ebdef63418348601276591c48d40752eac80dce6",
+  "methods": 6988,
+  "expectedCases": 11128,
+  "oldMethodsPreserved": true,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.ActualOwnTurnHoldQueuesOnlyAtExactlyOneOtherFriendlyUnit",
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.AdditionalHeldScoreCanWinAfterTheNormalHoldPoint",
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CapturedConditionRemainsSatisfiedAfterResponseReturnsTheSourceOrItsCompanion",
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.ColdRecoveryRejectsForgedCapturedConditionalTextAndEffect",
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CopiedTextCreatesIndependentHoldTriggersAndKeepsCapturedOrigins",
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CurrentFivePrintingsHaveExactHeldConditionInsteadOfUnconditionalEffects",
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.CurrentSourceAdditionsPreserveAllElevenActualDeckInputs",
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.OpponentTurnDoesNotTriggerTheFriendlyUnitsHold",
+    "Riftbound.ConformanceTests.ExactOtherFriendlyHoldTests.OriginalAndCopiedCapturedHoldSurviveSourceReturnAndArmamentDetachment"
+  ],
+  "originalFullGameMethods": 143,
+  "allOriginalFullGameMethodsPreserved": true,
+  "matrixPairs": 110,
+  "matrixSeed": 424242,
+  "allElevenActualDeckJsonInputsPreserved": "ExactOtherFriendlyHoldTests.CurrentSourceAdditionsPreserveAllElevenActualDeckInputs passed in check",
+  "testAssemblySha256": "0218fd8cff02cda37fc36ab75f4a26b9db1a063b55d733514dc2eef418892298",
+  "fullExecutionCertified": false
+}

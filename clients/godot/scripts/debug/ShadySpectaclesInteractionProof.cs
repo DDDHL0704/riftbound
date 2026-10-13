@@ -124,10 +124,21 @@ public partial class ShadySpectaclesInteractionProof : Control
             var overlay = GD.Load<PackedScene>("res://scenes/overlays/TriggerOrderOverlay.tscn").Instantiate<TriggerOrderOverlay>(); AddChild(overlay);
             Check(overlay.ShowPrompt(action, out var reason), reason);
             using var expected = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-selection.json")));
-            var ids = expected.RootElement.GetProperty("triggerIds").EnumerateArray().Select(v => v.GetString()!).ToArray();
-            var count = overlay.OrderedTriggerIds.Count;
-            for (var i = 0; i < count - 1; i++) for (var j = 0; j < count - i - 1; j++)
-                overlay.GetNode<VBoxContainer>("%TriggerRows").GetChild(j).GetNode<Button>("MoveDownButton").EmitSignal(BaseButton.SignalName.Pressed);
+            var selectedIds = expected.RootElement.TryGetProperty("orderedTriggerIds", out var orderedIds) && orderedIds.ValueKind == JsonValueKind.Array
+                ? orderedIds : expected.RootElement.GetProperty("triggerIds");
+            var ids = selectedIds.EnumerateArray().Select(v => v.GetString()!).ToArray();
+            Check(overlay.OrderedTriggerIds.Count == ids.Length && ids.Distinct(StringComparer.Ordinal).Count() == ids.Length,
+                "Each server trigger is selected exactly once");
+            for (var position = 0; position < ids.Length; position++)
+            {
+                var current = overlay.OrderedTriggerIds.ToList().IndexOf(ids[position]);
+                Check(current >= position, "Expected trigger belongs to the server order");
+                while (current > position)
+                {
+                    overlay.GetNode<VBoxContainer>("%TriggerRows").GetChild(current).GetNode<Button>("MoveUpButton").EmitSignal(BaseButton.SignalName.Pressed);
+                    current--;
+                }
+            }
             Check(overlay.OrderedTriggerIds.SequenceEqual(ids), "User order retains each original/copied trigger identity");
             overlay.Confirmed += selected => {
                 Check(SpecialPromptCommandBuilder.TryBuildOrderTriggersPayload(action, selected, out var payload, out _, out var error), error);

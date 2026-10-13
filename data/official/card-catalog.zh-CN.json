@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1026,
+  "total": 1031,
   "cards": [
     {
       "id": 31005,
@@ -42509,6 +42509,246 @@
       "otherDesc": 0,
       "cardCategory": "unit",
       "cardCategoryName": "单位"
+    },
+    {
+      "id": 37731,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·042",
+      "cardName": "慎",
+      "subTitle": "破影之光",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "慎",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "当我据守一处战场时，如果你在此处控制的其他单位有且仅有一个，则抽一张牌。",
+      "flavorText": "“执行均衡之令。”",
+      "energy": 5,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/c70db98fde224608a7ca32ce9e252fd8.png",
+      "backImage": "",
+      "listSort": 1955,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37732,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·042a",
+      "cardName": "慎",
+      "subTitle": "破影之光",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "慎",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "League Splash Team",
+      "cardEffect": "当我据守一处战场时，如果你在此处控制的其他单位有且仅有一个，则抽一张牌。",
+      "flavorText": "“执行均衡之令。”",
+      "energy": 5,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/cb1a426793a74ead80b05f2eaad35654.png",
+      "backImage": "",
+      "listSort": 1954,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37840,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·138",
+      "cardName": "慎",
+      "subTitle": "均衡领袖",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "慎",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Pandart Studio",
+      "cardEffect": "{{坚守}}（如果我是防守方，则{{S}}+1。）\n当我据守一处战场时，如果此处受你控制的其他单位有且仅有一个，则你获得1分。",
+      "flavorText": "“没得商量。”",
+      "energy": 6,
+      "returnEnergy": 2,
+      "power": 7,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/55aa98db521d4750abf857d9099c2b00.png",
+      "backImage": "",
+      "listSort": 1846,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37841,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·138a",
+      "cardName": "慎",
+      "subTitle": "均衡领袖",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "慎",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "League Splash Team",
+      "cardEffect": "{{坚守}}\n当我据守一处战场时，如果此处受你控制的其他单位有且仅有一个，则你获得1分。",
+      "flavorText": "“没得商量。”",
+      "energy": 6,
+      "returnEnergy": 2,
+      "power": 7,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/d867c6da42344696bbad25145254b8b4.png",
+      "backImage": "",
+      "listSort": 1845,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 37873,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "VEN·170",
+      "cardName": "慎",
+      "subTitle": "破影之光",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "慎",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "华锐",
+      "cardEffect": "当我据守一处战场时，如果你在此处控制的其他单位有且仅有一个，则抽一张牌。",
+      "flavorText": "“你已经死了……只是你还没发觉而已。”",
+      "energy": 5,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/d1b2786f48414b9b8d6bd51593a2f8e5.png",
+      "backImage": "",
+      "listSort": 1813,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -42851,6 +43091,66 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
       "scope": "Exact CN printing using shared exact-other-friendly field count for combat damage permission. Original records preserved; no whole-card certification or CN/EN denominator merge."
+    },
+    {
+      "cardNo": "VEN·042",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-13T15:30:35.923377+00:00",
+      "sourceId": 37731,
+      "sourceRecordSha256": "a439cea8a41b9c76024a1765e71d3b807191f2ee9dcd017b515ba524022d833f",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "reason": "Current non-preview exact conditional Hold draw/score printing; scoped semantic audit required."
+    },
+    {
+      "cardNo": "VEN·042a",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-13T15:30:35.923377+00:00",
+      "sourceId": 37732,
+      "sourceRecordSha256": "19b1d869b752af414ca554685212bc494c3d9d1160878120bbd2ffcfeec229bb",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "reason": "Current non-preview exact conditional Hold draw/score printing; scoped semantic audit required."
+    },
+    {
+      "cardNo": "VEN·138",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-13T15:30:35.923377+00:00",
+      "sourceId": 37840,
+      "sourceRecordSha256": "1e0c32dee5c9c4f0af6a4d90c41931191c926adf0838f72e2485330d34336cc1",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "reason": "Current non-preview exact conditional Hold draw/score printing; scoped semantic audit required."
+    },
+    {
+      "cardNo": "VEN·138a",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-13T15:30:35.923377+00:00",
+      "sourceId": 37841,
+      "sourceRecordSha256": "ee241b1d33142b766f6c920cc1b9655141a1721fe2383f33d982ccea18117931",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "reason": "Current non-preview exact conditional Hold draw/score printing; scoped semantic audit required."
+    },
+    {
+      "cardNo": "VEN·170",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-13T15:30:35.923377+00:00",
+      "sourceId": 37873,
+      "sourceRecordSha256": "98efe8c0b9b11bc1ddd576f04688d4581675b656e1c4f92f04fcb329cebbd20d",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "reason": "Current non-preview exact conditional Hold draw/score printing; scoped semantic audit required."
     }
   ]
 }

@@ -25237,16 +25237,30 @@ public sealed partial class FullGameEndToEndTests
                 {
                     var id = row["stackItemId"]?.GetValue<string>();
                     var item = result.State.StackItems.SingleOrDefault(i => i.StackItemId == id);
+                    var held = item?.HeldContext is { Kind: "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" } exactHeld ? exactHeld : null;
                     var generation = item?.FieldContext is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" } field
-                        ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation;
+                        ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation ?? held?.SourceGeneration;
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
                     Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
-                    Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution!.CardNo, item.CardNo);
-                    Assert.Equal(item.DamageDistribution is null ? "FIELD_TARGETED_TRIGGER" : "CAPTURED_DISTRIBUTED_DAMAGE", item.EffectKind);
+                    Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held!.CardNo, item.CardNo);
+                    if (held is not null)
+                    {
+                        // Independently verify this bounded public old-generation
+                        // reference; the current private hand object stays excluded.
+                        Assert.Contains(held.CardNo, new[] { "VEN·042", "VEN·042a", "VEN·170", "VEN·138", "VEN·138a" });
+                        Assert.Equal(1, held.Amount);
+                        Assert.Equal(1, held.RequiredExactOtherFriendlyBattlefieldUnits);
+                        Assert.Equal(held.CardNo.StartsWith("VEN·138") ? "HOLD_EXACT_OTHER_SCORE" : "HOLD_EXACT_OTHER_DRAW", item.EffectKind);
+                        Assert.Equal(held.Origin is { } origin
+                            ? $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
+                            : $"PRINTED:{item.SourceObjectId}:{held.SourceGeneration}", held.RuleTextInstanceId);
+                    }
+                    else
+                        Assert.Equal(item.DamageDistribution is null ? "FIELD_TARGETED_TRIGGER" : "CAPTURED_DISTRIBUTED_DAMAGE", item.EffectKind);
                     if (item.DamageDistribution is { } distribution)
                     {
                         Assert.Equal(item.SourceObjectId, distribution.Source.ObjectId);

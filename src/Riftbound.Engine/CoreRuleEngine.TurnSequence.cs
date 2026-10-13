@@ -5,7 +5,13 @@ namespace Riftbound.Engine;
 // Captured when the ability triggers. Its controller and battlefield do not follow
 // later source control changes, movement, or departure (CN 390–392).
 public sealed record HeldTriggerContext(string CardNo, string BattlefieldObjectId, string Kind,
-    int Amount = 0, long SourceGeneration = 0);
+    int Amount = 0, long SourceGeneration = 0,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? RequiredExactOtherFriendlyBattlefieldUnits = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    RuleTextInstanceBinding? Origin = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? RuleTextInstanceId = null);
 public sealed record DelayedResourceGain(string Id, string ControllerId, string SourceObjectId,
     string SourceCardNo, string BattlefieldObjectId, int DueTurn, int Power);
 

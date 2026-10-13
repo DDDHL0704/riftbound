@@ -27,6 +27,32 @@ public sealed partial class CoreRuleEngine
     private static (string Kind, int Amount)? HeldDefinition(string? cardNo) =>
         HeldCards.Value.TryGetValue(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), out var definition) ? definition : null;
 
+    private static TriggerSpec? ExactOtherFriendlyHeldSpec(string cardNo)
+        => UnitBattlefieldHeldTriggerSpecRules.TryGetTrigger(cardNo, trigger =>
+            trigger.RequiredExactOtherFriendlyBattlefieldUnits is >= 0
+            && trigger.Timing == TriggerTimings.BattlefieldHeld && trigger.TargetScope == TriggerTargetScopes.SourceUnit
+            && (trigger.Kind == TriggerKinds.UnitBattlefieldHeldDraw && trigger.DrawCount is > 0
+                || trigger.Kind == TriggerKinds.UnitBattlefieldHeldScore && trigger.ScoreAmount is > 0), out var spec) ? spec : null;
+
+    internal static bool ValidExactOtherFriendlyHeldContext(MatchState state, HeldTriggerContext context,
+        string effect, string controller, string source, string? cardNo)
+    {
+        var conditional = context.Kind is "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE";
+        if (!conditional) return context.RequiredExactOtherFriendlyBattlefieldUnits is null && context.Origin is null && context.RuleTextInstanceId is null;
+        var spec = ExactOtherFriendlyHeldSpec(context.CardNo);
+        return spec is not null && context.Kind == (spec.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE")
+            && context.Amount == (spec.DrawCount ?? spec.ScoreAmount) && context.RequiredExactOtherFriendlyBattlefieldUnits == spec.RequiredExactOtherFriendlyBattlefieldUnits
+            && effect == "HOLD_" + context.Kind && cardNo == context.CardNo && controller == state.TurnPlayerId
+            && state.Phase == MatchPhases.TurnStart && state.TurnStartStep == "CHANNEL"
+            && context.RuleTextInstanceId == (context.Origin is { } origin
+                ? $"ATTACHED:{origin.Equipment?.ObjectId}:{origin.Equipment?.Generation}:{origin.Revision}"
+                : $"PRINTED:{source}:{context.SourceGeneration}")
+            && context.SourceGeneration >= 0 && !string.IsNullOrWhiteSpace(source)
+            && (!state.CardObjects.TryGetValue(source, out var current) || context.SourceGeneration <= current.ObjectGeneration)
+            && BattlefieldLocalRules.Battlefield(state, context.BattlefieldObjectId) is not null
+            && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo);
+    }
+
     private static string[] HeldUnitsAt(MatchState state, string field, string? controller = null) => state.CardObjects
         .Where(e => e.Value.Tags.Contains(CardObjectTags.UnitCard) && !e.Value.IsFaceDown && IsObjectOnField(state.PlayerZones, e.Key)
             && (controller is null || e.Value.ControllerId == controller)
@@ -47,16 +73,23 @@ public sealed partial class CoreRuleEngine
             {
                 if (!state.CardObjects.TryGetValue(source, out var card) || card.IsFaceDown
                     || (source != field && card.ControllerId != player)) continue;
-                var abilities = new List<(string Kind, int Amount)>();
+                var abilities = new List<(string Kind, int Amount, RuleTextInstance? Instance, int? ExactCount)>();
                 if (HeldDefinition(card.CardNo) is { } definition
                     && (definition.Kind != "SEVEN_WIN" || units.Length >= definition.Amount)
-                    && (definition.Kind != "RETURN_HERO" || ChosenChampionRules.CanReturnToChampionZone(state, player))) abilities.Add(definition);
+                    && (definition.Kind != "RETURN_HERO" || ChosenChampionRules.CanReturnToChampionZone(state, player))) abilities.Add((definition.Kind, definition.Amount, null, null));
                 if (units.Contains(source) && CardResourceKeywordRules.HuntAmountFromTags(card.Tags) is > 0 and var hunt)
-                    abilities.Add(("EXPERIENCE", hunt));
+                    abilities.Add(("EXPERIENCE", hunt, null, null));
+                if (units.Contains(source))
+                    foreach (var instance in AttachedRuleTextRules.Instances(state, card))
+                        if (ExactOtherFriendlyHeldSpec(instance.CardNo) is { } exact
+                            && HasExactOtherFriendlyBattlefieldUnitCount(state, card, exact.RequiredExactOtherFriendlyBattlefieldUnits))
+                            abilities.Add((exact.DrawCount is > 0 ? "EXACT_OTHER_DRAW" : "EXACT_OTHER_SCORE",
+                                exact.DrawCount ?? exact.ScoreAmount!.Value, instance, exact.RequiredExactOtherFriendlyBattlefieldUnits));
                 foreach (var ability in abilities)
                     for (var copy = 0; copy < copies; copy++)
                     {
-                        var id = $"held-{state.TurnNumber}-{state.Tick}-{field}-{source}-{ability.Kind}-{copy}";
+                        var id = $"held-{state.TurnNumber}-{state.Tick}-{field}-{source}-{ability.Kind}-{copy}"
+                            + (ability.Instance is null ? "" : "-" + ability.Instance.Id);
                         if (ability.Kind == "BLUE_DELAYED_POWER")
                         {
                             delayed.Add(new(id, player, source, card.CardNo ?? "", field, state.TurnNumber, ability.Amount));
@@ -67,7 +100,8 @@ public sealed partial class CoreRuleEngine
                         else
                         {
                             var trigger = new TriggerQueueItemState(id, player, source, "HOLD_" + ability.Kind, "BATTLEFIELD_HELD") {
-                                HeldContext = new(card.CardNo ?? "", field, ability.Kind, ability.Amount, card.ObjectGeneration) };
+                                HeldContext = new(ability.Instance?.CardNo ?? card.CardNo ?? "", field, ability.Kind, ability.Amount, card.ObjectGeneration, ability.ExactCount, ability.Instance?.Origin, ability.Instance?.Id),
+                                SourceCardNo = ability.Instance?.CardNo };
                             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
                         }
                     }
@@ -132,7 +166,7 @@ public sealed partial class CoreRuleEngine
                 scores = conquestDraw.PlayerScores; winner = conquestDraw.WinnerPlayerId; rng = conquestDraw.RngCursor;
                 effects = conquestEffects;
                 break;
-            case "DRAW": Draw(context.Amount); break;
+            case "DRAW": case "EXACT_OTHER_DRAW": Draw(context.Amount); break;
             case "MINION": case "ROBOT":
                 CreateBattlefieldUnitTokensInBase(zones, cards, player, item.SourceObjectId,
                     context.Kind == "MINION" ? "随从" : "机器人", context.Kind == "MINION" ? 1 : 3, context.Amount + AdditionalUnitTokens(item), item.EffectKind, events);
@@ -184,6 +218,7 @@ public sealed partial class CoreRuleEngine
                 break;
             case "PAY_POWER_SCORE":
             case "SCORE":
+            case "EXACT_OTHER_SCORE":
                 var scoreAmount = context.Kind == "PAY_POWER_SCORE" ? 1 : context.Amount;
                 var nextScores = scores.ToDictionary(e => e.Key, e => e.Value); nextScores[player] += scoreAmount; scores = nextScores;
                 if (nextScores[player] >= EffectiveWinningScore(state)) winner = player;
