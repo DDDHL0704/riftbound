@@ -108,6 +108,9 @@ public sealed record CardBehaviorDefinition(
     bool TargetsShareController = false,
     bool MovesTargetsToChosenLocation = false,
     bool ReadiesTargetsAfterChosenMovement = false,
+    bool OptionalEquipmentAfterMovement = false,
+    string OptionalEquipmentRequiredTag = "",
+    bool GrantsConquestReturnToBaseAfterMovement = false,
     bool QueuesDestinationDuel = false,
     bool MakesControllerDamageLethal = false,
     int PlayDamagePerLocation = 0,
@@ -304,6 +307,7 @@ public static class CardTargetScopes
     public const string EnemyAttackingUnit = "ENEMY_ATTACKING_UNIT";
     public const string EnemyBattlefieldUnit = "ENEMY_BATTLEFIELD_UNIT";
     public const string EnemyBattlefieldUnitThenFriendlyUnit = "ENEMY_BATTLEFIELD_UNIT_THEN_FRIENDLY_UNIT";
+    public const string FriendlyUnitThenFriendlyEquipment = "FRIENDLY_UNIT_THEN_FRIENDLY_EQUIPMENT";
     public const string EnemyUnitAtSourceBattlefield = "ENEMY_UNIT_AT_SOURCE_BATTLEFIELD";
     public const string EnemyUnit = "ENEMY_UNIT";
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
@@ -8124,13 +8128,15 @@ public static class CardBehaviorRegistry
             "SFD·184/221",
             "冷酷追击",
             2,
-            "RUTHLESS_PURSUIT_MOVE_FRIENDLY_UNIT_TO_BASE_MARK_CONQUER_RECALL",
+            "MOVE_FRIENDLY_UNIT_OPTIONAL_ATTACH_GRANT_CONQUEST_RETURN",
             0,
-            1,
-            StatusEffectId: "MAY_RETURN_TO_BASE_ON_CONQUER_THIS_TURN",
-            TargetScope: CardTargetScopes.FriendlyUnit,
-            TargetRequiredTag: CardObjectTags.UnitCard,
-            MovesTargetToBase: true),
+            2,
+            MinTargetCount: 1,
+            TargetScope: CardTargetScopes.FriendlyUnitThenFriendlyEquipment,
+            MovesTargetsToChosenLocation: true,
+            OptionalEquipmentAfterMovement: true,
+            OptionalEquipmentRequiredTag: CardEquipmentKeywordNames.Weapon,
+            GrantsConquestReturnToBaseAfterMovement: true),
         new(
             "SFD·043/221",
             "禁军之墙",

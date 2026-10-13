@@ -23278,7 +23278,10 @@ public static class MatchRecoveryValidator
                 if (!hasExecutions || executions.ValueKind != JsonValueKind.Array || executions.GetArrayLength() != expected.Count
                     || executions.EnumerateArray().Select((execution, index) => execution.ValueKind != JsonValueKind.Object
                         || !execution.TryGetProperty("destination", out var destination) || destination.ValueKind != JsonValueKind.String
-                        || destination.GetString() != expected[index]?.Destination).Any(mismatch => mismatch))
+                        || destination.GetString() != expected[index]?.Destination
+                        || (execution.TryGetProperty("movementDeclarationPlayerId", out var declaration)
+                            ? declaration.ValueKind == JsonValueKind.Null ? null : declaration.ValueKind == JsonValueKind.String
+                                ? declaration.GetString() : "INVALID" : null) != expected[index]?.MovementDeclarationPlayerId).Any(mismatch => mismatch))
                     errors.Add($"{label} spell repeat destinations differ from authoritative state");
             }
             catch (JsonException) { errors.Add($"{label} invalid spell repeat destinations"); }
@@ -23522,8 +23525,9 @@ public static class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidReflexiveDuelStack(state,item)) errors.Add("invalid reflexive movement duel stack");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.UnitConquest is { } conquest ? !CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind)
+                || !CoreRuleEngine.ValidCapturedConquestGrant(state, conquest, trigger.SourceObjectId)
                 || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
-                : trigger.EffectKind == CoreRuleEngine.ConquestDamageEffect) errors.Add("invalid captured unit conquest");
+                : trigger.EffectKind is CoreRuleEngine.ConquestDamageEffect or CoreRuleEngine.GrantedConquestReturnEffect) errors.Add("invalid captured unit conquest");
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidConquestDamageStack(state,item)) errors.Add("invalid unit conquest stack");
         foreach (var trigger in state.TriggerQueue)
@@ -23747,6 +23751,12 @@ public static class MatchRecoveryValidator
 
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
+        if (!CoreRuleEngine.ValidCurrentConquestGrants(state)) errors.Add("invalid temporary conquest grant");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidMovementFollowUp(state, item)) errors.Add("invalid movement optional attachment continuation");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.MovementAttachmentWindow } movementChoice
+            && !state.StackItems.Any(i => i.StackItemId == movementChoice.ResolvingStackItemId && i.MovementFollowUp is not null))
+            errors.Add("orphan movement optional attachment choice");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.AzirAttachmentWindow } azirChoice
             && !CoreRuleEngine.ValidAzirAttachmentChoice(state, azirChoice)) errors.Add("invalid Azir optional attachment choice");
         if (state.StackItems.Any(i => i.AzirMovement is { MovementsCompleted: true } ctx

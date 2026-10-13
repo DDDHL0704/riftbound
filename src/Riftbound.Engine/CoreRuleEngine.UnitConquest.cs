@@ -1,9 +1,11 @@
 using Riftbound.Contracts;
+using System.Text.Json.Serialization;
 namespace Riftbound.Engine;
 
 // Damage uses source Might on execution; conquest eligibility uses the event's pre-control state.
 public sealed record ConquestDamageSpec(bool RequiresUncontrolledBattlefield);
-public sealed record UnitConquestContext(string CardNo, long SourceGeneration, string BattlefieldId, string? PreviousControllerId);
+public sealed record UnitConquestContext(string CardNo, long SourceGeneration, string BattlefieldId, string? PreviousControllerId,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TemporaryGrant = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -11,7 +13,10 @@ public sealed partial class CoreRuleEngine
     private static ConquestDamageSpec? ConquestDamageDefinition(string no)
         => CardBehaviorRegistry.TryGetByCardNo(no,out var behavior) ? behavior.ConquestDamage : null;
     internal static bool ValidUnitConquest(UnitConquestContext c,string effect,string? no=null)
-        => effect==ConquestDamageEffect && c.SourceGeneration>=0 && !string.IsNullOrWhiteSpace(c.BattlefieldId)
+        => effect == GrantedConquestReturnEffect
+            ? c.SourceGeneration >= 0 && !string.IsNullOrWhiteSpace(c.BattlefieldId) && (no is null || no == c.CardNo)
+                && c.TemporaryGrant is { } grant && ValidConquestGrant(grant, c.SourceGeneration)
+            : c.TemporaryGrant is null && effect==ConquestDamageEffect && c.SourceGeneration>=0 && !string.IsNullOrWhiteSpace(c.BattlefieldId)
             && (no is null || no==c.CardNo) && ConquestDamageDefinition(c.CardNo) is { } spec
             && (!spec.RequiresUncontrolledBattlefield || c.PreviousControllerId is null);
 
@@ -31,14 +36,18 @@ public sealed partial class CoreRuleEngine
         }
     }
     private static string[] ConquestDamageTargets(MatchState state,StackItemState item)
-        => state.PlayerZones.Where(p=>p.Key!=item.ControllerId).SelectMany(p=>p.Value.Base)
+        => item.EffectKind == GrantedConquestReturnEffect
+            ? state.CardObjects.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == item.UnitConquest!.SourceGeneration
+                && IsFaceUpNonStandbyUnit(source) && IsObjectOnField(state.PlayerZones, source.ObjectId) ? [source.ObjectId] : []
+            : state.PlayerZones.Where(p=>p.Key!=item.ControllerId).SelectMany(p=>p.Value.Base)
             .Where(id=>state.CardObjects.TryGetValue(id,out var c) && c.ControllerId!=item.ControllerId
                 && !c.IsFaceDown && c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state,item.ControllerId,id)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
     private static PendingCardChoiceState ConquestTargetChoice(MatchState state,StackItemState item)
-        => new("UNIT-CONQUEST-TARGET:"+item.StackItemId,"TRIGGER_CONFIRMATION",item.ControllerId,1,1,
+        => new("UNIT-CONQUEST-TARGET:"+item.StackItemId,"TRIGGER_CONFIRMATION",item.ControllerId,item.EffectKind == GrantedConquestReturnEffect ? 0 : 1,1,
             ConquestDamageTargets(state,item),[item.UnitConquest!.BattlefieldId],
-            "选择基地中的一名敌方单位。确认目标和法盾费用后双方可响应；结算时造成等同于来源当前战力的伤害。",
+            item.EffectKind == GrantedConquestReturnEffect ? "可将征服单位移动回其基地；不选则放弃。确认后双方可以响应。"
+                : "选择基地中的一名敌方单位。确认目标和法盾费用后双方可响应；结算时造成等同于来源当前战力的伤害。",
             item.SourceObjectId,item.EffectKind) { ResolvingStackItemId=item.StackItemId };
     private static ResolutionResult PrepareConquestTarget(ResolutionResult result,StackItemState item)
     {
@@ -53,13 +62,14 @@ public sealed partial class CoreRuleEngine
         if(item?.UnitConquest is null || item.TargetGenerations is not null || !ValidUnitConquest(item.UnitConquest,item.EffectKind,item.CardNo)) return false;
         var expected=ConquestTargetChoice(state,item);
         return choice.ChoiceId==expected.ChoiceId && choice.ChoiceWindow==expected.ChoiceWindow && choice.PlayerId==expected.PlayerId
-            && choice.SourceObjectId==expected.SourceObjectId && choice.EffectKind==expected.EffectKind && choice.RequiredCount==1 && choice.MaxCount==1
+            && choice.SourceObjectId==expected.SourceObjectId && choice.EffectKind==expected.EffectKind && choice.RequiredCount==expected.RequiredCount && choice.MaxCount==1
             && choice.LegalObjectIds.Count>0 && choice.LegalObjectIds.SequenceEqual(expected.LegalObjectIds) && choice.ContextObjectIds.SequenceEqual(expected.ContextObjectIds);
     }
     internal static bool ValidConquestDamageStack(MatchState state,StackItemState item)
     {
-        if(item.UnitConquest is not { } context) return item.EffectKind!=ConquestDamageEffect;
-        if(!ValidUnitConquest(context,item.EffectKind,item.CardNo)) return false;
+        if(item.UnitConquest is not { } context) return item.EffectKind is not (ConquestDamageEffect or GrantedConquestReturnEffect);
+        if(!ValidUnitConquest(context,item.EffectKind,item.CardNo)
+            || !ValidCapturedConquestGrant(state, context, item.SourceObjectId)) return false;
         return item.TargetGenerations is { } generations
             ? item.TargetObjectIds.Count==1 && generations.Count==1 && generations.TryGetValue(item.TargetObjectIds[0],out var g) && g>=0
             : item.TargetObjectIds.Count==0 && state.PriorityPlayerId is null
@@ -67,6 +77,7 @@ public sealed partial class CoreRuleEngine
     }
     private static StackResolutionResult ResolveConquestDamage(MatchState state,StackItemState item)
     {
+        if (item.EffectKind == GrantedConquestReturnEffect) return ResolveGrantedConquestReturn(state, item);
         var context=item.UnitConquest!;
         var result=NoopStackResolutionResult(state);
         if(item.TargetObjectIds.SingleOrDefault() is not { } target || !ConquestDamageTargets(state,item).Contains(target)

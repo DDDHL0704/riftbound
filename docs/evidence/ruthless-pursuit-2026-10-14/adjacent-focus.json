@@ -1,0 +1,8 @@
+{
+  "status": "SCOPED_FOCUS_PASS",
+  "cases": 2010,
+  "methods": 1936,
+  "seconds": 19.08,
+  "trxSha256": "2109b97099a32abb5fd820f8202b1c259d0fede0d2a1180c153b293a4b2a70e3",
+  "scope": "39newcases/16methods; original enemy-base negative retained, real friendly/enemy control KEEP_ALL; shared amplification/currentCNweapon; original fixture/baseline/recovery/rebuttal/echo/movement/equip/APNAP retained; repaired check/full required."
+}

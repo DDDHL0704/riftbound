@@ -61,6 +61,9 @@ public sealed partial class CoreRuleEngine
         recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestMight(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureGrantedConquestReturns(state with { PlayerZones = playerZones,
+            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+            playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield

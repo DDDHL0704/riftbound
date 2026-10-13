@@ -1,0 +1,112 @@
+{
+  "status": "SCOPED_REPAIRED_CHECK_PASS",
+  "baselineCheck": "var/qa/held-movement-legality-20261014/check",
+  "cases": 11049,
+  "methods": 6880,
+  "seconds": 163.82,
+  "oldCasesPreserved": 11010,
+  "oldMethodsPreserved": 6864,
+  "addedCases": [
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.AProhibitedMoveSkipsItsLinkedAttachmentAndGrant(temporary: False)",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.AProhibitedMoveSkipsItsLinkedAttachmentAndGrant(temporary: True)",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ARealGroupedConquestAmplifiesTheGrantedAbilityThroughTheSharedRepeatRule(card: \"UNL-029/219\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ARealGroupedConquestAmplifiesTheGrantedAbilityThroughTheSharedRepeatRule(card: \"UNL-029a/219\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ARealReturnResponseInvalidatesTheUnitAndBothLinkedFollowUps",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ARealSpellControlChangeKeepsTheOriginalBaseDeclarationReceiptWhenChoicesAreKept(friendly: False)",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ARealSpellControlChangeKeepsTheOriginalBaseDeclarationReceiptWhenChoicesAreKept(friendly: True)",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.AReturnResponseAfterConquestLeavesTheCapturedAbilityButInvalidatesItsOldUnit",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ActualCombatVictoryCapturesAndResolvesTheGrantedConquestReturn",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ActualSpellMovesTheFriendlyUnitToItsDeclaredLocationAndGrantsConquestReturn(origin: \"BASE\", destination: \"BATTLEFIELD:F\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ActualSpellMovesTheFriendlyUnitToItsDeclaredLocationAndGrantsConquestReturn(origin: \"BATTLEFIELD:F\", destination: \"BASE:P1\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ActualSpellMovesTheFriendlyUnitToItsDeclaredLocationAndGrantsConquestReturn(origin: \"BATTLEFIELD:F\", destination: \"BATTLEFIELD:OTHER\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.DeclaredEquipmentWaitsForThePostMovementOptionalDecision(attach: False)",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.DeclaredEquipmentWaitsForThePostMovementOptionalDecision(attach: True)",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.EchoCanPauseAtTwoIndependentAttachmentDecisionsWithoutRepeatingEitherMovement",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.OptionalEquipmentChoicesUseActualControllerAndEquipmentType(branch: \"foreign\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.OptionalEquipmentChoicesUseActualControllerAndEquipmentType(branch: \"non-weapon\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.OptionalEquipmentChoicesUseActualControllerAndEquipmentType(branch: \"not-equipment\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.OptionalEquipmentChoicesUseActualControllerAndEquipmentType(branch: \"same-host\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RealUnopposedConquestOffersTheGrantedOptionalReturnAndWaitsForResponses(returnToBase: False)",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RealUnopposedConquestOffersTheGrantedOptionalReturnAndWaitsForResponses(returnToBase: True)",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsForgedPostMovementAttachmentContinuations(mutation: \"choice-source\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsForgedPostMovementAttachmentContinuations(mutation: \"destination\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsForgedPostMovementAttachmentContinuations(mutation: \"execution-index\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsForgedPostMovementAttachmentContinuations(mutation: \"gear-generation\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsForgedPostMovementAttachmentContinuations(mutation: \"premature-decision\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsForgedPostMovementAttachmentContinuations(mutation: \"unit-generation\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"duplicate\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"future-stack\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"generation\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"granting-card\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"recipient\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"short-stack\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"source\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"stack-instance\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance(mutation: \"turn\")",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.TheGrantedAbilityExpiresAtTheActualTurnEnd",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.TwoEchoExecutionsKeepDifferentDestinationsAndIndependentGrantedAbilities",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.TwoGrantedInstancesTriggerIndependentlyAndASecondReturnDoesNotMoveAnAlreadyBasedUnit"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.AProhibitedMoveSkipsItsLinkedAttachmentAndGrant",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ARealGroupedConquestAmplifiesTheGrantedAbilityThroughTheSharedRepeatRule",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ARealReturnResponseInvalidatesTheUnitAndBothLinkedFollowUps",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ARealSpellControlChangeKeepsTheOriginalBaseDeclarationReceiptWhenChoicesAreKept",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.AReturnResponseAfterConquestLeavesTheCapturedAbilityButInvalidatesItsOldUnit",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ActualCombatVictoryCapturesAndResolvesTheGrantedConquestReturn",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.ActualSpellMovesTheFriendlyUnitToItsDeclaredLocationAndGrantsConquestReturn",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.DeclaredEquipmentWaitsForThePostMovementOptionalDecision",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.EchoCanPauseAtTwoIndependentAttachmentDecisionsWithoutRepeatingEitherMovement",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.OptionalEquipmentChoicesUseActualControllerAndEquipmentType",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RealUnopposedConquestOffersTheGrantedOptionalReturnAndWaitsForResponses",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsForgedPostMovementAttachmentContinuations",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.RecoveryRejectsIndependentlyForgedTemporaryAbilityProvenance",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.TheGrantedAbilityExpiresAtTheActualTurnEnd",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.TwoEchoExecutionsKeepDifferentDestinationsAndIndependentGrantedAbilities",
+    "Riftbound.ConformanceTests.RuthlessPursuitTests.TwoGrantedInstancesTriggerIndependentlyAndASecondReturnDoesNotMoveAnAlreadyBasedUnit"
+  ],
+  "failed": 0,
+  "skipped": 0,
+  "duplicates": [],
+  "frozenInputs": 2247,
+  "testedInputsUnchanged": true,
+  "testAssemblySha256": "af73927c8ab30566747aced6fad2ac3abf9514aca2314b987b100d480c7dc32f",
+  "trxSha256": "60ff40f63f92ec139a98e6b3544c74614b9bb67345a07234c3fd449a1753d20d",
+  "actualSqlSmoke": {
+    "dedicatedCluster": "var/qa/postgres-acceptance-20261013/cluster",
+    "port": 55439,
+    "connectionProvided": true,
+    "cases": [
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift",
+        "duration": "00:00:00.4407966",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift",
+        "duration": "00:00:00.0626462",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit",
+        "duration": "00:00:00.1135069",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands",
+        "duration": "00:00:00.1432092",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry",
+        "duration": "00:00:00.1108609",
+        "outcome": "Passed"
+      }
+    ],
+    "fullSqlCertified": false,
+    "clusterStoppedAfterCheck": true
+  },
+  "pythonTests": 27,
+  "firstFailedCheckRetained": true,
+  "fullExecutionCertified": false
+}

@@ -1,0 +1,27 @@
+{
+  "correction": "Captured declaration actor separates original target legality from mutable spell controller; no old enemy-base negative removed; real friendly/enemy Rebuttal KEEP_ALL tests added",
+  "changedInputs": {
+    "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs": {
+      "before": "8bde91df148072f6f6e4ddee8576a5a51cd4626fffee717136439d795e9bb401",
+      "after": "4a399257f7776d31280cdc39d83a3f604fd7af2c4cd63a2be634619fc87e41ea"
+    },
+    "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs": {
+      "before": "8a9707b84a2dc629087a0047a82bb71e8ef51f3db1e97351a1968f5d93653c53",
+      "after": "e69d4f7039939b747e29ba4ac2ecfec93111132dee1850547d18afa7a2711180"
+    },
+    "src/Riftbound.Engine/MatchRecovery.cs": {
+      "before": "5d9b31754177c6192afb37294c765ca6806f18d24c0876a75726d5b5890c5013",
+      "after": "8152504728534e0b1eb1ef3bd69cc3501ed854ebb19b7b7849fa3f3b9114e933"
+    },
+    "src/Riftbound.Engine/MatchSession.cs": {
+      "before": "2ad9f378086bbd656b1d2c368d0f03d72fa72d6fd945774d09394bcf28ce6dad",
+      "after": "a57143059e47af0df81c9142f2cf2699600e4db3bc772dd330f5c2ba290c1c08"
+    },
+    "tests/Riftbound.ConformanceTests/RuthlessPursuitTests.cs": {
+      "before": "c6b47a27753429d1945f50bb5eb7ba0a501703005bdbeeef14e1c98c33be7e84",
+      "after": "c0997521a07f322b261ca5eb11ba6fda6b189597ff3876c541f9c14d6929d5c1"
+    }
+  },
+  "frozenInputs": 2247,
+  "firstFailedCheckRetained": true
+}

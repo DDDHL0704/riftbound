@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Riftbound.CardCatalog;
@@ -25238,15 +25239,16 @@ public sealed partial class FullGameEndToEndTests
                     var id = row["stackItemId"]?.GetValue<string>();
                     var item = result.State.StackItems.SingleOrDefault(i => i.StackItemId == id);
                     var held = item?.HeldContext is { Kind: "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" } exactHeld ? exactHeld : null;
+                    var grantedConquest = item?.UnitConquest is { TemporaryGrant: not null } granted ? granted : null;
                     var generation = item?.FieldContext is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" } field
-                        ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation ?? held?.SourceGeneration;
+                        ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation ?? held?.SourceGeneration ?? grantedConquest?.SourceGeneration;
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
                     Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
-                    Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held!.CardNo, item.CardNo);
+                    Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo ?? grantedConquest!.CardNo, item.CardNo);
                     if (held is not null)
                     {
                         // Independently verify this bounded public old-generation
@@ -25258,6 +25260,23 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(held.Origin is { } origin
                             ? $"ATTACHED:{origin.Equipment.ObjectId}:{origin.Equipment.Generation}:{origin.Revision}"
                             : $"PRINTED:{item.SourceObjectId}:{held.SourceGeneration}", held.RuleTextInstanceId);
+                    }
+                    else if (grantedConquest is not null)
+                    {
+                        // Validate this public captured ability independently;
+                        // never exempt the current private hand incarnation.
+                        Assert.Equal("UNIT_GRANTED_CONQUEST_RETURN_BASE", item.EffectKind);
+                        var grantFields = grantedConquest.TemporaryGrant!.Split('|');
+                        Assert.Equal(9, grantFields.Length);
+                        Assert.Equal("GRANTED_CONQUEST_RETURN_BASE", grantFields[0]);
+                        Assert.Equal(result.State.TurnNumber.ToString(), grantFields[1]);
+                        var grantSourceId = Encoding.UTF8.GetString(Convert.FromBase64String(grantFields[2]));
+                        var grantSource = result.State.CardObjects[grantSourceId];
+                        Assert.InRange(long.Parse(grantFields[3]), 0, grantSource.ObjectGeneration);
+                        Assert.Equal("SFD·184/221", Encoding.UTF8.GetString(Convert.FromBase64String(grantFields[4])));
+                        Assert.Equal(grantedConquest.SourceGeneration.ToString(), grantFields[6]);
+                        Assert.Equal(item.SourceObjectId, Encoding.UTF8.GetString(Convert.FromBase64String(grantFields[8])));
+                        Assert.Null(row["unitConquest"]); // Stack view exposes only the public source/card identity.
                     }
                     else
                         Assert.Equal(item.DamageDistribution is null ? "FIELD_TARGETED_TRIGGER" : "CAPTURED_DISTRIBUTED_DAMAGE", item.EffectKind);

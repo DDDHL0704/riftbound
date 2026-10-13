@@ -25189,12 +25189,13 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var currentComparison = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(currentComparison.Count == 0, string.Join("\n", currentComparison));
+        Assert.Empty(currentComparison);
         Assert.Equal(["P1-RUTHLESS-PURSUIT-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
-        Assert.Contains(
-            "MAY_RETURN_TO_BASE_ON_CONQUER_THIS_TURN",
-            result.FinalState.CardObjects["P1-RUTHLESS-PURSUIT-UNIT-001"].UntilEndOfTurnEffects);
+        Assert.Contains(result.FinalState.CardObjects["P1-RUTHLESS-PURSUIT-UNIT-001"].UntilEndOfTurnEffects,
+            effect => effect.StartsWith("GRANTED_CONQUEST_RETURN_BASE|", StringComparison.Ordinal));
         Assert.Equal(
             1,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));

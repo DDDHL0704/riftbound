@@ -17,7 +17,8 @@ public sealed partial class CoreRuleEngine
         if (choices.Count != count - 1) return false;
         SpellExecutionState Capture(CardBehaviorDefinition definition, IReadOnlyList<string> ids, IReadOnlyList<string>? destinations, string? destination)
             => new(definition.EffectKind, ids, ids.Distinct(StringComparer.Ordinal)
-                .Where(state.CardObjects.ContainsKey).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), destinations, NormalizeRepeatDestination(destination));
+                .Where(state.CardObjects.ContainsKey).ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), destinations, NormalizeRepeatDestination(destination),
+                definition.MovesTargetsToChosenLocation ? intent.PlayerId : null);
         var result = new List<SpellExecutionState> { Capture(behavior, targets, command.MovementDestinations, command.Destination) };
         foreach (var choice in choices)
         {
@@ -47,9 +48,14 @@ public sealed partial class CoreRuleEngine
         var destination = execution.Destination;
         if (destination is null || destination != NormalizeRepeatDestination(destination)) return false;
         if (!behavior.MovesTargetsToChosenLocation && behavior.CommandedMovement is null) return destination.Length == 0;
+        if (behavior.MovesTargetsToChosenLocation && (execution.MovementDeclarationPlayerId is null
+            || !state.Seats.ContainsKey(execution.MovementDeclarationPlayerId))) return false;
         if (destination.Length == 0) return behavior.MinTargetCount == 0 && execution.TargetObjectIds.Count == 0;
         if (destination.StartsWith("BASE:", StringComparison.Ordinal))
-            return behavior.MovesTargetsToChosenLocation && destination[5..] != controller && state.Seats.ContainsKey(destination[5..]);
+            return behavior.MovesTargetsToChosenLocation && state.Seats.ContainsKey(destination[5..])
+                && (execution.TargetObjectIds.Count == 0 || (behavior.TargetScope is CardTargetScopes.FriendlyUnit
+                    or CardTargetScopes.FriendlyUnitThenFriendlyEquipment
+                    ? destination[5..] == execution.MovementDeclarationPlayerId : destination[5..] != execution.MovementDeclarationPlayerId));
         return destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(destination[12..], out var battlefield)
             && battlefield.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag);
@@ -78,13 +84,22 @@ public sealed partial class CoreRuleEngine
         {
             var execution = executions[index];
             var item = original with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
-                TargetGenerations = execution.TargetGenerations, Destination = execution.Destination, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = 0,
+                TargetGenerations = execution.TargetGenerations, Destination = execution.Destination, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var repeatedBehavior)
+                    && repeatedBehavior.OptionalEquipmentAfterMovement ? index : 0,
+                MovementFollowUp = index == original.CompletedRepeatExecutions ? original.MovementFollowUp : null,
                 TokenEntryPlan = index == original.CompletedRepeatExecutions ? original.TokenEntryPlan : null };
             result = ResolveStackItemEffect(current, item, deferCompletion: index < executions.Count - 1, repeatDamageDestroyTargets: damageDestroyTargets);
             events.AddRange(result.Events);
             triggers.AddRange(result.TriggerQueue);
             destroyed.AddRange(result.DestroyedUnitOwnerIds);
             countered.AddRange(result.CounteredStackItemIds);
+            if (result.PendingCardChoice?.ChoiceWindow == MovementAttachmentWindow)
+            {
+                var suspended = original with { CompletedRepeatExecutions = index, MovementFollowUp = result.StackItems![^1].MovementFollowUp };
+                return result with { Events = events, TriggerQueue = triggers,
+                    DestroyedUnitOwnerIds = destroyed.Distinct(StringComparer.Ordinal).ToArray(), CounteredStackItemIds = countered,
+                    StackItems = current.StackItems.Where(i => i.StackItemId != original.StackItemId).Append(suspended).ToArray() };
+            }
             if (result.PendingCardChoice?.ChoiceWindow == TokenReplacementWindow)
             {
                 var suspended = original with { CompletedRepeatExecutions = index, TokenEntryPlan = result.StackItems![^1].TokenEntryPlan };

@@ -17925,6 +17925,57 @@
         "Ruthless Pursuit complete movement/optional attachment/granted temporary conquer skill remains open.",
         "Other prohibitions/control/replacement combinations and visiblepaired/userWindows/fullSQLconcurrency-failover/8sourcecount gap open."
       ]
+    },
+    {
+      "id": "ruthless-pursuit-chosen-movement-attachment-granted-conquest-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Current CN SFD184 declared friendly movement, optional CN weapon attachment and per-instance temporary optional conquer return; shared amplification UNL029/029a and current repeat destination recovery. No whole-card certification.",
+      "subjects": [
+        "SFD-184/221",
+        "UNL-029/219",
+        "UNL-029a/219"
+      ],
+      "ruleRecords": [
+        "DOC-04-P019-B013",
+        "DOC-04-P019-B014",
+        "DOC-04-P019-B015",
+        "DOC-04-P019-B016",
+        "DOC-04-P019-B017",
+        "DOC-04-P019-B018",
+        "DOC-04-P050-B014",
+        "DOC-04-P052-B007",
+        "DOC-04-P052-B008",
+        "DOC-04-P052-B009"
+      ],
+      "auditDocument": "docs/RUTHLESS_PURSUIT_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/ruthless-pursuit-2026-10-14",
+      "tests": [
+        "RuthlessPursuitTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysRuthlessPursuitMoveFriendlyUnitRecallMark",
+        "CardBaseline",
+        "MatchRecovery",
+        "Rebuttal",
+        "ChosenMovementTests",
+        "HeldMovementLegalityTests",
+        "EquipChainTests",
+        "RealTriggerQueueTests",
+        "EchoSingleDestinationTests"
+      ],
+      "validation": {
+        "focus": "2010cases/1936methods;39newcases/16methods;original enemy-base negative retained; real friendly/enemy spell-control KEEP_ALL; currentCNweapon/amplifier/continuation/provenance rejects",
+        "native": "21branches136actual Godot commands/coldrestore/dedup/fulljournalreplay;headless only",
+        "check": "repaired11049/6880;old11010/6864 retained +39/16;163.82s;2247frozeninputs unchanged;actualSQL5/Python27;dedicatedclusterstopped;first11046/1failed preserved",
+        "full": "7021methods plan only;old7005/143games retained;expected11198cases/110pairs seed424242;newfixedfull pending",
+        "previousFixedFull": "d9ccabe1 CI38438098175 full11159/7005 +6/4 old11153/7001 retained;110pairs/finalhashes/network/mac/windows/actualSQL boundedpass",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "ENEquipment vs CNweapon wording retained as regional difference; ENscope not silently implemented.",
+        "All control/copy/granted text/attachment replacement combinations and complete layer consumers not certified.",
+        "Original fixture preserved all original records/seed/regions/commands except declaredBASE:P1 and omitted physical spell source metadata; no live journal rewrite.",
+        "Other sources/wholecards/sourcecountgap8/visiblepaired/userWindows/fullSQLconcurrency-failover open.",
+        "Moving Echo declaration actor is captured and persists through control; remakes capture current actor. Nonmoving serialized shapes unchanged; no accepted history rewrite."
+      ]
     }
   ]
 }

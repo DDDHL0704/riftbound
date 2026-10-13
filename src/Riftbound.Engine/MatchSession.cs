@@ -632,12 +632,15 @@ public sealed record CardObjectState
     }
 }
 
-public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations, IReadOnlyList<string>? MovementDestinations = null, string Destination = "");
+public sealed record SpellExecutionState(string EffectKind, IReadOnlyList<string> TargetObjectIds, IReadOnlyDictionary<string, long> TargetGenerations, IReadOnlyList<string>? MovementDestinations = null, string Destination = "",
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? MovementDeclarationPlayerId = null);
 
 public sealed record TargetedPowerAbilityContext(string AbilityId, string SourceObjectId, long SourceGeneration);
 
 public sealed record StackItemState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public MovementFollowUpContext? MovementFollowUp { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public StandbyPlayedObserverContext? StandbyObserver { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -4282,7 +4285,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, MovementFollowUp = item.MovementFollowUp, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -5344,11 +5347,15 @@ public sealed record ResolutionResult(
             ["damageAmount"] = item.DamageAmount
         };
         if (item.RepeatExecutions is { } executions && !hiddenSource)
-            view["repeatExecutions"] = executions.Select((execution, index) => new Dictionary<string, object?>
+            view["repeatExecutions"] = executions.Select((execution, index) =>
             {
-                ["index"] = index, ["effectKind"] = execution.EffectKind,
-                ["targetObjectIds"] = VisibleObjectIdsForViewer(state, execution.TargetObjectIds, viewerPlayerId),
-                ["movementDestinations"] = execution.MovementDestinations, ["destination"] = execution.Destination
+                var row = new Dictionary<string, object?> {
+                    ["index"] = index, ["effectKind"] = execution.EffectKind,
+                    ["targetObjectIds"] = VisibleObjectIdsForViewer(state, execution.TargetObjectIds, viewerPlayerId),
+                    ["movementDestinations"] = execution.MovementDestinations, ["destination"] = execution.Destination };
+                if (execution.MovementDeclarationPlayerId is not null)
+                    row["movementDeclarationPlayerId"] = execution.MovementDeclarationPlayerId;
+                return row;
             }).ToArray();
         if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
         if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
@@ -12756,7 +12763,9 @@ internal static class ActionPromptBuilder
             .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, targetScope, targetIndex, behavior.CanCounterAbilities)
                 && IsPromptPlayCardTargetAllowed(state, playerId, behavior, objectId, targetIndex)
                 && CoreRuleEngine.StandbyTargetAllowed(state, behavior, objectId, targetIndex)
-                && (!behavior.MovesTargetsToChosenLocation || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId)))
+                && CoreRuleEngine.IsMovementEquipmentCandidate(state, behavior, objectId, targetIndex)
+                && (!behavior.MovesTargetsToChosenLocation || behavior.OptionalEquipmentAfterMovement && targetIndex != 0
+                    || CoreRuleEngine.HasChosenMovementDestination(state, playerId, objectId)))
             .Select(objectId => IsPromptStackSpellItem(state, objectId)
                 ? StackItemChoice(state, objectId, "legal stack spell target")
                 : ObjectChoice(state, objectId, PromptTargetReasonForScope(targetScope, targetIndex)))
@@ -12870,7 +12879,7 @@ internal static class ActionPromptBuilder
         IReadOnlyList<IReadOnlyList<string>> choicesByIndex)
     {
         if (behavior.AnyNumberOfTargets) return false;
-        return behavior.SelectedBattlefieldEffect is not null || behavior.TargetReferencedMovement is not null
+        return behavior.SelectedBattlefieldEffect is not null || behavior.TargetReferencedMovement is not null || behavior.OptionalEquipmentAfterMovement
             || behavior.MaxTotalTargetPower > 0
             || !string.IsNullOrWhiteSpace(behavior.AnyTargetRequiredTag)
             || behavior.SwapsTargetLocations
@@ -12916,7 +12925,8 @@ internal static class ActionPromptBuilder
                 return false;
             }
             if (!CoreRuleEngine.IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targetObjectIds, targetIndex)
-                || !CoreRuleEngine.IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex))
+                || !CoreRuleEngine.IsTargetReferencedMovementRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex)
+                || !CoreRuleEngine.IsMovementEquipmentRelationAllowed(state, playerId, behavior, targetObjectIds, targetIndex))
                 return false;
         }
 
@@ -13079,6 +13089,9 @@ internal static class ActionPromptBuilder
             CardTargetScopes.EnemyAttackingUnit => IsPromptEnemyFieldObject(state, playerId, objectId)
                 && IsPromptAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyBattlefieldUnit => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenFriendlyEquipment => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId)
+                : IsPromptFriendlyEquipmentObject(state, playerId, objectId),
             CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => targetIndex == 0
                 ? IsPromptEnemyBattlefieldObject(state, playerId, objectId) : IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
@@ -16776,6 +16789,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.AttackingUnit => "攻击中单位",
             CardTargetScopes.EnemyAttackingUnit => "敌方攻击中单位",
             CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => "敌方战场单位，然后可选友方单位",
+            CardTargetScopes.FriendlyUnitThenFriendlyEquipment => "友方单位，然后可选同控制者武装",
             CardTargetScopes.EnemyBattlefieldUnit => "敌方战场单位",
             CardTargetScopes.EnemyUnit => "敌方单位",
             CardTargetScopes.EnemyUnitThenEnemyUnit => "敌方单位，然后另一个敌方单位",

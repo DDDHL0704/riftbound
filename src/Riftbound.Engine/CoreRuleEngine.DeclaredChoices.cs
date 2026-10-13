@@ -43,7 +43,7 @@ public sealed partial class CoreRuleEngine
         return IsSequentialMovementPlanAllowed(state, spell.ControllerId, behavior, command)
             && (behavior.CommandedMovement is not { } movement || IsCommandedMovementDestinationAllowed(state, spell.ControllerId,
                 execution.Destination, targets, movement))
-            && (!behavior.MovesTargetsToChosenLocation || IsChosenMovementDestinationAllowed(state, spell.ControllerId, execution.Destination, targets));
+            && (!behavior.MovesTargetsToChosenLocation || IsChosenMovementDestinationAllowed(state, spell.ControllerId, execution.Destination, ChosenMovementTargets(behavior, targets)));
     }
 
     private static bool CurrentChosenIncarnation(MatchState state, SpellExecutionState execution, string id)

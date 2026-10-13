@@ -3166,6 +3166,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (pendingChoice.ChoiceWindow is AttachmentModeWindow or AttachmentModeTargetWindow) return ResolveAttachmentModeChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == MovementAttachmentWindow) return ResolveMovementAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == AzirAttachmentWindow) return ResolveAzirAttachmentChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedConfirmationWindow) return ResolveTemperedChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == TemperedCostWindow) return ResolveTemperedCostChoice(state, pendingChoice, submittedObjectIds);
@@ -19027,7 +19028,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         if (behavior.MovesTargetsToChosenLocation
-            && !IsChosenMovementDestinationAllowed(state, intent.PlayerId, destination, NormalizeTargetObjectIds(command.TargetObjectIds)))
+            && !IsChosenMovementDestinationAllowed(state, intent.PlayerId, destination, ChosenMovementTargets(behavior, NormalizeTargetObjectIds(command.TargetObjectIds))))
         {
             rejection = Reject(state, "请选择所有目标均可移动至的同一个位置。", ErrorCodes.InvalidTarget);
             return false;
@@ -22146,6 +22147,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyAttackingUnit => IsEnemyFieldObject(state, playerId, objectId)
                 && IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyBattlefieldUnit => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenFriendlyEquipment => targetIndex == 0
+                ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
+                : IsFriendlyEquipmentObject(state, playerId, objectId),
             CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => targetIndex == 0
                 ? IsEnemyBattlefieldUnitObject(state, playerId, objectId) : IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
@@ -25185,6 +25189,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior) && insightBehavior.PerformsInsight)
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
+        if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var movementFollowUpBehavior)
+            && movementFollowUpBehavior.OptionalEquipmentAfterMovement)
+            return ResolveMovementFollowUp(state, stackItem, movementFollowUpBehavior, deferCompletion);
         if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
         if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var choiceBehavior)
             && choiceBehavior.MayPayPowerToGainControlAndRemakeSpellChoices)

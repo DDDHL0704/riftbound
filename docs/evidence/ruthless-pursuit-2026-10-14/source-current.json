@@ -1,0 +1,70 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-13T17:20:04.508203+00:00",
+  "bytes": 1546,
+  "sha256": "ed92e9583795a06904de8fd01c93919be1ca493a497976a1da5c0cf57959a47b",
+  "language": "zh-CN",
+  "region": "CN",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "冷酷追击",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "records": [
+    {
+      "id": 33282,
+      "cardCategoryList": [
+        "exclusive_spell"
+      ],
+      "cardCategoryNameList": [
+        "专属法术"
+      ],
+      "cardNo": "SFD·184/221",
+      "cardName": "冷酷追击",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "orange"
+      ],
+      "hero": "卢锡安",
+      "region": "",
+      "tag": "",
+      "artist": "Max Grecke",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n移动一名友方单位。你可以选择为其贴附其控制者的一件武装。在本回合内，该单位拥有“当我征服一处战场时，你可以选择将我移动到我的基地”。",
+      "flavorText": "",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/bb29ef1e74e04d7b8fceec4ea518b32a.png",
+      "backImage": "",
+      "listSort": 791,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "{{迅捷}}（可在你的回合或法术对决中打出。）\n移动一名友方单位。你可以选择为其贴附其控制者的最多一件武装。在本回合内，该单位拥有“当我征服一处战场时，你可以选择将我移动到我的基地”。",
+      "otherDesc": 0
+    }
+  ],
+  "publicationDate": null,
+  "effectiveDate": null
+}

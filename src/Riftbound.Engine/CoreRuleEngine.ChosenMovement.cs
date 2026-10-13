@@ -4,6 +4,8 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    private static IReadOnlyList<string> ChosenMovementTargets(CardBehaviorDefinition behavior, IReadOnlyList<string> targets)
+        => behavior.OptionalEquipmentAfterMovement ? targets.Take(1).ToArray() : targets;
     internal static IReadOnlyList<ActionPromptChoiceDto> ChosenMovementDestinations(MatchState state, string playerId)
         => state.Seats.Keys.Order(StringComparer.Ordinal)
             .Select(id => new ActionPromptChoiceDto("BASE:" + id, $"{state.Seats[id]} 的基地"))

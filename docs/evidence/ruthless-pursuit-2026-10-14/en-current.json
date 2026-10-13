@@ -1,0 +1,194 @@
+{
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "fetchedAtUtc": "2026-10-13T18:04:45.127414+00:00",
+  "language": "en-US",
+  "region": "international",
+  "rawResponseSha256": "339428e94879d2437c906d4440f6d15dae667ec0b8e5e3c1d9220061b046910e",
+  "returnedEntries": 1407,
+  "metadata": {
+    "channelMachineName": "riftbound_website",
+    "channelHostname": "playriftbound.com",
+    "smartListMachineName": "riftbound_gallery_cards",
+    "from": 0,
+    "limit": 2000,
+    "overrideSize": 0,
+    "totalItems": 1415,
+    "totalPages": 1,
+    "locale": "en-us",
+    "resultsUpdatedAt": "2026-10-13T18:03:13.825963325Z"
+  },
+  "records": [
+    {
+      "id": "sfd-184-221",
+      "collectorNumber": 184,
+      "name": "Relentless Pursuit",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "SFD",
+          "label": "Spiritforged"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "spell",
+            "label": "Spell",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ],
+        "superType": [
+          {
+            "id": "signature",
+            "label": "Signature"
+          }
+        ]
+      },
+      "publicCode": "SFD-184/221",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "epic",
+          "label": "Epic",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e9799d87d0f8baa55f6d9bddb9750669a0f485b-455x419.png?accountingTag=RB",
+            "dimensions": {
+              "width": 455,
+              "height": 419,
+              "aspectRatio": 1.0859188544152745
+            },
+            "colors": {
+              "primary": "#B8794C",
+              "secondary": "#332F29",
+              "label": "#604634"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "fury",
+            "label": "Fury",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#1A0D0E",
+                "secondary": "#F9DCDE",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          },
+          {
+            "id": "body",
+            "label": "Body",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#221A11",
+                "secondary": "#F9EADC",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/48754730486abefdb56221d0760b9c963aae7c09-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Spell: Relentless Pursuit. [Action] (Play on your turn or in showdowns.)\nMove a friendly unit. You may attach an Equipment with the same controller to it. This turn, that unit has \"When I conquer, you may move me to my base.\"",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#5D3E2F",
+          "secondary": "#F9E3DC",
+          "label": "#361B0E"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "maxgrecke",
+            "label": "Max Grecke",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>[Action] (Play on your turn or in showdowns.)<br />Move a friendly unit. You may attach an Equipment with the same controller to it. This turn, that unit has &quot;When I conquer, you may move me to my base.&quot;</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 2,
+          "label": "2"
+        }
+      },
+      "power": {
+        "label": "Power",
+        "value": {
+          "id": 1,
+          "label": "1",
+          "icon": {
+            "type": "image",
+            "provider": "web",
+            "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+          }
+        }
+      },
+      "tags": {
+        "label": "Tags",
+        "tags": [
+          "Lucian"
+        ]
+      }
+    }
+  ],
+  "sameRecordAsPriorSnapshot": true
+}
