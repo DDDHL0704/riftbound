@@ -1,0 +1,72 @@
+{
+  "status": "SCOPED_NATIVE_COMMAND_READBACK_COLD_RESTORE_DEDUP_FULL_JOURNAL_PASS",
+  "nativeCommands": 86,
+  "branches": [
+    {
+      "branch": "banish-replacement",
+      "commands": 6,
+      "replaySha256": "2382c54810c8a6cf0dc6c9dac11a7d82a2ab557eed953a78fcbf92eed9ae3e7a"
+    },
+    {
+      "branch": "counter-delayed",
+      "commands": 5,
+      "replaySha256": "601004f7967f5283f57d027777bc046da77f3233fd52e2e864588c83e8828e21"
+    },
+    {
+      "branch": "counter-spell",
+      "commands": 5,
+      "replaySha256": "d92687f13d4636ef40b95f0d7eba3a7291b9559dc639dd206821b4def79f8f98"
+    },
+    {
+      "branch": "echo-two-instances",
+      "commands": 8,
+      "replaySha256": "891050c2be54d5717719de9038318d24eec4e6f0819597ad67b3856b3e65d6b7"
+    },
+    {
+      "branch": "expires",
+      "commands": 4,
+      "replaySha256": "cc00c2714e7c99b65c9683f8b25dcb5e316930224acc46840fb87ceeafe778c6"
+    },
+    {
+      "branch": "immediate-death",
+      "commands": 5,
+      "replaySha256": "21b838c6d63214dda8a3a93b1ab8082c0540b80e6676a2c99941271364e335bc"
+    },
+    {
+      "branch": "later-death",
+      "commands": 8,
+      "replaySha256": "4fea841bfc7a8269002c285136012fdc256b6955091bb604424ef61429f930aa"
+    },
+    {
+      "branch": "minion-ceases",
+      "commands": 5,
+      "replaySha256": "5129cf6467d14f3e950f4ef44ed54487880691d1c344910d7268ad7a0462308b"
+    },
+    {
+      "branch": "rebuttal-controller",
+      "commands": 15,
+      "replaySha256": "6f8ec2aef086bb1d518fbda566e2190aa2440b68e5a7945a8a46a74087f8e47c"
+    },
+    {
+      "branch": "recall-replacement",
+      "commands": 8,
+      "replaySha256": "9d2fe9a75fc64f3c510ed4a7507f83a12b4a2c267bce583093813a8ea525ad6c"
+    },
+    {
+      "branch": "return-after",
+      "commands": 10,
+      "replaySha256": "199d3e8e8f9999a863e91f6166635a53488cc8953d5ad233e1bbd688383b8439"
+    },
+    {
+      "branch": "return-before",
+      "commands": 7,
+      "replaySha256": "068f9757408383162ace44cd032adf509297da07d574b53e9845c5f43750981d"
+    }
+  ],
+  "godotLogSha256": "f778910541472d93dcadf5fced967fa73dc4b5727191c8466b06ac0f1565033f",
+  "visiblePairedClientCertified": false,
+  "initialNativeGodotLogSha256": "f778910541472d93dcadf5fced967fa73dc4b5727191c8466b06ac0f1565033f",
+  "finalSourceNullGuardRechecked": true,
+  "finalReadbackCases": 29,
+  "finalReadbackTrxSha256": "300f80f4f2773b8ff1f0f864dfe0ccba5f785f9cfbda443f8eb62f2301f16fd5"
+}

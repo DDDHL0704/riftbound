@@ -85,7 +85,7 @@ public sealed partial class CoreRuleEngine
             var execution = executions[index];
             var item = original with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
                 TargetGenerations = execution.TargetGenerations, Destination = execution.Destination, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var repeatedBehavior)
-                    && repeatedBehavior.OptionalEquipmentAfterMovement ? index : 0,
+                    && (repeatedBehavior.OptionalEquipmentAfterMovement || repeatedBehavior.CreatesGoldWhenTargetDestroyedThisTurn) ? index : 0,
                 MovementFollowUp = index == original.CompletedRepeatExecutions ? original.MovementFollowUp : null,
                 TokenEntryPlan = index == original.CompletedRepeatExecutions ? original.TokenEntryPlan : null };
             result = ResolveStackItemEffect(current, item, deferCompletion: index < executions.Count - 1, repeatDamageDestroyTargets: damageDestroyTargets);

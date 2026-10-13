@@ -1,0 +1,70 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-13T19:15:34.350856+00:00",
+  "language": "zh-CN",
+  "region": "CN",
+  "rawSha256": "81adc6d4ada1b7fe06018b206ae667f9082f697562271e24ea18b60f5032bb42",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "致命华彩",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "records": [
+    {
+      "id": 34606,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "UNL-073/219",
+      "cardName": "致命华彩",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "对一名敌方单位造成3点伤害。当该单位在本回合被摧毁时，打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{横置}}：{{获得}}{{A}}。”）",
+      "flavorText": "“世界残酷，但并非一定丑陋。”\n——烬",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/33a38739c2b34f359ea2c71c8e2f55bd.webp",
+      "backImage": "",
+      "listSort": 1418,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "publicationDate": null,
+  "effectiveDate": null,
+  "priorRuntimeEffectKind": "DEADLY_FLOURISH_DAMAGE_3_NO_GOLD_TRIGGER",
+  "currentRuntimeEffectKind": "DEADLY_FLOURISH_DAMAGE_3_DELAYED_GOLD"
+}

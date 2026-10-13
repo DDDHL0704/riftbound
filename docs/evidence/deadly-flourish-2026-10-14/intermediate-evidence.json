@@ -1,0 +1,161 @@
+{
+  "runs": [
+    {
+      "path": "var/qa/deadly-flourish-20261014/expanded-repaired",
+      "passed": 39,
+      "failed": [],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/shared-delayed-valid-position",
+      "passed": 0,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ActualImmediateAndLaterDeathQueueAnAnswerableDormantGoldForTheSpellController(immediate: True)",
+          "message": "Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: []"
+        },
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ActualImmediateAndLaterDeathQueueAnAnswerableDormantGoldForTheSpellController(immediate: False)",
+          "message": "Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: []"
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/first-shared-delayed",
+      "passed": 0,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ActualImmediateAndLaterDeathQueueAnAnswerableDormantGoldForTheSpellController(immediate: True)",
+          "message": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ActualImmediateAndLaterDeathQueueAnAnswerableDormantGoldForTheSpellController(immediate: False)",
+          "message": "等待服务端处理任务队列：战场控制检查"
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/captured-private-reference",
+      "passed": 47,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.CapturedSkillSurvivesTheDeadUnitReturningToPrivateHand",
+          "message": "PLAY_CARD is not allowed in the current timing window."
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/red-delayed-gold",
+      "passed": 0,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ActualImmediateAndLaterDeathQueueAnAnswerableDormantGoldForTheSpellController(immediate: True)",
+          "message": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ActualImmediateAndLaterDeathQueueAnAnswerableDormantGoldForTheSpellController(immediate: False)",
+          "message": "等待服务端处理任务队列：战场控制检查"
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/expanded-provenance",
+      "passed": 36,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.TwoActualEchoExecutionsProduceIndependentOnceOnlyTriggers",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   0"
+        },
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ARealReturnBeforeOrAfterResolutionCannotFollowANewIncarnation(before: False)",
+          "message": "择日再战 requires 1 friendly unit target(s)."
+        },
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ARealReturnBeforeOrAfterResolutionCannotFollowANewIncarnation(before: True)",
+          "message": "择日再战 requires 1 friendly unit target(s)."
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/source-and-unit-recovery",
+      "passed": 50,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.CapturedSkillRecoverySurvivesLaterSourceOrDeadUnitIncarnations(source: True)",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"command defend-step-0 starts at tick 3 but previou\"···]"
+        },
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.CapturedSkillRecoverySurvivesLaterSourceOrDeadUnitIncarnations(source: False)",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"command defend-step-0 starts at tick 3 but previou\"···]"
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/shared-focus-with-original",
+      "passed": 21,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysDeadlyFlourishEnemyUnitDamage",
+          "message": "System.Collections.Generic.KeyNotFoundException : The given key 'P1-SPELL-DEADLY-FLOURISH' was not present in the dictionary."
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/controller-and-stack",
+      "passed": 46,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ARealCounterStopsTheSpellWhileTargetRestrictedCountersCannotChooseTheUntargetedDelayedSkill(delayed: True)",
+          "message": "Riftbound.Engine.MatchSessionException : 玩家编号不能为空。"
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/adjacent-final",
+      "passed": 269,
+      "failed": [],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/native-readback",
+      "passed": 28,
+      "failed": [],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/token-and-captured-repaired",
+      "passed": 52,
+      "failed": [
+        {
+          "testName": "Riftbound.ConformanceTests.DeadlyFlourishTests.ARealMinionDeathKeepsTheDelayedSkillAfterTheTokenCeasesToExist",
+          "message": "System.Collections.Generic.KeyNotFoundException : The given key 'VICTIM' was not present in the dictionary."
+        }
+      ],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/native-null-repaired-readback",
+      "passed": 29,
+      "failed": [],
+      "overwritten": false
+    },
+    {
+      "path": "var/qa/deadly-flourish-20261014/null-list-repaired",
+      "passed": 29,
+      "failed": [],
+      "overwritten": false
+    }
+  ],
+  "firstRedWasFixtureSetupFailure": true,
+  "runtimeMissingConsumerConfirmedByPriorSource": true,
+  "legacyMethodsOrTheoryRowsRemoved": false,
+  "acceptedJournalRewrites": false
+}

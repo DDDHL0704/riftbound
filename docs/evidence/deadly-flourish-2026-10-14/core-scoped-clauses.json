@@ -1,0 +1,1542 @@
+[
+  {
+    "id": "DOC-04-P043-B012",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.5.b"
+    ],
+    "text": "355.5.b.            这不包括为常驻牌触发式技能做出的选择,也不包括为项目确认时生成的延迟或内嵌式触发做出的选择\n                    (即使这些技能会在结算链项目打出时触发)。\n                         举例:打出具有“打出我时,摧毁一名单位”触发式技能的单位时,无需选择目标。只有在技能触\n                         发时,才需要选择目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B013",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [],
+    "text": "举例:“巨神峰之巅”的描述为:“当你征服此处时,选择两枚符文,并在本回合结束时,让它们\n                         变为活跃状态。”“选择两枚符文,并在本回合结束时,让它们变为活跃状态”是延迟触发技能的\n                         效果;任何与其相关的选择均不是在确认征服效果时做出,而是在回合结束时确认延迟触发技\n                         能的结果时做出。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B004",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e"
+    ],
+    "text": "359.3.e.     处理不合法或无法执行的指示",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B005",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.1"
+    ],
+    "text": "359.3.e.1.        即使部分或所有目标不合法,法术依旧会进行结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B006",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.2"
+    ],
+    "text": "359.3.e.2.        如果目标不再符合法术的目标要求,或者所在区域在场地区域和非场地区域之间发生了变化,\n                  则该目标会在法术结算时被视为非法。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B007",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.3"
+    ],
+    "text": "359.3.e.3.        如果目标在法术位于结算链上时一度不再满足目标条件,之后又再度符合,则依旧被视为合法\n                  目标。\n                       举例:一张法术牌的目标为“战场上的一名单位”。一名玩家以法术进行应对,将该单\n                       位移动到基地,然后另一名玩家也以法术进行应对,将其移动回战场。随后,原先的\n                       法术进行结算。这种情况下,该单位仍然视为合法目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B008",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.4"
+    ],
+    "text": "359.3.e.4.        如果目标的所在区域在场地区域和非场地区域之间发生了变化,然后又回到了原来的区域,则\n                  不再是合法目标,因为不被视为同一个游戏物体。\n                       举例:\n                       如果“战场上的一名敌方单位”不再是敌人、不再是单位或不再位于战场上,则不再视\n                       为合法目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B011",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.5"
+    ],
+    "text": "359.3.e.5.        如果该法术的目标均已不再合法,则这些游戏物体、玩家或区域在法术结算时不受影响。所有\n                  与非法目标相关的指示都无法执行。\n                       举例:一名玩家打出了“虚空索敌”,该法术的效果为“对战场上的一名单位造成 4 点伤\n                       害。抽一张牌。”该法术目标单位的控制者使用[反应],将单位移动至所属基地。既然\n                       该单位不再是合法单位,也就无法受到任何伤害。不过,“虚空索敌”的控制者依然会\n                       抽一张牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B014",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.6"
+    ],
+    "text": "359.3.e.6.        由于非法目标或其他情况而无法遵循的指示会被无视。\n                       举例:一名玩家打出“驭风而行”,并选择将其位于“卑鄙之喉的巢穴”的单位移动到基\n                       地。基地是“驭风而行”的合法移动终点位置,但由于“卑鄙之喉的巢穴”的限制,该移\n                       动指示无法执行,因此在“驭风而行”效果结算时,该移动指示将被无视。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B001",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.7"
+    ],
+    "text": "359.3.e.7.     如果一张法术卡牌开始结算时,指示的所有目标均处于无效或不可用状态,则该指示不会执\n               行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B002",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.8"
+    ],
+    "text": "359.3.e.8.     如果指示拥有多个目标,且法术卡牌开始结算时并非所有目标均处于无效或不可用状态,则该\n               卡牌会正常执行,只对适用且有效的目标产生效果。\n                    举例:“星芒凝汇”的效果为“对最多两名单位各造成 6 点伤害”。即使这些单位中有一\n                    名单位在法术开始前变为不可用状态,该指示仍会执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B003",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.9"
+    ],
+    "text": "359.3.e.9.     如果卡牌选择的目标变为无效或不可用状态,则该过程称为目标指定失效。\n                   举例:一张法术牌的指示为“对战场上的一名单位造成 2 点伤害”。如果在指示执行\n                    前,选定的单位已被移动至其基地,则该指示不会执行,这是因为该指示已经表明其\n                    选择的单位必须处于战场中,而在准备执行指示时,指定为目标的单位已经不再是有\n                    效对象。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B004",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.9.a"
+    ],
+    "text": "359.3.e.9.a.        如果其他法术或技能尝试引用某个已确认的结算链项目 指定为目标的游戏物体、玩家\n                    或区域的数量,则该数量会计入所有指定失效的目标,但不会计入已改变至非场地区\n                    域的目标。\n                         举例:当玩家将其“沃利贝尔 - 震怒天声”移动至敌方占据的战场并触发战斗\n                         时,沃利贝尔的进攻触发将加入结算链,并选取该战场上的三名单位为目\n                         标。作为反应,防守方玩家打出“闪现”,将三名单位中的两名移回基地。此\n                         时,该玩家不能使用“击退”指定该进攻触发为目标(“击退”的效果为:“选\n                         择战场上的一名友方单位。无效化一个选择了该单位、且没有选择其他友\n                         方单位为目标的敌方法术或技能。”)。如果防守方玩家改为打出“残酷复\n                         活”两次,摧毁了那两名单位,则“击退”可以合法指定该进攻触发为目标,\n                         因为其中两名目标已移至非场地区域。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B005",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.10"
+    ],
+    "text": "359.3.e.10.    由于所有法术都需要有目标才能造成影响,如果所有目标都变为无效或不可用状态,则法术结\n               算时,有可能出现所有指示都无法执行的情况。在这种情况下,虽然法术没有造成效果,但依\n               旧视为被打出。\n                    举例:一名玩家打出了一张法术牌,上面除了“对战场上的一名单位造成 2 点伤害”之\n                    外没有其他的指示,随后玩家选择了战场上的一名敌方单位。该玩家同时控制着另一\n                    名单位,其具有“每当你打出一张法术牌时,让我本回合内[M]+1”的技能。假如,在法\n                    术结算前,选定的单位已被移动至其所属基地。那么,在法术进行结算时,其造成伤\n                    害的指示无法被执行,但受控制的单位依旧会触发技能,使其获得[M]+1。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B006",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.11"
+    ],
+    "text": "359.3.e.11.    如果玩家只能遵循部分指示,则尽量遵循,否则便无视。\n                   举例:一名玩家打出一张法术牌,其效果为“弃置两张手牌,然后抽两张牌”。如果该\n                    玩家没有手牌,则无视“弃置两张手牌”的指示,但仍然会抽两张牌。如果该玩家只有\n                    一张手牌,则将其弃置,并抽两张牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B001",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.12"
+    ],
+    "text": "359.3.e.12.     如果一个法术需要查询某个目标的信息,但该目标已经不再是合法目标;或者需要查询的卡牌\n                或常驻牌由于其所在位置、区域或状态发生了变化,导致其相关信息不再可用,则查询返回的\n                结果为“无”,基于它的所有计算都将被无视。\n                      举例:\n                      不再位于场上的单位被视为无战力、无费用,等等。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B005",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.12.a"
+    ],
+    "text": "359.3.e.12.a.         如果一个法术需要查询信息的目标为合法,或者需要查询的卡牌/常驻牌的所在位置、\n                      区域或状态未发生导致其相关信息不再可用的变化,则该信息可以被查询并获取。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B006",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.13"
+    ],
+    "text": "359.3.e.13.     对于将某样物体移动至另一个区域作为费用或效果的法术或技能,可以“回溯”其在改变区域前的\n                特性。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B007",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14"
+    ],
+    "text": "359.3.e.14.     有些指示可能会引用受卡牌中其他指示影响的游戏物体,或是引用在其他指示中执行的游戏行\n                动。这些被引用和引用的指示称为“关联指示”。\n                      举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”第二条指示\n                      中的“其”指的是第一条指示中的单位,因此该法术的两条指示是相互关联的。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B008",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14.a"
+    ],
+    "text": "359.3.e.14.a.         须先执行完前置关联指示,才会执行后续关联指示。如果此前置关联指示因任何原因\n                      被无视,则后续关联指示也会被无视。\n                           举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”如\n                            果所选单位因反应“暗刃”而改变区域或移动至基地,则该法术目标指定失\n                            效,第一条指示将被无视。如果第一条指示被无视,第二条指示也不会执\n                            行,因此该单位的控制者不会抽两张牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B009",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14.b"
+    ],
+    "text": "359.3.e.14.b.         如果在前置关联指示中执行的游戏行动被替换,后续的关联指示并不会受影响(除非\n                      后续关联指示直接引用了该游戏行动)。\n                            举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”该\n                            效果分为两条指示:摧毁该单位,以及目标单位的控制者抽两张牌。后续\n                            关联指示并未直接引用任何行动,因此即使前置关联指示中的摧毁行行动\n                            被其他事件替换,该后续关联指示仍会执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B011",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14.c"
+    ],
+    "text": "359.3.e.14.c.         以这种方式引用游戏行动时,仅指该游戏行动以及其作用的物体或玩家,而不指其执\n                      行时的具体情况。\n                            举例:一个法术的效果为“对战场上的一名敌方单位造成 3 点伤害。若如此\n                            做,则为与该单位同一位置的你控制的单位移除伤害。”如果部分而非全部\n                            伤害被抵挡,则后续关联指示仍会执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B002",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.e.15"
+    ],
+    "text": "359.3.e.15.         在结算过程中离开结算链的法术或技能,其指示将不再继续执行。这会立即使该法术或技能完\n                    成结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B003",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.e.16"
+    ],
+    "text": "359.3.e.16.         如果延迟技能的持续时间在其生成前已结束,则不会生成该延迟技能,与其相关的所有指示也\n                    将被无视。\n                         举例:“巨神峰之巅”是一张战场牌,其部分描述为:“当你征服此处时,选择两枚符\n                         文,并在本回合结束时,让它们变为活跃状态。”如果在结束步骤开始后,“巨神峰之\n                         巅”在回合结束阶段被征服(例如通过“狩猎律动”等效果),则不会生成该延迟触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B004",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [],
+    "text": "举例:“阿克尚 - 放浪不羁”的部分描述为“当你打出我时,如果你支付了该额外费用,\n                         则可以将一件敌方装备移动到你的基地。你控制这件装备,直到我离场为止。如果它\n                         是一件武装,则将其贴附到我身上。”如果阿克尚因其打出效果受到反应而离场,则不\n                         会生成延迟被动技能“你控制这件装备,直到我离场为止”。因此,你一刻也不会获得\n                         该目标装备的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B011",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.3.a"
+    ],
+    "text": "359.3.f.3.a.             对于延迟触发式技能,除非另有说明,否则信息会在触发式技能被创建时受到引用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B012",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.3.b"
+    ],
+    "text": "359.3.f.3.b.             对于关联技能,如果其引用了关联触发式技能中的信息,并且有明确说明,则可以从\n                         关联触发式技能的触发条件中引用该信息。\n                               举例:娅希拉的描述为:“当我据守一处战场时,在你的下一个主阶段开始\n                               时,你可以选择将一名敌方单位移动到此战场。”该延迟触发式技能中的“此\n                               战场”指的是她据守的战场,因此会在生成该触发式技能时从该触发条件中\n                               引用该战场。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P054-B003",
+    "document": "DOC-04",
+    "page": 54,
+    "clauseAnchors": [
+      "360"
+    ],
+    "text": "360.       技能",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P054-B005",
+    "document": "DOC-04",
+    "page": 54,
+    "clauseAnchors": [
+      "361.1"
+    ],
+    "text": "361.1.            技能 具有多种结构。\n                       被动技能\n                       替换效果\n                       主动技能\n                       触发式技能\n                       延迟技能",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P058-B017",
+    "document": "DOC-04",
+    "page": 58,
+    "clauseAnchors": [
+      "383"
+    ],
+    "text": "383.         触发式技能 是一种可重复效果,在满足特定条件 时即会触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P058-B018",
+    "document": "DOC-04",
+    "page": 58,
+    "clauseAnchors": [
+      "383.1"
+    ],
+    "text": "383.1.           触发式技能 的识别标志为技能描述中出现的“当/每当......时”(中间为一个游戏行动或事件)、“在......时”(中间为回合\n                 流程中的一个时间点),又或者“(第)N 次”(后面跟随一个游戏行动或事件)字样。\n                      举例:\n                      “当你征服此处时,你可以选择消耗一个增益,以此抽一张牌。”",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P058-B021",
+    "document": "DOC-04",
+    "page": 58,
+    "clauseAnchors": [
+      "383.1.a"
+    ],
+    "text": "383.1.a.              标识着触发式技能的表述并不一定总是出现在句子或技能描述的开头。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B001",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.1.b"
+    ],
+    "text": "383.1.b.          如果某个技能的触发条件是“(第)N 次”发生某事,而该条件同时多次得到满足,则控制者需要从中选择\n                  一次作为触发的时机。该技能只会在选中的时机触发一次。\n                        举例:“残响之魂”的描述为:“每回合首次,当你的另一名友方单位被摧毁时,抽一张牌。”该技\n                        能在本回合尚未触发过。其他两名友方单位同时被摧毁(比如说因为受到战斗伤害)。“残响之\n                        魂”的控制者可以从这两次被摧毁事件中选择一次来触发其技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B002",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.2"
+    ],
+    "text": "383.2.       触发式技能 具有条件 和效果 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B003",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.2.a"
+    ],
+    "text": "383.2.a.          条件 是指包含“当 /每当 ......时 ”、“在 ......时 ”,或者“(第) N 次 ”的子句。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B004",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.2.a.1"
+    ],
+    "text": "383.2.a.1.              如果某个附加条件分句紧跟在条件之后,则只有该附加条件成立时,该条件才视为满足。此类\n                        条件分句属于触发条件的一部分,而非效果的一部分。\n                                举例:“娑娜 - 清心谐律”的描述为:“在你回合结束时,如果我位于战场上,则让最多\n                                四枚友方符文变为活跃状态。”虽然一到回合结束步骤就会满足她的触发式技能条件,\n                                但只有她在触发条件满足时位于战场上时,她的触发式技能才会进入结算链。如果她\n                                因该触发式技能受到反应而被移出战场,该技能仍会结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B006",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.2.b"
+    ],
+    "text": "383.2.b.          效果 是指不属于条件 部分的指示 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B007",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.2.c"
+    ],
+    "text": "383.2.c.          触发条件 会在可能引发它的事件处理完毕后再进行判定。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B008",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.2.c.1"
+    ],
+    "text": "383.2.c.1.              假如一个游戏物体拥有一个只在特定区域才能生效的触发式技能,如果它在触发条件满足的同\n                        时进入了该特定区域,则技能会在判定后随即触发。\n                                举例:“不朽凤凰”的技能描述为“当你使用法术摧毁一名单位时,你可以选择支付[1]和\n                                [C],以此从废牌堆中将我打出。”当你用法术摧毁一个单位后,即便被法术摧毁的单\n                                位就是“不朽凤凰”,但只要“不朽凤凰”位于你的废牌堆中,该技能就会立即触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B009",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.2.c.2"
+    ],
+    "text": "383.2.c.2.              不过,如果一个游戏物体在触发条件满足的同时离开了使该触发效果生效的区域,则其触发条\n                        件 将被视为判定失败。\n                                举例:“维克托 - 领袖”的技能描述为“如果我在场上,则每当你的另一名非‘随从’单位\n                                被摧毁时,打出一名 1[M]的‘随从’单位指示物到你的基地。”当你控制的另一名非随从\n                                单位被摧毁后,如果维克托在战场上,则该技能会立即触发。如果维克托和你控制的\n                                另一名非随从单位在同一个游戏行动期间被摧毁(例如由于“过载能量”造成的伤害导\n                                致二者同时在清理步骤中被摧毁),则该技能不会触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B010",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.3"
+    ],
+    "text": "383.3.       条件 满足时,触发式技能 就会和主动技能 一样行动,被放置到结算链 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B011",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.3.a"
+    ],
+    "text": "383.3.a.          如果触发式技能的效果开头为“你可以选择”或“该玩家可以选择”,则其来源的控制者将在确认阶段选择是\n                  否执行该触发式技能。\n                        举例:“控潮者”拥有“当你打出我时,你可以选择另一处位置受你控制的一名单位,然后把我移\n                        动到其所在位置,再将其移动到我原来的位置”的效果。其中的“你可以选择”出现在效果的开\n                        头,因此该选择代表是否执行该触发式技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B012",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.3.a.1"
+    ],
+    "text": "383.3.a.1.              当“可以选择”以这种形式出现时,其所表示的选择仅为是否执行该触发式技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P059-B013",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.3.a.2"
+    ],
+    "text": "383.3.a.2.              如果该触发式技能的控制者在确认阶段选择不执行该触发式技能,则该技能将从结算链中移\n                        除,并视为未触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B001",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.a.3"
+    ],
+    "text": "383.3.a.3.              当“你可以选择”或“该玩家可以选择”出现在触发式技能效果的后半部分时,则该选择将在结算阶\n                        段决定。\n                               举例:“奥恩 - 铁匠”的描述为:“当你打出我时,或当我据守一处战场时,查看你主牌\n                               堆顶部的四张牌。你可以选择从中展示一件装备,并抽取该卡牌。然后回收其余的卡\n                               牌。”其中的“你可以选择”并非出现在效果的开头部分,因此该决定将在结算阶段做\n                               出。该技能始终会被确认并放入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B002",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.b"
+    ],
+    "text": "383.3.b.           如果触发式技能包含指示中的费用,且该费用位于效果的开头部分,或紧跟在效果开头部分出现的“你可\n                   以选择”或“该玩家可以选择”之后,则该费用将视为该触发式技能的基础费用。\n                        举例:“艾克 - 溯时洄光”的描述为:“[绝念][>] 回收我,以此让你的所有符文变为活跃状态。”在\n                        此情况下,“回收我,以此让你的所有符文变为活跃状态”便是出现在技能效果开头部分的指示中\n                        的费用,因此“回收我”被视为该触发式技能的基础费用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B004",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.b.1"
+    ],
+    "text": "383.3.b.1.              必须支付此费用,才能确认将该触发式技能加入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B005",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.c"
+    ],
+    "text": "383.3.c.           触发式技能 可以在任意玩家的回合中放置到结算链 ,无论闭环状态 或开环状态 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B006",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.d"
+    ],
+    "text": "383.3.d.           如果同一时间有多个触发式技能被触发,则由控制技能的玩家选择它们放置到结算链的顺序。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B007",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.d.1"
+    ],
+    "text": "383.3.d.1.              如果同时触发的多个触发式技能由多个不同玩家控制,则从回合玩家开始,随后按照回合顺\n                        序 ,每名玩家依次将自己的触发式技能 放置到结算链 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B008",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.e"
+    ],
+    "text": "383.3.e.           部分触发式技能的触发限制为“每回合限一次”或“每回合限 N 次”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B009",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.e.1"
+    ],
+    "text": "383.3.e.1.              此类触发式技能每回合只会执行指定次数。若其触发条件已满足,但该技能已执行指定次数,\n                        则不会触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B010",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.e.2"
+    ],
+    "text": "383.3.e.2.              如果触发式技能效果的开头部分指示“你可以选择”或“该玩家可以选择”,则其控制者可以选择是\n                        否执行该技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B011",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.e.2.a"
+    ],
+    "text": "383.3.e.2.a.                   在触发式技能的确认阶段,控制该触发式技能的玩家可以选择执行该技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B012",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.3.e.2.b"
+    ],
+    "text": "383.3.e.2.b.                   如果选择不执行,则该技能将从结算链中移除。\n                                   举例:一名玩家控制的单位的部分描述为“每回合限一次,当一名敌方单位\n                                   被摧毁时,你可以选择将其放逐。”当一名敌方“随从”指示物被摧毁时,该\n                                   触发式技能将进入结算链。如果该玩家在确认阶段选择不执行该技能,则\n                                   该技能将从结算链中移除。当“强强魄罗”在本回合的后期被摧毁时,该玩家\n                                   可以选择触发该技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B013",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.4"
+    ],
+    "text": "383.4.         部分常见的条件表述会明确地定义其使用范围、以及其它与之相关的效果属性。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B014",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.4.a"
+    ],
+    "text": "383.4.a.           打出效果 :这类触发式技能 的条件 包括“拥有打出效果 的常驻牌 被打出到场上”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P060-B015",
+    "document": "DOC-04",
+    "page": 60,
+    "clauseAnchors": [
+      "383.4.a.1"
+    ],
+    "text": "383.4.a.1.              这类条件在单位牌上的表述通常是“当你打出我时......”,在装备牌上则是“当你打出此牌/此装备\n                        时...”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B001",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.a.2"
+    ],
+    "text": "383.4.a.2.          这类触发式技能会在与这些效果对应的常驻牌已确认并进场后,作为待处理项目放入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B002",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.a.3"
+    ],
+    "text": "383.4.a.3.          这类触发式技能可以被称为打出效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B003",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.a.4"
+    ],
+    "text": "383.4.a.4.          当另一个物体被打出时触发的技能不被视为打出效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B004",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.b"
+    ],
+    "text": "383.4.b.       指目标效果: 这类触发式技能 的条件 包括“选择游戏物体 为目标”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B005",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.b.1"
+    ],
+    "text": "383.4.b.1.          这类条件的表述通常为“当你选择我时......”或“当你选择一个[游戏物体]时......”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B006",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.b.2"
+    ],
+    "text": "383.4.b.2.          这类触发式技能会在指定相应游戏物体为目标的法术或技能完成确认后,作为待处理项目被放\n                    入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B007",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.b.3"
+    ],
+    "text": "383.4.b.3.          尽管此类技能的条件中使用了“选择”一词,但它们只有在将相应游戏物体被选作目标时才会触\n                    发。\n                         想获取更多有关何为目标选取的信息,请查阅规则 355.6.目标选取。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B008",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.b.4"
+    ],
+    "text": "383.4.b.4.          这类触发式技能可以被称为指目标效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B009",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.c"
+    ],
+    "text": "383.4.c.       征服效果 :这类触发式技能 的条件 包括“单位 参与并成功征服战场 ”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B010",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.c.1"
+    ],
+    "text": "383.4.c.1.          这类条件的表述通常是“当我征服一处战场时......”和“当你征服一处战场时......”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B011",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.c.2"
+    ],
+    "text": "383.4.c.2.          这类触发式技能仅包含在征服行动发生时由在场的单位触发的技能,或引用执行征服行动的玩\n                    家的技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B012",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.c.2.a"
+    ],
+    "text": "383.4.c.2.a.             当一名玩家通过征服获得一处战场的控制权并获得 1 分时,位于该战场上的单位对应\n                         的征服技能将作为待处理项目放入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B013",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.c.2.b"
+    ],
+    "text": "383.4.c.2.b.             当控制触发来源的玩家完成征服并获得 1 分这一条件满足时,任何引用该玩家征服行\n                         动的征服技能都会被放入结算链,成为待处理项目。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B014",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.c.2.c"
+    ],
+    "text": "383.4.c.2.c.             如果本该获得一分的征服行动以任何方式被撤销或替换,该征服效果依然会触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B015",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.c.3"
+    ],
+    "text": "383.4.c.3.          这类触发式技能可以被称为征服效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B016",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.d"
+    ],
+    "text": "383.4.d.       据守效果 :这类触发式技能 的条件 包括“当玩家在开始阶段 中因据守 获得分数 时,该单位 位于战场 上”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B017",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.d.1"
+    ],
+    "text": "383.4.d.1.          这类条件的表述通常为“当我据守时......”和“当你据守时......”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B018",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.d.2"
+    ],
+    "text": "383.4.d.2.          这类触发式技能仅包含在据守行动发生时由在场的单位触发的技能,或引用执行据守行动的玩\n                    家的技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B019",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.d.2.a"
+    ],
+    "text": "383.4.d.2.a.             当一名玩家在其开始阶段通过据守维持一处战场的控制权并获得 1 分时,与位于该战\n                         场上的单位对应的据守技能将作为待处理项目放入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B020",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.d.2.b"
+    ],
+    "text": "383.4.d.2.b.             当控制着触发来源的玩家完成据守并获得 1 分这一条件满足时,任何引用该玩家据守\n                         行动的据守技能都会被放入结算链,成为待处理项目。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B021",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.d.2.c"
+    ],
+    "text": "383.4.d.2.c.             如果本该获得一分的据守行动以任何方式被撤销或替换,该据守效果依然会触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B022",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.d.3"
+    ],
+    "text": "383.4.d.3.          这类触发式技能可以被称为据守效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B001",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.e"
+    ],
+    "text": "383.4.e.               进攻触发 :这类触发式技能 的触发条件为“当一名单位 或玩家 在战斗中首次获得进攻方 身份时”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B002",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.e.1"
+    ],
+    "text": "383.4.e.1.                   这类条件的表述通常是“当我进攻时......”或“当你进攻时......”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B003",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.e.2"
+    ],
+    "text": "383.4.e.2.                   这类触发式技能会在这些效果对应的单位在战斗中获得进攻方身份时作为待处理项目放入结算\n                             链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B004",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.e.2.a"
+    ],
+    "text": "383.4.e.2.a.                      尽管一个单位可以在同一场战斗中多次获得和失去进攻方身份,但这类触发的条件每\n                                  场战斗只会检查一次。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B005",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.e.2.b"
+    ],
+    "text": "383.4.e.2.b.                      如果触发条件包含除进攻之外的要求,且此类要求在单位获得进攻方身份时并不满\n                                  足,则不会在该场战斗中触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B006",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.e.3"
+    ],
+    "text": "383.4.e.3.                   这类触发式技能可以被称为进攻触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B007",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.f"
+    ],
+    "text": "383.4.f.               防守触发 :这类触发式技能 的触发条件为“当一名单位 或玩家 在战斗中首次获得防守方 身份时”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B008",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.f.1"
+    ],
+    "text": "383.4.f.1.                   这类条件的表述通常是“当我防守时......”或“当你防守时......”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B009",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.f.2"
+    ],
+    "text": "383.4.f.2.                   这类触发式技能会在这些效果对应的单位在战斗中获得防守方身份时作为待处理项目放入结算\n                             链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B010",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.f.2.a"
+    ],
+    "text": "383.4.f.2.a.                      尽管一个单位可以在同一场战斗中多次获得和失去防守方身份,但这类触发的条件每\n                                  场战斗只会检查一次。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B011",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.f.2.b"
+    ],
+    "text": "383.4.f.2.b.                      如果触发条件包含除防守之外的要求,且此类要求在单位获得防守方身份时并不满\n                                  足,则不会在该场战斗中触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B012",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.f.3"
+    ],
+    "text": "383.4.f.3.                   这类触发式技能可以被称为防守触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B013",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.g"
+    ],
+    "text": "383.4.g.               部分效果可能会指示玩家“激活”其中一类具名的触发式技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B014",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.g.1"
+    ],
+    "text": "383.4.g.1.                   为此,该玩家需检查所有指定效果的条件,并将条件中的具名部分视为已满足。\n                                  举例:“清算人竞技场”的描述为:“当你据守此处时,激活此处所有单位的征服效\n                                  果。”对于战场上的每名单位,你都需要检查其征服效果的触发条件是否已满足,并将\n                                  条件中的征服部分视为已满足。如果征服效果的所有条件都已满足,该效果会被视为\n                                  刚触发而加入结算链。如果除征服部分外的其他条件有任何一项未满足,则该效果不\n                                  会加入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B012",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "389"
+    ],
+    "text": "389.       延迟技能",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B013",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390"
+    ],
+    "text": "390.       延迟技能 是一种会指定时间窗口,并在该时机内生效的技能 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B014",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390.1"
+    ],
+    "text": "390.1.            延迟技能 可能是其他任何类型的技能 ,并且除了延迟技能 的属性之外,还包含该其他类型的所有属性。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B015",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390.2"
+    ],
+    "text": "390.2.            延迟触发 :这类触发式技能 的识别标志为回合内一个特定时机的表述,或将触发式技能 限制在特定时间段内的表\n                  述。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B016",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390.3"
+    ],
+    "text": "390.3.            延迟替换 :这类替换效果 的识别标志为指定其在特定时机将特定效果替换,或者在结算效果描述中有“(第)N 次”\n                  的表述。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B017",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390.3.a"
+    ],
+    "text": "390.3.a.                 部分延迟替换会以“然后将其回收”或“然后将其放逐”的形式出现,引用由关联技能或指示打出的结算链项\n                         目。这种延迟替换实际上是一种简写,相当于“如果它在成为已确认的结算链项目后将要离开结算链,且\n                         离开结算链不是由其自身执行指示导致的,则改为执行指定的游戏行动”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B018",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390.4"
+    ],
+    "text": "390.4.            延迟被动技能 :这类被动技能 仅会在一个特定的时间窗口内生效。延迟被动技能 生效的时机会在发动该技能的效果\n                  中表明。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B019",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390.5"
+    ],
+    "text": "390.5.            延迟关联技能 是由其他技能 产生,并引用该技能 或其所影响的游戏物体 ,而不是引用特定时间窗口的关联技能 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B020",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390.5.a"
+    ],
+    "text": "390.5.a.                 如果该技能影响了某个游戏物体,则只要该游戏物体处于合法的区域内,该延迟关联技能的窗口就会持续\n                         存在。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P063-B021",
+    "document": "DOC-04",
+    "page": 63,
+    "clauseAnchors": [
+      "390.5.b"
+    ],
+    "text": "390.5.b.                 如果延迟关联技能引用了技能的来源,只要该来源位于合法的区域内,其时机窗口就会持续存在。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B001",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "390.5.c"
+    ],
+    "text": "390.5.c.                 延迟关联技能 的合法区域,将由生成该技能的关联技能 自动确定。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B002",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "390.5.c.1"
+    ],
+    "text": "390.5.c.1.                    如果关联技能导致受影响的游戏物体被移动到非场地区域,则相应延迟关联技能的合法区域将\n                              是该游戏物体被移动到的区域。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B004",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "391"
+    ],
+    "text": "391.         延迟技能 的结算和激活方式与其所影响的技能相同,但仅会在创建该延迟技能 的效果所指定的时机生效。\n                    举例:“邪鸦魔典”的描述为“你在本回合内打出的下一个法术造成 1 点额外伤害。”这个延迟被动技能仅会为你打出的\n                    下一个法术被动增加 1 点额外伤害。指定的时机为“下一个法术”,而“1 点额外伤害”则是被动技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B005",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [],
+    "text": "举例:“诺克萨斯断头台”的效果为“选择一名单位。在它本回合下次受到伤害时,将其摧毁。”指定时机为“当选定的\n                    单位受到伤害时”,而“将其摧毁”则是延迟触发式技能 的效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B006",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "392"
+    ],
+    "text": "392.         延迟技能 与单位 或装备 无关;它们是由其他技能 或法术 创建出的效果。因此,无论创建该延迟技能 的来源是否还在场上,当条\n             件满足和/或特定时间到来时,这些技能都会执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B007",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "393"
+    ],
+    "text": "393.         关联技能",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B008",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "394"
+    ],
+    "text": "394.         关联技能 是由多个技能 组成的技能组合,其中作为组件的一个或多个技能 会引用同一技能组合中的其他技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B009",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "394.1"
+    ],
+    "text": "394.1.              组件技能 可以通过直接引用其他技能 ,或引用被其他技能 影响或提及的游戏物体 ,来关联同一技能组合中的其他技\n                    能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B010",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "395"
+    ],
+    "text": "395.         这组技能必须存在于同一个游戏物体卡面上印刷的效果或规则文本,或是都由同一来源赋予另一个游戏物体,才能组成关联技\n             能。\n                    举例:“Z 型驱动”是一件武装装备,其部分规则文本为“支付[3]和[B],放逐此牌:打出所有因此牌效果被放逐的单\n                    位,无视费用。”“Z 型驱动”的效果文本为:“[绝念][>] 放逐我。”其提供的绝念技能与“Z 型驱动”的主动技能相关联。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B011",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "396"
+    ],
+    "text": "396.         关联技能 的组件技能 可以由任意类型的技能组成。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B012",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "397"
+    ],
+    "text": "397.         引用受同组其他技能影响的游戏物体的组件技能,只能跟受其所关联同组技能影响的游戏物体产生互动。\n                    举例:“Z 型驱动”是一件武装装备,其部分规则文本为“支付[3]和[B],放逐此牌:打出所有因此牌效果被放逐的单\n                    位,无视费用。”如果有并非以同一组合当中的组件关联技能而被放逐的其他单位,则这些单位无法在结算该主动技\n                    能时打出。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B013",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "398"
+    ],
+    "text": "398.         打出或激活技能",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P064-B014",
+    "document": "DOC-04",
+    "page": 64,
+    "clauseAnchors": [
+      "399"
+    ],
+    "text": "399.         打出或激活技能时,需遵循与打出卡牌相同的步骤。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P066-B003",
+    "document": "DOC-04",
+    "page": 66,
+    "clauseAnchors": [
+      "406"
+    ],
+    "text": "406.         6.继续游戏",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P066-B004",
+    "document": "DOC-04",
+    "page": 66,
+    "clauseAnchors": [
+      "406.1"
+    ],
+    "text": "406.1.            此技能不再处于待处理状态。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P066-B005",
+    "document": "DOC-04",
+    "page": 66,
+    "clauseAnchors": [
+      "406.2"
+    ],
+    "text": "406.2.            此技能变为已确认的结算链项目 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P066-B006",
+    "document": "DOC-04",
+    "page": 66,
+    "clauseAnchors": [
+      "406.3"
+    ],
+    "text": "406.3.            如果结算链中有其他待处理结算链项目 ,则其控制者立即执行剩余的打出步骤。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P066-B007",
+    "document": "DOC-04",
+    "page": 66,
+    "clauseAnchors": [
+      "406.4"
+    ],
+    "text": "406.4.            其他玩家有机会在法术和技能结算前打出[反应]卡牌,作为应对。\n                       想获取更多有关信息,请查阅规则 327.结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P066-B008",
+    "document": "DOC-04",
+    "page": 66,
+    "clauseAnchors": [
+      "406.5"
+    ],
+    "text": "406.5.            否则便执行此技能,执行方式与法术相同,然后从结算链中移除此结算链项目。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P082-B008",
+    "document": "DOC-04",
+    "page": 82,
+    "clauseAnchors": [
+      "437.7"
+    ],
+    "text": "437.7.            抵挡 是一种延迟替换效果 。\n                        想获取更多有关信息,请查阅规则 367.替换效果。\n                        想获取更多有关信息,请查阅规则 389.延迟技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P089-B006",
+    "document": "DOC-04",
+    "page": 89,
+    "clauseAnchors": [
+      "465.2.c.4.a"
+    ],
+    "text": "465.2.c.4.a.        如果分配给一个单位的伤害被调整或被替换为一个高于初始值的伤害值,分配伤害的\n                    玩家必须选择能够使该单位受到致命伤害的最小适用数值。\n                         举例:要在战斗伤害步骤中为一个 3[M]单位分配伤害。该单位的控制者还\n                           控制着其他尚未被分配伤害的单位。该单位还被施加了一个延迟替换效\n                           果:“在本回合内,该单位受到的所有伤害翻倍。”在分配伤害时,分配伤害\n                           的玩家只能选择为该单位分配 1 点或 2 点伤害——进行此行动时,分配的\n                           伤害分别翻倍为 2 点或 4 点伤害。在这种情况下,能够使该单位受到致命\n                           伤害的最小适用数值为 4 点伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P089-B008",
+    "document": "DOC-04",
+    "page": 89,
+    "clauseAnchors": [],
+    "text": "举例:进攻方玩家需要将其 3[M]的伤害分配给两个均为 2[M]的防守方单位。其中一\n                    个单位还受到一个延迟替换效果:“在本回合内,该单位受到的所有伤害翻倍。”进攻\n                    方玩家先向另一个防守方单位分配 2 点伤害,随后向带有该延迟替换效果的单位分配\n                    2 点伤害;其剩余的 1 点伤害在分配给该单位时翻倍为 2 点。当实际造成伤害时,该\n                    伤害不会再次翻倍,因为翻倍效果已视为在伤害分配阶段完成。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P111-B009",
+    "document": "DOC-04",
+    "page": 111,
+    "clauseAnchors": [
+      "805.2.b"
+    ],
+    "text": "805.2.b.                支付急速费用会生成延迟替换效果。即使该单位在确认过程中失去了急速关键词,只要已支付费用,该单\n                        位仍会以活跃状态进场。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P111-B013",
+    "document": "DOC-04",
+    "page": 111,
+    "clauseAnchors": [
+      "805.6"
+    ],
+    "text": "805.6.            急速会生成延迟替换效果,将原本的“单位以休眠状态进场”替换为“单位以活跃状态进场”。单位不是“以休眠状态进\n                  场,然后再进入活跃状态”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P125-B002",
+    "document": "DOC-04",
+    "page": 125,
+    "clauseAnchors": [
+      "829.1.b.1"
+    ],
+    "text": "829.1.b.1.             以这种方式放逐该法术,是一种延迟替换效果。如果该法术在成为已确认的结算链项目后将离\n                       开结算链,且离开结算链并非由其自身执行所指示,则改为将其放逐。\n                           想获取更多有关信息,请查阅规则 367.替换效果。\n                             想获取更多有关信息,请查阅规则 389.延迟技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

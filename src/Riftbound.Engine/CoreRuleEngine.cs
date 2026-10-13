@@ -165,7 +165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = RefreshRuleDerivedKeywordLayers(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
-            result = QueueReflexiveDuels(RecordDeathObservers(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))));
+            result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))))));
             var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result))))))))));
             // New field objects need their current incarnation before role and
@@ -3356,7 +3356,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -25199,6 +25199,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.AttachmentObserver is not null) return ResolveAttachmentObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
+        if (stackItem.DelayedDestruction is not null) return ResolveDelayedDestruction(state, stackItem);
         if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
         if (stackItem.DamageDistribution is not null) return ResolveDistributedDamage(state, stackItem);
         if (stackItem.LocationDamage is not null) return ResolveLocationDamage(state, stackItem);
@@ -27103,6 +27104,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点伤害",
                             BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
                     }
+
+                    if (behavior.CreatesGoldWhenTargetDestroyedThisTurn)
+                        ScheduleDelayedDestruction(state, stackItem, targetState, untilEndOfTurnEffects, events);
 
                     var statusEffectIds = ShouldApplyStatusEffectsToTarget(behavior, targetIndex)
                         ? ResolveStatusEffectIds(behavior)

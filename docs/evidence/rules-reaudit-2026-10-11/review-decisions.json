@@ -17976,6 +17976,49 @@
         "Other sources/wholecards/sourcecountgap8/visiblepaired/userWindows/fullSQLconcurrency-failover open.",
         "Moving Echo declaration actor is captured and persists through control; remakes capture current actor. Nonmoving serialized shapes unchanged; no accepted history rewrite."
       ]
+    },
+    {
+      "id": "deadly-flourish-current-delayed-destruction-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Current UNL073 damage and same-turn actual destruction delayed dormant Gold; shared death facts, incarnation/controller binding, independent Echo instances, expiry, recovery and public captured history. No whole-card certification.",
+      "subjects": [
+        "UNL-073/219"
+      ],
+      "ruleRecords": [
+        "DOC-04-P050-B008",
+        "DOC-04-P050-B011",
+        "DOC-04-P052-B007",
+        "DOC-04-P052-B008",
+        "DOC-04-P059-B009",
+        "DOC-04-P064-B004",
+        "DOC-04-P064-B006",
+        "DOC-04-P066-B007"
+      ],
+      "auditDocument": "docs/DEADLY_FLOURISH_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/deadly-flourish-2026-10-14",
+      "tests": [
+        "DeadlyFlourishTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysDeadlyFlourishEnemyUnitDamage",
+        "CoreRuleEngineRejectsDeadlyFlourishAgainstFriendlyUnit",
+        "P4DeadlyFlourishFriendlyTargetRejectedFixture",
+        "MultitypeEquipmentTests",
+        "MultitypeEquipmentNativeTests",
+        "DeathObserverAuditTests",
+        "DestructionOrderTests",
+        "RebuttalRulesTests"
+      ],
+      "validation": {
+        "focus": "269cases/132methods,28newcases/12methods",
+        "native": "12branches/86productioncommands; final code rebuilt, cold restore/dedup/full journal pass; null-list old negative retained",
+        "check": "11077cases/6892methods171.35s; all11049oldcases/6880methods retained;28newcases/12methods;2249frozen no drift;actualPostgres5;Python27",
+        "fixedFull": "REQUIRED"
+      },
+      "exclusions": [
+        "Whole-card and whole-rule certification",
+        "Source gap closure",
+        "Visible paired/native network and user Windows runtime",
+        "Fixed full CI pending"
+      ]
     }
   ]
 }

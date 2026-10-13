@@ -648,6 +648,8 @@ public sealed record StackItemState
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LastBreathMightContext? LastBreathMight { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DelayedDestructionContext? DelayedDestruction { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public MightySkillContext? MightySkill { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BattlefieldConquestMightContext? BattlefieldConquestMight { get; init; }
@@ -800,6 +802,8 @@ public sealed record TriggerQueueItemState
     public StandbyPlayedObserverContext? StandbyObserver { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public LastBreathMightContext? LastBreathMight { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DelayedDestructionContext? DelayedDestruction { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public MightySkillContext? MightySkill { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -4285,7 +4289,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, MovementFollowUp = item.MovementFollowUp, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, MovementFollowUp = item.MovementFollowUp, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, DelayedDestruction = item.DelayedDestruction, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -4299,7 +4303,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { StandbyObserver = item.StandbyObserver, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { StandbyObserver = item.StandbyObserver, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, UnitEntryContext = item.UnitEntryContext, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, DelayedDestruction = item.DelayedDestruction, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -4685,6 +4689,7 @@ public sealed record ResolutionResult(
         if (trigger.ReflexiveDuel is not null) return "移动终点：选择另一名敌方单位互斗";
         if (trigger.UnitConquest is not null) return "征服未受控制战场：战力伤害";
         if (trigger.MovementObserver is { } movement) return CoreRuleEngine.MovementObserverLabel(movement);
+        if (trigger.DelayedDestruction is not null) return "延迟摧毁：打出休眠金币";
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death);
         return string.IsNullOrWhiteSpace(trigger.EffectKind)
             ? trigger.TriggerId
@@ -4702,6 +4707,7 @@ public sealed record ResolutionResult(
         }
 
         if (trigger.MovementObserver is { } movement) return CoreRuleEngine.MovementObserverLabel(movement) + "；双方响应后结算。";
+        if (trigger.DelayedDestruction is not null) return "目标在本回合被摧毁；双方响应后打出一个休眠金币。";
         if (trigger.DeathObserver is { } death) return CoreRuleEngine.DeathObserverLabel(death) + "；记录死亡时的控制者，双方响应后结算。";
         var source = string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             ? "未知来源"
@@ -4737,7 +4743,7 @@ public sealed record ResolutionResult(
         TriggerQueueItemState trigger,
         string viewerPlayerId)
     {
-        return trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
+        return trigger.DelayedDestruction is null && trigger.ReflexiveDuel is null && trigger.UnitConquest is null && trigger.MovementObserver is null && trigger.DeathObserver is null && !string.IsNullOrWhiteSpace(trigger.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, trigger.SourceObjectId, viewerPlayerId);
     }
 
@@ -5358,6 +5364,7 @@ public sealed record ResolutionResult(
                 return row;
             }).ToArray();
         if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
+        if (!hiddenSource && item.DelayedDestruction is not null) view["delayedDestruction"] = item.DelayedDestruction;
         if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
         if (!hiddenSource && item.MightySkill is not null) view["mightySkill"] = item.MightySkill;
         if (!hiddenSource && item.MovementDestinations is { } moves)
@@ -5369,6 +5376,7 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.UnitConquest is not null) view["abilityLabel"] = "征服未受控制战场：战力伤害";
         if (!hiddenSource && item.LegendConquest is { } conquest) view["abilityLabel"] = conquest.Kind == "EXHAUST_DECK_PLAY" ? "征服展示并打出" : conquest.Kind == "EXHAUST_READY_UNIT" ? "征服活跃单位" : "征服活跃传奇";
         if (!hiddenSource && item.MovementObserver is { } movement) view["abilityLabel"] = CoreRuleEngine.MovementObserverLabel(movement);
+        if (!hiddenSource && item.DelayedDestruction is not null) view["abilityLabel"] = "延迟摧毁：打出休眠金币";
         if (!hiddenSource && item.DeathObserver is { } death) view["abilityLabel"] = CoreRuleEngine.DeathObserverLabel(death);
         if (!hiddenSource && item.ReflexiveCopy is not null) view["abilityLabel"] = "内嵌复制";
         if (!hiddenSource && item.UnitEntryContext is not null) view["abilityLabel"] = "进场眩晕与移动限制";
@@ -5419,7 +5427,7 @@ public sealed record ResolutionResult(
         StackItemState item,
         string viewerPlayerId)
     {
-        return item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.MovementObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
+        return item.DelayedDestruction is null && item.DamageDistribution is null && item.LocationDamage is null && item.ReflexiveDuel is null && item.UnitConquest is null && item.MovementObserver is null && !string.IsNullOrWhiteSpace(item.SourceObjectId)
             && IsHiddenBattlefieldStandbyForViewer(state, item.SourceObjectId, viewerPlayerId);
     }
 
@@ -5526,6 +5534,7 @@ public sealed record ResolutionResult(
             ["triggeredByEventKind"] = item.TriggeredByEventKind
         };
         if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
+        if (!hiddenSource && item.DelayedDestruction is not null) view["delayedDestruction"] = item.DelayedDestruction;
         if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
         if (!hiddenSource && item.MightySkill is not null) view["mightySkill"] = item.MightySkill;
         return view;

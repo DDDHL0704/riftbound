@@ -18634,13 +18634,14 @@ public static class MatchRecoveryValidator
             }
 
             var authoritativeTrigger = authoritativeTriggers[index];
-            var hiddenSource = authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
+            var hiddenSource = authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
             if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("spectator captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("spectator captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadDelayedDestructionView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
             var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
             var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
@@ -18869,13 +18870,14 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            var hiddenSource = authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
+            var hiddenSource = authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
             if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("snapshot captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("snapshot captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadDelayedDestructionView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
             var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
             var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
@@ -22997,6 +22999,7 @@ public static class MatchRecoveryValidator
             }
 
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23017,6 +23020,13 @@ public static class MatchRecoveryValidator
                     var projected=publicTriggers.FirstOrDefault(payload=>TryReadObjectString(payload,"triggerId",out var id) && id==trigger.TriggerId);
                     if(MatchStateHasher.HashValue(ReadReflexiveDuelView(projected))!=MatchStateHasher.HashValue(trigger.ReflexiveDuel))
                         errors.Add($"snapshot for {view.PlayerId} reflexive movement duel differs from authoritative state");
+                }
+                foreach (var trigger in authoritativeState.TriggerQueue)
+                {
+                    var projected = publicTriggers.FirstOrDefault(payload =>
+                        TryReadObjectString(payload, "triggerId", out var id) && id == trigger.TriggerId);
+                    if (MatchStateHasher.HashValue(ReadDelayedDestructionView(projected)) != MatchStateHasher.HashValue(trigger.DelayedDestruction))
+                        errors.Add($"snapshot for {view.PlayerId} captured delayed destruction differs from authoritative state");
                 }
                 foreach (var trigger in authoritativeState.TriggerQueue.Where(t => t.DeathObserver is not null))
                 {
@@ -23749,9 +23759,44 @@ public static class MatchRecoveryValidator
             errors.Add("deck choice context outside private deck window");
     }
 
+    private static void ValidateDelayedDestructionState(MatchState state, List<string> errors)
+    {
+        if (!CoreRuleEngine.ValidCurrentDelayedDestructions(state)) errors.Add("invalid delayed destruction instruction");
+        foreach (var item in state.StackItems)
+            if (item.DelayedDestruction is { } c ? c.Destroyed is null || item.EffectKind != CoreRuleEngine.DelayedDestructionEffect
+                || !CoreRuleEngine.ValidDelayedDestruction(state, c, item.SourceObjectId, item.ControllerId, item.CardNo)
+                : item.EffectKind == CoreRuleEngine.DelayedDestructionEffect) errors.Add("invalid captured delayed destruction stack");
+        foreach (var item in state.TriggerQueue)
+            if (item.DelayedDestruction is { } c ? c.Destroyed is null || item.EffectKind != CoreRuleEngine.DelayedDestructionEffect
+                || item.TriggeredByEventKind != TriggerTimings.UnitDestroyed
+                || !CoreRuleEngine.ValidDelayedDestruction(state, c, item.SourceObjectId, item.ControllerId, item.SourceCardNo)
+                : item.EffectKind == CoreRuleEngine.DelayedDestructionEffect) errors.Add("invalid captured delayed destruction trigger");
+    }
+
+    private static DelayedDestructionContext? ReadDelayedDestructionView(object? payload)
+    {
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("delayedDestruction", out var raw)
+                && raw.ValueKind != JsonValueKind.Null
+                ? raw.Deserialize<DelayedDestructionContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+        } catch (JsonException) { return null; }
+    }
+
+    private static void ValidateDelayedDestructionStackViews(IReadOnlyList<object?> payloads, MatchState state, List<string> errors)
+    {
+        foreach (var payload in payloads) {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            var expected = state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.DelayedDestruction;
+            if (MatchStateHasher.HashValue(ReadDelayedDestructionView(payload)) != MatchStateHasher.HashValue(expected))
+                errors.Add("public captured delayed destruction differs from authoritative state");
+        }
+    }
+
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
         if (!CoreRuleEngine.ValidCurrentConquestGrants(state)) errors.Add("invalid temporary conquest grant");
+        ValidateDelayedDestructionState(state, errors);
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidMovementFollowUp(state, item)) errors.Add("invalid movement optional attachment continuation");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.MovementAttachmentWindow } movementChoice
@@ -26840,6 +26885,7 @@ public static class MatchRecoveryValidator
                     field, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.EffectKind, stackItem.CardNo))
                 && !(stackItem.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,stackItem.EffectKind,stackItem.CardNo))
                 && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
+                && !(stackItem.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, stackItem.SourceObjectId, stackItem.ControllerId))
                 && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
                     stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo))
@@ -26949,6 +26995,7 @@ public static class MatchRecoveryValidator
                 && !(trigger.ReflexiveDuel is { } duel && CoreRuleEngine.ValidReflexiveDuel(duel,trigger.EffectKind))
                 && !(trigger.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind))
                 && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
+                && !(trigger.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))
                 && !(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
@@ -31656,6 +31703,7 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
+        ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
         ValidateBattlefieldConquestMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateMightySkillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");

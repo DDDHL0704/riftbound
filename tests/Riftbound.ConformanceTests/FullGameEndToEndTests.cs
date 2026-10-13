@@ -25238,6 +25238,42 @@ public sealed partial class FullGameEndToEndTests
                 {
                     var id = row["stackItemId"]?.GetValue<string>();
                     var item = result.State.StackItems.SingleOrDefault(i => i.StackItemId == id);
+                    if (item?.DelayedDestruction is { } delayed)
+                    {
+                        Assert.Equal("DELAYED_UNIT_DESTRUCTION_CREATE_GOLD", item.EffectKind);
+                        Assert.Equal("UNL-073/219", delayed.CardNo);
+                        Assert.Equal(item.CardNo, delayed.CardNo);
+                        Assert.Equal(item.ControllerId, delayed.ControllerId);
+                        Assert.Equal(item.SourceObjectId, delayed.Source.ObjectId);
+                        Assert.Equal(result.State.TurnNumber, delayed.TurnNumber);
+                        Assert.InRange(delayed.CreatedTick, 1, result.State.Tick);
+                        Assert.Equal($"STACK-{delayed.CreatedTick}-{delayed.Source.ObjectId}:DESTRUCTION:{delayed.ExecutionIndex}:{delayed.Unit.ObjectId}", delayed.InstanceId);
+                        Assert.Empty(item.TargetObjectIds);
+                        Assert.NotNull(delayed.Destroyed);
+                        Assert.Equal(delayed.Unit.ObjectId, delayed.Destroyed.ObjectId);
+                        Assert.Equal(delayed.Unit.Generation, delayed.Destroyed.Generation);
+                        Assert.Contains(delayed.Destroyed.OwnerId, result.State.Seats.Keys);
+                        Assert.Contains(delayed.Destroyed.ControllerId, result.State.Seats.Keys);
+                        var projected = row["delayedDestruction"]!.AsObject();
+                        Assert.Equal(delayed.Unit.ObjectId, projected["unit"]?["objectId"]?.GetValue<string>());
+                        Assert.Equal(delayed.Unit.Generation, projected["unit"]?["generation"]?.GetValue<long>());
+                        Assert.Equal(delayed.Source.ObjectId, projected["source"]?["objectId"]?.GetValue<string>());
+                        Assert.Equal(delayed.Source.Generation, projected["source"]?["generation"]?.GetValue<long>());
+                        foreach (var binding in new[] { delayed.Unit, delayed.Source })
+                        {
+                            if (!result.State.CardObjects.TryGetValue(binding.ObjectId, out var current))
+                            {
+                                Assert.Equal(delayed.Unit, binding);
+                                Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(delayed.Destroyed.CardNo, out _));
+                                continue;
+                            }
+                            Assert.InRange(binding.Generation, 0, current.ObjectGeneration);
+                            if (binding.Generation == current.ObjectGeneration) continue;
+                            projected[binding == delayed.Unit ? "unit" : "source"]!["objectId"] = "CHECKED_CAPTURED_ABILITY_SOURCE";
+                            if (binding == delayed.Unit) projected["destroyed"]!["objectId"] = "CHECKED_CAPTURED_ABILITY_SOURCE";
+                            if (binding == delayed.Source) row["sourceObjectId"] = "CHECKED_CAPTURED_ABILITY_SOURCE";
+                        }
+                    }
                     var held = item?.HeldContext is { Kind: "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" } exactHeld ? exactHeld : null;
                     var grantedConquest = item?.UnitConquest is { TemporaryGrant: not null } granted ? granted : null;
                     var generation = item?.FieldContext is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" } field

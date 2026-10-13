@@ -1,0 +1,148 @@
+{
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "fetchedAtUtc": "2026-10-13T19:21:48.932678+00:00",
+  "rawSha256": "658e18999f1c0bdd7b9ffbe9d61aeb4a3a54adbf33b1095c0927b77c4db5aacd",
+  "bytes": 3835423,
+  "responseKeys": [
+    "data",
+    "metadata",
+    "linkdata"
+  ],
+  "records": [
+    {
+      "id": "unl-073-219",
+      "collectorNumber": 73,
+      "name": "Deadly Flourish",
+      "set": {
+        "label": "Card Set",
+        "value": {
+          "id": "UNL",
+          "label": "Unleashed"
+        }
+      },
+      "cardType": {
+        "label": "Card Type",
+        "type": [
+          {
+            "id": "spell",
+            "label": "Spell",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/73c26354435212281d3f1cefe7cdbd7c803fe18f-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "publicCode": "UNL-073/219",
+      "rarity": {
+        "label": "Rarity",
+        "value": {
+          "id": "uncommon",
+          "label": "Uncommon",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+            "dimensions": {
+              "width": 480,
+              "height": 410,
+              "aspectRatio": 1.170731707317073
+            },
+            "colors": {
+              "primary": "#41B4B8",
+              "secondary": "#293331",
+              "label": "#122021"
+            },
+            "mimeType": "image/png"
+          }
+        }
+      },
+      "domain": {
+        "label": "Domain",
+        "values": [
+          {
+            "id": "mind",
+            "label": "Mind",
+            "icon": {
+              "type": "image",
+              "provider": "sanity",
+              "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+              "dimensions": {
+                "width": 64,
+                "height": 64,
+                "aspectRatio": 1
+              },
+              "colors": {
+                "primary": "#0C1418",
+                "secondary": "#D6F0FF",
+                "label": "#000000"
+              },
+              "mimeType": "image/png"
+            }
+          }
+        ]
+      },
+      "cardImage": {
+        "type": "image",
+        "provider": "sanity",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/81195df7122beaba38ebc8b8212ceb0e7593afe9-744x1039.png?accountingTag=RB",
+        "accessibilityText": "Riftbound Spell: Deadly Flourish. Deal 3 to an enemy unit. When it dies this turn, play a Gold gear token exhausted. (It has \"[Reaction][>] Kill this, [T]: [Add] [A].\")",
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "aspectRatio": 0.7160731472569779
+        },
+        "colors": {
+          "primary": "#432241",
+          "secondary": "#F9DCE2",
+          "label": "#170616"
+        },
+        "mimeType": "image/png"
+      },
+      "orientation": "portrait",
+      "illustrator": {
+        "label": "Artist",
+        "values": [
+          {
+            "id": "kudosproductions",
+            "label": "Kudos Productions",
+            "icon": {
+              "type": "image",
+              "provider": "web",
+              "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+            }
+          }
+        ]
+      },
+      "text": {
+        "label": "Ability",
+        "richText": {
+          "type": "html",
+          "body": "<p>Deal 3 to an enemy unit. When it dies this turn, play a Gold gear token exhausted. (It has &quot;[Reaction][&gt;] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.&quot;)</p>"
+        }
+      },
+      "energy": {
+        "label": "Energy",
+        "value": {
+          "id": 4,
+          "label": "4"
+        }
+      }
+    }
+  ],
+  "language": "en-US",
+  "region": "EN",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "reportedTotal": 1415,
+  "returnedEntries": 1407,
+  "reportedMinusReturned": 8,
+  "recordUnchangedFromCurrentCatalog": true
+}

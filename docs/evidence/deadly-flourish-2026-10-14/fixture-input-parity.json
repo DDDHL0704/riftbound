@@ -1,0 +1,20 @@
+{
+  "status": "ORIGINAL_COMMANDS_INITIAL_UNIT_STATE_FINAL_UNIT_EXPECTATIONS_AND_PROMPTS_PRESERVED",
+  "baselineCommit": "4933afc7047fabf14ee485e75ec03b3c647e6e00",
+  "fixture": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-deadly-flourish-enemy-unit-damage.fixture.json",
+  "addedPreviouslyMissingPhysicalSpellMetadata": {
+    "cardNo": "UNL-073/219",
+    "ownerId": "P1",
+    "controllerId": "P1",
+    "tags": [
+      "SPELL"
+    ]
+  },
+  "declarationCommandsUnchanged": true,
+  "oldUnitStateAndFinalDamageExpectationsUnchanged": true,
+  "expectedDelta": [
+    "current effect kind",
+    "new linked delayed instruction event"
+  ],
+  "acceptedJournalRewritten": false
+}
