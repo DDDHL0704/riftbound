@@ -12,7 +12,6 @@ internal static class EmpoweredSpellRules
 {
     internal static IEnumerable<(CardObjectState Source, RuleTextInstance Instance)> Sources(MatchState state, string actor)
         => state.CardObjects.Values.Where(c => c.IsEmpowered && c.ControllerId == actor && !c.IsFaceDown
-            && !c.Tags.Contains(CardObjectTags.Standby)
             && (AttachedRuleTextRules.Field(state, c.ObjectId) || state.PlayerZones.Values.Any(z => z.LegendZone.Contains(c.ObjectId))))
             .OrderBy(c => c.ObjectId, StringComparer.Ordinal).SelectMany(c => AttachedRuleTextRules.Instances(state, c).Select(i => (c, i)));
 

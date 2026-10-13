@@ -2175,7 +2175,7 @@ public sealed class PaymentEngineUnificationTests
     [Fact]
     public async Task HideCardStandardStandbyUsesPaymentPlanAuditMetadata()
     {
-        var state = HideCardState(new RunePool(1, 0));
+        var state = HideCardState(new RunePool(0, 1));
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var hideCandidate = Assert.Single(
@@ -2189,7 +2189,7 @@ public sealed class PaymentEngineUnificationTests
             new HideCardCommand(
                 "P1-HAND-OGN-TEEMO",
                 "OGN·121/298",
-                "STANDBY",
+                "BATTLEFIELD:P1-HIDE-FIELD",
                 ["STANDBY_A"]),
             CancellationToken.None);
 
@@ -2197,7 +2197,9 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal(["COST_PAID", "CARD_HIDDEN"], result.Events.Select(evt => evt.Kind));
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-HAND-OGN-TEEMO"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-HIDE-FIELD", "P1-HAND-OGN-TEEMO"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("P1-HIDE-FIELD", result.State.ObjectLocations["P1-HAND-OGN-TEEMO"].BattlefieldObjectId);
         Assert.True(result.State.CardObjects["P1-HAND-OGN-TEEMO"].IsFaceDown);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.StartsWith("HIDE_CARD:", Assert.IsType<string>(costEvent.Payload["paymentId"]), StringComparison.Ordinal);
@@ -2205,12 +2207,12 @@ public sealed class PaymentEngineUnificationTests
         Assert.Equal("P1", costEvent.Payload["playerId"]);
         Assert.Equal("P1-HAND-OGN-TEEMO", costEvent.Payload["sourceObjectId"]);
         Assert.Equal("STANDBY_HIDE", costEvent.Payload["reason"]);
-        Assert.Equal(1, costEvent.Payload["mana"]);
-        Assert.Equal(0, costEvent.Payload["power"]);
-        Assert.Equal(1, costEvent.Payload["baseManaCost"]);
-        Assert.Equal(1, costEvent.Payload["totalManaCost"]);
-        Assert.Equal(0, costEvent.Payload["genericPower"]);
-        Assert.Equal(0, costEvent.Payload["totalPowerCost"]);
+        Assert.Equal(0, costEvent.Payload["mana"]);
+        Assert.Equal(1, costEvent.Payload["power"]);
+        Assert.Equal(0, costEvent.Payload["baseManaCost"]);
+        Assert.Equal(0, costEvent.Payload["totalManaCost"]);
+        Assert.Equal(1, costEvent.Payload["genericPower"]);
+        Assert.Equal(1, costEvent.Payload["totalPowerCost"]);
         Assert.Equal(["STANDBY_A"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
         Assert.Empty(Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.Equal(0, costEvent.Payload["remainingMana"]);
@@ -2230,7 +2232,7 @@ public sealed class PaymentEngineUnificationTests
             new HideCardCommand(
                 "P1-HAND-OGN-TEEMO",
                 "OGN·121/298",
-                "STANDBY",
+                "BATTLEFIELD:P1-HIDE-FIELD",
                 ["STANDBY_FREE"]),
             CancellationToken.None);
 
@@ -2258,7 +2260,7 @@ public sealed class PaymentEngineUnificationTests
             new HideCardCommand(
                 "P1-HAND-OGN-TEEMO",
                 "OGN·121/298",
-                "STANDBY",
+                "BATTLEFIELD:P1-HIDE-FIELD",
                 ["STANDBY_TEEMO_MANA"]),
             CancellationToken.None);
 
@@ -2278,7 +2280,8 @@ public sealed class PaymentEngineUnificationTests
     [Fact]
     public async Task HideCardInsufficientStandbyManaRejectsWithoutMutation()
     {
-        var state = HideCardState(new RunePool(0, 0));
+        // Printed standby costs one power; mana alone cannot pay it (811.1.b).
+        var state = HideCardState(new RunePool(1, 0));
         var initialHash = MatchStateHasher.Hash(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
@@ -2287,7 +2290,7 @@ public sealed class PaymentEngineUnificationTests
             new HideCardCommand(
                 "P1-HAND-OGN-TEEMO",
                 "OGN·121/298",
-                "STANDBY",
+                "BATTLEFIELD:P1-HIDE-FIELD",
                 ["STANDBY_A"]),
             CancellationToken.None);
 
@@ -2927,6 +2930,9 @@ public sealed class PaymentEngineUnificationTests
         {
             ["P1-HAND-OGN-TEEMO"] = new("P1", "HAND")
         };
+        cardObjects["P1-HIDE-FIELD"] = new("P1-HIDE-FIELD", cardNo: "OGN·275/298",
+            tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P1", controllerId: "P1");
+        objectLocations["P1-HIDE-FIELD"] = new("P1", "BATTLEFIELD", "P1-HIDE-FIELD");
         if (hasTeemoLegend)
         {
             cardObjects["P1-LEGEND-TEEMO"] = new(
@@ -2962,6 +2968,7 @@ public sealed class PaymentEngineUnificationTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Hand = ["P1-HAND-OGN-TEEMO"],
+                    Battlefields = ["P1-HIDE-FIELD"],
                     LegendZone = hasTeemoLegend ? ["P1-LEGEND-TEEMO"] : []
                 },
                 ["P2"] = PlayerZones.Empty

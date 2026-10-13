@@ -161,7 +161,7 @@ public sealed class PowerfulConsumerMightTests
         state = Hand(state, "SFD·103/221");
         var command = new PlayCardCommand("SPELL", "SFD·103/221", []);
         var quote = new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, command));
-        Assert.True(quote.CanPay, quote.Message); Assert.Equal(7, quote.Cost!.Mana);
+        Assert.True(quote.CanPay, quote.Message); Assert.Equal(branch == "standby" ? 5 : 7, quote.Cost!.Mana);
     }
 
     [Fact]

@@ -61,7 +61,7 @@ internal static class TargetProtectionRules
     {
         return !targetState.IsFaceDown
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !targetState.IsFaceDown
             && !targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
             && !targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal);

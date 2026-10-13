@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "locator": "Independent play ability confirmation; current source power modifier",
+      "note": "The play ability is already queued at permanent confirmation; its resolution reports TRIGGER_RESOLVED and the power change without fabricating a second queue event. Original fixture and card identities retained."
     }
   ],
   "roomId": "p2-preflight-teemo-alt-b-room",
@@ -139,7 +144,6 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "TRIGGER_QUEUED",
       "TRIGGER_RESOLVED",
       "POWER_MODIFIED_UNTIL_END_OF_TURN"
     ],
@@ -190,9 +194,6 @@
       },
       {
         "kind": "STACK_ITEM_RESOLVED"
-      },
-      {
-        "kind": "TRIGGER_QUEUED"
       },
       {
         "kind": "TRIGGER_RESOLVED"

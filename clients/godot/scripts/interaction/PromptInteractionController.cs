@@ -406,7 +406,7 @@ internal sealed class PromptInteractionController
     {
         if (string.IsNullOrWhiteSpace(_selectedActionName)
             || !_actions.TryGetValue(_selectedActionName, out var action)) return null;
-        if (action.Option.Name is not ("ACTIVATE_ABILITY" or "LEGEND_ACT" or "PLAY_CARD")
+        if (action.Option.Name is not ("ACTIVATE_ABILITY" or "LEGEND_ACT" or "PLAY_CARD" or "HIDE_CARD" or "REVEAL_CARD")
             || !_selectedChoiceByStep.TryGetValue(0, out var sourceId)) return action;
 
         // The server supplies source-specific costs and targets. The candidate's
@@ -415,7 +415,7 @@ internal sealed class PromptInteractionController
         if (!json.RootElement.TryGetProperty("metadata", out var metadata)
             || !metadata.TryGetProperty("sourceRequirements", out var requirements)
             || requirements.ValueKind != JsonValueKind.Array) return action;
-        if (action.Option.Name == "PLAY_CARD") return PlayCardAction(action, sourceId, requirements);
+        if (action.Option.Name is "PLAY_CARD" or "HIDE_CARD" or "REVEAL_CARD") return PlayCardAction(action, sourceId, requirements);
         var prefix = new List<PromptStep> { action.Steps.First(s => s.Role == "source") };
         string? selectedMode = null;
         var copiedInstances = requirements.EnumerateArray().Any(r => r.GetProperty("sourceObjectId").GetString() == sourceId
@@ -503,8 +503,8 @@ internal sealed class PromptInteractionController
         }
         var requirement = rows.FirstOrDefault(r => (r.TryGetProperty("mode", out var mode) ? mode.GetString() : null) == selectedMode);
         if (requirement.ValueKind == JsonValueKind.Undefined) requirement = rows[0];
-        var minimum = requirement.GetProperty("minTargetCount").GetInt32();
-        var maximum = requirement.GetProperty("maxTargetCount").GetInt32();
+        var minimum = action.Option.Name == "HIDE_CARD" ? 0 : requirement.GetProperty("minTargetCount").GetInt32();
+        var maximum = action.Option.Name == "HIDE_CARD" ? 0 : requirement.GetProperty("maxTargetCount").GetInt32();
         for (var targetIndex = 0; targetIndex < maximum; targetIndex++)
         {
             var choices = new List<PromptChoice>();

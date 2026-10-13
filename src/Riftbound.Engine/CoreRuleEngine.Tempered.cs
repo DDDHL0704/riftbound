@@ -76,7 +76,7 @@ public sealed partial class CoreRuleEngine
     private static GameEvent CaptureTempered(GameEvent ev, IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState unit)
     {
-        if (unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby)
+        if (unit.IsFaceDown
             || !unit.Tags.Contains(CardEquipmentKeywordNames.Tempered)
             || FindFieldObjectLocation(zones, unit.ObjectId) is not { } field) return ev;
         var controller = string.IsNullOrWhiteSpace(unit.ControllerId) ? field.PlayerId : unit.ControllerId;

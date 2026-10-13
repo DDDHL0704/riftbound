@@ -49,8 +49,7 @@ public sealed partial class CoreRuleEngine
             && !source.IsExhausted && !source.IsFaceDown && state.PlayerZones[item.ControllerId].LegendZone.Contains(source.ObjectId);
 
     private static string[] LegendConquestTargets(MatchState state, StackItemState item)
-        => state.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
-            && !c.Tags.Contains(CardObjectTags.Standby) && IsObjectOnField(state.PlayerZones, c.ObjectId)
+        => state.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown && IsObjectOnField(state.PlayerZones, c.ObjectId)
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId))
             .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
 

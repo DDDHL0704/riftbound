@@ -278,6 +278,15 @@ public sealed class AzirMovementAuditTests
                 Tags = change == "standby" ? [CardObjectTags.UnitCard, CardObjectTags.Standby] : s.CardObjects["TARGET"].Tags }
         }};
         var done = await Top(s);
+        if (change == "standby")
+        {
+            Assert.Equal("OTHER", done.State.ObjectLocations["HOST"].BattlefieldObjectId);
+            Assert.Equal("TARGET", done.State.CardObjects["GEAR"].AttachedToObjectId);
+            Assert.DoesNotContain(done.Events, e => e.Kind == "EQUIPMENT_ATTACHED");
+            Assert.Contains(done.Events, e => e.Kind == "UNIT_MOVED_TO_BATTLEFIELD");
+            Assert.Equal(1, done.State.CardObjects["HOST"].MovementCountThisTurn);
+            return;
+        }
         Assert.Equal("F", done.State.ObjectLocations["HOST"].BattlefieldObjectId);
         Assert.Equal("TARGET", done.State.CardObjects["GEAR"].AttachedToObjectId);
         Assert.DoesNotContain(done.Events, e => e.Kind is "UNIT_MOVED_TO_BATTLEFIELD" or "EQUIPMENT_ATTACHED");

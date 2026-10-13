@@ -62,7 +62,15 @@ public sealed class AnyUnitTargetScopeGuardTests
 
         var result = await PlayFirstMateAsync(new CoreRuleEngine(), state, targetObjectId);
 
-        AssertRejectedWithoutMutation(state, result);
+        if (targetObjectId == "P1-FACE-UP-STANDBY")
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Equal([targetObjectId], Assert.Single(result.State.StackItems).TargetObjectIds);
+            var done = await OfficialGraveyardRecastTests.Top(result.State);
+            Assert.False(done.State.CardObjects[targetObjectId].IsExhausted);
+            Assert.Contains(done.Events, e => e.Kind == "UNIT_READIED");
+        }
+        else AssertRejectedWithoutMutation(state, result);
         Assert.True(result.State.CardObjects["P1-BASE-UNIT"].IsExhausted);
         Assert.True(result.State.CardObjects["P2-BATTLEFIELD-UNIT"].IsExhausted);
     }
@@ -88,7 +96,7 @@ public sealed class AnyUnitTargetScopeGuardTests
         Assert.Empty(playCandidate.Targets ?? []);
         var played = await OfficialGraveyardRecastTests.Act(state, "P1", new PlayCardCommand("P1-UNIT-FIRST-MATE", "OGN·132/298", []));
         var targetIds = played.State.PendingCardChoice!.LegalObjectIds.ToArray();
-        Assert.Equal(["P1-BASE-UNIT", "P2-BATTLEFIELD-UNIT"], targetIds);
+        Assert.Equal(["P1-BASE-UNIT", "P1-FACE-UP-STANDBY", "P2-BATTLEFIELD-UNIT"], targetIds);
 
         string[] invalidTargetObjectIds =
         [
@@ -96,7 +104,6 @@ public sealed class AnyUnitTargetScopeGuardTests
             "P1-BATTLEFIELD-SPELL",
             "P1-BATTLEFIELD-RUNE",
             "P1-FACE-DOWN-STANDBY",
-            "P1-FACE-UP-STANDBY",
             "P1-DIRTY-P2-CONTROLLED-BATTLEFIELD-UNIT",
             "P1-HAND-UNIT",
             "P1-STALE-UNIT"
@@ -116,7 +123,7 @@ public sealed class AnyUnitTargetScopeGuardTests
         Assert.Empty(targetChoicesByIndex);
         Assert.Equal(0, Assert.IsType<int>(firstMateRequirement["minTargetCount"]));
         var firstMateTargetIds = played.State.PendingCardChoice!.LegalObjectIds.ToArray();
-        Assert.Equal(["P1-BASE-UNIT", "P2-BATTLEFIELD-UNIT"], firstMateTargetIds);
+        Assert.Equal(["P1-BASE-UNIT", "P1-FACE-UP-STANDBY", "P2-BATTLEFIELD-UNIT"], firstMateTargetIds);
         Assert.All(invalidTargetObjectIds, objectId => Assert.DoesNotContain(objectId, firstMateTargetIds));
     }
 

@@ -22,7 +22,8 @@ public sealed record ConformanceFixture(
     string? CatalogVersion = null,
     string? JavaCommit = null,
     JsonElement? LegacyOracle = null,
-    JsonElement? Oracle = null)
+    JsonElement? Oracle = null,
+    ConformanceStandbyPreparation? StandbyPreparation = null)
 {
     public bool RequiresRuleAudit =>
         string.Equals(AuditStatus, "NEEDS_RULE_AUDIT", StringComparison.OrdinalIgnoreCase)
@@ -50,6 +51,10 @@ public sealed record ConformanceFixture(
         return fixture ?? throw new InvalidOperationException($"Fixture {path} could not be deserialized.");
     }
 }
+
+// Explicit test preparation executes real placement/turn/resource/response commands.
+// It never converts old serialized face-down snapshots into authorized sources.
+public sealed record ConformanceStandbyPreparation(string CardNo);
 
 public sealed record ConformanceCommand(
     string PlayerId,
@@ -178,7 +183,8 @@ public sealed record ConformanceRunResult(
     IReadOnlyList<string> EventKinds,
     IReadOnlyList<ConformanceActualEvent> Events,
     IReadOnlyDictionary<string, ActionPromptDto> Prompts,
-    MatchState FinalState);
+    MatchState FinalState,
+    long InitialTick = 0);
 
 public sealed record ConformanceActualEvent(
     string Kind,
@@ -201,6 +207,7 @@ public static class ConformanceFixtureRunner
         var journal = new RecordingMatchJournal();
         var session = await CreateSessionAsync(fixture, ruleEngine, journal, cancellationToken)
             .ConfigureAwait(false);
+        var initialTick = session.SnapshotFor(fixture.Players[0]).Tick;
 
         ResolutionResult? last = null;
         foreach (var command in fixture.Commands)
@@ -230,7 +237,7 @@ public static class ConformanceFixtureRunner
             .ToArray();
         var eventKinds = events.Select(gameEvent => gameEvent.Kind).ToArray();
 
-        return new ConformanceRunResult(last.State.Tick, eventKinds, events, last.Prompts, last.State);
+        return new ConformanceRunResult(last.State.Tick, eventKinds, events, last.Prompts, last.State, initialTick);
     }
 
     public static IReadOnlyList<string> CompareExpected(
@@ -238,7 +245,8 @@ public static class ConformanceFixtureRunner
         ConformanceRunResult result)
     {
         var mismatches = new List<string>();
-        AddMismatch(mismatches, "finalTick", fixture.Expected.FinalTick, result.FinalTick);
+        AddMismatch(mismatches, "finalTick", fixture.Expected.FinalTick,
+            fixture.StandbyPreparation is null ? result.FinalTick : result.FinalTick - result.InitialTick);
         CompareSequence(mismatches, "eventKinds", fixture.Expected.EventKinds, result.EventKinds);
         CompareExpectedEvents(mismatches, fixture.Expected.Events, result.Events);
         ComparePromptActions(mismatches, fixture.Expected.PromptActions, result.Prompts);
@@ -253,6 +261,15 @@ public static class ConformanceFixtureRunner
         IMatchJournal journal,
         CancellationToken cancellationToken)
     {
+        if (fixture.StandbyPreparation is { } preparation)
+        {
+            if (fixture.InitialState is not null || !fixture.Players.SequenceEqual(new[] { "P1", "P2" })
+                || ruleEngine is not CoreRuleEngine)
+                throw new InvalidOperationException("Explicit standby preparation requires P1/P2 and the core engine, without a synthetic initial state.");
+            var initial = StandbySourceRulesTests.Position(preparation.CardNo) with { RoomId = fixture.RoomId };
+            var prepared = await StandbySourceRulesTests.ReadyShadow(preparation.CardNo, initial);
+            return new MatchSession(prepared, ruleEngine, journal);
+        }
         if (fixture.InitialState is not null)
         {
             return new MatchSession(BuildInitialState(fixture), ruleEngine, journal);

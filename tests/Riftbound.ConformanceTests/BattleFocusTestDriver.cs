@@ -18,7 +18,7 @@ internal static class BattleFocusTestDriver
     {
         var field = command.BattlefieldId!;
         var units = state.CardObjects.Values.Where(c => c.Tags.Contains(CardObjectTags.UnitCard)
-            && !c.IsFaceDown && !c.Tags.Contains(CardObjectTags.Standby)
+            && !c.IsFaceDown
             && state.PlayerZones.Values.Any(z => z.Battlefields.Contains(c.ObjectId))
             && state.ObjectLocations.TryGetValue(c.ObjectId, out var location)
             && location.Zone == "BATTLEFIELD" && location.BattlefieldObjectId == field).ToArray();

@@ -6,6 +6,8 @@ public sealed partial class CoreRuleEngine
 {
     private static bool HasPendingPermanentPlayAbility(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
         => OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo)
+            || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
+            || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || (behavior.MainDeckLookCount > 0 && behavior.RecyclesSelectedMainDeckTargets)
             || (behavior.PlaysSourceToBaseAsUnit && ControllerHasRengarLegend(state, item.ControllerId));
 
@@ -23,17 +25,19 @@ public sealed partial class CoreRuleEngine
     {
         var ability = item with { SourceConfirmed = true };
         if (CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var targeted)
-            && HasIndependentPermanentTargets(targeted))
+            && HasIndependentPermanentTargets(StandbyDefinition(targeted, item.PlayedFromStandby)))
             ability = ability with { PermanentPlayTargetsPending = true, TargetGenerations = null };
         if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior) && behavior.PlayDamagePerLocation > 0)
             ability = ability with { TargetObjectIds = [], TargetGenerations = null, LocationDamage = new(item.CardNo) };
         events.Add(new("TRIGGER_QUEUED", "入场后的打出技能等待响应", new Dictionary<string, object?>
         { ["sourceObjectId"] = item.SourceObjectId, ["controllerId"] = item.ControllerId,
             ["stackItemId"] = ability.StackItemId, ["effectKind"] = item.EffectKind }));
+        var locations = ReconcileObjectLocations(state.ObjectLocations, zones);
+        if (item.PlayedFromStandby is { } shadow) locations[item.SourceObjectId] = new(item.ControllerId, "BATTLEFIELD", shadow.Battlefield.ObjectId);
         return new(zones, cards, state.PlayerScores, state.PlayerExperience, state.RunePools,
             state.UntilEndOfTurnEffects, null, events, [],
             state.StackItems.Where(x => x.StackItemId != item.StackItemId).Append(ability).ToArray(),
             [], null, [], state.RngCursor,
-            ObjectLocations: ReconcileObjectLocations(state.ObjectLocations, zones));
+            ObjectLocations: locations);
     }
 }

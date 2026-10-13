@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "fixtureId": "p4-reveal-card-standby-reaction-stack",
-  "description": "P4 reveals a face-down Standby Teemo and plays it to the stack as a zero-cost reaction while another stack item is pending.",
+  "description": "Explicit real HIDE_CARD, next turn, resource actions and opponent response prepare the original standby card. The fixture then plays it into its original battlefield and checks the independent play ability.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -18,203 +18,110 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "待命关键词使用正面朝下对象，之后可在反应窗口翻开并当作反应牌打出；P4.76 只验证隐藏对象公开、离开基地并加入结算链的最小路径。"
+    },
+    {
+      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "locator": "DOC04 811.1.b/c/d and current printed play ability",
+      "note": "Explicit preparation executes actual commands; finalTick counts fixture commands after preparation. Original fixture identity and card identity retained; obsolete base flip and fake pending source removed."
     }
   ],
   "roomId": "p4-reveal-card-standby-reaction-room",
-  "players": ["P1", "P2"],
-  "initialState": {
-    "seed": 2603304076,
-    "turnNumber": 76,
-    "activePlayerId": "P1",
-    "turnPlayerId": "P1",
-    "phase": "MAIN",
-    "timingState": "NEUTRAL_CLOSED",
-    "priorityPlayerId": "P1",
-    "passedPriorityPlayerIds": [],
-    "scores": { "P1": 0, "P2": 0 },
-    "runePools": {
-      "P1": { "mana": 0, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
-    },
-    "players": {
-      "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
-        "hand": [],
-        "base": ["P1-FACEDOWN-OGN-TEEMO"],
-        "battlefields": [],
-        "graveyard": [],
-        "banished": [],
-        "legendZone": [],
-        "championZone": []
-      },
-      "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
-        "hand": [],
-        "base": [],
-        "battlefields": [],
-        "graveyard": [],
-        "banished": [],
-        "legendZone": [],
-        "championZone": []
-      }
-    },
-    "cardObjects": {
-      "P1-FACEDOWN-OGN-TEEMO": {
-        "power": 2,
-        "isFaceDown": true,
-        "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],
-        "manaCost": 2,
-        "cardNo": "OGN·121/298"
-      }
-    },
-    "stackItems": [
-      {
-        "stackItemId": "STACK-0-P2-SPELL-PROBE",
-        "controllerId": "P2",
-        "sourceObjectId": "P2-SPELL-PROBE",
-        "effectKind": "PENDING_TEST_SPELL",
-        "cardNo": "TEST-000",
-        "targetObjectIds": [],
-        "damageAmount": 0
-      }
-    ]
-  },
+  "players": [
+    "P1",
+    "P2"
+  ],
   "commands": [
     {
       "playerId": "P1",
       "clientIntentId": "intent-p4-reveal-card-standby-reaction-stack",
       "cmd": {
         "cmdType": "REVEAL_CARD",
-        "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO",
+        "sourceObjectId": "SHADOW",
         "cardNo": "OGN·121/298",
         "targetObjectIds": [],
         "mode": "STANDBY_REACTION",
-        "optionalCosts": ["STANDBY_REVEAL_0"],
-        "destination": "STACK"
+        "optionalCosts": [
+          "STANDBY_REVEAL_0"
+        ],
+        "destination": "BATTLEFIELD:F"
       }
     }
   ],
   "expected": {
     "finalTick": 1,
-    "eventKinds": ["CARD_REVEALED", "CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"],
+    "eventKinds": [
+      "CARD_REVEALED",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "PERMANENT_CONFIRMED",
+      "UNIT_PLAYED_TO_BATTLEFIELD",
+      "TRIGGER_QUEUED",
+      "TRIGGER_NOT_CONFIRMED"
+    ],
     "events": [
       {
-        "kind": "CARD_REVEALED",
-        "payload": {
-          "playerId": "P1",
-          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO",
-          "cardNo": "OGN·121/298",
-          "mode": "STANDBY_REACTION",
-          "destination": "STACK",
-          "optionalCosts": ["STANDBY_REVEAL_0"],
-          "isFaceDown": false
-        }
+        "kind": "CARD_REVEALED"
       },
       {
-        "kind": "CARD_PLAYED",
-        "payload": {
-          "playerId": "P1",
-          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO",
-          "cardNo": "OGN·121/298",
-          "mode": "STANDBY_REACTION",
-          "destination": "STACK"
-        }
+        "kind": "CARD_PLAYED"
       },
       {
-        "kind": "COST_PAID",
-        "payload": {
-          "playerId": "P1",
-          "mana": 0,
-          "power": 0,
-          "baseMana": 0,
-          "optionalCosts": ["STANDBY_REVEAL_0"]
-        }
+        "kind": "COST_PAID"
       },
       {
-        "kind": "STACK_ITEM_ADDED",
-        "payload": {
-          "stackItemId": "STACK-1-P1-FACEDOWN-OGN-TEEMO",
-          "controllerId": "P1",
-          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO",
-          "cardNo": "OGN·121/298",
-          "targetObjectIds": [],
-          "effectKind": "OGN_TEEMO_STANDBY_DEFEND_REVEAL_PLAY_UNIT",
-          "mode": "STANDBY_REACTION",
-          "effectRepeatCount": 1,
-          "playedAfterAnotherCardThisTurn": false
-        }
+        "kind": "PERMANENT_CONFIRMED"
+      },
+      {
+        "kind": "UNIT_PLAYED_TO_BATTLEFIELD"
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGER_NOT_CONFIRMED"
       }
     ],
     "promptActions": {
-      "P1": ["PASS_PRIORITY"],
-      "P2": ["WAIT"]
+      "P1": [
+        "WAIT"
+      ],
+      "P2": [
+        "PASS_PRIORITY"
+      ]
     },
     "finalState": {
-      "turnNumber": 76,
-      "activePlayerId": "P1",
-      "turnPlayerId": "P1",
-      "phase": "MAIN",
       "timingState": "NEUTRAL_CLOSED",
-      "priorityPlayerId": "P1",
-      "passedPriorityPlayerIds": [],
+      "priorityPlayerId": "P2",
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
-      },
-      "players": {
         "P1": {
-          "hand": [],
-          "base": [],
-          "graveyard": []
-        },
-        "P2": {
-          "hand": [],
-          "base": [],
-          "battlefields": []
+          "mana": 0,
+          "power": 0
         }
       },
-      "stackItems": [
-        {
-          "stackItemId": "STACK-0-P2-SPELL-PROBE",
-          "controllerId": "P2",
-          "sourceObjectId": "P2-SPELL-PROBE",
-          "effectKind": "PENDING_TEST_SPELL",
-          "cardNo": "TEST-000",
-          "targetObjectIds": [],
-          "damageAmount": 0
-        },
-        {
-          "stackItemId": "STACK-1-P1-FACEDOWN-OGN-TEEMO",
-          "controllerId": "P1",
-          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO",
-          "effectKind": "OGN_TEEMO_STANDBY_DEFEND_REVEAL_PLAY_UNIT",
-          "cardNo": "OGN·121/298",
-          "targetObjectIds": [],
-          "damageAmount": 0
-        }
-      ],
       "cardObjects": {
-        "P1-FACEDOWN-OGN-TEEMO": {
+        "SHADOW": {
+          "cardNo": "OGN·121/298",
           "power": 2,
           "isFaceDown": false,
-          "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],
-          "manaCost": 2,
-          "cardNo": "OGN·121/298"
+          "untilEndOfTurnPowerModifier": 0,
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "待命",
+            "约德尔人"
+          ],
+          "isExhausted": true
+        }
+      },
+      "objectLocations": {
+        "SHADOW": {
+          "playerId": "P1",
+          "zone": "BATTLEFIELD",
+          "battlefieldObjectId": "F"
         }
       }
-    },
-    "prompts": {
-      "P1": {
-        "actionable": true,
-        "actions": ["PASS_PRIORITY"]
-      },
-      "P2": {
-        "actionable": false,
-        "actions": ["WAIT"]
-      }
     }
+  },
+  "standbyPreparation": {
+    "cardNo": "OGN·121/298"
   }
 }

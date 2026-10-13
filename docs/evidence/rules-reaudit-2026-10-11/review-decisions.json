@@ -15900,6 +15900,834 @@
         "Mandatory PostgreSQL opening/recovery/replay passed at prior fixed commit; full gameplay, concurrency, failover and combined SQL/network match remain open.",
         "All 1738 identity and 36 document/14293 block coverage items retain their original unresolved statuses."
       ]
+    },
+    {
+      "id": "standby-origin-state-and-independent-play-2026-10-13",
+      "status": "SCOPED_CHECK_AND_HEADLESS_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Shared real printed-standby placement/play origin, generation, original battlefield restrictions and counted/local independent play abilities; visible keyword is distinct from hidden state. Includes 41 existing active printed-source matches, not whole-card certification.",
+      "subjects": [
+        {
+          "id": "UNL-003/219",
+          "activeCardNo": "UNL-003/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34526,
+              "cardNo": "UNL-003/219",
+              "name": "鲛人滋事者",
+              "sha256": "68d8bee1be95ec3da487028833cfcf7e8c676fc94bb1b2a91c7a509b75488749",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-013/219",
+          "activeCardNo": "UNL-013/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34536,
+              "cardNo": "UNL-013/219",
+              "name": "莲花陷阱",
+              "sha256": "475d6fc5b006fabba90cf96375115901435c8db04d26a996ac51d73bd7c032ec",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-028/219",
+          "activeCardNo": "UNL-028/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34553,
+              "cardNo": "UNL-028/219",
+              "name": "派克",
+              "sha256": "1aacc174bbba62dac036a1f6ec60afc7d4fb381ac7fabcdd690a221cd243efd1",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-028a/219",
+          "activeCardNo": "UNL-028a/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34554,
+              "cardNo": "UNL-028a/219",
+              "name": "派克",
+              "sha256": "743b445b8f802040a8d0dbaa00276c0b0c86746065da2a00ce88b001f75de8fe",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-042/219",
+          "activeCardNo": "UNL-042/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34570,
+              "cardNo": "UNL-042/219",
+              "name": "走开",
+              "sha256": "b577b870c0428b528b67c6b25d09c87b924532cf2ba9130fda3866033496d4de",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-081/219",
+          "activeCardNo": "UNL-081/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34615,
+              "cardNo": "UNL-081/219",
+              "name": "赐面守侍",
+              "sha256": "d831cc4a3178a62eb443008a28951208ad9af5a53b25414ede78df3b8f620835",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-083/219",
+          "activeCardNo": "UNL-083/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34618,
+              "cardNo": "UNL-083/219",
+              "name": "镜中幻影",
+              "sha256": "fb9355df4619c7e4de2bddb3e06ff7379e17e4aa6becb25fbf996579a8e77e9f",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-139/219",
+          "activeCardNo": "UNL-139/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34682,
+              "cardNo": "UNL-139/219",
+              "name": "透骨尖钉",
+              "sha256": "75fad013e18b6119e5c30c1034f3730afa8c72611d93ff81d1fcce3accb1b495",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-141/219",
+          "activeCardNo": "UNL-141/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34684,
+              "cardNo": "UNL-141/219",
+              "name": "伊芙琳",
+              "sha256": "de6227887994d2678b744d0d9d4fda41f77b0245455c750fcb334428af9399dd",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-145/219",
+          "activeCardNo": "UNL-145/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34689,
+              "cardNo": "UNL-145/219",
+              "name": "派克",
+              "sha256": "888bf9657d6a9fdbf81654575fd86f08d18bbf5729695b9cad9557ad711b7b1f",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "UNL-145a/219",
+          "activeCardNo": "UNL-145a/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 34690,
+              "cardNo": "UNL-145a/219",
+              "name": "派克",
+              "sha256": "54e9287d4c0910ae4dd5b74b42bdf2883569bd9bd1fec776f0bed0f13a6562e5",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-004/221",
+          "activeCardNo": "SFD·004/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33076,
+              "cardNo": "SFD·004/221",
+              "name": "丛林伏击",
+              "sha256": "38425715236bbc9612dfe0a6be350d309ec361fa0656a29a263e5e44da784c1d",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-017/221",
+          "activeCardNo": "SFD·017/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33089,
+              "cardNo": "SFD·017/221",
+              "name": "雷霆突降",
+              "sha256": "aea8503cd0d75dab4d33ecfb05d75c9a81f2b76f352de2d468f04f2e1fb1de7a",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-043/221",
+          "activeCardNo": "SFD·043/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33119,
+              "cardNo": "SFD·043/221",
+              "name": "禁军之墙",
+              "sha256": "9a1fb2b631cf7c45738c633cb1ca824d9396a7c3112e4cb7c6c9319b9c2394e8",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-070/221",
+          "activeCardNo": "SFD·070/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33150,
+              "cardNo": "SFD·070/221",
+              "name": "痛苦之酬",
+              "sha256": "1747395205640c0aa7cf363457b7830316ba2ee6300eb9cb6b2f2bea6e37a5e4",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-111/221",
+          "activeCardNo": "SFD·111/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33197,
+              "cardNo": "SFD·111/221",
+              "name": "前来相助",
+              "sha256": "94f8a924b3f1f2437e994821b08759ffa844c012b2bd019c0498e916e49001ef",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-138/221",
+          "activeCardNo": "SFD·138/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33228,
+              "cardNo": "SFD·138/221",
+              "name": "吟风翼",
+              "sha256": "0a1265a85e7a900874cf5f55acff7e471d5dda1673f3af41834adb295c0ed5a4",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-139/221",
+          "activeCardNo": "SFD·139/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33229,
+              "cardNo": "SFD·139/221",
+              "name": "夜之锋刃",
+              "sha256": "893c5586398ff55f2e250dc13f9f1a147c50665f155c850eaf36002ffb831988",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-145/221",
+          "activeCardNo": "SFD·145/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33237,
+              "cardNo": "SFD·145/221",
+              "name": "换换乐",
+              "sha256": "17d58e03add6db7d8a7ce7251bb1385edc6e2d164fabacbb44f0ef6760030e3f",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-154/221",
+          "activeCardNo": "SFD·154/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33248,
+              "cardNo": "SFD·154/221",
+              "name": "护驾！",
+              "sha256": "ed0c51ce784fb595bf061ae8ed8758c036d369db24339b904ae4c5056c9dd1fa",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-202/221",
+          "activeCardNo": "SFD·202/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33301,
+              "cardNo": "SFD·202/221",
+              "name": "恶意收购",
+              "sha256": "a41e0676c4c5b7d1676cd69322d95e8f31b7be3ccc029af0afd51d4520c8698f",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-230/221",
+          "activeCardNo": "SFD·230/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33334,
+              "cardNo": "SFD·230/221",
+              "name": "提莫",
+              "sha256": "8f6bd3ceed95f9f4034cccf8db0a4ce0a8a013a42df109b1ed03d5c77fdde03b",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "SFD-230*/221",
+          "activeCardNo": "SFD·230*/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 33335,
+              "cardNo": "SFD·230*/221",
+              "name": "提莫",
+              "sha256": "a983db2df80f20c12a512ecdcccc649ab1c9b341397aacabf4ee4bdfa95f1d3a",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-053/298",
+          "activeCardNo": "OGN·053/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31265,
+              "cardNo": "OGN·053/298",
+              "name": "秘奥义！慈悲度魂落",
+              "sha256": "aa32846015b47bcf248d1d2a1294ae5f37d72393bfbf05f97916b10024f4c979",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-057/298",
+          "activeCardNo": "OGN·057/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31269,
+              "cardNo": "OGN·057/298",
+              "name": "格挡",
+              "sha256": "3f445cbe2aaaed71942a664e4df3fc6dc2d648c1be3528abc7fa4050c7b8928c",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-077/298",
+          "activeCardNo": "OGN·077/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31291,
+              "cardNo": "OGN·077/298",
+              "name": "中娅沙漏",
+              "sha256": "9c9bc0718adb451312a6ce3586481a8eb926ecc51509f8dcf0107d7ea2cfaa3a",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-083/298",
+          "activeCardNo": "OGN·083/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31299,
+              "cardNo": "OGN·083/298",
+              "name": "借鉴历史",
+              "sha256": "8af5e05995e34fa76dc4c4ed541bc1f1b0a32927c8b08c7250acaac89508d71b",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-094/298",
+          "activeCardNo": "OGN·094/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31312,
+              "cardNo": "OGN·094/298",
+              "name": "精灵召唤",
+              "sha256": "91f3de88d4a6f9379bf20cbda57964354af627e92177dfc40a4d5b60145f58dd",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-097/298",
+          "activeCardNo": "OGN·097/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31315,
+              "cardNo": "OGN·097/298",
+              "name": "爆裂球果仙灵",
+              "sha256": "9340e1567ea7d5dca8fe421da7577733fe5dac795cf4dd2fdebfe6813c33d88b",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-121/298",
+          "activeCardNo": "OGN·121/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31342,
+              "cardNo": "OGN·121/298",
+              "name": "提莫",
+              "sha256": "c3e07783a371affca9d6f2d315082cad8aa0118ae0f3748d6044786fb2869bf1",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-121a/298",
+          "activeCardNo": "OGN·121a/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31343,
+              "cardNo": "OGN·121a/298",
+              "name": "提莫",
+              "sha256": "0574eb082b44f6c19e08d4f6ab325d0b7ad0a6a414314bf120ef471f3425c042",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-135/298",
+          "activeCardNo": "OGN·135/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31359,
+              "cardNo": "OGN·135/298",
+              "name": "帕卡幼崽",
+              "sha256": "d9a73ae1e2d46ea63cbb6d7ab3ae62f87f94363e263b484aca7b02f79ec96283",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-168/298",
+          "activeCardNo": "OGN·168/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31398,
+              "cardNo": "OGN·168/298",
+              "name": "战或逃",
+              "sha256": "4385c9bc90110bd060d3da935300e094f4be8747910e1da09b76fa542e267e6f",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": true
+            }
+          ]
+        },
+        {
+          "id": "OGN-197/298",
+          "activeCardNo": "OGN·197/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31429,
+              "cardNo": "OGN·197/298",
+              "name": "提莫",
+              "sha256": "637c465ec59234a0a4c909a0d45215cdd55c56f9ac32133346069cfb70e9cdf9",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-197a/298",
+          "activeCardNo": "OGN·197a/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31430,
+              "cardNo": "OGN·197a/298",
+              "name": "提莫",
+              "sha256": "c630a48f3cce2e287a0d21d093018b061d8464064d6df1620ad46e3eed24c30c",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-197b/298",
+          "activeCardNo": "OGN·197b/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31431,
+              "cardNo": "OGN·197b/298",
+              "name": "提莫",
+              "sha256": "519f1d6e75af431573f3d89e2ec5c8417715561ee798b589c59eb032dbf84491",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-199/298",
+          "activeCardNo": "OGN·199/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31433,
+              "cardNo": "OGN·199/298",
+              "name": "控潮者",
+              "sha256": "69894d050eea1bfc53a6e42cebef80f99072b2a54b746d9086c1df0b92c68145",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-213/298",
+          "activeCardNo": "OGN·213/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31449,
+              "cardNo": "OGN·213/298",
+              "name": "暗刃",
+              "sha256": "d71a07f053f26415c07db8d1e70f125a17d6129a69effc1234b24a75d7b87f6f",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-220/298",
+          "activeCardNo": "OGN·220/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31458,
+              "cardNo": "OGN·220/298",
+              "name": "强手裂颅",
+              "sha256": "763f771e9d3e43f6e9be32e20bc7941b7eae4c55ecd19ac65e89fb3398c12c25",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "OGN-256/298",
+          "activeCardNo": "OGN·256/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31498,
+              "cardNo": "OGN·256/298",
+              "name": "妖异狐火",
+              "sha256": "e46d8c43fc3c29596300f93be8873d8dc65d2cc4c56fb9ced1e0a09698bb563d",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        },
+        {
+          "id": "FND-196/298",
+          "activeCardNo": "FND-196/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 31575,
+              "cardNo": "FND-196/298",
+              "name": "提莫",
+              "sha256": "33d3ee3e73699adf6a035d47bc09de9526bd425bd40300b67fb8d467e2a60d81",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T05:50:37.802316+00:00",
+              "publishedPreview": false
+            }
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P043-B015",
+        "DOC-04-P043-B018",
+        "DOC-04-P043-B019",
+        "DOC-04-P043-B020",
+        "DOC-04-P043-B021",
+        "DOC-04-P043-B022",
+        "DOC-04-P044-B001",
+        "DOC-04-P044-B002",
+        "DOC-04-P044-B003",
+        "DOC-04-P044-B004",
+        "DOC-04-P072-B005",
+        "DOC-04-P072-B006",
+        "DOC-04-P072-B007",
+        "DOC-04-P072-B008",
+        "DOC-04-P072-B009",
+        "DOC-04-P072-B010",
+        "DOC-04-P114-B014",
+        "DOC-04-P114-B015",
+        "DOC-04-P114-B016",
+        "DOC-04-P114-B017",
+        "DOC-04-P114-B018",
+        "DOC-04-P114-B019",
+        "DOC-04-P114-B020",
+        "DOC-04-P114-B021",
+        "DOC-04-P114-B022",
+        "DOC-04-P114-B023",
+        "DOC-04-P114-B024",
+        "DOC-04-P115-B001",
+        "DOC-04-P115-B003",
+        "DOC-04-P115-B004",
+        "DOC-04-P115-B005",
+        "DOC-04-P115-B006",
+        "DOC-04-P115-B007",
+        "DOC-04-P115-B008",
+        "DOC-04-P115-B009",
+        "DOC-04-P115-B010",
+        "DOC-04-P115-B011",
+        "DOC-04-P029-B002"
+      ],
+      "auditDocument": "docs/STANDBY_RULES_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/standby-2026-10-13/core-readback.json",
+        "docs/evidence/standby-2026-10-13/source-readback.json",
+        "docs/evidence/standby-2026-10-13/standby-source-queue.json",
+        "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+        "docs/evidence/standby-2026-10-13/remaining-scopes.json",
+        "docs/evidence/standby-2026-10-13/code-inputs.json",
+        "docs/evidence/standby-2026-10-13/full-plan-parity.json",
+        "docs/evidence/standby-2026-10-13/check-repairs-and-native.json",
+        "docs/evidence/standby-2026-10-13/native-production-controls.json",
+        "docs/evidence/standby-2026-10-13/full-ci-96716eee.json",
+        "docs/evidence/standby-2026-10-13/ci-postgres-96716eee.json",
+        "docs/evidence/standby-2026-10-13/windows-96716eee.json",
+        "docs/evidence/standby-2026-10-13/check-parity.json",
+        "docs/evidence/standby-2026-10-13/original-test-retention.json"
+      ],
+      "tests": [
+        "StandbySourceRulesTests",
+        "StandbyConsumerTests",
+        "StandbyNativeTests",
+        "StandbyReactionSfdTeemoTests",
+        "StandbyReactionTideCallerTests",
+        "MatchRecoveryTests",
+        "RealTriggerQueueTests"
+      ],
+      "validation": {
+        "focus": "2189 repaired-scope and 1873 recovery-scope passed; original methods/Theory rows retained.",
+        "native": "160 production commands; standby 50 cold restores; actual server replay PASS.",
+        "check": "10858 cases / 6805 methods PASS in 172.4 s; all prior 10821 / 6788 preserved; real SQL five smoke executed.",
+        "full": "6946-method plan only; expected 11007 cases, all prior methods/game inputs preserved; fixed implementation commit CI required.",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "All 54 standby keyword printings and 69 consumers require source-specific whole-card review; 41 existing active exact printed records match this readback but are not certified.",
+        "Seven non-preview standby printings outside the active catalog remain missing; six future-preview printings were not promoted.",
+        "Defend counted-keyword branch still requires source-based counted-card verification independently of from-face-down play.",
+        "Copied Ember/blocker ability instances, source departure, changed battlefield generation, full cost extras/taxes and every placement/control acquisition history are not completely certified.",
+        "Consistent forged histories are not excluded by structural and bounded tamper checks.",
+        "Headless production command replay does not establish visible paired clients or user Windows acceptance.",
+        "Complete SQL gameplay, concurrent updates, failover and combined SQL/network match remain open.",
+        "All 1738 identities and 36 documents / 14293 blocks retain unresolved whole-entry statuses; English returned/reported eight-printing gap remains open."
+      ]
     }
   ]
 }

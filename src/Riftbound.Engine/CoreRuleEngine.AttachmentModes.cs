@@ -60,7 +60,7 @@ public sealed partial class CoreRuleEngine
             state.CardObjects.TryGetValue(id, out var card) && card.ControllerId == item.ControllerId && !card.IsFaceDown
             && card.Tags.Contains(CardObjectTags.RuneCard)).Order(StringComparer.Ordinal).ToArray();
         if (mode?.BoonCount is not null) return state.CardObjects.Values.Where(card => card.ControllerId == item.ControllerId
-            && card.Tags.Contains(CardObjectTags.UnitCard) && !card.IsFaceDown && !card.Tags.Contains(CardObjectTags.Standby)
+            && card.Tags.Contains(CardObjectTags.UnitCard) && !card.IsFaceDown
             && AttachedRuleTextRules.Field(state, card.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, card.ObjectId))
             .Select(card => card.ObjectId).Order(StringComparer.Ordinal).ToArray();
         return [];

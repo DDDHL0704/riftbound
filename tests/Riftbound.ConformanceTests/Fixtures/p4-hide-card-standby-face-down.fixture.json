@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "待命关键词使用正面朝下对象；P4 当前以基地对象承载最小隐藏信息状态，公开事件不暴露卡号、战力、标签或费用。"
+    },
+    {
+      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "locator": "DOC04 811.1.b / 811.1.c",
+      "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }
   ],
   "roomId": "p4-hide-card-standby-room",
@@ -31,7 +36,7 @@
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 1, "power": 0 },
+      "P1": { "mana": 0, "power": 1 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -40,7 +45,7 @@
         "runeDeck": ["P1-RUNE-001"],
         "hand": ["P1-HAND-OGN-TEEMO"],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["STANDBY-TEST-FIELD"],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -61,8 +66,22 @@
     "cardObjects": {
       "P1-HAND-OGN-TEEMO": {
         "cardNo": "OGN·121/298",
+        "manaCost": 2,
         "power": 2,
         "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"]
+      },
+      "STANDBY-TEST-FIELD": {
+        "cardNo": "OGN·275/298",
+        "tags": ["CARD_TYPE:BATTLEFIELD"],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      }
+    },
+    "objectLocations": {
+      "STANDBY-TEST-FIELD": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "STANDBY-TEST-FIELD"
       }
     }
   },
@@ -74,7 +93,7 @@
         "cmdType": "HIDE_CARD",
         "sourceObjectId": "P1-HAND-OGN-TEEMO",
         "cardNo": "OGN·121/298",
-        "destination": "STANDBY",
+        "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
         "optionalCosts": ["STANDBY_A"]
       }
     }
@@ -87,8 +106,8 @@
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
-          "mana": 1,
-          "power": 0,
+          "mana": 0,
+          "power": 1,
           "optionalCosts": ["STANDBY_A"]
         }
       },
@@ -97,9 +116,10 @@
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-HAND-OGN-TEEMO",
-          "destination": "STANDBY",
-          "destinationZone": "BASE",
-          "isFaceDown": true
+          "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
+          "destinationZone": "BATTLEFIELD",
+          "isFaceDown": true,
+          "battlefieldObjectId": "STANDBY-TEST-FIELD"
         }
       }
     ],
@@ -120,8 +140,9 @@
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-HAND-OGN-TEEMO"],
-          "graveyard": []
+          "base": [],
+          "graveyard": [],
+          "battlefields": ["STANDBY-TEST-FIELD", "P1-HAND-OGN-TEEMO"]
         },
         "P2": {
           "hand": [],

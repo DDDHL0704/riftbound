@@ -32,7 +32,7 @@ public sealed partial class CoreRuleEngine
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
             var kind = BeginningDrawKind(source.CardNo);
-            if (kind is null || source.ControllerId != player || source.IsFaceDown || source.Tags.Contains(CardObjectTags.Standby)) continue;
+            if (kind is null || source.ControllerId != player || source.IsFaceDown) continue;
             if (kind == "HAND_BELOW_TWO")
             {
                 if (!state.PlayerZones[player].LegendZone.Contains(source.ObjectId) || !source.Tags.Contains("CARD_TYPE:LEGEND")) continue;

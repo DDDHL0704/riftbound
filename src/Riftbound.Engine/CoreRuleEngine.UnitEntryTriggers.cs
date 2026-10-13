@@ -39,9 +39,11 @@ public sealed partial class CoreRuleEngine
         var player = ev.Payload.GetValueOrDefault("playedByPlayerId") as string
             ?? ev.Payload.GetValueOrDefault("playerId") as string ?? entered.ControllerId;
         if (player is null) return ev;
+        if (entered.LastStandbyPlay is not null && ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
+            ev = CaptureStandbyPlayed(ev, zones, cards, player);
         var sources = zones.Values.SelectMany(z => z.Battlefields).Distinct(StringComparer.Ordinal)
             .Where(cards.ContainsKey).Select(id => cards[id])
-            .Where(c => HasEnemyEntryAbility(c.CardNo) && !c.IsFaceDown && !c.Tags.Contains(CardObjectTags.Standby)
+            .Where(c => HasEnemyEntryAbility(c.CardNo) && !c.IsFaceDown
                 && c.ControllerId is not null && c.ControllerId != player)
             .Select(c => new UnitEntryObserver(c.ObjectId, c.ControllerId!, c.CardNo!, c.ObjectGeneration)).ToArray();
         if (sources.Length == 0) return ev;

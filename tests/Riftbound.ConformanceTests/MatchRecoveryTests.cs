@@ -6920,11 +6920,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 must not be face down in objects; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item blue sentinel delayed resource source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -7937,11 +7935,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 must be a unit card in objects; expected CARD_TYPE:UNIT but got [待命]",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -9762,11 +9758,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be face down in objects; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -12513,11 +12507,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "snapshot for alice timing trigger queue item jhin movement resource source object id source-1 must not be face down in objects; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -13866,11 +13858,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 must not be face down in objects; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "snapshot for alice timing trigger queue item kogmaw last breath source object id source-1 must not be a standby card in objects; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -29869,11 +29859,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "authoritative state trigger queue item BLUE_SENTINEL_HELD_DELAYED_RESOURCE::1::source-1::battlefield-1 blue sentinel delayed resource source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -30585,11 +30573,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got [待命]",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGS_LUX_HIGH_COST_SPELL_POWER_PLUS_3 ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -31868,11 +31854,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1 scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -33983,11 +33967,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "authoritative state trigger queue item JHIN_MOVE_RESOURCE::4::source-1::BASE::BATTLEFIELD jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -34980,11 +34962,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "authoritative state trigger queue item TRIGGER-stack-1-source-1-OGN_KOGMAW_LAST_BREATH_AOE_PLAY_UNIT::BATTLEFIELD::battlefield-1 kogmaw last breath source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -40312,6 +40292,7 @@ public sealed class MatchRecoveryTests
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
             },
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
@@ -40895,6 +40876,7 @@ public sealed class MatchRecoveryTests
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
             },
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
@@ -40963,12 +40945,12 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield battlefield-a standby object id forged-standby is missing from authoritative state visible standby object ids; expected [alice-standby-a] but got forged-standby",
+                "spectator replay frame snapshot lane battlefield battlefield-a standby object id forged-standby is missing from authoritative state visible standby object ids; expected [] but got forged-standby",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 5 does not match authoritative state battlefield object count 4; expected 4 but got 5",
+                "spectator replay frame snapshot lane battlefield count 5 does not match authoritative state battlefield object count 3; expected 3 but got 5",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
@@ -41588,6 +41570,7 @@ public sealed class MatchRecoveryTests
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
                 [visibleStandbyObjectId] = new(
                     visibleStandbyObjectId,
+                    isFaceDown: true,
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
@@ -41697,7 +41680,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 object id is required",
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 hidden object id must be redacted",
                 StringComparison.Ordinal));
     }
 
@@ -41738,6 +41721,7 @@ public sealed class MatchRecoveryTests
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 [standbyObjectId] = new(
                     standbyObjectId,
+                    isFaceDown: true,
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
@@ -41841,6 +41825,7 @@ public sealed class MatchRecoveryTests
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 [standbyObjectId] = new(
                     standbyObjectId,
+                    isFaceDown: true,
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
@@ -41922,7 +41907,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 1; expected 1 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -41963,6 +41948,7 @@ public sealed class MatchRecoveryTests
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 [standbyObjectId] = new(
                     standbyObjectId,
+                    isFaceDown: true,
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
@@ -42023,17 +42009,17 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:1 object id forged-standby is missing from authoritative state visible standby object ids; expected [standby-visible-a] but got forged-standby",
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:1 hidden object id must be redacted",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:1 object id does not match authoritative visible standby object id",
+                "spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:1 hidden object id must be redacted",
                 StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 1; expected 1 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -42074,6 +42060,7 @@ public sealed class MatchRecoveryTests
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 [standbyObjectId] = new(
                     standbyObjectId,
+                    isFaceDown: true,
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
@@ -42144,7 +42131,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 1; expected 1 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -42185,6 +42172,7 @@ public sealed class MatchRecoveryTests
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 [standbyObjectId] = new(
                     standbyObjectId,
+                    isFaceDown: true,
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
@@ -42219,8 +42207,8 @@ public sealed class MatchRecoveryTests
             .ToArray();
         var standbySlot = Assert.IsType<Dictionary<string, object?>>(standbySlots[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        standbySlot["visible"] = false;
-        standbySlot["state"] = "VISIBLE";
+        standbySlot["visible"] = true;
+        standbySlot["state"] = "HIDDEN";
         standbySlots[0] = standbySlot;
         battlefieldPayload["standbySlots"] = standbySlots;
         battlefieldItems[0] = battlefieldPayload;
@@ -42256,7 +42244,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 1; expected 1 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -42297,6 +42285,7 @@ public sealed class MatchRecoveryTests
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag]),
                 [standbyObjectId] = new(
                     standbyObjectId,
+                    isFaceDown: true,
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
@@ -42331,8 +42320,9 @@ public sealed class MatchRecoveryTests
             .ToArray();
         var standbySlot = Assert.IsType<Dictionary<string, object?>>(standbySlots[0])
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        standbySlot["visible"] = false;
-        standbySlot["state"] = "HIDDEN";
+        standbySlot["visible"] = true;
+        standbySlot["state"] = "VISIBLE";
+        standbySlot["objectId"] = standbyObjectId;
         standbySlots[0] = standbySlot;
         battlefieldPayload["standbySlots"] = standbySlots;
         battlefieldItems[0] = battlefieldPayload;
@@ -42373,7 +42363,7 @@ public sealed class MatchRecoveryTests
         Assert.Contains(
             errors,
             error => error.Contains(
-                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 2; expected 2 but got 3",
+                "spectator replay frame snapshot lane battlefield count 3 does not match authoritative state battlefield object count 1; expected 1 but got 3",
                 StringComparison.Ordinal));
     }
 
@@ -42422,6 +42412,7 @@ public sealed class MatchRecoveryTests
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
                 [visibleStandbyObjectId] = new(
                     visibleStandbyObjectId,
+                    isFaceDown: true,
                     power: 2,
                     ownerId: "alice",
                     controllerId: "alice",
@@ -42517,7 +42508,7 @@ public sealed class MatchRecoveryTests
             error => error.Contains("spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:1 hidden object id must be redacted", StringComparison.Ordinal));
         Assert.Contains(
             errors,
-            error => error.Contains("spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 object id does not match authoritative visible standby object id", StringComparison.Ordinal));
+            error => error.Contains("spectator replay frame snapshot lane battlefield battlefield-a standby slot battlefield-a:standby:2 hidden object id must be redacted", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -55633,6 +55624,7 @@ public sealed class MatchRecoveryTests
                     cardNo: "SFD-ALICE-STANDBY",
                     ownerId: "alice",
                     controllerId: "alice",
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
             },
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
@@ -139766,11 +139758,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -139899,11 +139889,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item blue sentinel delayed resource source object id wrong-source must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -142373,11 +142361,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got [待命]",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -142501,11 +142487,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must be a unit card in authoritative state object registry; expected CARD_TYPE:UNIT but got [待命]",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item ogs lux high cost spell source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -147711,11 +147695,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -147823,11 +147805,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item scouting warhawk last-breath call rune source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -155959,11 +155939,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -156071,11 +156049,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item jhin movement resource source object id source-1 must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(
@@ -159935,11 +159911,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.DoesNotContain(
             errors,
             error => error.Contains(
@@ -160075,11 +160049,9 @@ public sealed class MatchRecoveryTests
             error => error.Contains(
                 "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source must not be face down in authoritative state object registry; expected false but got true",
                 StringComparison.Ordinal));
-        Assert.Contains(
+        Assert.DoesNotContain(
             errors,
-            error => error.Contains(
-                "spectator replay frame timing trigger queue item kogmaw last breath source object id wrong-source must not be a standby card in authoritative state object registry; expected <non-standby card> but got 待命",
-                StringComparison.Ordinal));
+            error => error.Contains("must not be a standby card", StringComparison.Ordinal));
         Assert.Contains(
             errors,
             error => error.Contains(

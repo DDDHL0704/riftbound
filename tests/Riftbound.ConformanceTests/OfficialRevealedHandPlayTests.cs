@@ -171,19 +171,21 @@ public sealed class OfficialRevealedHandPlayTests
     [Fact]
     public async Task StandbyRevealUsesTheSamePublicSelectionAndCrossPlayerContinuation()
     {
-        var initial=Position();
-        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·048/298",out var bottom));
-        initial=initial with {TimingState=TimingStates.NeutralClosed,PriorityPlayerId="P1",
-            StackItems=[new("BOTTOM","P2","BOTTOMCARD",bottom.EffectKind,bottom.CardNo,[])],
-            RunePools=new Dictionary<string,RunePool>{{"P1",RunePool.Empty},{"P2",RunePool.Empty}},
-            CardObjects=new Dictionary<string,CardObjectState>(initial.CardObjects){["BOTTOMCARD"]=new("BOTTOMCARD",cardNo:bottom.CardNo,ownerId:"P2",controllerId:"P2",tags:[CardObjectTags.SpellCard]),["C"]=initial.CardObjects["C"] with {IsFaceDown=true,Tags=[CardObjectTags.SpellCard,CardObjectTags.Standby]}},
-            PlayerZones=new Dictionary<string,PlayerZones>(initial.PlayerZones){["P1"]=initial.PlayerZones["P1"] with {Hand=[],Battlefields=["BF","C"]}},
-            ObjectLocations=new Dictionary<string,ObjectLocationState>(initial.ObjectLocations){["C"]=new("P1","BATTLEFIELD","BF")}};
-        var cast=await Act(initial,"P1",new RevealCardCommand("C","UNL-139/219",["BF"],"STANDBY_REACTION",["STANDBY_REVEAL_0"],"STACK"));
-        var opened=await Top(cast.State);Restore(opened.State);
-        var selected=await Select(opened.State,"U");
-        var done=await Act(selected.State,"P2",new PlayCardCommand("U","OGN·208/298",[],Destination:"BATTLEFIELD:BF"));
-        Assert.Contains("STUNNED",done.State.CardObjects["U"].UntilEndOfTurnEffects);Restore(done.State);
+        var initial = StandbySourceRulesTests.Position("UNL-139/219");
+        initial = StandbyTestDriver.WithUnitInHand(initial, "U", "OGN·208/298", "P2");
+        // Actual placement and next turn establish provenance, then a real opponent spell opens priority.
+        initial = await StandbySourceRulesTests.ReadyShadow("UNL-139/219", initial);
+        var cast = await Act(initial, "P1", new RevealCardCommand("SHADOW", "UNL-139/219", ["F"],
+            "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
+        Assert.NotNull(Assert.Single(cast.State.StackItems, i => i.SourceObjectId == "SHADOW").PlayedFromStandby);
+        var opened = await Top(cast.State);
+        Restore(opened.State);
+        var selected = await Select(opened.State, "U");
+        Assert.Equal("P2", selected.State.PendingEffectPlay!.PlayerId);
+        var done = await Act(selected.State, "P2", new PlayCardCommand("U", "OGN·208/298", [], Destination: "BATTLEFIELD:F"));
+        Assert.Contains("STUNNED", done.State.CardObjects["U"].UntilEndOfTurnEffects);
+        Assert.Equal("F", done.State.ObjectLocations["U"].BattlefieldObjectId);
+        Restore(done.State);
     }
 
     [Fact]

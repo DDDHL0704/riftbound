@@ -60,8 +60,7 @@ public sealed partial class CoreRuleEngine
                 || frame.BattleDeclarations.Any(e => !e.StartsWith("BATTLE_RESPONSE_DECLARATION_CONTEXT:", StringComparison.Ordinal))) return false;
             var publicIds = frame.PlayerZones.Values.SelectMany(z => z.Base.Concat(z.Battlefields).Concat(z.Graveyard)
                 .Concat(z.Banished).Concat(z.LegendZone).Concat(z.ChampionZone)).ToHashSet(StringComparer.Ordinal);
-            if (frame.CardObjects.Any(p => p.Key != p.Value.ObjectId || p.Value.IsFaceDown
-                    || p.Value.Tags.Contains(CardObjectTags.Standby) || !publicIds.Contains(p.Key))
+            if (frame.CardObjects.Any(p => p.Key != p.Value.ObjectId || p.Value.IsFaceDown || !publicIds.Contains(p.Key))
                 || frame.ObjectLocations.Keys.Any(id => !frame.CardObjects.ContainsKey(id))) return false;
             var expected = QualifyingConquestUnits(frame, source.ObjectId, spec.RequiredPowerThreshold!.Value);
             return context.PowerfulUnits.SequenceEqual(expected);

@@ -81,6 +81,13 @@ public sealed class RealTriggerQueueTests
     {
         var engine = new CoreRuleEngine();
         var state = BuildLuxHighCostSpellState(luxIsFaceDown: isFaceDown, luxIsStandby: isStandby);
+        var cards = new Dictionary<string, CardObjectState>(state.CardObjects);
+        var deck = Enumerable.Range(1, 6).Select(n => "LUX-VISIBILITY-DECK-" + n).ToArray();
+        foreach (var id in deck) cards[id] = new(id, cardNo: "SFD·106/221", ownerId: "P1", controllerId: "P1");
+        state = state with { CardObjects = cards, PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones)
+        {
+            ["P1"] = state.PlayerZones["P1"] with { MainDeck = deck }
+        }};
 
         var result = await engine.ResolveAsync(
             state,
@@ -89,8 +96,20 @@ public sealed class RealTriggerQueueTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
-        AssertLuxDidNotTrigger(result);
-        AssertLuxPowerUnchanged(result);
+        result = await SpellResolutionTestDriver.Finish(result);
+        if (!isFaceDown)
+        {
+            Assert.Equal(8, result.State.CardObjects["P1-LUX"].Power);
+            Assert.Contains(result.Events, e => e.Kind == "TRIGGER_QUEUED"
+                && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), "P1-LUX"));
+            OfficialGraveyardRecastTests.Restore(result.State);
+            ArmamentMightTests.PublicRecovery(result.State);
+        }
+        else
+        {
+            AssertLuxDidNotTrigger(result);
+            AssertLuxPowerUnchanged(result);
+        }
     }
 
     [Fact]
@@ -4081,6 +4100,7 @@ public sealed class RealTriggerQueueTests
                     "P2-STANDBY-KOGMAW",
                     cardNo: "OGN·190/298",
                     power: 1,
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P2",
                     controllerId: "P2"),
@@ -4291,7 +4311,7 @@ public sealed class RealTriggerQueueTests
             "P1-HIDDEN-SCOUTING-WARHAWK-RUNE",
             "P2-STANDBY-SCOUTING-WARHAWK-RUNE",
             p1IsFaceDown: true,
-            p2IsFaceDown: false,
+            p2IsFaceDown: true,
             p1Tags: [CardObjectTags.UnitCard, "鸟类"],
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "鸟类"]);
     }
@@ -4415,7 +4435,7 @@ public sealed class RealTriggerQueueTests
             "P1-HIDDEN-WATCHFUL-SENTINEL",
             "P2-STANDBY-WATCHFUL-SENTINEL",
             p1IsFaceDown: true,
-            p2IsFaceDown: false,
+            p2IsFaceDown: true,
             p1Tags: [CardObjectTags.UnitCard],
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]);
     }
@@ -4443,7 +4463,7 @@ public sealed class RealTriggerQueueTests
             cardNo: "OGN·239/298",
             power: 3,
             p1IsFaceDown: true,
-            p2IsFaceDown: false,
+            p2IsFaceDown: true,
             p1Tags: [CardObjectTags.UnitCard],
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]);
     }
@@ -4471,7 +4491,7 @@ public sealed class RealTriggerQueueTests
             cardNo: "SFD·021/221",
             power: 3,
             p1IsFaceDown: true,
-            p2IsFaceDown: false,
+            p2IsFaceDown: true,
             p1Tags: [CardObjectTags.UnitCard, "机械", "约德尔人"],
             p2Tags: [CardObjectTags.UnitCard, "机械", "约德尔人", CardObjectTags.Standby]);
     }
@@ -4499,7 +4519,7 @@ public sealed class RealTriggerQueueTests
             cardNo: "UNL-153/219",
             power: 1,
             p1IsFaceDown: true,
-            p2IsFaceDown: false,
+            p2IsFaceDown: true,
             p1Tags: [CardObjectTags.UnitCard],
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]);
     }
@@ -4537,7 +4557,7 @@ public sealed class RealTriggerQueueTests
             "P1-HIDDEN-HONEST-BROKER",
             "P2-STANDBY-HONEST-BROKER",
             p1IsFaceDown: true,
-            p2IsFaceDown: false,
+            p2IsFaceDown: true,
             p1Tags: [CardObjectTags.UnitCard],
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]);
     }
@@ -4565,7 +4585,7 @@ public sealed class RealTriggerQueueTests
             "P1-CLEANUP-HIDDEN-SCOUTING-WARHAWK-RUNE",
             "P2-CLEANUP-STANDBY-SCOUTING-WARHAWK-RUNE",
             p1IsFaceDown: true,
-            p2IsFaceDown: false,
+            p2IsFaceDown: true,
             p1Tags: [CardObjectTags.UnitCard, "鸟类"],
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "鸟类"]);
     }
@@ -4718,6 +4738,7 @@ public sealed class RealTriggerQueueTests
                     "P1-STANDBY-GHOSTLY-CENTAUR",
                     cardNo: "UNL-068/219",
                     power: 5,
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P1",
                     controllerId: "P1"),
@@ -4991,6 +5012,7 @@ public sealed class RealTriggerQueueTests
                     "P1-STANDBY-RESONANT-SOUL",
                     cardNo: "OGN·118/298",
                     power: 5,
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "灵体"],
                     ownerId: "P1",
                     controllerId: "P1"),
@@ -5262,6 +5284,7 @@ public sealed class RealTriggerQueueTests
                     "P1-STANDBY-SAVAGE-JAWFISH",
                     cardNo: "UNL-129/219",
                     power: 5,
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P1",
                     controllerId: "P1"),
@@ -5525,6 +5548,7 @@ public sealed class RealTriggerQueueTests
                     "P1-STANDBY-VIKTOR",
                     cardNo: "OGN·246/298",
                     power: 4,
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P1",
                     controllerId: "P1"),
@@ -6097,6 +6121,7 @@ public sealed class RealTriggerQueueTests
                     "P2-CLEANUP-STANDBY-LOYAL-PORO",
                     cardNo: "UNL-156/219",
                     power: 3,
+                    isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P2",
                     controllerId: "P2"),
@@ -6179,7 +6204,7 @@ public sealed class RealTriggerQueueTests
             p1Damage: 2,
             p2Damage: 2,
             p1IsFaceDown: true,
-            p2IsFaceDown: false,
+            p2IsFaceDown: true,
             p1Tags: [CardObjectTags.UnitCard, "精锐"],
             p2Tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "精锐"]);
     }

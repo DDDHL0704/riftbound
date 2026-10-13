@@ -263,13 +263,13 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
         var played = await OfficialGraveyardRecastTests.Act(state, "P1", new PlayCardCommand("P1-UNIT-MEGASHARK-CANNON", "OGN·092/298", []));
         var firstTargetChoiceIds = played.State.PendingCardChoice!.LegalObjectIds.ToArray();
 
-        Assert.Equal(["P2-BATTLEFIELD-UNIT"], firstTargetChoiceIds);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT", "P2-FACE-UP-STANDBY"], firstTargetChoiceIds);
         Assert.DoesNotContain("P1-FRIENDLY-BATTLEFIELD-UNIT", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-BASE-UNIT", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-HAND-UNIT", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-STALE-UNIT", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-FACE-DOWN-STANDBY", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-FACE-UP-STANDBY", firstTargetChoiceIds);
+        Assert.Contains("P2-FACE-UP-STANDBY", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", firstTargetChoiceIds);
@@ -308,7 +308,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
             .ToArray();
 
         Assert.Equal(
-            ["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT", "P2-BASE-UNIT", "P2-BATTLEFIELD-UNIT"],
+            ["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT", "P2-BASE-UNIT", "P2-BATTLEFIELD-UNIT", "P2-FACE-UP-STANDBY"],
             firstTargetChoiceIds);
         Assert.DoesNotContain("P1-BATTLEFIELD-CARD", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-CARD", firstTargetChoiceIds);
@@ -316,7 +316,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
         Assert.DoesNotContain("P2-BATTLEFIELD-SPELL", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-RUNE", firstTargetChoiceIds);
         Assert.DoesNotContain("P2-FACE-DOWN-UNIT", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-FACE-UP-STANDBY", firstTargetChoiceIds);
+        Assert.Contains("P2-FACE-UP-STANDBY", firstTargetChoiceIds);
     }
 
     [Theory]
@@ -355,7 +355,15 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
 
         var result = await PlayMegasharkAsync(new CoreRuleEngine(), state, targetObjectId);
 
-        AssertRejectedWithoutMutation(state, result, expectedMana: 6, expectedHand: ["P1-UNIT-MEGASHARK-CANNON"]);
+        if (targetObjectId == "P2-FACE-UP-STANDBY")
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Equal([targetObjectId], Assert.Single(result.State.StackItems).TargetObjectIds);
+            var done = await OfficialGraveyardRecastTests.Top(result.State);
+            Assert.Contains(done.Events, e => e.Kind == "DAMAGE_APPLIED"
+                && Equals(e.Payload.GetValueOrDefault("targetObjectId"), targetObjectId));
+        }
+        else AssertRejectedWithoutMutation(state, result, expectedMana: 6, expectedHand: ["P1-UNIT-MEGASHARK-CANNON"]);
         Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-UNIT"].Damage);
     }
 

@@ -10,7 +10,7 @@ public sealed partial class CoreRuleEngine
     // separate continuation protocols and are not covered by this primitive.
     internal static bool HasIndependentPermanentTargets(CardBehaviorDefinition behavior)
         => (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
-            && OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo)
+            && (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo) || HasStandbyCountedPlayAbility(behavior) || HasStandbyAttachmentPlayAbility(behavior))
             && behavior.RequiredTargetCount > 0 && !IsDeferredDeckChoice(behavior)
             && behavior.TargetEffectAdditionalManaCost == 0 && behavior.TargetEffectAdditionalPowerCost == 0
             && behavior.TargetScope is not (CardTargetScopes.FriendlyHandCard or CardTargetScopes.OpponentHandCard
@@ -22,6 +22,7 @@ public sealed partial class CoreRuleEngine
         var maximum = MaxResolvedTargetCount(behavior, item, TargetCountConditionApplies(behavior, item));
         var scope = PlayCardTargetScopeForBehavior(behavior);
         return state.CardObjects.Keys.Where(id => (!OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || id != item.SourceObjectId)
+            && (!behavior.SwapsSourceWithFirstTargetLocation || CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id))
             && Enumerable.Range(0, maximum)
                 .Any(index => IsLegalChosenCardTarget(state, item.ControllerId, id, index, [id], scope, behavior)))
             .Order(StringComparer.Ordinal).ToArray();
@@ -30,7 +31,7 @@ public sealed partial class CoreRuleEngine
     private static CardBehaviorDefinition PermanentPlayTargetBehavior(StackItemState item)
     {
         CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior);
-        return behavior!;
+        return StandbyDefinition(behavior!, item.PlayedFromStandby);
     }
 
     private static bool ValidPermanentPlayTargetSelection(MatchState state, StackItemState item, IReadOnlyList<string> selected)
@@ -41,6 +42,7 @@ public sealed partial class CoreRuleEngine
             && (!OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || !selected.Contains(item.SourceObjectId))
             && PlayCardTargetsExposeKnownCardNumbers(state, selected)
             && HasValidTargetGroup(state, behavior, selected) && HasRequiredAnyTargetTag(state, behavior, selected)
+            && (!behavior.SwapsSourceWithFirstTargetLocation || selected.All(id => CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id)))
             && selected.Select((id, index) => IsLegalChosenCardTarget(state, item.ControllerId, id, index,
                 selected, PlayCardTargetScopeForBehavior(behavior), behavior)).All(legal => legal);
     }
@@ -91,7 +93,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidPermanentPlayTargetStack(MatchState state, StackItemState item)
         => !item.PermanentPlayTargetsPending || item.SourceConfirmed
             && CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) && behavior.CardNo == item.CardNo
-            && HasIndependentPermanentTargets(behavior) && state.PriorityPlayerId is null
+            && HasIndependentPermanentTargets(StandbyDefinition(behavior, item.PlayedFromStandby)) && state.PriorityPlayerId is null
             && (state.PendingCardChoice is not null || state.PendingPayment is not null || state.TriggerQueue.Count > 0)
             && (item.TargetGenerations is null || state.PendingPayment is { PaymentWindow: TriggerTargetCostWindow } payment
                 && payment.ResolvingStackItemId == item.StackItemId && item.TargetGenerations.Count == item.TargetObjectIds.Count

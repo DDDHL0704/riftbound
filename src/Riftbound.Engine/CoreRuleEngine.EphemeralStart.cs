@@ -13,8 +13,7 @@ public sealed partial class CoreRuleEngine
         var queue = state.TriggerQueue.ToList();
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
-            if (!IsObjectOnField(state.PlayerZones, source.ObjectId) || source.IsFaceDown
-                || source.Tags.Contains(CardObjectTags.Standby) || !source.Tags.Contains(CardObjectTags.Ephemeral)
+            if (!IsObjectOnField(state.PlayerZones, source.ObjectId) || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.Ephemeral)
                 || !IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, source.ObjectId)
                 || EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source) != state.TurnPlayerId
                 || !string.IsNullOrWhiteSpace(source.AttachedToObjectId) && source.GrantedTags?.Contains(CardObjectTags.Ephemeral) != true

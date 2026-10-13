@@ -279,6 +279,7 @@ public sealed class SourceCombatStaticAuraProjectionTests
         return new CardObjectState(
             objectId,
             cardNo: cardNo,
+            isFaceDown: isStandby,
             power: power,
             isAttacking: isAttacking,
             isDefending: isDefending,

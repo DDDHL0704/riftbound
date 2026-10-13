@@ -155,9 +155,9 @@ public sealed partial class CoreRuleEngine
             Add("RECALL", target, "应用本回合效果，移除伤害并休眠召回");
         if (unit.UntilEndOfTurnEffects.Contains(BanishIfDestroyedThisTurnEffectId))
             Add("BANISH", target, "应用本回合效果，改为放逐");
-        if (!unit.Tags.Contains(CardObjectTags.UnitCard) || unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby)) return options;
+        if (!unit.Tags.Contains(CardObjectTags.UnitCard) || unit.IsFaceDown) return options;
         foreach (var source in zones[player].Base.Concat(zones[player].Battlefields).Distinct().Order(StringComparer.Ordinal)) {
-            if (!cards.TryGetValue(source, out var gear) || gear.IsFaceDown || gear.Tags.Contains(CardObjectTags.Standby)
+            if (!cards.TryGetValue(source, out var gear) || gear.IsFaceDown
                 || !gear.Tags.Contains(CardObjectTags.EquipmentCard) || EffectiveFieldControllerId(zones, source, gear) != player
                 || !CardReplacementSpecRules.TryGetReplacement(gear.CardNo, CardReplacementSpecRules.IsFriendlyUnitDestroyedDestroySourceRecallExhaustedReplacement, out _)) continue;
             Add("GEAR", source, $"由中娅沙漏（{source}）替换，摧毁沙漏并休眠召回");

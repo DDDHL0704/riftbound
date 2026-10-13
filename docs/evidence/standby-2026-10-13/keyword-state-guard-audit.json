@@ -1,0 +1,207 @@
+{
+  "scope": "Printed standby keyword is not face-down status; negative state guards and explicit face-down OR keyword-state conflations only. Positive keyword/permission checks left for separate source audit.",
+  "files": [
+    {
+      "path": "src/Riftbound.Engine/AttachedRuleText.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 2
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "negativeKeywordStateGuards": 18,
+      "pairedPositiveKeywordStateGuards": 50
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+      "negativeKeywordStateGuards": 2,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Tempered.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningDraw.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningRecycle.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.EphemeralStart.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "negativeKeywordStateGuards": 30,
+      "pairedPositiveKeywordStateGuards": 19
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Resources.cs",
+      "negativeKeywordStateGuards": 2,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.AttachmentObservers.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.LegendConquest.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.MightyTransitions.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/TargetProtectionRules.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldConquestMight.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.ArmamentMight.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.AttachmentModes.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/EmpoweredSpellRules.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 2
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "negativeKeywordStateGuards": 2,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/FieldObjectTypeRules.cs",
+      "negativeKeywordStateGuards": 2,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.TargetedPowerAbility.cs",
+      "negativeKeywordStateGuards": 2,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/UnitMovementRules.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Hold.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.UnitConquest.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
+      "negativeKeywordStateGuards": 0,
+      "pairedPositiveKeywordStateGuards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/EmpowerRules.cs",
+      "negativeKeywordStateGuards": 1,
+      "pairedPositiveKeywordStateGuards": 0
+    }
+  ],
+  "additionalInspectedStateGuards": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "expression": "candidate",
+      "guards": 2
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "expression": "targetState",
+      "guards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "expression": "sourceState",
+      "guards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "expression": "target",
+      "guards": 3
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "expression": "candidateState",
+      "guards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.UnitConquest.cs",
+      "expression": "source",
+      "guards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs",
+      "expression": "source",
+      "guards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/BattlefieldLocalRules.cs",
+      "expression": "unit",
+      "guards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "expression": "target",
+      "guards": 1
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "expression": "knownCardObject",
+      "guards": 1
+    }
+  ]
+}

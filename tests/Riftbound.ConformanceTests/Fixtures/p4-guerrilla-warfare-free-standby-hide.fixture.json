@@ -23,6 +23,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "待命关键词使用正面朝下对象；游击战的本回合 permission 只替代暗置费用，不替代待命反应打出、待命触发或完整隐藏区规则。"
+    },
+    {
+      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "locator": "DOC04 811.1.b / 811.1.c",
+      "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }
   ],
   "roomId": "p4-guerrilla-standby-hide-room",
@@ -39,14 +44,9 @@
       "P1": {
         "mana": 2,
         "power": 0,
-        "powerByTrait": {
-          "blue": 1
-        }
+        "powerByTrait": { "blue": 1 }
       },
-      "P2": {
-        "mana": 0,
-        "power": 0
-      }
+      "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
@@ -54,7 +54,7 @@
         "runeDeck": ["P1-RUNE-001"],
         "hand": ["P1-SPELL-GUERRILLA-WARFARE", "P1-HAND-OGN-TEEMO"],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["STANDBY-TEST-FIELD", "STANDBY-TEST-ANCHOR"],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -75,8 +75,34 @@
     "cardObjects": {
       "P1-HAND-OGN-TEEMO": {
         "cardNo": "OGN·121/298",
+        "manaCost": 2,
         "power": 2,
         "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"]
+      },
+      "STANDBY-TEST-ANCHOR": {
+        "cardNo": "OGN·001/298",
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT"],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "STANDBY-TEST-FIELD": {
+        "cardNo": "OGN·275/298",
+        "tags": ["CARD_TYPE:BATTLEFIELD"],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      }
+    },
+    "objectLocations": {
+      "STANDBY-TEST-ANCHOR": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "STANDBY-TEST-FIELD"
+      },
+      "STANDBY-TEST-FIELD": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "STANDBY-TEST-FIELD"
       }
     }
   },
@@ -95,16 +121,12 @@
     {
       "playerId": "P1",
       "clientIntentId": "intent-p4-guerrilla-warfare-p1-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
+      "cmd": { "cmdType": "PASS_PRIORITY" }
     },
     {
       "playerId": "P2",
       "clientIntentId": "intent-p4-guerrilla-warfare-p2-pass",
-      "cmd": {
-        "cmdType": "PASS_PRIORITY"
-      }
+      "cmd": { "cmdType": "PASS_PRIORITY" }
     },
     {
       "playerId": "P1",
@@ -113,24 +135,14 @@
         "cmdType": "HIDE_CARD",
         "sourceObjectId": "P1-HAND-OGN-TEEMO",
         "cardNo": "OGN·121/298",
-        "destination": "STANDBY",
+        "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
         "optionalCosts": ["STANDBY_FREE"]
       }
     }
   ],
   "expected": {
     "finalTick": 4,
-    "eventKinds": [
-      "CARD_PLAYED",
-      "COST_PAID",
-      "STACK_ITEM_ADDED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "STANDBY_HIDE_PERMISSION_GRANTED",
-      "COST_PAID",
-      "CARD_HIDDEN"
-    ],
+    "eventKinds": ["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED", "PRIORITY_PASSED", "PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "STANDBY_HIDE_PERMISSION_GRANTED", "COST_PAID", "CARD_HIDDEN"],
     "events": [
       { "kind": "CARD_PLAYED" },
       {
@@ -179,9 +191,10 @@
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-HAND-OGN-TEEMO",
-          "destination": "STANDBY",
-          "destinationZone": "BASE",
-          "isFaceDown": true
+          "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
+          "destinationZone": "BATTLEFIELD",
+          "isFaceDown": true,
+          "battlefieldObjectId": "STANDBY-TEST-FIELD"
         }
       }
     ],
@@ -202,8 +215,9 @@
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-HAND-OGN-TEEMO"],
-          "graveyard": ["P1-SPELL-GUERRILLA-WARFARE"]
+          "base": [],
+          "graveyard": ["P1-SPELL-GUERRILLA-WARFARE"],
+          "battlefields": ["STANDBY-TEST-FIELD", "STANDBY-TEST-ANCHOR", "P1-HAND-OGN-TEEMO"]
         },
         "P2": {
           "hand": [],

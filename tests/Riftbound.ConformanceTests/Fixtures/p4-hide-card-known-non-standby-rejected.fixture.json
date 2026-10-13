@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "P4.339 锁定待命暗置关键词资格边界：命令 cardNo 对应的已知牌面必须暴露待命关键词，非待命牌拒绝暗置。拒绝时不推进 tick、不写事件、不支付费用、不移动手牌、不创建正面朝下对象、不创建结算链。"
+    },
+    {
+      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "locator": "DOC04 811.1.b / 811.1.c",
+      "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }
   ],
   "roomId": "p4-hide-card-known-non-standby-rejected-room",
@@ -40,7 +45,7 @@
         "runeDeck": ["P1-RUNE-001"],
         "hand": ["P1-HAND-UNL-ARENA-COUNCILOR"],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["STANDBY-TEST-FIELD"],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -66,6 +71,19 @@
         "isFaceDown": false,
         "tags": ["CARD_TYPE:UNIT", "约德尔人"],
         "manaCost": 5
+      },
+      "STANDBY-TEST-FIELD": {
+        "cardNo": "OGN·275/298",
+        "tags": ["CARD_TYPE:BATTLEFIELD"],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      }
+    },
+    "objectLocations": {
+      "STANDBY-TEST-FIELD": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "STANDBY-TEST-FIELD"
       }
     }
   },
@@ -77,7 +95,7 @@
         "cmdType": "HIDE_CARD",
         "sourceObjectId": "P1-HAND-UNL-ARENA-COUNCILOR",
         "cardNo": "UNL-001/219",
-        "destination": "STANDBY",
+        "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
         "optionalCosts": ["STANDBY_A"]
       }
     }

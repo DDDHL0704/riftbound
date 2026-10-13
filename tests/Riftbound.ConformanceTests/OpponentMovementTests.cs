@@ -101,7 +101,7 @@ public sealed class OpponentMovementTests
     public async Task HiddenObserverDoesNotTrigger(bool standby)
     {
         var s=Position();s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {
-            ["V"]=s.CardObjects["V"] with { IsFaceDown=!standby, Tags=standby?[CardObjectTags.UnitCard,CardObjectTags.Standby]:[CardObjectTags.UnitCard] } }};
+            ["V"]=s.CardObjects["V"] with { IsFaceDown=true, Tags=standby?[CardObjectTags.UnitCard,CardObjectTags.Standby]:[CardObjectTags.UnitCard] } }};
         var moved=await MovementObserverAuditTests.Move(s);Assert.Empty(moved.State.StackItems);
     }
 

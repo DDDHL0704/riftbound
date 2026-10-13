@@ -14,14 +14,12 @@ public sealed partial class CoreRuleEngine
     internal static bool IsPowerAbilitySource(MatchState state, string player, string id, P4ActivatedAbilityDefinition ability)
         => IsObjectOnField(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
             && card.ControllerId == player && !card.IsExhausted && !card.IsFaceDown
-            && !card.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && card.Tags.Contains(ability.SourceRequiredTag, StringComparer.Ordinal)
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, card.CardNo);
 
     internal static bool IsPowerAbilityTarget(MatchState state, string player, string id)
         => IsFieldObject(state.PlayerZones, id) && state.CardObjects.TryGetValue(id, out var card)
             && !string.IsNullOrWhiteSpace(card.CardNo) && !card.IsFaceDown
-            && !card.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && card.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && TargetProtectionRules.IsLegalActivatedSkillTarget(state, player, id);
 

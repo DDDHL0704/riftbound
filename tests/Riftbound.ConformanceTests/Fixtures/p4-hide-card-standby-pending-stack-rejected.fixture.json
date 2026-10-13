@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p20 rules 164-167; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "P4.316 锁定待命暗置 stack 边界：当前只能在主动玩家主阶段开放窗口正面朝下放置待命牌，不能在结算链待处理的优先权窗口中执行；拒绝时不支付费用、不移动对象、不创建结算链。"
+    },
+    {
+      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "locator": "DOC04 811.1.b / 811.1.c",
+      "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }
   ],
   "roomId": "p4-hide-card-standby-pending-stack-rejected-room",
@@ -42,7 +47,7 @@
         "runeDeck": ["P1-RUNE-001"],
         "hand": ["P1-HAND-OGN-TEEMO"],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["STANDBY-TEST-FIELD"],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -66,6 +71,12 @@
         "isExhausted": false,
         "isFaceDown": false,
         "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"]
+      },
+      "STANDBY-TEST-FIELD": {
+        "cardNo": "OGN·275/298",
+        "tags": ["CARD_TYPE:BATTLEFIELD"],
+        "ownerId": "P1",
+        "controllerId": "P1"
       }
     },
     "stackItems": [
@@ -78,7 +89,14 @@
         "targetObjectIds": [],
         "damageAmount": 0
       }
-    ]
+    ],
+    "objectLocations": {
+      "STANDBY-TEST-FIELD": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "STANDBY-TEST-FIELD"
+      }
+    }
   },
   "commands": [
     {
@@ -88,7 +106,7 @@
         "cmdType": "HIDE_CARD",
         "sourceObjectId": "P1-HAND-OGN-TEEMO",
         "cardNo": "OGN·121/298",
-        "destination": "STANDBY",
+        "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
         "optionalCosts": ["STANDBY_A"]
       }
     }

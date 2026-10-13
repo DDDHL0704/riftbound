@@ -12,12 +12,12 @@ public sealed partial class CoreRuleEngine
     internal static IReadOnlyList<ArmamentMightContribution> ArmamentMightContributions(
         MatchState state, IReadOnlyDictionary<string, PlayerZones> zones, CardObjectState host)
     {
-        if (host.IsFaceDown || host.Tags.Contains(CardObjectTags.Standby) || !host.Tags.Contains(CardObjectTags.UnitCard)
+        if (host.IsFaceDown || !host.Tags.Contains(CardObjectTags.UnitCard)
             || !IsObjectOnField(zones, host.ObjectId)) return [];
         var multiplier = CardStaticAbilitySpecRules.TryGetStaticAbility(host.CardNo,
             a => a.Kind == StaticAbilityKinds.AttachedArmamentBaseMightMultiplier && a.Amount > 0, out var ability) ? ability.Amount : 1;
         return state.CardObjects.Values.Where(gear => gear.ObjectId != host.ObjectId && gear.AttachedToObjectId == host.ObjectId
-            && !gear.IsFaceDown && !gear.Tags.Contains(CardObjectTags.Standby) && gear.Tags.Contains(CardObjectTags.EquipmentCard)
+            && !gear.IsFaceDown && gear.Tags.Contains(CardObjectTags.EquipmentCard)
             && IsObjectOnField(zones, gear.ObjectId))
             .OrderBy(gear => gear.ObjectId, StringComparer.Ordinal)
             .Select(gear => (gear, definition: OfficialArmamentCatalog.Find(gear.CardNo)))

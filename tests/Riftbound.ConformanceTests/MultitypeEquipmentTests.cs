@@ -116,7 +116,18 @@ public sealed class MultitypeEquipmentTests
         var hash = MatchStateHasher.Hash(s);
         var result = await new CoreRuleEngine().ResolveAsync(s, new("hidden", "P1", CommandTypes.PlayCard),
             new PlayCardCommand("AOE", "OGN·229/298", ["G1"]), default);
-        Assert.False(result.Accepted); Assert.Equal(hash, MatchStateHasher.Hash(result.State));
+        if (faceDown)
+        {
+            Assert.False(result.Accepted);
+            Assert.Equal(hash, MatchStateHasher.Hash(result.State));
+        }
+        else
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            var done = await Top(result.State);
+            Assert.Contains("G1", done.State.PlayerZones["P2"].Graveyard);
+            Assert.Equal(1, done.State.DeathLedger.Counts["P2"]);
+        }
     }
 
     [Fact]

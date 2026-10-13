@@ -893,7 +893,7 @@ public sealed class ShadowActivatedAbilityTests
         {
             [BlueRuneObjectId] = RuneCard(BlueRuneObjectId, RuneTrait.Blue),
             ["P2-FACE-DOWN-ATTACKER"] = Unit("P2-FACE-DOWN-ATTACKER", "UNL-111/219", "P2", isAttacking: true, isFaceDown: true),
-            ["P2-STANDBY-ATTACKER"] = Unit("P2-STANDBY-ATTACKER", "UNL-112/219", "P2", isAttacking: true, extraTags: [CardObjectTags.Standby])
+            ["P2-STANDBY-ATTACKER"] = Unit("P2-STANDBY-ATTACKER", "UNL-112/219", "P2", isAttacking: true, extraTags: [CardObjectTags.Standby]) with { IsFaceDown = true }
         };
         var state = scenario switch
         {
@@ -989,6 +989,7 @@ public sealed class ShadowActivatedAbilityTests
                     ShadowObjectId,
                     state.CardObjects[ShadowObjectId] with
                     {
+                        IsFaceDown = true,
                         Tags = state.CardObjects[ShadowObjectId].Tags
                             .Concat([CardObjectTags.Standby])
                             .ToArray()

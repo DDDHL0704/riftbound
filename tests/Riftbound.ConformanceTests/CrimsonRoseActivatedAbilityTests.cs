@@ -620,7 +620,7 @@ public sealed class CrimsonRoseActivatedAbilityTests
         {
             ["P1-NON-UNIT-EQUIPMENT"] = Equipment("P1-NON-UNIT-EQUIPMENT", "SFD·022/221", "P1"),
             ["P1-FACE-DOWN-UNIT"] = Unit("P1-FACE-DOWN-UNIT", "UNL-101/219", "P1", isExhausted: true, isFaceDown: true),
-            ["P1-STANDBY-UNIT"] = Unit("P1-STANDBY-UNIT", "UNL-102/219", "P1", isExhausted: true, extraTags: [CardObjectTags.Standby]),
+            ["P1-STANDBY-UNIT"] = Unit("P1-STANDBY-UNIT", "UNL-102/219", "P1", isExhausted: true, isFaceDown: true, extraTags: [CardObjectTags.Standby]),
             ["P1-RUNE-BLUE"] = RuneCard("P1-RUNE-BLUE", RuneTrait.Blue)
         };
         var state = scenario switch

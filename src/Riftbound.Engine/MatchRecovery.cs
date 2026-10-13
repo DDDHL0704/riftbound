@@ -11929,7 +11929,6 @@ public static class MatchRecoveryValidator
     {
         if (!authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
             || !cardObject.IsFaceDown
-            || !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !authoritativeState.ObjectLocations.TryGetValue(objectId, out var location)
             || !string.Equals(location.Zone, "BATTLEFIELD", StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
@@ -13247,7 +13246,6 @@ public static class MatchRecoveryValidator
                 sourceState.CardNo)
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && SourceObjectControlledByPlayerOrLegacyOwnedForRecovery(sourceState, playerId)
             && authoritativeState.ObjectLocations.TryGetValue(sourceObjectId, out var sourceLocation)
             && string.Equals(sourceLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
@@ -19565,14 +19563,6 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
         }
 
-        if (objectTags is not null
-            && objectTags.TryGetValue(expectedSourceObjectId, out var standbySourceTags)
-            && standbySourceTags.Contains(CardObjectTags.Standby))
-        {
-            errors.Add(
-                $"{payloadLabel} blue sentinel delayed resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
-        }
-
         if (battlefieldStateObjectIds is not null
             && !battlefieldStateObjectIds.Contains(battlefieldObjectId))
         {
@@ -19876,13 +19866,6 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
         }
 
-        if (objectTags is not null
-            && objectTags.TryGetValue(expectedSourceObjectId, out var standbySourceTags)
-            && standbySourceTags.Contains(CardObjectTags.Standby))
-        {
-            errors.Add(
-                $"{payloadLabel} jhin movement resource source object id {expectedSourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
-        }
 
         ValidateTriggerQueueEffectKindMustBe(
             payloadLabel,
@@ -20231,16 +20214,6 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
         }
 
-        if (!string.IsNullOrWhiteSpace(sourceObjectId)
-            && !string.Equals(sourceObjectId, "HIDDEN", StringComparison.Ordinal)
-            && objectTags is not null
-            && objectTags.TryGetValue(sourceObjectId, out var standbySourceTags)
-            && standbySourceTags.Contains(CardObjectTags.Standby))
-        {
-            errors.Add(
-                $"{payloadLabel} kogmaw last breath source object id {sourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
-        }
-
         ValidateTriggerQueueSourceVisibilityMustBeVisible(
             payloadLabel,
             "kogmaw last breath",
@@ -20441,13 +20414,6 @@ public static class MatchRecoveryValidator
                     $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must be a unit card in {objectTagLabel}; {FormatExpectedActualForRecovery(CardObjectTags.UnitCard, FormatObjectTagsForRecovery(sourceTags))}");
             }
 
-            if (objectTags is not null
-                && objectTags.TryGetValue(sourceObjectId, out var standbySourceTags)
-                && standbySourceTags.Contains(CardObjectTags.Standby))
-            {
-                errors.Add(
-                    $"{payloadLabel} ogs lux high cost spell source object id {sourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
-            }
 
             if (objectTags is not null
                 && objectTags.TryGetValue(sourceObjectId, out var equipmentSourceTags)
@@ -21476,14 +21442,6 @@ public static class MatchRecoveryValidator
                 $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be face down in {objectFaceDownLabel}; {FormatExpectedActualForRecovery(false, isFaceDown)}");
         }
 
-        if (!IsWatchfulSentinelLastBreathDrawEffectForRecovery(expectedEffectKind)
-            && objectTags is not null
-            && objectTags.TryGetValue(sourceObjectId, out var standbySourceTags)
-            && standbySourceTags.Contains(CardObjectTags.Standby))
-        {
-            errors.Add(
-                $"{payloadLabel} {diagnosticName} source object id {sourceObjectId} must not be a standby card in {objectTagLabel}; {FormatExpectedActualForRecovery("<non-standby card>", CardObjectTags.Standby)}");
-        }
     }
 
     private static bool TryHasOtherFriendlyFaceUpBaseUnitForStandardLastBreathForRecovery(
@@ -21550,8 +21508,7 @@ public static class MatchRecoveryValidator
         }
 
         return objectTags.TryGetValue(candidateObjectId, out var candidateTags)
-            && candidateTags.Contains(CardObjectTags.UnitCard)
-            && !candidateTags.Contains(CardObjectTags.Standby);
+            && candidateTags.Contains(CardObjectTags.UnitCard);
     }
 
     private static bool IsWatchfulSentinelLastBreathDrawEffectForRecovery(string effectKind)
@@ -23769,6 +23726,8 @@ public static class MatchRecoveryValidator
         if (state.StackItems.Any(item => !CoreRuleEngine.ValidConfirmedAttachmentMode(state, item))) errors.Add("invalid confirmed attachment mode");
         foreach (var card in state.CardObjects.Values)
         {
+            if (card.StandbyPlacement is not null && !StandbyRules.ValidPlacement(state, card)) errors.Add("invalid standby placement provenance");
+            if (!StandbyRules.ValidLastPlay(state, card)) errors.Add("invalid last standby play provenance");
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
             if (!CopyFaceTimeline.Valid(state, card)) errors.Add("invalid copied face timeline");
             if (!AttachmentUnitCopyRules.Valid(state, card)) errors.Add("invalid attached unit copy ledger");
@@ -23777,6 +23736,13 @@ public static class MatchRecoveryValidator
             if (card.IsEmpowered && !state.PlayerZones.Values.Any(z => z.Base.Contains(card.ObjectId) || z.Battlefields.Contains(card.ObjectId)
                 || z.LegendZone.Contains(card.ObjectId))) errors.Add("invalid empowered object outside play");
         }
+        if (state.StackItems.Any(item => !StandbyRules.ValidPlayedOrigin(state, item))) errors.Add("invalid played standby origin");
+        foreach (var item in state.StackItems)
+            if (item.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, item.EffectKind, item.SourceObjectId, item.CardNo)
+                : item.EffectKind == CoreRuleEngine.StandbyPlayedEffect) errors.Add("invalid captured standby play observer");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.StandbyObserver is { } observer ? !CoreRuleEngine.ValidStandbyObserver(state, observer, trigger.EffectKind, trigger.SourceObjectId, trigger.SourceCardNo)
+                : trigger.EffectKind == CoreRuleEngine.StandbyPlayedEffect) errors.Add("invalid queued standby play observer");
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow != CoreRuleEngine.TemperedPaymentWindow))
             errors.Add("invalid referenced equipment experience cost");

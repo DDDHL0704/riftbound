@@ -28,8 +28,7 @@ public sealed partial class CoreRuleEngine
         HeldCards.Value.TryGetValue(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), out var definition) ? definition : null;
 
     private static string[] HeldUnitsAt(MatchState state, string field, string? controller = null) => state.CardObjects
-        .Where(e => e.Value.Tags.Contains(CardObjectTags.UnitCard) && !e.Value.IsFaceDown
-            && !e.Value.Tags.Contains(CardObjectTags.Standby) && IsObjectOnField(state.PlayerZones, e.Key)
+        .Where(e => e.Value.Tags.Contains(CardObjectTags.UnitCard) && !e.Value.IsFaceDown && IsObjectOnField(state.PlayerZones, e.Key)
             && (controller is null || e.Value.ControllerId == controller)
             && state.ObjectLocations.TryGetValue(e.Key, out var location) && location.Zone == MoveUnitBattlefieldZone
             && location.BattlefieldObjectId == field).Select(e => e.Key).Order(StringComparer.Ordinal).ToArray();

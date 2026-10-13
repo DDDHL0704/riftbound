@@ -19,8 +19,7 @@ public sealed partial class CoreRuleEngine
         var queue = state.TriggerQueue.ToList();
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
-            if (source.ControllerId != state.TurnPlayerId || source.IsFaceDown
-                || source.Tags.Contains(CardObjectTags.Standby) || !source.Tags.Contains(CardObjectTags.UnitCard)
+            if (source.ControllerId != state.TurnPlayerId || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard)
                 || !IsObjectOnField(state.PlayerZones, source.ObjectId)
                 || !IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, source.ObjectId)) continue;
             foreach (var instance in AttachedRuleTextRules.Instances(state, source))

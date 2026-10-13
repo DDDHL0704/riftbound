@@ -14,90 +14,32 @@ public sealed class StandbyReactionBattleResponseTests
     [Fact]
     public async Task DeclareBattleOpensStandbyReactionBattleResponseForDefender()
     {
-        var state = BuildBattleResponseStandbyState();
-
-        var result = await DeclareBattleAsync(state);
-
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.True(result.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
-        Assert.Equal("P2", result.State.PriorityPlayerId);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_RESPONSE_PRIORITY_OPENED", StringComparison.Ordinal));
-        Assert.Contains(CommandTypes.RevealCard, result.Prompts["P2"].Actions);
-
-        var candidate = Assert.Single(
-            result.Prompts["P2"].Candidates ?? [],
-            candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
-        Assert.True(candidate.Enabled);
-        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            Assert.IsType<Dictionary<string, object?>>(candidate.Metadata)["sourceRequirements"]));
-        Assert.Equal(TeemoObjectId, sourceRequirement["sourceObjectId"]);
-        Assert.Equal("STANDBY_REACTION", sourceRequirement["mode"]);
-        Assert.Equal("ENEMY_UNIT_AT_SOURCE_BATTLEFIELD", sourceRequirement["targetScope"]);
-
-        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        Assert.Equal([AttackerObjectId], targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+        // Current battle responses occur in the initial duel after actual movement establishes roles.
+        var state = await StandbyReactionSfdTeemoTests.BuildClosedPriorityState("OGN·121/298", twoContests: true);
+        Assert.Equal(TimingStates.SpellDuelOpen, state.TimingState);
+        Assert.Equal("P1", state.FocusPlayerId);
+        Assert.True(state.CardObjects[StandbyReactionSfdTeemoTests.EnemyTargetObjectId].IsAttacking);
+        Assert.True(state.CardObjects["HOST"].IsDefending);
+        Assert.Contains(CommandTypes.RevealCard, ResolutionResult.BuildPrompts(state)["P1"].EnabledActions());
+        Assert.True(state.CardObjects["SHADOW"].IsFaceDown);
+        Assert.Equal("F", state.CardObjects["SHADOW"].StandbyPlacement!.Battlefield.ObjectId);
+        Assert.Equal(0, state.CardObjects[StandbyReactionSfdTeemoTests.EnemyTargetObjectId].Damage);
+        Assert.Equal(0, state.CardObjects["STANDBY-NEXT-OPPONENT"].Damage);
+        Assert.False(state.CardObjects["STANDBY-NEXT-OPPONENT"].IsAttacking);
+        Assert.False(state.CardObjects["STANDBY-NEXT-OPPONENT"].IsDefending);
+        var played = await OfficialInsightAndSpellLockTests.Act(state, "P1", new RevealCardCommand("SHADOW", "OGN·121/298", [],
+            "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "BATTLEFIELD:F"));
+        var pending = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        Assert.Equal([StandbyReactionSfdTeemoTests.EnemyTargetObjectId], pending.LegalObjectIds);
+        OfficialGraveyardRecastTests.Restore(played.State);
+        ArmamentMightTests.PublicRecovery(played.State);
     }
 
     [Fact]
     public async Task BaseStandbyReactionTargetDamageUsesBattleResponseBattlefieldContext()
     {
-        var engine = new CoreRuleEngine();
-        var opened = await DeclareBattleAsync(BuildBattleResponseStandbyState(), engine);
-        Assert.True(opened.Accepted, opened.ErrorMessage);
-
-        var revealed = await engine.ResolveAsync(
-            opened.State,
-            new PlayerIntent("intent-teemo-defense-standby-reaction", "P2", CommandTypes.RevealCard),
-            new RevealCardCommand(
-                TeemoObjectId,
-                "OGN·121/298",
-                [AttackerObjectId],
-                Mode: "STANDBY_REACTION",
-                OptionalCosts: ["STANDBY_REVEAL_0"],
-                Destination: "STACK"),
-            CancellationToken.None);
-
-        Assert.True(revealed.Accepted, revealed.ErrorMessage);
-        Assert.Empty(revealed.State.PlayerZones["P2"].Base);
-        Assert.Single(revealed.State.StackItems);
-        var stackItem = revealed.State.StackItems[0];
-        Assert.Equal([AttackerObjectId], stackItem.TargetObjectIds);
-        Assert.Equal(TimingStates.NeutralClosed, stackItem.TimingContext);
-        Assert.Equal(string.Empty, stackItem.Destination);
-
-        var p2Pass = await engine.ResolveAsync(
-            revealed.State,
-            new PlayerIntent("intent-teemo-defense-standby-reaction-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-
-        var p1Pass = await engine.ResolveAsync(
-            p2Pass.State,
-            new PlayerIntent("intent-teemo-defense-standby-reaction-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-        Assert.Empty(p1Pass.State.StackItems);
-        Assert.True(p1Pass.State.BattleState.IsActive);
-        Assert.Equal(TimingStates.NeutralClosed, p1Pass.State.TimingState);
-        Assert.Equal("P2", p1Pass.State.PriorityPlayerId);
-        Assert.Equal(2, p1Pass.State.CardObjects[AttackerObjectId].Damage);
-        Assert.Equal([TeemoObjectId], p1Pass.State.PlayerZones["P2"].Base);
-        Assert.Equal("P2-MAIN-BOTTOM", p1Pass.State.PlayerZones["P2"].MainDeck[0]);
-        Assert.Equal(
-            TopFiveMainDeckCards().OrderBy(cardId => cardId, StringComparer.Ordinal).ToArray(),
-            p1Pass.State.PlayerZones["P2"].MainDeck.Skip(1).OrderBy(cardId => cardId, StringComparer.Ordinal).ToArray());
-        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["sourceObjectId"], TeemoObjectId)
-            && Equals(gameEvent.Payload["targetObjectId"], AttackerObjectId)
-            && Equals(gameEvent.Payload["damage"], 2));
-        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["sourceObjectId"], TeemoObjectId)
-            && Equals(gameEvent.Payload["count"], 5));
+        // A shadow's original field stays authoritative while a second contest waits.
+        await StandbyTestDriver.AssertNaturalNestedBattleResponse();
     }
 
     private static ValueTask<ResolutionResult> DeclareBattleAsync(MatchState state, CoreRuleEngine? engine = null)

@@ -12729,19 +12729,16 @@ public sealed class GameHubJoinTests
 
         Assert.Empty(hideClients.CallerClient.Errors);
         var hideEvents = EventsFor(hideClients);
-        Assert.Contains(hideEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-BANDLE-TREE", StringComparison.Ordinal));
+        Assert.DoesNotContain(hideEvents, gameEvent => gameEvent.Kind == "BATTLEFIELD_TRIGGER_RESOLVED");
+        var paid = Assert.Single(hideEvents, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(0, paid.Payload["mana"]);
+        Assert.Equal(1, paid.Payload["power"]);
         Assert.Contains(hideEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["destinationZone"] as string, "BATTLEFIELD", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-BANDLE-TREE", StringComparison.Ordinal));
         AssertPayloadDoesNotContainText(hideEvents, "P1-STANDBY-BANDLE-TEEMO", "OGN·121/298");
-        var triggerEvent = Assert.Single(hideEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal));
-        Assert.Equal("HIDDEN", triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal("HIDDEN", paid.Payload["sourceObjectId"]);
         var broadcastObjectRefs = hideEvents
             .SelectMany(gameEvent => gameEvent.ObjectRefs ?? [])
             .ToArray();
@@ -12824,10 +12821,10 @@ public sealed class GameHubJoinTests
         var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
         Assert.Equal(MessageType.EVENTS, acceptedMessage.Type);
         var acceptedEvents = EventsFor(acceptedClients);
-        var acceptedTriggerEvent = Assert.Single(acceptedEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal));
-        Assert.Equal("P1-BATTLEFIELD-BANDLE-TREE", acceptedTriggerEvent.Payload["battlefieldObjectId"]);
+        Assert.DoesNotContain(acceptedEvents, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED");
+        var paid = Assert.Single(acceptedEvents, e => e.Kind == "COST_PAID");
+        Assert.Equal(0, paid.Payload["mana"]);
+        Assert.Equal(1, paid.Payload["power"]);
         var acceptedHideEvent = Assert.Single(acceptedEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
         Assert.Equal("BATTLEFIELD", acceptedHideEvent.Payload["destinationZone"]);
@@ -12895,10 +12892,10 @@ public sealed class GameHubJoinTests
         Assert.Equal(
             acceptedEvents.Select(gameEvent => gameEvent.Kind).ToArray(),
             replayEvents.Select(gameEvent => gameEvent.Kind).ToArray());
-        var replayTriggerEvent = Assert.Single(replayEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal));
-        Assert.Equal(acceptedTriggerEvent.Payload["battlefieldObjectId"], replayTriggerEvent.Payload["battlefieldObjectId"]);
+        Assert.DoesNotContain(replayEvents, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED");
+        var replayPaid = Assert.Single(replayEvents, e => e.Kind == "COST_PAID");
+        Assert.Equal(paid.Payload["paymentId"], replayPaid.Payload["paymentId"]);
+        Assert.Equal(paid.Payload["power"], replayPaid.Payload["power"]);
         var replayHideEvent = Assert.Single(replayEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
         Assert.Equal(acceptedHideEvent.Payload["destinationZone"], replayHideEvent.Payload["destinationZone"]);
@@ -15351,7 +15348,7 @@ public sealed class GameHubJoinTests
             candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
         Assert.True(revealCandidate.Enabled);
         Assert.Contains(revealCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-FACEDOWN-OGN-TEEMO-PURPLE", StringComparison.Ordinal));
-        Assert.Contains(revealCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "STACK", StringComparison.Ordinal));
+        Assert.Contains(revealCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-STANDBY-BATTLEFIELD", StringComparison.Ordinal));
         Assert.Contains(revealCandidate.OptionalCosts ?? [], choice => string.Equals(choice.Id, "STANDBY_REVEAL_0", StringComparison.Ordinal));
         Assert.False(string.IsNullOrWhiteSpace(p1Prompt.PromptId));
         Assert.True(p1Prompt.SnapshotTick.HasValue);
@@ -15364,7 +15361,7 @@ public sealed class GameHubJoinTests
             targetObjectIds = Array.Empty<string>(),
             mode = "STANDBY_REACTION",
             optionalCosts = new[] { "STANDBY_REVEAL_0" },
-            destination = "STACK",
+            destination = "BATTLEFIELD:P1-STANDBY-BATTLEFIELD",
             promptId = p1Prompt.PromptId,
             snapshotTick = p1Prompt.SnapshotTick
         });
@@ -15387,7 +15384,7 @@ public sealed class GameHubJoinTests
         var acceptedPlayEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
         Assert.Equal("P1-FACEDOWN-OGN-TEEMO-PURPLE", acceptedPlayEvent.Payload["sourceObjectId"]);
         Assert.Equal("OGN·197/298", acceptedPlayEvent.Payload["cardNo"]);
-        var acceptedStackEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        var acceptedStackEvent = Assert.Single(acceptedEvents, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
         Assert.Equal("P1-FACEDOWN-OGN-TEEMO-PURPLE", acceptedStackEvent.Payload["sourceObjectId"]);
         Assert.Equal("OGN·197/298", acceptedStackEvent.Payload["cardNo"]);
         var acceptedSnapshot = SnapshotFor(acceptedClients, "P1");
@@ -15432,7 +15429,7 @@ public sealed class GameHubJoinTests
                 .EnumerateArray()
                 .Select(choice => Assert.IsType<string>(choice.GetString()))
                 .ToArray());
-        Assert.Equal("STACK", rawCommand.GetProperty("destination").GetString());
+        Assert.Equal("BATTLEFIELD:P1-STANDBY-BATTLEFIELD", rawCommand.GetProperty("destination").GetString());
         Assert.Equal(p1Prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
         Assert.Equal(p1Prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
@@ -15458,7 +15455,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(acceptedRevealEvent.Payload["playerId"], replayRevealEvent.Payload["playerId"]);
         Assert.Equal(acceptedRevealEvent.Payload["sourceObjectId"], replayRevealEvent.Payload["sourceObjectId"]);
         Assert.Equal(acceptedRevealEvent.Payload["cardNo"], replayRevealEvent.Payload["cardNo"]);
-        var replayStackEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        var replayStackEvent = Assert.Single(replayEvents, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
         Assert.Equal(acceptedStackEvent.Payload["sourceObjectId"], replayStackEvent.Payload["sourceObjectId"]);
         Assert.Equal(acceptedStackEvent.Payload["cardNo"], replayStackEvent.Payload["cardNo"]);
         Assert.Equal(acceptedClients.GroupClient.Snapshots.Count, replayClients.GroupClient.Snapshots.Count);
@@ -15512,7 +15509,7 @@ public sealed class GameHubJoinTests
             targetObjectIds = Array.Empty<string>(),
             mode = "STANDBY_REACTION",
             optionalCosts = new[] { "STANDBY_REVEAL_0" },
-            destination = "STACK",
+            destination = "BATTLEFIELD:P1-STANDBY-BATTLEFIELD",
             promptId = p1Prompt.PromptId,
             snapshotTick = p1Prompt.SnapshotTick,
             clientNote = "changed"
@@ -15592,7 +15589,9 @@ public sealed class GameHubJoinTests
         var revealEvents = EventsFor(revealClients);
         Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_REVEALED", StringComparison.Ordinal));
         Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
-        Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "PERMANENT_CONFIRMED", StringComparison.Ordinal));
+        Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
@@ -15607,13 +15606,13 @@ public sealed class GameHubJoinTests
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
-        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.DoesNotContain(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
         Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
         var snapshot = SnapshotFor(passP2Clients, "P1");
         Assert.Single(snapshot.Stack);
         var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
-        Assert.Contains("P1-FACEDOWN-OGN-TEEMO-PURPLE", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+        Assert.Contains("P1-FACEDOWN-OGN-TEEMO-PURPLE", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
     }
 
     [Fact]

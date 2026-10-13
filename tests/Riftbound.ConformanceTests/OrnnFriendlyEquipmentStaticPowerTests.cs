@@ -1478,6 +1478,7 @@ public sealed class OrnnFriendlyEquipmentStaticPowerTests
         return new CardObjectState(
             objectId,
             cardNo: cardNo,
+            isFaceDown: isStandby,
             power: power,
             tags: isStandby
                 ? [CardObjectTags.UnitCard, CardObjectTags.Standby]

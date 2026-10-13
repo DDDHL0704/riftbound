@@ -6,12 +6,9 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class StandbyReactionSfdTeemoTests
 {
-    private const string BattlefieldObjectId = "P1-SFD-TEEMO-BATTLEFIELD";
-    private const string EnemyTargetObjectId = "P2-SFD-TEEMO-SAME-BATTLEFIELD-ENEMY";
-    private const string OtherBattlefieldObjectId = "P1-SFD-TEEMO-OTHER-BATTLEFIELD";
-    private const string OtherEnemyObjectId = "P2-SFD-TEEMO-OTHER-BATTLEFIELD-ENEMY";
-    private const string PendingSpellObjectId = "P2-SFD-TEEMO-PENDING-SPELL";
-    private const string TeemoObjectId = "P1-FACEDOWN-BATTLEFIELD-SFD-230-TEEMO";
+    private const string BattlefieldObjectId = "F";
+    internal const string EnemyTargetObjectId = "P2-SFD-TEEMO-ENEMY";
+    private const string TeemoObjectId = "SHADOW";
 
     public static TheoryData<string, string> SfdTeemoCards()
     {
@@ -24,228 +21,175 @@ public sealed class StandbyReactionSfdTeemoTests
 
     [Theory]
     [MemberData(nameof(SfdTeemoCards))]
-    public void PromptMetadataExposesSfdTeemoStandbyReactionTargets(string cardNo, string _)
+    public async Task PromptMetadataExposesSfdTeemoStandbyReactionTargets(string cardNo, string _)
     {
-        var prompt = ResolutionResult.BuildPrompts(BuildClosedPriorityState(cardNo))["P1"];
-
-        Assert.Contains(CommandTypes.RevealCard, prompt.Actions);
-        var candidate = Assert.Single(
-            prompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, CommandTypes.RevealCard, StringComparison.Ordinal));
+        var initial = await BuildClosedPriorityState(cardNo);
+        var prompt = ResolutionResult.BuildPrompts(initial)["P1"];
+        Assert.Contains(CommandTypes.RevealCard, prompt.EnabledActions());
+        var candidate = Assert.Single(prompt.Candidates!, c => c.Action == CommandTypes.RevealCard);
         Assert.True(candidate.Enabled);
-        Assert.Equal([TeemoObjectId], (candidate.Sources ?? []).Select(source => source.Id).ToArray());
-        Assert.Equal([EnemyTargetObjectId], (candidate.Targets ?? []).Select(target => target.Id).ToArray());
-
-        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
-        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]));
-        Assert.Equal(TeemoObjectId, Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
-        Assert.Equal(cardNo, Assert.IsType<string>(sourceRequirement["cardNo"]));
-        Assert.Equal("STANDBY_REACTION", Assert.IsType<string>(sourceRequirement["mode"]));
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
-        Assert.Equal(CardTargetScopes.EnemyUnitAtSourceBattlefield, Assert.IsType<string>(sourceRequirement["targetScope"]));
-        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        Assert.Equal([EnemyTargetObjectId], targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+        Assert.Equal([TeemoObjectId], candidate.Sources!.Select(s => s.Id));
+        Assert.Empty(candidate.Targets ?? []);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
+        var requirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal(TeemoObjectId, requirement["sourceObjectId"]);
+        Assert.Equal(cardNo, requirement["cardNo"]);
+        Assert.Equal("STANDBY_REACTION", requirement["mode"]);
+        Assert.Equal(0, requirement["minTargetCount"]);
+        Assert.Equal(0, requirement["maxTargetCount"]);
+        Assert.Equal(CardTargetScopes.EnemyUnitAtSourceBattlefield, requirement["targetScope"]);
+        var choices = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(requirement["targetChoicesByIndex"]);
+        Assert.Empty(choices);
+        var played = await OfficialInsightAndSpellLockTests.Act(initial, "P1", new RevealCardCommand(
+            TeemoObjectId, cardNo, [], "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
+        var pending = Assert.IsType<PendingCardChoiceState>(played.State.PendingCardChoice);
+        Assert.Equal([EnemyTargetObjectId], pending.LegalObjectIds);
+        Assert.Equal("TRIGGER_CONFIRMATION", pending.ChoiceWindow);
+        Assert.Equal(1, pending.RequiredCount);
+        Assert.Equal(1, pending.MaxCount);
+        Assert.Equal(BattlefieldObjectId, played.State.ObjectLocations[TeemoObjectId].BattlefieldObjectId);
+        var declined = await new CoreRuleEngine().ResolveAsync(played.State,
+            new PlayerIntent("teemo-mandatory-target-decline", "P1", CommandTypes.ChooseCards),
+            new ChooseCardsCommand(pending.ChoiceId, pending.ChoiceWindow, []), default);
+        Assert.False(declined.Accepted);
+        Assert.Empty(declined.Events);
+        Assert.Equal(MatchStateHasher.Hash(played.State), MatchStateHasher.Hash(declined.State));
+        OfficialGraveyardRecastTests.Restore(played.State);
     }
 
     [Theory]
     [MemberData(nameof(SfdTeemoCards))]
     public async Task BattlefieldStandbyReactionSfdTeemoDamagesAndRecyclesWithSharedResolver(string cardNo, string effectKind)
     {
-        var engine = new CoreRuleEngine();
-        var result = await engine.ResolveAsync(
-            BuildClosedPriorityState(cardNo),
-            new PlayerIntent("intent-sfd-teemo-standby-reaction", "P1", CommandTypes.RevealCard),
-            new RevealCardCommand(
-                TeemoObjectId,
-                cardNo,
-                [EnemyTargetObjectId],
-                Mode: "STANDBY_REACTION",
-                OptionalCosts: ["STANDBY_REVEAL_0"],
-                Destination: "STACK"),
-            CancellationToken.None);
-
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Null(result.ErrorCode);
-        Assert.Equal(["STACK-0-P2-PENDING-SPELL", "STACK-46-P1-FACEDOWN-BATTLEFIELD-SFD-230-TEEMO"], result.State.StackItems.Select(item => item.StackItemId));
-        var standbyStackItem = result.State.StackItems[1];
-        Assert.Equal(effectKind, standbyStackItem.EffectKind);
-        Assert.Equal([EnemyTargetObjectId], standbyStackItem.TargetObjectIds);
-        Assert.Equal($"BATTLEFIELD:{BattlefieldObjectId}", standbyStackItem.Destination);
-        Assert.Equal(TimingStates.NeutralClosed, standbyStackItem.TimingContext);
-        Assert.Equal("STACK", result.State.ObjectLocations[TeemoObjectId].Zone);
-
-        var p1Pass = await engine.ResolveAsync(
-            result.State,
-            new PlayerIntent("intent-sfd-teemo-standby-reaction-p1-pass", "P1", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
-
-        var p2Pass = await engine.ResolveAsync(
-            p1Pass.State,
-            new PlayerIntent("intent-sfd-teemo-standby-reaction-p2-pass", "P2", CommandTypes.PassPriority),
-            new PassPriorityCommand(),
-            CancellationToken.None);
-
-        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Equal(["STACK-0-P2-PENDING-SPELL"], p2Pass.State.StackItems.Select(item => item.StackItemId));
-        Assert.Contains(TeemoObjectId, p2Pass.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", BattlefieldObjectId), p2Pass.State.ObjectLocations[TeemoObjectId]);
-        Assert.False(p2Pass.State.CardObjects[TeemoObjectId].IsFaceDown);
-        Assert.Equal(2, p2Pass.State.CardObjects[EnemyTargetObjectId].Damage);
-        Assert.Equal("P1-MAIN-BOTTOM", p2Pass.State.PlayerZones["P1"].MainDeck[0]);
-        Assert.Equal(
-            TopFiveMainDeckCards().OrderBy(cardId => cardId, StringComparer.Ordinal).ToArray(),
-            p2Pass.State.PlayerZones["P1"].MainDeck.Skip(1).OrderBy(cardId => cardId, StringComparer.Ordinal).ToArray());
-        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "MAIN_DECK_CARDS_REVEALED", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["sourceObjectId"], TeemoObjectId)
-            && Equals(gameEvent.Payload["count"], 5));
-        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["sourceObjectId"], TeemoObjectId)
-            && Equals(gameEvent.Payload["targetObjectId"], EnemyTargetObjectId)
-            && Equals(gameEvent.Payload["damage"], 2));
-        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["sourceObjectId"], TeemoObjectId)
-            && Equals(gameEvent.Payload["count"], 5));
+        var initial = await BuildClosedPriorityState(cardNo);
+        var bottom = Assert.Single(initial.StackItems);
+        var played = await OfficialInsightAndSpellLockTests.Act(initial, "P1", new RevealCardCommand(
+            TeemoObjectId, cardNo, [EnemyTargetObjectId], "STANDBY_REACTION", ["STANDBY_REVEAL_0"], "STACK"));
+        Assert.Equal(2, played.State.StackItems.Count);
+        Assert.Equal(bottom, played.State.StackItems[0]);
+        var ability = Assert.Single(played.State.StackItems, s => s.SourceObjectId == TeemoObjectId);
+        Assert.True(ability.SourceConfirmed);
+        Assert.Equal(effectKind, ability.EffectKind);
+        Assert.Equal([EnemyTargetObjectId], ability.TargetObjectIds);
+        Assert.Equal("BATTLEFIELD:" + BattlefieldObjectId, ability.Destination);
+        Assert.Equal(BattlefieldObjectId, ability.PlayedFromStandby!.Battlefield.ObjectId);
+        Assert.Equal(BattlefieldObjectId, played.State.ObjectLocations[TeemoObjectId].BattlefieldObjectId);
+        Assert.Equal(0, played.State.CardObjects[EnemyTargetObjectId].Damage);
+        OfficialGraveyardRecastTests.Restore(played.State);
+        var done = await OfficialGraveyardRecastTests.Top(played.State);
+        Assert.Equal(bottom.StackItemId, Assert.Single(done.State.StackItems).StackItemId);
+        Assert.Contains(TeemoObjectId, done.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(new ObjectLocationState("P1", "BATTLEFIELD", BattlefieldObjectId), done.State.ObjectLocations[TeemoObjectId]);
+        Assert.False(done.State.CardObjects[TeemoObjectId].IsFaceDown);
+        Assert.Equal(2, done.State.CardObjects[EnemyTargetObjectId].Damage);
+        Assert.Equal("P1-MAIN-BOTTOM", done.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.Equal(TopFiveMainDeckCards().Order(), done.State.PlayerZones["P1"].MainDeck.Skip(1).Order());
+        Assert.Contains(done.Events, e => e.Kind == "MAIN_DECK_CARDS_REVEALED" && Equals(e.Payload["sourceObjectId"], TeemoObjectId) && Equals(e.Payload["count"], 5));
+        Assert.Contains(done.Events, e => e.Kind == "DAMAGE_APPLIED" && Equals(e.Payload["sourceObjectId"], TeemoObjectId) && Equals(e.Payload["targetObjectId"], EnemyTargetObjectId) && Equals(e.Payload["damage"], 2));
+        Assert.Contains(done.Events, e => e.Kind == "CARDS_RECYCLED" && Equals(e.Payload["sourceObjectId"], TeemoObjectId) && Equals(e.Payload["count"], 5));
+        OfficialGraveyardRecastTests.Restore(done.State);
+        ArmamentMightTests.PublicRecovery(done.State);
     }
 
-    private static MatchState BuildClosedPriorityState(string cardNo)
+    internal static async Task<MatchState> BuildClosedPriorityState(string cardNo, bool twoContests = false, string enemyCard = "UNL-057/219")
     {
-        var topFive = TopFiveMainDeckCards();
-        return new MatchState(
-            "standby-reaction-sfd-teemo-room",
-            45,
-            6,
-            "P1",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["P1"] = "P1",
-                ["P2"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["P1", "P2"],
-            turnPlayerId: "P1",
-            phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralClosed,
-            priorityPlayerId: "P1",
-            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
-            {
-                ["P1"] = RunePool.Empty,
-                ["P2"] = RunePool.Empty
-            },
-            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Battlefields = [BattlefieldObjectId, TeemoObjectId, OtherBattlefieldObjectId],
-                    MainDeck = [.. topFive, "P1-MAIN-BOTTOM"]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = [EnemyTargetObjectId, OtherEnemyObjectId]
-                }
-            },
-            cardObjects: BuildCardObjects(cardNo),
-            stackItems:
-            [
-                new StackItemState(
-                    "STACK-0-P2-PENDING-SPELL",
-                    "P2",
-                    PendingSpellObjectId,
-                    "PENDING_TEST_SPELL",
-                    "TEST-000",
-                    [])
-            ],
-            objectLocations: BuildObjectLocations());
-    }
-
-    private static Dictionary<string, CardObjectState> BuildCardObjects(string cardNo)
-    {
-        return new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        var state = StandbySourceRulesTests.Position(cardNo);
+        if (twoContests)
         {
-            [BattlefieldObjectId] = Battlefield(BattlefieldObjectId),
-            [OtherBattlefieldObjectId] = Battlefield(OtherBattlefieldObjectId),
-            [TeemoObjectId] = new(
-                TeemoObjectId,
-                isFaceDown: true,
-                cardNo: cardNo,
-                power: 2,
-                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
-                ownerId: "P1",
-                controllerId: "P1"),
-            [EnemyTargetObjectId] = Unit(EnemyTargetObjectId, "P2", "UNL-057/219", 7),
-            [OtherEnemyObjectId] = Unit(OtherEnemyObjectId, "P2", "UNL-092/219", 3),
-            [PendingSpellObjectId] = new(
-                PendingSpellObjectId,
-                cardNo: "OGN·007/298",
-                tags: [CardObjectTags.SpellCard],
-                ownerId: "P2",
-                controllerId: "P2"),
-            ["P1-MAIN-STANDBY-001"] = Unit("P1-MAIN-STANDBY-001", "P1", "OGN·121/298", 2, [CardObjectTags.Standby]),
-            ["P1-MAIN-STANDBY-002"] = Unit("P1-MAIN-STANDBY-002", "P1", "OGN·199/298", 2, [CardObjectTags.Standby]),
-            ["P1-MAIN-NON-STANDBY-001"] = Unit("P1-MAIN-NON-STANDBY-001", "P1", "SFD·125/221", 3),
-            ["P1-MAIN-NON-STANDBY-002"] = new(
-                "P1-MAIN-NON-STANDBY-002",
-                cardNo: "OGN·009/298",
-                tags: [CardObjectTags.SpellCard],
-                ownerId: "P1",
-                controllerId: "P1"),
-            ["P1-MAIN-NON-STANDBY-003"] = Unit("P1-MAIN-NON-STANDBY-003", "P1", "SFD·125/221", 3),
-            ["P1-MAIN-BOTTOM"] = Unit("P1-MAIN-BOTTOM", "P1", "SFD·125/221", 3)
-        };
-    }
-
-    private static Dictionary<string, ObjectLocationState> BuildObjectLocations()
-    {
-        return new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            Assert.True(CardBehaviorRegistry.TryGetByCardNo(P4ActivatedAbilityCatalog.ShadowCardNo, out var shadow));
+            state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
+            {
+                ["HOST"] = state.CardObjects["HOST"] with { CardNo = shadow.CardNo, Power = shadow.SourceUnitPower, ManaCost = shadow.ManaCost, Tags = [CardObjectTags.UnitCard] }
+            }};
+            state = AttackDamageDistributionTests.Spell(state, "STANDBY-SEQUENTIAL-MOVE", "UNL-202/219", "P2");
+            state = OfficialHoldSequenceTests.AddUnit(state, "STANDBY-NEXT-OPPONENT", "OGN·001/298", "F", "P1");
+            state = LocalDestructionRecallTests.At(state, "STANDBY-NEXT-OPPONENT", "P1", "BASE");
+            foreach (var (id, player, card, trait) in new[]
+            {
+                ("STANDBY-P1-RESOURCE-A", "P1", "UNL-R03", "blue"),
+                ("STANDBY-P1-RESOURCE-B", "P1", "UNL-R03", "blue"),
+                ("STANDBY-P2-ORANGE", "P2", "UNL-R05", "orange")
+            })
+            {
+                state = state with
+                {
+                    CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
+                    {
+                        [id] = new(id, cardNo: card, ownerId: player, controllerId: player, tags: [CardObjectTags.RuneCard, "COLOR:" + trait])
+                    },
+                    PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones)
+                    {
+                        [player] = state.PlayerZones[player] with { Base = state.PlayerZones[player].Base.Append(id).ToArray() }
+                    },
+                    ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [id] = new(player, "BASE") }
+                };
+            }
+        }
+        state = OfficialHoldSequenceTests.AddUnit(state, EnemyTargetObjectId, enemyCard, "F", "P2");
+        state = state with { CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
         {
-            [BattlefieldObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),
-            [OtherBattlefieldObjectId] = new("P1", "BATTLEFIELD", OtherBattlefieldObjectId),
-            [TeemoObjectId] = new("P1", "BATTLEFIELD", BattlefieldObjectId),
-            [EnemyTargetObjectId] = new("P2", "BATTLEFIELD", BattlefieldObjectId),
-            [OtherEnemyObjectId] = new("P2", "BATTLEFIELD", OtherBattlefieldObjectId),
-            [PendingSpellObjectId] = new("P2", "STACK")
+            [EnemyTargetObjectId] = state.CardObjects[EnemyTargetObjectId] with { Power = 7 }
+        }};
+        state = LocalDestructionRecallTests.At(state, EnemyTargetObjectId, "P2", "BASE");
+        state = AttackDamageDistributionTests.Spell(state, "SFD-TEEMO-REPLY-SECOND", "OGN·048/298", "P2");
+        const string extraRune = "SFD-TEEMO-P2-RUNE-EXTRA";
+        state = state with
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(state.CardObjects)
+            {
+                [extraRune] = new(extraRune, cardNo: "UNL-R03", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.RuneCard, "COLOR:blue"])
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones)
+            {
+                ["P2"] = state.PlayerZones["P2"] with { Base = state.PlayerZones["P2"].Base.Append(extraRune).ToArray() }
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { [extraRune] = new("P2", "BASE") }
         };
+        state = StandbyTestDriver.WithControlledBattlefield(state, "P2");
+        state = OfficialHoldSequenceTests.AddUnit(state, "P2-SFD-TEEMO-OTHER-ENEMY", "UNL-092/219", StandbyTestDriver.BattlefieldId, "P2");
+        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+        var locations = state.ObjectLocations.ToDictionary(p => p.Key, p => p.Value);
+        foreach (var id in state.PlayerZones["P1"].MainDeck) { cards.Remove(id); locations.Remove(id); }
+        var deck = TopFiveMainDeckCards().Append("P1-MAIN-BOTTOM").ToArray();
+        var cardNos = new[] { "OGN·121/298", "SFD·125/221", "OGN·199/298", "OGN·009/298", "SFD·125/221", "SFD·125/221" };
+        for (var i = 0; i < deck.Length; i++)
+        {
+            // Deliberately omit keyword tags: counting must read the actual printed keyword (811.5).
+            cards[deck[i]] = new(deck[i], cardNo: cardNos[i], ownerId: "P1", controllerId: "P1");
+            locations[deck[i]] = new("P1", "MAIN_DECK");
+        }
+        state = state with { CardObjects = cards, ObjectLocations = locations,
+            PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones)
+            {
+                ["P1"] = state.PlayerZones["P1"] with { MainDeck = deck }
+            }};
+        state = await StandbySourceRulesTests.ReadyShadow(cardNo, state);
+        state = (await OfficialInsightAndSpellLockTests.Act(state, "P1", new PassPriorityCommand())).State;
+        Assert.Empty(state.StackItems);
+        state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new TapRuneCommand(extraRune))).State;
+        if (twoContests)
+        {
+            state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new RecycleRuneCommand("STANDBY-P2-ORANGE"))).State;
+            var move = new PlayCardCommand("STANDBY-SEQUENTIAL-MOVE", "UNL-202/219", [EnemyTargetObjectId, "STANDBY-NEXT-OPPONENT"],
+                MovementDestinations: ["BATTLEFIELD:F", "BATTLEFIELD:" + StandbyTestDriver.BattlefieldId]);
+            state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", move)).State;
+            state = (await OfficialGraveyardRecastTests.Top(state)).State;
+            Assert.Equal("P2", state.FocusPlayerId);
+            Assert.Equal("F", state.SpellDuelState.BattlefieldObjectId);
+            state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new PassFocusCommand())).State;
+            Assert.Equal("P1", state.FocusPlayerId);
+            OfficialGraveyardRecastTests.Restore(state);
+            return state;
+        }
+        state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new MoveUnitCommand(EnemyTargetObjectId, "BASE", "BATTLEFIELD:F", []))).State;
+        Assert.Equal("P2", state.FocusPlayerId);
+        state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new PlayCardCommand("SFD-TEEMO-REPLY-SECOND", "OGN·048/298", []))).State;
+        state = (await OfficialInsightAndSpellLockTests.Act(state, "P2", new PassPriorityCommand())).State;
+        Assert.Equal("P1", state.PriorityPlayerId);
+        OfficialGraveyardRecastTests.Restore(state);
+        return state;
     }
 
-    private static string[] TopFiveMainDeckCards()
-    {
-        return
-        [
-            "P1-MAIN-STANDBY-001",
-            "P1-MAIN-NON-STANDBY-001",
-            "P1-MAIN-STANDBY-002",
-            "P1-MAIN-NON-STANDBY-002",
-            "P1-MAIN-NON-STANDBY-003"
-        ];
-    }
-
-    private static CardObjectState Battlefield(string objectId)
-    {
-        return new CardObjectState(
-            objectId,
-            cardNo: "OGN·278/298",
-            tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-            ownerId: "P1",
-            controllerId: "P1");
-    }
-
-    private static CardObjectState Unit(
-        string objectId,
-        string playerId,
-        string cardNo,
-        int power,
-        IReadOnlyList<string>? extraTags = null)
-    {
-        return new CardObjectState(
-            objectId,
-            cardNo: cardNo,
-            power: power,
-            tags: [.. new[] { CardObjectTags.UnitCard }.Concat(extraTags ?? [])],
-            ownerId: playerId,
-            controllerId: playerId);
-    }
+    private static string[] TopFiveMainDeckCards() =>
+        ["P1-MAIN-STANDBY-001", "P1-MAIN-NON-STANDBY-001", "P1-MAIN-STANDBY-002", "P1-MAIN-NON-STANDBY-002", "P1-MAIN-NON-STANDBY-003"];
 }

@@ -108,6 +108,7 @@ public sealed partial class CoreRuleEngine
             {
                 var execution = executions[i];
                 if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var definition)) continue;
+                definition = definition with { StandbyPlayFrom = spell.PlayedFromStandby };
                 foreach (var mode in CardBehaviorRegistry.GetAll().Where(d => d.CardNo == spell.CardNo && d.EffectKind != execution.EffectKind))
                     Add(execution with { EffectKind = mode.EffectKind }, $"第 {i + 1} 次：模式 {mode.Mode}（{mode.DisplayName}）");
                 var candidates = state.CardObjects.Keys.Concat(state.StackItems.Where(s => s.StackItemId != spell.StackItemId

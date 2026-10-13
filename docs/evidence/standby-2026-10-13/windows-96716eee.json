@@ -1,0 +1,16 @@
+{
+  "commit": "96716eee5010991ec254d9fc11feb2bda3cbbcc3",
+  "runId": 38352690700,
+  "jobId": 115148508935,
+  "status": "success",
+  "logs": {
+    "exported-boot.log": "a8fa2c6a7f26d388c3b43b2fbee95a1288f649637b170a15e0716c88d4608fa1",
+    "export.log": "14421493279a323f0330d08f63e277eaef13ecfad0da52d6f13faea793d56ccd",
+    "import.log": "e13e9a3b125d68eb04d48f04e646d9465e3e3595de57f6f02a0c7b7b498b6b86",
+    "build.log": "43ddd69c4e7229411ebb6c0ac059d75a1865fc0e841e6cb62c4de7f873a87b62"
+  },
+  "packagedClientBooted": true,
+  "packagedCatalogCards": 1024,
+  "verifiedAtUtc": "2026-10-13T06:53:17.765801+00:00",
+  "scope": "Hosted Windows actual package headless boot; local API absent; user visible Windows match not verified"
+}

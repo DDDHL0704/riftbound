@@ -36,12 +36,12 @@ internal static class AttachedRuleTextRules
     private static IEnumerable<RuleTextInstance> Copies(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState unit)
     {
-        if (unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby)
+        if (unit.IsFaceDown
             || !unit.Tags.Contains(CardObjectTags.UnitCard) || !Field(zones, unit.ObjectId)) yield break;
         foreach (var gear in cards.Values.Where(c => c.AttachedToObjectId == unit.ObjectId)
             .OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
-            if (!Bound(zones, cards, gear) || gear.IsFaceDown || gear.Tags.Contains(CardObjectTags.Standby)) continue;
+            if (!Bound(zones, cards, gear) || gear.IsFaceDown) continue;
             var copy = gear.AttachedRuleText!;
             var origin = new RuleTextInstanceBinding(copy.CardNo, copy.Unit, new(gear.ObjectId, gear.ObjectGeneration), copy.Revision, copy.CapturedTick, copy.FaceRevision);
             yield return new($"ATTACHED:{gear.ObjectId}:{gear.ObjectGeneration}:{copy.Revision}", copy.CardNo, origin);

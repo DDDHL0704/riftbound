@@ -52,7 +52,7 @@ public sealed partial class CoreRuleEngine
     {
         if (state.PendingEffectPlay is not { } pending)
             return state.PlayerZones.TryGetValue(playerId, out var handZones)
-                ? handZones.Hand.Concat(handZones.ChampionZone).Distinct(StringComparer.Ordinal).ToArray() : [];
+                ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
         var sourceZone = pending.SourceZone switch { "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, "MAIN_DECK" => zones.MainDeck, _ => [] };
@@ -95,6 +95,13 @@ public sealed partial class CoreRuleEngine
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
+        // 811.1.d.3 also constrains a unit played by the original shadow controller through an effect.
+        if (pending.Parent.PlayedFromStandby is { } origin && playerId == pending.Parent.ControllerId)
+            return state.CardObjects.TryGetValue(origin.Battlefield.ObjectId, out var field)
+                && field.ObjectGeneration == origin.Battlefield.Generation
+                && field.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag)
+                && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, "BATTLEFIELD:" + field.ObjectId)
+                    ? ["BATTLEFIELD:" + field.ObjectId] : [];
         if (pending.RevealedHand is { } hand)
             return !hand.Choosing && IsForcedEffectPlayDestination(state, playerId, "BATTLEFIELD:" + hand.BattlefieldId)
                 && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, "BATTLEFIELD:" + hand.BattlefieldId)

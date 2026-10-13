@@ -45,8 +45,7 @@ internal static class EmpowerRules
         => Math.Max(0, cost.Mana - (spec.RuneLimit is { } limit && runes <= limit ? spec.ManaReductionAtMostRunes : 0)
             - (spec.ReduceManaPerRune ? runes : 0));
     internal static bool CanActivate(MatchState state, string actor, CardObjectState source)
-        => CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, actor) && !source.IsEmpowered && !source.IsFaceDown
-            && !source.Tags.Contains(CardObjectTags.Standby) && source.ControllerId == actor
+        => CoreRuleEngine.CanActivateOrdinaryPowerAbility(state, actor) && !source.IsEmpowered && !source.IsFaceDown && source.ControllerId == actor
             && source.Tags.Contains(CardObjectTags.UnitCard)
             && state.PlayerZones.TryGetValue(actor, out var z) && (z.Base.Contains(source.ObjectId) || z.Battlefields.Contains(source.ObjectId));
     internal static bool Valid(MatchState state, StackItemState item)

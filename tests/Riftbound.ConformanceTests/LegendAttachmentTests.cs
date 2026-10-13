@@ -236,6 +236,16 @@ public sealed class LegendAttachmentTests
             ["HOST"] = s.CardObjects["HOST"] with { IsFaceDown = faceDown, Tags = [CardObjectTags.UnitCard, CardObjectTags.Standby] }
         }};
         var prompt = ResolutionResult.BuildPrompts(s)["P1"];
+        if (!faceDown)
+        {
+            Assert.Contains(prompt.Candidates ?? [], c => c.Action == CommandTypes.LegendAct && c.Enabled);
+            var activated = await Act(s, "P1", Command());
+            Assert.True(activated.State.CardObjects["LEGEND"].IsExhausted);
+            Assert.Equal(19, activated.State.RunePools["P1"].Mana);
+            var done = await Top(activated.State);
+            Assert.Equal("HOST", done.State.CardObjects["GEAR"].AttachedToObjectId);
+            return;
+        }
         Assert.DoesNotContain(prompt.Candidates ?? [], c => c.Action == CommandTypes.LegendAct && c.Enabled);
         var rejected = await new CoreRuleEngine().ResolveAsync(s, new("hidden-host", "P1", CommandTypes.LegendAct), Command(), default);
         Assert.False(rejected.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);

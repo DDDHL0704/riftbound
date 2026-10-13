@@ -5572,7 +5572,7 @@ public sealed class ConformanceFixtureShapeTests
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(1, 0),
+                ["P1"] = new(1, 1),
                 ["P2"] = RunePool.Empty
             },
             PlayerZones = new Dictionary<string, PlayerZones>(noManaState.PlayerZones, StringComparer.Ordinal)
@@ -5602,7 +5602,7 @@ public sealed class ConformanceFixtureShapeTests
             ["STANDBY_A", "STANDBY_TEEMO_MANA"],
             (payableHideCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
         Assert.Equal(
-            ["STANDBY", "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
+            ["BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
             (payableHideCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
 
         var payableMetadata = Assert.IsType<Dictionary<string, object?>>(payableHideCandidate.Metadata);
@@ -5610,7 +5610,7 @@ public sealed class ConformanceFixtureShapeTests
             payableMetadata["sourceRequirements"]));
         Assert.Equal("P1-STANDBY-TEEMO", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
         Assert.Equal("OGN·121/298", Assert.IsType<string>(sourceRequirement["cardNo"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["manaCost"]));
         Assert.True(Assert.IsType<bool>(sourceRequirement["composable"]));
         Assert.Equal(
             ["STANDBY_A", "STANDBY_TEEMO_MANA"],
@@ -5618,7 +5618,7 @@ public sealed class ConformanceFixtureShapeTests
                 .Select(cost => cost.Id)
                 .ToArray());
         Assert.Equal(
-            ["STANDBY", "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
+            ["BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
             Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(sourceRequirement["destinationChoices"])
                 .Select(destination => destination.Id)
                 .ToArray());
@@ -5637,16 +5637,11 @@ public sealed class ConformanceFixtureShapeTests
         var dirtyHideCandidate = Assert.Single(
             dirtyPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "HIDE_CARD", StringComparison.Ordinal));
-        Assert.True(dirtyHideCandidate.Enabled);
-        Assert.Equal(["STANDBY"], (dirtyHideCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        Assert.False(dirtyHideCandidate.Enabled);
+        Assert.Empty(dirtyHideCandidate.Sources ?? []);
+        Assert.Empty(dirtyHideCandidate.Destinations ?? []);
         var dirtyMetadata = Assert.IsType<Dictionary<string, object?>>(dirtyHideCandidate.Metadata);
-        var dirtyRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            dirtyMetadata["sourceRequirements"]));
-        Assert.Equal(
-            ["STANDBY"],
-            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(dirtyRequirement["destinationChoices"])
-                .Select(destination => destination.Id)
-                .ToArray());
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(dirtyMetadata["sourceRequirements"]));
 
         var freeState = noManaState with
         {
@@ -5661,483 +5656,24 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public void ActionPromptFiltersRevealCardSourcesByWindowAndFaceDownStandby()
+    public async Task ActionPromptFiltersRevealCardSourcesByWindowAndFaceDownStandby()
     {
-        var openState = new MatchState(
-            "prompt-reveal-card-source-room",
-            18,
-            4,
-            "P1",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["P1"] = "P1",
-                ["P2"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["P1", "P2"],
-            turnPlayerId: "P1",
-            phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralOpen,
-            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
-            {
-                ["P1"] = RunePool.Empty,
-                ["P2"] = RunePool.Empty
-            },
-            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Base = [
-                        "P1-FACE-DOWN-STANDBY",
-                        "P1-FACE-DOWN-UNKNOWN-STANDBY",
-                        "P1-FACE-DOWN-OPPONENT-CONTROLLED",
-                        "P1-FACE-UP-STANDBY",
-                        "P1-FACE-DOWN-NON-STANDBY"
-                    ],
-                    Battlefields = [
-                        "P1-BATTLEFIELD-BANDLE-TREE",
-                        "P1-FACE-DOWN-BATTLEFIELD-STANDBY"
-                    ]
-                },
-                ["P2"] = PlayerZones.Empty
-            },
-            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-FACE-DOWN-STANDBY"] = new(
-                    "P1-FACE-DOWN-STANDBY",
-                    isFaceDown: true,
-                    power: 1,
-                    cardNo: "OGN·197/298",
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-FACE-DOWN-UNKNOWN-STANDBY"] = new(
-                    "P1-FACE-DOWN-UNKNOWN-STANDBY",
-                    isFaceDown: true,
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-FACE-DOWN-OPPONENT-CONTROLLED"] = new(
-                    "P1-FACE-DOWN-OPPONENT-CONTROLLED",
-                    isFaceDown: true,
-                    power: 1,
-                    cardNo: "OGN·197/298",
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P1-FACE-UP-STANDBY"] = new(
-                    "P1-FACE-UP-STANDBY",
-                    isFaceDown: false,
-                    power: 1,
-                    cardNo: "OGN·197/298",
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-FACE-DOWN-NON-STANDBY"] = new(
-                    "P1-FACE-DOWN-NON-STANDBY",
-                    isFaceDown: true,
-                    power: 1,
-                    cardNo: "SFD·125/221",
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
-                    "P1-BATTLEFIELD-BANDLE-TREE",
-                    cardNo: "OGN·278/298",
-                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-FACE-DOWN-BATTLEFIELD-STANDBY"] = new(
-                    "P1-FACE-DOWN-BATTLEFIELD-STANDBY",
-                    isFaceDown: true,
-                    power: 1,
-                    cardNo: "OGN·197/298",
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
-                    ownerId: "P1",
-                    controllerId: "P1")
-            },
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-            {
-                ["P1-BATTLEFIELD-BANDLE-TREE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-BANDLE-TREE"),
-                ["P1-FACE-DOWN-BATTLEFIELD-STANDBY"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-BANDLE-TREE")
-            });
-
-        var openPrompt = ResolutionResult.BuildPrompts(openState)["P1"];
-        var openRevealCandidate = Assert.Single(
-            openPrompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
-        Assert.True(openRevealCandidate.Enabled);
-        Assert.Equal("翻开待命", openRevealCandidate.Label);
-        Assert.Equal(
-            ["P1-FACE-DOWN-STANDBY", "P1-FACE-DOWN-BATTLEFIELD-STANDBY"],
-            (openRevealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
-        Assert.Equal(["STANDBY_REVEAL"], (openRevealCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
-        Assert.Equal(
-            ["BASE", "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
-            (openRevealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
-        Assert.Equal(["STANDBY_REVEAL_0"], (openRevealCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
-
-        var openMetadata = Assert.IsType<Dictionary<string, object?>>(openRevealCandidate.Metadata);
-        var openRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            openMetadata["sourceRequirements"]).ToArray();
-        Assert.Equal(2, openRequirements.Length);
-        var openRequirement = Assert.Single(
-            openRequirements,
-            requirement => string.Equals(
-                requirement["sourceObjectId"] as string,
-                "P1-FACE-DOWN-STANDBY",
-                StringComparison.Ordinal));
-        Assert.Equal("P1-FACE-DOWN-STANDBY", Assert.IsType<string>(openRequirement["sourceObjectId"]));
-        Assert.Equal("OGN·197/298", Assert.IsType<string>(openRequirement["cardNo"]));
-        Assert.Equal("STANDBY_REVEAL", Assert.IsType<string>(openRequirement["mode"]));
-        Assert.Equal("翻开待命", Assert.IsType<string>(openRequirement["modeLabel"]));
-        Assert.True(Assert.IsType<bool>(openRequirement["composable"]));
-        Assert.Equal(
-            ["BASE"],
-            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(openRequirement["destinationChoices"])
-                .Select(destination => destination.Id)
-                .ToArray());
-        Assert.Equal(
-            ["STANDBY_REVEAL_0"],
-            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(openRequirement["optionalCostChoices"])
-                .Select(cost => cost.Id)
-                .ToArray());
-        Assert.Equal(
-            ["STANDBY_REVEAL_0"],
-            Assert.IsAssignableFrom<IEnumerable<string>>(openRequirement["requiredOptionalCosts"]).ToArray());
-        var battlefieldRequirement = Assert.Single(
-            openRequirements,
-            requirement => string.Equals(
-                requirement["sourceObjectId"] as string,
-                "P1-FACE-DOWN-BATTLEFIELD-STANDBY",
-                StringComparison.Ordinal));
-        Assert.Equal("OGN·197/298", Assert.IsType<string>(battlefieldRequirement["cardNo"]));
-        Assert.Equal("STANDBY_REVEAL", Assert.IsType<string>(battlefieldRequirement["mode"]));
-        Assert.Equal(
-            ["BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
-            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(battlefieldRequirement["destinationChoices"])
-                .Select(destination => destination.Id)
-                .ToArray());
-
-        var closedWithoutStackState = openState with
-        {
-            TimingState = TimingStates.NeutralClosed,
-            PriorityPlayerId = "P1"
-        };
-        var closedWithoutStackPrompt = ResolutionResult.BuildPrompts(closedWithoutStackState)["P1"];
-        var closedWithoutStackRevealCandidate = Assert.Single(
-            closedWithoutStackPrompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
-        Assert.False(closedWithoutStackRevealCandidate.Enabled);
-        Assert.Empty(closedWithoutStackRevealCandidate.Sources ?? []);
-
-        var reactionState = openState with
-        {
-            TimingState = TimingStates.NeutralClosed,
-            PriorityPlayerId = "P1",
-            StackItems = [
-                new StackItemState(
-                    "STACK-PENDING-001",
-                    "P2",
-                    "P2-SPELL-PENDING-001",
-                    "DRAW_1",
-                    "OGN·007/298")
-            ]
-        };
-        var reactionPrompt = ResolutionResult.BuildPrompts(reactionState)["P1"];
-        Assert.Contains("REVEAL_CARD", reactionPrompt.Actions);
-        var reactionRevealCandidate = Assert.Single(
-            reactionPrompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
-        Assert.True(reactionRevealCandidate.Enabled);
-        Assert.Equal(
-            ["P1-FACE-DOWN-STANDBY", "P1-FACE-DOWN-BATTLEFIELD-STANDBY"],
-            (reactionRevealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
-        Assert.Equal(["STANDBY_REACTION"], (reactionRevealCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
-        Assert.Equal(["STACK"], (reactionRevealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
-        var reactionMetadata = Assert.IsType<Dictionary<string, object?>>(reactionRevealCandidate.Metadata);
-        var reactionRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            reactionMetadata["sourceRequirements"]).ToArray();
-        Assert.Equal(
-            ["P1-FACE-DOWN-STANDBY", "P1-FACE-DOWN-BATTLEFIELD-STANDBY"],
-            reactionRequirements.Select(requirement => Assert.IsType<string>(requirement["sourceObjectId"])).ToArray());
-        Assert.All(
-            reactionRequirements,
-            requirement => Assert.Equal(
-                ["STACK"],
-                Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(requirement["destinationChoices"])
-                    .Select(destination => destination.Id)
-                    .ToArray()));
-
-        var opponentPrompt = ResolutionResult.BuildPrompts(reactionState)["P2"];
-        Assert.Equal(["WAIT", "SURRENDER"], opponentPrompt.Actions);
+        // Current protocol selects a play ability target after entry; no base-only source is synthesized.
+        await StandbyTestDriver.AssertRevealSourceFiltering();
     }
 
     [Fact]
-    public void ActionPromptRevealCardMetadataExposesBattlefieldStandbyReactionTargets()
+    public async Task ActionPromptRevealCardMetadataExposesBattlefieldStandbyReactionTargets()
     {
-        const string battlefieldObjectId = "P1-BATTLEFIELD-BANDLE-TREE";
-        const string sourceObjectId = "P1-FACE-DOWN-BATTLEFIELD-TEEMO";
-        var state = new MatchState(
-            "prompt-reveal-card-target-room",
-            19,
-            4,
-            "P1",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["P1"] = "P1",
-                ["P2"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["P1", "P2"],
-            turnPlayerId: "P1",
-            phase: MatchPhases.Main,
-            timingState: TimingStates.NeutralClosed,
-            priorityPlayerId: "P1",
-            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
-            {
-                ["P1"] = RunePool.Empty,
-                ["P2"] = RunePool.Empty
-            },
-            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Battlefields = [battlefieldObjectId, sourceObjectId]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Base = ["P2-BASE-UNIT"],
-                    Battlefields =
-                    [
-                        "P2-SAME-BATTLEFIELD-UNIT",
-                        "P2-BATTLEFIELD-OTHER",
-                        "P2-OTHER-BATTLEFIELD-UNIT"
-                    ]
-                }
-            },
-            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                [battlefieldObjectId] = new(
-                    battlefieldObjectId,
-                    cardNo: "OGN·278/298",
-                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                [sourceObjectId] = new(
-                    sourceObjectId,
-                    isFaceDown: true,
-                    cardNo: "OGN·121/298",
-                    power: 2,
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P2-SAME-BATTLEFIELD-UNIT"] = new(
-                    "P2-SAME-BATTLEFIELD-UNIT",
-                    cardNo: "SFD·125/221",
-                    power: 4,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P2-BASE-UNIT"] = new(
-                    "P2-BASE-UNIT",
-                    cardNo: "SFD·125/221",
-                    power: 4,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P2-BATTLEFIELD-OTHER"] = new(
-                    "P2-BATTLEFIELD-OTHER",
-                    cardNo: "OGN·278/298",
-                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P2-OTHER-BATTLEFIELD-UNIT"] = new(
-                    "P2-OTHER-BATTLEFIELD-UNIT",
-                    cardNo: "SFD·125/221",
-                    power: 4,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
-            },
-            stackItems:
-            [
-                new StackItemState(
-                    "STACK-PENDING-001",
-                    "P2",
-                    "P2-SPELL-PENDING-001",
-                    "DRAW_1",
-                    "OGN·007/298")
-            ],
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-            {
-                [battlefieldObjectId] = new("P1", "BATTLEFIELD", battlefieldObjectId),
-                [sourceObjectId] = new("P1", "BATTLEFIELD", battlefieldObjectId),
-                ["P2-SAME-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", battlefieldObjectId),
-                ["P2-BATTLEFIELD-OTHER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-OTHER"),
-                ["P2-OTHER-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-OTHER")
-            });
-
-        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-        var revealCandidate = Assert.Single(
-            prompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
-
-        Assert.True(revealCandidate.Enabled);
-        Assert.Equal([sourceObjectId], (revealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
-        Assert.Equal(["P2-SAME-BATTLEFIELD-UNIT"], (revealCandidate.Targets ?? []).Select(target => target.Id).ToArray());
-
-        var metadata = Assert.IsType<Dictionary<string, object?>>(revealCandidate.Metadata);
-        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]));
-        Assert.Equal(sourceObjectId, Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
-        Assert.Equal("OGN·121/298", Assert.IsType<string>(sourceRequirement["cardNo"]));
-        Assert.Equal("STANDBY_REACTION", Assert.IsType<string>(sourceRequirement["mode"]));
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
-        Assert.Equal("ENEMY_UNIT_AT_SOURCE_BATTLEFIELD", Assert.IsType<string>(sourceRequirement["targetScope"]));
-        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        Assert.Equal(["P2-SAME-BATTLEFIELD-UNIT"], targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+        // Current protocol selects a play ability target after entry; no base-only source is synthesized.
+        await StandbyTestDriver.AssertCountedStandbyMetadata();
     }
 
     [Fact]
-    public void ActionPromptRevealCardMetadataExposesBaseStandbyReactionTargetsFromSpellDuelContext()
+    public async Task ActionPromptRevealCardMetadataExposesBaseStandbyReactionTargetsFromSpellDuelContext()
     {
-        const string battlefieldObjectId = "P1-SPELL-DUEL-BATTLEFIELD";
-        const string sourceObjectId = "P1-FACE-DOWN-BASE-TEEMO";
-        var state = new MatchState(
-            "prompt-reveal-card-base-spell-duel-target-room",
-            23,
-            4,
-            "P1",
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["P1"] = "P1",
-                ["P2"] = "P2"
-            },
-            status: MatchStatuses.InProgress,
-            readyPlayerIds: ["P1", "P2"],
-            turnPlayerId: "P1",
-            phase: MatchPhases.Main,
-            timingState: TimingStates.SpellDuelClosed,
-            priorityPlayerId: "P1",
-            passedPriorityPlayerIds: ["P2"],
-            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
-            {
-                ["P1"] = RunePool.Empty,
-                ["P2"] = RunePool.Empty
-            },
-            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
-            {
-                ["P1"] = PlayerZones.Empty with
-                {
-                    Base = [sourceObjectId],
-                    Battlefields = [battlefieldObjectId, "P1-FRIENDLY-SAME-BATTLEFIELD-UNIT"]
-                },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Base = ["P2-BASE-UNIT"],
-                    Battlefields =
-                    [
-                        "P2-SAME-BATTLEFIELD-UNIT",
-                        "P2-BATTLEFIELD-OTHER",
-                        "P2-OTHER-BATTLEFIELD-UNIT"
-                    ]
-                }
-            },
-            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                [battlefieldObjectId] = new(
-                    battlefieldObjectId,
-                    cardNo: "OGN·278/298",
-                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                [sourceObjectId] = new(
-                    sourceObjectId,
-                    isFaceDown: true,
-                    cardNo: "OGN·121/298",
-                    power: 2,
-                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-FRIENDLY-SAME-BATTLEFIELD-UNIT"] = new(
-                    "P1-FRIENDLY-SAME-BATTLEFIELD-UNIT",
-                    cardNo: "UNL-092/219",
-                    power: 2,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P2-SAME-BATTLEFIELD-UNIT"] = new(
-                    "P2-SAME-BATTLEFIELD-UNIT",
-                    cardNo: "SFD·125/221",
-                    power: 6,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P2-BASE-UNIT"] = new(
-                    "P2-BASE-UNIT",
-                    cardNo: "SFD·125/221",
-                    power: 6,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P2-BATTLEFIELD-OTHER"] = new(
-                    "P2-BATTLEFIELD-OTHER",
-                    cardNo: "OGN·279/298",
-                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P2",
-                    controllerId: "P2"),
-                ["P2-OTHER-BATTLEFIELD-UNIT"] = new(
-                    "P2-OTHER-BATTLEFIELD-UNIT",
-                    cardNo: "SFD·125/221",
-                    power: 6,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
-            },
-            stackItems:
-            [
-                new StackItemState(
-                    "STACK-0-SPELL-DUEL",
-                    "P2",
-                    "P2-SPELL-DUEL-PROBE",
-                    "PENDING_TEST_SPELL",
-                    "TEST-000",
-                    [],
-                    timingContext: TimingStates.SpellDuelOpen)
-            ],
-            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
-            {
-                [battlefieldObjectId] = new("P1", "BATTLEFIELD", battlefieldObjectId),
-                ["P1-FRIENDLY-SAME-BATTLEFIELD-UNIT"] = new("P1", "BATTLEFIELD", battlefieldObjectId),
-                ["P2-SAME-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", battlefieldObjectId),
-                ["P2-BATTLEFIELD-OTHER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-OTHER"),
-                ["P2-OTHER-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-OTHER")
-            });
-
-        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-        var revealCandidate = Assert.Single(
-            prompt.Candidates ?? [],
-            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
-
-        Assert.True(revealCandidate.Enabled);
-        Assert.Equal([sourceObjectId], (revealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
-        Assert.Equal(["P2-SAME-BATTLEFIELD-UNIT"], (revealCandidate.Targets ?? []).Select(target => target.Id).ToArray());
-
-        var metadata = Assert.IsType<Dictionary<string, object?>>(revealCandidate.Metadata);
-        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]));
-        Assert.Equal(sourceObjectId, Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
-        Assert.Equal("STANDBY_REACTION", Assert.IsType<string>(sourceRequirement["mode"]));
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
-        Assert.Equal("ENEMY_UNIT_AT_SOURCE_BATTLEFIELD", Assert.IsType<string>(sourceRequirement["targetScope"]));
-        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        Assert.Equal(["P2-SAME-BATTLEFIELD-UNIT"], targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+        // Current protocol selects a play ability target after entry; no base-only source is synthesized.
+        await StandbyTestDriver.AssertCountedStandbyMetadata();
     }
 
     [Fact]

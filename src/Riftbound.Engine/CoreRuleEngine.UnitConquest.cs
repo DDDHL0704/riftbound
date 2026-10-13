@@ -22,7 +22,7 @@ public sealed partial class CoreRuleEngine
         foreach(var id in units.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
             if (!after.CardObjects.TryGetValue(id,out var source) || source.CardNo is null || source.ControllerId!=player
-                || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard) || source.Tags.Contains(CardObjectTags.Standby)
+                || source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard) || source.IsFaceDown
                 || BattlefieldLocalRules.AtUnit(after,id)?.ObjectId!=field || ConquestDamageDefinition(source.CardNo) is not { } spec
                 || spec.RequiresUncontrolledBattlefield && battlefield.ControllerId is not null) continue;
             var repeats=ResolveUnitConquestEffectRepeatCount(after.PlayerZones,after.CardObjects,after.ObjectLocations,player,field,"BATTLEFIELD_CONQUERED");
@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
     private static string[] ConquestDamageTargets(MatchState state,StackItemState item)
         => state.PlayerZones.Where(p=>p.Key!=item.ControllerId).SelectMany(p=>p.Value.Base)
             .Where(id=>state.CardObjects.TryGetValue(id,out var c) && c.ControllerId!=item.ControllerId
-                && !c.IsFaceDown && c.Tags.Contains(CardObjectTags.UnitCard) && !c.Tags.Contains(CardObjectTags.Standby)
+                && !c.IsFaceDown && c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
                 && TargetProtectionRules.IsLegalActivatedSkillTarget(state,item.ControllerId,id)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
     private static PendingCardChoiceState ConquestTargetChoice(MatchState state,StackItemState item)
         => new("UNIT-CONQUEST-TARGET:"+item.StackItemId,"TRIGGER_CONFIRMATION",item.ControllerId,1,1,

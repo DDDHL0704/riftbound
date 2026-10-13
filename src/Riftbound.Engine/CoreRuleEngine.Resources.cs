@@ -13,7 +13,6 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "请选择一个友方单位或装备作为摧毁费用。", ErrorCodes.InvalidTarget);
         bool IsControlledPermanent(string id) => state.CardObjects.TryGetValue(id, out var card)
             && card.ObjectId == id && card.ControllerId == intent.PlayerId && !card.IsFaceDown
-            && !card.Tags.Contains(CardObjectTags.Standby)
             && (card.Tags.Contains(CardObjectTags.UnitCard) || card.Tags.Contains(CardObjectTags.EquipmentCard))
             && FindFieldObjectLocation(state.PlayerZones, id) is { } field && field.PlayerId == intent.PlayerId
             && state.ObjectLocations.TryGetValue(id, out var position)
@@ -95,7 +94,7 @@ public sealed partial class CoreRuleEngine
         return location is not null && location.Value.PlayerId == player
             && state.CardObjects.TryGetValue(id, out var source) && source.ObjectId == id
             && state.ObjectLocations.TryGetValue(id, out var precise) && precise.PlayerId == player && precise.Zone == location.Value.Zone
-            && source.ControllerId == player && !source.IsFaceDown && !source.IsExhausted && !source.Tags.Contains(CardObjectTags.Standby)
+            && source.ControllerId == player && !source.IsFaceDown && !source.IsExhausted && !source.IsFaceDown
             && P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, source.CardNo)
             && source.Tags.Contains(ability.RequiresBaseEquipmentSource ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard);
     }

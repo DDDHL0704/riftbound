@@ -130,6 +130,16 @@ public sealed class ReplacementResourceTests
             _ => card };
         s = s with { CardObjects = new Dictionary<string,CardObjectState>(s.CardObjects) { ["RESOURCE"] = card } };
         var opened = await Open(s);
+        if (reason == "standby")
+        {
+            Assert.Contains(opened.State.PendingRuleChoice!.Request.Options, o => o.Id.StartsWith("RESOURCE:"));
+            var generated = await Resource(opened.State);
+            var done = await Choose(generated.State);
+            Assert.True(done.State.CardObjects["RESOURCE"].IsExhausted);
+            Assert.Contains(done.Events, e => e.Kind == "RESOURCE_SKILL_RESOLVED");
+            Restore(done.State);
+            return;
+        }
         Assert.DoesNotContain(opened.State.PendingRuleChoice!.Request.Options,o=>o.Id.StartsWith("RESOURCE:"));
         var request = opened.State.PendingRuleChoice.Request;
         var result = await new CoreRuleEngine().ResolveAsync(opened.State,new("bad","P2",CommandTypes.PayCost),

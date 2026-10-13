@@ -1,0 +1,563 @@
+{
+  "actualKeywords": 54,
+  "mentions": 69,
+  "activeKeywordRecords": 41,
+  "activePrintedSemanticsMatched": true,
+  "previewKeywords": 6,
+  "missingNonPreviewKeywordRecords": 7,
+  "wholeCardCertification": false,
+  "records": [
+    {
+      "cardNo": "RAD·081/167",
+      "sourceId": 38410,
+      "active": false,
+      "actualKeyword": true,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "RAD·095/167",
+      "sourceId": 38427,
+      "active": false,
+      "actualKeyword": true,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "RAD·100/167",
+      "sourceId": 38432,
+      "active": false,
+      "actualKeyword": true,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "RAD·102/167",
+      "sourceId": 38434,
+      "active": false,
+      "actualKeyword": true,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "RAD·103/167",
+      "sourceId": 38435,
+      "active": false,
+      "actualKeyword": true,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "RAD·107/167",
+      "sourceId": 38439,
+      "active": false,
+      "actualKeyword": true,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "RAD·108/167",
+      "sourceId": 38440,
+      "active": false,
+      "actualKeyword": false,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "RAD·157/167",
+      "sourceId": 38495,
+      "active": false,
+      "actualKeyword": false,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·034",
+      "sourceId": 37986,
+      "active": false,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·066",
+      "sourceId": 37758,
+      "active": false,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·097",
+      "sourceId": 37936,
+      "active": false,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·099",
+      "sourceId": 37796,
+      "active": false,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·117",
+      "sourceId": 37817,
+      "active": false,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·135",
+      "sourceId": 37835,
+      "active": false,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·135a",
+      "sourceId": 37836,
+      "active": false,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "VEN·160",
+      "sourceId": 37863,
+      "active": false,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-003/219",
+      "sourceId": 34526,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-013/219",
+      "sourceId": 34536,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-028/219",
+      "sourceId": 34553,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-028a/219",
+      "sourceId": 34554,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-042/219",
+      "sourceId": 34570,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-081/219",
+      "sourceId": 34615,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-083/219",
+      "sourceId": 34618,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-139/219",
+      "sourceId": 34682,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-141/219",
+      "sourceId": 34684,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-145/219",
+      "sourceId": 34689,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "UNL-145a/219",
+      "sourceId": 34690,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·004/221",
+      "sourceId": 33076,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·017/221",
+      "sourceId": 33089,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·043/221",
+      "sourceId": 33119,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·070/221",
+      "sourceId": 33150,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·111/221",
+      "sourceId": 33197,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·138/221",
+      "sourceId": 33228,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·139/221",
+      "sourceId": 33229,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·145/221",
+      "sourceId": 33237,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·154/221",
+      "sourceId": 33248,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·202/221",
+      "sourceId": 33301,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·230/221",
+      "sourceId": 33334,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "SFD·230*/221",
+      "sourceId": 33335,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·018/298",
+      "sourceId": 31224,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·053/298",
+      "sourceId": 31265,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·057/298",
+      "sourceId": 31269,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·077/298",
+      "sourceId": 31291,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·083/298",
+      "sourceId": 31299,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·094/298",
+      "sourceId": 31312,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·097/298",
+      "sourceId": 31315,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·101/298",
+      "sourceId": 31319,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·107/298",
+      "sourceId": 31325,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·121/298",
+      "sourceId": 31342,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·121a/298",
+      "sourceId": 31343,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·135/298",
+      "sourceId": 31359,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·167/298",
+      "sourceId": 31397,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·168/298",
+      "sourceId": 31398,
+      "active": true,
+      "actualKeyword": true,
+      "preview": true,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·181/298",
+      "sourceId": 31411,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·197/298",
+      "sourceId": 31429,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·197a/298",
+      "sourceId": 31430,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·197b/298",
+      "sourceId": 31431,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·199/298",
+      "sourceId": 31433,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·213/298",
+      "sourceId": 31449,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·220/298",
+      "sourceId": 31458,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·256/298",
+      "sourceId": 31498,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·263/298",
+      "sourceId": 31505,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·263a/298",
+      "sourceId": 31506,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·264/298",
+      "sourceId": 31507,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·278/298",
+      "sourceId": 31522,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·278a/298",
+      "sourceId": 31523,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·307/298",
+      "sourceId": 31561,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "OGN·307*/298",
+      "sourceId": 31562,
+      "active": true,
+      "actualKeyword": false,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "cardNo": "FND-196/298",
+      "sourceId": 31575,
+      "active": true,
+      "actualKeyword": true,
+      "preview": false,
+      "reviewStatus": "NOT_REVIEWED"
+    }
+  ]
+}

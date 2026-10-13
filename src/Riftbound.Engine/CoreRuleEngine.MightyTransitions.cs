@@ -50,7 +50,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static (CardObjectState Source, RuleTextInstance Instance, TriggerSpec Spec)[] MightySources(LastKnownMightFrame frame)
-        => frame.CardObjects.Values.Where(c => !c.IsFaceDown && !c.Tags.Contains(CardObjectTags.Standby)
+        => frame.CardObjects.Values.Where(c => !c.IsFaceDown
             && (IsObjectOnField(frame.PlayerZones, c.ObjectId) && c.Tags.Contains(CardObjectTags.UnitCard)
                 || frame.PlayerZones.Values.Any(z => z.LegendZone.Contains(c.ObjectId))))
             .SelectMany(source => AttachedRuleTextRules.Instances(frame.PlayerZones, frame.CardObjects, source).Select(instance =>
@@ -131,7 +131,7 @@ public sealed partial class CoreRuleEngine
                     .Concat(z.Banished).Concat(z.LegendZone).Concat(z.ChampionZone)).ToHashSet(StringComparer.Ordinal);
                 if (!ValidMightFrameExperience(frame)
                     || frame.PlayerZones.Values.Any(z => z.Hand.Count != 0 || z.MainDeck.Count != 0 || z.RuneDeck.Count != 0)
-                    || frame.CardObjects.Any(p => p.Key != p.Value.ObjectId || p.Value.IsFaceDown || p.Value.Tags.Contains(CardObjectTags.Standby)
+                    || frame.CardObjects.Any(p => p.Key != p.Value.ObjectId || p.Value.IsFaceDown
                         || !publicIds.Contains(p.Key))
                     || frame.ObjectLocations.Keys.Any(id => !frame.CardObjects.ContainsKey(id))
                     || frame.BattleDeclarations.Any(e => !e.StartsWith(BattleResponseDeclarationContextPrefix, StringComparison.Ordinal))) return false;

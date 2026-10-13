@@ -20,7 +20,7 @@ internal static class BattlefieldLocalRules
     {
         if (!state.CardObjects.TryGetValue(unitId, out var unit) || unit.IsFaceDown
             || !unit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || unit.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || unit.IsFaceDown
             || !state.ObjectLocations.TryGetValue(unitId, out var location) || location.Zone != "BATTLEFIELD"
             || !state.PlayerZones.TryGetValue(location.PlayerId, out var zones)
             || !zones.Battlefields.Contains(unitId, StringComparer.Ordinal)) return null;

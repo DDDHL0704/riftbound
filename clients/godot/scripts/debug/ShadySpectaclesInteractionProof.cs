@@ -54,9 +54,9 @@ public partial class ShadySpectaclesInteractionProof : Control
             var bar = GD.Load<PackedScene>("res://scenes/components/ActionBar.tscn").Instantiate<ActionBar>(); AddChild(bar);
             bar.ActionSelected += id => controller.SelectAction(id); bar.ShowPrompt(view["message"].AsString(), controller.Actions);
             var candidate = prompt.GetProperty("candidates").EnumerateArray().Single(c => c.GetProperty("action").GetString() == actionName);
-            if (actionName == "PASS_PRIORITY") {
+            if (actionName is "PASS_PRIORITY" or "PASS_FOCUS" or "END_TURN") {
                 var primary = (Button)typeof(ActionBar).GetField("_primaryAction", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(bar)!;
-                Check(!primary.Disabled, "Independent response enabled"); primary.EmitSignal(BaseButton.SignalName.Pressed);
+                Check(!primary.Disabled, "Primary action enabled"); primary.EmitSignal(BaseButton.SignalName.Pressed);
             } else {
                 var label = controller.Actions.Single(a => a.Name == actionName).Label;
                 if (actionName == "PAY_COST") {
@@ -89,6 +89,9 @@ public partial class ShadySpectaclesInteractionProof : Control
                         if (controller.Current!.Mode != instance && controller.CurrentStepRole == "mode")
                             Check(controller.TrySelectChoice("mode", instance), "Select the acquired ability instance");
                     }
+                    if (actionName == "REVEAL_CARD" && expected.TryGetProperty("mode", out var revealMode)
+                        && controller.Current!.Mode != revealMode.GetString() && controller.CurrentStepRole == "mode")
+                        Check(controller.TrySelectChoice("mode", revealMode.GetString()!), "Select the server-offered reveal mode");
                     var targets = actionName == "ASSEMBLE_EQUIPMENT" ? [expected.GetProperty("targetObjectId").GetString()!]
                         : expected.TryGetProperty("targetObjectIds", out var chosenTargets)
                             ? chosenTargets.EnumerateArray().Select(target => target.GetString()!).ToArray() : [];

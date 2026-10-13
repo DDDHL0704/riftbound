@@ -153,11 +153,8 @@ public sealed class OfficialInsightAndSpellLockTests
     [Fact]
     public async Task StandbySpellCannotBypassNightfallRestriction()
     {
-        var state=Position("OGN·083/298");
-        state=state with {UntilEndOfTurnEffects=[],
-            CardObjects=new Dictionary<string,CardObjectState>(state.CardObjects){["C"]=state.CardObjects["C"] with {IsFaceDown=true,Tags=[CardObjectTags.SpellCard,CardObjectTags.Standby]}},
-            PlayerZones=new Dictionary<string,PlayerZones>(state.PlayerZones){["P1"]=state.PlayerZones["P1"] with {Hand=[],Base=["C"]}}};
-        var command=new RevealCardCommand("C","OGN·083/298",[],"STANDBY_REACTION",["STANDBY_REVEAL_0"],"STACK");
+        var state = await StandbySourceRulesTests.ReadyShadow("OGN·083/298");
+        var command=new RevealCardCommand("SHADOW","OGN·083/298",[],"STANDBY_REACTION",["STANDBY_REVEAL_0"],"STACK");
         await Act(state,"P1",command);
         var locked=state with {UntilEndOfTurnEffects=[CardPermissionKeywordRules.SpellPlayProhibitionPrefix+"P1"]};
         var bad=await new CoreRuleEngine().ResolveAsync(locked,new("blocked-standby","P1",command.CmdType),command,default);
@@ -165,7 +162,7 @@ public sealed class OfficialInsightAndSpellLockTests
         Assert.Equal(MatchStateHasher.Hash(locked),MatchStateHasher.Hash(bad.State));
         var prompt=ResolutionResult.BuildPrompts(locked)["P1"];
         Assert.Contains("不能打出法术",prompt.Reason);
-        Assert.DoesNotContain(prompt.Candidates??[],c=>c.Action==CommandTypes.RevealCard && c.Sources?.Any(s=>s.Id=="C")==true);
+        Assert.DoesNotContain(prompt.Candidates??[],c=>c.Action==CommandTypes.RevealCard && c.Sources?.Any(s=>s.Id=="SHADOW")==true);
     }
     internal static PlayCardCommand Play(string card)=>new("C",card,card=="UNL-063/219"?["U"]:["S1"]);
     internal static async Task<ResolutionResult> Act(MatchState state,string player,GameCommand command)

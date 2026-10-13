@@ -626,6 +626,7 @@ public sealed class FluftPoroActivatedAbilityTests
                     FluftObjectId,
                     state.CardObjects[FluftObjectId] with
                     {
+                        IsFaceDown = true,
                         Tags = state.CardObjects[FluftObjectId].Tags
                             .Concat([CardObjectTags.Standby])
                             .ToArray()

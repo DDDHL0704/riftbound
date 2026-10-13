@@ -216,6 +216,19 @@ public sealed class TreasureHunterMoveTriggerTests
 
         var result = await MoveTreasureHunterAsync(state);
 
+        if (!faceDown && standby && !opponentControlled)
+        {
+            // 811.5.a: a printed keyword does not hide a face-up moving unit or disable its trigger.
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Empty(GoldTokenIds(result.State));
+            Assert.Single(result.State.StackItems);
+            result = await OfficialGraveyardRecastTests.Top(result.State);
+            Assert.Single(GoldTokenIds(result.State));
+            Assert.Single(result.Events, IsTreasureHunterTriggerEvent);
+            Assert.Single(result.Events, IsTreasureHunterGoldTokenEvent);
+            return;
+        }
+
         Assert.Empty(GoldTokenIds(result.State));
         Assert.DoesNotContain(result.Events, IsTreasureHunterTriggerEvent);
         Assert.DoesNotContain(result.Events, IsTreasureHunterGoldTokenEvent);

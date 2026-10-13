@@ -25,8 +25,7 @@ public sealed partial class CoreRuleEngine
     {
         var publicIds = zones.Values.SelectMany(z => z.Base.Concat(z.Battlefields).Concat(z.Graveyard)
             .Concat(z.Banished).Concat(z.LegendZone).Concat(z.ChampionZone)).ToHashSet(StringComparer.Ordinal);
-        var visible = cards.Where(p => publicIds.Contains(p.Key) && !p.Value.IsFaceDown
-            && !p.Value.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        var visible = cards.Where(p => publicIds.Contains(p.Key) && !p.Value.IsFaceDown)
             .ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         string[] Field(IReadOnlyList<string> ids) => ids.Where(visible.ContainsKey).ToArray();
         var publicZones = zones.ToDictionary(p => p.Key, p => new PlayerZones([], [], [],
@@ -116,7 +115,6 @@ public sealed partial class CoreRuleEngine
         if (frame.PlayerZones.Any(p => !state.Seats.ContainsKey(p.Key) || p.Value is null
                 || p.Value.Hand.Count != 0 || p.Value.MainDeck.Count != 0 || p.Value.RuneDeck.Count != 0)
             || frame.CardObjects.Any(p => p.Value is null || p.Key != p.Value.ObjectId || p.Value.IsFaceDown
-                || p.Value.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || (state.CardObjects.TryGetValue(p.Key, out var current)
                     ? current.ObjectGeneration < p.Value.ObjectGeneration || current.ObjectGeneration == p.Value.ObjectGeneration && current.CardNo != p.Value.CardNo
                     : !IsTokenObject(p.Value)))) return false;

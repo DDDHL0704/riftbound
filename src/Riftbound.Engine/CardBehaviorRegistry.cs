@@ -264,7 +264,8 @@ public sealed record CardBehaviorDefinition(
     string EffectPlayedUnitStatus = "",
     int TargetTraitsManaReduction = 0,
     bool CanCounterAbilities = false,
-    SelectedBattlefieldEffectSpec? SelectedBattlefieldEffect = null);
+    SelectedBattlefieldEffectSpec? SelectedBattlefieldEffect = null,
+    StandbyPlacement? StandbyPlayFrom = null);
 
 public static class CardDamageConditionKinds
 {

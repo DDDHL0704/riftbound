@@ -25,6 +25,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var behavior) || behavior.CardNo != spell.CardNo
             || execution.TargetObjectIds.Any(id => !CurrentChosenIncarnation(state, execution, id))) return false;
+        behavior = behavior with { StandbyPlayFrom = spell.PlayedFromStandby };
         var targets = execution.TargetObjectIds;
         if (!HasValidTargetEffectAdditionalCostTargets(behavior, targets, spell.OptionalCosts)) return false;
         if (IsStandbyReactionStackItem(behavior, spell))

@@ -36,7 +36,7 @@ public sealed partial class CoreRuleEngine
     private static CapturedUnitDeath? CaptureUnitDeath(MatchState state, IReadOnlyDictionary<string,PlayerZones> zones,
         IReadOnlyDictionary<string,CardObjectState> cards, CardObjectState unit)
     {
-        if (!unit.Tags.Contains(CardObjectTags.UnitCard) || unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby)) return null;
+        if (!unit.Tags.Contains(CardObjectTags.UnitCard) || unit.IsFaceDown) return null;
         var frame=RuleChoices.Value!;
         var controller=EffectiveFieldControllerId(zones,unit.ObjectId,unit);
         var fact=new DestroyedUnitFact(unit.ObjectId,unit.CardNo ?? "",unit.OwnerId ?? controller,controller,unit.ObjectGeneration,unit.Tags.Contains(CardObjectTags.MinionTokenFamily));
@@ -45,7 +45,7 @@ public sealed partial class CoreRuleEngine
         // A nested resource cost has its own destruction batch, before the outer death.
         foreach(var source in cards.Values.OrderBy(c=>c.ObjectId,StringComparer.Ordinal))
             if (source.ObjectId != unit.ObjectId && !frame.CurrentDestructions.Contains(source.ObjectId)
-                && source.Tags.Contains(CardObjectTags.UnitCard) && !source.IsFaceDown && !source.Tags.Contains(CardObjectTags.Standby)
+                && source.Tags.Contains(CardObjectTags.UnitCard) && !source.IsFaceDown
                 && IsObjectOnField(zones,source.ObjectId) && EffectiveFieldControllerId(zones,source.ObjectId,source)==controller
                 && UnitDestroyedTriggerSpecRules.TryGetTrigger(source.CardNo,t=>IsDeathObserverKind(t.Kind),out var spec)
                 && (spec.Kind != TriggerKinds.UnitDestroyedNonMinionCreateMinion || !fact.WasMinion))

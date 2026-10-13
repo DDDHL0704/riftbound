@@ -37,7 +37,7 @@ public sealed partial class CoreRuleEngine
     private static CapturedDrawSource[] CaptureDrawTriggerSources(MatchState state, string player) => CaptureDrawTriggerSources(state.PlayerZones, state.CardObjects, player);
 
     private static CapturedDrawSource[] CaptureDrawTriggerSources(IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards, string player) => cards.Values
-        .Where(c => c.ControllerId == player && !c.IsFaceDown && !c.Tags.Contains(CardObjectTags.Standby)
+        .Where(c => c.ControllerId == player && !c.IsFaceDown
             && IsObjectOnField(zones, c.ObjectId) && HasFieldTrigger(c.CardNo, "SECOND_DRAW"))
         .OrderBy(c => c.ObjectId, StringComparer.Ordinal)
         .Select(c => new CapturedDrawSource(c.ObjectId, player, new(c.CardNo!, "SECOND_DRAW", c.ObjectGeneration))).ToArray();
@@ -75,7 +75,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private static string[] FieldTriggerTargets(MatchState state, StackItemState item) => state.CardObjects.Values
-        .Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown && !c.Tags.Contains(CardObjectTags.Standby)
+        .Where(c => c.Tags.Contains(CardObjectTags.UnitCard) && !c.IsFaceDown
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
             && (item.FieldContext!.Kind == "COMBAT_MIGHT" ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)

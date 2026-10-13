@@ -172,6 +172,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
+            collected = QueueStandbyPlayedObservers(collected);
             collected = RecordBattleDuelRoles(state, collected);
             collected = RecordMightyTransitions(state, collected);
             return ValueTask.FromResult(RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
@@ -396,7 +397,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var cardObject = entry.Value;
             if (string.IsNullOrWhiteSpace(cardObject.CardNo)
                 || cardObject.IsFaceDown
-                || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !TryGetPublicFieldControllerId(state.PlayerZones, cardObjects, objectId, cardObject, out var controllerId))
             {
                 continue;
@@ -3355,7 +3355,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -3627,6 +3627,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
             ? string.Empty
             : command.Destination?.Trim() ?? string.Empty;
+        destination = StandbyPlayDestination(behavior, destination);
         const string paymentWindow = "PLAY_CARD";
         var paymentId = PaymentCostRules.BuildPaymentId(
             state.Tick + 1,
@@ -3637,6 +3638,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var paymentEvents = new List<GameEvent>();
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (behavior.StandbyPlayFrom is not null)
+        {
+            var own = playerZones[intent.PlayerId];
+            playerZones[intent.PlayerId] = own with { Battlefields = RemoveFromZone(own.Battlefields, command.SourceObjectId) };
+            var hidden = cardObjects[command.SourceObjectId];
+            cardObjects[command.SourceObjectId] = hidden with { IsFaceDown = false, StandbyPlacement = null,
+                LastStandbyPlay = behavior.StandbyPlayFrom, ObjectGeneration = hidden.ObjectGeneration + 1,
+                Tags = hidden.Tags.Where(tag => tag != CardObjectTags.Standby).ToArray() };
+        }
         if (state.PendingEffectPlay is { SourceZone: not "HAND" }
             && cardObjects.TryGetValue(command.SourceObjectId, out var replayed)
             && PrintedCardFactory.TryRestoreOutsidePlay(replayed, intent.PlayerId, out var printedReplay))
@@ -3702,7 +3712,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
             destination: destination,
-            timingContext: StackTimingContextForNewStackItem(state)) { RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
+            timingContext: StackTimingContextForNewStackItem(state)) { PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
                 AfterPlayRecycle = RecycleInstructionFor(state),
                 PlayCost = IsSpellPlayBehavior(behavior) ? new(cardObjects.TryGetValue(command.SourceObjectId, out var playedSource) ? EffectiveCardManaCost(playedSource, behavior) : behavior.ManaCost, plan.TotalManaCost) : null,
                 TargetStackSources = state.StackItems.Where(item => (plan.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? targetObjectIds)
@@ -3790,6 +3800,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["destination"] = destination
                 })
         };
+        if (behavior.StandbyPlayFrom is not null)
+        {
+            events.Insert(0, new("CARD_REVEALED", "从待命状态打出", new Dictionary<string, object?> {
+                ["playerId"] = intent.PlayerId, ["sourceObjectId"] = command.SourceObjectId,
+                ["cardNo"] = command.CardNo, ["battlefieldObjectId"] = behavior.StandbyPlayFrom.Battlefield.ObjectId,
+                ["isFaceDown"] = false }));
+            var played = events[1];
+            events[1] = played with { Payload = new Dictionary<string, object?>(played.Payload!) { ["playedFromStandby"] = true,
+                ["battlefieldObjectId"] = behavior.StandbyPlayFrom.Battlefield.ObjectId } };
+        }
         events.AddRange(paymentEvents);
         events.AddRange(BuildLuxSpellOnlyResourcePaymentEvents(
             paymentPlan,
@@ -4013,6 +4033,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
             return ConfirmPlayedPermanent(state, nextState, intent, events);
+
+        if (behavior.StandbyPlayFrom is not null)
+        {
+            var index = events.FindIndex(e => e.Kind == "CARD_PLAYED");
+            events[index] = CaptureStandbyPlayed(events[index], playerZones, cardObjects, intent.PlayerId);
+        }
 
         return new ResolutionResult(
             true,
@@ -5027,7 +5053,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         FieldRemovalResult removalResult)
     {
         if (destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
         {
             return null;
@@ -5048,8 +5073,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 UnitDestroyedTriggerSpecRules.IsLastBreathCallRuneOneTrigger,
                 out var triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || destroyedState.IsFaceDown)
         {
             return null;
         }
@@ -5073,8 +5097,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 UnitDestroyedTriggerSpecRules.IsLastBreathCreateBaseUnitTrigger,
                 out triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || destroyedState.IsFaceDown)
         {
             return null;
         }
@@ -5097,7 +5120,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathSourceBattlefieldAoeDamageTrigger,
@@ -5120,7 +5142,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !UnitDestroyedTriggerSpecRules.TryGetTrigger(
                 destroyedState.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathDiscardDrawTrigger,
@@ -5186,8 +5207,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfNotAloneTrigger,
                 out var triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || destroyedState.IsFaceDown)
         {
             return null;
         }
@@ -5214,8 +5234,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 UnitDestroyedTriggerSpecRules.IsLastBreathDrawIfAloneTrigger,
                 out var triggerSpec)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || destroyedState.IsFaceDown
-            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || destroyedState.IsFaceDown)
         {
             return null;
         }
@@ -5282,7 +5301,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && cardObjects.TryGetValue(candidateObjectId, out var candidate)
             && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !candidate.IsFaceDown
-            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && string.Equals(
                 EffectiveFieldControllerId(playerZones, candidateObjectId, candidate),
                 controllerId,
@@ -5570,7 +5588,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
-            || sourceState.IsFaceDown || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
             || !sourceState.Tags.Contains(ability.RequiresBaseEquipmentSource ? CardObjectTags.EquipmentCard : CardObjectTags.UnitCard, StringComparer.Ordinal)
             || (ability.ExhaustsSourceAsCost && sourceState.IsExhausted))
         {
@@ -6044,7 +6062,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || candidate.IsFaceDown
             || string.IsNullOrWhiteSpace(candidate.CardNo)
             || !candidate.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || candidate.IsFaceDown
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, candidate.CardNo)
             || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
             || ability.RequiresBaseEquipmentSource && !IsControlledBaseObject(state, playerId, sourceObjectId)
@@ -6070,7 +6088,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || targetState.IsFaceDown
             || string.IsNullOrWhiteSpace(targetState.CardNo)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || targetState.IsFaceDown
             || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             || targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
             || targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
@@ -6132,8 +6150,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || sourceState.IsFaceDown)
         {
             return RejectWithCorePrompts(
                 state,
@@ -6386,8 +6403,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || sourceState.IsFaceDown)
         {
             return RejectWithCorePrompts(
                 state,
@@ -6665,8 +6681,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || sourceState.IsFaceDown)
         {
             return RejectWithCorePrompts(
                 state,
@@ -7200,8 +7215,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || sourceState.IsFaceDown)
         {
             return RejectWithCorePrompts(
                 state,
@@ -9458,8 +9472,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!IsControlledBaseObject(state, intent.PlayerId, command.SourceObjectId)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || sourceState.IsFaceDown)
         {
             return RejectWithCorePrompts(
                 state,
@@ -9496,7 +9509,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             || string.IsNullOrWhiteSpace(targetState.CardNo)
             || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo)
             || !TargetProtectionRules.IsLegalActivatedSkillTarget(state, intent.PlayerId, targetObjectId))
@@ -9723,8 +9735,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || sourceState.IsFaceDown)
         {
             return RejectWithCorePrompts(
                 state,
@@ -9973,8 +9984,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || sourceState.IsFaceDown)
         {
             return RejectWithCorePrompts(
                 state,
@@ -10263,7 +10273,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             || string.IsNullOrWhiteSpace(targetState.CardNo)
             || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !TargetProtectionRules.IsLegalActivatedSkillTarget(state, playerId, targetObjectId))
         {
@@ -10274,311 +10283,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return true;
     }
 
-    private static ResolutionResult ResolveHideCard(
-        MatchState state,
-        PlayerIntent intent,
-        HideCardCommand command)
-    {
-        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || state.StackItems.Count > 0)
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命埋伏只能在当前玩家的开放主阶段提交。",
-                ErrorCodes.PhaseNotAllowed);
-        }
-
-        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"暂不支持该牌的待命埋伏行为：{command.CardNo}",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
-            || !zones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命埋伏只能选择自己手牌中的牌。",
-                ErrorCodes.CardNotInHand);
-        }
-
-        var destination = string.IsNullOrWhiteSpace(command.Destination)
-            ? StandbyHideDestination
-            : command.Destination.Trim();
-        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        var usesStandardStandbyHideCost = optionalCosts.Count == 1
-            && string.Equals(optionalCosts[0], StandbyHideOptionalCost, StringComparison.Ordinal);
-        var usesTeemoStandbyHideCost = optionalCosts.Count == 1
-            && string.Equals(optionalCosts[0], StandbyHideTeemoOptionalCost, StringComparison.Ordinal)
-            && HasTeemoStandbyHidePermission(state, intent.PlayerId);
-        var usesFreeStandbyHideCost = optionalCosts.Count == 1
-            && string.Equals(optionalCosts[0], StandbyHideFreeOptionalCost, StringComparison.Ordinal)
-            && HasFreeStandbyHidePermission(state, intent.PlayerId);
-        var usesBattlefieldExtraStandby = TryParseBattlefieldDestination(destination, out var extraStandbyBattlefieldObjectId);
-        if (!string.Equals(destination, StandbyHideDestination, StringComparison.Ordinal)
-            && !usesBattlefieldExtraStandby)
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{behavior.DisplayName} 不能以该去向进行待命埋伏。",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        if (!usesStandardStandbyHideCost && !usesTeemoStandbyHideCost && !usesFreeStandbyHideCost)
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{behavior.DisplayName} 不能以该费用进行待命埋伏。",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        var extraStandbyBattlefieldState = new CardObjectState();
-        if (usesBattlefieldExtraStandby)
-        {
-            if (!TryGetBattlefieldExtraStandbyObject(
-                state.PlayerZones,
-                state.CardObjects,
-                intent.PlayerId,
-                extraStandbyBattlefieldObjectId,
-                out var resolvedBattlefieldState))
-            {
-                return RejectWithCorePrompts(
-                    state,
-                    "向战场待命需要控制对应的班德尔树战场。",
-                    ErrorCodes.InvalidTarget);
-            }
-
-            extraStandbyBattlefieldState = resolvedBattlefieldState;
-        }
-
-        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var existingState)
-            || string.IsNullOrWhiteSpace(existingState.CardNo))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命埋伏需要服务端已确认的手牌信息。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (!string.Equals(existingState.CardNo, behavior.CardNo, StringComparison.Ordinal))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命埋伏的手牌信息与提交的牌不匹配。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (!SourceObjectControlledByPlayerOrLegacyOwned(existingState, intent.PlayerId))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命埋伏只能选择自己控制的手牌。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var hiddenTags = existingState.Tags
-            .Concat([CardObjectTags.UnitCard])
-            .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(tag => tag, StringComparer.Ordinal)
-            .ToArray();
-        if (!hiddenTags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{behavior.DisplayName} 没有待命关键词，不能进行待命埋伏。",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        var standbyHideManaCost = usesFreeStandbyHideCost ? 0 : StandbyHideManaCost;
-        const string paymentWindow = "HIDE_CARD";
-        var paymentId = PaymentCostRules.BuildPaymentId(
-            state.Tick + 1,
-            paymentWindow,
-            intent.PlayerId,
-            command.SourceObjectId);
-        var paymentAuditMetadata = new Dictionary<string, object?>(StringComparer.Ordinal);
-        if (usesFreeStandbyHideCost)
-        {
-            paymentAuditMetadata["standbyHideCostWaived"] = true;
-        }
-        if (usesTeemoStandbyHideCost)
-        {
-            paymentAuditMetadata["teemoStandbyHideReplacement"] = true;
-        }
-
-        var paymentPlan = new PaymentCostRules.PaymentPlan(
-            paymentId,
-            paymentWindow,
-            intent.PlayerId,
-            baseManaCost: standbyHideManaCost,
-            totalManaCost: standbyHideManaCost,
-            genericPowerCost: 0,
-            totalPowerCost: 0,
-            optionalCostIds: optionalCosts,
-            reason: "STANDBY_HIDE",
-            sourceObjectId: command.SourceObjectId,
-            auditMetadata: paymentAuditMetadata);
-        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
-            ? availableExperience
-            : 0;
-        var paymentAuthorization = PaymentCostRules.AuthorizePayment(
-            paymentPlan,
-            currentPool,
-            currentExperience);
-        if (!paymentAuthorization.Accepted)
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"法力不足，无法让 {behavior.DisplayName} 待命埋伏。",
-                ErrorCodes.InsufficientCost);
-        }
-
-        var paymentCommit = PaymentCostRules.TryCommitPayment(
-            paymentPlan,
-            state.RunePools,
-            state.PlayerExperience);
-        if (!paymentCommit.Accepted)
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"法力不足，无法让 {behavior.DisplayName} 待命埋伏。",
-                ErrorCodes.InsufficientCost);
-        }
-
-        var runePools = paymentCommit.RunePools;
-        var playerExperience = paymentCommit.PlayerExperience;
-        var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
-        var nextZones = playerZones[intent.PlayerId];
-        if (usesBattlefieldExtraStandby)
-        {
-            playerZones[intent.PlayerId] = nextZones with
-            {
-                Battlefields = nextZones.Battlefields.Contains(command.SourceObjectId, StringComparer.Ordinal)
-                    ? nextZones.Battlefields
-                    : nextZones.Battlefields.Concat([command.SourceObjectId]).ToArray()
-            };
-        }
-        else
-        {
-            playerZones[intent.PlayerId] = nextZones with
-            {
-                Base = nextZones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal)
-                    ? nextZones.Base
-                    : nextZones.Base.Concat([command.SourceObjectId]).ToArray()
-            };
-        }
-
-        var hiddenState = existingState with
-        {
-            IsFaceDown = true,
-            IsAttacking = false,
-            IsDefending = false,
-            IsExhausted = false,
-            Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : existingState.Power,
-            Tags = hiddenTags,
-            ManaCost = behavior.ManaCost,
-            CardNo = behavior.CardNo
-        };
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[command.SourceObjectId] = hiddenState;
-
-        var costPaidPayload = new Dictionary<string, object?>
-        {
-            ["playerId"] = intent.PlayerId,
-            ["mana"] = standbyHideManaCost,
-            ["power"] = 0,
-            ["optionalCosts"] = optionalCosts.ToArray()
-        };
-
-        var events = new List<GameEvent>
-        {
-            new(
-                "COST_PAID",
-                $"{intent.PlayerId} 支付 {standbyHideManaCost} 点费用",
-                PaymentCostRules.BuildCostPaidPayload(
-                    paymentPlan,
-                    runePools,
-                    playerExperience,
-                    costPaidPayload))
-        };
-        if (usesBattlefieldExtraStandby)
-        {
-            events.Add(new GameEvent(
-                "BATTLEFIELD_TRIGGER_RESOLVED",
-                $"{intent.PlayerId} 通过班德尔树额外布置待命牌",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["battlefieldObjectId"] = extraStandbyBattlefieldObjectId,
-                    ["battlefieldCardNo"] = extraStandbyBattlefieldState?.CardNo,
-                    ["trigger"] = "BATTLEFIELD_EXTRA_STANDBY_ARRANGED",
-                    ["sourceObjectId"] = command.SourceObjectId,
-                    ["destination"] = destination
-                }));
-        }
-
-        var hiddenPayload = new Dictionary<string, object?>
-        {
-            ["playerId"] = intent.PlayerId,
-            ["sourceObjectId"] = command.SourceObjectId,
-            ["destination"] = destination,
-            ["destinationZone"] = usesBattlefieldExtraStandby ? "BATTLEFIELD" : "BASE",
-            ["isFaceDown"] = true
-        };
-        if (usesBattlefieldExtraStandby)
-        {
-            hiddenPayload["battlefieldObjectId"] = extraStandbyBattlefieldObjectId;
-            hiddenPayload["battlefieldCardNo"] = extraStandbyBattlefieldState?.CardNo;
-        }
-
-        events.Add(
-            new GameEvent(
-                "CARD_HIDDEN",
-                $"{intent.PlayerId} 正面朝下放置一张待命牌",
-                hiddenPayload));
-
-        events.AddRange(ResolveSourcePowerOnControllerStandbyHiddenTriggers(
-            playerZones,
-            cardObjects,
-            intent.PlayerId,
-            command.SourceObjectId,
-            destination));
-
-        var nextState = state with
-        {
-            Tick = state.Tick + 1,
-            RunePools = runePools,
-            PlayerExperience = playerExperience,
-            PlayerZones = playerZones,
-            CardObjects = cardObjects,
-            PriorityPlayerId = null,
-            PassedPriorityPlayerIds = []
-        };
-        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        if (usesBattlefieldExtraStandby)
-        {
-            objectLocations[command.SourceObjectId] = new ObjectLocationState(
-                intent.PlayerId,
-                MoveUnitBattlefieldZone,
-                extraStandbyBattlefieldObjectId);
-        }
-        var nextStateWithLocations = nextState with { ObjectLocations = objectLocations };
-
-        return new ResolutionResult(
-            true,
-            null,
-            nextStateWithLocations,
-            events,
-            ResolutionResult.BuildSnapshots(nextStateWithLocations),
-            BuildCorePrompts(nextStateWithLocations));
-    }
+    private static ResolutionResult ResolveHideCard(MatchState state, PlayerIntent intent, HideCardCommand command)
+        => ResolveStandbyHide(state, intent, command);
 
     private static IReadOnlyList<GameEvent> ResolveSourcePowerOnControllerStandbyHiddenTriggers(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -10699,7 +10405,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     out _)
                 && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !sourceState.IsFaceDown
-                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && IsObjectOnField(playerZones, sourceObjectId)
                 && string.Equals(
                     EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
@@ -11226,7 +10931,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.IsFaceDown
             || sourceState.IsExhausted
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || sourceState.IsFaceDown
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId))
         {
             return false;
@@ -13647,7 +13352,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && cardObjects.TryGetValue(entry.Key, out var cardObject)
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown
-                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && !string.IsNullOrWhiteSpace(entry.FieldControllerId)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.FieldControllerId))
             .Select(entry => entry.FieldControllerId)
@@ -13720,7 +13424,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
                 && IsObjectOnField(playerZones, entry.Key)
                 && cardObjects.TryGetValue(entry.Key, out var cardObject)
-                && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                && (cardObject.IsFaceDown)
                 && !string.Equals(
                     EffectiveFieldControllerId(playerZones, entry.Key, cardObject),
                     battlefieldControllerId,
@@ -14631,8 +14335,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int readyEnemyUnitCount)
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || cardObject.IsFaceDown)
         {
             return 0;
         }
@@ -14701,7 +14404,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string combatKeyword)
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || cardObject.IsFaceDown)
         {
             return 0;
@@ -14721,7 +14423,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string resourceKeyword)
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || cardObject.IsFaceDown)
         {
             return 0;
@@ -14760,7 +14461,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveSourceObjectPowerStaticAuraBonus(MatchState state, CardObjectState cardObject)
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || cardObject.IsFaceDown)
         {
             return 0;
@@ -14820,7 +14520,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
             || battlefieldState.IsFaceDown)
         {
@@ -14853,7 +14552,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
             || battlefieldState.IsFaceDown)
         {
@@ -14876,7 +14574,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, objectId))
         {
             return 0;
@@ -14898,7 +14595,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || !IsObjectOnField(playerZones, sourceObjectId)
                 || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !string.Equals(
                     EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
@@ -14944,7 +14640,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
             || !string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId)
@@ -14970,7 +14665,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || !IsObjectOnField(playerZones, sourceObjectId)
                 || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !string.Equals(
                     EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
@@ -15043,8 +14737,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
         {
             if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                || sourceState.IsFaceDown)
             {
                 continue;
             }
@@ -15104,7 +14797,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string targetObjectId,
         CardObjectState target)
     {
-        if (target.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        if (target.IsFaceDown)
         {
             return false;
         }
@@ -15132,7 +14825,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, objectId))
         {
             return 0;
@@ -15149,7 +14841,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !string.Equals(
                     EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState),
                     controllerId,
@@ -15179,7 +14870,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string targetObjectId,
         CardObjectState target)
     {
-        if (target.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        if (target.IsFaceDown)
         {
             return false;
         }
@@ -15202,7 +14893,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, objectId))
         {
             return 0;
@@ -15229,7 +14919,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     || !IsObjectOnField(playerZones, sourceObjectId)
                     || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                     || sourceState.IsFaceDown
-                    || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                     || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                     || !string.Equals(
                         EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
@@ -15257,7 +14946,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !string.Equals(
                     EffectivePublicStaticAuraSourceControllerId(playerZones, sourceObjectId, sourceState),
                     controllerId,
@@ -15293,8 +14981,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardObjectState cardObject)
     {
         if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || cardObject.IsFaceDown)
         {
             return 0;
         }
@@ -15356,7 +15043,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && state.CardObjects.TryGetValue(entry.Key, out var candidate)
                 && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !candidate.IsFaceDown
-                && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && StaticAuraSpecRules.TargetMatchesFilter(aura, candidate)
                 && string.Equals(
                     EffectiveFieldControllerId(playerZones, entry.Key, candidate),
@@ -15498,7 +15184,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (isAttacking
             || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown
-            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, objectId))
         {
             return 0;
@@ -15514,8 +15199,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(playerZones))
         {
             if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                || sourceState.IsFaceDown)
             {
                 continue;
             }
@@ -17920,7 +17604,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         sourceState = candidate;
         return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
             && IsObjectOnField(playerZones, sourceObjectId)
             && UnitConquestTriggerSpecRules.TryGetTrigger(
@@ -18020,7 +17703,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!cardObjects.TryGetValue(objectId, out var candidate)
             || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || candidate.IsFaceDown
-            || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !IsObjectOnField(playerZones, objectId))
         {
             return false;
@@ -18056,7 +17738,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 out triggerSpec)
             && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
             && IsObjectOnField(playerZones, sourceObjectId);
     }
@@ -18074,7 +17755,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !cardObjects.TryGetValue(targetObjectId, out var candidate)
             || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || candidate.IsFaceDown
-            || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !IsObjectLocatedAtBattlefield(playerZones, objectLocations, targetObjectId, battlefieldId))
         {
             return false;
@@ -18805,7 +18485,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && cardObjects.TryGetValue(entry.Key, out var cardObject)
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && string.Equals(
                 EffectiveFieldControllerId(playerZones, entry.Key, cardObject),
                 playerId,
@@ -19010,304 +18689,29 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
-    private static ResolutionResult ResolveRevealCard(
-        MatchState state,
-        PlayerIntent intent,
-        RevealCardCommand command)
+    private static ResolutionResult ResolveRevealCard(MatchState state, PlayerIntent intent, RevealCardCommand command)
     {
-        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"暂不支持该牌的待命翻开行为：{command.CardNo}",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        if (CardPermissionKeywordRules.IsSpellPlayProhibited(state, intent.PlayerId, behavior))
-            return RejectWithCorePrompts(state, CardPermissionKeywordRules.SpellPlayProhibitionReason, ErrorCodes.PhaseNotAllowed);
-
-        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命翻开只能选择自己的待命牌。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var sourceInBase = zones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal);
-        var sourceInBattlefield = TryResolveBattlefieldStandbyRevealDestination(
-            state,
-            zones,
-            intent.PlayerId,
-            command.SourceObjectId,
-            out var sourceBattlefieldObjectId);
-        if (!sourceInBase && !sourceInBattlefield)
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命翻开只能选择自己基地或战场待命区中的待命牌。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var mode = string.IsNullOrWhiteSpace(command.Mode) ? StandbyRevealMode : command.Mode.Trim();
-        var battlefieldRevealDestination = sourceInBattlefield
-            ? $"BATTLEFIELD:{sourceBattlefieldObjectId}"
-            : string.Empty;
-        var destination = string.IsNullOrWhiteSpace(command.Destination)
-            ? sourceInBattlefield && string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
-                ? battlefieldRevealDestination
-                : StandbyRevealDestination
-            : command.Destination.Trim();
-        var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
-        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        var standbyReactionBattlefieldObjectId = ResolveStandbyReactionBattlefieldContext(
-            state,
-            zones,
-            intent.PlayerId,
-            command.SourceObjectId,
-            sourceBattlefieldObjectId);
-        var paysStandbyRevealCost = optionalCosts.Count == 1
-            && string.Equals(optionalCosts[0], StandbyRevealOptionalCost, StringComparison.Ordinal);
-        var revealsInBase = sourceInBase
-            && string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
-            && string.Equals(destination, StandbyRevealDestination, StringComparison.Ordinal)
-            && targetObjectIds.Count == 0
-            && paysStandbyRevealCost;
-        var revealsAtBattlefield = sourceInBattlefield
-            && string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
-            && string.Equals(destination, battlefieldRevealDestination, StringComparison.Ordinal)
-            && targetObjectIds.Count == 0
-            && paysStandbyRevealCost;
-        var playsReactionToStack = (sourceInBase || sourceInBattlefield)
-            && string.Equals(mode, StandbyReactionMode, StringComparison.Ordinal)
-            && string.Equals(destination, StandbyReactionDestination, StringComparison.Ordinal)
-            && HasValidStandbyReactionTargets(
-                state,
-                intent.PlayerId,
-                behavior,
-                command.SourceObjectId,
-                standbyReactionBattlefieldObjectId,
-                targetObjectIds)
-            && paysStandbyRevealCost;
-        if (!revealsInBase && !revealsAtBattlefield && !playsReactionToStack)
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{behavior.DisplayName} 不能以该模式进行待命翻开。",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        if ((revealsInBase || revealsAtBattlefield)
-            && (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-                || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-                || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
-                || state.StackItems.Count > 0))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命翻开只能在当前玩家的开放主阶段提交。",
-                ErrorCodes.PhaseNotAllowed);
-        }
-
-        if (playsReactionToStack
-            && !IsStandbyReactionPriorityWindow(state, intent.PlayerId))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命反应需要该玩家在结算链待处理时拥有优先权。",
-                ErrorCodes.PhaseNotAllowed);
-        }
-
-        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
-            || !sourceState.IsFaceDown)
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命翻开只能选择面朝下的待命牌。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (string.IsNullOrWhiteSpace(sourceState.CardNo))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命翻开需要服务端已确认的待命牌信息。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (!string.Equals(sourceState.CardNo, behavior.CardNo, StringComparison.Ordinal))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命翻开的牌信息与提交的牌不匹配。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "待命翻开只能选择自己控制的待命牌。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var revealedTags = sourceState.Tags
-            .Concat([CardObjectTags.UnitCard])
-            .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(tag => tag, StringComparer.Ordinal)
-            .ToArray();
-        if (!revealedTags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{behavior.DisplayName} 没有待命关键词，不能进行待命翻开。",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[command.SourceObjectId] = sourceState with
-        {
-            IsFaceDown = false,
-            IsAttacking = false,
-            IsDefending = false,
-            Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : sourceState.Power,
-            Tags = revealedTags,
-            ManaCost = behavior.ManaCost,
-            CardNo = behavior.CardNo
-        };
-
-        IReadOnlyDictionary<string, PlayerZones> playerZones = state.PlayerZones;
-        StackItemState? stackItem = null;
-        if (playsReactionToStack)
-        {
-            var reactionPlayerZones = NormalizeZonesForSeats(state);
-            reactionPlayerZones[intent.PlayerId] = zones with
-            {
-                Base = sourceInBase
-                    ? RemoveFromZone(zones.Base, command.SourceObjectId)
-                    : zones.Base,
-                Battlefields = sourceInBattlefield
-                    ? RemoveFromZone(zones.Battlefields, command.SourceObjectId)
-                    : zones.Battlefields
-            };
-            playerZones = reactionPlayerZones;
-            stackItem = new StackItemState(
-                $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
-                intent.PlayerId,
-                command.SourceObjectId,
-                behavior.EffectKind,
-                command.CardNo,
-                targetObjectIds,
-                behavior.DamageAmount,
-                1,
-                optionalCosts,
-                playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
-                destination: sourceInBattlefield ? battlefieldRevealDestination : null,
-                timingContext: StackTimingContextForNewStackItem(state)) { PlayCost = new(behavior.ManaCost, 0) };
-        }
-
-        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        if (playsReactionToStack)
-        {
-            objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
-        }
-
-        var nextState = state with
-        {
-            Tick = state.Tick + 1,
-            ActivePlayerId = playsReactionToStack ? intent.PlayerId : state.ActivePlayerId,
-            CardObjects = cardObjects,
-            PlayerZones = playerZones,
-            ObjectLocations = objectLocations,
-            PriorityPlayerId = playsReactionToStack ? intent.PlayerId : null,
-            PassedPriorityPlayerIds = [],
-            StackItems = stackItem is null
-                ? state.StackItems
-                : state.StackItems.Concat([stackItem]).ToArray(),
-            PlayerCardsPlayedThisTurn = playsReactionToStack
-                ? IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId)
-                : state.PlayerCardsPlayedThisTurn
-        };
-        var events = new List<GameEvent>
-        {
-            new(
-                "CARD_REVEALED",
-                $"{intent.PlayerId} 翻开一张待命牌",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["sourceObjectId"] = command.SourceObjectId,
-                    ["cardNo"] = command.CardNo,
-                    ["mode"] = mode,
-                    ["destination"] = destination,
-                    ["optionalCosts"] = optionalCosts.ToArray(),
-                    ["isFaceDown"] = false
-                })
-        };
-        if (stackItem is not null)
-        {
-            const string paymentWindow = "REVEAL_CARD";
-            var paymentId = PaymentCostRules.BuildPaymentId(
-                state.Tick + 1,
-                paymentWindow,
-                intent.PlayerId,
-                command.SourceObjectId);
-            events.AddRange(
-            [
-                new GameEvent(
-                    "CARD_PLAYED",
-                    $"{intent.PlayerId} 将{behavior.DisplayName}当作反应牌打出",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = intent.PlayerId,
-                        ["sourceObjectId"] = command.SourceObjectId,
-                        ["cardNo"] = command.CardNo,
-                        ["mode"] = mode,
-                        ["destination"] = destination
-                    }),
-                new GameEvent(
-                    "COST_PAID",
-                    $"{intent.PlayerId} 支付 0 点费用",
-                    PaymentCostRules.BuildCostPaidPayload(
-                        paymentId,
-                        paymentWindow,
-                        intent.PlayerId,
-                        state.RunePools,
-                        state.PlayerExperience,
-                        new Dictionary<string, object?>
-                    {
-                        ["playerId"] = intent.PlayerId,
-                        ["mana"] = 0,
-                        ["power"] = 0,
-                        ["baseMana"] = 0,
-                        ["optionalCosts"] = optionalCosts.ToArray()
-                    })),
-                new GameEvent(
-                    "STACK_ITEM_ADDED",
-                    $"{behavior.DisplayName}加入结算链",
-                    new Dictionary<string, object?>
-                    {
-                        ["stackItemId"] = stackItem.StackItemId,
-                        ["controllerId"] = stackItem.ControllerId,
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["cardNo"] = stackItem.CardNo,
-                        ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
-                        ["effectKind"] = stackItem.EffectKind,
-                        ["mode"] = mode,
-                        ["effectRepeatCount"] = stackItem.EffectRepeatCount,
-                        ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
-                    })
-            ]);
-        }
-
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var definition))
+            return RejectWithCorePrompts(state, $"暂不支持该牌的待命翻开行为：{command.CardNo}", ErrorCodes.UnsupportedCardBehavior);
+        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var source) || string.IsNullOrWhiteSpace(source.CardNo))
+            return RejectWithCorePrompts(state, "待命翻开需要服务端已确认的牌信息。", ErrorCodes.InvalidTarget);
+        if (source.CardNo != command.CardNo)
+            return RejectWithCorePrompts(state, "待命翻开的牌信息与提交的牌不匹配。", ErrorCodes.InvalidTarget);
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(source, intent.PlayerId) || !source.IsFaceDown)
+            return RejectWithCorePrompts(state, "待命翻开只能选择自己控制的面朝下牌。", ErrorCodes.InvalidTarget);
+        if (!StandbyRules.HasPrintedKeyword(source.CardNo))
+            return RejectWithCorePrompts(state, $"{definition.DisplayName} 没有待命关键词。", ErrorCodes.UnsupportedCardBehavior);
+        if (!StandbyRules.ValidPlacement(state, source))
+            return RejectWithCorePrompts(state, "待命翻开需要真实战场布置来源。", ErrorCodes.InvalidTarget);
+        if (!StandbyPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId))
+            return RejectWithCorePrompts(state, "待命必须从其布置回合之后、以真实战场来源打出。", ErrorCodes.PhaseNotAllowed);
+        var mode = command.Mode is StandbyRevealMode or StandbyReactionMode ? "" : command.Mode;
+        var destination = command.Destination == StandbyReactionDestination ? "" : command.Destination;
+        if (destination == StandbyRevealDestination)
+            return RejectWithCorePrompts(state, "待命常驻牌必须打出至原战场。", ErrorCodes.InvalidTarget);
+        var costs = (command.OptionalCosts ?? []).Where(c => c != StandbyRevealOptionalCost).ToArray();
+        return ResolvePlayCard(state, intent, new PlayCardCommand(command.SourceObjectId, command.CardNo,
+            command.TargetObjectIds, mode, costs, destination));
     }
 
     private static bool TryResolveBattlefieldStandbyRevealDestination(
@@ -19470,7 +18874,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !behavior.PlaysSourceToBaseAsUnit
             || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
             || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
             || !HasStaticGrantedKeyword(
@@ -19505,7 +18908,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
                 || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
                 || sourceState.IsFaceDown
-                || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 || !string.Equals(
                     EffectivePublicStaticAuraSourceControllerId(state.PlayerZones, sourceObjectId, sourceState),
                     targetControllerId,
@@ -19571,7 +18973,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "此效果忽略一切费用，不能选择或支付额外费用。", ErrorCodes.InvalidTarget);
             return false;
         }
-        behavior = EffectPlayBehavior(state, intent.PlayerId, behavior);
+        behavior = StandbyPlayBehavior(state, intent.PlayerId, command.SourceObjectId, EffectPlayBehavior(state, intent.PlayerId, behavior));
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
             || !EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal))
         {
@@ -19614,6 +19016,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
             ? string.Empty : command.Destination?.Trim() ?? string.Empty;
+        destination = StandbyPlayDestination(behavior, destination);
+        if (behavior.StandbyPlayFrom is { } shadow && (behavior.PlaysSourceToBaseAsUnit || behavior.PlaysSourceToBaseAsEquipment)
+            && destination != "BATTLEFIELD:" + shadow.Battlefield.ObjectId)
+        {
+            rejection = Reject(state, "待命常驻牌必须打出至原战场。", ErrorCodes.InvalidTarget);
+            return false;
+        }
         if (state.PendingEffectPlay is not null && !UsesDeclaredMovementDestination(behavior) && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrEmpty(destination) ? "BASE" : destination))
         {
             rejection = Reject(state, "效果不允许打出到该位置。", ErrorCodes.InvalidTarget);
@@ -19636,7 +19045,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "请选择所有目标均可移动至的同一个位置。", ErrorCodes.InvalidTarget);
             return false;
         }
-        if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
+        if (behavior.PlaysSourceToBaseAsUnit && !UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
             && HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
         {
             rejection = Reject(state, "战场效果禁止将单位打出到该战场。", ErrorCodes.InvalidTarget);
@@ -19894,9 +19303,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         if (!UsesDeclaredMovementDestination(behavior) && !string.IsNullOrWhiteSpace(destination)
-            && (!behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
+            && (behavior.StandbyPlayFrom is null && !behavior.PlaysSourceToBaseAsUnit || !IsPlayCardUnitBattlefieldDestinationAllowed(state, intent.PlayerId, destination)
                 && !ambush && !AdditionalCostPlayLocationAllowed(state, behavior, destination, destroyedAdditionalCostTargetObjectIds)
-                && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination))) {
+                && !IsForcedEffectPlayDestination(state, intent.PlayerId, destination) && behavior.StandbyPlayFrom is null)) {
             rejection = Reject(state, "所选入场位置没有当前有效的出牌权限。", ErrorCodes.InvalidTarget);
             return false;
         }
@@ -20868,8 +20277,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && IsObjectOnField(playerZones, entry.Key)
                 && cardObjects.TryGetValue(entry.Key, out var cardObject)
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !cardObject.IsFaceDown
-                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                && !cardObject.IsFaceDown)
             .Select(entry => entry.Key)
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -21906,8 +21314,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static bool IsFaceUpNonStandbyUnit(CardObjectState sourceState)
     {
         return sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !sourceState.IsFaceDown
-            && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
+            && !sourceState.IsFaceDown;
     }
 
     private static IEnumerable<(string ObjectId, CardBehaviorDefinition Behavior)> SourceReadyPowerOnControllerStunsEnemyUnitTriggers(
@@ -22229,7 +21636,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && SuppressesSameBattlefieldEphemeralTurnStart(candidate.CardNo)
                 && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !candidate.IsFaceDown
-                && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && string.Equals(
                     EffectiveFieldControllerId(playerZones, entry.Key, candidate),
                     turnPlayerId,
@@ -22555,7 +21961,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string keyword)
     {
         if (!sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || sourceState.IsFaceDown)
         {
             return false;
@@ -22754,6 +22159,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyAttackingUnit => IsEnemyFieldObject(state, playerId, objectId)
                 && IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyBattlefieldUnit => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitAtSourceBattlefield => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
@@ -22844,7 +22250,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, sourceState.CardNo)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
             || !IsControlledFieldObject(state, playerId, sourceObjectId)
@@ -22877,7 +22282,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!state.CardObjects.TryGetValue(sourceObjectId, out var candidate)
             || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || candidate.IsFaceDown
-            || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !P4ActivatedAbilityCatalog.IsSourceCardNoForAbility(ability, candidate.CardNo)
             || !IsControlledBattlefieldObject(state, playerId, sourceObjectId)
             || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
@@ -22948,7 +22352,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown
-                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
                 && string.Equals(
                     EffectiveFieldControllerId(state.PlayerZones, objectId, cardObject),
                     targetControllerId,
@@ -23225,6 +22628,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             or CardTargetScopes.AttackingUnit
             or CardTargetScopes.EnemyAttackingUnit
             or CardTargetScopes.EnemyBattlefieldUnit
+            or CardTargetScopes.EnemyUnitAtSourceBattlefield
             or CardTargetScopes.EnemyUnit
             or CardTargetScopes.EnemyUnitThenEnemyUnit;
     }
@@ -23234,8 +22638,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string objectId)
     {
         if (!cardObjects.TryGetValue(objectId, out var targetState)
-            || targetState.IsFaceDown
-            || targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            || targetState.IsFaceDown)
         {
             return false;
         }
@@ -23456,7 +22859,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         state = RecomputeRuleDerivedKeywords(state);
         if (!IsEnemyFieldObject(state, playerId, objectId) || !state.CardObjects.TryGetValue(objectId, out var card)
-            || card.IsFaceDown || card.Tags.Contains(CardObjectTags.Standby)) return 0;
+            || card.IsFaceDown) return 0;
         return CardResourceKeywordRules.SpellshieldTaxFromTags(NonRuleDerivedTags(card))
             + CardResourceKeywordRules.SpellshieldTaxFromTags(card.RuleDerivedTags ?? [])
             + CopiedRuleTextKeywordAmount(state, card, CardResourceKeywordNames.Spellshield)
@@ -23630,7 +23033,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && CopyCharacteristics.HasFace(targetState.CardNo)
             && !targetState.IsFaceDown
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && !targetState.IsFaceDown
             && !targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !targetState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
             && !targetState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
@@ -23857,7 +23260,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StackItemState stackItem)
     {
         return behavior.StandbyReactionMaxTargetCount > 0
-            && stackItem.OptionalCosts.Contains(StandbyRevealOptionalCost, StringComparer.Ordinal);
+            && stackItem.PlayedFromStandby is not null;
     }
 
     private static bool TryBuildOptionalCostPlan(
@@ -24980,8 +24383,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Any(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && cardObject.Tags.Contains(requiredTag, StringComparer.Ordinal)
-                && !cardObject.IsFaceDown
-                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal));
+                && !cardObject.IsFaceDown);
     }
 
     private static bool ShouldGrantBoonToSourceUnit(
@@ -25253,7 +24655,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return cardObjects.TryGetValue(objectId, out var cardObject)
             && !cardObject.IsFaceDown
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
+            && !cardObject.IsFaceDown;
     }
 
     private static bool OpponentWithinWinningScoreDistance(MatchState state, string playerId, int distance)
@@ -25597,7 +24999,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && string.Equals(ability.PlayCardFilter, CardObjectTags.UnitCard, StringComparison.Ordinal)
                     && cardObjects.TryGetValue(objectId, out var cardObject)
                     && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                    && !cardObject.IsFaceDown
                     && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
                     && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
                     && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
@@ -25773,6 +25175,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
     {
+        if (stackItem.StandbyObserver is not null) return ResolveStandbyObserver(state, stackItem);
         if (stackItem.Tempered is not null) return ResolveTempered(state, stackItem);
         if (stackItem.AzirMovement is not null) return ResolveAzirMovement(state, stackItem);
         if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
@@ -25947,11 +25350,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state.RngCursor);
         }
 
+        behavior = StandbyDefinition(behavior, stackItem.PlayedFromStandby);
         behavior = ApplyStaticGrantedPredictLifecycleDefault(
             state,
             stackItem.ControllerId,
             stackItem.SourceObjectId,
             behavior);
+        behavior = behavior with { StandbyPlayFrom = stackItem.PlayedFromStandby };
 
         if (!(confirmPermanent && HasIndependentPermanentTargets(behavior))
             && (!HasValidResolvedTargetCount(behavior, chosenStackItem)
@@ -26018,8 +25423,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 events);
+            if (stackItem.PlayedFromStandby is { } shadowEquipment && !stackItem.SourceConfirmed)
+            {
+                var locations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+                locations[stackItem.SourceObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", shadowEquipment.Battlefield.ObjectId);
+                resolvedObjectLocations = locations;
+            }
             if (confirmPermanent && HasPendingPermanentPlayAbility(state, stackItem, behavior))
                 return PendingPermanentPlayAbility(state, stackItem, playerZones, cardObjects, events);
+            if (stackItem.SourceConfirmed && HasStandbyAttachmentPlayAbility(behavior)
+                && stackItem.TargetObjectIds.Count == 1 && !string.IsNullOrEmpty(stackItem.TargetObjectIds[0])
+                && cardObjects.TryGetValue(stackItem.SourceObjectId, out var standbyGear)
+                && standbyGear.LastStandbyPlay == stackItem.PlayedFromStandby
+                && standbyGear.ObjectGeneration == stackItem.PlayedFromStandby!.SourceGeneration + 1
+                && TryAttachEquipment(state, playerZones, cardObjects, resolvedObjectLocations ?? state.ObjectLocations,
+                    stackItem.ControllerId, standbyGear.ObjectId, standbyGear.ObjectId, stackItem.TargetObjectIds[0],
+                    "PLAYED_FROM_FACE_DOWN", events, out var standbyAttachmentLocations))
+                resolvedObjectLocations = standbyAttachmentLocations;
             if (IsAgileDirectPlayAttachRepresentative(behavior)
                 && TryAttachAgileDirectPlayEquipmentToTarget(
                     state, playerZones, cardObjects, behavior, stackItem, events, out var agileLocations))
@@ -26296,7 +25716,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (IsQueuedOnPlaySourcePowerTrigger(behavior))
             {
                 var trigger = BuildOnPlayTriggerQueueItem(stackItem, behavior);
-                events.Add(BuildTriggerQueuedEvent(trigger));
+                if (!stackItem.SourceConfirmed) events.Add(BuildTriggerQueuedEvent(trigger));
                 events.Add(BuildTriggerResolvedEvent(trigger));
             }
 
@@ -26979,7 +26399,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 behavior,
                 stackItem,
-                events);
+                events,
+                stackItem.PlayedFromStandby is null ? null : (Dictionary<string, ObjectLocationState>)(resolvedObjectLocations ??= ReconcileObjectLocations(state.ObjectLocations, playerZones)));
         }
         else if (behavior.DiscardsAllPlayersHandsThenDraws)
         {
@@ -28284,7 +27705,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 behavior,
                 stackItem,
-                events);
+                events,
+                stackItem.PlayedFromStandby is null ? null : (Dictionary<string, ObjectLocationState>)(resolvedObjectLocations ??= ReconcileObjectLocations(state.ObjectLocations, playerZones)));
         }
 
         if (behavior.CreatedBaseEquipmentTokenCount > 0)
@@ -28314,7 +27736,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // until its last instruction. Explicit destroy instructions still execute.
         if (!deferCompletion)
         {
-            var lethalCleanupObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+            var lethalCleanupObjectLocations = ReconcileObjectLocations(resolvedObjectLocations ?? state.ObjectLocations, playerZones);
             var lethalCleanup = RunStateBasedCleanupLoop(state with { PlayerScores = playerScores, PlayerExperience = playerExperience },
                 playerZones,
                 cardObjects,
@@ -29468,7 +28890,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && cardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !targetState.IsFaceDown
-            && !targetState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && !CardStaticAbilitySpecRules.CardCannotBecomeActive(targetState.CardNo))
         {
             cardObjects[targetObjectId] = targetState with { IsExhausted = false };
@@ -30669,12 +30090,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        Dictionary<string, ObjectLocationState>? objectLocations = null)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
         {
             return;
         }
+
+        var shadowField = stackItem.PlayedFromStandby?.Battlefield;
+        if (shadowField is not null && (!cardObjects.TryGetValue(shadowField.ObjectId, out var field)
+            || field.ObjectGeneration != shadowField.Generation || !field.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag))) return;
 
         var copiedTargetObjectId = behavior.CreatedBaseUnitTokenCopiesFirstTarget
             ? stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty
@@ -30761,8 +30187,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["tokenObjectId"] = tokenObjectId,
                 ["tokenName"] = behavior.CreatedBaseUnitTokenName,
                 ["power"] = tokenState.Power,
-                ["destinationZone"] = "BASE"
+                ["destinationZone"] = shadowField is null ? "BASE" : "BATTLEFIELD"
             };
+            if (shadowField is not null) {
+                payload["battlefieldObjectId"] = shadowField.ObjectId;
+                if (objectLocations is null) throw new InvalidOperationException("Standby token play requires its actual battlefield location.");
+                objectLocations[tokenObjectId] = new(stackItem.ControllerId, "BATTLEFIELD", shadowField.ObjectId);
+            }
             if (copiesTarget)
             {
                 payload["copiedTargetObjectId"] = copiedTargetObjectId;
@@ -30797,7 +30228,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         playerZones[stackItem.ControllerId] = zones with
         {
-            Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
+            Base = shadowField is null ? zones.Base.Concat(createdTokenObjectIds).ToArray() : zones.Base,
+            Battlefields = shadowField is null ? zones.Battlefields : zones.Battlefields.Concat(createdTokenObjectIds).ToArray()
         };
         if (isImageCopyToken)
             AddReflexiveCopyEvent(events, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.CardNo,
@@ -31032,18 +30464,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         playerZones[stackItem.ControllerId] = zones with
         {
-            Base = zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+            Base = stackItem.PlayedFromStandby is not null ? zones.Base : zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
                 ? zones.Base
-                : zones.Base.Concat([stackItem.SourceObjectId]).ToArray()
+                : zones.Base.Concat([stackItem.SourceObjectId]).ToArray(),
+            Battlefields = stackItem.PlayedFromStandby is null ? zones.Battlefields : zones.Battlefields.Append(stackItem.SourceObjectId).Distinct().ToArray()
         };
 
-        events.Add(new GameEvent(
-            "EQUIPMENT_PLAYED_TO_BASE",
-            $"{behavior.DisplayName}打出装备到基地",
+        var playedEvent = new GameEvent(
+            stackItem.PlayedFromStandby is null ? "EQUIPMENT_PLAYED_TO_BASE" : "EQUIPMENT_PLAYED_TO_BATTLEFIELD",
+            stackItem.PlayedFromStandby is null ? $"{behavior.DisplayName}打出装备到基地" : $"{behavior.DisplayName}从待命打出至原战场",
             CreateEquipmentPlayedPayload(
                 stackItem,
                 behavior,
-                equipmentState)));
+                equipmentState));
+        events.Add(stackItem.PlayedFromStandby is null ? playedEvent : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
     }
 
     private static Dictionary<string, object?> CreateEquipmentPlayedPayload(
@@ -31057,9 +30491,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["equipmentObjectId"] = stackItem.SourceObjectId,
                 ["equipmentName"] = behavior.DisplayName,
-                ["destinationZone"] = "BASE",
+                ["destinationZone"] = stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD",
                 ["tags"] = equipmentState.Tags.ToArray()
             };
+        if (stackItem.PlayedFromStandby is { } shadow) payload["battlefieldObjectId"] = shadow.Battlefield.ObjectId;
         if (equipmentState.IsExhausted)
         {
             payload["isExhausted"] = true;
@@ -31078,7 +30513,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var targetId = stackItem.TargetObjectIds[0];
         if (!TryGetFieldControllerId(playerZones, targetId, out var controller) || controller != stackItem.ControllerId
             || !cardObjects.TryGetValue(targetId, out var target) || target.IsFaceDown
-            || !target.Tags.Contains(CardObjectTags.UnitCard) || target.Tags.Contains(CardObjectTags.Standby)
+            || !target.Tags.Contains(CardObjectTags.UnitCard) || target.IsFaceDown
             || target.Tags.Contains(CardObjectTags.EquipmentCard) || target.Tags.Contains(CardObjectTags.SpellCard)
             || target.Tags.Contains(CardObjectTags.RuneCard) || !SourceObjectControlledByPlayerOrLegacyOwned(target, controller)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var gear) || gear.IsFaceDown
@@ -31480,7 +30915,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || !cardObjects.TryGetValue(candidateObjectId, out var candidateState)
                 || candidateState.IsFaceDown
                 || !candidateState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || candidateState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || candidateState.IsFaceDown
                 || !TryGetPublicFieldControllerId(
                     playerZones,
                     cardObjects,
@@ -31520,8 +30955,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 if (string.Equals(legendObjectId, enteringObjectId, StringComparison.Ordinal)
                     || !cardObjects.TryGetValue(legendObjectId, out var legendState)
-                    || legendState.IsFaceDown
-                    || legendState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                    || legendState.IsFaceDown)
                 {
                     continue;
                 }
@@ -31766,7 +31200,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 || !cardObjects.TryGetValue(objectId, out var candidate)
                 || candidate.IsFaceDown
                 || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                || candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                || candidate.IsFaceDown)
             {
                 continue;
             }
@@ -31801,7 +31235,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && cardObjects.TryGetValue(objectId, out var candidate)
                 && !candidate.IsFaceDown
                 && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && !candidate.IsFaceDown
                 && candidate.Tags.Contains(requiredTag, StringComparer.Ordinal)
                 && (string.IsNullOrWhiteSpace(candidate.ControllerId)
                     || string.Equals(candidate.ControllerId, controllerId, StringComparison.Ordinal)));
@@ -33310,7 +32744,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var countedCardIds = viewedCardIds
-            .Where(cardId => CardObjectHasTag(cardObjects, cardId, behavior.StandbyReactionCountedTag))
+            .Where(cardId => behavior.StandbyReactionCountedTag == CardObjectTags.Standby
+                ? cardObjects.TryGetValue(cardId, out var counted) && StandbyRules.HasPrintedKeyword(counted.CardNo)
+                : CardObjectHasTag(cardObjects, cardId, behavior.StandbyReactionCountedTag))
             .ToArray();
         var damageAmount = countedCardIds.Length * behavior.StandbyReactionDamagePerCountedCard;
         events.Add(new GameEvent(
@@ -33378,6 +32814,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         out string sourceBattlefieldObjectId)
     {
+        if (stackItem.PlayedFromStandby is { } origin)
+        {
+            sourceBattlefieldObjectId = origin.Battlefield.ObjectId;
+            return state.CardObjects.TryGetValue(sourceBattlefieldObjectId, out var field)
+                && field.ObjectGeneration == origin.Battlefield.Generation;
+        }
         if (TryParseBattlefieldDestination(stackItem.Destination, out sourceBattlefieldObjectId))
         {
             return true;
@@ -34733,7 +34175,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         destinationLocation = new ObjectLocationState(string.Empty, string.Empty);
         if (!MovementRestrictionRules.CanMove(cardObjects.GetValueOrDefault(sourceObjectId), controllerId) || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
             || sourceState.IsFaceDown
-            || sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, controllerId)
             || !string.Equals(sourceState.CardNo, stackCardNo, StringComparison.Ordinal)
@@ -35022,7 +34463,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 && !string.Equals(entry.Key, entry.Value.BattlefieldObjectId, StringComparison.Ordinal)
                 && IsObjectOnField(playerZones, entry.Key)
                 && cardObjects.TryGetValue(entry.Key, out var cardObject)
-                && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                && (cardObject.IsFaceDown)
                 && cardObjects.TryGetValue(entry.Value.BattlefieldObjectId, out var battlefieldState)
                 && !string.Equals(
                     EffectiveFieldControllerId(playerZones, entry.Key, cardObject),
@@ -35208,6 +34649,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         return cardObjects
             .Where(entry => FieldObjectTypeRules.IsUnattachedNonUnitEquipment(entry.Value)
+                && !StandbyRules.AllowsBattlefieldEquipment(entry.Value, objectLocations.GetValueOrDefault(entry.Key))
                 && TryFindBattlefieldZonePlayerId(playerZones, entry.Key, out _)
                 && IsEquipmentObjectLocationOnBattlefieldOrUnknown(objectLocations, entry.Key))
             .Select(entry => new BattlefieldEquipmentCleanupCandidate(
@@ -35495,8 +34937,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // Preserve the cleanup eligibility checks; only replace the damage
         // threshold with current power so local auras and battle roles apply.
         return currentPower > 0 ? card.Damage >= currentPower
-            : card.Tags.Contains(CardObjectTags.UnitCard) && !card.IsFaceDown
-                && !card.Tags.Contains(CardObjectTags.Standby) && HasOwnerOrControllerIdentity(card);
+            : card.Tags.Contains(CardObjectTags.UnitCard) && !card.IsFaceDown && HasOwnerOrControllerIdentity(card);
     }
 
     private static bool IsObjectOnField(

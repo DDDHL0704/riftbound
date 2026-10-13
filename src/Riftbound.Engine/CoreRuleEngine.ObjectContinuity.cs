@@ -25,11 +25,13 @@ public sealed partial class CoreRuleEngine
             var damageMarkers = crossedZone || card.Damage == 0 || !IsObjectOnField(after.PlayerZones, id)
                 ? null : card.DamageMarkedByPlayerIds;
             var grantedTags = crossedZone || !IsObjectOnField(after.PlayerZones, id) ? null : card.GrantedTags;
+            var placement = card.IsFaceDown && nextLocations.GetValueOrDefault(id)?.Zone == "BATTLEFIELD" ? card.StandbyPlacement : null;
+            var lastStandby = card.LastStandbyPlay?.SourceGeneration + 1 == generation ? card.LastStandbyPlay : null;
             if ((!crossedZone || card.CopyFaceTransitions is null) && card.GrantedTags == grantedTags
                 && card.ObjectGeneration == generation && card.MovementCountThisTurn == movementCount
-                && card.DamageMarkedByPlayerIds == damageMarkers) continue;
+                && card.DamageMarkedByPlayerIds == damageMarkers && card.StandbyPlacement == placement && card.LastStandbyPlay == lastStandby) continue;
             cards[id] = card with { CopyFaceTransitions = crossedZone ? null : card.CopyFaceTransitions,
-                GrantedTags = grantedTags, ObjectGeneration = generation, MovementCountThisTurn = movementCount, DamageMarkedByPlayerIds = damageMarkers };
+                StandbyPlacement = placement, LastStandbyPlay = lastStandby, GrantedTags = grantedTags, ObjectGeneration = generation, MovementCountThisTurn = movementCount, DamageMarkedByPlayerIds = damageMarkers };
             changed = true;
         }
 
@@ -110,6 +112,7 @@ public sealed partial class CoreRuleEngine
     private static bool IsLegalChosenCardTarget(MatchState state, string playerId, string objectId, int index,
         IReadOnlyList<string> targets, string scope, CardBehaviorDefinition behavior)
         => !string.IsNullOrWhiteSpace(objectId)
+            && StandbyTargetAllowed(state, behavior, objectId, index)
             && IsTargetObjectInScope(state, playerId, objectId, scope, index, behavior.CanCounterAbilities)
             && IsSelectedBattlefieldTargetRelationAllowed(state, behavior, targets, index)
             && TargetProtectionRules.IsLegalPlayCardSpellOrSkillTarget(state, playerId, behavior, objectId)

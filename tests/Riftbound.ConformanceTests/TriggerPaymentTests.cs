@@ -933,6 +933,13 @@ public sealed class TriggerPaymentTests
         var result = await DeclareVayneBattleAsync(
             BuildOgnVayneConquerRecallState(faceDown: faceDown, standby: standby, opponentControlled: opponentControlled));
 
+        if (!faceDown && standby && !opponentControlled)
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Equal("P1", AssertVaynePaymentOpen(result).PlayerId);
+            Assert.Contains(result.Events, e => e.Kind == "PAYMENT_WINDOW_OPENED");
+            return;
+        }
         Assert.Null(result.State.PendingPayment);
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "PAYMENT_WINDOW_OPENED", StringComparison.Ordinal)
@@ -1274,6 +1281,17 @@ public sealed class TriggerPaymentTests
         var state = BuildJaxWeaponAttachState(faceDown: faceDown, standby: standby, opponentControlled: opponentControlled);
         var result = await AssembleJaxWeaponAsync(
             state);
+
+        // A face-up unit's printed standby keyword does not suppress its abilities (811.5).
+        if (!faceDown && standby && !opponentControlled)
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            AssertJaxPaymentOpen(result);
+            Assert.Equal("P1-JAX", result.State.CardObjects["P1-JAX-WEAPON"].AttachedToObjectId);
+            Assert.Empty(result.State.PlayerZones["P1"].Hand);
+            Assert.Equal(["P1-JAX-DRAW-001", "P1-JAX-DRAW-002"], result.State.PlayerZones["P1"].MainDeck);
+            return;
+        }
 
         Assert.Null(result.State.PendingPayment);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);

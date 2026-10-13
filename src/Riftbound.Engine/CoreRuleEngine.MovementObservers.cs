@@ -84,7 +84,7 @@ public sealed partial class CoreRuleEngine
         string destinationZone, string? destinationField = null)
     {
         if (!before.CardObjects.TryGetValue(unitId, out var unit) || !unit.Tags.Contains(CardObjectTags.UnitCard)
-            || unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby)
+            || unit.IsFaceDown
             || FindFieldObjectLocation(before.PlayerZones, unitId) is not { } field) return null;
         var origin = before.ObjectLocations.GetValueOrDefault(unitId) ?? new(field.PlayerId, field.Zone);
         var destination = new ObjectLocationState(field.PlayerId, destinationZone, destinationField);
@@ -120,7 +120,7 @@ public sealed partial class CoreRuleEngine
         }
         foreach (var source in before.CardObjects.Values)
         {
-            if (source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard) || source.Tags.Contains(CardObjectTags.Standby)
+            if (source.IsFaceDown || !source.Tags.Contains(CardObjectTags.UnitCard) || source.IsFaceDown
                 || FindFieldObjectLocation(before.PlayerZones, source.ObjectId) is not { } field) continue;
             var specs = UnitMovedTriggerSpecRules.MovementTriggers(source.CardNo).Where(UnitMovedTriggerSpecRules.IsOpponentMovementDrawTrigger).ToArray();
             if (specs.Length == 0) continue;

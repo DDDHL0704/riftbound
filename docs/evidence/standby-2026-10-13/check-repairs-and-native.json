@@ -1,0 +1,127 @@
+{
+  "recordedAtUtc": "2026-10-13T10:03:38.845511+00:00",
+  "baseCommit": "96716eee5010991ec254d9fc11feb2bda3cbbcc3",
+  "initialBatchCheck": {
+    "path": "var/qa/standby-20261013/check/check/results.trx",
+    "sha256": "460f3d9e3b595ee1fed13289f60d39e52e598e5de9ca61377c8f3c90accb4f74",
+    "cases": 10857,
+    "passed": 10826,
+    "failed": 31,
+    "notExecuted": 0,
+    "wholeBatchCertification": false
+  },
+  "checkFailures": "var/qa/standby-20261013/check-failures.json",
+  "firstRepairs": {
+    "path": "var/qa/standby-20261013/check-repairs-focus/focus/results.trx",
+    "sha256": "785800e6863ae6fc7796d5294d532f54be1e5389b6bccd9939c18e93998c1d30",
+    "cases": 2152,
+    "passed": 2148,
+    "failed": 4,
+    "notExecuted": 0,
+    "wholeBatchCertification": false
+  },
+  "secondRepairs": {
+    "path": "var/qa/standby-20261013/check-repairs-focus-2/focus/results.trx",
+    "sha256": "a6d087ccfb0ae632f653043247a3e10367a6319c5ea9fbc5977840cb82847749",
+    "cases": 2161,
+    "passed": 2160,
+    "failed": 1,
+    "notExecuted": 0,
+    "wholeBatchCertification": false
+  },
+  "repairedScope": {
+    "path": "var/qa/standby-20261013/check-repairs-recovery/focus/results.trx",
+    "sha256": "883132193a41d3aa076bc6e23c870339342a56ed6ac35663a507018a816aa9db",
+    "cases": 2189,
+    "passed": 2189,
+    "failed": 0,
+    "notExecuted": 0,
+    "wholeBatchCertification": false
+  },
+  "recoveryKeywordScope": {
+    "path": "var/qa/standby-20261013/recovery-keyword-separation-fixed/focus/results.trx",
+    "sha256": "cfced3df2da9eaaf16ae6ba94de5ebe776c177f846b114d5aa4149d9e00df3ba",
+    "cases": 1873,
+    "passed": 1873,
+    "failed": 0,
+    "notExecuted": 0,
+    "wholeBatchCertification": false
+  },
+  "native": {
+    "status": "HEADLESS_PRODUCTION_CONTROLS_PASS",
+    "commands": 50,
+    "accepted": 50,
+    "coldRestores": 50,
+    "allReplayMatches": true,
+    "branches": [
+      {
+        "branch": "spell",
+        "path": "var/qa/standby-20261013/native-mixed/spell/replay.json",
+        "sha256": "b6c9e64188de65db0bac2ae0362bd7d4bd90b906df817b84923445359d1c7dad",
+        "nativeCommands": 12,
+        "accepted": 12,
+        "coldRestores": 12,
+        "staleRejected": 1,
+        "dedupAfterColdRestore": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "29d04a1282d0eee13fa729e6b64fc5ae698789ceb9f5b6f39598e3cc7cf14e5a",
+          "expectedStateHash": "29d04a1282d0eee13fa729e6b64fc5ae698789ceb9f5b6f39598e3cc7cf14e5a",
+          "errors": []
+        }
+      },
+      {
+        "branch": "draw",
+        "path": "var/qa/standby-20261013/native-mixed/draw/replay.json",
+        "sha256": "1f22e419bcea03442110fcf06b892a9788b80595514dd6a8c85cfa940cd147d8",
+        "nativeCommands": 12,
+        "accepted": 12,
+        "coldRestores": 12,
+        "staleRejected": 1,
+        "dedupAfterColdRestore": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "07ca2f64ece0869651ba82bfb73fbecd1704c24d8db3fdaf70dc0077ae5d50ca",
+          "expectedStateHash": "07ca2f64ece0869651ba82bfb73fbecd1704c24d8db3fdaf70dc0077ae5d50ca",
+          "errors": []
+        }
+      },
+      {
+        "branch": "equipment",
+        "path": "var/qa/standby-20261013/native-mixed/equipment/replay.json",
+        "sha256": "8a5165ee7e0ce9592e94c41b25f062c12266285ebe381c284fc8ea8faba547bb",
+        "nativeCommands": 13,
+        "accepted": 13,
+        "coldRestores": 13,
+        "staleRejected": 1,
+        "dedupAfterColdRestore": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "cbe055bfa6b0fc9397c822cfa2ae3ff9a3e4d64b8777a3171e5c93a918e31a77",
+          "expectedStateHash": "cbe055bfa6b0fc9397c822cfa2ae3ff9a3e4d64b8777a3171e5c93a918e31a77",
+          "errors": []
+        }
+      },
+      {
+        "branch": "mixed",
+        "path": "var/qa/standby-20261013/native-mixed/mixed/replay.json",
+        "sha256": "5275cddb5c2f057672e6b951def2c499ea241ffbb8d8d9f46ce78e65f0119bbb",
+        "nativeCommands": 13,
+        "accepted": 13,
+        "coldRestores": 13,
+        "staleRejected": 1,
+        "dedupAfterColdRestore": true,
+        "replay": {
+          "isMatch": true,
+          "replayedStateHash": "5ed9ca7e8d4271ba28b56c5608f0dd9842526df941de99b2fbb81a9e79efcbf6",
+          "expectedStateHash": "5ed9ca7e8d4271ba28b56c5608f0dd9842526df941de99b2fbb81a9e79efcbf6",
+          "errors": []
+        }
+      }
+    ],
+    "visiblePairedClients": false,
+    "userWindowsAcceptance": false
+  },
+  "wholeCardCertification": false,
+  "platformStatus": "NOT_READY"
+}

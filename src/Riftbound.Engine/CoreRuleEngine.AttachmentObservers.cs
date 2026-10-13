@@ -43,7 +43,7 @@ public sealed partial class CoreRuleEngine
         List<GameEvent> events)
     {
         if (!cards.TryGetValue(unitId, out var unit) || !cards.TryGetValue(gearId, out var gear)
-            || unit.IsFaceDown || unit.Tags.Contains(CardObjectTags.Standby) || !unit.Tags.Contains(CardObjectTags.UnitCard)
+            || unit.IsFaceDown || !unit.Tags.Contains(CardObjectTags.UnitCard)
             || !gear.Tags.Contains(CardEquipmentKeywordNames.Weapon) || !IsObjectOnField(zones, unitId)
             || EffectiveFieldControllerId(zones, unitId, unit) != actor
             || OfficialArmamentCatalog.Find(gear.CardNo) is null) return;

@@ -87,7 +87,7 @@ public sealed partial class CoreRuleEngine
             TriggerKinds.BattlefieldSpellPowerBonus, TriggerKinds.BattlefieldFriendlySpellDraw };
         foreach (var source in state.CardObjects.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal))
         {
-            if (source.IsFaceDown || source.Tags.Contains(CardObjectTags.Standby)) continue;
+            if (source.IsFaceDown) continue;
             var field = BattlefieldLocalRules.Battlefield(state, source.ObjectId);
             var ownLegend = state.PlayerZones[played.ControllerId].LegendZone.Contains(source.ObjectId)
                 && source.ControllerId == played.ControllerId;

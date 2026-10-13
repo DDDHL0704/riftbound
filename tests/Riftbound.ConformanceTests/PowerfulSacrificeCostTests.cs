@@ -122,6 +122,15 @@ public sealed class PowerfulSacrificeCostTests
             PlayerZones = new Dictionary<string, PlayerZones>(state.PlayerZones) { ["P1"] = state.PlayerZones["P1"] with {
                 Base = state.PlayerZones["P1"].Base.Where(id => id != "HOST").ToArray(), Hand = ["SPELL", "HOST"] } },
             ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations) { ["HOST"] = new("P1", "HAND") } };
+        if (change == "standby")
+        {
+            Assert.NotNull(Requirement(state));
+            Assert.True(new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, Command())).CanPay);
+            var paid = await Act(state, "P1", Command());
+            Assert.Contains("HOST", paid.State.PlayerZones["P1"].Graveyard);
+            Assert.Contains(paid.Events, e => e.Kind == "UNIT_DESTROYED");
+            return;
+        }
         Assert.Null(Requirement(state));
         Assert.False(new CoreRuleEngine().PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, Command())).CanPay);
         var rejected = await new CoreRuleEngine().ResolveAsync(state, new("invalid", "P1", CommandTypes.PlayCard), Command(), default);

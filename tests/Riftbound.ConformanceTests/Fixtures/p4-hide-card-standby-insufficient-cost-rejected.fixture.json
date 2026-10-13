@@ -18,6 +18,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
       "note": "打出或执行关键词动作需要支付费用；待命的 A 暗置费用不足时不能正面朝下放置，且不改变手牌、基地、事件或 tick。"
+    },
+    {
+      "source": "docs/evidence/standby-2026-10-13/rule-excerpts.json",
+      "locator": "DOC04 811.1.b / 811.1.c",
+      "note": "2026-10-13 修正：待命在受控战场布置，普通费用为一任意符能；布置不算打出。保留原 fixture 身份和命令覆盖。"
     }
   ],
   "roomId": "p4-hide-card-standby-insufficient-cost-rejected-room",
@@ -40,7 +45,7 @@
         "runeDeck": ["P1-RUNE-001"],
         "hand": ["P1-HAND-OGN-TEEMO"],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["STANDBY-TEST-FIELD"],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -58,7 +63,21 @@
         "championZone": []
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "STANDBY-TEST-FIELD": {
+        "cardNo": "OGN·275/298",
+        "tags": ["CARD_TYPE:BATTLEFIELD"],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      }
+    },
+    "objectLocations": {
+      "STANDBY-TEST-FIELD": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "STANDBY-TEST-FIELD"
+      }
+    }
   },
   "commands": [
     {
@@ -68,7 +87,7 @@
         "cmdType": "HIDE_CARD",
         "sourceObjectId": "P1-HAND-OGN-TEEMO",
         "cardNo": "OGN·121/298",
-        "destination": "STANDBY",
+        "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
         "optionalCosts": ["STANDBY_A"]
       }
     }
