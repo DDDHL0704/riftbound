@@ -1,0 +1,10 @@
+{
+  "platformStatus": "NOT_READY",
+  "items": [
+    "Failed b34683bd full CI stays failed; new working assertion fix requires two original full-game replay and coherent check plus fixed full CI.",
+    "Original 110 pair/seed execution remains pending for current candidates; counts/plan are not execution proof.",
+    "Private-source references for all other captured contexts and old histories need full audit.",
+    "Empty-deck BattleResolutions history projection/cold recovery gap is distinct and not fixed here.",
+    "Whole-card/all-document/source gaps, visible paired clients, user Windows and full SQL gameplay/concurrency/failover stay open."
+  ]
+}

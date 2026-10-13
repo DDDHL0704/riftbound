@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -25180,7 +25181,26 @@ public sealed partial class FullGameEndToEndTests
     {
         foreach (var viewerId in result.State.Seats.Keys)
         {
-            var snapshotJson = JsonSerializer.Serialize(result.Snapshots[viewerId]);
+            var snapshot = JsonNode.Parse(JsonSerializer.Serialize(result.Snapshots[viewerId],
+                new JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
+            CheckHistoricalBattlefieldReferences(snapshot, result.State);
+            if (snapshot["stack"] is JsonArray stack)
+                foreach (var row in stack.OfType<JsonObject>())
+                {
+                    var id = row["stackItemId"]?.GetValue<string>();
+                    var item = result.State.StackItems.SingleOrDefault(i => i.StackItemId == id);
+                    if (item?.FieldContext is not { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" } field
+                        || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
+                        || source.ObjectGeneration == field.SourceGeneration) continue;
+                    Assert.True(field.SourceGeneration >= 0 && field.SourceGeneration < source.ObjectGeneration);
+                    Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
+                    Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
+                    Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
+                    Assert.Equal(field.CardNo, item.CardNo);
+                    Assert.Equal("FIELD_TARGETED_TRIGGER", item.EffectKind);
+                    row["sourceObjectId"] = "CHECKED_CAPTURED_ABILITY_SOURCE";
+                }
+            var snapshotJson = snapshot.ToJsonString();
             using var snapshotDocument = JsonDocument.Parse(snapshotJson);
             var exposedStringValues = new HashSet<string>(StringComparer.Ordinal);
             CollectJsonStringValues(snapshotDocument.RootElement, exposedStringValues);
@@ -25192,7 +25212,8 @@ public sealed partial class FullGameEndToEndTests
                 }
 
                 // CN 424: only identities captured by the active reveal are public.
-                // Decks never inherit this exception, even when an identity was previously shown.
+                // Current deck contents never inherit this exception. The exact
+                // already-public historical references were checked separately.
                 var handContext = result.State.PendingCardChoice is { ChoiceWindow: "REVEALED_HAND_EFFECT" } choice
                     ? choice.HandContext : null;
                 var playContext = result.State.PendingEffectPlay?.RevealedHand;
@@ -25207,6 +25228,46 @@ public sealed partial class FullGameEndToEndTests
                 }
                 foreach (var objectId in zones.MainDeck.Concat(zones.RuneDeck))
                     Assert.DoesNotContain(objectId, exposedStringValues);
+            }
+        }
+    }
+
+    private static void CheckHistoricalBattlefieldReferences(JsonNode snapshot, MatchState state)
+    {
+        if (snapshot["timing"]?["battlefieldResolutions"] is not JsonArray history) return;
+        foreach (var row in history)
+        {
+            if (row is not JsonObject record) continue;
+            var id = record["resolutionId"]?.GetValue<string>();
+            var captured = state.BattlefieldResolutions.SingleOrDefault(r => r.ResolutionId == id);
+            if (captured?.PublicObjectBindings is not { } bindings) continue;
+            void ExcludeCheckedReference(JsonNode? value, string expected, Action replace)
+            {
+                var binding = bindings.SingleOrDefault(b => b.ObjectId == expected);
+                if (binding is null) return;
+                Assert.Equal(expected, value?.GetValue<string>());
+                Assert.True(binding.Generation >= 0);
+                if (state.CardObjects.TryGetValue(expected, out var current))
+                {
+                    Assert.True(binding.Generation <= current.ObjectGeneration);
+                    if (state.PlayerZones.Values.Any(z => z.Hand.Contains(expected) || z.MainDeck.Contains(expected) || z.RuneDeck.Contains(expected)))
+                        Assert.True(binding.Generation < current.ObjectGeneration,
+                            $"Historical {captured.ResolutionId}/{expected} generation {binding.Generation} must precede private generation {current.ObjectGeneration}");
+                }
+                // Only these exact already-public historical reference values
+                // are excluded from the current private-identity scan. Every
+                // other string/property remains subject to that scan.
+                replace();
+            }
+            if (captured.SourceObjectId is { } source)
+                ExcludeCheckedReference(record["sourceObjectId"], source, () => record["sourceObjectId"] = "CHECKED_PUBLIC_HISTORY");
+            if (record["participantObjectIds"] is not JsonArray participants) continue;
+            Assert.Equal(captured.ParticipantObjectIds.Count, participants.Count);
+            for (var index = 0; index < participants.Count; index++)
+            {
+                var position = index;
+                ExcludeCheckedReference(participants[index], captured.ParticipantObjectIds[index],
+                    () => participants[position] = "CHECKED_PUBLIC_HISTORY");
             }
         }
     }
@@ -25512,6 +25573,11 @@ public sealed partial class FullGameEndToEndTests
                 };
                 foreach (var objectId in extraP1FieldUnitObjectIds)
                 {
+                    // This midgame fixture deliberately moves a field object
+                    // into its private deck. CN 124 starts a new incarnation;
+                    // retained public history still refers to the old one.
+                    cardObjects[objectId] = cardObjects[objectId] with {
+                        ObjectGeneration = checked(cardObjects[objectId].ObjectGeneration + 1) };
                     objectLocations[objectId] = new ObjectLocationState("P1", TriggerZones.MainDeck);
                 }
             }

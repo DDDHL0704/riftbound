@@ -131,7 +131,22 @@ public sealed class StandbyDefendObserverTests
             var forged = driver.State with { BattlefieldResolutions = driver.State.BattlefieldResolutions.Select(r =>
                 r.ResolutionId == publicHistory.ResolutionId ? forgedHistory : r).ToArray() };
             if (!tokenSource)
+            {
                 Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged), e => e.Contains("captured public battlefield history reference"));
+                var privacy = new ResolutionResult(true, null, driver.State, [], ResolutionResult.BuildSnapshots(driver.State), ResolutionResult.BuildPrompts(driver.State));
+                FullGameEndToEndTests.AssertNoHiddenZoneLeak(privacy);
+                Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => FullGameEndToEndTests.AssertNoHiddenZoneLeak(privacy with { State = forged }));
+                var unbound = driver.State with { BattlefieldResolutions = driver.State.BattlefieldResolutions.Select(r =>
+                    r.ResolutionId == publicHistory.ResolutionId ? r with { PublicObjectBindings = null } : r).ToArray() };
+                Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => FullGameEndToEndTests.AssertNoHiddenZoneLeak(privacy with { State = unbound }));
+                var opponent = privacy.Snapshots["P2"];
+                foreach (var leaked in new[] { host, driver.State.PlayerZones["P1"].MainDeck[0] })
+                {
+                    var views = privacy.Snapshots.ToDictionary(p => p.Key, p => p.Value);
+                    views["P2"] = opponent with { Timing = new Dictionary<string, object?>(opponent.Timing) { ["forgedCurrentPrivateObject"] = leaked } };
+                    Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => FullGameEndToEndTests.AssertNoHiddenZoneLeak(privacy with { Snapshots = views }));
+                }
+            }
             if (tokenSource)
             {
                 var captured = Assert.Single(driver.State.StackItems);
@@ -228,6 +243,7 @@ public sealed class StandbyDefendObserverTests
             var result = await session.SubmitAsync(player, name, command, raw, default);
             Assert.True(result.Accepted, result.ErrorMessage);
             State = result.State;
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
             OfficialGraveyardRecastTests.Restore(State); ArmamentMightTests.PublicRecovery(State);
             var sequence = entries[^1].CompletedEventSequence;
             var snapshots = ResolutionResult.BuildSnapshots(State); var prompts = ResolutionResult.BuildPrompts(State);

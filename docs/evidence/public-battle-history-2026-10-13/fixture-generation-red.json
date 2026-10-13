@@ -1,0 +1,61 @@
+{
+  "receipts": [
+    {
+      "path": "var/qa/public-battle-history-20261013/original-full-games/focus/results.trx",
+      "sha256": "da31629caad6538b77847b99ed829848a07e72a842f33ce41ab452c16d4097c0",
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "1",
+        "failed": "1",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "failures": [
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesKaisaTargetedGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+        }
+      ]
+    },
+    {
+      "path": "var/qa/public-battle-history-20261013/kaisa-generation/focus/results.trx",
+      "sha256": "b406593790f969a0674cbcaeffc95517494778575ff19445f02523e5e0057fef",
+      "counters": {
+        "total": "1",
+        "executed": "1",
+        "passed": "0",
+        "failed": "1",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "failures": [
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesKaisaTargetedGraveyardRuneSpellAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "message": "Historical battlefield-result:25:1:CONQUERED:P1-BATTLEFIELD-OGN-284-298-01/P1-MAIN-OGN-013-298-08 generation 1 must precede private generation 1"
+        }
+      ]
+    }
+  ],
+  "diagnosis": "Original Kaisa manual midgame fixture reassigns public extra friendly field units to a private deck but leaves generation unchanged; exact historical guard correctly rejected same-generation private reference. Increment generation for that deliberate field departure under CN124, never rewrite historical bindings."
+}

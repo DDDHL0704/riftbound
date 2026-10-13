@@ -1,0 +1,22 @@
+{
+  "status": "SCOPED_CHECK_AND_ORIGINAL_FULL_PATHS_PASS_FIXED_FULL_REQUIRED",
+  "focus": {
+    "privacyCases": 27,
+    "originalFailedFullGameCases": 2,
+    "originalFullGameTestSeconds": 20.72
+  },
+  "check": {
+    "cases": 10875,
+    "methods": 6810,
+    "seconds": 147.45,
+    "oldCaseIdentityAndCountParity": true,
+    "frozenInputs": 2020,
+    "actualDedicatedPostgresSmoke": 5
+  },
+  "pythonSafeguards": {
+    "passed": 27,
+    "seconds": 2.357
+  },
+  "wholeCardCertification": false,
+  "wholeRuleCertification": false
+}

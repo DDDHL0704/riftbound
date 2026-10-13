@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "baselineCommit": "47cafe5da7e46a4b356d359d18ed9e7636a7f191",
+  "files": [
+    {
+      "file": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "allOriginalPublicMethodsAndTheoryRowsRetained": true
+    },
+    {
+      "file": "tests/Riftbound.ConformanceTests/StandbyDefendObserverTests.cs",
+      "allOriginalPublicMethodsAndTheoryRowsRetained": true
+    }
+  ],
+  "noSeedOrPairingChanges": true,
+  "diffScope": "Shared privacy assertions and independent negative proofs; Kaisa manual field-to-main-deck fixture now increments object generation under CN124. All original methods/rows/deck/seed/victory/replay preserved."
+}

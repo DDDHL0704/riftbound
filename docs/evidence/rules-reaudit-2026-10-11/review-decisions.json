@@ -17206,6 +17206,39 @@
         "Fixed complete 11024-case / 6951-method / 110-pair CI and real SQL/network later steps need terminal proof.",
         "Visible paired clients, user Windows and full SQL gameplay/concurrency/failover remain open."
       ]
+    },
+    {
+      "id": "public-battle-history-privacy-2026-10-13",
+      "status": "SCOPED_CHECK_AND_ORIGINAL_FULL_PATHS_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Shared full-game privacy assertion distinguishes exact public battlefield history and captured field-ability old-generation sources from current private zone data; independent negative proofs retained. Kaisa manual field-to-private-deck fixture generation corrected under CN124. Not complete permission/card certification.",
+      "subjects": [],
+      "ruleRecords": [
+        "DOC-04-P008-B005",
+        "DOC-04-P008-B014",
+        "DOC-04-P008-B015",
+        "DOC-04-P009-B001",
+        "DOC-04-P009-B003",
+        "DOC-04-P009-B009"
+      ],
+      "auditDocument": "docs/PUBLIC_BATTLE_HISTORY_PRIVACY_AUDIT_2026-10-13.md",
+      "evidence": "docs/evidence/public-battle-history-2026-10-13",
+      "tests": [
+        "FullGameEndToEndTests.AssertNoHiddenZoneLeak",
+        "StandbyDefendObserverTests",
+        "OfficialInformationPermissionTests"
+      ],
+      "validation": {
+        "focus": "27 privacy/copy cases and two original failed full-game paths passed, all original methods/rows/decks/seeds/victory/replay retained",
+        "check": "10875 cases / 6810 methods, all old case identity/counts, 147.45s, 2020 frozen inputs, five actual dedicated PostgreSQL smoke",
+        "full": "Fixed b34683bd failed: ordinary10869 pass, games2 47/49, remaining shards interrupted, mandatorySQL/network skipped; new fixed full required"
+      },
+      "exclusions": [
+        "Failed b34683bd full CI stays failed; new working assertion fix requires two original full-game replay and coherent check plus fixed full CI.",
+        "Original 110 pair/seed execution remains pending for current candidates; counts/plan are not execution proof.",
+        "Private-source references for all other captured contexts and old histories need full audit.",
+        "Empty-deck BattleResolutions history projection/cold recovery gap is distinct and not fixed here.",
+        "Whole-card/all-document/source gaps, visible paired clients, user Windows and full SQL gameplay/concurrency/failover stay open."
+      ]
     }
   ]
 }
