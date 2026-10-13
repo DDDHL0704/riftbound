@@ -9729,7 +9729,7 @@ internal static class ActionPromptBuilder
         var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
         var choices = new List<ActionPromptChoiceDto>();
         if (pool.TotalPower >= 1) choices.Add(new(StandbyHideOptionalCost, "支付 1 点任意特性符能布置待命"));
-        if (pool.Mana >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫许可布置任意牌"));
+        if (pool.Mana >= 1 && HasTeemoStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideTeemoOptionalCost, "支付 1 法力：提莫替换待命布置费用"));
         if (HasFreeStandbyHidePermission(state, playerId)) choices.Add(new(StandbyHideFreeOptionalCost, "免费布置待命", "本回合的结算效果许可"));
         return choices.ToArray();
     }
@@ -9750,6 +9750,7 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(legendObjectId =>
                 state.CardObjects.TryGetValue(legendObjectId, out var legendState)
+                && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 && HasImplementedLegendActionAbility(legendState.CardNo, TeemoLegendAbilityId));
     }
 

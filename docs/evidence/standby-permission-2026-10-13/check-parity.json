@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "profile": "check",
+  "cases": 10895,
+  "methods": 6816,
+  "seconds": 150.72,
+  "testSeconds": 146.94,
+  "baselineCommit": "3a20a0ea7102c55dfd7a290be0fe6e7d96c7ddd9",
+  "oldCasesPreserved": 10885,
+  "oldMethodsPreserved": 6814,
+  "missingCases": [],
+  "missingMethods": [],
+  "addedCases": [
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.ActualGuerrillaWarfareResolutionOffersFreeHideAndExpiresAtTurnEnd(returnGraveyardCard: False)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.ActualGuerrillaWarfareResolutionOffersFreeHideAndExpiresAtTurnEnd(returnGraveyardCard: True)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·263/298\", controller: \"P1\", allowed: True)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·263/298\", controller: \"P2\", allowed: False)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·263a/298\", controller: \"P1\", allowed: True)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·263a/298\", controller: \"P2\", allowed: False)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·307*/298\", controller: \"P1\", allowed: True)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·307*/298\", controller: \"P2\", allowed: False)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·307/298\", controller: \"P1\", allowed: True)",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·307/298\", controller: \"P2\", allowed: False)"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.ActualGuerrillaWarfareResolutionOffersFreeHideAndExpiresAtTurnEnd",
+    "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment"
+  ],
+  "frozenInputs": 2025,
+  "changedInputs": [],
+  "realSqlSmoke": {
+    "dedicatedInstanceOnly": true,
+    "loopbackPort": 55439,
+    "databaseVersion": "PostgreSQL16.13",
+    "cases": [
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift",
+        "outcome": "Passed",
+        "duration": "00:00:00.0939748"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands",
+        "outcome": "Passed",
+        "duration": "00:00:00.1602892"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry",
+        "outcome": "Passed",
+        "duration": "00:00:00.1562839"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift",
+        "outcome": "Passed",
+        "duration": "00:00:00.5797139"
+      },
+      {
+        "name": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit",
+        "outcome": "Passed",
+        "duration": "00:00:00.1465817"
+      }
+    ],
+    "serverStoppedAfterCheck": true
+  },
+  "trxSha256": "a5d722248f86deb69a7d549f93b4c7ee4fd0b8584f1530e14c9ee5f7afedef2a",
+  "assemblySha256": "97c6bbeb1b433350b44b006918641ecb7deb5887c02d1d6e4fb589685c244f95",
+  "wholeCardCertification": false
+}

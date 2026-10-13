@@ -11365,6 +11365,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(legendObjectId =>
                 state.CardObjects.TryGetValue(legendObjectId, out var legendState)
+                && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 && LegendCardHasAbility(legendState.CardNo, TeemoLegendAbilityId));
     }
 

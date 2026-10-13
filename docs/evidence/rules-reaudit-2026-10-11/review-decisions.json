@@ -17500,6 +17500,64 @@
         "All identity/control/reentry/token history and consistently forged state scopes remain unverified.",
         "Visible paired clients, user Windows and complete SQL score/concurrency/failover/network combined acceptance remain open."
       ]
+    },
+    {
+      "id": "standby-payment-permissions-2026-10-13",
+      "status": "SCOPED_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Exact Teemo four-print mana replacement eligibility and actual Guerrilla Warfare temporary free placement path, prompt/raw/native/persistence replay. No whole-card or all standby certification.",
+      "subjects": [
+        "OGN-263/298",
+        "OGN-263A/298",
+        "OGN-307/298",
+        "OGN-307*/298",
+        "OGN-264/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P004-B008",
+        "DOC-04-P004-B010",
+        "DOC-04-P004-B013",
+        "DOC-04-P007-B003",
+        "DOC-04-P008-B001",
+        "DOC-04-P008-B002",
+        "DOC-04-P008-B003",
+        "DOC-04-P008-B004",
+        "DOC-04-P008-B010",
+        "DOC-04-P008-B011",
+        "DOC-04-P072-B005",
+        "DOC-04-P072-B006",
+        "DOC-04-P072-B007",
+        "DOC-04-P072-B008",
+        "DOC-04-P114-B014",
+        "DOC-04-P114-B015",
+        "DOC-04-P114-B017",
+        "DOC-04-P114-B018",
+        "DOC-04-P114-B019",
+        "DOC-04-P114-B020"
+      ],
+      "auditDocument": "docs/STANDBY_PAYMENT_PERMISSION_AUDIT_2026-10-13.md",
+      "evidence": "docs/evidence/standby-permission-2026-10-13",
+      "tests": [
+        "StandbyPaymentPermissionTests",
+        "StandbySourceRulesTests",
+        "StandbyConsumerTests",
+        "TeemoLegendActionDomainGuardTests",
+        "LegendActionSourceIdentityGuardTests",
+        "P79LegendTeemoStandby",
+        "P4HideCardCommandUsesGuerrilla"
+      ],
+      "validation": {
+        "focus": "74 cases/39 methods passed",
+        "native": "14 actual Godot production commands,14 cold restores/dedup/full replay, headless only",
+        "check": "10895 cases/6816 methods,150.72s;old10885/6814 preserved;2025 frozen inputs;actualSQL5/Python27",
+        "full": "Plan6957/11044;all old6955 methods/143 games/110pair+seed retained; fixedfull pending",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Controller-inconsistent legend is a negative permission boundary, not certified lawful legend-steal gameplay.",
+        "No whole-card/all-source/standby-consumer or all extra-cost certification.",
+        "Consistently forged free marker or arbitrary legend identity replay boundaries still require broader evidence.",
+        "Visible paired clients,userWindows,fullSQLscore/concurrency/failover/network-with-SQL remain open."
+      ]
     }
   ]
 }

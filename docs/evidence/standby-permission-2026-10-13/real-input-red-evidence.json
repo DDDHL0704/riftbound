@@ -1,0 +1,50 @@
+{
+  "status": "REPRODUCED_WITH_ACTUAL_SOURCE_INPUTS",
+  "baseCommit": "3a20a0ea7102c55dfd7a290be0fe6e7d96c7ddd9",
+  "trxSha256": "159899db1547b1d7740f0196c58ccb9dc209a7da0c067584909cb301f66b238f",
+  "supersedesInvalidFixtureAttempts": true,
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·307*/298\", controller: \"P1\", allowed: True)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "name": "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·263/298\", controller: \"P2\", allowed: False)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: False\nActual:   True",
+      "stack": "   at Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(String card, String controller, Boolean allowed) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/StandbyPaymentPermissionTests.cs:line 35\n--- End of stack trace from previous location ---"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·263a/298\", controller: \"P1\", allowed: True)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "name": "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.ActualGuerrillaWarfareResolutionOffersFreeHideAndExpiresAtTurnEnd(returnGraveyardCard: False)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "name": "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·263/298\", controller: \"P1\", allowed: True)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "name": "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.ActualGuerrillaWarfareResolutionOffersFreeHideAndExpiresAtTurnEnd(returnGraveyardCard: True)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "name": "Riftbound.ConformanceTests.StandbyPaymentPermissionTests.TeemoReplacementRequiresControlledLegendAndOffersActualManaPayment(card: \"OGN·307/298\", controller: \"P1\", allowed: True)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    }
+  ]
+}
