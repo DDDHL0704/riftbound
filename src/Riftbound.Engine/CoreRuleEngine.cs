@@ -27792,8 +27792,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (behavior.MovesTargetsToChosenLocation)
         {
             var movementLocations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations,
+            var movedTargets = MoveFieldUnitsToChosenLocation(state, playerZones, cardObjects, movementLocations,
                 stackItem, stackItem.TargetObjectIds.Where(id => !string.IsNullOrWhiteSpace(id)).ToArray(), stackItem.Destination, events);
+            // CN359.3.e.14: the following instruction refers to the moved unit;
+            // if movement is ignored, its linked ready instruction is ignored.
+            if (behavior.ReadiesTargetsAfterChosenMovement)
+                foreach (var id in movedTargets)
+                {
+                    if (!cardObjects.TryGetValue(id, out var unit)) continue;
+                    cardObjects[id] = ApplyReadyState(unit, behavior, stackItem, id, out var readyEvent);
+                    if (readyEvent is not null) events.Add(readyEvent);
+                }
             if (behavior.QueuesDestinationDuel) CaptureDestinationDuel(state, chosenStackItem, cardObjects, movementLocations, events);
             resolvedObjectLocations = ReconcileObjectLocations(movementLocations, playerZones);
         }

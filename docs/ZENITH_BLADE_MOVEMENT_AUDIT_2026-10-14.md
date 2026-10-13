@@ -15,3 +15,5 @@
 上一固定ebdef634的[完整CI](evidence/zenith-blade-movement-2026-10-14/fixed-ebdef634-ci.json)独立核对11,085/6,979、2059.66秒全部通过，旧11,062/6,967保留+23/12，110配对/seed424242及最终哈希完全相同，必需网络与Windows/macOS成功。[真实SQL](evidence/zenith-blade-movement-2026-10-14/fixed-ebdef634-sql.json)保存官方开局与四条56命令/148事件/60冷恢复/4篡改拒绝；不覆盖后续031a6ecd或本批改动。
 
 [本批扩大相邻检查](evidence/zenith-blade-movement-2026-10-14/adjacent-focus.json)590项/399方法通过；[原生最终读回](evidence/zenith-blade-movement-2026-10-14/native-replay.json)7路径34条实际生产控件命令、34次冷恢复/去重和完整回放通过，含独立回响目标。无窗口控件运行不替代可见双客户端。[本批check](evidence/zenith-blade-movement-2026-10-14/check-parity.json)10,990/6,853、164.25秒全部通过，原10,979/6,847保留、新增11/6，2,239输入冻结不变；Python27和真实专用SQL五项smoke通过，实例已停止。[完整计划](evidence/zenith-blade-movement-2026-10-14/full-plan-parity.json)6,994方法/预期11,139用例，143原对局方法及110配对/seed424242保留，目录和牌组输入未变；新固定full须独立终态。全源逐条语义、可见双客户端、用户Windows、完整SQL并发/故障切换及英文8项来源缺口仍开放，不完成总Goal。
+
+后续[驭风而行/移动许可审计](RIDE_THE_WIND_MOVEMENT_AUDIT_2026-10-14.md)按CN359.3.e.6纠正本批过严的移动禁令确认：被禁止移动的友方单位仍可被选择，结算只忽略移动，敌方眩晕仍执行。旧aa8d34ca与当时34命令收据保持原版本范围，不能当作该许可语义正确的证明。

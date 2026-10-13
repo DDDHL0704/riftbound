@@ -5,13 +5,16 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     internal static IReadOnlyList<ActionPromptChoiceDto> ChosenMovementDestinations(MatchState state, string playerId)
-        => state.Seats.Keys.Where(id => id != playerId).Order(StringComparer.Ordinal)
+        => state.Seats.Keys.Order(StringComparer.Ordinal)
             .Select(id => new ActionPromptChoiceDto("BASE:" + id, $"{state.Seats[id]} 的基地"))
             .Concat(state.CardObjects.Keys.Order(StringComparer.Ordinal)
                 .Where(id => BattlefieldLocalRules.Battlefield(state, id) is not null)
                 .Select(id => new ActionPromptChoiceDto("BATTLEFIELD:" + id,
                     CardBehaviorRegistry.TryGetByCardNo(state.CardObjects[id].CardNo ?? "", out var behavior)
                         ? $"{behavior.DisplayName}（{id}）" : id))).ToArray();
+
+    internal static bool HasChosenMovementDestination(MatchState state, string player, string target)
+        => ChosenMovementDestinations(state, player).Any(choice => IsUnitMovementDestination(state, target, choice.Id));
 
     private static bool IsChosenMovementDestinationAllowed(MatchState state, string playerId, string destination, IReadOnlyList<string> targets)
     {
@@ -34,7 +37,7 @@ public sealed partial class CoreRuleEngine
             && (location.Value.Zone != "BATTLEFIELD" || state.ObjectLocations.GetValueOrDefault(id)?.BattlefieldObjectId != field);
     }
 
-    private static void MoveFieldUnitsToChosenLocation(
+    private static string[] MoveFieldUnitsToChosenLocation(
         MatchState state,
         Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards,
@@ -75,5 +78,6 @@ public sealed partial class CoreRuleEngine
             foreach (var gear in equipment) locations[gear] = new(origin.PlayerId, destinationZone, field);
         }
         events.Add(captured);
+        return movable;
     }
 }

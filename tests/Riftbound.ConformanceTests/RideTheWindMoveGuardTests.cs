@@ -10,7 +10,7 @@ public sealed class RideTheWindMoveGuardTests
     private const string RideTheWindObjectId = "P1-SPELL-RIDE-THE-WIND";
     private const string RideTheWindCardNo = "OGN·173/298";
     private const string RideTheWindTargetObjectId = "P1-BATTLEFIELD-UNIT";
-    private const string RideTheWindEffectKind = "RIDE_THE_WIND_MOVE_FRIENDLY_BATTLEFIELD_UNIT_TO_BASE_READY";
+    private const string RideTheWindEffectKind = "MOVE_FRIENDLY_UNIT_TO_CHOSEN_LOCATION_THEN_READY";
 
     [Fact]
     public async Task RideTheWindReadiesAndMovesPublicFriendlyBattlefieldUnitToOwnerBase()
@@ -61,7 +61,7 @@ public sealed class RideTheWindMoveGuardTests
         var command = new PlayCardCommand(
             RideTheWindObjectId,
             RideTheWindCardNo,
-            [RideTheWindTargetObjectId]);
+            [RideTheWindTargetObjectId], Destination: "BASE:P1");
 
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
@@ -80,7 +80,7 @@ public sealed class RideTheWindMoveGuardTests
         Assert.Equal(MatchStateHasher.HashValue(staleRawCommand), MatchStateHasher.HashValue(reorderedStaleRawCommand));
         AssertPromptScopedPlayCardRawCommand(reorderedStaleRawCommand, command, prompt, assertPropertyOrder: false);
         Assert.False(reorderedStaleRawCommand.TryGetProperty("clientNote", out _));
-        Assert.Equal(8, changedStaleRawCommand.EnumerateObject().Count());
+        Assert.Equal(9, changedStaleRawCommand.EnumerateObject().Count());
         Assert.Equal("changed-payload", changedStaleRawCommand.GetProperty("clientNote").GetString());
         const string acceptedClientIntentId = "intent-ride-the-wind-before-stale-prompt-replay";
         const string staleClientIntentId = "intent-ride-the-wind-stale-prompt-replay";
@@ -356,7 +356,7 @@ public sealed class RideTheWindMoveGuardTests
             new PlayCardCommand(
                 "P1-SPELL-RIDE-THE-WIND",
                 "OGN·173/298",
-                [targetObjectId]),
+                [targetObjectId], Destination: "BASE:P1"),
             CancellationToken.None);
     }
 
@@ -371,6 +371,7 @@ public sealed class RideTheWindMoveGuardTests
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
+            destination = command.Destination,
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick
         });
@@ -385,6 +386,7 @@ public sealed class RideTheWindMoveGuardTests
             snapshotTick = prompt.SnapshotTick,
             promptId = prompt.PromptId,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
+            destination = command.Destination,
             targetObjectIds = command.TargetObjectIds,
             cardNo = command.CardNo,
             cardObjectId = command.SourceObjectId,
@@ -404,6 +406,7 @@ public sealed class RideTheWindMoveGuardTests
             cardNo = command.CardNo,
             targetObjectIds = command.TargetObjectIds,
             optionalCosts = command.OptionalCosts ?? Array.Empty<string>(),
+            destination = command.Destination,
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick,
             clientNote
@@ -419,7 +422,7 @@ public sealed class RideTheWindMoveGuardTests
         if (assertPropertyOrder)
         {
             Assert.Equal(
-                ["cmdType", "cardObjectId", "cardNo", "targetObjectIds", "optionalCosts", "promptId", "snapshotTick"],
+                ["cmdType", "cardObjectId", "cardNo", "targetObjectIds", "optionalCosts", "destination", "promptId", "snapshotTick"],
                 rawCommand.EnumerateObject().Select(property => property.Name).ToArray());
         }
 
@@ -433,6 +436,7 @@ public sealed class RideTheWindMoveGuardTests
                 .Select(target => target.GetString()!)
                 .ToArray());
         Assert.Empty(rawCommand.GetProperty("optionalCosts").EnumerateArray());
+        Assert.Equal(command.Destination, rawCommand.GetProperty("destination").GetString());
         Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
         Assert.True(prompt.SnapshotTick.HasValue);
         Assert.Equal(prompt.SnapshotTick.Value, rawCommand.GetProperty("snapshotTick").GetInt64());

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ride-the-wind-move-friendly-battlefield-unit-to-base-ready",
-  "description": "Ride the Wind moves one friendly battlefield unit to its owner's base, then readies it in the current destination-limited model.",
+  "description": "Current representative: declare own base, move a friendly battlefield unit, then ready it; full movement audit is separately scoped.",
   "source": "manual-pdf-faq-preflight",
-  "auditStatus": "RULE_AUDITED",
+  "auditStatus": "SCOPED_CURRENT_REBUILD_FULL_REQUIRED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-ride-the-wind-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302093,
     "turnNumber": 68,
@@ -48,26 +51,50 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-RIDE-THE-WIND"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-RIDE-THE-WIND"
+        ],
         "base": [],
-        "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+        "battlefields": [
+          "P1-BATTLEFIELD-UNIT-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
+        "battlefields": [
+          "P2-BATTLEFIELD-UNIT-001"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -95,7 +122,10 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-RIDE-THE-WIND",
         "cardNo": "OGN·173/298",
-        "targetObjectIds": ["P1-BATTLEFIELD-UNIT-001"]
+        "targetObjectIds": [
+          "P1-BATTLEFIELD-UNIT-001"
+        ],
+        "destination": "BASE:P1"
       }
     },
     {
@@ -122,11 +152,13 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_READIED",
-      "UNIT_MOVED_TO_BASE"
+      "UNIT_MOVED_TO_BASE",
+      "UNIT_READIED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -141,21 +173,20 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-RIDE-THE-WIND",
           "cardNo": "OGN·173/298",
-          "targetObjectIds": ["P1-BATTLEFIELD-UNIT-001"],
-          "effectKind": "RIDE_THE_WIND_MOVE_FRIENDLY_BATTLEFIELD_UNIT_TO_BASE_READY"
+          "targetObjectIds": [
+            "P1-BATTLEFIELD-UNIT-001"
+          ],
+          "effectKind": "MOVE_FRIENDLY_UNIT_TO_CHOSEN_LOCATION_THEN_READY"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
       {
-        "kind": "UNIT_READIED",
-        "payload": {
-          "sourceObjectId": "P1-SPELL-RIDE-THE-WIND",
-          "targetObjectId": "P1-BATTLEFIELD-UNIT-001",
-          "wasExhausted": true,
-          "isExhausted": false
-        }
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       },
       {
         "kind": "UNIT_MOVED_TO_BASE",
@@ -164,11 +195,24 @@
           "targetObjectId": "P1-BATTLEFIELD-UNIT-001",
           "ownerPlayerId": "P1"
         }
+      },
+      {
+        "kind": "UNIT_READIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-RIDE-THE-WIND",
+          "targetObjectId": "P1-BATTLEFIELD-UNIT-001",
+          "wasExhausted": true,
+          "isExhausted": false
+        }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 68,
@@ -181,18 +225,30 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-BATTLEFIELD-UNIT-001"],
+          "base": [
+            "P1-BATTLEFIELD-UNIT-001"
+          ],
           "battlefields": [],
-          "graveyard": ["P1-SPELL-RIDE-THE-WIND"]
+          "graveyard": [
+            "P1-SPELL-RIDE-THE-WIND"
+          ]
         },
         "P2": {
-          "battlefields": ["P2-BATTLEFIELD-UNIT-001"]
+          "battlefields": [
+            "P2-BATTLEFIELD-UNIT-001"
+          ]
         }
       },
       "cardObjects": {
@@ -210,8 +266,16 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actions": ["END_TURN"] },
-      "P2": { "actions": ["WAIT"] }
+      "P1": {
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

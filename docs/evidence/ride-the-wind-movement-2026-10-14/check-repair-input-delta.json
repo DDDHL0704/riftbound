@@ -1,0 +1,11 @@
+{
+  "authorizedCorrection": "Mandatory original BASE:P1 destination on legacy network command",
+  "changedInputs": {
+    "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs": {
+      "before": "fd40503dd2492a6404803370815545b584838355f59ca514fe1d871918e3e89f",
+      "after": "3989cd7012fec7e3867ce7f96ac118188a766a83ed813003fadb1ef63413f01c"
+    }
+  },
+  "previousFailedCheckInputs": 2243,
+  "noActiveLocalTestProcess": true
+}

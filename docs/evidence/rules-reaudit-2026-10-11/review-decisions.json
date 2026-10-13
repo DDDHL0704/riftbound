@@ -17825,6 +17825,70 @@
         "Other partial movement consumers such as Ride the Wind,Ruthless Pursuit remain open.",
         "Whole-card/all-source,Englishcountgap8,visiblepaired/userWindows/fullSQLconcurrency/failover open."
       ]
+    },
+    {
+      "id": "ride-the-wind-chosen-movement-linked-ready-2026-10-14",
+      "status": "SCOPED_CURRENT_SOURCE_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "CN OGN173 full friendly field movement, declared destination and linked post-move ready. Separates movement prohibition from target/destination legality; scoped Zenith correction. No whole-card certification.",
+      "subjects": [
+        "OGN-173/298",
+        "OGN-262/298",
+        "OGN-295/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P008-B006",
+        "DOC-04-P043-B007",
+        "DOC-04-P043-B008",
+        "DOC-04-P050-B004",
+        "DOC-04-P050-B005",
+        "DOC-04-P050-B006",
+        "DOC-04-P050-B007",
+        "DOC-04-P050-B008",
+        "DOC-04-P050-B011",
+        "DOC-04-P050-B014",
+        "DOC-04-P051-B001",
+        "DOC-04-P051-B002",
+        "DOC-04-P051-B003",
+        "DOC-04-P051-B004",
+        "DOC-04-P051-B005",
+        "DOC-04-P051-B006",
+        "DOC-04-P052-B001",
+        "DOC-04-P052-B005",
+        "DOC-04-P052-B006",
+        "DOC-04-P052-B007",
+        "DOC-04-P052-B008",
+        "DOC-04-P052-B009",
+        "DOC-04-P052-B011",
+        "DOC-04-P053-B002",
+        "DOC-04-P053-B003"
+      ],
+      "auditDocument": "docs/RIDE_THE_WIND_MOVEMENT_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/ride-the-wind-movement-2026-10-14",
+      "tests": [
+        "RideTheWindCurrentMovementTests",
+        "RideTheWindMoveGuardTests",
+        "ZenithBladeMovementTests",
+        "ChosenMovementTests",
+        "CommandedMovementTests",
+        "SequentialMovementTests",
+        "MovementThresholdTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysRideTheWindAndMovesFriendlyBattlefieldUnitToBaseReady",
+        "GameHubJoinTests.P6MovementAndScoreSeedsBroadcastCoreSnapshotsInDevelopment"
+      ],
+      "validation": {
+        "focus": "550 cases/389 methods,14newcases/7methods",
+        "native": "9branches36 production commands/cold restore/dedup/replay;headless only",
+        "check": "11004 cases/6860 methods;old10990/6853 retained;+14/+7;164.86s;2243frozeninputs unchanged;SQL5actual;Python27;first failed check retained",
+        "full": "7001 methods plan only;old6994/143 full-game methods retained;expected11153cases/110pairs seed424242;newfixedfull pending",
+        "wholeCardCertification": false,
+        "previousFixedFull": "031a6ecd CI38427800380 full11128/6988 old11085/6979 retained +43/+9;110pair identities/finalhashes retained;2688.10s;network/mac/windows/actualSQL scoped pass"
+      },
+      "exclusions": [
+        "CN linked-instruction rule applied; all regional card-text differences and other movement/ready consumers unreviewed.",
+        "Original fixture lacked destination and had ready-before-move; explicit own-base declaration added while original state/seed/methods retained.",
+        "Signature qualification/printed costs/all control/replacement/observer combinations not wholly certified.",
+        "All-source/whole-card/visiblepaired/userWindows/fullSQLconcurrency-failover and eight source count gap open."
+      ]
     }
   ]
 }

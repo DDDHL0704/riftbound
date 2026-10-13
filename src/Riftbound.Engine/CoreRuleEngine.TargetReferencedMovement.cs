@@ -15,8 +15,9 @@ public sealed partial class CoreRuleEngine
         if (targets.Count <= Math.Max(spec.MovingTargetIndex, spec.ReferenceTargetIndex)
             || BattlefieldLocalRules.AtUnit(state, targets[spec.ReferenceTargetIndex]) is not { } field) return false;
         var moving = targets[spec.MovingTargetIndex];
-        return IsUnitMovementDestination(state, moving, "BATTLEFIELD:" + field.ObjectId)
-            && state.CardObjects.TryGetValue(moving, out var unit) && MovementRestrictionRules.CanMove(unit, player);
+        // Destination legality and ability to execute movement are separate.
+        // Shared execution applies prohibitions after confirmation (CN359.3.e.6).
+        return IsUnitMovementDestination(state, moving, "BATTLEFIELD:" + field.ObjectId);
     }
 
     private static void ResolveTargetReferencedMovement(MatchState state, Dictionary<string, PlayerZones> zones,

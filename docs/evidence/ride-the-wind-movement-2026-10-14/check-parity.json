@@ -1,0 +1,80 @@
+{
+  "status": "SCOPED_REPAIRED_CHECK_PASS",
+  "baselineCheck": "var/qa/zenith-blade-20261014/check",
+  "baselineCases": 10990,
+  "baselineMethods": 6853,
+  "cases": 11004,
+  "methods": 6860,
+  "seconds": 164.86,
+  "oldCasesPreserved": 10990,
+  "oldMethodsPreserved": 6853,
+  "addedCases": [
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.ActualFriendlyMovementUsesTheDeclaredDestinationThenReadies(origin: \"BASE\", destination: \"BATTLEFIELD:F\")",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.ActualFriendlyMovementUsesTheDeclaredDestinationThenReadies(origin: \"BATTLEFIELD:F\", destination: \"BASE:P1\")",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.ActualFriendlyMovementUsesTheDeclaredDestinationThenReadies(origin: \"BATTLEFIELD:F\", destination: \"BATTLEFIELD:OTHER\")",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.ActualReturnResponseMakesTheOldUnitAnIllegalTargetForMovementAndReady",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.EquipmentAndMarkedDamageFollowSuccessfulMovementBeforeTheUnitReadies",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.IndependentEchoExecutionsCanMoveTheSameUnitToDifferentDeclaredLocations",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MissingForeignUnchangedAndForgedDestinationsRejectWithoutMutation(destination: \"\")",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MissingForeignUnchangedAndForgedDestinationsRejectWithoutMutation(destination: \"BASE:P2\")",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MissingForeignUnchangedAndForgedDestinationsRejectWithoutMutation(destination: \"BATTLEFIELD:F\")",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MissingForeignUnchangedAndForgedDestinationsRejectWithoutMutation(destination: \"BATTLEFIELD:FORGED\")",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MissingForeignUnchangedAndForgedDestinationsRejectWithoutMutation(destination: \"HAND:P1\")",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MovementProhibitionKeepsTheDeclaredBaseLegalButSkipsLinkedReady(temporary: False)",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MovementProhibitionKeepsTheDeclaredBaseLegalButSkipsLinkedReady(temporary: True)",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.OwnTurnSpellKeepsTheDeclaredDestinationWhenTheTargetMovesElsewhereInResponse"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.ActualFriendlyMovementUsesTheDeclaredDestinationThenReadies",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.ActualReturnResponseMakesTheOldUnitAnIllegalTargetForMovementAndReady",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.EquipmentAndMarkedDamageFollowSuccessfulMovementBeforeTheUnitReadies",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.IndependentEchoExecutionsCanMoveTheSameUnitToDifferentDeclaredLocations",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MissingForeignUnchangedAndForgedDestinationsRejectWithoutMutation",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MovementProhibitionKeepsTheDeclaredBaseLegalButSkipsLinkedReady",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.OwnTurnSpellKeepsTheDeclaredDestinationWhenTheTargetMovesElsewhereInResponse"
+  ],
+  "failed": 0,
+  "skipped": 0,
+  "duplicates": [],
+  "frozenInputs": 2243,
+  "testedInputsUnchanged": true,
+  "testAssemblySha256": "e41cd9159e500dc7c7280b0cb0d0c9f1a95146eb87765e4db40c713ef8cd3cea",
+  "trxSha256": "4300168b447017942f70dacb7dd9b44898a7d52ebc54c3822214decd5b2bd9cd",
+  "actualSqlSmoke": {
+    "dedicatedCluster": "var/qa/postgres-acceptance-20261013/cluster",
+    "port": 55439,
+    "connectionProvided": true,
+    "cases": [
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchJournalRejectsDuplicateClientIntentRawPayloadOrCommandDrift",
+        "duration": "00:00:00.3360092",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit",
+        "duration": "00:00:00.0873828",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreReplaysSingleAcceptedCommandAfterExactDuplicateJournalEntry",
+        "duration": "00:00:00.0840623",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresRecoveryStoreLoadsRawCommandPayloadsForAcceptedAndRejectedCommands",
+        "duration": "00:00:00.1854097",
+        "outcome": "Passed"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.PostgresMatchRecoveryStoreSmokeTests.PostgresMatchPlayerStoreRejectsSeatConflictsAndPlayerSeatDrift",
+        "duration": "00:00:00.0596687",
+        "outcome": "Passed"
+      }
+    ],
+    "fullSqlCertified": false,
+    "clusterStoppedAfterCheck": true
+  },
+  "pythonTests": 27,
+  "firstFailedCheckRetained": true,
+  "fullExecutionCertified": false
+}

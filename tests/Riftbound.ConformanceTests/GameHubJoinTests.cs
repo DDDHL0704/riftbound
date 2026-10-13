@@ -8304,6 +8304,7 @@ public sealed class GameHubJoinTests
               "cmdType": "PLAY_CARD",
               "sourceObjectId": "P1-SPELL-RIDE-THE-WIND",
               "cardNo": "OGN·173/298",
+              "destination": "BASE:P1",
               "targetObjectIds": ["P1-BATTLEFIELD-UNIT-001"]
             }
             """).RootElement.Clone();

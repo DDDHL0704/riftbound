@@ -1,0 +1,30 @@
+{
+  "failedRuns": [
+    {
+      "run": "linked-focus",
+      "cases": 57,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysRideTheWindAndMovesFriendlyBattlefieldUnitToBaseReady",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"eventKinds: expected [CARD_PLAYED, COST_PAID, STAC\"···]"
+        }
+      ],
+      "trxSha256": "0e78871bdffc87a9de11374e5b5ce884469e06afc995f552cfba56cccd02fd3f"
+    },
+    {
+      "run": "check",
+      "cases": 11004,
+      "passed": 11003,
+      "failed": [
+        {
+          "case": "Riftbound.ConformanceTests.GameHubJoinTests.P6MovementAndScoreSeedsBroadcastCoreSnapshotsInDevelopment",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [WsServerMessage { Type = ERROR, RoomId = p6-4a-movement-core, PlayerId = P1, ServerTick = 1, Payload = ErrorDto { Code = INVALID_TARGET, Message = 请选择所有目标均可移动至的同一个位置。 }, ProtocolVersion = 1, SchemaVersion = 1 }]"
+        }
+      ],
+      "trxSha256": "00a207ea8c043d5a3621d6c573b82113c7f452c0c5329dcbcf2c95ecb4726651",
+      "correction": "Legacy hub test omitted mandatory destination. Added original intended BASE:P1; method identity and all assertions retained. No accepted history rewrite."
+    }
+  ],
+  "classification": "Old fixture expected ready-before-move; corrected order. CN359.3.e.6/e14 separates legal destination from executable movement; prior Zenith movement prohibition case now accepts declaration, ignores movement and keeps enemy stun. Original test methods/Theory rows retained.",
+  "wholeCardCertification": false
+}

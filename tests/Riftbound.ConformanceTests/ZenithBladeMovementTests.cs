@@ -122,13 +122,13 @@ public sealed class ZenithBladeMovementTests
         Assert.Single(driver.State.StackItems, x => x.UnitEntryContext is not null);
         await driver.Top();
         Assert.Contains(MovementRestrictionRules.ForPlayer("P1"), driver.State.CardObjects["NEW-UNIT"].UntilEndOfTurnEffects);
-        var rejected = await new CoreRuleEngine().ResolveAsync(driver.State, new("restricted-move", "P1", CommandTypes.PlayCard),
-            new PlayCardCommand("BLADE", "OGN·262/298", ["ENEMY", "NEW-UNIT"]), default);
-        Assert.False(rejected.Accepted);
-        Assert.Empty(rejected.Events);
-        Assert.Equal(MatchStateHasher.Hash(driver.State), MatchStateHasher.Hash(rejected.State));
-        await driver.Act("P1", new PlayCardCommand("BLADE", "OGN·262/298", ["ENEMY"]));
-        await driver.Top();
+        var legal = new PlayCardCommand("BLADE", "OGN·262/298", ["ENEMY", "NEW-UNIT"]);
+        var prompt = ResolutionResult.BuildPrompts(driver.State)["P1"];
+        var quote = new CoreRuleEngine().PreviewPlayCard(driver.State, "P1", new("restricted-move", prompt.PromptId!, driver.State.Tick, legal));
+        Assert.True(quote.IsValid, quote.Message);
+        await driver.Act("P1", legal);
+        var resolved = await driver.Top();
+        Assert.DoesNotContain(resolved.Events, e => e.Kind == "UNIT_MOVED_TO_BATTLEFIELD");
         Assert.Contains("STUNNED", driver.State.CardObjects["ENEMY"].UntilEndOfTurnEffects);
         Assert.Equal("BASE", driver.State.ObjectLocations["NEW-UNIT"].Zone);
         await Replay(initial, driver);

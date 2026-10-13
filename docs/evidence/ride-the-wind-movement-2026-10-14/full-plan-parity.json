@@ -1,0 +1,21 @@
+{
+  "status": "FULL_PLAN_ONLY_NOT_EXECUTION",
+  "methods": 7001,
+  "expectedCases": 11153,
+  "oldMethodsPreserved": 6994,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.ActualFriendlyMovementUsesTheDeclaredDestinationThenReadies",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.ActualReturnResponseMakesTheOldUnitAnIllegalTargetForMovementAndReady",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.EquipmentAndMarkedDamageFollowSuccessfulMovementBeforeTheUnitReadies",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.IndependentEchoExecutionsCanMoveTheSameUnitToDifferentDeclaredLocations",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MissingForeignUnchangedAndForgedDestinationsRejectWithoutMutation",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.MovementProhibitionKeepsTheDeclaredBaseLegalButSkipsLinkedReady",
+    "Riftbound.ConformanceTests.RideTheWindCurrentMovementTests.OwnTurnSpellKeepsTheDeclaredDestinationWhenTheTargetMovesElsewhereInResponse"
+  ],
+  "originalGameMethods": 143,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "testAssemblySha256": "e41cd9159e500dc7c7280b0cb0d0c9f1a95146eb87765e4db40c713ef8cd3cea",
+  "sameAssemblyAsCheck": true,
+  "matrixExecutionCertified": false
+}

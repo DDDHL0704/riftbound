@@ -253,6 +253,16 @@ public partial class ShadySpectaclesInteractionProof : Control
                 var choice = Array.FindIndex(modes, r => (r.GetProperty("mode").GetString() ?? "") == repeatMode);
                 Check(choice >= 0, "Echo mode comes from the server prompt");
                 picker.Select(choice); picker.EmitSignal(OptionButton.SignalName.ItemSelected, choice);
+                if (selected.TryGetProperty("destination", out var repeatDestination) && repeatDestination.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrEmpty(repeatDestination.GetString()))
+                {
+                    var destinationPicker = (OptionButton?)type.GetField("Destination")!.GetValue(repeat);
+                    var destinationIds = (string[])type.GetField("DestinationIds")!.GetValue(repeat)!;
+                    var destinationIndex = Array.IndexOf(destinationIds, repeatDestination.GetString());
+                    Check(destinationPicker is not null && destinationIndex >= 0, "Echo destination comes from the server prompt");
+                    destinationPicker!.Select(destinationIndex);
+                    destinationPicker.EmitSignal(OptionButton.SignalName.ItemSelected, destinationIndex);
+                }
                 var picks = (List<(OptionButton Picker, string[] Ids, bool Required)>)type.GetField("Targets")!.GetValue(repeat)!;
                 var chosen = selected.GetProperty("targetObjectIds").EnumerateArray().Select(id => id.GetString()!).ToArray();
                 Check(chosen.Length <= picks.Count, "Echo target controls cover the selected targets");
@@ -268,7 +278,9 @@ public partial class ShadySpectaclesInteractionProof : Control
             Check(request?.Command.RepeatChoices?.Count == repeated.GetArrayLength(), "Preview retains every Echo execution");
             for (var index = 0; index < repeated.GetArrayLength(); index++)
                 Check(request!.Command.RepeatChoices![index].Mode == (repeated[index].GetProperty("mode").GetString() ?? "")
-                    && request.Command.RepeatChoices[index].TargetObjectIds.SequenceEqual(repeated[index].GetProperty("targetObjectIds").EnumerateArray().Select(id => id.GetString()!)),
+                    && request.Command.RepeatChoices[index].TargetObjectIds.SequenceEqual(repeated[index].GetProperty("targetObjectIds").EnumerateArray().Select(id => id.GetString()!))
+                    && (!repeated[index].TryGetProperty("destination", out var repeatDestinationCheck)
+                        || repeatDestinationCheck.ValueKind != JsonValueKind.String || request.Command.RepeatChoices[index].Destination == repeatDestinationCheck.GetString()),
                     "Preview retains independent Echo targets and modes");
         }
         var destination = expected.TryGetProperty("destination", out var entry) && entry.ValueKind == JsonValueKind.String ? entry.GetString()! : "";
