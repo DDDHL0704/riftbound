@@ -41,6 +41,8 @@ public sealed partial class CoreRuleEngine
         private readonly LastKnownMightFrame before = CapturePublicMightFrame(state, zones, cards, locations);
         public void Dispose()
         {
+            if (zones is Dictionary<string, PlayerZones> mutableZones && cards is Dictionary<string, CardObjectState> mutableCards)
+                EndDetachedUnitCopies(state, mutableZones, mutableCards, events);
             var after = CapturePublicMightFrame(state, zones, cards, locations);
             events.Add(new(CapturedMightInstruction, "记录完整指令后的公开战力输入",
                 new Dictionary<string, object?> { ["frames"] = new MightInstructionFrames(before, after) }));

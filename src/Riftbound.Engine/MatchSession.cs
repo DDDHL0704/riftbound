@@ -464,6 +464,8 @@ public sealed record PowerModifierLedgerEntry
 public sealed record CardObjectState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public AttachmentUnitCopyLedger? AttachmentUnitCopies { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CopyFaceTransition>? CopyFaceTransitions { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public AttachedRuleTextState? AttachedRuleText { get; init; }
@@ -4260,7 +4262,7 @@ public sealed record MatchState
             state.OwnerId,
             state.ControllerId,
             state.UntilEndOfTurnPowerModifiers,
-            state.ObjectGeneration) { CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
+            state.ObjectGeneration) { AttachmentUnitCopies = state.AttachmentUnitCopies, CopyFaceTransitions = state.CopyFaceTransitions?.ToArray(), AttachedRuleText = state.AttachedRuleText, AttachmentRevision = state.AttachmentRevision, GrantedTags = state.GrantedTags?.ToArray(), RuleDerivedTags = state.RuleDerivedTags?.ToArray(), DamageMarkedByPlayerIds = state.DamageMarkedByPlayerIds?.ToArray(), MovementCountThisTurn = state.MovementCountThisTurn, TokenFactoryCardNo = state.TokenFactoryCardNo, ReplacedBattlefieldCard = state.ReplacedBattlefieldCard, ReplacedAtBattlefieldId = state.ReplacedAtBattlefieldId };
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -8906,7 +8908,7 @@ internal static class ActionPromptBuilder
             && (payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
         {
             var steps = new List<ActionPromptSelectionStepDto>();
-            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
+            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
                 payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
             if (payment.PaymentWindow == CoreRuleEngine.MightyCostWindow) {
                 var resources = PendingPaymentResourceChoiceDtos(state, payment);
@@ -8921,7 +8923,7 @@ internal static class ActionPromptBuilder
         }
         return new ActionPromptCandidateDto(
             action,
-            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
+            action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AzirAttachmentWindow ? "决定是否改贴武装" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeWindow ? "确认技能模式" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.AttachmentModeTargetWindow ? "确认技能目标" : action == CommandTypes.PayCost && state.PendingRuleChoice is not null ? (state.PendingRuleChoice.Request.Kind switch { "ATTACHMENT_COPY_SELECTION" => "选择复制单位", "MOVEMENT_SELECTION" => "选择移动单位", "TARGET_GROUP" => "重选合法目标", "FIRST_DEATH_OCCURRENCE" => "选择首次死亡事件", _ => "选择摧毁替换" }) : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TokenReplacementWindow ? "确认指示物替换" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow == CoreRuleEngine.TriggerCostWindow ? "确认触发费用" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "INSIGHT" or "INSIGHT_ORDER" ? "完成洞察" : action == CommandTypes.ChooseCards && state.PendingCardChoice?.ChoiceWindow is "TRIGGER_CONFIRMATION" or CoreRuleEngine.OptionalTriggerWindow or CoreRuleEngine.TemperedConfirmationWindow ? "确认触发技能" : LabelFor(action),
             enabled,
             enabled ? promptReason : DisabledReasonFor(action, promptReason, hasRequiredChoices),
             sources,

@@ -4,6 +4,7 @@ namespace Riftbound.CardCatalog;
 public sealed record OfficialArmamentDefinition(string CardNo, string SourceCardNo, int BaseMightBonus, string EffectText, string CardImageUrl)
 {
     public bool CopiesHostPrintedRulesText { get; init; }
+    public bool CopiesChosenFriendlyUnit { get; init; }
 }
 
 // The official gallery stores the lower armament box separately from rules text.

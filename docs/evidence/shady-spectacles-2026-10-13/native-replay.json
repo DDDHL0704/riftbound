@@ -1,0 +1,35 @@
+{
+  "refresh": {
+    "nativeCommands": 18,
+    "accepted": 18,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "dfe195a66b1d38a6741a98c7dddd782fa1a592787e19556ff606e5af0d0e6c41",
+      "expectedStateHash": "dfe195a66b1d38a6741a98c7dddd782fa1a592787e19556ff606e5af0d0e6c41",
+      "errors": []
+    }
+  },
+  "spell": {
+    "nativeCommands": 18,
+    "accepted": 18,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "9a9783fd9041804bdd4832d7c3b452c58fff7e2590ff39dffb7ddb7fa4f170e0",
+      "expectedStateHash": "9a9783fd9041804bdd4832d7c3b452c58fff7e2590ff39dffb7ddb7fa4f170e0",
+      "errors": []
+    }
+  },
+  "return": {
+    "nativeCommands": 8,
+    "accepted": 8,
+    "staleRejected": 1,
+    "replay": {
+      "isMatch": true,
+      "replayedStateHash": "e6135f65f205394a9d71c724058ace293ff47f0dcc6d6241bc527b1a6e96c043",
+      "expectedStateHash": "e6135f65f205394a9d71c724058ace293ff47f0dcc6d6241bc527b1a6e96c043",
+      "errors": []
+    }
+  }
+}

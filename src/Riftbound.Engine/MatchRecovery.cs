@@ -1073,7 +1073,8 @@ public static class MatchRecoveryValidator
             commandPlayerIds,
             commandPlayerScopeLabel,
             errors);
-        ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors, authoritativeState);
+        var visibleState = authoritativeState is null ? null : CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
+        ValidatePlayerViews(currentTick, lastEventSequence, playerViews, errors, visibleState);
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
         ValidateSpectatorReplayFrame(
@@ -22980,6 +22981,10 @@ public static class MatchRecoveryValidator
         ValidateAuthoritativeStateResolutionHistory(authoritativeState, errors);
         ValidateAuthoritativeStatePlayerPointers(authoritativeState, errors);
 
+        // Private checkpoint and decision transcript are validated above. Public
+        // snapshots render the deterministic intermediate replacement preview.
+        authoritativeState = CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
+
         foreach (var view in playerViews.Values)
         {
             if (view.Snapshot is null)
@@ -23743,6 +23748,7 @@ public static class MatchRecoveryValidator
         {
             if (!AttachedRuleTextRules.ValidState(state, card)) errors.Add("invalid attached printed rule text instance");
             if (!CopyFaceTimeline.Valid(state, card)) errors.Add("invalid copied face timeline");
+            if (!AttachmentUnitCopyRules.Valid(state, card)) errors.Add("invalid attached unit copy ledger");
         }
         if (state.PendingPayment is { } referencedPayment && (referencedPayment.ExperienceCost < 0
             || referencedPayment.ExperienceCost != 0 && referencedPayment.PaymentWindow != CoreRuleEngine.TemperedPaymentWindow))
@@ -27627,6 +27633,8 @@ public static class MatchRecoveryValidator
         {
             errors.Add("spectator replay frame hash does not match authoritative state hash");
         }
+
+        authoritativeState = CoreRuleEngine.VisibleRuleChoiceState(authoritativeState);
 
         if (spectatorReplayFrame.SpectatorSnapshot is null)
         {

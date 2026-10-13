@@ -1,0 +1,21 @@
+{
+  "status": "FAILED",
+  "commit": "66f6b3a6ed5870ad0b3e194e5d2c251bf3c0d54b",
+  "runId": 38321894042,
+  "recordedAtUtc": "2026-10-13T00:34:58.690531+00:00",
+  "jobs": {
+    "scope": "success",
+    "rules": "failure",
+    "desktop (macos-latest)": "success",
+    "desktop (windows-latest)": "success"
+  },
+  "fullAcceptance": false,
+  "failures": [
+    {
+      "case": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "message": "System.InvalidOperationException : B0 targeted boon staging driver cannot stage OGN·136/298: {\"Status\":\"FINISHED\",\"Phase\":\"TURN_START\",\"TimingState\":\"NEUTRAL_CLOSED\",\"ActivePlayerId\":\"P2\",\"TurnPlayerId\":\"P2\",\"FocusPlayerId\":null,\"PriorityPlayerId\":null,\"Scores\":{\"P1\":7,\"P2\":8},\"RunePools\":{\"P1\":{\"Mana\":0,\"Power\":0,\"PowerByTrait\":{}},\"P2\":{\"Mana\":0,\"Power\":0,\"PowerByTrait\":{}}},\"PendingTaskPhase\":\"IDLE\",\"ActiveTaskId\":null,\"TaskKinds\":[]}",
+      "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.DriveSpecificUnitToOwnBaseGrantingBoonToBattlefieldUnitAsync(MatchSession session, ResolutionResult current, String playerId, String cardNo, String targetCardNo, String intentPrefix) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 13578\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 4415\n--- End of stack trace from previous location ---"
+    }
+  ],
+  "scope": "Retain old head failure; repaired driver has cumulative full acceptance only at later b3641407"
+}

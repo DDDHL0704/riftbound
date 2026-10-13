@@ -40,7 +40,7 @@ public sealed partial class CoreRuleEngine
             || state.CardObjects.TryGetValue(item.TargetObjectIds[0], out var target)
                 && target.ObjectGeneration == generation && !target.Tags.Contains(CardObjectTags.UnitCard)
             || state.CardObjects.TryGetValue(item.SourceObjectId, out var source)
-                && source.ObjectGeneration == context.Source.Generation && source.CardNo != item.CardNo)
+                && context.Origin is null && source.ObjectGeneration == context.Source.Generation && source.CardNo != item.CardNo)
             return false;
         if (item.OptionalCosts.Count != 0 || !context.MovementsCompleted && context.AttachmentChosen is not null
             || context.MovementsCompleted && context.Equipment is null) return false;

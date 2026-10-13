@@ -413,6 +413,8 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·137", "可疑的眼镜", 4, "ATTACHMENT_COPY_PLAY_EQUIPMENT", 0, 0,
+            PlaysSourceToBaseAsEquipment: true, SourceEquipmentTags: CardEquipmentKeywordNames.Weapon),
         new("VEN·017", "莫甘娜", 5, "UNIT_PLAY_TARGET_MARKED_DAMAGE", 0, 1,
             TargetScope: CardTargetScopes.AnyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 5, DamageAmountFromTargetMarkedDamage: true),

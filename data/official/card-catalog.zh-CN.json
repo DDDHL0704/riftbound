@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1015,
+  "total": 1016,
   "cards": [
     {
       "id": 31005,
@@ -41994,6 +41994,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37839,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "VEN·137",
+      "cardName": "可疑的眼镜",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "Polar Engine Studio",
+      "cardEffect": "{{装配1黄色}}（支付{{1}}和{{黄色}}：将此牌贴附到你控制的一名单位上。）\n此牌贴附到单位上时，选择另一名友方单位。装配此牌的单位在此牌贴附期间变为所选单位的复制体。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 0,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/8a07c2cb2fec4243804bc923af0b6752.png",
+      "backImage": "",
+      "listSort": 1847,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -42116,6 +42164,26 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
       "scope": "Exact current CN printing; original catalog acquisition metadata and old records preserved; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·137",
+      "sourceId": 37839,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "可疑的眼镜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-12T23:58:04.942054+00:00",
+      "sourceRecordSha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact current CN printing; all preceding records and acquisition metadata preserved; no whole-card certification"
     }
   ]
 }

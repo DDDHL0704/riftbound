@@ -1,0 +1,66 @@
+{
+  "broadAdjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 96.86,
+    "total": 978,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 978,
+        "passed": 978,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 67.41
+      }
+    ]
+  },
+  "fullGameCasesPassed": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"SFD\u00b7050/221\")",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAttachmentMidgameConfirmsBothDrawsAndReplaysThroughScoreVictory(card: \"SFD\u00b7119/221\", copyFirst: False)",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAttachmentMidgameConfirmsBothDrawsAndReplaysThroughScoreVictory(card: \"SFD\u00b7119a/221\", copyFirst: True)",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAzirConfirmsWeaponThenChoosesAttachmentAndReplaysThroughScoreVictory",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"OGN\u00b7109/298\")"
+  ],
+  "nativeCommands": 44,
+  "staleRejected": 3,
+  "wholeCardCertification": false,
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 130.46,
+    "total": 10677,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10677,
+        "passed": 10677,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 126.84
+      }
+    ]
+  },
+  "checkMethods": 6735,
+  "checkCaseMethodParityVerified": true,
+  "finalNativeReplay": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 38.99,
+    "total": 5,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.72
+      }
+    ]
+  },
+  "previousCheckFailuresPreserved": "check-stale-catalog-counts.json"
+}

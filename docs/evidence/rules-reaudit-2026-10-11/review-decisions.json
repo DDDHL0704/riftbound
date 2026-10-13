@@ -13358,7 +13358,8 @@
         "docs/evidence/copied-spell-triggers-2026-10-13/return-readback.json",
         "docs/evidence/copied-spell-triggers-2026-10-13/rule-excerpts.json",
         "docs/evidence/copied-spell-triggers-2026-10-13/source-readback.json",
-        "docs/evidence/copied-spell-triggers-2026-10-13/validation.json"
+        "docs/evidence/copied-spell-triggers-2026-10-13/validation.json",
+        "docs/evidence/copied-spell-triggers-2026-10-13/full-ci-66f6b3a6-failed.json"
       ],
       "tests": [
         "CopiedSpellTriggerTests",
@@ -13378,7 +13379,8 @@
         "addedCases": 25,
         "addedMethods": 11,
         "fullPlannedMethods": 6844,
-        "expectedFullCases": 10753
+        "expectedFullCases": 10753,
+        "ownFixedCommitFullCi": "FAILED"
       },
       "exclusions": [
         "Same-generation copy-face transformations and complete captured source authority",
@@ -13862,7 +13864,8 @@
         "docs/evidence/paid-spell-ready-2026-10-13/red-evidence.json",
         "docs/evidence/paid-spell-ready-2026-10-13/rule-excerpts.json",
         "docs/evidence/paid-spell-ready-2026-10-13/source-readback.json",
-        "docs/evidence/paid-spell-ready-2026-10-13/validation.json"
+        "docs/evidence/paid-spell-ready-2026-10-13/validation.json",
+        "docs/evidence/paid-spell-ready-2026-10-13/full-ci-b3641407.json"
       ],
       "tests": [
         "PaidSpellReadyTests",
@@ -13883,7 +13886,15 @@
         "addedCases": 17,
         "addedMethods": 9,
         "fullPlannedMethods": 6853,
-        "expectedFullCases": 10770
+        "expectedFullCases": 10770,
+        "fixedCommitFullCi": {
+          "commit": "b3641407d085f376501585c5dec9dd0cf4a7611d",
+          "runId": 38323126774,
+          "cases": 10770,
+          "methods": 6853,
+          "pairs": 110,
+          "seconds": 1818.72
+        }
       },
       "exclusions": [
         "Other copy kinds, same-generation face changes and all leave/reentry combinations",
@@ -14200,7 +14211,8 @@
         "docs/evidence/copied-face-authority-2026-10-13/red-evidence.json",
         "docs/evidence/copied-face-authority-2026-10-13/rule-excerpts.json",
         "docs/evidence/copied-face-authority-2026-10-13/source-readback.json",
-        "docs/evidence/copied-face-authority-2026-10-13/validation.json"
+        "docs/evidence/copied-face-authority-2026-10-13/validation.json",
+        "docs/evidence/copied-face-authority-2026-10-13/full-ci-b4dbab3f.json"
       ],
       "tests": [
         "CopiedFaceAuthorityTests",
@@ -14225,13 +14237,745 @@
         "addedCases": 18,
         "addedMethods": 6,
         "fullPlannedMethods": 6859,
-        "expectedFullCases": 10788
+        "expectedFullCases": 10788,
+        "fixedCommitFullCi": {
+          "commit": "b4dbab3f6588f294600799027d10abafeaaad4f3",
+          "runId": 38324731218,
+          "cases": 10788,
+          "methods": 6859,
+          "pairs": 110,
+          "seconds": 2666.75
+        }
       },
       "exclusions": [
         "Shady Spectacles VEN137 runtime not implemented",
         "All nonempty acquired skills across face changes and historical generation authority",
         "Other original-source/copy semantics and all full-card coverage",
         "Eight EN source gaps, visible paired full match, Windows user runtime, real PostgreSQL"
+      ]
+    },
+    {
+      "id": "shady-spectacles-2026-10-13",
+      "status": "SCOPED_CHECK_AND_ACTUAL_NATIVE_REPLAY_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Attachment unit copy with listed lifetime/acquisition/recovery/cost/native paths; exact CN and EN printings separately identified; no whole-card certification",
+      "subjects": [
+        {
+          "id": "OGN-096/298",
+          "activeCardNo": "OGN·096/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31314,
+              "cardNo": "OGN·096/298",
+              "name": "警觉的哨兵",
+              "sha256": "88fc2b44be9cc404aff2ab24f9bd2b0f579d41de699d824731a177fbda0b9d5a",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-096-298",
+              "cardNo": "OGN-096/298",
+              "name": "Watchful Sentry",
+              "sha256": "ce36c8453462cbca356720d038d7dd5080df4710b9a6b58c3c65f5dc74caa6b0",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-022/221",
+          "activeCardNo": "SFD·022/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33095,
+              "cardNo": "SFD·022/221",
+              "name": "长剑",
+              "sha256": "490cc7d14a1d8305a0329521183cf3eec744e57dd9f18af0622384534d98cd27",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-022-221",
+              "cardNo": "SFD-022/221",
+              "name": "Long Sword",
+              "sha256": "309ca4cce39e660e570c7438ff16bf36aff5b77b48fdc134f5602acd334179bc",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-030/221",
+          "activeCardNo": "SFD·030/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33106,
+              "cardNo": "SFD·030/221",
+              "name": "阿瑞昂的陨落",
+              "sha256": "bd70afa2e587e0eb388f479c65b3f7e7ea40954c5dbd8ef5a9c6d25200307d21",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-030-221",
+              "cardNo": "SFD-030/221",
+              "name": "Skyfall of Areion",
+              "sha256": "fca1cfc2e9ea77ea1b86faa630b81c6e9d0577c31dfa331be6779409362721d8",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-050/221",
+          "activeCardNo": "SFD·050/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33126,
+              "cardNo": "SFD·050/221",
+              "name": "阿兹尔",
+              "sha256": "7ae1471dcc402e7672c590bd9c87175f6da668ba0fba9ba2bfef0c07e7b99708",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-050-221",
+              "cardNo": "SFD-050/221",
+              "name": "Azir",
+              "sha256": "7e2555a5867c96a6e6397f8d3b6725877c69ab9e17479d9dbb213281a4a4d27a",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-059/221",
+          "activeCardNo": "SFD·059/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33139,
+              "cardNo": "SFD·059/221",
+              "name": "斯弗尔尚歌",
+              "sha256": "2146ff16f353ba13fa9c3081a9403980f290ce160b95df6e03cbe35da077f9fa",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-059-221",
+              "cardNo": "SFD-059/221",
+              "name": "Svellsongur",
+              "sha256": "75506eceadb637a5be97bcf4abfaa12ba98c875c16c1f058641ef1cc54dbaee1",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-090/221",
+          "activeCardNo": "SFD·090/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33175,
+              "cardNo": "SFD·090/221",
+              "name": "Z型驱动",
+              "sha256": "bf6014eceaf375f05eec7853018d41f102a5180243e623414743bad6fa60cd49",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-090-221",
+              "cardNo": "SFD-090/221",
+              "name": "The Zero Drive",
+              "sha256": "794e59fc8072115099d55cf7a0f03ce0d0a74b6940fe83562db2e47814bee9f4",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-118/221",
+          "activeCardNo": "SFD·118/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33205,
+              "cardNo": "SFD·118/221",
+              "name": "碎骨棒",
+              "sha256": "1a8296b33ff536ccb0ed9b200ba0052316eb7fed75aef15ee26c5f1d59baf5b8",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-118-221",
+              "cardNo": "SFD-118/221",
+              "name": "Boneshiver",
+              "sha256": "c808e6eb20f16875f1a0350170ef77a0fc99d7c2b6947c77b0f2077ab9f86464",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-118A/221-P",
+          "activeCardNo": "SFD·118a/221·P",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33206,
+              "cardNo": "SFD·118a/221·P",
+              "name": "碎骨棒",
+              "sha256": "e71b7dc2ff53df0e38236ef98ec104284472cd0a8c4189ab515d08a70b42f64c",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-119/221",
+          "activeCardNo": "SFD·119/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33207,
+              "cardNo": "SFD·119/221",
+              "name": "贾克斯",
+              "sha256": "1a4c51086c339d36300bad2337000d4e02cb7e75c02510533ece0322b76b2f9c",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-119-221",
+              "cardNo": "SFD-119/221",
+              "name": "Jax",
+              "sha256": "c773fc1ec2cb6de0ed58e72161a7d43f60ec12d2f3818fb5c3f344c08c2625c3",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "UNL-019/219",
+          "activeCardNo": "UNL-019/219",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 34542,
+              "cardNo": "UNL-019/219",
+              "name": "枯萎战斧",
+              "sha256": "577ae74ed4cce970d8f9e333b5908df58eb6e81e62d3ac9eef6d2e80c7dbe1e2",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "unl-019-219",
+              "cardNo": "UNL-019/219",
+              "name": "Blighted Battleaxe",
+              "sha256": "c62cce130fc34d133171a7568ca5028a34d1349a907c2d9dea6afb6dbd359c63",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "VEN-137",
+          "activeCardNo": null,
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 37839,
+              "cardNo": "VEN·137",
+              "name": "可疑的眼镜",
+              "sha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "VEN-137/166",
+          "activeCardNo": null,
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "en-US",
+              "sourceId": "ven-137-166",
+              "cardNo": "VEN-137/166",
+              "name": "Shady Spectacles",
+              "sha256": "e1f16b0b3eedfcfbd205e56c90c46b946ce27dd1d5bf140285d502ed0e4631b1",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "VEN-183",
+          "activeCardNo": null,
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 37886,
+              "cardNo": "VEN·183",
+              "name": "黛安娜",
+              "sha256": "5b90682c0db9dc558fbc0830fa1973a0d9190a9e91d1c6d4651a3e47f9c1859c",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P008-B005",
+        "DOC-04-P008-B006",
+        "DOC-04-P008-B007",
+        "DOC-04-P042-B024",
+        "DOC-04-P043-B001",
+        "DOC-04-P043-B002",
+        "DOC-04-P043-B003",
+        "DOC-04-P043-B004",
+        "DOC-04-P043-B005",
+        "DOC-04-P043-B006",
+        "DOC-04-P043-B007",
+        "DOC-04-P043-B008",
+        "DOC-04-P043-B009",
+        "DOC-04-P043-B010",
+        "DOC-04-P043-B012",
+        "DOC-04-P043-B015",
+        "DOC-04-P043-B016",
+        "DOC-04-P043-B017",
+        "DOC-04-P043-B018",
+        "DOC-04-P043-B019",
+        "DOC-04-P043-B020",
+        "DOC-04-P043-B021",
+        "DOC-04-P043-B022",
+        "DOC-04-P044-B001",
+        "DOC-04-P044-B002",
+        "DOC-04-P044-B003",
+        "DOC-04-P044-B004",
+        "DOC-04-P044-B005",
+        "DOC-04-P044-B006",
+        "DOC-04-P044-B007",
+        "DOC-04-P044-B008",
+        "DOC-04-P044-B009",
+        "DOC-04-P044-B010",
+        "DOC-04-P045-B001",
+        "DOC-04-P045-B002",
+        "DOC-04-P045-B003",
+        "DOC-04-P045-B004",
+        "DOC-04-P045-B005",
+        "DOC-04-P045-B006",
+        "DOC-04-P045-B007",
+        "DOC-04-P045-B008",
+        "DOC-04-P045-B009",
+        "DOC-04-P046-B001",
+        "DOC-04-P046-B002",
+        "DOC-04-P046-B003",
+        "DOC-04-P046-B004",
+        "DOC-04-P046-B005",
+        "DOC-04-P046-B006",
+        "DOC-04-P046-B007",
+        "DOC-04-P046-B008",
+        "DOC-04-P046-B009",
+        "DOC-04-P046-B010",
+        "DOC-04-P046-B011",
+        "DOC-04-P046-B012",
+        "DOC-04-P046-B013",
+        "DOC-04-P046-B014",
+        "DOC-04-P046-B015",
+        "DOC-04-P049-B017",
+        "DOC-04-P049-B018",
+        "DOC-04-P049-B019",
+        "DOC-04-P050-B002",
+        "DOC-04-P050-B003",
+        "DOC-04-P050-B004",
+        "DOC-04-P050-B005",
+        "DOC-04-P050-B006",
+        "DOC-04-P050-B007",
+        "DOC-04-P050-B008",
+        "DOC-04-P050-B011",
+        "DOC-04-P050-B014",
+        "DOC-04-P051-B001",
+        "DOC-04-P051-B002",
+        "DOC-04-P051-B003",
+        "DOC-04-P051-B004",
+        "DOC-04-P051-B005",
+        "DOC-04-P051-B006",
+        "DOC-04-P052-B001",
+        "DOC-04-P052-B005",
+        "DOC-04-P052-B006",
+        "DOC-04-P052-B007",
+        "DOC-04-P052-B008",
+        "DOC-04-P052-B009",
+        "DOC-04-P052-B011",
+        "DOC-04-P053-B002",
+        "DOC-04-P053-B003",
+        "DOC-04-P053-B005",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-04-P053-B010",
+        "DOC-04-P053-B011",
+        "DOC-04-P053-B012",
+        "DOC-04-P053-B013",
+        "DOC-04-P055-B008",
+        "DOC-04-P055-B009",
+        "DOC-04-P055-B011",
+        "DOC-04-P055-B012",
+        "DOC-04-P055-B015",
+        "DOC-04-P055-B016",
+        "DOC-04-P055-B018",
+        "DOC-04-P056-B002",
+        "DOC-04-P056-B004",
+        "DOC-04-P056-B005",
+        "DOC-04-P056-B006",
+        "DOC-04-P058-B017",
+        "DOC-04-P058-B018",
+        "DOC-04-P058-B021",
+        "DOC-04-P059-B001",
+        "DOC-04-P059-B002",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B004",
+        "DOC-04-P059-B006",
+        "DOC-04-P059-B007",
+        "DOC-04-P059-B008",
+        "DOC-04-P059-B009",
+        "DOC-04-P059-B010",
+        "DOC-04-P059-B011",
+        "DOC-04-P059-B012",
+        "DOC-04-P059-B013",
+        "DOC-04-P060-B001",
+        "DOC-04-P060-B002",
+        "DOC-04-P060-B004",
+        "DOC-04-P060-B005",
+        "DOC-04-P060-B006",
+        "DOC-04-P060-B007",
+        "DOC-04-P060-B008",
+        "DOC-04-P060-B009",
+        "DOC-04-P060-B010",
+        "DOC-04-P060-B011",
+        "DOC-04-P060-B012",
+        "DOC-04-P060-B013",
+        "DOC-04-P060-B014",
+        "DOC-04-P060-B015",
+        "DOC-04-P061-B001",
+        "DOC-04-P061-B002",
+        "DOC-04-P061-B003",
+        "DOC-04-P061-B004",
+        "DOC-04-P061-B005",
+        "DOC-04-P061-B006",
+        "DOC-04-P061-B007",
+        "DOC-04-P061-B008",
+        "DOC-04-P061-B009",
+        "DOC-04-P061-B010",
+        "DOC-04-P061-B011",
+        "DOC-04-P061-B012",
+        "DOC-04-P061-B013",
+        "DOC-04-P061-B014",
+        "DOC-04-P061-B015",
+        "DOC-04-P061-B016",
+        "DOC-04-P061-B017",
+        "DOC-04-P061-B018",
+        "DOC-04-P061-B019",
+        "DOC-04-P061-B020",
+        "DOC-04-P061-B021",
+        "DOC-04-P061-B022",
+        "DOC-04-P062-B001",
+        "DOC-04-P062-B002",
+        "DOC-04-P062-B003",
+        "DOC-04-P062-B004",
+        "DOC-04-P062-B005",
+        "DOC-04-P062-B006",
+        "DOC-04-P062-B007",
+        "DOC-04-P062-B008",
+        "DOC-04-P062-B009",
+        "DOC-04-P062-B010",
+        "DOC-04-P062-B011",
+        "DOC-04-P062-B012",
+        "DOC-04-P062-B013",
+        "DOC-04-P062-B014",
+        "DOC-04-P062-B016",
+        "DOC-04-P062-B017",
+        "DOC-04-P062-B018",
+        "DOC-04-P062-B019",
+        "DOC-04-P062-B020",
+        "DOC-04-P063-B001",
+        "DOC-04-P093-B004",
+        "DOC-04-P093-B005",
+        "DOC-04-P093-B006",
+        "DOC-04-P093-B007",
+        "DOC-04-P093-B008",
+        "DOC-04-P093-B009",
+        "DOC-04-P093-B010",
+        "DOC-04-P093-B011",
+        "DOC-04-P094-B001",
+        "DOC-04-P094-B002",
+        "DOC-04-P094-B003",
+        "DOC-04-P094-B004",
+        "DOC-04-P094-B005",
+        "DOC-04-P094-B006",
+        "DOC-04-P094-B007",
+        "DOC-04-P094-B008",
+        "DOC-04-P094-B009",
+        "DOC-04-P094-B012",
+        "DOC-04-P094-B013",
+        "DOC-04-P094-B014",
+        "DOC-04-P094-B015",
+        "DOC-04-P094-B016",
+        "DOC-04-P095-B001",
+        "DOC-04-P095-B002",
+        "DOC-04-P095-B003",
+        "DOC-04-P095-B004",
+        "DOC-04-P103-B011",
+        "DOC-04-P103-B012",
+        "DOC-04-P103-B013",
+        "DOC-04-P103-B014",
+        "DOC-04-P103-B015",
+        "DOC-04-P104-B001",
+        "DOC-04-P104-B002",
+        "DOC-04-P104-B003",
+        "DOC-04-P104-B004",
+        "DOC-04-P104-B005",
+        "DOC-04-P104-B006",
+        "DOC-04-P104-B007",
+        "DOC-04-P104-B008",
+        "DOC-04-P104-B009",
+        "DOC-04-P104-B010",
+        "DOC-04-P104-B011",
+        "DOC-04-P104-B012",
+        "DOC-04-P104-B013",
+        "DOC-04-P104-B014",
+        "DOC-04-P104-B015",
+        "DOC-04-P104-B017",
+        "DOC-04-P104-B018",
+        "DOC-04-P104-B019",
+        "DOC-04-P121-B001",
+        "DOC-04-P121-B002",
+        "DOC-04-P121-B003",
+        "DOC-04-P121-B004",
+        "DOC-04-P121-B005",
+        "DOC-04-P121-B006",
+        "DOC-04-P121-B007",
+        "DOC-04-P121-B008",
+        "DOC-04-P121-B009",
+        "DOC-04-P121-B010",
+        "DOC-04-P121-B011",
+        "DOC-04-P121-B012",
+        "DOC-04-P121-B013",
+        "DOC-04-P121-B014",
+        "DOC-04-P121-B015"
+      ],
+      "auditDocument": "docs/SHADY_SPECTACLES_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/shady-spectacles-2026-10-13/associated-readback.json",
+        "docs/evidence/shady-spectacles-2026-10-13/check-parity.json",
+        "docs/evidence/shady-spectacles-2026-10-13/check-stale-catalog-counts.json",
+        "docs/evidence/shady-spectacles-2026-10-13/code-inputs.json",
+        "docs/evidence/shady-spectacles-2026-10-13/core-readback.json",
+        "docs/evidence/shady-spectacles-2026-10-13/en-readback.json",
+        "docs/evidence/shady-spectacles-2026-10-13/faq-readback.json",
+        "docs/evidence/shady-spectacles-2026-10-13/final-native-replay.json",
+        "docs/evidence/shady-spectacles-2026-10-13/fixture-cost-corrections.json",
+        "docs/evidence/shady-spectacles-2026-10-13/full-plan-parity.json",
+        "docs/evidence/shady-spectacles-2026-10-13/godot-execution.json",
+        "docs/evidence/shady-spectacles-2026-10-13/governance.json",
+        "docs/evidence/shady-spectacles-2026-10-13/native-replay.json",
+        "docs/evidence/shady-spectacles-2026-10-13/promotion-parity.json",
+        "docs/evidence/shady-spectacles-2026-10-13/red-evidence.json",
+        "docs/evidence/shady-spectacles-2026-10-13/rule-excerpts.json",
+        "docs/evidence/shady-spectacles-2026-10-13/source-readback.json",
+        "docs/evidence/shady-spectacles-2026-10-13/typed-cost-readback.json",
+        "docs/evidence/shady-spectacles-2026-10-13/validation.json"
+      ],
+      "tests": [
+        "ShadySpectaclesTests",
+        "ShadySpectaclesNativeTests",
+        "CardCatalogBaselineTests",
+        "ConformanceFixtureRunnerTests",
+        "ConformanceFixtureShapeTests",
+        "CopiedActivatedAbilityTests",
+        "CopiedSpellTriggerTests",
+        "VendettaAmbushTests.CatalogStatisticsAreEvidenceOfRegistrationOnly",
+        "AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource"
+      ],
+      "validation": {
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "nativeProductionCommands": 44,
+        "adjacentCases": 298,
+        "catalogCases": 405,
+        "broadAdjacentCases": 978,
+        "checkCases": 10677,
+        "checkMethods": 6735,
+        "checkSeconds": 130.46,
+        "oldCasesPreserved": 10639,
+        "oldMethodsPreserved": 6718,
+        "addedCases": 38,
+        "addedMethods": 17,
+        "testedCodeInputs": 23,
+        "checkCaseMethodParityVerified": true,
+        "skipped": 0,
+        "failed": 0,
+        "fullPlannedMethods": 6876,
+        "fullExpectedCases": 10826,
+        "fullPlannedMethodParityVerified": true,
+        "fullExecutionCertified": false
+      },
+      "exclusions": [
+        "Gear theft and all copy interactions and original text reacquisition",
+        "All historical source authority, simultaneous replacement ordering and whole-card semantics",
+        "Eight EN source gaps, visible paired full match, Windows user runtime and real PostgreSQL"
       ]
     }
   ]

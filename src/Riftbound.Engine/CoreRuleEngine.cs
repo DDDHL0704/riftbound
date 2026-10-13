@@ -161,6 +161,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
+            result = EndDetachedUnitCopies(state, result);
             result = RefreshRuleDerivedKeywordLayers(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
@@ -30365,6 +30366,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || !FieldIdentityMatchesZone(unit, controller) || !FieldIdentityMatchesZone(gear, gearController)) return false;
         if (gear.AttachedToObjectId == unitId)
         {
+            using var detachInstruction = new MightInstructionScope(state, playerZones, cardObjects, events);
             cardObjects[gearId] = gear with { AttachedToObjectId = null };
             events.Add(new("EQUIPMENT_DETACHED", "卸除武装", new Dictionary<string, object?> {
                 ["sourceObjectId"] = stackItem.SourceObjectId, ["unitObjectId"] = unitId,
@@ -33768,7 +33770,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             }
             return;
         }
-        if (PrintedCardFactory.TryRestoreOutsidePlay(previous with { ObjectId = objectId }, owner, out var printed))
+        var physical = previous.AttachmentUnitCopies is { } copied
+            ? previous with { CardNo = copied.Basis.CardNo } : previous;
+        if (PrintedCardFactory.TryRestoreOutsidePlay(physical with { ObjectId = objectId }, owner, out var printed))
             cardObjects[objectId] = printed with { ObjectGeneration = checked(previous.ObjectGeneration + 1) };
         else
             cardObjects.Remove(objectId); // Legacy identity-less fixtures and token lifecycle.
@@ -34938,6 +34942,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         for (var pass = 0; pass < 32; pass++)
         {
+            EndDetachedUnitCopies(state, playerZones, cardObjects, events);
             var layered = RecomputeRuleDerivedKeywords(state with { PlayerZones = playerZones, CardObjects = cardObjects,
                 ObjectLocations = objectLocations ?? ReconcileObjectLocations(state.ObjectLocations, playerZones) });
             if (!ReferenceEquals(layered.CardObjects, cardObjects))

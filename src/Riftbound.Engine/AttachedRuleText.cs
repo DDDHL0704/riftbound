@@ -54,7 +54,8 @@ internal static class AttachedRuleTextRules
     internal static IEnumerable<RuleTextInstance> Instances(IReadOnlyDictionary<string, PlayerZones> zones,
         IReadOnlyDictionary<string, CardObjectState> cards, CardObjectState unit)
     {
-        if (Face(unit) is { } no) yield return new($"PRINTED:{unit.ObjectId}:{unit.ObjectGeneration}", no);
+        if (AttachmentUnitCopyRules.CurrentText(unit) is { } copied) yield return copied;
+        else if (Face(unit) is { } no) yield return new($"PRINTED:{unit.ObjectId}:{unit.ObjectGeneration}", no);
         foreach (var copy in Copies(zones, cards, unit)) yield return copy;
     }
 
@@ -79,7 +80,8 @@ internal static class AttachedRuleTextRules
 
     internal static bool ValidState(MatchState state, CardObjectState gear)
     {
-        if (gear.AttachmentRevision < 0 || gear.AttachmentRevision > 0 && !CopiesPrintedText(gear.CardNo)) return false;
+        if (gear.AttachmentRevision < 0 || gear.AttachmentRevision > 0
+            && !CopiesPrintedText(gear.CardNo) && !AttachmentUnitCopyRules.GrantsCopy(gear.CardNo)) return false;
         if (gear.AttachedRuleText is { } text) return text.CapturedTick <= state.Tick && Bound(state, gear);
         return !CopiesPrintedText(gear.CardNo) || gear.AttachedToObjectId is null || !Field(state, gear.ObjectId);
     }
@@ -95,7 +97,8 @@ internal static class AttachedRuleTextRules
             || origin.CapturedTick is not >= 0 || origin.CapturedTick > state.Tick || origin.FaceRevision is not >= 0
             || origin.Equipment.ObjectId == unitId || !CopyCharacteristics.HasFace(cardNo)
             || !state.CardObjects.TryGetValue(origin.Equipment.ObjectId, out var gear)
-            || origin.Equipment.Generation > gear.ObjectGeneration || !CopiesPrintedText(gear.CardNo)) return false;
+            || origin.Equipment.Generation > gear.ObjectGeneration
+            || !CopiesPrintedText(gear.CardNo) && !AttachmentUnitCopyRules.GrantsCopy(gear.CardNo)) return false;
         if (gear.ObjectGeneration == origin.Equipment.Generation && origin.Revision > gear.AttachmentRevision) return false;
         return !state.CardObjects.TryGetValue(unitId, out var unit) || generation < unit.ObjectGeneration
             || generation == unit.ObjectGeneration && CopyFaceTimeline.Valid(state, unit)

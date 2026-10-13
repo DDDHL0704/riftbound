@@ -56973,7 +56973,7 @@ public sealed class ConformanceFixtureRunnerTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {
@@ -57032,7 +57032,7 @@ public sealed class ConformanceFixtureRunnerTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {
@@ -57457,7 +57457,7 @@ public sealed class ConformanceFixtureRunnerTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {
@@ -57575,7 +57575,7 @@ public sealed class ConformanceFixtureRunnerTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {
@@ -58047,7 +58047,7 @@ public sealed class ConformanceFixtureRunnerTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {
@@ -58106,7 +58106,7 @@ public sealed class ConformanceFixtureRunnerTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {

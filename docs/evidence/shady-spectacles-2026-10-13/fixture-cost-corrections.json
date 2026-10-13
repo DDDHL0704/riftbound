@@ -1,0 +1,26 @@
+[
+  {
+    "method": "P4AssembleEquipmentCommandAttachesBoneClubPromoWithOrangeCost",
+    "change": "Fund exactly one printed mana; retain power, all attachment/payment assertions and method identity"
+  },
+  {
+    "method": "P4AssembleEquipmentCommandAttachesZDriveWithBlueCost",
+    "change": "Fund exactly one printed mana; retain power, all attachment/payment assertions and method identity"
+  },
+  {
+    "method": "P4AssembleEquipmentCommandAttachesSvarshangSongWithGreenCost",
+    "change": "Fund exactly one printed mana; retain power, all attachment/payment assertions and method identity"
+  },
+  {
+    "method": "P4AssembleEquipmentCommandAttachesArionsFallWithRedCost",
+    "change": "Fund exactly one printed mana; retain power, all attachment/payment assertions and method identity"
+  },
+  {
+    "method": "P4AssembleEquipmentCommandAttachesWitheredBattleaxeWithRedCost",
+    "change": "Fund exactly one printed mana; retain power, all attachment/payment assertions and method identity"
+  },
+  {
+    "method": "P4AssembleEquipmentCommandAttachesBoneClubWithOrangeCost",
+    "change": "Fund exactly one printed mana; retain power, all attachment/payment assertions and method identity"
+  }
+]

@@ -7208,6 +7208,12 @@ public sealed class ConformanceFixtureShapeTests
     [Fact]
     public void ActionPromptFiltersAssembleEquipmentSourcesBySupportedAttachmentAndPower()
     {
+        static MatchState WithPrintedEquipMana(MatchState source)
+        {
+            var pool = source.RunePools["P1"];
+            return source with { RunePools = new Dictionary<string, RunePool>(source.RunePools) {
+                ["P1"] = new(1, pool.Power, pool.PowerByTrait) } };
+        }
         var noPowerState = new MatchState(
             "prompt-assemble-source-room",
             16,
@@ -7326,7 +7332,7 @@ public sealed class ConformanceFixtureShapeTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {
@@ -7739,7 +7745,7 @@ public sealed class ConformanceFixtureShapeTests
             wanderersGuidebookRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_BLUE"], wanderersGuidebookOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
-        var zDriveState = clothArmorState with
+        var zDriveState = WithPrintedEquipMana(clothArmorState) with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
@@ -7834,7 +7840,7 @@ public sealed class ConformanceFixtureShapeTests
             steraksGageRequirement["optionalCostChoices"]);
         Assert.Equal(["ASSEMBLE_GREEN"], steraksGageOptionalCostChoices.Select(cost => cost.Id).ToArray());
 
-        var svarshangSongState = steraksGageState with
+        var svarshangSongState = WithPrintedEquipMana(steraksGageState) with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
@@ -8408,7 +8414,7 @@ public sealed class ConformanceFixtureShapeTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {
@@ -8461,7 +8467,7 @@ public sealed class ConformanceFixtureShapeTests
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(
-                    0,
+                    1,
                     0,
                     new Dictionary<string, int>(StringComparer.Ordinal)
                     {

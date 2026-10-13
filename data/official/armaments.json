@@ -263,6 +263,26 @@
       "baseMightBonus": 3,
       "effectText": "When I conquer, if you assigned 3 or more excess damage, draw 1.",
       "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260320/bf4279fe48f54deb9eeb9bb5e6ebec41.webp"
+    },
+    {
+      "cardNo": "VEN·137",
+      "sourceCardNo": "VEN-137/166",
+      "baseMightBonus": 0,
+      "effectText": "I am a copy of the chosen unit.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260710/8a07c2cb2fec4243804bc923af0b6752.png",
+      "copiesChosenFriendlyUnit": true
+    }
+  ],
+  "scopedAdditions": [
+    {
+      "cardNo": "VEN·137",
+      "cnSourceCardNo": "VEN·137",
+      "enSourceCardNo": "VEN-137/166",
+      "cnRecordSha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+      "enRecordSha256": "e1f16b0b3eedfcfbd205e56c90c46b946ce27dd1d5bf140285d502ed0e4631b1",
+      "cnFetchedAt": "2026-10-12T23:58:04.942054+00:00",
+      "enFetchedAt": "2026-10-13T00:02:30.667790+00:00",
+      "scope": "Current CN registered printing and separately identified EN lower box; no exact printing identity merge"
     }
   ]
 }

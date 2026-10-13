@@ -113,6 +113,7 @@ public sealed partial class CoreRuleEngine
                 ["equipmentObjectId"] = gearId, ["unitObjectId"] = unitId, ["sourceCardNo"] = face,
                 ["revision"] = revision, ["reason"] = "ATTACH_THEN_COPY_PRINTED_RULE_TEXT" }));
         }
+        ApplyAttachmentUnitCopy(state, zones, cards, nextLocations, gearId, unitId, actor, events);
         return true;
     }
 

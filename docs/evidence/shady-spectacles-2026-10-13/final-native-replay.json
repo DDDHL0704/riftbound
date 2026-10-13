@@ -1,0 +1,98 @@
+{
+  "status": "FINAL_CODE_ACTUAL_NATIVE_REPLAY_AND_CATALOG_COUNTS_PASSED",
+  "recordedAtUtc": "2026-10-13T00:55:16.027490+00:00",
+  "summary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 38.99,
+    "total": 5,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.72
+      }
+    ]
+  },
+  "cases": [
+    "Riftbound.ConformanceTests.ShadySpectaclesNativeTests.ProductionEquipmentPlayCopyChoiceAndIndependentSkillsReplay(branch: \"return\")",
+    "Riftbound.ConformanceTests.ShadySpectaclesNativeTests.ProductionEquipmentPlayCopyChoiceAndIndependentSkillsReplay(branch: \"refresh\")",
+    "Riftbound.ConformanceTests.AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource",
+    "Riftbound.ConformanceTests.VendettaAmbushTests.CatalogStatisticsAreEvidenceOfRegistrationOnly",
+    "Riftbound.ConformanceTests.ShadySpectaclesNativeTests.ProductionEquipmentPlayCopyChoiceAndIndependentSkillsReplay(branch: \"spell\")"
+  ],
+  "trxSha256": "a3780e35f1f173aee239e4e999012d58a391847281d1c6e251b23e7f5c98b645",
+  "assemblySha256": "c75aae0c746524dfb2a54c088a74a60eb36341d0db34c7166a90c26be7210d89",
+  "nativeCommandFiles": [
+    {
+      "branch": "refresh",
+      "commands": 18,
+      "commandHashes": {
+        "activate-command.json": "9f5b71265a3685fac792c50803a33d34cdbd0568d9647fb8d8091b6e1beb583d",
+        "activate-pass-1-command.json": "5240ef0db3514a183e780422dae65a60a7fb3b14db69e7d72d959c13a47df48e",
+        "activate-pass-2-command.json": "cc6c64a0de8af4a28ad5bd917fc1cdcc1dc577b0bc5007bec4956efc9a6195c6",
+        "detach-command.json": "91ae9a3ec1150f432bd78f5cdc6bf79dc75bff0bae3bce03fdc81a341014ef57",
+        "detach-pass-1-command.json": "d07b13efb246acd54c7a245c9a2bb11dc8a22b6c0b48d5ad2b1d3ddbd719999f",
+        "detach-pass-2-command.json": "9d5307dd2ca67b0e33c815c021e8b2e44fa0b38a3d038a9846b5cc03ffbcfa64",
+        "equip-command.json": "eda9d6f0bc8d6ff71d4db99242a0812fcffac581b63873f8fc3d503305067584",
+        "equip-copy-command.json": "5c1e2ddfa21d6834586ff9b098b867f157c82b57484b9929dc2206d5adff6aeb",
+        "equip-pass-1-command.json": "a4670fb0787f5b6e15bb76774055ce8ea7c343161f206ad160b399e7f2a3ee1f",
+        "equip-pass-2-command.json": "4af628b9dce93e8df6942353d0417248803d164ed82e542f211cc7dc5f052184",
+        "fresh-command.json": "28cb01c801d6c8e1eb619f073c0442a043b5282e3a91c7105fe586ec5d9f6bc2",
+        "fresh-pass-1-command.json": "99c61b40fee1f2ec2dbc3d7082bbe7538d1e93bf8fdd8ec27e2b8f32982b9230",
+        "fresh-pass-2-command.json": "9a765ce2d5ae677a93ec0b92e2c650ce583b7e677ad8c08143c58337b843bf2c",
+        "play-command.json": "b09b670881583f649f50f0724b8284368f24f25a4c5f0cfd3efca480ab95abcf",
+        "reequip-command.json": "637f488c7355f93532ab36d0535250436df3de9c7500bf61dbb43d87b6e63389",
+        "reequip-copy-command.json": "8ddbc95f36474cc30d793f59e5de0a3a5f33fc1f4d0d32d682a5b787312da0d2",
+        "reequip-pass-1-command.json": "2b62552eeb736bf49f5138848400c133b3cb3abf29b6d70ab224a755e46afcff",
+        "reequip-pass-2-command.json": "39b5aabc4cbc36968847857d08e11f8ef4349556b2dd9f29f5dbb0bd17838200"
+      }
+    },
+    {
+      "branch": "spell",
+      "commands": 18,
+      "commandHashes": {
+        "detach-command.json": "2e6fe97f091ea292ad1dcdae5beb6247811bd558343cf276cea5ba3911451ca8",
+        "detach-pass-1-command.json": "003e51267c0aad2e98d6c25446afd9197bb6c8a43367cdb3d6353f7221591903",
+        "detach-pass-2-command.json": "e6d6984502ba6fd665de573477cd36832de18da25c5c79fb309dfdc5c6e23300",
+        "equip-command.json": "eda9d6f0bc8d6ff71d4db99242a0812fcffac581b63873f8fc3d503305067584",
+        "equip-copy-command.json": "5c1e2ddfa21d6834586ff9b098b867f157c82b57484b9929dc2206d5adff6aeb",
+        "equip-pass-1-command.json": "a4670fb0787f5b6e15bb76774055ce8ea7c343161f206ad160b399e7f2a3ee1f",
+        "equip-pass-2-command.json": "4af628b9dce93e8df6942353d0417248803d164ed82e542f211cc7dc5f052184",
+        "play-command.json": "b09b670881583f649f50f0724b8284368f24f25a4c5f0cfd3efca480ab95abcf",
+        "skill-0-1-command.json": "059d0cdf4aa11ec5a03b08ac471b7d298f752aea70a8d211a18b15935a16e5ea",
+        "skill-0-2-command.json": "39b5aabc4cbc36968847857d08e11f8ef4349556b2dd9f29f5dbb0bd17838200",
+        "skill-1-1-command.json": "09675387151513a8cbebdeb4cd1b09e3a92f59bbeefa655751cd39820f9d35a8",
+        "skill-1-2-command.json": "aabc11ebc895d37252592c9ba71ecf430cdea3f6d0939c05ea6de0b22f85f90f",
+        "skill-2-1-command.json": "162ff5c3b41a0a9f17ac8f7b7c8652b2263ba44a3c4fd61bf35e31452f1a3797",
+        "skill-2-2-command.json": "9a765ce2d5ae677a93ec0b92e2c650ce583b7e677ad8c08143c58337b843bf2c",
+        "spell-command.json": "3cc145d8d22c612be701ddf4f6bbd0bb4737180f3439a7f3ffa42e4465ec4744",
+        "spell-order-command.json": "5ed902a0a3fe879aef373132e1c98778cb266f8ba50ab6ec712fae05d9156754",
+        "spell-pass-1-command.json": "5240ef0db3514a183e780422dae65a60a7fb3b14db69e7d72d959c13a47df48e",
+        "spell-pass-2-command.json": "cc6c64a0de8af4a28ad5bd917fc1cdcc1dc577b0bc5007bec4956efc9a6195c6"
+      }
+    },
+    {
+      "branch": "return",
+      "commands": 8,
+      "commandHashes": {
+        "equip-command.json": "eda9d6f0bc8d6ff71d4db99242a0812fcffac581b63873f8fc3d503305067584",
+        "equip-copy-command.json": "5c1e2ddfa21d6834586ff9b098b867f157c82b57484b9929dc2206d5adff6aeb",
+        "equip-pass-1-command.json": "a4670fb0787f5b6e15bb76774055ce8ea7c343161f206ad160b399e7f2a3ee1f",
+        "equip-pass-2-command.json": "4af628b9dce93e8df6942353d0417248803d164ed82e542f211cc7dc5f052184",
+        "play-command.json": "b09b670881583f649f50f0724b8284368f24f25a4c5f0cfd3efca480ab95abcf",
+        "return-command.json": "9f0986460abd35f08e035808e1c2855f4efc9b0856611a59dc038f4123db978a",
+        "return-pass-1-command.json": "1f7bb64033d79a928294a532f081df52a4f989ac17a2c2c22103e11859f83e88",
+        "return-pass-2-command.json": "cc6c64a0de8af4a28ad5bd917fc1cdcc1dc577b0bc5007bec4956efc9a6195c6"
+      }
+    }
+  ],
+  "nativeCommands": 44,
+  "staleRejected": 3,
+  "sourceEquipmentTagsIncluded": true,
+  "scope": "Actual saved production JSON readback on final code; no visible paired full-match certification"
+}

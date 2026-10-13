@@ -158,16 +158,17 @@ internal static class AssembleEquipmentProfileCatalog
             return true;
         }
 
-        if (TryParseTypedPowerCost(compactText, out var powerTrait, out var powerCost))
+        if (TryParseTypedPowerCost(compactText, out var powerTrait, out var powerCost, out var typedManaCost))
         {
             assembleCost = new AssembleCost(
                 TypedPowerOptionalCost(powerTrait),
-                $"装配{ChineseRuneTraitName(powerTrait)}符能",
+                (typedManaCost > 0 ? $"装配 {typedManaCost} 法力 + " : "装配") + $"{ChineseRuneTraitName(powerTrait)}符能",
                 powerTrait,
                 powerCost,
                 $"payment resource action: recycle {powerTrait} rune for assemble cost",
                 RequiredGraveyardRecycleCardCount: requiredGraveyardRecycleCardCount,
-                RequiresDestroyFriendlyUnitCost: requiresDestroyFriendlyUnitCost);
+                RequiresDestroyFriendlyUnitCost: requiresDestroyFriendlyUnitCost,
+                ManaCost: typedManaCost);
             return true;
         }
 
@@ -215,10 +216,11 @@ internal static class AssembleEquipmentProfileCatalog
         return true;
     }
 
-    private static bool TryParseTypedPowerCost(string compactText, out string powerTrait, out int powerCost)
+    private static bool TryParseTypedPowerCost(string compactText, out string powerTrait, out int powerCost, out int manaCost)
     {
         powerTrait = string.Empty;
         powerCost = 0;
+        manaCost = 0;
         var match = Regex.Match(
             compactText,
             @"装配(?:—?支付)?(?<amount>[0-9]+)?(?<color>红色|绿色|蓝色|紫色|橙色|黄色)");
@@ -228,10 +230,11 @@ internal static class AssembleEquipmentProfileCatalog
             return false;
         }
 
-        powerCost = match.Groups["amount"].Success
+        manaCost = match.Groups["amount"].Success
             && int.TryParse(match.Groups["amount"].Value, out var parsedPowerCost)
                 ? parsedPowerCost
-                : 1;
+                : 0;
+        powerCost = 1;
         return true;
     }
 

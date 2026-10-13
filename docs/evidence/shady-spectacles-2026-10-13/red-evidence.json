@@ -1,0 +1,13 @@
+{
+  "baselineCommit": "235b1fbe216f46df7021f6341c90f3680723c30a",
+  "failures": [
+    {
+      "case": "Riftbound.ConformanceTests.ShadySpectaclesTests.CurrentPrintingHasAnEquipmentPlayBehavior",
+      "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.ShadySpectaclesTests.TypedAssemblePaysPrintedManaAndOneTypedPower",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 19\nActual:   20"
+    }
+  ]
+}
