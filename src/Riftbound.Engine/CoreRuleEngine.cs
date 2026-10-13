@@ -3648,7 +3648,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 LastStandbyPlay = behavior.StandbyPlayFrom, ObjectGeneration = hidden.ObjectGeneration + 1,
                 Tags = hidden.Tags.Where(tag => tag != CardObjectTags.Standby).ToArray() };
         }
-        if (state.PendingEffectPlay is { SourceZone: not "HAND" }
+        if (state.PendingEffectPlay is { SourceZone: not ("HAND" or "STACK") }
             && cardObjects.TryGetValue(command.SourceObjectId, out var replayed)
             && PrintedCardFactory.TryRestoreOutsidePlay(replayed, intent.PlayerId, out var printedReplay))
             cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration };
@@ -3718,6 +3718,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PlayCost = IsSpellPlayBehavior(behavior) ? new(cardObjects.TryGetValue(command.SourceObjectId, out var playedSource) ? EffectiveCardManaCost(playedSource, behavior) : behavior.ManaCost, plan.TotalManaCost) : null,
                 TargetStackSources = state.StackItems.Where(item => (plan.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? targetObjectIds)
                     .Contains(item.StackItemId, StringComparer.Ordinal)).ToDictionary(item => item.StackItemId, item => item.SourceObjectId, StringComparer.Ordinal) };
+        stackItem = SourceReplayChild(state, stackItem);
         var untilEndOfTurnEffects = MarkArmamentPlayedThisTurn(
             state.UntilEndOfTurnEffects,
             intent.PlayerId,
@@ -18992,7 +18993,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return false;
             }
 
-            if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+            if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId)
+                && !(state.PendingEffectPlay is { SourceReplay: not null } self && self.PlayerId == intent.PlayerId && self.Sources.ContainsKey(command.SourceObjectId)))
             {
                 rejection = Reject(
                     state,
@@ -19362,7 +19364,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             state.CardObjects,
             recycledPaymentRuneObjectIds);
         if (!PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, printedPowerChoices.SingleOrDefault(),
-                paymentAdjustedPool, extraPowerCost + spellshieldTaxPower, extraPowerCostByTrait, out var totalGenericPowerCost, out var totalPowerCostByTrait, echoPrintedCosts))
+                paymentAdjustedPool, extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId), extraPowerCostByTrait, out var totalGenericPowerCost, out var totalPowerCostByTrait, echoPrintedCosts))
         {
             rejection = Reject(state, "Invalid printed power allocation.", ErrorCodes.InvalidTarget);
             return false;
@@ -25189,6 +25191,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior) && insightBehavior.PerformsInsight)
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
+        if (stackItem.SourceReplayDecisionCompleted) return CompleteSourceReplayDecision(state, stackItem);
         if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var movementFollowUpBehavior)
             && movementFollowUpBehavior.OptionalEquipmentAfterMovement)
             return ResolveMovementFollowUp(state, stackItem, movementFollowUpBehavior, deferCompletion);
@@ -25393,6 +25396,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Distinct(StringComparer.Ordinal)
             .OrderBy(effectId => effectId, StringComparer.Ordinal)
             .ToList();
+        var sourceReplayProgress = behavior.SourceReplay is null ? null : stackItem.SourceReplay
+            ?? throw new InvalidOperationException("Source replay progress must be captured when the spell is played.");
+        PendingEffectPlayState? sourceReplayChoice = null;
         var events = new List<GameEvent>();
         var officialLastBreathTriggers = new List<TriggerQueueItemState>();
         var destroyedObjectIds = new List<string>();
@@ -27088,6 +27094,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         cardObjects[targetObjectId] = targetState;
                     }
 
+                    var damagedController = sourceReplayProgress is null ? null : EffectiveFieldControllerId(playerZones, targetObjectId, targetState);
+                    var sourceReplayDamage = 0;
+                    if (sourceReplayProgress?.IsReplay == true) damageAmount += sourceReplayProgress.DamageOccurrences.Count;
                     if (damageAmount > 0)
                     {
                         var damageApplication = ApplyDamageToCardObject(
@@ -27099,10 +27108,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             preventDamageFromThisStackItem,
                             PreventSpellAndSkillDamageThisTurnEffectId);
                         targetState = cardObjects[targetObjectId];
+                        sourceReplayDamage = damageApplication.DamageAmount;
                         events.Add(new GameEvent(
                             "DAMAGE_APPLIED",
                             $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点伤害",
                             BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
+                    }
+
+                    if (sourceReplayProgress is not null)
+                    {
+                        if (sourceReplayDamage > 0)
+                            sourceReplayProgress = sourceReplayProgress with { DamageOccurrences = [..sourceReplayProgress.DamageOccurrences,
+                                new(stackItem.StackItemId, state.Tick, new(targetObjectId, targetState.ObjectGeneration), sourceReplayDamage, targetState.CardNo)] };
+                        sourceReplayChoice = SourceReplayChoice(state, stackItem, sourceReplayProgress, new(targetObjectId, targetState.ObjectGeneration), damagedController!);
                     }
 
                     if (behavior.CreatesGoldWhenTargetDestroyedThisTurn)
@@ -27734,7 +27752,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         // CN 321: repeats belong to one resolving item; lethal cleanup waits
         // until its last instruction. Explicit destroy instructions still execute.
-        if (!deferCompletion)
+        if (!deferCompletion && sourceReplayChoice is null)
         {
             var lethalCleanupObjectLocations = ReconcileObjectLocations(resolvedObjectLocations ?? state.ObjectLocations, playerZones);
             var lethalCleanup = RunStateBasedCleanupLoop(state with { PlayerScores = playerScores, PlayerExperience = playerExperience },
@@ -27865,7 +27883,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             cardObjects,
             destroyedUnitOwnerIds));
 
-        if (!deferCompletion || winnerPlayerId is not null)
+        if ((!deferCompletion && sourceReplayChoice is null || winnerPlayerId is not null)
+            && !(sourceReplayProgress is not null && state.StackItems.Any(i => i.StackItemId != stackItem.StackItemId && i.SourceObjectId == stackItem.SourceObjectId)))
         {
             CompleteSpellSource(playerZones, cardObjects, stackItem, behavior);
 
@@ -27876,6 +27895,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var triggerQueue = officialLastBreathTriggers.ToArray();
 
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, events).ToList();
+        ReturnSourceStolenEquipmentForMissingSources(playerZones, cardObjects, events);
+        if (sourceReplayProgress is not null) updatedStackItems = PropagateSourceReplayProgress(state, stackItem, sourceReplayProgress).Where(i => i.StackItemId != stackItem.StackItemId).ToArray();
         ReturnSourceStolenEquipmentForMissingSources(playerZones, cardObjects, events);
         return new StackResolutionResult(
             playerZones,
@@ -27898,6 +27919,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             extraTurnPlayerId,
             triggerQueue,
             rngCursor,
+            PendingEffectPlay: sourceReplayChoice,
             ObjectLocations: resolvedObjectLocations,
             PendingPayment: pendingPayment);
     }

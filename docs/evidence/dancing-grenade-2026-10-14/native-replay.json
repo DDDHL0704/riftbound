@@ -1,0 +1,96 @@
+{
+  "status": "FINAL_SOURCE_NATIVE_COMMAND_READBACK_COLD_RESTORE_DEDUP_FULL_JOURNAL_PASS",
+  "branches": [
+    {
+      "branch": "cost-0-0",
+      "commands": 4,
+      "replaySha256": "0e56bb2576d48b11c80c547f9d92f365fa6826c106da2b695f8b2c6d2c9484a2"
+    },
+    {
+      "branch": "cost-0-1",
+      "commands": 7,
+      "replaySha256": "554470f46cc0d445b26081fa74e9f04d5dab3ae320b73807d1b7d846c551b84e"
+    },
+    {
+      "branch": "cost-2-2",
+      "commands": 4,
+      "replaySha256": "20d45ccbab7da83971dd39f95131f4e0b70b413c93c98d12cdf6aff0bb1381d6"
+    },
+    {
+      "branch": "cost-2-3",
+      "commands": 7,
+      "replaySha256": "2aa03b775844d05b7d75de0cfc1c57bae27cd32da6e8164c8047d16d2299d896"
+    },
+    {
+      "branch": "counter-replay",
+      "commands": 8,
+      "replaySha256": "d1abc2127e56789d741bec380eda5b6788ee4b0b6001d9341529b0ef3ae93544"
+    },
+    {
+      "branch": "decline",
+      "commands": 4,
+      "replaySha256": "990d4e48814fb918cd207d9ab23a8648bb785d02336a55bacc47a7e96017a9dc"
+    },
+    {
+      "branch": "echo-decline-both",
+      "commands": 5,
+      "replaySha256": "889038dfa2197dc83ef54ffc9e6b39e20e56895c1cb7fdc82e591e59675c4891"
+    },
+    {
+      "branch": "echo-replay-first",
+      "commands": 8,
+      "replaySha256": "f9f54184a80ffeb502f355a62174b090641939eb454c69b06f9841af8185cb8b"
+    },
+    {
+      "branch": "expires-new-incarnation",
+      "commands": 8,
+      "replaySha256": "0e1887c34d12b21dd159a59c0bfa0a231097d950b38fb6723b02d9fe234c7d09"
+    },
+    {
+      "branch": "fresh-incarnation",
+      "commands": 4,
+      "replaySha256": "9fdf7d45e2fe3b8eef8ab20dbd67020c7715e46722b87715dd507bff40cb43b1"
+    },
+    {
+      "branch": "friendly-recipient",
+      "commands": 7,
+      "replaySha256": "33dd10be3847339f43ea7d8b26ca984561c62c3a7876b6bea116954ceee11449"
+    },
+    {
+      "branch": "history-recipient-private",
+      "commands": 10,
+      "replaySha256": "c0b4ffb0c99360d75d69a297bd3965f505386270405158c5a67e177bed44c90c"
+    },
+    {
+      "branch": "invalid-target",
+      "commands": 7,
+      "replaySha256": "b3acf770001d26634989f3993916f4467c28e46a18095a1b2c4330b7032c4a99"
+    },
+    {
+      "branch": "lethal-before-cleanup",
+      "commands": 7,
+      "replaySha256": "d9f0d350614657af47acb678446915a9a80f926a6ca235ec0f9b4d3c4e758ac2"
+    },
+    {
+      "branch": "minion-handoff",
+      "commands": 7,
+      "replaySha256": "069746f3464efd5a1b4ddbc019bfa38c14d1037527e5d200a6cde5303b2dfacd"
+    },
+    {
+      "branch": "prevented-damage",
+      "commands": 7,
+      "replaySha256": "99d8d81e3a5060490ed815583c8c5f3364c893f5063a06f8a259b41e42bab8f3"
+    },
+    {
+      "branch": "three-four",
+      "commands": 10,
+      "replaySha256": "1f379e55fd6328282076f7fa663b4aa69c00325b94da542365b6369c5592e79f"
+    }
+  ],
+  "nativeCommands": 114,
+  "finalRebuildCommandBytesUnchanged": true,
+  "finalSourceReadbackCases": 35,
+  "finalReadbackTrxSha256": "c73c3acd800856fcf521b33a84576c818afef3c083d771e5177080d44002c944",
+  "godotLogSha256": "184ea4ed7adc2eeba5642473ea818a97ab64c717b4503628b133fdacf13bc6f6",
+  "visiblePairedClientCertified": false
+}

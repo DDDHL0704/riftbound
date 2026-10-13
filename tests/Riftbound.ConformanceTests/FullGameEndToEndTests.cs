@@ -25238,6 +25238,36 @@ public sealed partial class FullGameEndToEndTests
                 {
                     var id = row["stackItemId"]?.GetValue<string>();
                     var item = result.State.StackItems.SingleOrDefault(i => i.StackItemId == id);
+                    if (item?.SourceReplay is { } replayProgress)
+                    {
+                        Assert.Equal("DANCING_GRENADE_DAMAGE_2_SOURCE_REPLAY", item.EffectKind);
+                        Assert.Equal("UNL-020/219", replayProgress.CardNo);
+                        Assert.Equal(item.SourceObjectId, replayProgress.Source.ObjectId);
+                        Assert.Equal(result.State.TurnNumber, replayProgress.TurnNumber);
+                        Assert.Equal(result.State.CardObjects[item.SourceObjectId].ObjectGeneration, replayProgress.Source.Generation);
+                        var history = row["sourceReplay"]!["damageOccurrences"]!.AsArray();
+                        Assert.Equal(replayProgress.DamageOccurrences.Count, history.Count);
+                        foreach (var (occurrence, index) in replayProgress.DamageOccurrences.Select((d, i) => (d, i)))
+                        {
+                            Assert.True(occurrence.Amount > 0);
+                            Assert.InRange(occurrence.Tick, 0, result.State.Tick);
+                            Assert.StartsWith("STACK-", occurrence.StackItemId);
+                            Assert.EndsWith("-" + item.SourceObjectId, occurrence.StackItemId);
+                            Assert.Equal(occurrence.Unit.ObjectId, history[index]!["unit"]!["objectId"]!.GetValue<string>());
+                            Assert.Equal(occurrence.Unit.Generation, history[index]!["unit"]!["generation"]!.GetValue<long>());
+                            if (!result.State.CardObjects.TryGetValue(occurrence.Unit.ObjectId, out var current))
+                            {
+                                Assert.NotNull(occurrence.CardNo);
+                                Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(occurrence.CardNo, out _));
+                            }
+                            else
+                            {
+                                Assert.InRange(occurrence.Unit.Generation, 0, current.ObjectGeneration);
+                                if (occurrence.Unit.Generation < current.ObjectGeneration)
+                                    history[index]!["unit"]!["objectId"] = "CHECKED_CAPTURED_ABILITY_SOURCE";
+                            }
+                        }
+                    }
                     if (item?.DelayedDestruction is { } delayed)
                     {
                         Assert.Equal("DELAYED_UNIT_DESTRUCTION_CREATE_GOLD", item.EffectKind);

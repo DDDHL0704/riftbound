@@ -18019,6 +18019,49 @@
         "Visible paired/native network and user Windows runtime",
         "Fixed full CI pending"
       ]
+    },
+    {
+      "id": "dancing-grenade-shared-source-replay-damage-history-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Current UNL020 generic-cost same-source replay, target-controller choices, positive damage occurrence bonus, independent responses and Echo continuation. No whole-card/all-source certification.",
+      "subjects": [
+        "UNL-020/219"
+      ],
+      "ruleRecords": [
+        "DOC-04-P037-B008",
+        "DOC-04-P046-B018",
+        "DOC-04-P047-B004",
+        "DOC-04-P052-B007",
+        "DOC-04-P052-B008",
+        "DOC-04-P052-B009",
+        "DOC-04-P120-B009"
+      ],
+      "auditDocument": "docs/DANCING_GRENADE_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/dancing-grenade-2026-10-14",
+      "tests": [
+        "DancingGrenadeTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysDancingGrenadeAgainstBaseUnit",
+        "OfficialSpellCompletionTests",
+        "SpellCompletionContinuationTests",
+        "PaidSpellReadyTests",
+        "MatchRecoveryTests",
+        "EchoSingleDestinationTests",
+        "OfficialGraveyardRecastTests"
+      ],
+      "validation": {
+        "focus": "1995cases/1901methods18.99s;34newcases/14methods",
+        "native": "17branches/114productioncommands; final code rebuild command-byte parity;35 final readbackcases; all commands cold restore/dedup/full journal pass",
+        "check": "11111cases/6906methods180.84s; all11077priorcases/6892methods retained;34newcases/14methods;2251frozen no drift;actualPostgres5;Python27",
+        "fixedFull": "REQUIRED",
+        "previousFixed4933": "Actual11198cases/7021methods3008.29s;110pairs all preserved; actual SQL opening and4battlehistories verified",
+        "previousFixed2d": "Actual11226cases/7033methods2220.21s;28newcases/12methods,110pairs/hash unchanged; all jobs/mandatorynetwork/actual SQL verified"
+      },
+      "exclusions": [
+        "Whole card/source coverage",
+        "Full fixed candidate CI not yet terminal",
+        "Visible paired native clients and user Windows runtime",
+        "Source gaps remain"
+      ]
     }
   ]
 }

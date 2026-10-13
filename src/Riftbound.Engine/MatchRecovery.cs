@@ -23000,6 +23000,7 @@ public static class MatchRecoveryValidator
 
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateRepeatDestinationViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23625,7 +23626,7 @@ public static class MatchRecoveryValidator
             if (trigger.RecastContext is { } context ? !CoreRuleEngine.ValidRecastContext(context, trigger.EffectKind)
                 || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
                 : trigger.EffectKind == CoreRuleEngine.RecastTriggerEffect) errors.Add("invalid queued effect-play trigger context");
-        if (state.PendingEffectPlay is { } recast && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
+        if (state.PendingEffectPlay is { } recast && recast.SourceReplay is null && (recast.DestinationPolicy == "STACK" || recast.Parent.RecastContext is not null) && !CoreRuleEngine.ValidRecastPending(state, recast))
             errors.Add("invalid spell effect-play continuation");
 
         if (state.PendingEffectPlay is { } graveyard && graveyard.Parent.RecastContext is null
@@ -23759,6 +23760,26 @@ public static class MatchRecoveryValidator
             errors.Add("deck choice context outside private deck window");
     }
 
+    private static SourceReplayProgress? ReadSourceReplayView(object? payload)
+    {
+        try {
+            var json = JsonSerializer.SerializeToElement(payload);
+            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("sourceReplay", out var raw)
+                && raw.ValueKind != JsonValueKind.Null
+                ? raw.Deserialize<SourceReplayProgress>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+        } catch (JsonException) { return null; }
+    }
+
+    private static void ValidateSourceReplayStackViews(IReadOnlyList<object?> payloads, MatchState state, List<string> errors)
+    {
+        foreach (var payload in payloads) {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            var expected = state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.SourceReplay;
+            if (MatchStateHasher.HashValue(ReadSourceReplayView(payload)) != MatchStateHasher.HashValue(expected))
+                errors.Add("public source replay progress differs from authoritative state");
+        }
+    }
+
     private static void ValidateDelayedDestructionState(MatchState state, List<string> errors)
     {
         if (!CoreRuleEngine.ValidCurrentDelayedDestructions(state)) errors.Add("invalid delayed destruction instruction");
@@ -23796,6 +23817,13 @@ public static class MatchRecoveryValidator
     private static void ValidateTurnSequenceState(MatchState state, List<string> errors)
     {
         if (!CoreRuleEngine.ValidCurrentConquestGrants(state)) errors.Add("invalid temporary conquest grant");
+        if (state.PendingEffectPlay is { } sourcePending && (sourcePending.SourceReplay is not null || sourcePending.SourceZone == "STACK")
+            && !CoreRuleEngine.ValidSourceReplayPending(state, sourcePending)) errors.Add("invalid source replay continuation");
+        foreach (var item in state.StackItems)
+            if (item.SourceReplay is { } sourceProgress ? !CoreRuleEngine.ValidSourceReplayProgress(state, sourceProgress, item)
+                : item.SourceReplayDecisionCompleted || CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var replayBehavior) && replayBehavior.SourceReplay is not null) errors.Add("invalid source replay progress");
+        if (state.PendingRuleChoice is null && state.StackItems.Any(i => i.SourceReplayDecisionCompleted))
+            errors.Add("invalid premature source replay completion");
         ValidateDelayedDestructionState(state, errors);
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidMovementFollowUp(state, item)) errors.Add("invalid movement optional attachment continuation");
@@ -26760,7 +26788,7 @@ public static class MatchRecoveryValidator
             ValidateAuthoritativeStateObjectReferenceListWithExpectedDetails(
                 $"pending effect play {effectPlay.ChoiceId} source", effectPlay.Sources.Keys.ToArray(), knownObjectIds, errors);
             if (!authoritativeState.Seats.ContainsKey(effectPlay.PlayerId)
-                || effectPlay.SourceZone is not ("HAND" or "GRAVEYARD" or "BANISHED" or "MAIN_DECK")
+                || effectPlay.SourceZone is not ("HAND" or "GRAVEYARD" or "BANISHED" or "MAIN_DECK" or "STACK")
                 || effectPlay.Sources.Values.Any(generation => generation < 0))
                 errors.Add("pending effect play has an invalid actor, source zone or generation");
             if (effectPlay.SourceZone == "MAIN_DECK")
@@ -31704,6 +31732,7 @@ public static class MatchRecoveryValidator
     {
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
+        ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
         ValidateBattlefieldConquestMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateMightySkillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");

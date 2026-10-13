@@ -71,6 +71,9 @@
       }
     },
     "cardObjects": {
+      "P1-SPELL-DANCING-GRENADE": {
+        "cardNo": "UNL-020/219", "ownerId": "P1", "controllerId": "P1", "tags": ["SPELL"]
+      },
       "P2-UNIT-001": {
         "damage": 0,
         "power": 3
@@ -101,18 +104,29 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-dancing-grenade-decline-replay",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "SOURCE-REPLAY:3:STACK-1-P1-SPELL-DANCING-GRENADE:0",
+        "choiceWindow": "EFFECT_PLAY",
+        "chosenObjectIds": []
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "DAMAGE_APPLIED"
+      "EFFECT_PLAY_REQUESTED",
+      "DAMAGE_APPLIED",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -130,12 +144,12 @@
           "sourceObjectId": "P1-SPELL-DANCING-GRENADE",
           "cardNo": "UNL-020/219",
           "targetObjectIds": ["P2-UNIT-001"],
-          "effectKind": "DANCING_GRENADE_DAMAGE_2_NO_RECAST"
+          "effectKind": "DANCING_GRENADE_DAMAGE_2_SOURCE_REPLAY"
         }
       },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      { "kind": "EFFECT_PLAY_REQUESTED" },
       {
         "kind": "DAMAGE_APPLIED",
         "payload": {
@@ -143,7 +157,8 @@
           "targetObjectId": "P2-UNIT-001",
           "damage": 2
         }
-      }
+      },
+      { "kind": "STACK_ITEM_RESOLVED" }
     ],
     "promptActions": {
       "P1": ["END_TURN"],

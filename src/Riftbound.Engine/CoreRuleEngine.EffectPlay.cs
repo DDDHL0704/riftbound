@@ -7,7 +7,11 @@ public sealed record PendingEffectPlayState(
     string ChoiceId, string PlayerId, StackItemState Parent, string SourceZone,
     IReadOnlyDictionary<string, long> Sources, bool IgnoreBaseMana, bool IgnoreBasePower,
     int ManaReduction, string DestinationPolicy, bool Optional, IReadOnlyList<string>? ViewedCardIds = null,
-    bool IgnoreAllCosts = false, RevealedHandPlayContext? RevealedHand = null);
+    bool IgnoreAllCosts = false, RevealedHandPlayContext? RevealedHand = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SourceReplayContinuation? SourceReplay { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -55,7 +59,7 @@ public sealed partial class CoreRuleEngine
                 ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
-        var sourceZone = pending.SourceZone switch { "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, "MAIN_DECK" => zones.MainDeck, _ => [] };
+        var sourceZone = pending.SourceZone switch { "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, "MAIN_DECK" => zones.MainDeck, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(x.Key, out var card) && card.ObjectGeneration == x.Value
             && (RecastSpec(pending.Parent) is not { } spec || RecastSourceAllowed(state, playerId, card, spec)))
@@ -160,7 +164,7 @@ public sealed partial class CoreRuleEngine
     internal static string EffectPlayReason(PendingEffectPlayState pending)
     {
         var name = TryGetEffectPlayDefinition(pending.Parent, out var card) || CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out card) ? card.DisplayName : "卡牌效果";
-        var cost = pending.IgnoreAllCosts ? "忽略一切费用；不能支付额外费用；必须打到指定战场"
+        var cost = pending.SourceReplay is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? "忽略一切费用；不能支付额外费用；必须打到指定战场"
             : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
             : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : pending.ManaReduction > 0 ? $"费用减少 {pending.ManaReduction}，仍需支付符能" : "正常支付法力、符能及额外费用";
         return $"《{name}》要求再次打出 · {cost}";
@@ -290,6 +294,8 @@ public sealed partial class CoreRuleEngine
                     new Dictionary<string, object?> { ["playerId"] = pending.PlayerId,
                         ["sourceObjectId"] = pending.Parent.SourceObjectId, ["count"] = remaining.Length })).ToArray();
         }
+        if (pending.SourceReplay is not null)
+            pending = pending with { Parent = pending.Parent with { SourceReplayDecisionCompleted = true } };
         // Resume the parent immediately. Its remaining cleanup and observers still
         // run through the ordinary stack resolver, before responding to child triggers.
         var resumed = state with { Tick = state.Tick - 1, PendingEffectPlay = null,

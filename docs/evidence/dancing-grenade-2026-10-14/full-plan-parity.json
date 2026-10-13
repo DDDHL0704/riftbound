@@ -1,0 +1,27 @@
+{
+  "status": "FULL_PLAN_ONLY_NOT_EXECUTION",
+  "methods": 7047,
+  "expectedCases": 11260,
+  "oldMethodsPreserved": 7033,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.DancingGrenadeTests.ACompletedTurnAndFreshIncarnationDoNotInheritOldDamageHistory",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.ARealFriendlyTargetGivesItsControllerTheSameReplayPermission",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.ARealMinionCanHandOffTheSpellBeforeItsCleanupDeparture",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.AReturnedEarlierDamageRecipientCannotLeakItsCurrentPrivateIncarnation",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.ActualDamageOffersOnlyTheAffectedUnitsControllerTheSourceReplay",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.ActualEchoInstructionsKeepSeparateDecisionsAndSharedDamageHistory",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.ActualInvalidTargetSkipsBothDamageAndItsLinkedReplay",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.ActualReplayQuotesTheAlternativeBaseCostPlusSpellshield",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.ActualReplaysPayOneGenericPowerAndDealThreeThenFourDamage",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.LethalDamageWaitsForTheReplayDecisionBeforeCleanup",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.PreventedDamageIsNotCountedButTheLinkedReplayCanStillBeChosen",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.RecoveryRejectsIndependentSourceReplayContinuationMutations",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.RecoveryRejectsMissingOrForgedProgressOnTheActuallyReplayedStackItem",
+    "Riftbound.ConformanceTests.DancingGrenadeTests.TheNewlyPlayedSpellCanBeCounteredBeforeItsNextDamage"
+  ],
+  "fullGameMethodsPreserved": 143,
+  "matrixPairs": 110,
+  "matrixSeed": 424242,
+  "actualCompleteCiRequired": true,
+  "assemblySha256": "d998a89861748738b9e99a4ba699501aae4ccf19373df018ed7cf55933afb459"
+}

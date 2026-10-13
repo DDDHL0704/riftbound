@@ -79,6 +79,8 @@ public sealed partial class CoreRuleEngine
         var countered = new List<string>();
         StackResolutionResult result = null!;
         var executions = original.RepeatExecutions!;
+        if (original.SourceReplayDecisionCompleted && original.CompletedRepeatExecutions >= executions.Count)
+            return CompleteSourceReplayDecision(state, original);
         var damageDestroyTargets = new HashSet<string>(StringComparer.Ordinal);
         for (var index = original.CompletedRepeatExecutions; index < executions.Count; index++)
         {
@@ -87,12 +89,19 @@ public sealed partial class CoreRuleEngine
                 TargetGenerations = execution.TargetGenerations, Destination = execution.Destination, MovementDestinations = execution.MovementDestinations, EffectRepeatCount = 1, RepeatExecutions = null, PlayCost = null, AfterPlayRecycle = null, CompletedRepeatExecutions = CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var repeatedBehavior)
                     && (repeatedBehavior.OptionalEquipmentAfterMovement || repeatedBehavior.CreatesGoldWhenTargetDestroyedThisTurn) ? index : 0,
                 MovementFollowUp = index == original.CompletedRepeatExecutions ? original.MovementFollowUp : null,
+                SourceReplayDecisionCompleted = false,
                 TokenEntryPlan = index == original.CompletedRepeatExecutions ? original.TokenEntryPlan : null };
             result = ResolveStackItemEffect(current, item, deferCompletion: index < executions.Count - 1, repeatDamageDestroyTargets: damageDestroyTargets);
             events.AddRange(result.Events);
             triggers.AddRange(result.TriggerQueue);
             destroyed.AddRange(result.DestroyedUnitOwnerIds);
             countered.AddRange(result.CounteredStackItemIds);
+            if (result.PendingEffectPlay is { SourceReplay: { } c } replay)
+            {
+                var suspended = original with { CompletedRepeatExecutions = index + 1, SourceReplay = c.Progress, SourceReplayDecisionCompleted = false };
+                return result with { Events = events, TriggerQueue = triggers, PendingEffectPlay = replay with { Parent = suspended },
+                    DestroyedUnitOwnerIds = destroyed.Distinct(StringComparer.Ordinal).ToArray(), CounteredStackItemIds = countered };
+            }
             if (result.PendingCardChoice?.ChoiceWindow == MovementAttachmentWindow)
             {
                 var suspended = original with { CompletedRepeatExecutions = index, MovementFollowUp = result.StackItems![^1].MovementFollowUp };
