@@ -1,0 +1,31 @@
+{
+  "status": "CURRENT_ENGINE_LISTED_THEFT_PATHS_PASS",
+  "commit": "eedba831ab860c58c842f1304d471b372202b5cd",
+  "summary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 40.93,
+    "total": 5,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 9.58
+      }
+    ]
+  },
+  "cases": [
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.AChangedFaceDoesNotEraseTheStealDurationAndLeavingRestoresPhysicalIdentity(spell: \"OGN\u00b7104/298\", zone: \"HAND\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ActualTheftEndsTheOldCopyBeforeChoosingAndCannotRetroactivelyTriggerTheNewText(face: \"SFD\u00b7049/221\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ActualTheftEndsTheOldCopyBeforeChoosingAndCannotRetroactivelyTriggerTheNewText(face: \"SFD\u00b7224/221\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.AChangedFaceDoesNotEraseTheStealDurationAndLeavingRestoresPhysicalIdentity(spell: \"OGN\u00b7229/298\", zone: \"GRAVEYARD\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ActualTheftEndsTheOldCopyBeforeChoosingAndCannotRetroactivelyTriggerTheNewText(face: \"SFD\u00b7224*/221\")"
+  ],
+  "trxSha256": "c914b757ed2688fa2ba46283a7f87d75fa438d3585105d239b4c8986104dcf9d",
+  "runtimeErrorEstablished": false,
+  "fixtureCorrections": "Before runtime execution, use supported P2 spell helper and explicit hand membership instead of battlefield-only placement helper"
+}

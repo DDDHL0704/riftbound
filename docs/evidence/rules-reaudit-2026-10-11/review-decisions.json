@@ -14977,6 +14977,355 @@
         "All historical source authority, simultaneous replacement ordering and whole-card semantics",
         "Eight EN source gaps, visible paired full match, Windows user runtime and real PostgreSQL"
       ]
+    },
+    {
+      "id": "attachment-theft-copy-2026-10-13",
+      "status": "SCOPED_CURRENT_ENGINE_CHECK_AND_NATIVE_REPLAY_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "Actual Shady Spectacles theft by Akshan; three current CN Aphelios printings; old-host expiry, controller-only choice, later real attachment and changed-face physical exits. Windows verbose export diagnostics only; no engine repair or whole-card certification.",
+      "subjects": [
+        {
+          "id": "OGN-104/298",
+          "activeCardNo": "OGN·104/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31322,
+              "cardNo": "OGN·104/298",
+              "name": "择日再战",
+              "sha256": "df738b50fe097df422cf9ea04a509108432a0ab4ee99684865ff968c1dbdf21f",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-104-298",
+              "cardNo": "OGN-104/298",
+              "name": "Retreat",
+              "sha256": "d551d093f0a7404533a4e72c5a3a98ee12abbad4671756e97772124e38007af1",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "OGN-229/298",
+          "activeCardNo": "OGN·229/298",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 31467,
+              "cardNo": "OGN·229/298",
+              "name": "复仇",
+              "sha256": "86fe48a81478a5c939220b1b7f04d6334eddfe2aface99892be5c052dba8ae17",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "ogn-229-298",
+              "cardNo": "OGN-229/298",
+              "name": "Vengeance",
+              "sha256": "6e59b5c4b89833b8cfae4ce3add30a7a19d6bc73bcf6a42de6e76f45aef6b402",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-022/221",
+          "activeCardNo": "SFD·022/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33095,
+              "cardNo": "SFD·022/221",
+              "name": "长剑",
+              "sha256": "490cc7d14a1d8305a0329521183cf3eec744e57dd9f18af0622384534d98cd27",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-022-221",
+              "cardNo": "SFD-022/221",
+              "name": "Long Sword",
+              "sha256": "309ca4cce39e660e570c7438ff16bf36aff5b77b48fdc134f5602acd334179bc",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-049/221",
+          "activeCardNo": "SFD·049/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33125,
+              "cardNo": "SFD·049/221",
+              "name": "厄斐琉斯",
+              "sha256": "6891dabd20efaf01a987f1a41f80567e23acbfbb2fbef68fd4b15b4e04c8263e",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-049-221",
+              "cardNo": "SFD-049/221",
+              "name": "Aphelios",
+              "sha256": "ca281827d21ef2f77e695510b8e2fe70f359a3039452d04d101392577a2fa11f",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-109/221",
+          "activeCardNo": "SFD·109/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33194,
+              "cardNo": "SFD·109/221",
+              "name": "阿克尚",
+              "sha256": "410abbeaade670c583e7c34c3a10d0a5364adac55b2accf7b14a08e9f7e372f2",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-109-221",
+              "cardNo": "SFD-109/221",
+              "name": "Akshan",
+              "sha256": "4012d881e2e4ebfd296a94e75ad020a55aa0daf5f96442c8457002b47febb6cc",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-224*/221",
+          "activeCardNo": "SFD·224*/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33325,
+              "cardNo": "SFD·224*/221",
+              "name": "厄斐琉斯",
+              "sha256": "65d3664a3290543f1a3131ea5b7f7c1505244d62cf052a9f09df9082dbfb0bfd",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-224-star-221",
+              "cardNo": "SFD-224*/221",
+              "name": "Aphelios",
+              "sha256": "162b5b385f4c505a283b4e4268c4c183d941182d724590c71859994bbf58fe41",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "SFD-224/221",
+          "activeCardNo": "SFD·224/221",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 33324,
+              "cardNo": "SFD·224/221",
+              "name": "厄斐琉斯",
+              "sha256": "731664b693034cb18a3460abfe3078ccbe7322b27985b354590071594658d1ae",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "sourceId": "sfd-224-221",
+              "cardNo": "SFD-224/221",
+              "name": "Aphelios",
+              "sha256": "12750a0d71da9a6deda143e14fe63539808da164b302fe99f37f9848a6297704",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/card-gallery.en-US.json",
+                "sha256": "56b4b6d73ed8d1401338bde7abfb0eba91b8c883fd31ac203cec75737181104e"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        },
+        {
+          "id": "VEN-137",
+          "activeCardNo": null,
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "sourceId": 37839,
+              "cardNo": "VEN·137",
+              "name": "可疑的眼镜",
+              "sha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+              "snapshot": {
+                "path": "data/official/upstream/2026-10-12/goal-resume-20261012T053551Z/card-catalog.zh-CN.json",
+                "sha256": "c80f6c2d481ec908bfdb553d0dce59c8ce9fdd1ebe4516a066b42c4d790561f2"
+              },
+              "confirmedAt": "2026-10-12T05:37:33.647575+00:00",
+              "publishedPreview": false
+            }
+          ],
+          "implementation": [],
+          "tests": [],
+          "nativeEvidence": []
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P008-B005",
+        "DOC-04-P055-B009",
+        "DOC-04-P056-B002",
+        "DOC-04-P056-B005",
+        "DOC-04-P093-B011",
+        "DOC-04-P104-B010"
+      ],
+      "auditDocument": "docs/ATTACHMENT_THEFT_COPY_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/attachment-theft-2026-10-13/agile-fixture-correction.json",
+        "docs/evidence/attachment-theft-2026-10-13/baseline-theft.json",
+        "docs/evidence/attachment-theft-2026-10-13/check-parity.json",
+        "docs/evidence/attachment-theft-2026-10-13/code-inputs.json",
+        "docs/evidence/attachment-theft-2026-10-13/core-readback.json",
+        "docs/evidence/attachment-theft-2026-10-13/en-source-gap-readback.json",
+        "docs/evidence/attachment-theft-2026-10-13/faq-readback.json",
+        "docs/evidence/attachment-theft-2026-10-13/full-plan-parity.json",
+        "docs/evidence/attachment-theft-2026-10-13/godot-execution.json",
+        "docs/evidence/attachment-theft-2026-10-13/governance.json",
+        "docs/evidence/attachment-theft-2026-10-13/native-fixture-correction.json",
+        "docs/evidence/attachment-theft-2026-10-13/native-replay.json",
+        "docs/evidence/attachment-theft-2026-10-13/rule-excerpts.json",
+        "docs/evidence/attachment-theft-2026-10-13/source-readback.json",
+        "docs/evidence/attachment-theft-2026-10-13/validation.json",
+        "docs/evidence/attachment-theft-2026-10-13/windows-export-failure.json"
+      ],
+      "tests": [
+        "AttachmentTheftCopyTests",
+        "AttachmentTheftNativeTests",
+        "ShadySpectaclesNativeTests",
+        "AkshanGuardTests",
+        "AttachmentModeTests",
+        "AttachmentModeNativeTests",
+        "CopiedAttachmentObserverTests"
+      ],
+      "validation": {
+        "wholeCardCertification": false,
+        "exactHeadFullCiRequired": true,
+        "checkCases": 10689,
+        "checkMethods": 6740,
+        "checkSeconds": 139.77,
+        "oldCasesPreserved": 10677,
+        "oldMethodsPreserved": 6735,
+        "addedCases": 12,
+        "addedMethods": 5,
+        "failed": 0,
+        "skipped": 0,
+        "nativeProductionCommands": 25,
+        "priorNativeCommandsReplayed": 44,
+        "adjacentCases": 147,
+        "originalFullGameCases": 7,
+        "testedCodeInputs": 14,
+        "windowsExportFixCertified": false,
+        "enReportedTotal": 1389,
+        "enReturnedDistinctIds": 1381,
+        "enSourceGap": 8,
+        "fullPlannedMethods": 6881,
+        "fullExpectedCases": 10838,
+        "fullPlannedMethodParityVerified": true,
+        "fullExecutionCertified": false
+      },
+      "exclusions": [
+        "All control/copy interactions, base text reacquisition, cross-incarnation historical authority and whole-card semantics",
+        "All simultaneous replacements, all-source semantics and eight unresolved EN source items",
+        "Windows export root cause and user runtime, visible paired full match and real PostgreSQL"
+      ]
     }
   ]
 }

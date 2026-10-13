@@ -1,0 +1,541 @@
+[
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "厄斐琉斯",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-13T01:02:42.849813+00:00",
+    "language": "zh-CN",
+    "region": "CN",
+    "responseSha256": "85d274d9cd4ed73097432e48c17b79186a25df230e1352ba3fe3e8cab69a96df",
+    "record": {
+      "id": 33125,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·049/221",
+      "cardName": "厄斐琉斯",
+      "subTitle": "出尘",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "厄斐琉斯",
+      "region": "巨神峰",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "当你为我贴附一件武装时，从以下中选择一个本回合未选过的效果—\n-让两枚符文变为活跃状态。\n-召出一枚休眠的符文。\n-给予一名友方单位增益。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/b3b2281c207a4365a8cf0336d1dfc313.png",
+      "backImage": "",
+      "listSort": 948,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "6891dabd20efaf01a987f1a41f80567e23acbfbb2fbef68fd4b15b4e04c8263e",
+    "snapshotRecordSha256": "6891dabd20efaf01a987f1a41f80567e23acbfbb2fbef68fd4b15b4e04c8263e",
+    "snapshotParity": true
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "厄斐琉斯",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-13T01:02:42.849899+00:00",
+    "language": "zh-CN",
+    "region": "CN",
+    "responseSha256": "85d274d9cd4ed73097432e48c17b79186a25df230e1352ba3fe3e8cab69a96df",
+    "record": {
+      "id": 33324,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·224/221",
+      "cardName": "厄斐琉斯",
+      "subTitle": "出尘",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "厄斐琉斯",
+      "region": "巨神峰",
+      "tag": "",
+      "artist": "Masaki Hsu",
+      "cardEffect": "当你为我贴附一件武装时，从以下中选择一个本回合未选过的效果—\n-让两枚符文变为活跃状态。\n-召出一枚休眠的符文。\n-给予一名友方单位增益。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/39c14e39b2d7401fbc325af35c57865d.png",
+      "backImage": "",
+      "listSort": 749,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "731664b693034cb18a3460abfe3078ccbe7322b27985b354590071594658d1ae",
+    "snapshotRecordSha256": "731664b693034cb18a3460abfe3078ccbe7322b27985b354590071594658d1ae",
+    "snapshotParity": true
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "厄斐琉斯",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-13T01:02:42.849944+00:00",
+    "language": "zh-CN",
+    "region": "CN",
+    "responseSha256": "85d274d9cd4ed73097432e48c17b79186a25df230e1352ba3fe3e8cab69a96df",
+    "record": {
+      "id": 33325,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·224*/221",
+      "cardName": "厄斐琉斯",
+      "subTitle": "出尘",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "厄斐琉斯",
+      "region": "巨神峰",
+      "tag": "",
+      "artist": "Masaki Hsu",
+      "cardEffect": "当你为我贴附一件武装时，从以下中选择一个本回合未选过的效果—\n-让两枚符文变为活跃状态。\n-召出一枚休眠的符文。\n-给予一名友方单位增益。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": 1,
+      "power": 4,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "runemaster_mark",
+      "extendRarityName": "签名超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/8f76f38e02454e59989ea16c2e7845d7.png",
+      "backImage": "",
+      "listSort": 748,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "65d3664a3290543f1a3131ea5b7f7c1505244d62cf052a9f09df9082dbfb0bfd",
+    "snapshotRecordSha256": "65d3664a3290543f1a3131ea5b7f7c1505244d62cf052a9f09df9082dbfb0bfd",
+    "snapshotParity": true
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "可疑的眼镜",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-13T01:02:42.962029+00:00",
+    "language": "zh-CN",
+    "region": "CN",
+    "responseSha256": "3c9d65d696e5b10ff4aa392bd73ac276a61436ceb0eefe63e8f582155047282c",
+    "record": {
+      "id": 37839,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "VEN·137",
+      "cardName": "可疑的眼镜",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "Polar Engine Studio",
+      "cardEffect": "{{装配1黄色}}（支付{{1}}和{{黄色}}：将此牌贴附到你控制的一名单位上。）\n此牌贴附到单位上时，选择另一名友方单位。装配此牌的单位在此牌贴附期间变为所选单位的复制体。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 0,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/8a07c2cb2fec4243804bc923af0b6752.png",
+      "backImage": "",
+      "listSort": 1847,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+    "snapshotRecordSha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+    "snapshotParity": true
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "复仇",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-13T01:02:43.074043+00:00",
+    "language": "zh-CN",
+    "region": "CN",
+    "responseSha256": "fbd842c6395bde05ebaddab00320f71ab4b046e04cbc2e91f7947deb6d02d687",
+    "record": {
+      "id": 31467,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·229/298",
+      "cardName": "复仇",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Max Grecke",
+      "cardEffect": "摧毁一名单位。\n",
+      "flavorText": "在锥心刺骨的一瞬过后，便是……平静。",
+      "energy": 4,
+      "returnEnergy": 2,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)",
+        "SFD(英雄预组 菲奥娜)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包",
+        "铸魂淬炼 英雄预组 菲奥娜"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/a57bfb3536ac4056ae7d8ad11363799d.png",
+      "backImage": "",
+      "listSort": 238,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "86fe48a81478a5c939220b1b7f04d6334eddfe2aface99892be5c052dba8ae17",
+    "snapshotRecordSha256": "86fe48a81478a5c939220b1b7f04d6334eddfe2aface99892be5c052dba8ae17",
+    "snapshotParity": true
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "择日再战",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-13T01:02:43.202750+00:00",
+    "language": "zh-CN",
+    "region": "CN",
+    "responseSha256": "14e1aa96b655b5312e3f78ef7504ed67b3a5aa09591094c58fe55262f000768d",
+    "record": {
+      "id": 31322,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·104/298",
+      "cardName": "择日再战",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。",
+      "flavorText": "明天又不会世界末日。",
+      "energy": 1,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/e0e342a822854504bf9096e88b214830.png",
+      "backImage": "",
+      "listSort": 383,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "df738b50fe097df422cf9ea04a509108432a0ab4ee99684865ff968c1dbdf21f",
+    "snapshotRecordSha256": "df738b50fe097df422cf9ea04a509108432a0ab4ee99684865ff968c1dbdf21f",
+    "snapshotParity": true
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "阿克尚",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-13T01:02:43.317266+00:00",
+    "language": "zh-CN",
+    "region": "CN",
+    "responseSha256": "5ddeee16021855dac5ca3b848e1ae548c47e9ab5dcb98153021f6ed6f1a63062",
+    "record": {
+      "id": 33194,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·109/221",
+      "cardName": "阿克尚",
+      "subTitle": "放浪不羁",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "阿克尚",
+      "region": "恕瑞玛",
+      "tag": "哨兵",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{百炼}}\n你可以选择支付{{橙色}}{{橙色}}，作为打出我的额外费用。\n当你打出我时，如果你支付了该额外费用，则可以将一件敌方装备移动到你的基地。你控制这件装备，直到我离场为止。如果它是一件武装，则将其贴附到我身上。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/8ac9d74bdde44cebaabff969c975ecff.png",
+      "backImage": "",
+      "listSort": 879,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "410abbeaade670c583e7c34c3a10d0a5364adac55b2accf7b14a08e9f7e372f2",
+    "snapshotRecordSha256": "410abbeaade670c583e7c34c3a10d0a5364adac55b2accf7b14a08e9f7e372f2",
+    "snapshotParity": true
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "长剑",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-13T01:13:53.621266+00:00",
+    "language": "zh-CN",
+    "region": "CN",
+    "responseSha256": "973b86793ffb45cfc07621517b549795d4dbc3fa235e5c59f839dac5e49bfd6e",
+    "record": {
+      "id": 33095,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "SFD·022/221",
+      "cardName": "长剑",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "武装",
+      "artist": "黯荧岛Dark Glow",
+      "cardEffect": "{{灵便}}（此牌获得{{反应}}。当你打出此牌时,将它贴附到你控制的一名单位上。)\n{{装配}}{{红色}}（支付{{红色}}：将此牌贴附到你控制的一名单位上。）",
+      "flavorText": "剑不是造得越长越好——听过\"边际收益递减\"吗?",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(英雄预组 兰博)",
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 英雄预组 兰博",
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/48ad3f52ea5a4fc4bef6b90e0186d6c7.png",
+      "backImage": "",
+      "listSort": 978,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "recordSha256": "490cc7d14a1d8305a0329521183cf3eec744e57dd9f18af0622384534d98cd27",
+    "snapshotParity": true
+  }
+]

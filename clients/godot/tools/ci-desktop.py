@@ -100,7 +100,7 @@ def main():
         output_dir = PROJECT / "exports" / ("macos" if platform == "darwin" else "windows")
         output_dir.mkdir(parents=True, exist_ok=True)
         package = output_dir / ("Riftbound.zip" if platform == "darwin" else "Riftbound.exe")
-        run([editor, "--headless", "--path", PROJECT, "--export-release", target, package], logs / "export.log")
+        run([editor, "--headless", "--verbose", "--path", PROJECT, "--export-release", target, package], logs / "export.log")
     if platform == "darwin":
         extracted = tools_dir / "exported"
         subprocess.run(["ditto", "-xk", str(package), str(extracted)], check=True)

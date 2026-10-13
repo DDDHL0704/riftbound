@@ -62,8 +62,8 @@ public partial class ShadySpectaclesInteractionProof : Control
                 bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(button => button.Text == label).EmitSignal(BaseButton.SignalName.Pressed);
                 using var selection = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-selection.json")));
                 var expected = selection.RootElement;
-                if (actionName == "PAY_COST") {
-                    foreach (var choice in expected.GetProperty("paymentChoiceIds").EnumerateArray())
+                if (actionName is "PAY_COST" or "CHOOSE_CARDS") {
+                    foreach (var choice in expected.GetProperty(actionName == "PAY_COST" ? "paymentChoiceIds" : "chosenObjectIds").EnumerateArray())
                         Check(controller.TrySelectChoice("target", choice.GetString()!), "Server-offered friendly copy source");
                 } else {
                     var source = expected.GetProperty("sourceObjectId").GetString()!;
@@ -106,10 +106,20 @@ public partial class ShadySpectaclesInteractionProof : Control
         Check(overlay.Open(candidate, prompt.GetProperty("promptId").GetString()!, prompt.GetProperty("snapshotTick").GetInt64(), _ => null, source), "Open production play composer");
         Check(!overlay.TrySelectTableObject("HIDDEN-OPPONENT-CARD"), "Reject an unrevealed object");
         foreach (var target in targets) Check(overlay.TrySelectTableObject(target), "Select a server-offered unit");
+        if (expected.TryGetProperty("optionalCosts", out var optionalCosts) && optionalCosts.ValueKind == JsonValueKind.Array) {
+            var checks = (Dictionary<string, CheckBox>)typeof(PlayCardOverlay).GetField("_optional", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+            foreach (var cost in optionalCosts.EnumerateArray()) {
+                Check(checks.TryGetValue(cost.GetString()!, out var check), "Server offers the chosen extra cost");
+                check!.ButtonPressed = true;
+            }
+        }
         var destination = expected.TryGetProperty("destination", out var entry) && entry.ValueKind == JsonValueKind.String ? entry.GetString()! : "";
         if (!string.IsNullOrEmpty(destination)) Check(overlay.TrySelectTableDestination(destination), "Select server-offered entry destination");
         Check(request is not null && request.Command.SourceObjectId == source
-            && request.Command.TargetObjectIds.SequenceEqual(targets), "Preview retains source and target");
+            && request.Command.TargetObjectIds.SequenceEqual(targets)
+            && (request.Command.OptionalCosts ?? []).SequenceEqual(expected.TryGetProperty("optionalCosts", out var selectedCosts)
+                && selectedCosts.ValueKind == JsonValueKind.Array
+                ? selectedCosts.EnumerateArray().Select(cost => cost.GetString()!).ToArray() : []), "Preview retains source, target and extra costs");
         File.WriteAllText(Path.Combine(dir, step + "-preview.json"), JsonSerializer.Serialize(request, json));
         var quote = JsonSerializer.Deserialize<PlayCostQuoteDto>(File.ReadAllText(Path.Combine(dir, step + "-quote.json")), json)!;
         overlay.ApplyQuote(quote with { RequestId = request!.RequestId });

@@ -1,0 +1,37 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_VERIFIED",
+  "baselineCases": 10677,
+  "baselineMethods": 6735,
+  "cases": 10689,
+  "methods": 6740,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "failed": 0,
+  "skipped": 0,
+  "duplicates": [],
+  "addedCases": [
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.AChangedFaceDoesNotEraseTheStealDurationAndLeavingRestoresPhysicalIdentity(spell: \"OGN\u00b7104/298\", zone: \"HAND\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.AChangedFaceDoesNotEraseTheStealDurationAndLeavingRestoresPhysicalIdentity(spell: \"OGN\u00b7229/298\", zone: \"GRAVEYARD\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ASubsequentRealAttachmentCanUseOnlyTheNewCopiedApheliosInstance",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ActualTheftEndsTheOldCopyBeforeChoosingAndCannotRetroactivelyTriggerTheNewText(face: \"SFD\u00b7049/221\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ActualTheftEndsTheOldCopyBeforeChoosingAndCannotRetroactivelyTriggerTheNewText(face: \"SFD\u00b7224*/221\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ActualTheftEndsTheOldCopyBeforeChoosingAndCannotRetroactivelyTriggerTheNewText(face: \"SFD\u00b7224/221\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.TheOriginalGearOwnerAndUnfriendlyOrSelfSelectionsCannotChooseTheNewCopy(actor: \"P1\", selection: \"COPY:P2-COPY\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.TheOriginalGearOwnerAndUnfriendlyOrSelfSelectionsCannotChooseTheNewCopy(actor: \"P2\", selection: \"COPY:AKSHAN\")",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.TheOriginalGearOwnerAndUnfriendlyOrSelfSelectionsCannotChooseTheNewCopy(actor: \"P2\", selection: \"COPY:HOST\")",
+    "Riftbound.ConformanceTests.AttachmentTheftNativeTests.ProductionExtraCostCopyChoiceAndChangedFaceExitRecoverAndReplay(branch: \"destroy\")",
+    "Riftbound.ConformanceTests.AttachmentTheftNativeTests.ProductionExtraCostCopyChoiceAndChangedFaceExitRecoverAndReplay(branch: \"mode\")",
+    "Riftbound.ConformanceTests.AttachmentTheftNativeTests.ProductionExtraCostCopyChoiceAndChangedFaceExitRecoverAndReplay(branch: \"return\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.AChangedFaceDoesNotEraseTheStealDurationAndLeavingRestoresPhysicalIdentity",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ASubsequentRealAttachmentCanUseOnlyTheNewCopiedApheliosInstance",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.ActualTheftEndsTheOldCopyBeforeChoosingAndCannotRetroactivelyTriggerTheNewText",
+    "Riftbound.ConformanceTests.AttachmentTheftCopyTests.TheOriginalGearOwnerAndUnfriendlyOrSelfSelectionsCannotChooseTheNewCopy",
+    "Riftbound.ConformanceTests.AttachmentTheftNativeTests.ProductionExtraCostCopyChoiceAndChangedFaceExitRecoverAndReplay"
+  ],
+  "baselineTrxSha256": "b9bbb604739c85ae29d1ec1135c3ff536dfb6a818eaefc4a2465bb1886385f19",
+  "currentTrxSha256": "e2e7587817776ec69a7317e23d184b66d9defdc26461fc10a1bfd08b71735fe9",
+  "testedCodeInputsUnchanged": true,
+  "fullExecutionCertified": false
+}

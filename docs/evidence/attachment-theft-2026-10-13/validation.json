@@ -1,0 +1,53 @@
+{
+  "nativeAndAdjacent": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.71,
+    "total": 147,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 147,
+        "passed": 147,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 13.88
+      }
+    ]
+  },
+  "originalFullGameCasesPassed": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAttachmentMidgameConfirmsBothDrawsAndReplaysThroughScoreVictory(card: \"SFD\u00b7119a/221\", copyFirst: True)",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAttachmentMidgameConfirmsBothDrawsAndReplaysThroughScoreVictory(card: \"SFD\u00b7119/221\", copyFirst: False)",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"OGN\u00b7109/298\")",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedAzirConfirmsWeaponThenChoosesAttachmentAndReplaysThroughScoreVictory",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"SFD\u00b7050/221\")",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAttachmentModesMidgameConfirmsTargetsAndReplaysThroughScoreVictory(copied: True)",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAttachmentModesMidgameConfirmsTargetsAndReplaysThroughScoreVictory(copied: False)"
+  ],
+  "nativeCommands": 25,
+  "previousNativeShadyCommands": 44,
+  "staleRejected": 3,
+  "allReplayMatched": true,
+  "testInputHashesUnchanged": true,
+  "wholeCardCertification": false,
+  "check": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 139.77,
+    "total": 10689,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 10689,
+        "passed": 10689,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 135.69
+      }
+    ]
+  },
+  "checkMethods": 6740,
+  "checkCaseMethodParityVerified": true
+}

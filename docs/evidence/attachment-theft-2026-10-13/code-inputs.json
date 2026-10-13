@@ -1,0 +1,16 @@
+{
+  "tests/Riftbound.ConformanceTests/AttachmentTheftCopyTests.cs": "2d02e4094627440e36bb13945c822399757e78443f09e299d7398a23a5bc04f5",
+  "tests/Riftbound.ConformanceTests/AttachmentTheftNativeTests.cs": "572d6892e25ed5d18937b0c27d4fd2b6f82758e872195b7d9a833a745b2463f1",
+  "clients/godot/scripts/debug/ShadySpectaclesInteractionProof.cs": "525aa946599ac46dd81bb348461f1fa7b8f1794e1bdf752464b293638b7b7dca",
+  "clients/godot/scenes/debug/ShadySpectaclesInteractionProof.tscn": "835b4395aa40da425712741d7dbf3449104133441445066b439e97bed3d679a9",
+  "clients/godot/scripts/ui/PlayCardOverlay.cs": "7c7e1e47a3730e26100b71dc8a11f7c0a3626112308d770c1c0eb21a2f5c6f87",
+  "clients/godot/tools/ci-desktop.py": "7df906d30b7abfe9f4926e398b1643bd28ccc8fb0ffaf4cb114af85042ae8e94",
+  "src/Riftbound.Engine/AttachmentUnitCopy.cs": "d469fa4cdf582fd3bcc26d55bae19d3bdd2bcc2e20b14e5a58305a722304f47a",
+  "src/Riftbound.Engine/CoreRuleEngine.AttachmentObservers.cs": "de574b59eb12bc0fa931402a49ab37a32b31a5bf2029b45c11e2e866904c3ea7",
+  "src/Riftbound.Engine/CoreRuleEngine.cs": "1bb0c7cf8ebc9567d4791b01b39a1a2188df2404ef4db9dedcdd20c8a43ca3be",
+  "src/Riftbound.Engine/MatchRecovery.cs": "5284360c31ea73dc506cce82e1d3b3cff96ef1156b5ca3a0200dfd916198f050",
+  "src/Riftbound.Engine/MatchSession.cs": "88de72fecaabc874d4e850c2ed33b25b40713489c27e3ca3313d4f5939ad5b95",
+  "data/official/card-catalog.zh-CN.json": "de6783ea7912e40fd9e96afff0cedd24b14db98c6f79fa1d904fa6f86019138a",
+  "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+  "clients/godot/project.godot": "dae511582551670f843d78cc1f2778baf1b21d91d2bafba3cc455f0ca04f0764"
+}
