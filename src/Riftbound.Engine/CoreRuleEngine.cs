@@ -19665,20 +19665,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds,
             out targetObjectIds);
         var targetScope = PlayCardTargetScopeForBehavior(behavior);
-        if (!(HasIndependentPermanentTargets(behavior) && targetObjectIds.Count == 0)
-            && (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
-            || !PlayCardTargetsExposeKnownCardNumbers(state, targetObjectIds)
-            || !CreatedBaseUnitCopyTargetAllowed(state, behavior, targetObjectIds)
-            || !HasValidTargetGroup(state, behavior, targetObjectIds)
-            || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
-            || !HasValidSwapTargetLocations(state, behavior, targetObjectIds)
-            || !AreAttachDetachTargetsAllowed(state, behavior, targetObjectIds)
-            || !HasValidSacredJudgmentKeepTargets(state, command.SourceObjectId, behavior, targetObjectIds)
-            || !HasValidEachPlayerTopFiveUnitTargets(state, behavior, targetObjectIds)
-            || !IsMainDeckLookWindowControlledByPlayer(state, intent.PlayerId, behavior)
-            || targetObjectIds.Where((targetObjectId, targetIndex) =>
-                !IsLegalChosenCardTarget(state, intent.PlayerId, targetObjectId, targetIndex,
-                    targetObjectIds, targetScope, behavior)).Any()))
+        if (!HasLegalDeclaredTargets(state, intent.PlayerId, command.SourceObjectId, behavior, targetObjectIds, targetScope))
         {
             rejection = Reject(
                 state,
@@ -25807,6 +25794,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return ResolveInsightSpell(state, stackItem, insightBehavior);
         if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
         if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
+        if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var choiceBehavior)
+            && choiceBehavior.MayPayPowerToGainControlAndRemakeSpellChoices)
+            return ResolveOptionalSpellControl(state, stackItem, choiceBehavior);
         if (stackItem.AttachmentObserver is not null) return ResolveAttachmentObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);

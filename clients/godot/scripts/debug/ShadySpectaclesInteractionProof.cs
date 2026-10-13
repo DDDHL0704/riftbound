@@ -20,7 +20,8 @@ public partial class ShadySpectaclesInteractionProof : Control
                 using var steps = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, "steps.json")));
                 foreach (var step in steps.RootElement.EnumerateArray()) {
                     var name = step.GetProperty("name").GetString()!; var action = step.GetProperty("action").GetString()!;
-                    if (action == "PLAY_CARD") Play(dir, name); else Produce(dir, name, action);
+                    try { if (action == "PLAY_CARD") Play(dir, name); else Produce(dir, name, action); }
+                    catch (Exception error) { throw new InvalidOperationException($"Native step {branch}/{name}: {error.Message}", error); }
                     count++;
                 }
             }
@@ -58,7 +59,13 @@ public partial class ShadySpectaclesInteractionProof : Control
                 Check(!primary.Disabled, "Independent response enabled"); primary.EmitSignal(BaseButton.SignalName.Pressed);
             } else {
                 var label = controller.Actions.Single(a => a.Name == actionName).Label;
-                if (actionName == "PAY_COST") Check(label == "选择复制单位", "Copy choice is explicit");
+                if (actionName == "PAY_COST") {
+                    Check(label == candidate.GetProperty("label").GetString(), "Settlement choice uses its server label");
+                    using var snapshot = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-snapshot.json")));
+                    if (snapshot.RootElement.GetProperty("timing").GetProperty("pendingPayment").TryGetProperty("choiceKind", out var kind)
+                        && kind.GetString() == "ATTACHMENT_COPY_SELECTION")
+                        Check(label == "选择复制单位", "Copy choice is explicit");
+                }
                 bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(button => button.Text == label).EmitSignal(BaseButton.SignalName.Pressed);
                 using var selection = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-selection.json")));
                 var expected = selection.RootElement;
@@ -118,6 +125,13 @@ public partial class ShadySpectaclesInteractionProof : Control
         var overlay = new PlayCardOverlay { TableMode = true }; AddChild(overlay);
         PlayCostPreviewRequestDto? request = null; overlay.PreviewRequested += value => request = value;
         Check(overlay.Open(candidate, prompt.GetProperty("promptId").GetString()!, prompt.GetProperty("snapshotTick").GetInt64(), _ => null, source), "Open production play composer");
+        var mode = expected.TryGetProperty("mode", out var selectedMode) ? selectedMode.GetString()! : "";
+        var requirements = candidate.GetProperty("metadata").GetProperty("sourceRequirements").EnumerateArray()
+            .Where(r => r.GetProperty("sourceObjectId").GetString() == source).ToArray();
+        var modeIndex = Array.FindIndex(requirements, r => (r.GetProperty("mode").GetString() ?? "") == mode);
+        Check(modeIndex >= 0, "Server offers the chosen spell mode");
+        var sourcePicker = (OptionButton)typeof(PlayCardOverlay).GetField("_source", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+        sourcePicker.Select(modeIndex); sourcePicker.EmitSignal(OptionButton.SignalName.ItemSelected, modeIndex);
         Check(!overlay.TrySelectTableObject("HIDDEN-OPPONENT-CARD"), "Reject an unrevealed object");
         foreach (var target in targets) Check(overlay.TrySelectTableObject(target), "Select a server-offered unit");
         if (expected.TryGetProperty("optionalCosts", out var optionalCosts) && optionalCosts.ValueKind == JsonValueKind.Array) {
@@ -129,8 +143,13 @@ public partial class ShadySpectaclesInteractionProof : Control
         }
         var destination = expected.TryGetProperty("destination", out var entry) && entry.ValueKind == JsonValueKind.String ? entry.GetString()! : "";
         if (!string.IsNullOrEmpty(destination)) Check(overlay.TrySelectTableDestination(destination), "Select server-offered entry destination");
+        var movementDestinations = expected.TryGetProperty("movementDestinations", out var movements) && movements.ValueKind == JsonValueKind.Array
+            ? movements.EnumerateArray().Select(d => d.GetString()!).ToArray() : [];
+        foreach (var movement in movementDestinations) Check(overlay.TrySelectTableDestination(movement), "Select each server-offered movement destination");
         Check(request is not null && request.Command.SourceObjectId == source
+            && request.Command.Mode == mode
             && request.Command.TargetObjectIds.SequenceEqual(targets)
+            && (request.Command.MovementDestinations ?? []).SequenceEqual(movementDestinations)
             && (request.Command.OptionalCosts ?? []).SequenceEqual(expected.TryGetProperty("optionalCosts", out var selectedCosts)
                 && selectedCosts.ValueKind == JsonValueKind.Array
                 ? selectedCosts.EnumerateArray().Select(cost => cost.GetString()!).ToArray() : []), "Preview retains source, target and extra costs");

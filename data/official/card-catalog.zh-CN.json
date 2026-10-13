@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1023,
+  "total": 1024,
   "cards": [
     {
       "id": 31005,
@@ -42372,6 +42372,55 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37855,
+      "cardCategoryList": [
+        "exclusive_spell"
+      ],
+      "cardCategoryNameList": [
+        "专属法术"
+      ],
+      "cardNo": "VEN·152",
+      "cardName": "灵魂折镜",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue",
+        "purple"
+      ],
+      "hero": "梅尔",
+      "region": "",
+      "tag": "",
+      "artist": "小牛设计",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一个法力费用不高于{{4}}的法术。你可以选择支付{{A}}。若如此做，则你获得此法术的控制权，你可以选择为其做出新的选择。否则将其无效化。",
+      "flavorText": "“斗转乾坤！”\n——梅尔",
+      "energy": 1,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/436ec0b21d0740bf971935953c9acbd2.png",
+      "backImage": "",
+      "listSort": 1831,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -42654,6 +42703,26 @@
       "setReleaseDate": "2026-07-31",
       "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
       "scope": "Exact Mel printing; shared empowered dependent spell effects and on-play draw; registration is not whole-card certification"
+    },
+    {
+      "cardNo": "VEN·152",
+      "sourceId": 37855,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "灵魂折镜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "fetchedAt": "2026-10-13T04:54:32.026117+00:00",
+      "sourceRecordSha256": "d73a5646db65de2941cb3901799d28014c0055d61a2b6ba77b2bbcb4a081097e",
+      "publishedPreview": false,
+      "setReleaseDate": "2026-07-31",
+      "setReleaseSource": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "scope": "Exact Rebuttal printing; optional resolution payment and spell control/choice remakes; not whole-card certification"
     }
   ]
 }

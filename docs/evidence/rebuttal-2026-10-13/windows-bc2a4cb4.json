@@ -1,0 +1,16 @@
+{
+  "commit": "bc2a4cb4d59de63c5d5b769760efd943c00108c4",
+  "runId": 38348124581,
+  "jobId": 115134213889,
+  "status": "success",
+  "logs": {
+    "exported-boot.log": "37b9946f23327af61a9d4e4c2bfddbab77432947e0ed52c5b4a92a5fcd83ada1",
+    "export.log": "dae5a9f9dc18bca2a3eceec57d1cd9c4d3064298eab167cfbb28fb7d24230f76",
+    "import.log": "e13e9a3b125d68eb04d48f04e646d9465e3e3595de57f6f02a0c7b7b498b6b86",
+    "build.log": "bb92beee5b4cd6d092e10479974588efe0cabf42b884b4618aec7cbd2e62cd0c"
+  },
+  "packagedClientBooted": true,
+  "packagedCatalogCards": 1023,
+  "verifiedAtUtc": "2026-10-13T05:40:22.353527+00:00",
+  "scope": "Hosted Windows build/import/export and actual headless package boot; local API intentionally absent; no user-device visible match or complete rule acceptance"
+}

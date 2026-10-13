@@ -168,6 +168,7 @@ public sealed record CardBehaviorDefinition(
     bool PreventsAllSpellAndSkillDamageThisTurn = false,
     bool AttachesOrDetachesSecondTargetEquipmentToFirstTarget = false,
     bool GainsControlOfTargetStackSpell = false,
+    bool MayPayPowerToGainControlAndRemakeSpellChoices = false,
     bool RecyclesUnkeptSacredJudgmentCards = false,
     bool PlaysOpponentTopMainDeckUnitToBase = false,
     bool PlaysEachPlayerTopFiveUnitToBase = false,
@@ -8232,6 +8233,10 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.StackSpell,
             CanPlayDuringPriority: true,
             GainsControlOfTargetStackSpell: true),
+        new(
+            "VEN·152", "灵魂折镜", 1, "OPTIONAL_POWER_CONTROL_OR_COUNTER_SPELL", 0, 1,
+            TargetScope: CardTargetScopes.StackSpell, MaxTargetManaCost: 4,
+            CanPlayDuringPriority: true, MayPayPowerToGainControlAndRemakeSpellChoices: true),
         new(
             "OGN·115/298",
             "光明未来",

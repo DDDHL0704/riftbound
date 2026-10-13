@@ -15810,6 +15810,96 @@
         "All-source coverage, eight EN missing identities and applicable-document audit",
         "Visible paired matches, Windows user-device acceptance, full SQL match/concurrency/failover"
       ]
+    },
+    {
+      "id": "rebuttal-resolution-payment-and-remakes-2026-10-13",
+      "status": "SCOPED_CHECK_AND_NATIVE_PASS_FIXED_COMMIT_FULL_REQUIRED",
+      "scope": "One exact Rebuttal printing; shared resolution payment, control transfer, target/mode and independent Echo remakes; exact source and bounded continuation recovery. Face-down spell provenance and complete current spell/observer variants remain OPEN.",
+      "subjects": [
+        {
+          "id": "VEN-152",
+          "activeCardNo": "VEN·152",
+          "reviewStatus": "NOT_REVIEWED",
+          "sources": [
+            {
+              "language": "zh-CN",
+              "region": "CN",
+              "sourceId": 37855,
+              "cardNo": "VEN·152",
+              "name": "灵魂折镜",
+              "sha256": "d73a5646db65de2941cb3901799d28014c0055d61a2b6ba77b2bbcb4a081097e",
+              "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+              "confirmedAt": "2026-10-13T04:54:32.026117+00:00",
+              "publishedPreview": false
+            },
+            {
+              "language": "en-US",
+              "region": "global",
+              "sourceId": "ven-152-166",
+              "cardNo": "VEN-152/166",
+              "name": "Rebuttal",
+              "sha256": "a32a4dc0bf24cab9d69580a2dd5b8f98060e23fbf1a22a86be495f43470bd577",
+              "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+              "confirmedAt": "2026-10-13T05:09:57.540485+00:00"
+            }
+          ],
+          "implementation": [
+            "src/Riftbound.Engine/CoreRuleEngine.DeclaredChoices.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs"
+          ],
+          "tests": [
+            "RebuttalRulesTests",
+            "RebuttalNativeTests"
+          ],
+          "nativeEvidence": [
+            "docs/evidence/rebuttal-2026-10-13/native-controls-replay.json"
+          ]
+        }
+      ],
+      "ruleRecords": [
+        "DOC-04-P046-B012",
+        "DOC-04-P077-B008",
+        "DOC-04-P085-B012"
+      ],
+      "auditDocument": "docs/REBUTTAL_RULES_AUDIT_2026-10-13.md",
+      "evidence": [
+        "docs/evidence/rebuttal-2026-10-13/catalog-promotion.json",
+        "docs/evidence/rebuttal-2026-10-13/check-parity.json",
+        "docs/evidence/rebuttal-2026-10-13/ci-postgres-bc2a4cb4.json",
+        "docs/evidence/rebuttal-2026-10-13/code-inputs.json",
+        "docs/evidence/rebuttal-2026-10-13/core-readback.json",
+        "docs/evidence/rebuttal-2026-10-13/en-readback.json",
+        "docs/evidence/rebuttal-2026-10-13/faq-excerpts.json",
+        "docs/evidence/rebuttal-2026-10-13/faq-readback.json",
+        "docs/evidence/rebuttal-2026-10-13/full-ci-bc2a4cb4.json",
+        "docs/evidence/rebuttal-2026-10-13/full-plan-parity.json",
+        "docs/evidence/rebuttal-2026-10-13/governance.json",
+        "docs/evidence/rebuttal-2026-10-13/native-controls-replay.json",
+        "docs/evidence/rebuttal-2026-10-13/rebuttal-source-queue.json",
+        "docs/evidence/rebuttal-2026-10-13/remaining-scopes.json",
+        "docs/evidence/rebuttal-2026-10-13/rule-excerpts.json",
+        "docs/evidence/rebuttal-2026-10-13/source-readback.json",
+        "docs/evidence/rebuttal-2026-10-13/validation.json",
+        "docs/evidence/rebuttal-2026-10-13/windows-bc2a4cb4.json"
+      ],
+      "tests": [
+        "RebuttalRulesTests",
+        "RebuttalNativeTests"
+      ],
+      "validation": {
+        "check": "10821 cases / 6788 methods; all prior 10785 / 6773 preserved",
+        "native": "66 commands; 19 cold restores; 7 stale intents; replay and dedup PASS",
+        "full": "6929-method plan only; fixed implementation commit CI required",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Official face-down spell play origin restrictions need an actual supported spell entry and native/server replay; existing standby reaction unit flows cannot substitute for spell evidence.",
+        "All current spell modes, arbitrary target combinations, target taxes/trigger observers, control changes and independent Echo variants still need source-by-source certification.",
+        "Complete consistent-state history forgery and every control/choice acquisition path are not certified by bounded continuation tamper cases.",
+        "Visible paired Godot match and user Windows acceptance remain open.",
+        "Mandatory PostgreSQL opening/recovery/replay passed at prior fixed commit; full gameplay, concurrency, failover and combined SQL/network match remain open.",
+        "All 1738 identity and 36 document/14293 block coverage items retain their original unresolved statuses."
+      ]
     }
   ]
 }

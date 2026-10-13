@@ -1,0 +1,21 @@
+{
+  "goalStatus": "ACTIVE",
+  "platformStatus": "NOT_READY",
+  "wholeCardReviewStatus": "NOT_REVIEWED",
+  "currentGalleryGap": {
+    "returnedEN": 1381,
+    "reportedEN": 1389,
+    "missing": 8,
+    "status": "OPEN"
+  },
+  "openScopes": [
+    "Official face-down spell play origin restrictions need an actual supported spell entry and native/server replay; existing standby reaction unit flows cannot substitute for spell evidence.",
+    "All current spell modes, arbitrary target combinations, target taxes/trigger observers, control changes and independent Echo variants still need source-by-source certification.",
+    "Complete consistent-state history forgery and every control/choice acquisition path are not certified by bounded continuation tamper cases.",
+    "Visible paired Godot match and user Windows acceptance remain open.",
+    "Mandatory PostgreSQL opening/recovery/replay passed at prior fixed commit; full gameplay, concurrency, failover and combined SQL/network match remain open.",
+    "All 1738 identity and 36 document/14293 block coverage items retain their original unresolved statuses."
+  ],
+  "nextBatch": "Close face-down spell entry provenance and remaking restrictions, then remaining current FAQ consumers.",
+  "fixedRebuttalFullCI": "NOT_YET_DISPATCHED"
+}

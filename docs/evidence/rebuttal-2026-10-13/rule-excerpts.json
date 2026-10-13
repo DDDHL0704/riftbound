@@ -1,0 +1,1688 @@
+[
+  {
+    "id": "DOC-04-P004-B014",
+    "document": "DOC-04",
+    "page": 4,
+    "clauseAnchors": [
+      "107.3.d"
+    ],
+    "text": "107.3.d.            如果玩家失去了一处战场的控制权,则下一次清理时,与该战场相关的待命区域中的所有卡牌都将被移\n                    除。\n                         想获取更多有关信息,请查阅规则 318.清理。\n                         想获取更多有关信息,请查阅规则 421.待命。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P025-B003",
+    "document": "DOC-04",
+    "page": 25,
+    "clauseAnchors": [
+      "182"
+    ],
+    "text": "182.       指示物的控制者,即为创建出该指示物的法术或技能的控制者,除非该指示物的内在属性决定了其控制权,或者该法术或技能\n           指定了其他玩家为指示物的控制者。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P027-B007",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.3"
+    ],
+    "text": "190.3.            游戏过程中,玩家可以争夺战场的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P027-B010",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.3.b"
+    ],
+    "text": "190.3.b.               一旦法术对决或战斗在战场开始,该战场将保持争夺状态,直至确立或重新确立控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P027-B014",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.4"
+    ],
+    "text": "190.4.            在战场进入争夺状态后,当法术对决或战斗结束时,在该战场拥有单位的玩家,会建立对该战场的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P027-B015",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.4.a"
+    ],
+    "text": "190.4.a.               如果战场上有受某位玩家控制的单位,且该单位未处于战斗状态,则只要该玩家仍在该战场留有单位,便\n                       视为其维持该战场的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P027-B016",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.4.b"
+    ],
+    "text": "190.4.b.               如果战场上正在进行战斗或法术对决,除非战斗或法术对决的步骤中另有指示,否则该战场的控制权不会\n                       发生变化。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P027-B017",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.4.c"
+    ],
+    "text": "190.4.c.               如果玩家在某战场上没有单位,且该回合处于开环状态,则除非该战场正在进行战斗或法术对决,否则该\n                       玩家会在后续的清理步骤失去该战场的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P027-B018",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.5"
+    ],
+    "text": "190.5.            控制权 是一种持续状态。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P027-B019",
+    "document": "DOC-04",
+    "page": 27,
+    "clauseAnchors": [
+      "190.6"
+    ],
+    "text": "190.6.            战场控制权 决定了战场技能 的控制权 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P029-B002",
+    "document": "DOC-04",
+    "page": 29,
+    "clauseAnchors": [
+      "191.4.b"
+    ],
+    "text": "191.4.b.               改变技能来源的控制权,并不会改变该技能的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P029-B007",
+    "document": "DOC-04",
+    "page": 29,
+    "clauseAnchors": [
+      "192.1"
+    ],
+    "text": "192.1.            指定控制权的方法各有不同,但控制状态本身对所有游戏物体而言均没有区别。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P037-B021",
+    "document": "DOC-04",
+    "page": 37,
+    "clauseAnchors": [
+      "323.6"
+    ],
+    "text": "323.6.          4.如果当前回合处于开环状态,且某处由某玩家控制的战场上没有正在进行的法术对决或战斗,若该处战场没有被\n                该玩家控制的单位占据,则该玩家失去该战场的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P041-B013",
+    "document": "DOC-04",
+    "page": 41,
+    "clauseAnchors": [
+      "344"
+    ],
+    "text": "344.       在清理期间战场的控制权受到争夺,且回合处于普通开环状态时,则会开始法术对决。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P041-B014",
+    "document": "DOC-04",
+    "page": 41,
+    "clauseAnchors": [
+      "344.1"
+    ],
+    "text": "344.1.            如果两名玩家正在争夺战场的控制权,则法术对决将作为战斗的首个步骤开启。如果该战场已经有正在进行的法术\n                  对决 ,则该法术对决 变为战斗法术对决 ,并在该处发起一场战斗 。\n                       想获取更多有关信息,请查阅规则 459.战斗。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P041-B015",
+    "document": "DOC-04",
+    "page": 41,
+    "clauseAnchors": [
+      "344.2"
+    ],
+    "text": "344.2.            如果某处战场的控制权受到争夺,且该战场上没有由不同玩家控制的单位,且回合处于普通开环状态 ,则在下一个\n                  清理 步骤会开启一次法术对决 。\n                       想获取更多有关信息,请查阅规则 318.清理。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B004",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [],
+    "text": "举例:“阿克尚 - 放浪不羁”的部分描述为“当你打出我时,如果你支付了该额外费用,\n                         则可以将一件敌方装备移动到你的基地。你控制这件装备,直到我离场为止。如果它\n                         是一件武装,则将其贴附到我身上。”如果阿克尚因其打出效果受到反应而离场,则不\n                         会生成延迟被动技能“你控制这件装备,直到我离场为止”。因此,你一刻也不会获得\n                         该目标装备的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P054-B001",
+    "document": "DOC-04",
+    "page": 54,
+    "clauseAnchors": [],
+    "text": "信息会在引用指示执行时进行检查。\n                                   举例:“亚索 - 迷途怅惘”的描述为:“当我进攻时,对此处的一名敌方单位造成等同于\n                                   我战力的伤害。”亚索移动至受敌方占据的战场,其进攻触发被放入结算链。防守方玩\n                                   家对该进攻触发进行反应,从待命状态打出一张“恶意收购”,获得亚索的控制权。该\n                                   触发式技能不会因亚索的控制者发生变化而受影响,且“敌方”引用自该触发式技能本\n                                   身,所以结算会正常进行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P054-B002",
+    "document": "DOC-04",
+    "page": 54,
+    "clauseAnchors": [],
+    "text": "举例:假设防守方玩家在对此“亚索 - 迷途怅惘”进行反应时,打出了一张如此描述的\n                                   法术牌:“[反应]。获得一个触发式技能的控制权。你可以选择为其做出新的选择。”防\n                                   守方玩家选择了该进攻触发。当亚索的进攻触发结算时,如果该玩家没有为该触发效\n                                   果指定新的目标,则该触发式技能的控制者已不再是目标单位的“敌方”,于是该触发\n                                   式技能目标指定失效,不会产生任何效果。如果该玩家为该进攻触发选取了亚索为目\n                                   标,则亚索将成为该触发式技能的“敌方”单位,所以会对自己造成等同于自身战力的\n                                   伤害。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B012",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.c.2.a"
+    ],
+    "text": "383.4.c.2.a.             当一名玩家通过征服获得一处战场的控制权并获得 1 分时,位于该战场上的单位对应\n                         的征服技能将作为待处理项目放入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P061-B019",
+    "document": "DOC-04",
+    "page": 61,
+    "clauseAnchors": [
+      "383.4.d.2.a"
+    ],
+    "text": "383.4.d.2.a.             当一名玩家在其开始阶段通过据守维持一处战场的控制权并获得 1 分时,与位于该战\n                         场上的单位对应的据守技能将作为待处理项目放入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P083-B018",
+    "document": "DOC-04",
+    "page": 83,
+    "clauseAnchors": [
+      "439.4"
+    ],
+    "text": "439.4.            除非创建游戏物体的游戏效果另有说明,否则该游戏物体的所属者是创建它的玩家。控制权会根据相应类型的游戏\n                  物体 照常确立。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P091-B011",
+    "document": "DOC-04",
+    "page": 91,
+    "clauseAnchors": [
+      "466.5.d"
+    ],
+    "text": "466.5.d.              建立控制权 ,如果该玩家本回合尚未通过此战场得分 ,则将导致一次征服 。\n                             想获取更多有关控制的信息,请查阅规则 188.控制。\n                             想获取更多有关征服的信息,请查阅规则 469.1. 征服。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P092-B001",
+    "document": "DOC-04",
+    "page": 92,
+    "clauseAnchors": [
+      "469.1"
+    ],
+    "text": "469.1.             征服: 玩家获得一处战场 的控制权 (该战场必须是玩家尚未在本回合得分 的场地)。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P092-B003",
+    "document": "DOC-04",
+    "page": 92,
+    "clauseAnchors": [
+      "469.1.b"
+    ],
+    "text": "469.1.b.               在确立控制后,玩家获得对战场的控制权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P092-B004",
+    "document": "DOC-04",
+    "page": 92,
+    "clauseAnchors": [
+      "469.2"
+    ],
+    "text": "469.2.             据守: 玩家保持一处战场 的控制权 (该战场必须是玩家尚未在本回合开始阶段得分 的场地)。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P104-B007",
+    "document": "DOC-04",
+    "page": 104,
+    "clauseAnchors": [
+      "718.5.f"
+    ],
+    "text": "718.5.f.              顶部卡牌控制权 的变更不会影响已贴附 卡牌的控制权 ,反之亦然。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P104-B018",
+    "document": "DOC-04",
+    "page": 104,
+    "clauseAnchors": [
+      "719.5.a"
+    ],
+    "text": "719.5.a.              对区域变更的顶部卡牌拥有控制权的玩家,将决定这些卡牌卸除的顺序,并因此决定因卸除而产生的任何\n                      相关效果的顺序。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P042-B024",
+    "document": "DOC-04",
+    "page": 42,
+    "clauseAnchors": [
+      "355"
+    ],
+    "text": "355.         2.做出相关的选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B001",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.1"
+    ],
+    "text": "355.1.       如果打出的卡牌具有明确表示要在“打出我时”做出选择的效果,请在此时做出选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B002",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.1.a"
+    ],
+    "text": "355.1.a.            这也包括选择是否支付可选额外费用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B003",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.2"
+    ],
+    "text": "355.2.       如果打出的是单位,则须选择一处有效的位置,在打出的同时该单位进入该位置。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B004",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.2.a"
+    ],
+    "text": "355.2.a.            默认情况下,有效的位置包括控制者的基地,或由控制者控制的战场。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B005",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.2.b"
+    ],
+    "text": "355.2.b.            某些游戏效果可能会给予玩家权限,允许其将单位打出到通常不视为有效的位置。为让玩家能够打出该单\n                    位 ,此类位置将变为有效 位置。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B006",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.3"
+    ],
+    "text": "355.3.       如果是用列表列出了多种模式可供选择的法术和技能,则在此时做出相应选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B007",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.4"
+    ],
+    "text": "355.4.       如果是能够移动一名或多名单位的法术和技能,则每次需执行的移动都必须选择一个有效的位置,作为本次移动的\n             终点 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B008",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.4.a"
+    ],
+    "text": "355.4.a.            移动效果 的有效位置 是指除单位 当前所在位置 以外,其可以合法存在的位置 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B009",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.5"
+    ],
+    "text": "355.5.       如果卡牌需要你选择一个或以上的游戏物体,则在此时做出选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B010",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.5.a"
+    ],
+    "text": "355.5.a.            这不包括根据条件对一个或以上游戏物体产生影响的卡牌。\n                         举例:“眩晕任意战场上的一名单位”是一个选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B012",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.5.b"
+    ],
+    "text": "355.5.b.            这不包括为常驻牌触发式技能做出的选择,也不包括为项目确认时生成的延迟或内嵌式触发做出的选择\n                    (即使这些技能会在结算链项目打出时触发)。\n                         举例:打出具有“打出我时,摧毁一名单位”触发式技能的单位时,无需选择目标。只有在技能触\n                         发时,才需要选择目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B015",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.6"
+    ],
+    "text": "355.6.       目标选取",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B016",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.7"
+    ],
+    "text": "355.7.       当卡牌选择一个或以上的游戏物体时,则称该卡牌选取了目标,本部分规则另有说明的情况除外。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B017",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.8"
+    ],
+    "text": "355.8.       要将法术或技能放置到结算链,必须为其所有目标做出有效的选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B018",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.9"
+    ],
+    "text": "355.9.       当目标满足以下所有要求时,即视为一个有效的选择:",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B019",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.9.a"
+    ],
+    "text": "355.9.a.            其为场地内的常驻牌或符文、结算链上的法术或技能、某名玩家或某个区域、或是被明确或隐含地指向位\n                    于其它区域的上述对象。\n                         举例:“摧毁一名单位”即以场上的一名单位为目标。\n                         举例:“从你的废牌堆中回收一名单位”即指定你废牌堆中的一张单位卡牌为目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B020",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.9.a.1"
+    ],
+    "text": "355.9.a.1.               除非另有说明,否则“单位”、“装备”和“符文”均指代场地内的物体。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B021",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.9.a.2"
+    ],
+    "text": "355.9.a.2.               除非另有说明,否则“法术”和“技能”均指代结算链上的物体。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P043-B022",
+    "document": "DOC-04",
+    "page": 43,
+    "clauseAnchors": [
+      "355.9.a.3"
+    ],
+    "text": "355.9.a.3.               除非另有说明,否则“正面朝下的卡牌”均指代待命区域中的卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B001",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.9.a.4"
+    ],
+    "text": "355.9.a.4.             除非另有说明,否则“传奇”均指代传奇区域中的传奇。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B002",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.9.a.5"
+    ],
+    "text": "355.9.a.5.             除非另有说明,否则“选定英雄”和“英雄区域中的单位”均指英雄区域中的一名单位。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B003",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.9.b"
+    ],
+    "text": "355.9.b.          其满足所有目标选取的限制条件。\n                       举例:只有当一名单位充分满足相应条件时,如法术描述中的“战场上的单位”、“敌方单位”、\n                       “你控制的单位”或“战力为 4 或以上的单位”,才能被视为该法术的有效目标。\n                       举例:一名具有“我无法被敌方法术和技能选作目标”效果的单位,无法成为任何敌方法术或技能\n                       的有效目标,即使它符合其他目标选取的限制条件。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B004",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.9.c"
+    ],
+    "text": "355.9.c.          其不是该法术或技能本身。\n                       举例:一个具有“无效化一个法术”效果的法术,不能以自身为目标。\n                       举例:一个常驻牌的技能可以将该常驻牌选取为目标,因为该技能与技能来源均被视为独立的\n                       物体。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B005",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.10"
+    ],
+    "text": "355.10.       在法术、主动技能或触发式技能的文本中提及的游戏物体、玩家或区域均被视为目标,除非出现下列任一情况:",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B006",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.10.a"
+    ],
+    "text": "355.10.a.         其位于信息状态为非公开的区域中。\n                       举例:“让一名传奇变为活跃状态”是以一名传奇为目标,因为传奇区域属于公开区域。\n                       举例:“让你废牌堆里的一名单位返回手牌”是以你的废牌堆中的一名单位为目标,因为你的废牌\n                       堆属于公开区域。\n                       举例:“你可以选择从手牌中打出一名单位,无视费用”不会指定你手牌中的单位牌为目标,因为\n                       你的手牌不属于公开区域。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B007",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.10.a.1"
+    ],
+    "text": "355.10.a.1.            公开区域包括:战场区域、基地、废牌堆、传奇区域、英雄区域和待命区域。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B008",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.10.b"
+    ],
+    "text": "355.10.b.         其仅作为另一个选择的目标选取限制条件,或仅作为某个游戏行动的限制或权限出现。\n                       举例:“摧毁战场上的一名单位”指定的目标是单位,而非战场,因为“战场上”只是一个限制条\n                       件。\n                       举例:“摧毁一处战场上的所有单位”指定的目标是战场,而非单位。\n                       举例:“从你的手牌中打出一名单位到战场”指定的目标并非战场。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B009",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.10.c"
+    ],
+    "text": "355.10.c.         其仅作为费用、触发条件或替换效果的一部分而出现。\n                       举例:“你必须摧毁一名友方单位,作为打出我的额外费用”不需选取目标。未指定任何东西为目\n                       标。\n                       举例:“当一名友方单位被摧毁时,摧毁一件装备”指定的目标是一件装备而不是一名友方单位。\n                       举例:“当你打出我时,本回合内下次有友方单位被摧毁时,改为将其返回手牌”不需选取目标。\n                       该替换效果会在任意友方单位死亡时生效。\n                       举例:“选择一名友方单位。它在本回合内下次被摧毁时,改为将其返回手牌”以一名友方单位为\n                       目标,因为“选择一名友方单位”不属于替换效果的一部分。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P044-B010",
+    "document": "DOC-04",
+    "page": 44,
+    "clauseAnchors": [
+      "355.10.c.1"
+    ],
+    "text": "355.10.c.1.            指示文本中的费用也适用此规则,可通过如“[执行 X],以此[执行 Y]”的描述来识别此类文本。该\n                       指示文本中的费用为“[执行 X]”。\n                           举例:“当我据守一处战场时,你可以选择摧毁此处的另一名友方单位,以此抽一张\n                            牌”不视为目标选取。\n                            举例:“当你打出我时,你可以选择消耗一个增益,以此移动一名友方单位”以友方单\n                            位为目标,而不是以增益为目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B001",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.10.d"
+    ],
+    "text": "355.10.d.         其为按照自身特性由流程自动选定,而不是由法术或技能的控制者选定。\n                         举例:“摧毁一处战场上的所有单位”以一处战场为目标,而不以任意单位为目标。\n                         举例:“摧毁所有战场上的单位”不视为目标选取。\n                         举例:“摧毁一名单位。让其控制者抽两张牌”只以该单位为目标,而不以其控制者为目标。\n                         举例:“让你的传奇变为活跃状态”不视为目标选取,因为你只能拥有一名传奇。\n                         举例:“让一名友方传奇变为活跃状态”以一名传奇为目标,因为在 2v2 游戏中存在两名友方传\n                         奇。\n                         举例:“回收你废牌堆中的所有卡牌”不视为目标选取,因为此效果会影响所有卡牌,且你只拥有\n                         一个废牌堆。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B002",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.10.d.1"
+    ],
+    "text": "355.10.d.1.              该例外情况仅适用于在任何情况下都无法进行选择的物体。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B003",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.10.d.2"
+    ],
+    "text": "355.10.d.2.              该例外情况不适用于以下对象:该物体在法术或技能被放置到结算链时是唯一的有效选择,但\n                         在其他情况下却需要进行选择。\n                             举例:“摧毁战场上的一名单位”始终会以一名单位为目标(即使该单位是当前战场上\n                              的唯一单位)。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B004",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.10.e"
+    ],
+    "text": "355.10.e.         其属于一个由其他玩家(全部或部分)进行选择的物体集合。\n                         举例:“每位玩家摧毁一名自己控制的单位”不视为目标选取。每位玩家(包括打出该法术的玩\n                         家)需在法术或技能结算时选择要摧毁的一名单位。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B005",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.10.f"
+    ],
+    "text": "355.10.f.         其在玩家“必须”完成的指示文本里被引用。\n                         举例:“你必须回收一枚你的符文”不视为目标选取。当法术或技能结算时,你从自己的符文中选\n                         择一枚。\n                         举例:“回收一枚你控制的符文”以一枚符文为目标。当你将法术或技能置于结算链时,你从自己\n                         控制的符文中选择一枚。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B006",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.11"
+    ],
+    "text": "355.11.       部分卡牌会指定一组目标,而该组目标拥有必须整体满足的目标选取要求。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B007",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.11.a"
+    ],
+    "text": "355.11.a.         当这些卡牌在结算链上进行确认时,可以选择任意一组有效目标,前提是该组目标整体满足目标选取的限\n                  制条件。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B008",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.11.b"
+    ],
+    "text": "355.11.b.         如果在法术或技能结算时,该组目标不再整体满足目标选取的限制条件,则该法术或技能的控制者可以从\n                  初始目标中选择一个满足目标选取要求的子集合,并让该法术或技能对其施加效果。\n                         举例:一名玩家打出了“妖异狐火”法术,其部分效果为“摧毁一处战场中任意数量的单位,这些\n                         单位总计战力不得高于 4”。该玩家在同一战场上选择了四个 1[M]的随从指示物。作为反应,另\n                         一名玩家让其中两名随从获得+1[M],因此这些随从的战力变为 1、1、2 和 2。然后“妖异狐火”\n                         进行结算。由于这些随从的总计战力不再低于 4 或以下,因此“妖异狐火”的控制者必须从初始\n                         目标中选择一个合法子集合来对其施加效果。该效果可以选择摧毁两名 2[M]随从,或者摧毁两\n                         名 1[M]随从外加一名 2[M]随从。被选中的单位即为“妖异狐火”的剩余合法目标。该玩家无法选\n                         择要让“妖异狐火”去影响在同一战场上但最初未被选为目标的单位。不过,如果最初被选为目标\n                         的单位虽然在“妖异狐火”结算之前就离开了所选战场,但只要这些单位最终都位于同一处战场之\n                         上,该玩家仍能选择对这些单位施加影响。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P045-B009",
+    "document": "DOC-04",
+    "page": 45,
+    "clauseAnchors": [
+      "355.12"
+    ],
+    "text": "355.12.       如果法术指示玩家可以对一定数量的游戏物体执行游戏行动,则所有选择均被视为目标选取,且每次选择都是独立\n              的,与是否执行该游戏行动的决定无关。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B001",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.13"
+    ],
+    "text": "355.13.            如果卡牌指示玩家选择“任意数量”或“最多”一定数量的游戏物体并对其施加效果,则该玩家可以从可用目标中选择任\n                   意数量(包括 0)。如果选择了 0 为数量,则该法术或技能可以在没有任何目标的情况下打出。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B002",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14"
+    ],
+    "text": "355.14.            分摊",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B003",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.a"
+    ],
+    "text": "355.14.a.                如果卡牌指定一定数量的伤害可在一定数量的单位之间分摊,则每个被选定的单位都视为被指定为目标 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B004",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.b"
+    ],
+    "text": "355.14.b.                这些目标的选择发生在当法术或技能在结算链上进行确认时。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B005",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.c"
+    ],
+    "text": "355.14.c.                选定的目标数量最多只能达到(且不能超过)法术打出时的初始伤害量。\n                              举例:一名玩家打出了一张法术牌,其指示为“分摊 5 点伤害”,那最多只能选择 5 名单位,但\n                              可以少于 5 名。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B006",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.d"
+    ],
+    "text": "355.14.d.                每个目标都视为有效,且会单独触发指目标效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B007",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.e"
+    ],
+    "text": "355.14.e.                直到法术或技能结算时,玩家才能决定伤害的分配方式。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B008",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.f"
+    ],
+    "text": "355.14.f.                每个目标都必须受到有效的伤害量。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B009",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.g"
+    ],
+    "text": "355.14.g.                有效伤害必须为正整数,大于或等于 1 点伤害。\n                              想获取更多有关信息,请查阅规则 417.造成。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B010",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.h"
+    ],
+    "text": "355.14.h.                法术或效果结算时,如果目标的数量多于可供分配的伤害,则由造成该伤害的效果的控制者决定哪些目标\n                         不再成为目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B011",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.h.1"
+    ],
+    "text": "355.14.h.1.                   该玩家在选择哪些目标不再作为目标时,不能让最终留存的目标数量少于其要分配的伤害点\n                              数。\n                                   举例:一名玩家打出“阿尔法突袭”,其部分描述为:“选择一名友方单位。该单位对战\n                                   场上的敌方单位造成等同于其战力的伤害,可在多名敌方单位之间分摊。”该玩家以自\n                                   己的一名 5[M]单位,和战场上的五名 1[M]敌方随从为目标。其对手进行反应,打出\n                                   “蛮荒之力”,选取其中一名随从为目标;并打出“封冻”,选取该 5[M]单位为目标。当\n                                   “阿尔法突袭”结算时,该玩家有 3 点伤害可分配,必须选择让哪些目标不再作为目\n                                   标。该玩家不能为了对该 3[M]随从造成 3 点伤害,而选择让其中四名单位不再成为\n                                   目标。该玩家最多只能选择让两名单位不再成为目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B012",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.14.i"
+    ],
+    "text": "355.14.i.                任何已支付的费用,或因这些游戏物体被选为目标而触发的效果,都将持续生效、保持已支付或已触发的\n                         状态。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B013",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.15"
+    ],
+    "text": "355.15.            除非法术或技能另有说明,否则经过此步骤后,这些选择将无法更改。\n                        想获取更多有关信息,请查阅规则 750.另做选择。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B014",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.16"
+    ],
+    "text": "355.16.            除非别无选择,否则玩家不得在此步骤中做出那些必然会导致后续流程出现非法选择或行动的选择。\n                         举例:一名玩家打出了一张卡牌,其描述为:“你必须摧毁你控制的战力最高的单位,作为打出此牌的额外\n                         费用。给予一名友方单位在本回合内等同于被摧毁单位战力的+[M]加成。进行[洞察 2]。”该玩家在本确认\n                         步骤中无法选择其战力最高的单位为目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P046-B015",
+    "document": "DOC-04",
+    "page": 46,
+    "clauseAnchors": [
+      "355.17"
+    ],
+    "text": "355.17.            如果某法术或技能要求一名或多名玩家做出不属于此部分规则定义的选择,则这些选择会在结算时进行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B017",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.3"
+    ],
+    "text": "359.3.          法术 会停留在结算链 上。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B018",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.3.a"
+    ],
+    "text": "359.3.a.              此卡牌变为已确认的结算链项目 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B019",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.3.b"
+    ],
+    "text": "359.3.b.              如果结算链中有其他的待处理项目,则每个待处理项目的控制者为这些效果完成“打出卡牌”部分的第 2 步\n                      到第 5 步,然后继续处理本流程。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B002",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.c"
+    ],
+    "text": "359.3.c.     其他玩家有机会在法术结算前打出[反应]卡牌,作为应对。\n                  想获取更多有关信息,请查阅规则 327.结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B003",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.d"
+    ],
+    "text": "359.3.d.     否则,按照卡牌上规则文本从上到下的顺序执行法术的效果,再将卡牌放入所属玩家的废牌堆。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B004",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e"
+    ],
+    "text": "359.3.e.     处理不合法或无法执行的指示",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B005",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.1"
+    ],
+    "text": "359.3.e.1.        即使部分或所有目标不合法,法术依旧会进行结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B006",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.2"
+    ],
+    "text": "359.3.e.2.        如果目标不再符合法术的目标要求,或者所在区域在场地区域和非场地区域之间发生了变化,\n                  则该目标会在法术结算时被视为非法。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B007",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.3"
+    ],
+    "text": "359.3.e.3.        如果目标在法术位于结算链上时一度不再满足目标条件,之后又再度符合,则依旧被视为合法\n                  目标。\n                       举例:一张法术牌的目标为“战场上的一名单位”。一名玩家以法术进行应对,将该单\n                       位移动到基地,然后另一名玩家也以法术进行应对,将其移动回战场。随后,原先的\n                       法术进行结算。这种情况下,该单位仍然视为合法目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B008",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.4"
+    ],
+    "text": "359.3.e.4.        如果目标的所在区域在场地区域和非场地区域之间发生了变化,然后又回到了原来的区域,则\n                  不再是合法目标,因为不被视为同一个游戏物体。\n                       举例:\n                       如果“战场上的一名敌方单位”不再是敌人、不再是单位或不再位于战场上,则不再视\n                       为合法目标。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B011",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.5"
+    ],
+    "text": "359.3.e.5.        如果该法术的目标均已不再合法,则这些游戏物体、玩家或区域在法术结算时不受影响。所有\n                  与非法目标相关的指示都无法执行。\n                       举例:一名玩家打出了“虚空索敌”,该法术的效果为“对战场上的一名单位造成 4 点伤\n                       害。抽一张牌。”该法术目标单位的控制者使用[反应],将单位移动至所属基地。既然\n                       该单位不再是合法单位,也就无法受到任何伤害。不过,“虚空索敌”的控制者依然会\n                       抽一张牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P050-B014",
+    "document": "DOC-04",
+    "page": 50,
+    "clauseAnchors": [
+      "359.3.e.6"
+    ],
+    "text": "359.3.e.6.        由于非法目标或其他情况而无法遵循的指示会被无视。\n                       举例:一名玩家打出“驭风而行”,并选择将其位于“卑鄙之喉的巢穴”的单位移动到基\n                       地。基地是“驭风而行”的合法移动终点位置,但由于“卑鄙之喉的巢穴”的限制,该移\n                       动指示无法执行,因此在“驭风而行”效果结算时,该移动指示将被无视。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B001",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.7"
+    ],
+    "text": "359.3.e.7.     如果一张法术卡牌开始结算时,指示的所有目标均处于无效或不可用状态,则该指示不会执\n               行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B002",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.8"
+    ],
+    "text": "359.3.e.8.     如果指示拥有多个目标,且法术卡牌开始结算时并非所有目标均处于无效或不可用状态,则该\n               卡牌会正常执行,只对适用且有效的目标产生效果。\n                    举例:“星芒凝汇”的效果为“对最多两名单位各造成 6 点伤害”。即使这些单位中有一\n                    名单位在法术开始前变为不可用状态,该指示仍会执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B003",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.9"
+    ],
+    "text": "359.3.e.9.     如果卡牌选择的目标变为无效或不可用状态,则该过程称为目标指定失效。\n                   举例:一张法术牌的指示为“对战场上的一名单位造成 2 点伤害”。如果在指示执行\n                    前,选定的单位已被移动至其基地,则该指示不会执行,这是因为该指示已经表明其\n                    选择的单位必须处于战场中,而在准备执行指示时,指定为目标的单位已经不再是有\n                    效对象。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B004",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.9.a"
+    ],
+    "text": "359.3.e.9.a.        如果其他法术或技能尝试引用某个已确认的结算链项目 指定为目标的游戏物体、玩家\n                    或区域的数量,则该数量会计入所有指定失效的目标,但不会计入已改变至非场地区\n                    域的目标。\n                         举例:当玩家将其“沃利贝尔 - 震怒天声”移动至敌方占据的战场并触发战斗\n                         时,沃利贝尔的进攻触发将加入结算链,并选取该战场上的三名单位为目\n                         标。作为反应,防守方玩家打出“闪现”,将三名单位中的两名移回基地。此\n                         时,该玩家不能使用“击退”指定该进攻触发为目标(“击退”的效果为:“选\n                         择战场上的一名友方单位。无效化一个选择了该单位、且没有选择其他友\n                         方单位为目标的敌方法术或技能。”)。如果防守方玩家改为打出“残酷复\n                         活”两次,摧毁了那两名单位,则“击退”可以合法指定该进攻触发为目标,\n                         因为其中两名目标已移至非场地区域。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B005",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.10"
+    ],
+    "text": "359.3.e.10.    由于所有法术都需要有目标才能造成影响,如果所有目标都变为无效或不可用状态,则法术结\n               算时,有可能出现所有指示都无法执行的情况。在这种情况下,虽然法术没有造成效果,但依\n               旧视为被打出。\n                    举例:一名玩家打出了一张法术牌,上面除了“对战场上的一名单位造成 2 点伤害”之\n                    外没有其他的指示,随后玩家选择了战场上的一名敌方单位。该玩家同时控制着另一\n                    名单位,其具有“每当你打出一张法术牌时,让我本回合内[M]+1”的技能。假如,在法\n                    术结算前,选定的单位已被移动至其所属基地。那么,在法术进行结算时,其造成伤\n                    害的指示无法被执行,但受控制的单位依旧会触发技能,使其获得[M]+1。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P051-B006",
+    "document": "DOC-04",
+    "page": 51,
+    "clauseAnchors": [
+      "359.3.e.11"
+    ],
+    "text": "359.3.e.11.    如果玩家只能遵循部分指示,则尽量遵循,否则便无视。\n                   举例:一名玩家打出一张法术牌,其效果为“弃置两张手牌,然后抽两张牌”。如果该\n                    玩家没有手牌,则无视“弃置两张手牌”的指示,但仍然会抽两张牌。如果该玩家只有\n                    一张手牌,则将其弃置,并抽两张牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B001",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.12"
+    ],
+    "text": "359.3.e.12.     如果一个法术需要查询某个目标的信息,但该目标已经不再是合法目标;或者需要查询的卡牌\n                或常驻牌由于其所在位置、区域或状态发生了变化,导致其相关信息不再可用,则查询返回的\n                结果为“无”,基于它的所有计算都将被无视。\n                      举例:\n                      不再位于场上的单位被视为无战力、无费用,等等。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B005",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.12.a"
+    ],
+    "text": "359.3.e.12.a.         如果一个法术需要查询信息的目标为合法,或者需要查询的卡牌/常驻牌的所在位置、\n                      区域或状态未发生导致其相关信息不再可用的变化,则该信息可以被查询并获取。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B006",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.13"
+    ],
+    "text": "359.3.e.13.     对于将某样物体移动至另一个区域作为费用或效果的法术或技能,可以“回溯”其在改变区域前的\n                特性。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B007",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14"
+    ],
+    "text": "359.3.e.14.     有些指示可能会引用受卡牌中其他指示影响的游戏物体,或是引用在其他指示中执行的游戏行\n                动。这些被引用和引用的指示称为“关联指示”。\n                      举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”第二条指示\n                      中的“其”指的是第一条指示中的单位,因此该法术的两条指示是相互关联的。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B008",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14.a"
+    ],
+    "text": "359.3.e.14.a.         须先执行完前置关联指示,才会执行后续关联指示。如果此前置关联指示因任何原因\n                      被无视,则后续关联指示也会被无视。\n                           举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”如\n                            果所选单位因反应“暗刃”而改变区域或移动至基地,则该法术目标指定失\n                            效,第一条指示将被无视。如果第一条指示被无视,第二条指示也不会执\n                            行,因此该单位的控制者不会抽两张牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B009",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14.b"
+    ],
+    "text": "359.3.e.14.b.         如果在前置关联指示中执行的游戏行动被替换,后续的关联指示并不会受影响(除非\n                      后续关联指示直接引用了该游戏行动)。\n                            举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”该\n                            效果分为两条指示:摧毁该单位,以及目标单位的控制者抽两张牌。后续\n                            关联指示并未直接引用任何行动,因此即使前置关联指示中的摧毁行行动\n                            被其他事件替换,该后续关联指示仍会执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P052-B011",
+    "document": "DOC-04",
+    "page": 52,
+    "clauseAnchors": [
+      "359.3.e.14.c"
+    ],
+    "text": "359.3.e.14.c.         以这种方式引用游戏行动时,仅指该游戏行动以及其作用的物体或玩家,而不指其执\n                      行时的具体情况。\n                            举例:一个法术的效果为“对战场上的一名敌方单位造成 3 点伤害。若如此\n                            做,则为与该单位同一位置的你控制的单位移除伤害。”如果部分而非全部\n                            伤害被抵挡,则后续关联指示仍会执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B002",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.e.15"
+    ],
+    "text": "359.3.e.15.         在结算过程中离开结算链的法术或技能,其指示将不再继续执行。这会立即使该法术或技能完\n                    成结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B003",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.e.16"
+    ],
+    "text": "359.3.e.16.         如果延迟技能的持续时间在其生成前已结束,则不会生成该延迟技能,与其相关的所有指示也\n                    将被无视。\n                         举例:“巨神峰之巅”是一张战场牌,其部分描述为:“当你征服此处时,选择两枚符\n                         文,并在本回合结束时,让它们变为活跃状态。”如果在结束步骤开始后,“巨神峰之\n                         巅”在回合结束阶段被征服(例如通过“狩猎律动”等效果),则不会生成该延迟触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B005",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f"
+    ],
+    "text": "359.3.f.       引用",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B006",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.1"
+    ],
+    "text": "359.3.f.1.          某些技能所使用的信息,引用自该技能的来源,或引用自某法术或技能的一个或多个目标。该\n                    情况通常可以通过诸如“此处”、“我的”或“其”等词语来识别。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B007",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.2"
+    ],
+    "text": "359.3.f.2.          以此方式在指示中引用的信息,会在该指示执行时进行检查。\n                         举例:\n                         一名玩家将“亚索 - 迷途怅惘”移动至受敌方占据的战场,并在该处发起战斗。对手反\n                         应“亚索 - 迷途怅惘”的进攻触发技能,从待命状态打出“战或逃”并指定亚索为目标,\n                         将亚索移回基地。当进攻触发结算时,“此处”已不再是战斗进行的战场,于是进攻触\n                         发的目标指定失效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B009",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.2.a"
+    ],
+    "text": "359.3.f.2.a.             当引用检查与目标相关的指示执行信息时,如果该目标不合法,则该引用将返回\n                         “无”的结果,且与其相关的所有指示将被无视。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B010",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.3"
+    ],
+    "text": "359.3.f.3.          某些触发式技能所使用的信息,引用自该技能的触发条件。该信息会在满足触发条件时进行检\n                    查。\n                         举例:“莉莉娅 - 仙灵小鹿”的描述为:“当我从一处位置移动时,在该处打出一名拥有\n                         [瞬息]的 3[M]‘精灵’指示物。”如果莉莉娅移动至一处战场,则她的触发式技能会被加\n                         入结算链,并在此时记录她的移动起点。如果她因有玩家反应该结算链上的触发式技\n                         能而被移动到了非场地区域,也不会影响在触发式技能结算时打出“精灵”指示物的位\n                         置。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B011",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.3.a"
+    ],
+    "text": "359.3.f.3.a.             对于延迟触发式技能,除非另有说明,否则信息会在触发式技能被创建时受到引用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B012",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.3.b"
+    ],
+    "text": "359.3.f.3.b.             对于关联技能,如果其引用了关联触发式技能中的信息,并且有明确说明,则可以从\n                         关联触发式技能的触发条件中引用该信息。\n                               举例:娅希拉的描述为:“当我据守一处战场时,在你的下一个主阶段开始\n                               时,你可以选择将一名敌方单位移动到此战场。”该延迟触发式技能中的“此\n                               战场”指的是她据守的战场,因此会在生成该触发式技能时从该触发条件中\n                               引用该战场。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P053-B013",
+    "document": "DOC-04",
+    "page": 53,
+    "clauseAnchors": [
+      "359.3.f.4"
+    ],
+    "text": "359.3.f.4.          触发式技能效果中使用的某些信息会直接引用自触发式技能本身,比如“敌方”和“友方”状态。该",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B003",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429"
+    ],
+    "text": "429.       获得",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B004",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.1"
+    ],
+    "text": "429.1.          获得 指的是将资源放入玩家符文池 的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B005",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.2"
+    ],
+    "text": "429.2.          获得 资源的触发式技能和主动技能,会在确认后立即结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B006",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.2.a"
+    ],
+    "text": "429.2.a.             优先行动权 与焦点 不会因“获得 ”技能的确认或结算而发生传递,且会在结算链上的其他未决项目确认前进\n                     行结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B007",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.2.b"
+    ],
+    "text": "429.2.b.             获得 资源的法术在确认时会正常保留在结算链上。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B008",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.3"
+    ],
+    "text": "429.3.          带有“获得资源”且拥有[反应]标签的主动技能,可以在法术与技能需要支付资源的任何时间激活。\n                     举例:玩家在启动“打出法术”的过程前,可以通过任意方式获得法力与符能。启动该过程后,玩家也可以\n                     在“支付费用”步骤,选择激活带有“获得”的[反应]效果,获得法力或符能并支付费用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B010",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.3.a"
+    ],
+    "text": "429.3.a.             当“获得”技能以这种方式激活时,即使处于其他法术和技能结算过程中,该“获得”技能也会立即确认并结\n                     算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B011",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.4"
+    ],
+    "text": "429.4.          获得 资源是一种限定行动 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B012",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.4.a"
+    ],
+    "text": "429.4.a.             玩家仅可在游戏效果的指示下获得资源。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P077-B013",
+    "document": "DOC-04",
+    "page": 77,
+    "clauseAnchors": [
+      "429.5"
+    ],
+    "text": "429.5.          该行动的格式为“获得[一种或以上的资源]。”\n                     举例:“获得[2]”,意为“获得 2 点法力。”\n                     举例:“[E]:获得[Y]”,意为“获得 1 点序理特性的符能。”\n                     举例:“获得[1][G]”,意为“获得 1 点法力和 1 点翠意特性的符能。”",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B006",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444"
+    ],
+    "text": "444.       支付",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B007",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444.1"
+    ],
+    "text": "444.1.          支付 资源指的是从你的符文池 中移除该资源的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B008",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444.1.a"
+    ],
+    "text": "444.1.a.             支付 是一种与法力 和符能 互动的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B009",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444.2"
+    ],
+    "text": "444.2.          当玩家被指示支付某项资源时,如果其符文池中存在该资源,则该玩家可以选择将其移除。如果玩家选择不这样\n                做,则指令将被无视。\n                     举例:当“黛安娜 - 皎月化身”的触发式技能结算时,如果其控制者的符文池中有[1]法力,则该玩家可以选\n                     择是否支付该法力。如果选择不支付,则不会执行该触发式技能的额外效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B010",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444.2.a"
+    ],
+    "text": "444.2.a.             如果支付资源的指示属于支付卡牌或技能费用的一部分,选择不支付这些资源会使打出该卡牌或发动该技\n                     能的行为撤销。\n                            想获取更多有关信息,请查阅规则 358.检查合法性。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B011",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444.2.b"
+    ],
+    "text": "444.2.b.             如果支付资源的指示属于支付其他费用的一部分,则选择不支付这些资源会导致相关效果无法执行。\n                         想获取更多有关信息,请查阅规则 201.费用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B012",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444.2.c"
+    ],
+    "text": "444.2.c.             当玩家被指示支付资源时,可以选择随时激活带有“获得资源”且拥有[反应]关键词的技能。这些技能会无\n                     视常规限制,立即确认并结算。\n                          想获取更多有关信息,请查阅规则 429.获得。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B013",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444.3"
+    ],
+    "text": "444.3.          支付 是一种限定行动 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P085-B014",
+    "document": "DOC-04",
+    "page": 85,
+    "clauseAnchors": [
+      "444.3.a"
+    ],
+    "text": "444.3.a.             玩家 只能在游戏效果 的指示下支付 资源。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P095-B005",
+    "document": "DOC-04",
+    "page": 95,
+    "clauseAnchors": [
+      "478"
+    ],
+    "text": "478.           如果一个以上的效果应用于同一效果层中的同一游戏物体,或在同一效果层中相互应用,则这两个效果都将应用,但其顺序可\n               能由“依赖关系”决定。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P095-B006",
+    "document": "DOC-04",
+    "page": 95,
+    "clauseAnchors": [
+      "478.1"
+    ],
+    "text": "478.1.             依赖关系 会在以下情况发生时建立:",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P095-B007",
+    "document": "DOC-04",
+    "page": 95,
+    "clauseAnchors": [
+      "478.1.a"
+    ],
+    "text": "478.1.a.                应用其中一个效果会改变另一个效果的存在;或",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P095-B008",
+    "document": "DOC-04",
+    "page": 95,
+    "clauseAnchors": [
+      "478.1.b"
+    ],
+    "text": "478.1.b.                应用其中一个效果会改变另一个效果可影响的物体数量;或",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P095-B009",
+    "document": "DOC-04",
+    "page": 95,
+    "clauseAnchors": [
+      "478.1.c"
+    ],
+    "text": "478.1.c.                应用其中一个效果会改变应用另一个效果时的结果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]
