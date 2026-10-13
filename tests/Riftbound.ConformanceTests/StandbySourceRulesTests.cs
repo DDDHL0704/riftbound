@@ -58,6 +58,47 @@ public sealed class StandbySourceRulesTests
         Assert.False(play.Accepted);Assert.Equal(MatchStateHasher.Hash(hidden.State),MatchStateHasher.Hash(play.State));
     }
 
+    [Theory]
+    [InlineData("OGN·275/298", 1)]
+    [InlineData("OGN·278/298", 2)]
+    public async Task ActualPrintedStandbyCapacityAcceptsAvailableSlotsAndRejectsOverflowWithoutMutation(string fieldCard, int capacity)
+    {
+        var initial = Position("OGN·135/298");
+        initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects)
+            { ["F"] = initial.CardObjects["F"] with { CardNo = fieldCard } } };
+        foreach (var id in new[] { "STANDBY-TWO", "STANDBY-THREE" })
+        {
+            initial = AttackDamageDistributionTests.Spell(initial, id, "OGN·135/298", "P1");
+            initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects)
+                { [id] = initial.CardObjects[id] with { Tags = [CardObjectTags.UnitCard], Power = 3 } } };
+        }
+        var driver = new StandbyDefendObserverTests.Driver(initial);
+        var sources = new[] { "SHADOW", "STANDBY-TWO", "STANDBY-THREE" };
+        for (var index = 0; index < capacity; index++)
+        {
+            var beforePower = driver.State.RunePools["P1"].TotalPower;
+            var result = await driver.Act("P1", new HideCardCommand(sources[index], "OGN·135/298", "BATTLEFIELD:F", ["STANDBY_A"]));
+            Assert.Equal(beforePower - 1, result.State.RunePools["P1"].TotalPower);
+            Assert.True(result.State.CardObjects[sources[index]].IsFaceDown);
+            Assert.Equal("F", result.State.ObjectLocations[sources[index]].BattlefieldObjectId);
+            Assert.Equal(index + 1, result.State.CardObjects.Values.Count(card => card.IsFaceDown
+                && result.State.ObjectLocations.TryGetValue(card.ObjectId, out var at) && at.BattlefieldObjectId == "F"));
+        }
+        var before = driver.State;
+        var command = new HideCardCommand(sources[capacity], "OGN·135/298", "BATTLEFIELD:F", ["STANDBY_A"]);
+        var blocked = await new CoreRuleEngine().ResolveAsync(before, new("overflow", "P1", CommandTypes.HideCard), command, default);
+        Assert.False(blocked.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, blocked.ErrorCode);
+        Assert.Empty(blocked.Events);
+        Assert.Equal(MatchStateHasher.Hash(before), MatchStateHasher.Hash(blocked.State));
+        Assert.Equal(before.RunePools["P1"], blocked.State.RunePools["P1"]);
+        Assert.Contains(sources[capacity], blocked.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(ResolutionResult.BuildPrompts(before)["P1"].Candidates!, c => c.Action == CommandTypes.HideCard && c.Enabled);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, driver.Commands(), driver.State,
+            new CoreRuleEngine(), default, driver.Events());
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+    }
+
     internal static async Task<MatchState> NextTurn(MatchState state)
     {
         var next=await Act(state,state.TurnPlayerId,new EndTurnCommand());

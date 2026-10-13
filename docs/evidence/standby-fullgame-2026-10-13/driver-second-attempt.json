@@ -1,0 +1,21 @@
+{
+  "status": "TWO_ORIGINAL_FAILURES_PASSED_EXTRA_BANDLE_PATH_OPEN",
+  "trxSha256": "602c9d09ae351b7835d961e21d6f940fe776db59d14b88058eaef175836db16f",
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "message": ""
+    },
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksBattlefieldExtraStandbyHideAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Failed",
+      "message": "System.InvalidOperationException : B0 auto-driver could not find battlefield OGN·278/298 for P2."
+    },
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTreeAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "message": ""
+    }
+  ]
+}

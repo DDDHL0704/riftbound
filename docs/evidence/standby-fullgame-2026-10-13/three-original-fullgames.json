@@ -1,0 +1,30 @@
+{
+  "status": "THREE_ORIGINAL_FULLGAMES_SCOPED_PASS",
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "duration": "00:00:15.3208955",
+      "trxPath": "var/qa/standby-fullgame-20261013/driver-focus-2/focus/results.trx",
+      "trxSha256": "602c9d09ae351b7835d961e21d6f940fe776db59d14b88058eaef175836db16f"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksBattlefieldExtraStandbyHideAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "duration": "00:00:34.4063197",
+      "trxPath": "var/qa/standby-fullgame-20261013/bandle-focus/focus/results.trx",
+      "trxSha256": "1e8a4c59ed5bd024a5b047f9870d6b78ca69fc81c2b51fd548b3828b7ae4e855"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTreeAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "duration": "00:00:22.5948439",
+      "trxPath": "var/qa/standby-fullgame-20261013/extra-reject-fixed/focus/results.trx",
+      "trxSha256": "47301ad44fa88d5e6110888a4b5b927a8eaeb4903dff0073d62cb503b2664ccd"
+    }
+  ],
+  "scoreVictoryCompleteActionEventReplayAndPrivacyRetained": true,
+  "decksAndSeedsUnchanged": true,
+  "caseRemoval": false,
+  "wholeCardCertification": false
+}

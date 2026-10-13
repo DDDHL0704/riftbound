@@ -5312,14 +5312,12 @@ public sealed partial class FullGameEndToEndTests
         Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
         Assert.Equal("BATTLEFIELD", Assert.IsType<string>(hiddenEvent.Payload["destinationZone"]));
         Assert.Equal(battlefieldObjectId, Assert.IsType<string>(hiddenEvent.Payload["battlefieldObjectId"]));
-        Assert.Equal(BandleTreeBattlefieldCardNo, Assert.IsType<string>(hiddenEvent.Payload["battlefieldCardNo"]));
+        Assert.Equal(BandleTreeBattlefieldCardNo, hidden.State.CardObjects[battlefieldObjectId].CardNo);
         var standbyPlayerId = Assert.IsType<string>(hiddenEvent.Payload["playerId"]);
 
-        Assert.Contains(hidden.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, hiddenObjectId, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
+        Assert.Equal(2, hidden.State.CardObjects.Values.Count(card => card.IsFaceDown
+            && hidden.State.ObjectLocations.TryGetValue(card.ObjectId, out var at)
+            && at.BattlefieldObjectId == battlefieldObjectId));
         Assert.Contains(hiddenObjectId, hidden.State.PlayerZones[standbyPlayerId].Battlefields, StringComparer.Ordinal);
         Assert.True(hidden.State.CardObjects[hiddenObjectId].IsFaceDown);
         Assert.Equal("BATTLEFIELD", hidden.State.ObjectLocations[hiddenObjectId].Zone);
@@ -5425,12 +5423,14 @@ public sealed partial class FullGameEndToEndTests
         Assert.Contains(journal.Entries, entry =>
             string.Equals(entry.CommandType, CommandTypes.HideCard, StringComparison.Ordinal)
             && !entry.Accepted
-            && string.Equals(entry.ErrorMessage, "向战场待命需要控制对应的班德尔树战场。", StringComparison.Ordinal));
+            && string.Equals(entry.ErrorMessage, "请选择你控制且仍有待命空位的战场。", StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.DeclareBattle, StringComparison.Ordinal));
         Assert.Contains(journal.Entries, entry => string.Equals(entry.CommandType, CommandTypes.EndTurn, StringComparison.Ordinal));
         Assert.False(rejected.Accepted);
         Assert.Contains(sourceObjectId, rejected.State.PlayerZones[rejected.State.ActivePlayerId].Hand, StringComparer.Ordinal);
-        Assert.Contains(battlefieldObjectId, rejected.State.PlayerZones[rejected.State.ActivePlayerId].Battlefields, StringComparer.Ordinal);
+        Assert.Equal(rejected.State.ActivePlayerId, rejected.State.BattlefieldStates[battlefieldObjectId].ControllerId);
+        Assert.Equal(1, rejected.State.CardObjects.Values.Count(card => card.IsFaceDown
+            && rejected.State.ObjectLocations.TryGetValue(card.ObjectId, out var at) && at.BattlefieldObjectId == battlefieldObjectId));
         AssertScoreVictory(result);
     }
 
@@ -8454,14 +8454,14 @@ public sealed partial class FullGameEndToEndTests
     {
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("向战场待命需要控制对应的班德尔树战场。", result.ErrorMessage);
+        Assert.Equal("请选择你控制且仍有待命空位的战场。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(MatchStateHasher.Hash(beforeHide.State), MatchStateHasher.Hash(result.State));
         Assert.Equal(beforeHide.State.RunePools[playerId], result.State.RunePools[playerId]);
         Assert.Contains(sourceObjectId, result.State.PlayerZones[playerId].Hand, StringComparer.Ordinal);
         Assert.DoesNotContain(sourceObjectId, result.State.PlayerZones[playerId].Battlefields);
         Assert.Equal("HAND", result.State.ObjectLocations[sourceObjectId].Zone);
-        Assert.Contains(battlefieldObjectId, result.State.PlayerZones[playerId].Battlefields, StringComparer.Ordinal);
+        Assert.Equal(playerId, result.State.BattlefieldStates[battlefieldObjectId].ControllerId);
         AssertNoHiddenZoneLeak(result);
     }
 
@@ -11045,12 +11045,25 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal(MatchPhases.Main, current.State.Phase);
 
         var standbyPlayerId = current.State.ActivePlayerId;
-        current = await TapAllAvailableRunesAsync(session, standbyPlayerId, current, "b0-standby-extra-reject-hide-tap");
+        current = await PrepareStandbyHideAsync(session, current, standbyPlayerId, "b0-standby-extra-reject");
+        // A non-Bandle field allows the normal first slot. The extra-slot
+        // rejection must follow a real accepted first placement.
+        var first = await SubmitFirstHideCardCandidateAsync(session, current, standbyPlayerId, "b0-standby-extra-reject-first-slot");
+        current = first.Result;
+        var field = current.State.ObjectLocations[first.SourceObjectId].BattlefieldObjectId!;
+        if (current.State.RunePools[standbyPlayerId].TotalPower == 0)
+        {
+            var rune = EnabledCandidate(current.Prompts[standbyPlayerId], CommandTypes.RecycleRune)?.Sources?.FirstOrDefault()
+                ?? throw new InvalidOperationException("B0 standby driver cannot fund the rejected extra slot.");
+            var recycle = new RecycleRuneCommand(rune.Id);
+            current = await session.SubmitAsync(standbyPlayerId, "b0-standby-extra-reject-second-power", recycle, RawCommand(recycle), default);
+            AssertAccepted(current); AssertNoHiddenZoneLeak(current);
+        }
         var (rejected, sourceObjectId, battlefieldObjectId) = await SubmitRejectedBattlefieldExtraStandbyHideCardAsync(
             session,
             current,
             standbyPlayerId,
-            "b0-standby-extra-reject-hide-card");
+            "b0-standby-extra-reject-hide-card", field);
         AssertBattlefieldExtraStandbyRejected(current, rejected, standbyPlayerId, sourceObjectId, battlefieldObjectId);
 
         current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-extra-reject-end-after-reject");
@@ -11127,18 +11140,27 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal(MatchPhases.Main, current.State.Phase);
 
         var standbyPlayerId = current.State.ActivePlayerId;
-        current = await PreparePlayerBoardAsync(session, standbyPlayerId, current, "b0-standby-claim", playUnitToBattlefield: true);
-        current = await TapAllAvailableRunesAsync(session, standbyPlayerId, current, "b0-standby-hide-tap");
+        current = await PrepareStandbyHideAsync(session, current, standbyPlayerId, "b0-standby",
+            useBattlefieldExtraStandby ? BandleTreeBattlefieldCardNo : null);
         ResolutionResult hidden;
         string hiddenObjectId;
         string? extraStandbyBattlefieldObjectId = null;
         if (useBattlefieldExtraStandby)
         {
+            var first = await SubmitFirstBattlefieldExtraStandbyHideCardCandidateAsync(
+                session, current, standbyPlayerId, "b0-standby-first-slot");
+            current = first.Result;
+            current = await TapAllAvailableRunesAsync(session, standbyPlayerId, current, "b0-standby-second-slot-tap");
+            if (current.State.RunePools[standbyPlayerId].TotalPower == 0)
+            {
+                var rune = EnabledCandidate(current.Prompts[standbyPlayerId], CommandTypes.RecycleRune)?.Sources?.FirstOrDefault()
+                    ?? throw new InvalidOperationException("B0 standby driver cannot fund a second standby placement.");
+                var recycle = new RecycleRuneCommand(rune.Id);
+                current = await session.SubmitAsync(standbyPlayerId, "b0-standby-second-slot-power", recycle, RawCommand(recycle), default);
+                AssertAccepted(current); AssertNoHiddenZoneLeak(current);
+            }
             (hidden, hiddenObjectId, extraStandbyBattlefieldObjectId) = await SubmitFirstBattlefieldExtraStandbyHideCardCandidateAsync(
-                session,
-                current,
-                standbyPlayerId,
-                "b0-standby-hide-card");
+                session, current, standbyPlayerId, "b0-standby-hide-card");
         }
         else
         {
@@ -11156,18 +11178,24 @@ public sealed partial class FullGameEndToEndTests
         }
         else
         {
+            current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-wait-next-turn");
+            current = await EndTurnAsync(session, current.State.ActivePlayerId, "b0-standby-wait-own-open-turn");
             var (ordinaryReveal, revealedObjectId) = await SubmitFirstRevealCardCandidateAsync(
                 session,
-                hidden,
+                current,
                 standbyPlayerId,
                 "b0-standby-reveal-card");
             Assert.Equal(hiddenObjectId, revealedObjectId);
-            Assert.Contains(revealedObjectId, ordinaryReveal.State.PlayerZones[standbyPlayerId].Base, StringComparer.Ordinal);
-            Assert.False(ordinaryReveal.State.CardObjects[revealedObjectId].IsFaceDown);
+            var resolvedReveal = await ResolveStackPassPassAsync(session, ordinaryReveal, "b0-standby-resolve-reveal");
+            Assert.Contains(revealedObjectId, resolvedReveal.State.PlayerZones[standbyPlayerId].Battlefields, StringComparer.Ordinal);
+            Assert.Equal(hidden.State.ObjectLocations[hiddenObjectId].BattlefieldObjectId,
+                resolvedReveal.State.ObjectLocations[revealedObjectId].BattlefieldObjectId);
+            Assert.False(resolvedReveal.State.CardObjects[revealedObjectId].IsFaceDown);
             revealed = ordinaryReveal;
+            current = resolvedReveal;
         }
 
-        current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-end-after-reveal");
+        current = await EndTurnAsync(session, standbyPlayerId, "b0-standby-end-after-hide-or-reveal");
         AssertNoHiddenZoneLeak(current);
         var opponentId = current.State.ActivePlayerId;
         current = await PreparePlayerBoardAsync(session, opponentId, current, "standby-opponent", playUnitToBattlefield: false);
@@ -11193,6 +11221,30 @@ public sealed partial class FullGameEndToEndTests
         var (_, _, battleResult) = await DriveEstablishedOfficialLowCurveDecksToBattleCloseAsync(session, current);
         var result = await DriveBattleCloseToScoreVictoryAsync(session, battleResult, "b0-standby-score");
         return (hidden, revealed, battleResult, result, hiddenObjectId, extraStandbyBattlefieldObjectId);
+    }
+
+    private static async ValueTask<ResolutionResult> PrepareStandbyHideAsync(
+        MatchSession session, ResolutionResult current, string playerId, string intentPrefix, string? battlefieldCardNo = null)
+    {
+        if (battlefieldCardNo is not null && !current.State.PlayerZones[playerId].Battlefields.Any(id =>
+                current.State.CardObjects.TryGetValue(id, out var card) && card.CardNo == battlefieldCardNo))
+            throw new InvalidOperationException("B0 standby driver opening did not select the required battlefield.");
+        current = await TapAllAvailableRunesAsync(session, playerId, current, intentPrefix + "-claim-tap");
+        current = await TryPlayFirstUnitAsync(session, playerId, current, intentPrefix + "-claim", playUnitToBattlefield: true,
+            battlefieldDestinationOverride: battlefieldCardNo is null ? null
+                : "BATTLEFIELD:" + BattlefieldObjectIdForCardNo(current.State, playerId, battlefieldCardNo));
+        current = await TapAllAvailableRunesAsync(session, playerId, current, intentPrefix + "-tap");
+        if (current.State.RunePools[playerId].TotalPower == 0)
+        {
+            var rune = EnabledCandidate(current.Prompts[playerId], CommandTypes.RecycleRune)?.Sources?.FirstOrDefault()
+                ?? throw new InvalidOperationException("B0 standby driver cannot fund the printed standby cost.");
+            var recycle = new RecycleRuneCommand(rune.Id);
+            current = await session.SubmitAsync(playerId, intentPrefix + "-power", recycle, RawCommand(recycle), default);
+            AssertAccepted(current);
+            AssertNoHiddenZoneLeak(current);
+        }
+        Assert.True(current.State.RunePools[playerId].TotalPower >= 1);
+        return current;
     }
 
     private static async ValueTask<(ResolutionResult Result, string SourceObjectId)> SubmitFirstHideCardCandidateAsync(
@@ -11250,7 +11302,8 @@ public sealed partial class FullGameEndToEndTests
         }
 
         var destination = candidate.Destinations?
-            .FirstOrDefault(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal))?.Id
+            .FirstOrDefault(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                && current.State.CardObjects[choice.Id["BATTLEFIELD:".Length..]].CardNo == BandleTreeBattlefieldCardNo)?.Id
             ?? throw new InvalidOperationException("B0 standby driver could not find a battlefield extra-standby destination.");
         var battlefieldObjectId = destination["BATTLEFIELD:".Length..];
         Assert.False(string.IsNullOrWhiteSpace(battlefieldObjectId));
@@ -11276,12 +11329,12 @@ public sealed partial class FullGameEndToEndTests
         MatchSession session,
         ResolutionResult current,
         string playerId,
-        string intentId)
+        string intentId, string battlefieldObjectId)
     {
-        var candidate = EnabledCandidate(current.Prompts[playerId], CommandTypes.HideCard)
-            ?? throw new InvalidOperationException($"B0 standby driver could not find HIDE_CARD for {playerId}.");
-        var sourceObjectId = candidate.Sources?.FirstOrDefault()?.Id
-            ?? throw new InvalidOperationException("B0 standby driver could not find a standby hide source.");
+        var sourceObjectId = current.State.PlayerZones[playerId].Hand.FirstOrDefault(id =>
+            current.State.CardObjects.TryGetValue(id, out var card) && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? string.Empty, out var definition)
+                && definition.SourceUnitTags.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            ?? throw new InvalidOperationException("B0 standby driver could not find a second printed standby source.");
         var cardNo = current.State.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
             ? cardObject.CardNo
             : null;
@@ -11290,17 +11343,12 @@ public sealed partial class FullGameEndToEndTests
             throw new InvalidOperationException("B0 standby driver could not resolve the standby hide card number.");
         }
 
-        var battlefieldObjectId = current.State.PlayerZones[playerId].Battlefields
-            .FirstOrDefault(objectId => current.State.CardObjects.TryGetValue(objectId, out var battlefieldObject)
-                && battlefieldObject.Tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal)
-                && !string.Equals(battlefieldObject.CardNo, BandleTreeBattlefieldCardNo, StringComparison.Ordinal))
-            ?? throw new InvalidOperationException("B0 standby driver could not find a non-Bandle Tree battlefield destination.");
         var destination = $"BATTLEFIELD:{battlefieldObjectId}";
-        Assert.False(candidate.Destinations?.Any(choice => string.Equals(choice.Id, destination, StringComparison.Ordinal)) == true);
-
-        var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_A", StringComparison.Ordinal))?.Id
-            ?? candidate.OptionalCosts?.FirstOrDefault()?.Id
-            ?? throw new InvalidOperationException("B0 standby driver could not find a standby hide optional cost.");
+        Assert.NotEqual(BandleTreeBattlefieldCardNo, current.State.CardObjects[battlefieldObjectId].CardNo);
+        Assert.Equal(playerId, current.State.BattlefieldStates[battlefieldObjectId].ControllerId);
+        Assert.DoesNotContain(current.Prompts[playerId].Candidates!, candidate => candidate.Action == CommandTypes.HideCard
+            && candidate.Enabled && candidate.Destinations?.Any(choice => choice.Id == destination) == true);
+        const string optionalCost = "STANDBY_A";
         var command = new HideCardCommand(sourceObjectId, cardNo, destination, [optionalCost]);
         var result = await session.SubmitAsync(
             playerId,
@@ -11333,9 +11381,8 @@ public sealed partial class FullGameEndToEndTests
         var mode = candidate.Modes?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_REVEAL", StringComparison.Ordinal))?.Id
             ?? candidate.Modes?.FirstOrDefault()?.Id
             ?? "STANDBY_REVEAL";
-        var destination = candidate.Destinations?.FirstOrDefault(choice => string.Equals(choice.Id, "BASE", StringComparison.Ordinal))?.Id
-            ?? candidate.Destinations?.FirstOrDefault()?.Id
-            ?? "BASE";
+        var destination = candidate.Destinations?.FirstOrDefault(choice => choice.Id.StartsWith("BATTLEFIELD:", StringComparison.Ordinal))?.Id
+            ?? throw new InvalidOperationException("B0 standby driver requires the actual placement battlefield.");
         var optionalCost = candidate.OptionalCosts?.FirstOrDefault(choice => string.Equals(choice.Id, "STANDBY_REVEAL_0", StringComparison.Ordinal))?.Id
             ?? candidate.OptionalCosts?.FirstOrDefault()?.Id
             ?? throw new InvalidOperationException("B0 standby driver could not find a standby reveal optional cost.");

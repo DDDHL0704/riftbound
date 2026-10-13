@@ -1,0 +1,5 @@
+{
+  "status": "DRIVER_INTENT_COLLISION",
+  "trxSha256": "6b0dee0c1634106360ce2d379edfb32ace3e6cd6eab23b37b55df868567a0d9a",
+  "message": "该客户端行动编号已用于其他命令。"
+}

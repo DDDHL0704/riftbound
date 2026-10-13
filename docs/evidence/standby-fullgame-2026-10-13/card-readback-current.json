@@ -1,0 +1,138 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-13T13:18:48.917024+00:00",
+  "payloads": [
+    {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "帕卡幼崽",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "班德尔树",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    }
+  ],
+  "responseCode": 0,
+  "selected": [
+    {
+      "id": 31359,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·135/298",
+      "cardName": "帕卡幼崽",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "以绪塔尔",
+      "tag": "猫科",
+      "artist": "Bubble Cat Studio",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）",
+      "flavorText": "“啊，它真可爱！”\n——常见遗言",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "OGN(英雄预组 李青)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 李青",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/9aa597237a604c4a9aa4819affe3c465.png",
+      "backImage": "",
+      "listSort": 346,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31522,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "OGN·278/298",
+      "cardName": "班德尔树",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+      "flavorText": "它生长在班德尔城的正中心，保护着上古神话中的约德尔人。",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/327788d7d62442bf99a2f5374fa405d5.png",
+      "backImage": "",
+      "listSort": 183,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "records": [
+    {
+      "cardNo": "OGN·135/298",
+      "sourceId": 31359,
+      "sha256": "d9a73ae1e2d46ea63cbb6d7ab3ae62f87f94363e263b484aca7b02f79ec96283"
+    },
+    {
+      "cardNo": "OGN·278/298",
+      "sourceId": 31522,
+      "sha256": "4ae6250724577b0640de589029a4e6bf7a2d58db7236a3f0850bc22b5d786c68"
+    }
+  ],
+  "scope": "Selected exact prints only; not full gallery refresh"
+}

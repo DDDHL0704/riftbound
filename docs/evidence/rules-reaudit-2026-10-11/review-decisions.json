@@ -17430,6 +17430,76 @@
         "Full official SQL score victory, concurrency, failover and network-with-SQL remain open.",
         "Old86adea6f CI failed games-4 standby drivers; actual full regression and mandatory SQL/network terminal proof required."
       ]
+    },
+    {
+      "id": "standby-original-fullgame-driver-2026-10-13",
+      "status": "SCOPED_ORIGINAL_FULLGAMES_AND_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Preserve original official standby deck/seed/methods, fund printed hide cost via actual rune recycle, control actual battlefield, reveal on later own open turn at placement field, actual Bandle second slot and controlled non-Bandle overflow rejection. No engine gameplay change or whole-card certification.",
+      "subjects": [
+        "OGN-135/298",
+        "OGN-278/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P043-B015",
+        "DOC-04-P043-B018",
+        "DOC-04-P043-B019",
+        "DOC-04-P043-B020",
+        "DOC-04-P043-B021",
+        "DOC-04-P043-B022",
+        "DOC-04-P044-B001",
+        "DOC-04-P044-B002",
+        "DOC-04-P044-B003",
+        "DOC-04-P044-B004",
+        "DOC-04-P072-B005",
+        "DOC-04-P072-B006",
+        "DOC-04-P072-B007",
+        "DOC-04-P072-B008",
+        "DOC-04-P072-B009",
+        "DOC-04-P072-B010",
+        "DOC-04-P114-B014",
+        "DOC-04-P114-B015",
+        "DOC-04-P114-B016",
+        "DOC-04-P114-B017",
+        "DOC-04-P114-B018",
+        "DOC-04-P114-B019",
+        "DOC-04-P114-B020",
+        "DOC-04-P114-B021",
+        "DOC-04-P114-B022",
+        "DOC-04-P114-B023",
+        "DOC-04-P114-B024",
+        "DOC-04-P115-B001",
+        "DOC-04-P115-B003",
+        "DOC-04-P115-B004",
+        "DOC-04-P115-B005",
+        "DOC-04-P115-B006",
+        "DOC-04-P115-B007",
+        "DOC-04-P115-B008",
+        "DOC-04-P115-B009",
+        "DOC-04-P115-B010",
+        "DOC-04-P115-B011",
+        "DOC-04-P029-B002"
+      ],
+      "auditDocument": "docs/STANDBY_FULLGAME_DRIVER_AUDIT_2026-10-13.md",
+      "evidence": "docs/evidence/standby-fullgame-2026-10-13",
+      "tests": [
+        "FullGameEndToEndTests.StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "FullGameEndToEndTests.StandbyOfficialDecksBattlefieldExtraStandbyHideAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "FullGameEndToEndTests.StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTreeAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "StandbySourceRulesTests.ActualPrintedStandbyCapacityAcceptsAvailableSlotsAndRejectsOverflowWithoutMutation"
+      ],
+      "validation": {
+        "focus": "43 adjacent cases passed; three original score-victory/full replay games individually passed",
+        "check": "10885 cases/6814 methods, 160.16s; old10883/6813 preserved;2024 frozen inputs; actualSQL5/Python27",
+        "full": "Plan6955/11034; old143 game methods and110 pair/seed inputs retained; fixed full CI pending",
+        "native": "No production control/UI change; prior headless proof remains scoped; new visible paired/userWindows proof not executed",
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "All original failed CI remains failed; new fixed full terminal acceptance is mandatory.",
+        "Full standby consumers/card/rule/source inventories and English eight-record gap remain open.",
+        "All identity/control/reentry/token history and consistently forged state scopes remain unverified.",
+        "Visible paired clients, user Windows and complete SQL score/concurrency/failover/network combined acceptance remain open."
+      ]
     }
   ]
 }
