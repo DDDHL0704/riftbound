@@ -1,0 +1,591 @@
+{
+  "schemaVersion": 1,
+  "semanticCoverageCertified": false,
+  "certificationScope": {
+    "id": "CN-2026-10-14-current-source-obligations",
+    "region": "CN",
+    "language": "zh-CN",
+    "applicableAsOf": "2026-10-14",
+    "allOfficialObligationsRetained": true,
+    "sourceDates": {
+      "cards": "2026-10-14",
+      "rules": "2026-10-11",
+      "corpus": "2026-10-11",
+      "summary": "2026-10-14"
+    },
+    "primaryCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "ruleSourcesRetainedWithOriginalConfirmationDates": true,
+    "productPlayers": 2
+  },
+  "cardCoverageManifest": {
+    "path": "docs/evidence/rules-reaudit-2026-10-14/source-refresh-20261013T164814Z/source-coverage.json",
+    "sha256": "7d2b5a1b4656daca394ff9ed4d2c13464572e3d25574cda610383f7ab61ca097"
+  },
+  "inputs": {
+    "cards": {
+      "path": "docs/evidence/rules-reaudit-2026-10-14/source-refresh-20261013T164814Z/all-card-ledger.json",
+      "sha256": "501f4635f66afcf5b4a922bc3c56e11686bcee49ea9dd4e47cd02de9005b34e6"
+    },
+    "cn": {
+      "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-catalog.zh-CN.json",
+      "sha256": "1a3defea228520af938e9b40389aaa936d3c16678303593d55372cd4251b8fbc"
+    },
+    "en": {
+      "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-gallery.en-US.json",
+      "sha256": "4b5ea0b0683ddf64736276d3d39a721b8d42b47037e3747a8429a11ea8f55a31"
+    },
+    "qa": {
+      "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-qa.zh-CN.json",
+      "sha256": "e34bd71b35fd28e7c6e6596da3f9cb04d9ee1e22dba05c3810cc21bbed9994a5"
+    },
+    "rules": {
+      "path": "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
+      "sha256": "af5d3738a9df06b3087f454726396a906b7d73dea5ccbc9fd9080985b5287297",
+      "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+    },
+    "corpus": {
+      "path": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+      "sha256": "b97836ed4e1c5c6e13a08e443011a0a96e4549a30613afa6dd01e21c440f382f",
+      "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+    },
+    "global": {
+      "path": "data/official/upstream/2026-10-11/global-rules-sources.json",
+      "sha256": "ed7bcef56a9dec65e1f6e2614c82e4da6e40a16ae554a75b6b0c709e827fa448"
+    },
+    "active": {
+      "path": "data/official/card-catalog.zh-CN.json",
+      "sha256": "bb23aba67c233762352425cf44b6ffdc336f31d5cc7099e2006f61ee4c4f532e"
+    },
+    "reviews": {
+      "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+      "sha256": "41cb05b55ca567e9243b9dccc2340f1d12643a66892c005e2263968ff6e1b5d3"
+    },
+    "summary": {
+      "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
+      "sha256": "3f61657f622a8e413018721d1d4fe59e9d11808cb59cfe219b8467ead9db3fab"
+    }
+  },
+  "historicalReviewPin": {
+    "path": "docs/evidence/audit-obligations-2026-10-14/historical-review-pin.json",
+    "sha256": "c3f5fd36da5007700c6b0d5570c45d05fbb870d3a13a2bf2aaf04ef7408a6e1b",
+    "atCommit": "94ebda99f8f8ebd843fdf3c4bc4405049c9967de",
+    "originalPath": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json"
+  },
+  "laterSourceDeltas": [
+    {
+      "kind": "rules",
+      "before": {
+        "path": "data/official/upstream/2026-10-11/global-rules-sources.json",
+        "sha256": "ed7bcef56a9dec65e1f6e2614c82e4da6e40a16ae554a75b6b0c709e827fa448"
+      },
+      "after": {
+        "path": "data/official/upstream/2026-10-12/global-rules-sources.json",
+        "sha256": "972d7d268d2198565dd0a0df21821610c31b2e75c5e07a406cedde0e312f000c"
+      }
+    },
+    {
+      "kind": "cards",
+      "before": {
+        "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-gallery.en-US.json",
+        "sha256": "4b5ea0b0683ddf64736276d3d39a721b8d42b47037e3747a8429a11ea8f55a31"
+      },
+      "after": {
+        "path": "data/official/upstream/2026-10-14/gallery-delta-20261014T100013Z/gallery-api-full.json",
+        "sha256": "d061b920bfb429cefbba427462ed01845b45915f8c72d35d0b9a4d3e09f14db0"
+      }
+    }
+  ],
+  "reviewContexts": {
+    "observed-pending-capture-order-and-earliest-permission-2026-10-14": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "sha256": "8e30bd83340704b1a6a7511b12478fe196ff9f8ea6d843a98e0b26d071fbe7d1"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "4e34f64a55105d17afade2a4d68d6165efbd601225a48315f0909393f79d0ac5"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "a5bbcdf308e414083771b956509daa1330809ce853a1af2bfd7254a6cf48e1c4"
+        }
+      ],
+      "branches": [
+        {
+          "id": "captured-order",
+          "sourceRefs": [
+            "OGN-194/298",
+            "OGN-115/298",
+            "UNL-079/219",
+            "DOC-04-P040-B003"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ]
+        },
+        {
+          "id": "earliest-confirmation",
+          "sourceRefs": [
+            "OGN-194/298",
+            "OGN-115/298",
+            "UNL-079/219",
+            "DOC-04-P040-B003"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ]
+        },
+        {
+          "id": "original-task-completion",
+          "sourceRefs": [
+            "OGN-194/298",
+            "OGN-115/298",
+            "UNL-079/219",
+            "DOC-04-P040-B003"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ]
+        },
+        {
+          "id": "diana-phase-after-empty-look",
+          "sourceRefs": [
+            "OGN-194/298",
+            "OGN-115/298",
+            "UNL-079/219",
+            "DOC-04-P040-B003"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ]
+        },
+        {
+          "id": "older-spell-anchor",
+          "sourceRefs": [
+            "OGN-194/298",
+            "OGN-115/298",
+            "UNL-079/219",
+            "DOC-04-P040-B003"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ]
+        },
+        {
+          "id": "bright-future-more-than-two-players",
+          "sourceRefs": [
+            "OGN-115/298",
+            "DOC-04-P040-B003"
+          ],
+          "decision": {
+            "state": "NOT_APPLICABLE",
+            "reason": "The current product is explicitly two-player; this branch specifically concerns more than two players. Official multiplayer source text stays in the global inventory, and a future product-scope change reopens this branch.",
+            "minimumPlayers": 3,
+            "sourceFingerprints": {
+              "OGN-115/298": "1b39a0eeaa7c6406f6d470635a029794a305da0c4779f5b1904b95b16576e637",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd"
+            }
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/pending-deck-order-2026-10-14/adjacent-focus.json",
+          "sha256": "f4f1220f32ce007a62354abf438fb8e9129b0758324bdd5cc046c4136a8700b2",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/pending-deck-order-2026-10-14/check-parity.json",
+          "sha256": "f83484bbf8c9704371f864de671ba99c9bf285370bd0e215a6ea51e30eea038c",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/pending-deck-order-2026-10-14/native-replay.json",
+          "sha256": "a477914089c100ce977978951c477b52c5009d18caf089773972acdd3f39b056",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/pending-deck-order-2026-10-14/full-plan.json",
+          "sha256": "eb3b14a10bb728d1637dc2cd214ec11a4e1480d65b12875c7621bc67b911dea3",
+          "role": "plan"
+        }
+      ],
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/audit-obligations-2026-10-14/full-ci-e54f3084.json",
+          "sha256": "b0c37d312ed83abdec8fd3fa983bb29fa21adac9f1ff266123ec79d253e16913",
+          "commit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
+          "runId": 38543085594
+        }
+      ],
+      "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
+      "currentImplementationCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139"
+    },
+    "candlelit-conquest-private-look-recycle-order-2026-10-14": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "sha256": "e2e782a488cb7d1e593c8109e5eb30cdb011cc1900bbcc3b7b3c4856f53321fe"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+          "sha256": "64907c9b0411a886491dfb9d963dca83cf2f4dbd36d33086d6bc12d7d05c0fa6"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "4e34f64a55105d17afade2a4d68d6165efbd601225a48315f0909393f79d0ac5"
+        },
+        {
+          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+          "sha256": "42b213d60549db1ca2f7923fbb11018222feae6bc48d3d015995d790c5c88698"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "a5bbcdf308e414083771b956509daa1330809ce853a1af2bfd7254a6cf48e1c4"
+        }
+      ],
+      "branches": [
+        {
+          "id": "queued-response",
+          "sourceRefs": [
+            "OGN-291/298",
+            "DOC-04-P040-B003",
+            "DOC-04-P069-B007",
+            "DOC-04-P078-B012"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Current CN printed instruction and shared-rule branch independently reproduced and verified in named original assertions, native controls where applicable, cold recovery and fixed full. This does not certify whole printing.",
+            "sourceFingerprints": {
+              "OGN-291/298": "9e4bb6941d829a50e29367db53b86b98210de400b0dfc7719d1fc3fffc942a6a",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P069-B007": "78810ca1ac42e4c1385d86a71caebd2df45624fe7b7270034503975a4f015625",
+              "DOC-04-P078-B012": "3e7e91f515bdfef837f8cc90f5432ac7a38158c9f099140f7a7b6f797dd066c4"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.CandlelitSanctumTests.ConquestQueuesAResponseableAbilityWithoutLookingRecyclingOrLeakingTheDeck"
+            ],
+            "requiredNativeBranches": [
+              "response-before-look"
+            ]
+          }
+        },
+        {
+          "id": "private-subset",
+          "sourceRefs": [
+            "OGN-291/298",
+            "DOC-04-P040-B003",
+            "DOC-04-P069-B007",
+            "DOC-04-P078-B012"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Current CN printed instruction and shared-rule branch independently reproduced and verified in named original assertions, native controls where applicable, cold recovery and fixed full. This does not certify whole printing.",
+            "sourceFingerprints": {
+              "OGN-291/298": "9e4bb6941d829a50e29367db53b86b98210de400b0dfc7719d1fc3fffc942a6a",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P069-B007": "78810ca1ac42e4c1385d86a71caebd2df45624fe7b7270034503975a4f015625",
+              "DOC-04-P078-B012": "3e7e91f515bdfef837f8cc90f5432ac7a38158c9f099140f7a7b6f797dd066c4"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards"
+            ],
+            "requiredNativeBranches": [
+              "recycle-0",
+              "recycle-1",
+              "recycle-2"
+            ]
+          }
+        },
+        {
+          "id": "retained-order",
+          "sourceRefs": [
+            "OGN-291/298",
+            "DOC-04-P040-B003",
+            "DOC-04-P069-B007",
+            "DOC-04-P078-B012"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Current CN printed instruction and shared-rule branch independently reproduced and verified in named original assertions, native controls where applicable, cold recovery and fixed full. This does not certify whole printing.",
+            "sourceFingerprints": {
+              "OGN-291/298": "9e4bb6941d829a50e29367db53b86b98210de400b0dfc7719d1fc3fffc942a6a",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P069-B007": "78810ca1ac42e4c1385d86a71caebd2df45624fe7b7270034503975a4f015625",
+              "DOC-04-P078-B012": "3e7e91f515bdfef837f8cc90f5432ac7a38158c9f099140f7a7b6f797dd066c4"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards"
+            ],
+            "requiredNativeBranches": [
+              "recycle-0"
+            ]
+          }
+        },
+        {
+          "id": "nocturne-original-set",
+          "sourceRefs": [
+            "OGN-291/298",
+            "DOC-04-P040-B003",
+            "DOC-04-P069-B007",
+            "DOC-04-P078-B012"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Current CN printed instruction and shared-rule branch independently reproduced and verified in named original assertions, native controls where applicable, cold recovery and fixed full. This does not certify whole printing.",
+            "sourceFingerprints": {
+              "OGN-291/298": "9e4bb6941d829a50e29367db53b86b98210de400b0dfc7719d1fc3fffc942a6a",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P069-B007": "78810ca1ac42e4c1385d86a71caebd2df45624fe7b7270034503975a4f015625",
+              "DOC-04-P078-B012": "3e7e91f515bdfef837f8cc90f5432ac7a38158c9f099140f7a7b6f797dd066c4"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.CandlelitSanctumTests.NocturnesLeaveTheOriginalLookBeforeSubsetAndOrderThenConfirmInCaptureOrder"
+            ],
+            "requiredNativeBranches": [
+              "nocturnes-0",
+              "nocturnes-1",
+              "nocturnes-2"
+            ]
+          }
+        },
+        {
+          "id": "capture-source-binding",
+          "sourceRefs": [
+            "OGN-291/298",
+            "DOC-04-P040-B003",
+            "DOC-04-P069-B007",
+            "DOC-04-P078-B012"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Current CN printed instruction and shared-rule branch independently reproduced and verified in named original assertions, native controls where applicable, cold recovery and fixed full. This does not certify whole printing.",
+            "sourceFingerprints": {
+              "OGN-291/298": "9e4bb6941d829a50e29367db53b86b98210de400b0dfc7719d1fc3fffc942a6a",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P069-B007": "78810ca1ac42e4c1385d86a71caebd2df45624fe7b7270034503975a4f015625",
+              "DOC-04-P078-B012": "3e7e91f515bdfef837f8cc90f5432ac7a38158c9f099140f7a7b6f797dd066c4"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.CandlelitSanctumTests.RecoveryRejectsForgedConquestLookCapture"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "short-deck",
+          "sourceRefs": [
+            "OGN-291/298",
+            "DOC-04-P040-B003",
+            "DOC-04-P069-B007",
+            "DOC-04-P078-B012"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Current CN printed instruction and shared-rule branch independently reproduced and verified in named original assertions, native controls where applicable, cold recovery and fixed full. This does not certify whole printing.",
+            "sourceFingerprints": {
+              "OGN-291/298": "9e4bb6941d829a50e29367db53b86b98210de400b0dfc7719d1fc3fffc942a6a",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P069-B007": "78810ca1ac42e4c1385d86a71caebd2df45624fe7b7270034503975a4f015625",
+              "DOC-04-P078-B012": "3e7e91f515bdfef837f8cc90f5432ac7a38158c9f099140f7a7b6f797dd066c4"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.CandlelitSanctumTests.AShortDeckLooksOnlyAtExistingCardsWithoutDrawingOrBurning"
+            ],
+            "requiredNativeBranches": [
+              "short-0",
+              "short-1"
+            ]
+          }
+        },
+        {
+          "id": "real-reaction",
+          "sourceRefs": [
+            "OGN-291/298",
+            "DOC-04-P040-B003",
+            "DOC-04-P069-B007",
+            "DOC-04-P078-B012"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Current CN printed instruction and shared-rule branch independently reproduced and verified in named original assertions, native controls where applicable, cold recovery and fixed full. This does not certify whole printing.",
+            "sourceFingerprints": {
+              "OGN-291/298": "9e4bb6941d829a50e29367db53b86b98210de400b0dfc7719d1fc3fffc942a6a",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P069-B007": "78810ca1ac42e4c1385d86a71caebd2df45624fe7b7270034503975a4f015625",
+              "DOC-04-P078-B012": "3e7e91f515bdfef837f8cc90f5432ac7a38158c9f099140f7a7b6f797dd066c4"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.CandlelitSanctumTests.ARealReactionFinishesBeforeTheConquestAbilityLooksAtTheAdjustedDeck"
+            ],
+            "requiredNativeBranches": [
+              "reaction-adjusts-top"
+            ]
+          }
+        },
+        {
+          "id": "simultaneous-legend-cost",
+          "sourceRefs": [
+            "OGN-291/298",
+            "DOC-04-P040-B003",
+            "DOC-04-P069-B007",
+            "DOC-04-P078-B012"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "COPY_AND_OTHER_FAMILY_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "COMBINED_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Current CN printed instruction and shared-rule branch independently reproduced and verified in named original assertions, native controls where applicable, cold recovery and fixed full. This does not certify whole printing.",
+            "sourceFingerprints": {
+              "OGN-291/298": "9e4bb6941d829a50e29367db53b86b98210de400b0dfc7719d1fc3fffc942a6a",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P069-B007": "78810ca1ac42e4c1385d86a71caebd2df45624fe7b7270034503975a4f015625",
+              "DOC-04-P078-B012": "3e7e91f515bdfef837f8cc90f5432ac7a38158c9f099140f7a7b6f797dd066c4"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.CandlelitSanctumTests.SimultaneousLegendCostIsConfirmedBeforeEitherChosenResolutionOrderCanLook"
+            ],
+            "requiredNativeBranches": [
+              "legend-order-False",
+              "legend-order-True"
+            ]
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/candlelit-sanctum-2026-10-14/adjacent-focus.json",
+          "sha256": "2d0bb0d17d09c403c098ad901f11fe1f3d75a0d9ee0395fa74d51568fb62bd3a",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/candlelit-sanctum-2026-10-14/check-parity.json",
+          "sha256": "dce02a941d48757aaaf45fced4808ac2999a22f039f50da21ab8659931ddb6f5",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/candlelit-sanctum-2026-10-14/native-replay.json",
+          "sha256": "6c8e43d8afca6a1d217e98c89271f82ec48697c2c56b74fbb7a2dcf205d35ba3",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/candlelit-sanctum-2026-10-14/full-plan.json",
+          "sha256": "2d8f343bf55a1239fb1f1ca6345a4eab5b2e72c005dee9bba8c553f438be72c4",
+          "role": "plan"
+        }
+      ],
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/audit-obligations-2026-10-14/full-ci-e61745f5.json",
+          "sha256": "7a46695aa119a11d5ab83154ceef20f4c39f983b8eb176a01c9a8093a95e57b6",
+          "commit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
+          "runId": 38548065657
+        }
+      ],
+      "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
+      "currentImplementationCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139"
+    }
+  },
+  "acceptanceGates": [
+    {
+      "id": "ALL_APPLICABLE_OFFICIAL_SEMANTICS",
+      "state": "OPEN",
+      "requirement": "Resolve all applicable printing/clause/FAQ/QA branches; indexing and scoped reviews cannot certify whole identities"
+    },
+    {
+      "id": "SOURCE_GAPS_AND_EFFECTIVE_DELTAS",
+      "state": "OPEN",
+      "requirement": "Resolve EN reported/returned gap and explicit version applicability; final candidate refresh"
+    },
+    {
+      "id": "MATCH_INPUT_IDENTITY",
+      "state": "OPEN",
+      "requirement": "Bind actual rule/catalog/implementation identity to match/journal/recovery/replay and reject mismatches/tampering"
+    },
+    {
+      "id": "DECK_OBSERVATION_FAMILY",
+      "state": "OPEN",
+      "requirement": "All applicable observation/choice/pending/play consumers and phase/generation/order/visibility/progress"
+    },
+    {
+      "id": "FIXED_CURRENT_CANDIDATE_FULL",
+      "state": "OPEN",
+      "requirement": "All exact methods/Theory rows/143 games/110 pairs/seed/victory/replay and required fixed-commit CI gates"
+    },
+    {
+      "id": "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+      "state": "OPEN",
+      "requirement": "One fixed candidate with visible paired clients, real SQL, reconnect, normal score end and full replay"
+    },
+    {
+      "id": "USER_WINDOWS_RUNTIME",
+      "state": "OPEN",
+      "requirement": "Independent real user Windows install/runtime evidence"
+    }
+  ],
+  "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker."
+}

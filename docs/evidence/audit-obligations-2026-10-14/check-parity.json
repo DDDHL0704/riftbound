@@ -1,0 +1,18 @@
+{
+  "status": "CHECK_EXACT_CASE_METHOD_AND_TOOL_PARITY_PASS",
+  "baselineCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
+  "cases": 11420,
+  "methods": 7042,
+  "oldCasesAndMethodsPreserved": true,
+  "addedRuleCases": 0,
+  "addedRuleMethods": 0,
+  "pythonTests": 39,
+  "oldPythonMethodsPreserved": 27,
+  "addedPythonMethods": 12,
+  "seconds": 230.49,
+  "realPostgresSmoke": 5,
+  "frozenInputCount": 2273,
+  "frozenInputsUnchanged": true,
+  "currentTrxSha256": "1190e36aa98a8cf7b1965cce0a83e5c3de43609012cec2c14e580e5c165c301b",
+  "governanceModelAcceptance": "current manifest + scoped finite branch transition + exact CI source binding; not match runtime identity or full semantic certification"
+}

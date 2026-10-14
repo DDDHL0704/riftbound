@@ -1,0 +1,20 @@
+{
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "fetchedAtUtc": "2026-10-14T10:00:14.896741+00:00",
+  "sha256": "d061b920bfb429cefbba427462ed01845b45915f8c72d35d0b9a4d3e09f14db0",
+  "bytes": 3837623,
+  "metadata": {
+    "channelMachineName": "riftbound_website",
+    "channelHostname": "playriftbound.com",
+    "smartListMachineName": "riftbound_gallery_cards",
+    "from": 0,
+    "limit": 2000,
+    "overrideSize": 0,
+    "totalItems": 1416,
+    "totalPages": 1,
+    "locale": "en-us",
+    "resultsUpdatedAt": "2026-10-14T10:00:13.348708235Z"
+  },
+  "returned": 1408,
+  "distinct": 1408
+}

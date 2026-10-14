@@ -63,10 +63,11 @@ python3 scripts/test-rules.py full --jobs 4 \
 
 scripts/ci-change-scope.py 只豁免逐项核查过的精确治理文档路径，不使用 docs/ 或 *.md 通配。docs/DEPLOYMENT.md、docs/evidence、官方数据、fixture、打包文档、脚本、构建配置及未知路径仍 full；缺基线、类型/执行位变化及不确定差异同样 full。范围判定失败时完整任务仍会运行。纯文档工作流不会取消此前代码的完整任务；不同代码 SHA 的验收也独立，仅相同 SHA 的重复任务可取消重复。
 
-轻量 CI 执行 Python 验证工具检查、固定差异格式、当前治理引用及来源索引完整性，报告规则/打包未执行。来源检查固定读取 2026-10-11 ledger 及对应快照，不下载官网、不执行游戏、不提升 semanticCoverageCertified；后续换来源版本须显式调整检查输入。
+轻量 CI 执行 Python 验证工具检查、固定差异格式、当前治理引用及来源索引完整性，报告规则/打包未执行。来源检查默认读取 docs/audit/current-manifest.json，核对当前卡牌、保留原确认日期的规则索引、限定审查和来源增量，不下载官网、不执行游戏、不提升 semanticCoverageCertified。显式 --date 2026-10-11 单独检查历史索引，不能替代当前 manifest。来源变化必须登记增量与影响，不静默改变冻结分母。
 
 ```sh
 python3 -m unittest discover -s scripts/tests -v
+python3 scripts/audit/check-project-governance.py --output var/qa/current-governance.json
 python3 scripts/audit/check-project-governance.py --date 2026-10-11
 ```
 

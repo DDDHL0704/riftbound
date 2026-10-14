@@ -1,0 +1,30 @@
+{
+  "status": "CURRENT_MANIFEST_FINITE_BRANCH_AND_CI_INPUT_BINDING_PASS",
+  "oldSuccessNewCommitRejected": true,
+  "noneCommitFalseCoverageTested": true,
+  "matchingActualInputPositiveTested": true,
+  "sourceEvidenceInputChangesReopenTested": true,
+  "wholePrintingNeverPromoted": true,
+  "allIdentityAndClauseRecordsPreserved": true,
+  "branchStates": {
+    "OPEN": 5,
+    "NOT_APPLICABLE": 1,
+    "VERIFIED": 8
+  },
+  "sourceCounts": {
+    "combinedExactPrintingNumbers": 1738,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1502,
+    "enReturnedPrintings": 1407,
+    "enReportedTotal": 1415,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1031,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1502,
+    "cnNonemptyQaFields": 0
+  },
+  "fullCollectionCount": 16054,
+  "executionEvidence": "39 Python tests; original27 plus12; complete suite proof separate",
+  "runtimeIdentityBindingComplete": false
+}
