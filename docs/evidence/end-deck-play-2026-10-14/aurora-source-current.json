@@ -1,0 +1,71 @@
+{
+  "source": {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "闪耀极光",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-14T04:50:24.556855+00:00",
+    "sha256": "4534ee10d15cbce481b86d1d80e293d530084a69198fe6c8614908b631e3642d",
+    "bytes": 1406,
+    "language": "zh-CN",
+    "region": "CN",
+    "publicationDate": null,
+    "effectiveDate": null
+  },
+  "records": [
+    {
+      "id": 31386,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "OGN·160/298",
+      "cardName": "闪耀极光",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "在你的回合即将结束时，从主牌堆顶部开始逐一展示卡牌，直到翻出一名单位为止，然后将其打出，无视费用，并回收其余的卡牌。",
+      "flavorText": "只有勇于面对天兆者，才配接受上天的丰厚馈赠。",
+      "energy": 9,
+      "returnEnergy": 2,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/72765d22d3ff41f1930dc1b542cb6253.png",
+      "backImage": "",
+      "listSort": 319,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "在你的回合结束时，从主牌堆顶部开始逐一展示卡牌，直到翻出一名单位为止，将其放逐，然后将其打出，无视费用，并回收其余的卡牌。",
+      "otherDesc": 0
+    }
+  ]
+}

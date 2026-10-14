@@ -18453,10 +18453,11 @@
         "focus": "2325cases/2165methods70.57s;final repeat guard36cases/20methods9.80s;23newcases/11methods",
         "native": "12branches74 full Godot production commands with actual backend prompt/tick/cold/player/spectator/dedup/full journal replay;final check readback pass",
         "check": "11318cases/6988methods213.05s;all11295/6977preserved;2265frozen;SQL5/Python27;owned database stopped",
-        "fixedFull": "REQUIRED",
+        "fixedFull": "FIXED_2aba5bdd_FAILED_games4_original_no_eligible_missing_recycle_zone;SQL/network incomplete;desktop jobs passed. Shared event corrected and exact original game rerun in next batch.",
         "previousFixedea4e45ae": "11444cases/7118methods3663.74s;all11423/7107preserved;110pairs and hashes unchanged;all CI jobs/network successful;SQL64commands167events65cold5tamper",
         "runtimeEntries": 1031,
-        "runtimeFunctionalUnits": 830
+        "runtimeFunctionalUnits": 830,
+        "fixedFullFailureEvidence": "docs/evidence/end-deck-play-2026-10-14/fixed-2aba5bdd-failed.json"
       },
       "sources": {
         "cn": "fresh current errata API ID31482 OGN242",
@@ -18464,6 +18465,69 @@
         "faq": "historical Origins warning retained;Baited Hook referent corroborated by current core;Unleashed board-control case scoped only",
         "rules": "fresh current CN July core SHA256d0e36d00 unchanged;physical27/37/52/53 visually verified;CN190.4.c separate from EN187.4.c;futureOctober16 not applied",
         "armament": "fresh DoransShieldAPI and exact image verified+1;scope actual assembly fixture only"
+      },
+      "wholeGoalComplete": false
+    },
+    {
+      "id": "end-step-deck-play-rune-target-delay-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Current CN four runtime printings only: begin ending step before expiration, generic captured triggers and response/target selection, first-unit reveal/banish/mandatory free pending play, up-to rune choice, Sona battlefield at trigger/departure, real Targon conquest creates delayed ability on resolution then chooses runes at end, invalid target recycling, strict serialized continuation/choice/history guards. Nocturne interception, copied/token end sources and cleanup re-entry remain open.",
+      "subjects": [
+        "OGN·160/298",
+        "OGN·073/298",
+        "OGS·017/024",
+        "OGN·289/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P036-B007",
+        "DOC-04-P036-B008",
+        "DOC-04-P036-B009",
+        "DOC-04-P036-B010",
+        "DOC-04-P036-B011",
+        "DOC-04-P036-B012",
+        "DOC-04-P036-B013",
+        "DOC-04-P036-B014",
+        "DOC-04-P036-B017",
+        "DOC-04-P053-B003"
+      ],
+      "auditDocument": "docs/END_DECK_PLAY_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/end-deck-play-2026-10-14",
+      "tests": [
+        "EndDeckPlayTests",
+        "ConformanceFixtureRunnerTests",
+        "GameHubJoinTests",
+        "CardCatalogBaselineTests",
+        "AhriCombatMightTests",
+        "LegendActionSourceIdentityGuardTests",
+        "HookDeckPlayTests",
+        "AttackDeckPlayTests",
+        "DeckPlaySequenceTests",
+        "BeginningDrawTests",
+        "OfficialHoldSequenceTests",
+        "OfficialInsightAndSpellLockTests",
+        "StandbyPaymentPermissionTests",
+        "OfficialResourceAbilityRulesTests",
+        "FullGameEndToEndTests.OfficialDeckMidgameResolvesMountTargonConquerReadyRunesAtEndAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookNoEligibleTopFiveRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "ConquestLifecycleRegressionTests",
+        "MatchRecoveryTests"
+      ],
+      "validation": {
+        "focus": "874 cases/428 methods81.39s;39 new cases/16 methods",
+        "native": "17branches72 full Godot production commands with actual backend prompt/tick/cold/player/spectator/dedup/full journal replay;final check readback pass",
+        "check": "11357cases/7004methods229.55s;all11318/6988preserved;2267frozen;SQL5/Python27;owned database stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixedHook": "2aba5bdd failure retained, missing shared recycle zone;desktop success;SQL/network incomplete",
+        "runtimeEntries": 1031,
+        "runtimeFunctionalUnits": 830,
+        "initialCheck": "11357 cases/7004 methods executed;five failed legacy conquest/diagnostic expectations;72/72 native readbacks and SQL5 executed;immutable2267 inputs. Retain failure receipt and rerun corrected check.",
+        "fullPlan": "7145methods11506expectedcases;old7129methods/143games/110pairs seed424242 unchanged;discovery only"
+      },
+      "sources": {
+        "cn": "Fresh four exact runtime printings effective errata;VEN SP2 source retained unreviewed",
+        "en": "Fresh Aurora/Nocturne gallery old texts retained;current Origins errata2025-10-28 cross-check",
+        "faq": "Origins historical warning retained;Nocturne static interception is unresolved",
+        "rules": "Fresh July CN core sameSHA d0e36d00;physical36/53 inspected;317 and359.3.e.16 scoped;futureOctober16 not applied"
       },
       "wholeGoalComplete": false
     }

@@ -987,6 +987,7 @@ public static class MatchRecoveryValidator
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
+        "TURN_END_STEP_STARTED",
         "UNIT_BECAME_POWERFUL",
         "TURN_START_BEGAN",
         "MOVEMENT_INSTRUCTION_COMPLETED",
@@ -23770,10 +23771,17 @@ public static class MatchRecoveryValidator
         }
         foreach (var deckItem in state.StackItems)
         {
+            if (!CoreRuleEngine.ValidEndAbility(state, deckItem)) errors.Add("invalid end-step ability");
             if (!CoreRuleEngine.ValidDestroyDeckPlayContext(state, deckItem)) errors.Add("invalid destroy deck play context");
             if (!CoreRuleEngine.ValidDeckPlaySequence(state, deckItem)) errors.Add("invalid deck play sequence");
             if (!CoreRuleEngine.ValidDeckPlayPendingCard(state, deckItem)) errors.Add("invalid deck pending card");
         }
+        foreach (var trigger in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidEndTrigger(state, trigger)) errors.Add("invalid end-step trigger");
+        foreach (var marker in (state.UntilEndOfTurnEffects ?? []).Where(s => s.StartsWith(CoreRuleEngine.DelayedEndReadyPrefix, StringComparison.Ordinal)))
+            if (!CoreRuleEngine.ValidDelayedEndReady(state, marker)) errors.Add("invalid delayed end-step ability");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.EndRuneChoiceWindow } endRuneChoice
+            && !CoreRuleEngine.ValidEndRuneChoice(state, endRuneChoice)) errors.Add("invalid end-step rune choice");
         if (state.PendingEffectPlay is { Parent.DeckPlaySequence: not null } deckPending
             && !CoreRuleEngine.ValidDeckPlayPending(state, deckPending)) errors.Add("invalid selected banished deck play continuation");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.DeckPlayChoiceWindow } deckChoice)
@@ -24069,6 +24077,8 @@ public static class MatchRecoveryValidator
                 errors.Add("invalid captured beginning draw trigger");
         if (state.TurnStartStep is { } step && (step is not ("READY" or "START" or "SCORE" or "CHANNEL" or "DRAW" or "MAIN")
             || state.Phase != MatchPhases.TurnStart)) errors.Add("invalid turn-start continuation");
+        if (state.EndStep is { } ending && (state.Phase != MatchPhases.TurnEnd || ending.PlayerId != state.TurnPlayerId
+            || ending.TurnNumber != state.TurnNumber || !state.Seats.ContainsKey(ending.PlayerId))) errors.Add("invalid end-step continuation");
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var gain in state.DelayedResourceGains)
         {
@@ -27036,7 +27046,8 @@ public static class MatchRecoveryValidator
 
             // Captured triggered abilities survive their source object leaving.
             // Only validated official contexts permit a missing source.
-            if (!(stackItem.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
+            if (!(stackItem.EndAbility is not null && CoreRuleEngine.ValidEndAbility(authoritativeState, stackItem))
+                && !(stackItem.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
                     field, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.EffectKind, stackItem.CardNo))
                 && !(stackItem.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,stackItem.EffectKind,stackItem.CardNo))
                 && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
@@ -27147,7 +27158,8 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            if (!(trigger.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
+            if (!(trigger.EndAbility is not null && CoreRuleEngine.ValidEndTrigger(authoritativeState, trigger))
+                && !(trigger.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
                     field, trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind))
                 && !(trigger.ReflexiveDuel is { } duel && CoreRuleEngine.ValidReflexiveDuel(duel,trigger.EffectKind))
                 && !(trigger.UnitConquest is { } conquest && CoreRuleEngine.ValidUnitConquest(conquest,trigger.EffectKind))

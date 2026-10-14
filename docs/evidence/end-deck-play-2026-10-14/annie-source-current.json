@@ -1,0 +1,70 @@
+{
+  "source": {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "黑暗之女",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-14T05:05:02.582324+00:00",
+    "sha256": "780c94c97583d91c0244717587fb8e466acf37cbc171505b6666a2bf248a0f89",
+    "bytes": 1066,
+    "language": "zh-CN",
+    "region": "CN",
+    "publicationDate": null,
+    "effectiveDate": null
+  },
+  "records": [
+    {
+      "id": 31596,
+      "cardCategoryList": [
+        "legendary"
+      ],
+      "cardCategoryNameList": [
+        "传奇"
+      ],
+      "cardNo": "OGS·017/024",
+      "cardName": "黑暗之女",
+      "subTitle": "入门",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red",
+        "purple"
+      ],
+      "hero": "安妮",
+      "region": "",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "在你回合结束时，让两枚符文变为活跃状态。",
+      "flavorText": "",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGS"
+      ],
+      "productNameList": [
+        "起源 试炼之地"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/04f1261faf7741e8abde6a96d2db8f69.png",
+      "backImage": "",
+      "listSort": 534,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "在你回合结束时，让最多两枚符文变为活跃状态。",
+      "otherDesc": 0
+    }
+  ]
+}

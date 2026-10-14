@@ -64,6 +64,8 @@ public sealed partial class CoreRuleEngine
         recastTriggers = recastTriggers.Concat(CaptureGrantedConquestReturns(state with { PlayerZones = playerZones,
             CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureDelayedEndCreation(state with { PlayerZones=playerZones,CardObjects=cardObjects },
+            playerId,battlefieldId,resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield
@@ -191,18 +193,6 @@ public sealed partial class CoreRuleEngine
                 out var battlefieldSandSoldierPendingPayment))
         {
             pendingPayment = battlefieldSandSoldierPendingPayment;
-        }
-        if (TryResolveBattlefieldConquerReadyRunesAtEndTrigger(
-                playerZones,
-                cardObjects,
-                untilEndOfTurnEffects,
-                playerId,
-                battlefieldId,
-                sourceObjectId,
-                events,
-                out var battlefieldReadyRuneUntilEndOfTurnEffects))
-        {
-            untilEndOfTurnEffects = battlefieldReadyRuneUntilEndOfTurnEffects;
         }
         TryResolveBattlefieldConquerReadyEquipmentTrigger(
             playerZones,

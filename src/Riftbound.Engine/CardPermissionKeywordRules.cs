@@ -87,8 +87,8 @@ public static class CardPermissionKeywordRules
         if (state.PendingEffectPlay is { } pending)
             return new(CoreRuleEngine.EffectPlayAllowsBehavior(state, playerId, behavior), "EFFECT_PLAY", "由正在结算的效果许可再次打出。");
 
-        // CN 312.2.c and 383: a confirmed trigger opens a response window even during turn start.
-        if (state.Phase is MatchPhases.Main or MatchPhases.TurnStart
+        // CN 312.2.c, 317 and 383: confirmed abilities open response windows during beginning and ending steps.
+        if (state.Phase is MatchPhases.Main or MatchPhases.TurnStart or MatchPhases.TurnEnd
             && CanPlayReactionInPriorityWindow(state, playerId, behavior))
             return new(true, CardPermissionKeywordNames.Reaction, "Reaction during an authoritative priority window.");
 

@@ -37751,14 +37751,11 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(battleResult.Accepted);
         Assert.True(battleResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-001"].IsExhausted);
         Assert.True(battleResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-002"].IsExhausted);
-        Assert.Equal(2, battleResult.State.UntilEndOfTurnEffects.Count(effectId =>
-            effectId.StartsWith("BATTLEFIELD_CONQUER_READY_RUNE_AT_END:", StringComparison.Ordinal)));
-        var scheduleEvent = Assert.Single(battleResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyRunesAtEnd, StringComparison.Ordinal));
-        Assert.Equal(
-            ["P1-BATTLEFIELD-READY-RUNE-001", "P1-BATTLEFIELD-READY-RUNE-002"],
-            Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduleEvent.Payload["runeObjectIds"]));
+        Assert.DoesNotContain(battleResult.State.UntilEndOfTurnEffects,id=>id.StartsWith("DELAYED_END_READY:"));
+        Assert.Contains(battleResult.State.StackItems,item=>item.EndAbility is not null);
+        battleResult=await OfficialInsightAndSpellLockTests.ResolveTop(battleResult.State);
+        Assert.Single(battleResult.State.UntilEndOfTurnEffects,id=>id.StartsWith("DELAYED_END_READY:"));
+        Assert.DoesNotContain(battleResult.Events,e=>e.Kind=="END_RUNE_TARGETS_CONFIRMED");
 
         var endResult = await engine.ResolveAsync(
             battleResult.State,
@@ -37767,17 +37764,13 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(endResult.Accepted);
+        var choice=Assert.IsType<PendingCardChoiceState>(endResult.State.PendingCardChoice);
+        Assert.Equal(["P1-BATTLEFIELD-READY-RUNE-001","P1-BATTLEFIELD-READY-RUNE-002"],choice.LegalObjectIds);
+        endResult=await FinishEndRuneChoice(endResult,choice.LegalObjectIds);
         Assert.False(endResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-001"].IsExhausted);
         Assert.False(endResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-002"].IsExhausted);
-        Assert.DoesNotContain(endResult.State.UntilEndOfTurnEffects, effectId =>
-            effectId.StartsWith("BATTLEFIELD_CONQUER_READY_RUNE_AT_END:", StringComparison.Ordinal));
-        Assert.Contains(endResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_END_TURN_READY_RUNES", StringComparison.Ordinal));
-        var readyEvent = Assert.Single(endResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "RUNE_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_END_TURN_READY_RUNES", StringComparison.Ordinal));
-        Assert.Equal(2, readyEvent.Payload["count"]);
+        Assert.DoesNotContain(endResult.State.UntilEndOfTurnEffects,id=>id.StartsWith("DELAYED_END_READY:"));
+        Assert.Equal(2,endResult.Events.Count(e=>e.Kind=="RUNE_READIED"&&e.Payload["playerId"] as string=="P1"));
     }
 
     [Fact]
@@ -37819,14 +37812,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(battleResult.Accepted);
-        var scheduleEvent = Assert.Single(battleResult.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyRunesAtEnd, StringComparison.Ordinal));
-        Assert.Equal(
-            ["P1-BATTLEFIELD-READY-RUNE-001", "P1-BATTLEFIELD-READY-RUNE-002"],
-            Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduleEvent.Payload["runeObjectIds"]));
-        Assert.DoesNotContain(battleResult.State.UntilEndOfTurnEffects, effectId =>
-            effectId.Contains("P1-BATTLEFIELD-DIRTY-P2-RUNE", StringComparison.Ordinal));
+        battleResult=await OfficialInsightAndSpellLockTests.ResolveTop(battleResult.State);
+        Assert.Single(battleResult.State.UntilEndOfTurnEffects,id=>id.StartsWith("DELAYED_END_READY:"));
 
         var endResult = await engine.ResolveAsync(
             battleResult.State,
@@ -37835,6 +37822,9 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(endResult.Accepted);
+        var choice=Assert.IsType<PendingCardChoiceState>(endResult.State.PendingCardChoice);
+        Assert.DoesNotContain("P1-BATTLEFIELD-DIRTY-P2-RUNE",choice.LegalObjectIds);
+        endResult=await FinishEndRuneChoice(endResult,choice.LegalObjectIds);
         Assert.True(endResult.State.CardObjects["P1-BATTLEFIELD-DIRTY-P2-RUNE"].IsExhausted);
         Assert.False(endResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-001"].IsExhausted);
         Assert.False(endResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-002"].IsExhausted);
@@ -45883,15 +45873,21 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        result=await FinishEndRuneChoice(result,["P1-RUNE-EXHAUSTED-001","P1-RUNE-EXHAUSTED-002"]);
         Assert.False(result.State.CardObjects["P1-RUNE-EXHAUSTED-001"].IsExhausted);
         Assert.False(result.State.CardObjects["P1-RUNE-EXHAUSTED-002"].IsExhausted);
         Assert.True(result.State.CardObjects["P1-RUNE-EXHAUSTED-003"].IsExhausted);
         Assert.True(result.State.CardObjects["P1-UNIT-EXHAUSTED"].IsExhausted);
-        Assert.Contains(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "TURN_END_READY_TWO_RUNES", StringComparison.Ordinal));
-        var runeReadyEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_READIED", StringComparison.Ordinal));
-        Assert.Equal(2, runeReadyEvent.Payload["count"]);
+        Assert.Equal(2,result.Events.Count(e=>e.Kind=="RUNE_READIED"&&e.Payload["playerId"] as string=="P1"));
+    }
+
+    private static async Task<ResolutionResult> FinishEndRuneChoice(ResolutionResult result,IReadOnlyList<string> selected)
+    {
+        var c=Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("END_STEP_RUNE_TARGETS",c.ChoiceWindow);
+        var chosen=await OfficialInsightAndSpellLockTests.Act(result.State,c.PlayerId,new ChooseCardsCommand(c.ChoiceId,c.ChoiceWindow,selected));
+        var resolved=await OfficialInsightAndSpellLockTests.ResolveTop(chosen.State);
+        return resolved with {Events=result.Events.Concat(chosen.Events).Concat(resolved.Events).ToArray()};
     }
 
     [Theory]

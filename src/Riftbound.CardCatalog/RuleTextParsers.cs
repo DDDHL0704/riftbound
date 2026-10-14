@@ -321,6 +321,15 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var endReveal = Regex.Match(text, @"在你的回合结束时，从主牌堆顶部开始逐一展示卡牌，直到翻出一名单位为止，将其放逐，然后将其打出，无视费用，并回收其余的卡牌。", RegexOptions.CultureInvariant);
+        if (endReveal.Success) triggers.Add(new(TriggerKinds.TurnEndRevealUntilUnit, TriggerTimings.TurnEnd, endReveal.Value,
+            "End-step reveal until first unit, banish and normal free pending play.", RevealSourceZone: TriggerZones.MainDeck,
+            BanishCount: 1, PlayCount: 1, PlayOriginZone: "BANISHED", PlayDestinationZone: TriggerZones.Stack,
+            RecycleDestinationZone: TriggerZones.MainDeck));
+        var endReady = Regex.Match(text, @"在你(?:的)?回合结束时，(?<here>如果我位于战场上，则)?让最多(?<count>[0-9一两二三四五六七八九十]+)枚(?:友方)?符文变为活跃状态。", RegexOptions.CultureInvariant);
+        if (endReady.Success) triggers.Add(new(TriggerKinds.TurnEndReadyRunes, TriggerTimings.TurnEnd, endReady.Value,
+            "End-step optional rune target confirmation before ordinary response.", RuneReadyCount: ParseChineseNumber(endReady.Groups["count"].Value),
+            TargetScope: TriggerTargetScopes.OwnedRuneInBase, Optional: true, RequiresSourceBattlefieldAtTrigger: endReady.Groups["here"].Success));
         var attackDeck = Regex.Match(text,
             @"当我进攻时[，,]\s*你可以选择展示你主牌堆顶部的(?<count>[0-9一两二三四五六七八九十]+)张牌。\s*你可以选择放逐其中一张，然后将其打出。\s*如果打出的卡牌为单位，则可以选择将其打出到此处。\s*回收其余的卡牌。?",
             RegexOptions.CultureInvariant);
@@ -1503,7 +1512,7 @@ public static class TriggerParser
 
         var battlefieldConquerReadyRunesAtEndMatch = Regex.Match(
             segment,
-            @"当你征服此处时，选择([0-9一两二三四五六七八九十]+)枚符文，并在本回合结束时，让它们变为活跃状态",
+            @"当你征服此处时，在本回合结束时，让最多([0-9一两二三四五六七八九十]+)枚符文变为活跃",
             RegexOptions.CultureInvariant);
         if (battlefieldConquerReadyRunesAtEndMatch.Success)
         {

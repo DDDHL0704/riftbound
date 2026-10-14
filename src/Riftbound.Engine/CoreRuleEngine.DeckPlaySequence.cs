@@ -32,7 +32,7 @@ public sealed partial class CoreRuleEngine
     private static string[] DeckPlayLegalSelection(MatchState state, StackItemState item, DeckPlaySequenceContext c, string owner)
     {
         TryGetEffectPlayDefinition(item, out var definition);
-        return c.Viewed[owner].Keys.Where(id => c.Kind is not ("SINGLE_PRIVATE_UNIT_PLAY" or "SINGLE_PRIVATE_LIMITED_UNIT_PLAY")
+        return c.Viewed[owner].Keys.Where(id => c.Kind is not ("SINGLE_PRIVATE_UNIT_PLAY" or "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" or "SINGLE_REVEAL_UNTIL_UNIT")
             || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)
                 && (c.Kind != "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" || definition.DeckPlayMaximumUnitMight is { } maximum
                     && state.CardObjects[id].Power <= maximum)).ToArray();
@@ -61,9 +61,12 @@ public sealed partial class CoreRuleEngine
         {
             var players = DeckPlayPlayers(state, item.ControllerId, definition.DeckPlayKind);
             var count = DeckPlayLookCount(definition);
-            var viewed = players.ToDictionary(p => p, p => (IReadOnlyDictionary<string,long>)state.PlayerZones[p].MainDeck.Take(count)
+            var viewed = players.ToDictionary(p => p, p => (IReadOnlyDictionary<string,long>)(definition.DeckPlayKind == "SINGLE_REVEAL_UNTIL_UNIT"
+                ? state.PlayerZones[p].MainDeck.TakeWhile(id => !state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard))
+                    .Concat(state.PlayerZones[p].MainDeck.SkipWhile(id => !state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)).Take(1))
+                : state.PlayerZones[p].MainDeck.Take(count))
                 .ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), StringComparer.Ordinal);
-            var generation = item.DestroyDeckPlay?.Source.Generation ?? (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } field ? field.SourceGeneration : state.CardObjects[item.SourceObjectId].ObjectGeneration);
+            var generation = item.EndAbility?.Source.ObjectGeneration ?? item.DestroyDeckPlay?.Source.Generation ?? (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } field ? field.SourceGeneration : state.CardObjects[item.SourceObjectId].ObjectGeneration);
             c = new(definition.DeckPlayKind, new(item.SourceObjectId, generation),
                 item.CardNo!, item.ControllerId, players, viewed, new Dictionary<string,ObjectBinding>(), 0, 0);
             if (DeckPlaySequenceReveals(item))
@@ -80,6 +83,12 @@ public sealed partial class CoreRuleEngine
             var owner = c.Players[c.SelectionIndex];
             var ids = c.Viewed[owner].Keys.ToArray();
             var legal = DeckPlayLegalSelection(state, item, c, owner);
+            if (c.Kind == "SINGLE_REVEAL_UNTIL_UNIT")
+            {
+                var (next, selected) = ApplyDeckPlaySelection(state, item, owner, legal.FirstOrDefault(), definition);
+                var resumed = BeginDeckPlaySequence(next, next.StackItems.Last(), definition);
+                return resumed with { Events = events.Concat(selected).Concat(resumed.Events).ToArray() };
+            }
             if (c.Kind == "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" && legal.Length == 0)
             {
                 var (next, recycled) = ApplyDeckPlaySelection(state, item, owner, null, definition);
@@ -202,7 +211,8 @@ public sealed partial class CoreRuleEngine
             var recycled = RandomizeForMainDeckBottom(remaining, state.Seed, state.RngCursor, item.SourceObjectId);
             zones[owner] = zones[owner] with { MainDeck = zones[owner].MainDeck.Where(x => !remaining.Contains(x)).Concat(recycled).ToArray() };
             if (remaining.Length > 0) events.Add(new("CARDS_RECYCLED", "回收未选择的牌", new Dictionary<string,object?> {
-                ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["count"] = remaining.Length }));
+                ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["count"] = remaining.Length, ["zone"] = "MAIN_DECK",
+                ["visibility"] = DeckPlaySequenceReveals(item) ? "REVEALED" : "LOOKED_NOT_REVEALED" }));
         }
         item = item with { DeckPlaySequence = c with { Selected = picked, SelectionIndex = c.SelectionIndex + 1 } };
         var next = state with { PendingCardChoice = null, PlayerZones = zones, CardObjects = cards,
@@ -221,7 +231,9 @@ public sealed partial class CoreRuleEngine
         if (!TryGetEffectPlayDefinition(item, out var b) || b.DeckPlayKind != c.Kind || b.CardNo != item.CardNo
             || c.CardNo != item.CardNo || c.ControllerId != item.ControllerId || c.Source is null
             || c.Source.ObjectId != item.SourceObjectId || c.Source.Generation < 0
-            || (item.DestroyDeckPlay is { } destroyed
+            || (item.EndAbility is { } ended
+                ? c.Source.Generation != ended.Source.ObjectGeneration || !ValidEndAbility(state, item)
+                : item.DestroyDeckPlay is { } destroyed
                 ? c.Source.Generation != destroyed.Source.Generation || !ValidDestroyDeckPlayContext(state, item)
                 : item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } captured
                 ? c.Source.Generation != captured.SourceGeneration || !ValidFieldContextState(state, captured, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
@@ -238,8 +250,16 @@ public sealed partial class CoreRuleEngine
         for (var i=0;i<players.Length;i++)
         {
             var player=players[i];var viewed=c.Viewed[player];
-            if (viewed is null || viewed.Count > DeckPlayLookCount(b)
+            if (viewed is null || c.Kind != "SINGLE_REVEAL_UNTIL_UNIT" && viewed.Count > DeckPlayLookCount(b)
                 || viewed.Any(p => p.Value < 0 || !state.CardObjects.TryGetValue(p.Key,out var card) || card.ObjectGeneration < p.Value)) return false;
+            if (c.Kind == "SINGLE_REVEAL_UNTIL_UNIT")
+            {
+                var units = viewed.Keys.Where(id => state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)).ToArray();
+                if (units.Length > 1 || units.Length == 1 && viewed.Keys.Last() != units[0]
+                    || i < c.SelectionIndex && units.Length == 1 && (!c.Selected.TryGetValue(player, out var firstUnit) || firstUnit.ObjectId != units[0])
+                    || units.Length == 0 && c.Selected.ContainsKey(player)) return false;
+                if (units.Length == 0 && i < c.SelectionIndex) continue;
+            }
             if (i >= c.SelectionIndex && !state.PlayerZones[player].MainDeck.Take(viewed.Count).SequenceEqual(viewed.Keys)) return false;
             if (i < c.SelectionIndex && viewed.Count > 0)
             {

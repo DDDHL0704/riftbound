@@ -56,6 +56,8 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string TurnEndRevealUntilUnit = "TURN_END_REVEAL_UNTIL_UNIT";
+    public const string TurnEndReadyRunes = "TURN_END_READY_RUNES";
     public const string BattlefieldUnitMovedAwayPowerModifier =
         "BATTLEFIELD_UNIT_MOVED_AWAY_POWER_MODIFIER";
     public const string BattlefieldHeldNextSpellEcho =
@@ -263,6 +265,7 @@ public static class TriggerTimings
     public const string HandCardsDiscarded = "HAND_CARDS_DISCARDED";
     public const string UnitDestroyed = "UNIT_DESTROYED";
     public const string TurnStart = "TURN_START";
+    public const string TurnEnd = "TURN_END";
 }
 
 public static class TriggerTargetScopes
@@ -611,7 +614,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? RequiredExactOtherFriendlyBattlefieldUnits = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    bool? PlayUnitAtSourceLocation = null);
+    bool? PlayUnitAtSourceLocation = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    bool? RequiresSourceBattlefieldAtTrigger = null);
 
 public sealed record ReplacementSpec(
     string Kind,

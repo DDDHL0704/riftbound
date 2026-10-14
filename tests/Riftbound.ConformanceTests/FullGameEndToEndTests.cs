@@ -1695,6 +1695,7 @@ public sealed partial class FullGameEndToEndTests
             current,
             "P1",
             "b0-mount-targon-conquer");
+        triggered=await ResolveDriverPendingEffectsAsync(session,triggered,"b0-mount-targon-conquer-resolution");
         var scheduled = AssertBattlefieldConquerReadyRunesAtEndScheduled(current, triggered);
 
         var result = await DriveBattleCloseToScoreVictoryAsync(
@@ -7485,34 +7486,14 @@ public sealed partial class FullGameEndToEndTests
         Assert.All(expectedRuneObjectIds, objectId => Assert.True(beforeBattle.State.CardObjects[objectId].IsExhausted));
         Assert.Null(result.State.PendingPayment);
 
-        var events = result.Events.ToArray();
-        var conqueredIndex = Array.FindIndex(
-            events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["battlefieldId"] as string, battlefieldObjectId, StringComparison.Ordinal));
-        Assert.True(conqueredIndex >= 0, $"Expected battlefield conquered before Mount Targon trigger: {JsonSerializer.Serialize(result.Events)}");
-        var triggerIndex = Array.FindIndex(
-            events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyRunesAtEnd, StringComparison.Ordinal));
-        Assert.True(triggerIndex > conqueredIndex, $"Expected Mount Targon trigger after conquest: {JsonSerializer.Serialize(result.Events)}");
-
-        var triggerEvent = events[triggerIndex];
-        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(MountTargonBattlefieldConquerReadyRunesAtEndCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(expectedRuneObjectIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["runeObjectIds"]));
-        var effectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["effectIds"]);
-        Assert.Equal(expectedRuneObjectIds.Length, effectIds.Count);
-
-        var scheduledEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "RUNE_READY_SCHEDULED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["abilityId"] as string, TriggerKinds.BattlefieldConquerReadyRunesAtEnd, StringComparison.Ordinal));
-        Assert.Equal("P1", scheduledEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, scheduledEvent.Payload["sourceObjectId"]);
-        Assert.Equal(expectedRuneObjectIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduledEvent.Payload["runeObjectIds"]));
-        Assert.Equal(effectIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduledEvent.Payload["effectIds"]));
+        Assert.Contains(result.Events,e=>e.Kind=="BATTLEFIELD_CONQUERED"&&e.Payload["battlefieldId"] as string==battlefieldObjectId);
+        var scheduledEvent=Assert.Single(result.Events,e=>e.Kind=="RUNE_READY_SCHEDULED"&&e.Payload["sourceObjectId"] as string==battlefieldObjectId);
+        Assert.Equal("P1",scheduledEvent.Payload["playerId"]);
+        Assert.Equal(MountTargonBattlefieldConquerReadyRunesAtEndCardNo,scheduledEvent.Payload["cardNo"]);
+        Assert.Equal(2,scheduledEvent.Payload["count"]);
+        Assert.False(scheduledEvent.Payload.ContainsKey("runeObjectIds"));
+        var effectIds=Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduledEvent.Payload["effectIds"]);
+        Assert.Single(effectIds);
 
         foreach (var effectId in effectIds)
         {
@@ -21931,6 +21912,13 @@ public sealed partial class FullGameEndToEndTests
                 events.AddRange(result.Events); includesCompletionTriggers = true;
                 continue;
             }
+            if (result.State.PendingCardChoice is { ChoiceWindow: "END_STEP_RUNE_TARGETS" } endRunes)
+            {
+                var choice=new ChooseCardsCommand(endRunes.ChoiceId,endRunes.ChoiceWindow,endRunes.LegalObjectIds.Take(endRunes.MaxCount).ToArray());
+                result=await session.SubmitAsync(endRunes.PlayerId,$"{intentPrefix}-end-runes-{index}",choice,RawCommand(choice),CancellationToken.None);
+                AssertAccepted(result);AssertNoHiddenZoneLeak(result);events.AddRange(result.Events);includesCompletionTriggers=true;
+                continue;
+            }
             if (result.State.PendingCardChoice is not null) return result;
             includesCompletionTriggers |= result.State.StackItems.Any(item => item.SpellContext is not null
                 || item.ReflexiveCopy is not null || item.UnitEntryContext is not null
@@ -22218,7 +22206,7 @@ public sealed partial class FullGameEndToEndTests
                             n == 0 ? requirement.GetProperty("damage").GetInt32() - targets.Length + 1 : 1)).ToArray());
                 }
                 else command = new ChooseCardsCommand(cardChoice.ChoiceId, cardChoice.ChoiceWindow,
-                    cardChoice.LegalObjectIds.Take(cardChoice.RequiredCount).ToArray());
+                    cardChoice.LegalObjectIds.Take(cardChoice.ChoiceWindow == "END_STEP_RUNE_TARGETS" ? cardChoice.MaxCount : cardChoice.RequiredCount).ToArray());
             }
             else if (result.State.PendingPayment is { } payment && payment.LegalPaymentChoiceIds.Contains("DECLINE"))
             {

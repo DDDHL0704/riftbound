@@ -688,7 +688,7 @@ public sealed class CardCatalogBaselineTests
         AssertFamily(report, BehaviorTemplateIds.Move, 123, 123, 0, 0, 102, 102, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 63, 63, 0, 0, 51, 51, 0);
         // Scoped deck-play errata add explicit banish instructions; printings and groups remain separately counted.
-        AssertFamily(report, BehaviorTemplateIds.Banish, 20, 20, 0, 0, 16, 16, 0);
+        AssertFamily(report, BehaviorTemplateIds.Banish, 21, 21, 0, 0, 17, 17, 0);
         AssertFamily(report, BehaviorTemplateIds.TempMight, 260, 260, 0, 0, 208, 208, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
@@ -971,12 +971,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
-            entries: 546,
-            specImplementedEntries: 546,
+            entries: 549,
+            specImplementedEntries: 549,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 436,
-            specImplementedFunctionalUnits: 436,
+            functionalUnits: 439,
+            specImplementedFunctionalUnits: 439,
             pendingFunctionalUnits: 0);
         AssertTimingSurfaceCoverage(
             timingRows,
@@ -1045,7 +1045,7 @@ public sealed class CardCatalogBaselineTests
                 StringComparison.Ordinal))));
         Assert.Equal(106, legendSpecs.Count(spec => !string.IsNullOrWhiteSpace(spec.OfficialText)));
         AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 47, functionalUnits: 18);
-        AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 58, functionalUnits: 23);
+        AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 59, functionalUnits: 24);
         AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 3, functionalUnits: 1);
         AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 48, functionalUnits: 20);
         AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 48, functionalUnits: 20);
@@ -2653,7 +2653,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(2, trigger.RuneReadyCount);
         Assert.Equal(TriggerReadyTimings.EndOfTurn, trigger.ReadyTiming);
         Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
-        Assert.Contains("选择两枚符文", trigger.Text, StringComparison.Ordinal);
+        Assert.Contains("让最多两枚符文", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("本回合结束时", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(
             "Battlefield conquered ready-runes-at-end trigger parsed for B4 routing; execution is available when engine support reads BehaviorSpec.Triggers.",

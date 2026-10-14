@@ -126,20 +126,11 @@ public sealed class LegendActionSourceIdentityGuardTests
     [Fact]
     public void CoreAnnieTurnEndRuneReadySourceUsesLegendIdentity()
     {
-        var coreRuleEnginePath = Path.Combine(
-            RepositoryRoot(),
-            "src",
-            "Riftbound.Engine",
-            "CoreRuleEngine.cs");
-        var coreRuleEngineSource = File.ReadAllText(coreRuleEnginePath);
-
-        Assert.DoesNotContain(
-            "string.Equals(legendState.CardNo, AnnieIntroLegendCardNo",
-            coreRuleEngineSource,
-            StringComparison.Ordinal);
-        Assert.Contains("AnnieLegendIdentityId", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("LegendCardHasIdentity", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("TryGetLegendIdentity", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("OGS·017/024",LegendIdentityCatalog.SourceCardNosForIdentity(LegendIdentityCatalog.AnnieLegendIdentityId));
+        var source=File.ReadAllText(Path.Combine(RepositoryRoot(),"src","Riftbound.Engine","CoreRuleEngine.EndStep.cs"));
+        Assert.Contains("SourceUnitPlayedTriggerSpecRules.TriggersForCard",source,StringComparison.Ordinal);
+        Assert.Contains("AttachedRuleTextRules.Instances",source,StringComparison.Ordinal);
+        Assert.DoesNotContain("AnnieIntroLegendCardNo",source,StringComparison.Ordinal);
     }
 
     [Fact]

@@ -17,9 +17,9 @@ public sealed record DelayedResourceGain(string Id, string ControllerId, string 
 
 public sealed partial class CoreRuleEngine
 {
-    private static ResolutionResult ResolveTurnStart(MatchState state)
+    private static ResolutionResult ResolveTurnStart(MatchState state, bool advanceTick = true)
     {
-        var next = state with { Tick = state.Tick + 1, Phase = MatchPhases.TurnStart,
+        var next = state with { Tick = state.Tick + (advanceTick ? 1 : 0), Phase = MatchPhases.TurnStart,
             TurnStartStep = state.TurnStartStep ?? "READY", ActivePlayerId = state.TurnPlayerId };
         return new(true, null, next, [new("TURN_START_BEGAN", "开始回合流程",
             new Dictionary<string, object?> { ["turnPlayerId"] = state.TurnPlayerId })],

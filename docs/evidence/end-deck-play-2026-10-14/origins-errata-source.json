@@ -1,0 +1,17 @@
+{
+  "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/",
+  "fetchedAtUtc": "2026-10-14T05:49:58.882175+00:00",
+  "sha256": "4767ee2dfa2987e38ea2e75959ccf94be23e7eaad09040f960af4de4a71b0837",
+  "bytes": 171403,
+  "language": "en-US",
+  "region": "international",
+  "publicationDate": "2025-10-28T01:00:00.000Z",
+  "effectiveDate": null,
+  "scope": [
+    "Dazzling Aurora",
+    "Dark Child, Starter",
+    "Sona, Harmonious",
+    "Targon's Peak"
+  ],
+  "boundary": "Cross-check against current CN effective errata and July CN Core; no whole document certification."
+}

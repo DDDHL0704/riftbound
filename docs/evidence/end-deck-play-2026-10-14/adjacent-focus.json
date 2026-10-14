@@ -1,0 +1,157 @@
+{
+  "status": "SCOPED_FOCUS_PASS",
+  "cases": 874,
+  "methods": 428,
+  "seconds": 81.39,
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ARecycledRuneTargetIsNotReplacedByAnotherRuneAtResolution",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ASpellOnlyCounterCannotRemoveTheCapturedEndAbility",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualEndRuneAbilityCanChooseNone(card: \"OGN\u00b7073/298\", battlefield: True)",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualEndRuneAbilityCanChooseNone(card: \"OGS\u00b7017/024\", battlefield: False)",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualEndRuneAbilityChoosesUpToThePrintedLimitBeforeAResponseWindow(card: \"OGN\u00b7073/298\", limit: 4, battlefield: True)",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualEndRuneAbilityChoosesUpToThePrintedLimitBeforeAResponseWindow(card: \"OGS\u00b7017/024\", limit: 2, battlefield: False)",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualEndTurnCapturesTheAbilityBeforeCleanupAndDefersTheNextTurnUntilFreePlayFinishes",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualUnopposedConquestCreatesTheDelayOnlyAfterItsRespondableAbilityResolves",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.AnOrdinaryEquipmentDestructionSpellCannotBypassTheEndResponsePermission",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.EmptyOrUnitlessDeckFinishesWithoutAFreePlayPermission(empty: False)",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.EmptyOrUnitlessDeckFinishesWithoutAFreePlayPermission(empty: True)",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.EndFreePlayIgnoresPrintedMandatoryAdditionalCosts(card: \"OGN\u00b7208/298\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.EndFreePlayIgnoresPrintedMandatoryAdditionalCosts(card: \"SFD\u00b7044/221\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.EndFreePlayIgnoresPrintedMandatoryAdditionalCosts(card: \"UNL-166/219\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.MovingSonaAfterTargetConfirmationDoesNotEraseItsCapturedRuneAbility",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedAuroraPendingPlayAndRevealSequence(mutation: \"permission\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedAuroraPendingPlayAndRevealSequence(mutation: \"second-unit\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedAuroraPendingPlayAndRevealSequence(mutation: \"source-generation\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedConfirmedRuneTargets(mutation: \"generation\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedConfirmedRuneTargets(mutation: \"repeat\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedConfirmedRuneTargets(mutation: \"unit-target\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedDelayedEndAbilityMarkers(mutation: \"count\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedDelayedEndAbilityMarkers(mutation: \"malformed\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedDelayedEndAbilityMarkers(mutation: \"source\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedDelayedEndAbilityMarkers(mutation: \"tick\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedDelayedEndAbilityMarkers(mutation: \"turn\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"choice-actor\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"choice-count\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"choice-ids\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"choice-source\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"controller\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"count\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"generation\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"missing-step\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"source-card\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"step-player\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice(mutation: \"step-turn\")",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RevealingASequenceStopsAtTheFirstUnitAndDoesNotExposeTheNextCard",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.SonaInBaseDoesNotTriggerAnEndRuneAbility"
+  ],
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ARecycledRuneTargetIsNotReplacedByAnotherRuneAtResolution",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ASpellOnlyCounterCannotRemoveTheCapturedEndAbility",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualEndRuneAbilityCanChooseNone",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualEndRuneAbilityChoosesUpToThePrintedLimitBeforeAResponseWindow",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualEndTurnCapturesTheAbilityBeforeCleanupAndDefersTheNextTurnUntilFreePlayFinishes",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.ActualUnopposedConquestCreatesTheDelayOnlyAfterItsRespondableAbilityResolves",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.AnOrdinaryEquipmentDestructionSpellCannotBypassTheEndResponsePermission",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.EmptyOrUnitlessDeckFinishesWithoutAFreePlayPermission",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.EndFreePlayIgnoresPrintedMandatoryAdditionalCosts",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.MovingSonaAfterTargetConfirmationDoesNotEraseItsCapturedRuneAbility",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedAuroraPendingPlayAndRevealSequence",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedConfirmedRuneTargets",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedDelayedEndAbilityMarkers",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RecoveryRejectsForgedEndStepAndRuneChoice",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.RevealingASequenceStopsAtTheFirstUnitAndDoesNotExposeTheNextCard",
+    "Riftbound.ConformanceTests.EndDeckPlayTests.SonaInBaseDoesNotTriggerAnEndRuneAbility"
+  ],
+  "newCases": 39,
+  "newMethods": 16,
+  "trxSha256": "0da3825a3d9bbc5836271f6a87fb6a7690194c71a0801b756fc5db7b1287b7fa",
+  "nativeCandidates": [
+    {
+      "branch": "actual-end-unit",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "aurora-free-OGN-208-298",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "aurora-free-SFD-044-221",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "aurora-free-UNL-166-219",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "chosen-rune-recycled",
+      "commands": 5,
+      "coldRestores": 5
+    },
+    {
+      "branch": "empty-deck",
+      "commands": 3,
+      "coldRestores": 3
+    },
+    {
+      "branch": "long-reveal-prefix",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "ordinary-end-response-rejected",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "peak-delayed-runes",
+      "commands": 9,
+      "coldRestores": 9
+    },
+    {
+      "branch": "runes-2",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "runes-4",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "runes-none-annie",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "runes-none-sona",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "sona-base",
+      "commands": 1,
+      "coldRestores": 1
+    },
+    {
+      "branch": "sona-leaves-battlefield",
+      "commands": 7,
+      "coldRestores": 7
+    },
+    {
+      "branch": "spell-counter-rejected",
+      "commands": 4,
+      "coldRestores": 4
+    },
+    {
+      "branch": "unitless-deck",
+      "commands": 3,
+      "coldRestores": 3
+    }
+  ],
+  "nativeCandidateCommands": 72,
+  "fixedFullCertified": false
+}

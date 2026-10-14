@@ -9923,9 +9923,14 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-runes", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
-        Assert.Contains(EventsFor(battleClients), gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerReadyRunesAtEnd, StringComparison.Ordinal));
+        for(var i=0;i<2;i++)
+        {
+            var passClients=new RecordingHubClients();
+            await CreateHub(passClients,new RecordingGroupManager(),i==0?"connection-1":"connection-2",registry)
+                .SubmitIntent(roomId,i==0?"P1":"P2","targon-conquest-pass-"+i,JsonSerializer.SerializeToElement(new {cmdType="PASS_PRIORITY"}));
+            Assert.Empty(passClients.CallerClient.Errors);
+            if(i==1)Assert.Contains(EventsFor(passClients),e=>e.Kind=="RUNE_READY_SCHEDULED");
+        }
         var battleSnapshot = SnapshotFor(battleClients, "P1");
         var battleP1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var battleObjects = Assert.IsType<Dictionary<string, object?>>(battleP1["objects"]);
@@ -9938,13 +9943,20 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-runes-end", endTurn);
 
         Assert.Empty(endClients.CallerClient.Errors);
-        Assert.Contains(EventsFor(endClients), gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_END_TURN_READY_RUNES", StringComparison.Ordinal));
-        var readyEvent = Assert.Single(EventsFor(endClients), gameEvent =>
-            string.Equals(gameEvent.Kind, "RUNE_READIED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_END_TURN_READY_RUNES", StringComparison.Ordinal));
-        Assert.Equal(2, readyEvent.Payload["count"]);
+        var c=SnapshotFor(endClients,"P1").Timing["pendingCardChoice"];
+        var choice=JsonSerializer.SerializeToElement(c);
+        var choiceClients=new RecordingHubClients();
+        await CreateHub(choiceClients,new RecordingGroupManager(),"connection-1",registry).SubmitIntent(roomId,"P1","targon-end-choice",
+            JsonSerializer.SerializeToElement(new {cmdType="CHOOSE_CARDS",choiceId=choice.GetProperty("choiceId").GetString(),choiceWindow="END_STEP_RUNE_TARGETS",chosenObjectIds=new[]{"P1-BATTLEFIELD-READY-RUNE-001","P1-BATTLEFIELD-READY-RUNE-002"}}));
+        Assert.Empty(choiceClients.CallerClient.Errors);
+        for(var i=0;i<2;i++)
+        {
+            endClients=new RecordingHubClients();
+            await CreateHub(endClients,new RecordingGroupManager(),i==0?"connection-1":"connection-2",registry)
+                .SubmitIntent(roomId,i==0?"P1":"P2","targon-end-pass-"+i,JsonSerializer.SerializeToElement(new {cmdType="PASS_PRIORITY"}));
+            Assert.Empty(endClients.CallerClient.Errors);
+        }
+        Assert.Equal(2,EventsFor(endClients).Count(e=>e.Kind=="RUNE_READIED"&&e.Payload["playerId"] as string=="P1"));
 
         var endSnapshot = SnapshotFor(endClients, "P1");
         var endP1 = Assert.IsType<Dictionary<string, object?>>(endSnapshot.Players["P1"]);

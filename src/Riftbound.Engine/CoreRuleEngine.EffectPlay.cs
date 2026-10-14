@@ -17,6 +17,13 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.EndAbility is { Kind: TriggerKinds.TurnEndRevealUntilUnit } end && EndSpec(end.CardNo) is not null)
+        {
+            definition = new(end.CardNo, "结束步骤展示并打出", 0, parent.EffectKind, 0, 0,
+                DeckPlayKind: "SINGLE_REVEAL_UNTIL_UNIT", EffectPlayRevealsCards: true,
+                EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true, EffectPlayIgnoreAllCosts: true);
+            return true;
+        }
         if (parent.DestroyDeckPlay is { Prepared: true } killed && DestroyDeckPlayDefinition(parent, out var ability))
         {
             definition = new(parent.CardNo, ability.DisplayName, 0, parent.EffectKind, 0, 0,

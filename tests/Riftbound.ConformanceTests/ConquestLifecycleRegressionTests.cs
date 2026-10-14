@@ -134,7 +134,18 @@ public sealed class ConquestLifecycleRegressionTests
     public async Task EmptyConquestDispatchesOtherBattlefieldSkills(string cardNo, string triggerKind)
     {
         var result = await Conquer(State(cardNo));
-        Assert.Contains(result.Events, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
+        if(cardNo=="OGN·289/298")
+        {
+            var ability=Assert.Single(result.State.StackItems);
+            Assert.Equal("DELAYED_READY_RUNES",ability.EndAbility!.Kind);
+            Assert.DoesNotContain(result.State.UntilEndOfTurnEffects,id=>id.StartsWith("DELAYED_END_READY:"));
+            var resolved=await OfficialInsightAndSpellLockTests.ResolveTop(result.State);
+            var scheduled=Assert.Single(resolved.Events,e=>e.Kind=="RUNE_READY_SCHEDULED");
+            Assert.Equal(triggerKind,scheduled.Payload["abilityId"]);
+            Assert.Single(resolved.State.UntilEndOfTurnEffects,id=>id.StartsWith("DELAYED_END_READY:"));
+            Assert.Null(resolved.State.PendingCardChoice);
+        }
+        else Assert.Contains(result.Events, e => e.Kind == "BATTLEFIELD_TRIGGER_RESOLVED"
             && Equals(e.Payload.GetValueOrDefault("trigger"), triggerKind));
     }
 
