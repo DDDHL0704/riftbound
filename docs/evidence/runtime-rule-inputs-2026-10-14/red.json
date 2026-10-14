@@ -1,0 +1,10 @@
+{
+  "baselineCommit": "0f45aade3ff715a5198d3b8e4bfd45896da956ec",
+  "status": "MISSING_RUNTIME_JOURNAL_INPUT_IDENTITY_REPRODUCED",
+  "cases": 1,
+  "failed": 1,
+  "message": "Normal journal has no actual rule/catalog/implementation input identity.",
+  "trxSha256": "76d33b3f40d49415b44a1a978606f3f19e4b22459b6abab5b8978a78c8365fb5",
+  "next": "State/journal immutable capture then restore/replay/persisted metadata match and tamper refusal",
+  "wholeGoalComplete": false
+}

@@ -15,7 +15,11 @@ public sealed record RecoveredCommand(
     long StartedEventSequence,
     long CompletedEventSequence,
     bool Accepted,
-    string? ErrorMessage);
+    string? ErrorMessage)
+{
+    [System.Text.Json.Serialization.JsonRequired]
+    public RuleInputIdentity? RuleInputs { get; init; } = RuleInputIdentity.Current;
+}
 
 public sealed record RecoveredEvent(
     long Sequence,
@@ -119,6 +123,15 @@ public static class MatchActionLogReplayer
     {
         ArgumentNullException.ThrowIfNull(recovery);
         ArgumentNullException.ThrowIfNull(ruleEngine);
+
+        var inputErrors = new List<string>();
+        if (recovery.AuthoritativeState is { } final && !RuleInputIdentity.IsCurrentState(final))
+            inputErrors.Add("action-log final rule input identity is missing or differs from running inputs");
+        if (recovery.ReplayInitialState is { } initial && !RuleInputIdentity.IsCurrentState(initial))
+            inputErrors.Add("action-log initial rule input identity is missing or differs from running inputs");
+        if (recovery.Commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))
+            inputErrors.Add("action-log command rule input identity is missing or differs from running inputs");
+        if (inputErrors.Count > 0) return inputErrors;
 
         if (recovery.Commands.Count == 0)
         {
@@ -551,6 +564,10 @@ public static class MatchActionLogReplayer
         ArgumentNullException.ThrowIfNull(ruleEngine);
 
         var errors = new List<string>();
+        if (!RuleInputIdentity.IsCurrentState(initialState) || !RuleInputIdentity.IsCurrentState(expectedFinalState)
+            || commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))
+            return new MatchActionLogReplayResult(false, MatchStateHasher.Hash(initialState),
+                MatchStateHasher.Hash(expectedFinalState), ["action-log rule input identity is missing or differs from running inputs"]);
         var session = new MatchSession(initialState, ruleEngine, NoopMatchJournal.Instance);
         var replayedState = initialState;
         foreach (var command in commands
@@ -1041,6 +1058,10 @@ public static class MatchRecoveryValidator
         MatchReplayFrame? spectatorReplayFrame = null)
     {
         var errors = new List<string>();
+        if (authoritativeState is { } inputState && !RuleInputIdentity.IsCurrentState(inputState))
+            errors.Add("authoritative rule input identity is missing or differs from running inputs");
+        if (commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))
+            errors.Add("command rule input identity is missing or differs from running inputs");
 
         if (string.IsNullOrWhiteSpace(roomId))
         {

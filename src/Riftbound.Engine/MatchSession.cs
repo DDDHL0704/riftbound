@@ -1111,6 +1111,9 @@ public sealed record PendingCardChoiceState
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record MatchState
 {
+    [JsonRequired]
+    public RuleInputIdentity? RuleInputs { get; init; } = RuleInputIdentity.Current;
+
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public RuleChoiceContinuation? PendingRuleChoice { get; init; }
     public IReadOnlyList<FaceDownLookPermission> FaceDownLookPermissions { get; init; } = [];
@@ -17205,6 +17208,7 @@ public sealed partial class MatchSession : IMatchSession
         IMatchPlayerStore playerStore,
         MatchSessionOptions options)
     {
+        RuleInputIdentity.RequireCurrentState(restoredState);
         RoomId = restoredState.RoomId;
         this.ruleEngine = ruleEngine;
         this.journal = journal;
@@ -17261,6 +17265,11 @@ public sealed partial class MatchSession : IMatchSession
         IMatchPlayerStore playerStore,
         MatchSessionOptions options)
     {
+        if (recovery.ReplayInitialState is { } replayInitialState)
+            RuleInputIdentity.RequireCurrentState(replayInitialState);
+        if (recovery.Commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+                "match recovery command rule input identity is missing or differs from running inputs");
         if (!recovery.IsConsistent)
         {
             throw new MatchSessionException(
@@ -18156,25 +18165,8 @@ public sealed partial class MatchSession : IMatchSession
             };
         }
 
-        if (recovery.PlayerViews.Count == 0)
-        {
-            return MatchState.Create(recovery.RoomId) with
-            {
-                Tick = recovery.CurrentTick
-            };
-        }
-
-        var baseline = recovery.PlayerViews.Values
-            .OrderBy(view => view.PlayerId, StringComparer.Ordinal)
-            .First()
-            .Snapshot;
-        var seats = MatchRecoveryValidator.ExtractSeats(baseline);
-        return new MatchState(
-            recovery.RoomId,
-            recovery.CurrentTick,
-            baseline.TurnNumber,
-            baseline.ActivePlayerId,
-            seats);
+        throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+            "match recovery requires authoritative state with recorded rule input identity");
     }
 
     private string NextOpenSeat()

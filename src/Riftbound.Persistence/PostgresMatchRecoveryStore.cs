@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Npgsql;
+using NpgsqlTypes;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 
@@ -24,13 +25,37 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         var commands = await LoadCommandsAsync(connection, roomId, cancellationToken).ConfigureAwait(false);
         var events = await LoadEventsAsync(connection, roomId, cancellationToken).ConfigureAwait(false);
         var playerViews = await LoadPlayerViewsAsync(connection, roomId, cancellationToken).ConfigureAwait(false);
-        var authoritativeState = await LoadAuthoritativeStateAsync(
-            connection,
-            roomId,
-            metadata.LastEventSequence,
-            cancellationToken).ConfigureAwait(false);
+        var inputErrors = new List<string>();
+        if (!RuleInputIdentity.IsCurrent(metadata.RuleInputs)
+            || metadata.RulesetVersion != metadata.RuleInputs?.IdentitySha256
+            || metadata.FaqVersion != metadata.RuleInputs?.AuthoritySha256)
+            inputErrors.Add("stored match rule input identity/version is missing or differs from running inputs");
+        await ValidateStoredRuleInputsAsync(connection, roomId, inputErrors, cancellationToken).ConfigureAwait(false);
+        MatchState? authoritativeState = null;
+        var invalidStatePayload = false;
+        try
+        {
+            authoritativeState = await LoadAuthoritativeStateAsync(
+                connection, roomId, metadata.LastEventSequence, cancellationToken).ConfigureAwait(false);
+        }
+        catch (JsonException)
+        {
+            invalidStatePayload = true;
+            inputErrors.Add("authoritative state has an invalid or missing recorded rule input identity/payload");
+        }
+        // Seats can be saved before a new waiting room's first command. Use
+        // its explicitly recorded identity, never invent inputs for old games
+        // or replace a damaged authoritative payload.
+        if (authoritativeState is null && !invalidStatePayload && commands.Count == 0
+            && metadata.CurrentTick == 0 && metadata.LastEventSequence == 0
+            && RuleInputIdentity.IsCurrent(metadata.RuleInputs))
+            authoritativeState = (await LoadReplayInitialStateAsync(connection, roomId, cancellationToken).ConfigureAwait(false))
+                with { RuleInputs = metadata.RuleInputs };
+        if (authoritativeState is null)
+            inputErrors.Add("stored match requires authoritative state with recorded rule input identity");
         var replayInitialState = authoritativeState is not null && commands.Count > 0
-            ? await LoadReplayInitialStateAsync(connection, roomId, cancellationToken).ConfigureAwait(false)
+            ? (await LoadReplayInitialStateAsync(connection, roomId, cancellationToken).ConfigureAwait(false))
+                with { RuleInputs = metadata.RuleInputs }
             : null;
         var spectatorReplayFrame = authoritativeState is null
             ? null
@@ -48,7 +73,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             playerViews,
             authoritativeState,
             metadata.CurrentTick,
-            spectatorReplayFrame);
+            spectatorReplayFrame).Concat(inputErrors).ToArray();
 
         return new MatchRecoveryFrame(
             metadata.RoomId,
@@ -69,7 +94,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         CancellationToken cancellationToken)
     {
         const string sql = """
-            select match_id, current_tick, last_event_sequence
+            select match_id, current_tick, last_event_sequence, rule_inputs::text, ruleset_version, faq_version
             from matches
             where match_id = @match_id;
             """;
@@ -84,7 +109,9 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         return new MatchRecoveryMetadata(
             reader.GetString(0),
             reader.GetInt64(1),
-            reader.GetInt64(2));
+            reader.GetInt64(2),
+            reader.IsDBNull(3) ? null : ReadRuleInputs(reader.GetString(3)),
+            reader.GetString(4), reader.GetString(5));
     }
 
     private static async Task<IReadOnlyList<RecoveredCommand>> LoadCommandsAsync(
@@ -96,7 +123,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             select player_id, client_intent_id, command_type,
                    started_tick, completed_tick,
                    started_event_sequence, completed_event_sequence,
-                   accepted, error_message, payload::text
+                   accepted, error_message, payload::text, rule_inputs::text
             from command_log
             where match_id = @match_id
             order by started_event_sequence, completed_event_sequence, id;
@@ -118,7 +145,10 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
                 reader.GetInt64(5),
                 reader.GetInt64(6),
                 reader.GetBoolean(7),
-                reader.IsDBNull(8) ? null : reader.GetString(8)));
+                reader.IsDBNull(8) ? null : reader.GetString(8))
+            {
+                RuleInputs = reader.IsDBNull(10) ? null : ReadRuleInputs(reader.GetString(10))
+            });
         }
 
         return commands;
@@ -288,7 +318,41 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
     private sealed record MatchRecoveryMetadata(
         string RoomId,
         long CurrentTick,
-        long LastEventSequence);
+        long LastEventSequence,
+        RuleInputIdentity? RuleInputs,
+        string RulesetVersion,
+        string FaqVersion);
+
+    private static RuleInputIdentity? ReadRuleInputs(string json)
+    {
+        try { return Deserialize<RuleInputIdentity>(json); }
+        catch (JsonException) { return null; }
+    }
+
+    private static async Task ValidateStoredRuleInputsAsync(NpgsqlConnection connection, string roomId,
+        List<string> errors, CancellationToken cancellationToken)
+    {
+        // Fixed internal table names; every persisted row, including rejected
+        // commands and older snapshots, must belong to the same actual inputs.
+        foreach (var table in new[] { "matches", "command_log", "game_events", "state_snapshots", "snapshots", "action_prompts" })
+        {
+            var payloadCheck = table switch
+            {
+                "command_log" => " or payload->'ruleInputs' is distinct from @rule_inputs or payload->>'rulesetVersion' is distinct from @ruleset_version or payload->>'faqVersion' is distinct from @faq_version",
+                "state_snapshots" => " or payload->'ruleInputs' is distinct from @rule_inputs",
+                _ => ""
+            };
+            var sql = $"select count(*) from {table} where match_id = @match_id and (rule_inputs is distinct from @rule_inputs or ruleset_version <> @ruleset_version or faq_version <> @faq_version{payloadCheck})";
+            await using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("match_id", roomId);
+            command.Parameters.AddWithValue("rule_inputs", NpgsqlDbType.Jsonb,
+                JsonSerializer.Serialize(RuleInputIdentity.Current, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            command.Parameters.AddWithValue("ruleset_version", RuleInputIdentity.Current.IdentitySha256);
+            command.Parameters.AddWithValue("faq_version", RuleInputIdentity.Current.AuthoritySha256);
+            if (await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false) is long count && count > 0)
+                errors.Add($"{table} has {count} row(s) with missing or mismatched rule input identity/version");
+        }
+    }
 
     private sealed record RecoveredPrompt(
         long Tick,

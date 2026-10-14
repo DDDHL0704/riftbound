@@ -108,7 +108,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a5bbcdf308e414083771b956509daa1330809ce853a1af2bfd7254a6cf48e1c4"
+          "sha256": "a85c52093796761f55b2bae8906c0b1edc356208a57081d6d2193b347d30620a"
         }
       ],
       "branches": [
@@ -226,7 +226,7 @@
           "role": "plan"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/audit-obligations-2026-10-14/full-ci-e54f3084.json",
@@ -236,7 +236,8 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139"
+      "currentImplementationCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
+      "currentImplementationIncludesUncommittedChanges": true
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
       "implementation": [
@@ -258,7 +259,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a5bbcdf308e414083771b956509daa1330809ce853a1af2bfd7254a6cf48e1c4"
+          "sha256": "a85c52093796761f55b2bae8906c0b1edc356208a57081d6d2193b347d30620a"
         }
       ],
       "branches": [
@@ -537,7 +538,7 @@
           "role": "plan"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/audit-obligations-2026-10-14/full-ci-e61745f5.json",
@@ -547,7 +548,8 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139"
+      "currentImplementationCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
+      "currentImplementationIncludesUncommittedChanges": true
     }
   },
   "acceptanceGates": [

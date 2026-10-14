@@ -28403,23 +28403,7 @@ public sealed class MatchRecoveryTests
     [Fact]
     public async Task RegistryHydratesRecoveredSessionWithoutTreatingPlayerSnapshotAsFullRuleState()
     {
-        var frame = RecoveryFrame(
-            currentTick: 2,
-            lastEventSequence: 6,
-            commands:
-            [
-                new RecoveredCommand(
-                    "alice",
-                    "intent-pass-priority",
-                    "PASS_PRIORITY",
-                    null,
-                    0,
-                    2,
-                    0,
-                    6,
-                    true,
-                    null)
-            ]);
+        var frame = await BoundRecoveryFrameAsync();
         var registry = new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
             NoopMatchJournal.Instance,
@@ -28476,23 +28460,7 @@ public sealed class MatchRecoveryTests
     public async Task RecoveredDuplicateIntentDoesNotWriteJournalOrAdvanceTick()
     {
         var journal = new RecordingMatchJournal();
-        var frame = RecoveryFrame(
-            currentTick: 2,
-            lastEventSequence: 6,
-            commands:
-            [
-                new RecoveredCommand(
-                    "alice",
-                    "intent-pass-priority",
-                    "PASS_PRIORITY",
-                    null,
-                    0,
-                    2,
-                    0,
-                    6,
-                    true,
-                    null)
-            ]);
+        var frame = await BoundRecoveryFrameAsync();
         var registry = new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
             journal,
@@ -28516,7 +28484,7 @@ public sealed class MatchRecoveryTests
     public async Task RecoveredSessionContinuesEventSequenceForNewCommands()
     {
         var journal = new RecordingMatchJournal();
-        var frame = RecoveryFrame(currentTick: 2, lastEventSequence: 6);
+        var frame = await BoundRecoveryFrameAsync();
         var registry = new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
             journal,
@@ -28531,8 +28499,8 @@ public sealed class MatchRecoveryTests
             CancellationToken.None);
 
         var entry = Assert.Single(journal.Entries);
-        Assert.Equal(6, entry.StartedEventSequence);
-        Assert.Equal(7, entry.CompletedEventSequence);
+        Assert.Equal(9, entry.StartedEventSequence);
+        Assert.Equal(10, entry.CompletedEventSequence);
     }
 
     [Fact]
@@ -28544,7 +28512,7 @@ public sealed class MatchRecoveryTests
         var registry = new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
             NoopMatchJournal.Instance,
-            new FixedRecoveryStore(RecoveryFrame(currentTick: 2, lastEventSequence: 6)),
+            new FixedRecoveryStore(await BoundRecoveryFrameAsync()),
             playerStore);
         var session = await registry.GetOrCreateAsync("room-a", CancellationToken.None);
 
@@ -28567,7 +28535,7 @@ public sealed class MatchRecoveryTests
         var registry = new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
             NoopMatchJournal.Instance,
-            new FixedRecoveryStore(RecoveryFrame(currentTick: 2, lastEventSequence: 6)));
+            new FixedRecoveryStore(await BoundRecoveryFrameAsync()));
         var session = await registry.GetOrCreateAsync("room-a", CancellationToken.None);
 
         var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
@@ -176499,6 +176467,28 @@ public sealed class MatchRecoveryTests
             sequence,
             (int)sequence - 1,
             new GameEvent(kind, kind, new Dictionary<string, object?>()));
+    }
+
+    // Current-format transport fixture: persisted authoritative inputs plus
+    // replayable session actions, rather than reconstructing rules from views.
+    private static async Task<MatchRecoveryFrame> BoundRecoveryFrameAsync()
+    {
+        var initial=MatchReplayInitialStateBuilder.FromSeats("room-a",
+            new Dictionary<string,string>(StringComparer.Ordinal) { ["alice"]="P1",["bob"]="P2" });
+        var journal=new RecordingMatchJournal();
+        var session=new MatchSession(initial,new PlaceholderRuleEngine(),journal);
+        await session.ReadyAsync("alice","bound-ready-a",RawCommand("READY"),default);
+        await session.ReadyAsync("bob","bound-ready-b",RawCommand("READY"),default);
+        await session.SubmitAsync("alice","bound-end-turn",new EndTurnCommand(),null,default);
+        await session.SubmitAsync("alice","intent-pass-priority",new PassPriorityCommand(),null,default);
+        var last=journal.Entries[^1];
+        Assert.Equal(2,last.CompletedTick);Assert.Equal(9,last.CompletedEventSequence);
+        var views=last.Snapshots.ToDictionary(p=>p.Key,p=>new RecoveredPlayerView(p.Key,last.CompletedTick,
+            last.CompletedEventSequence,p.Value,last.CompletedTick,last.CompletedEventSequence,last.Prompts[p.Key]),StringComparer.Ordinal);
+        return new("room-a",last.CompletedTick,last.CompletedEventSequence,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),ToRecoveredEvents(journal.Entries),views,[],
+            last.AuthoritativeState,initial,MatchReplayRedactor.BuildSpectatorFrame(last.RoomId,last.CompletedTick,
+                last.CompletedEventSequence,journal.Entries.SelectMany(e=>e.Events).ToArray(),last.AuthoritativeState));
     }
 
     private static MatchRecoveryFrame RecoveryFrame(

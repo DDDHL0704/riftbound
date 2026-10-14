@@ -45,6 +45,8 @@ public sealed partial class CoreRuleEngine
 
     public async ValueTask<ResolutionResult> ResolveAsync(MatchState state, PlayerIntent intent, GameCommand command, CancellationToken cancellationToken)
     {
+        if (!RuleInputIdentity.IsCurrentState(state))
+            return RejectWithCorePrompts(state, "对局规则输入身份与当前规则、目录或实现不匹配。", ErrorCodes.RecoveryInconsistent);
         var pending = state.PendingRuleChoice;
         if (pending is not null && command is SurrenderCommand)
             return await ResolveCoreAsync(state with { PendingRuleChoice = null }, intent, command, cancellationToken);

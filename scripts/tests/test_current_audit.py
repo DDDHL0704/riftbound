@@ -195,6 +195,17 @@ class CurrentAuditTests(unittest.TestCase):
         self.assertFalse(self.check()['reviewView'][0]['fixedCommitCi']['currentImplementationCovered'])
         self.assertEqual({'OPEN':1},self.check()['branchObligationStates'])
 
+    def test_changed_persistence_sql_reopens_previously_verified_ci_coverage(self):
+        sql=self.root/'src/Riftbound.Persistence/Sql/009_runtime_inputs.sql'
+        sql.parent.mkdir(parents=True)
+        sql.write_text('alter table matches add column rule_inputs jsonb;')
+        self.verified_branch()
+        self.assertTrue(self.check()['reviewView'][0]['fixedCommitCi']['currentImplementationCovered'])
+        sql.write_text('alter table matches drop column rule_inputs;')
+        result=self.check()
+        self.assertFalse(result['reviewView'][0]['fixedCommitCi']['currentImplementationCovered'])
+        self.assertEqual({'OPEN':1},result['branchObligationStates'])
+
     def test_not_applicable_is_scoped_and_reopens_when_product_scope_changes(self):
         branch,context,_=self.verified_branch()
         branch['decision'].update(state='NOT_APPLICABLE',minimumPlayers=3,reason='Branch requires more than the explicit two-player product')

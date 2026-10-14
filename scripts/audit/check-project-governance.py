@@ -263,7 +263,7 @@ def gameplay_path(path):
         return False
     roots = ('src/Riftbound.Contracts/','src/Riftbound.CardCatalog/','src/Riftbound.Engine/',
              'src/Riftbound.Persistence/','src/Riftbound.Api/','clients/godot/')
-    return (path.startswith(roots) and Path(path).suffix in {'.cs','.csproj','.json','.tscn','.godot'}
+    return (path.startswith(roots) and Path(path).suffix in {'.cs','.csproj','.json','.sql','.tscn','.godot'}
             or path.startswith('data/official/') and not path.startswith('data/official/upstream/')
                 and Path(path).suffix == '.json'
             or path in {'Directory.Build.props','Directory.Build.targets','Directory.Packages.props','global.json'})

@@ -5,8 +5,8 @@ namespace Riftbound.Engine;
 
 public static class RulesetDefaults
 {
-    public const string RulesetVersion = "rules-260330";
-    public const string FaqVersion = "official-pdf-faq-set-2026-04-28";
+    public const string RulesetVersion = "UNBOUND";
+    public const string FaqVersion = "UNBOUND";
     public const string AuditStatus = "NEEDS_RULE_AUDIT";
 }
 
@@ -35,7 +35,25 @@ public sealed record MatchJournalEntry(
     string RulesetVersion = RulesetDefaults.RulesetVersion,
     string FaqVersion = RulesetDefaults.FaqVersion,
     string RulesAuditStatus = RulesetDefaults.AuditStatus,
-    IReadOnlyList<RuleEvidenceRef>? RulesEvidence = null);
+    IReadOnlyList<RuleEvidenceRef>? RulesEvidence = null)
+{
+    [System.Text.Json.Serialization.JsonRequired]
+    public RuleInputIdentity? RuleInputs { get; init; } = AuthoritativeState.RuleInputs;
+    public string RulesetVersion { get; init; } = RulesetVersion == RulesetDefaults.RulesetVersion
+        ? AuthoritativeState.RuleInputs?.IdentitySha256 ?? RulesetDefaults.RulesetVersion : RulesetVersion;
+    public string FaqVersion { get; init; } = FaqVersion == RulesetDefaults.FaqVersion
+        ? AuthoritativeState.RuleInputs?.AuthoritySha256 ?? RulesetDefaults.FaqVersion : FaqVersion;
+
+    public void ValidateRuleInputs()
+    {
+        RuleInputIdentity.RequireCurrentState(AuthoritativeState);
+        var inputs = RuleInputs;
+        if (inputs is null || inputs != AuthoritativeState.RuleInputs
+            || RulesetVersion != inputs.IdentitySha256 || FaqVersion != inputs.AuthoritySha256)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+                "journal rule input identity or version does not match authoritative state");
+    }
+}
 
 public interface IMatchJournal
 {

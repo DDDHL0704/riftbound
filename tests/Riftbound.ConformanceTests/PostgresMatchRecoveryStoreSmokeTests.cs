@@ -435,6 +435,106 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
         }
     }
 
+    [Theory]
+    [InlineData("matches")]
+    [InlineData("command_log")]
+    [InlineData("game_events")]
+    [InlineData("state_snapshots")]
+    [InlineData("snapshots")]
+    [InlineData("action_prompts")]
+    [InlineData("missing-match-identity")]
+    [InlineData("missing-state-identity")]
+    [InlineData("null-state-identity")]
+    [InlineData("different-state-identity")]
+    [InlineData("match-version-label")]
+    [InlineData("command-version-label")]
+    [InlineData("command-payload-identity")]
+    public async Task PostgresRecoveryRefusesDifferentOrMissingInputsAcrossMetadataLogsAndViews(string branch)
+    {
+        var connectionString=Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
+        if (string.IsNullOrWhiteSpace(connectionString)) return;
+        await using var dataSource=NpgsqlDataSource.Create(connectionString);
+        await ApplySchemaAsync(dataSource);
+        var roomId=$"runtime-input-sql-{Guid.NewGuid():N}";
+        try
+        {
+            var playerStore=new PostgresMatchPlayerStore(dataSource);
+            await playerStore.SavePlayerSessionAsync(roomId,"alice","P1",ReconnectTokenHasher.Hash("token-a"),default);
+            await playerStore.SavePlayerSessionAsync(roomId,"bob","P2",ReconnectTokenHasher.Hash("token-b"),default);
+            var journal=new PostgresMatchJournal(dataSource);var store=new PostgresMatchRecoveryStore(dataSource);
+            var waiting=await store.LoadAsync(roomId,default);
+            Assert.NotNull(waiting);Assert.True(waiting.IsConsistent,string.Join("; ",waiting.ValidationErrors));
+            Assert.Equal(RuleInputIdentity.Current,waiting.AuthoritativeState!.RuleInputs);
+            var session=MatchSession.Restore(waiting,new CoreRuleEngine(),journal,playerStore);
+            var result=await session.ReadyAsync("alice","identity-ready",RawCommand("READY"),default);
+            Assert.True(result.Accepted,result.ErrorMessage);
+            var good=(await store.LoadAsync(roomId,default))!;
+            Assert.True(good.IsConsistent,string.Join("; ",good.ValidationErrors));
+            Assert.Equal(RuleInputIdentity.Current,good.AuthoritativeState!.RuleInputs);
+            Assert.Equal(RuleInputIdentity.Current,good.ReplayInitialState!.RuleInputs);
+            Assert.All(good.Commands,c=>Assert.Equal(RuleInputIdentity.Current,c.RuleInputs));
+            Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(good,new CoreRuleEngine(),default));
+
+            var sql=branch switch {
+                "missing-match-identity"=>"update matches set rule_inputs=null where match_id=@match_id",
+                "missing-state-identity"=>"update state_snapshots set payload=payload-'ruleInputs' where match_id=@match_id",
+                "null-state-identity"=>"update state_snapshots set payload=jsonb_set(payload,'{ruleInputs}','null') where match_id=@match_id",
+                "different-state-identity"=>"update state_snapshots set payload=jsonb_set(payload,'{ruleInputs,catalogSha256}',to_jsonb(repeat('a',64))) where match_id=@match_id",
+                "match-version-label"=>"update matches set faq_version='unrelated-faq' where match_id=@match_id",
+                "command-version-label"=>"update command_log set ruleset_version='unrelated-rules' where match_id=@match_id",
+                "command-payload-identity"=>"update command_log set payload=jsonb_set(payload,'{ruleInputs,catalogSha256}',to_jsonb(repeat('a',64))) where match_id=@match_id",
+                _=>$"update {branch} set rule_inputs=jsonb_set(rule_inputs,'{{implementationSha256}}',to_jsonb(repeat('b',64))) where match_id=@match_id"};
+            await using (var connection=await dataSource.OpenConnectionAsync())
+            await using (var command=new NpgsqlCommand(sql,connection))
+            {
+                command.Parameters.AddWithValue("match_id",roomId);
+                Assert.True(await command.ExecuteNonQueryAsync()>0);
+            }
+            var bad=(await store.LoadAsync(roomId,default))!;
+            Assert.False(bad.IsConsistent);Assert.Contains(bad.ValidationErrors,e=>e.Contains("rule input identity",StringComparison.Ordinal));
+            var registry=new InMemoryMatchSessionRegistry(new CoreRuleEngine(),journal,store,playerStore);
+            var rejected=await Assert.ThrowsAsync<MatchSessionException>(async()=>await registry.GetOrCreateAsync(roomId,default));
+            Assert.Equal(ErrorCodes.RecoveryInconsistent,rejected.Code);
+
+            if (branch is "matches" or "missing-match-identity" or "match-version-label")
+            {
+                await Assert.ThrowsAsync<MatchSessionException>(async()=>
+                    await session.ReadyAsync("bob","after-mismatch",RawCommand("READY"),default));
+                Assert.Equal(good.CurrentTick,session.SnapshotFor("alice").Tick);
+                Assert.Equal(good.Commands.Count,(await store.LoadAsync(roomId,default))!.Commands.Count);
+            }
+        }
+        finally { await DeleteRoomAsync(dataSource,roomId); }
+    }
+
+    [Fact]
+    public async Task PostgresJournalRejectsForgedVersionWithoutWritingAndNeverRebindsAnOldRoom()
+    {
+        var connectionString=Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound");
+        if (string.IsNullOrWhiteSpace(connectionString)) return;
+        await using var dataSource=NpgsqlDataSource.Create(connectionString);await ApplySchemaAsync(dataSource);
+        var roomId=$"runtime-input-journal-{Guid.NewGuid():N}";
+        try
+        {
+            var entry=CommandEntry(roomId,"current-inputs",CommandTypes.Pass,RawCommand(CommandTypes.Pass));
+            var journal=new PostgresMatchJournal(dataSource);
+            foreach(var invalid in new[] {entry with {RuleInputs=null},entry with {RulesetVersion="old-rules"},entry with {FaqVersion="old-faq"}})
+                await Assert.ThrowsAsync<MatchSessionException>(async()=>await journal.RecordAsync(invalid,default));
+            Assert.Null(await new PostgresMatchRecoveryStore(dataSource).LoadAsync(roomId,default));
+            await using(var connection=await dataSource.OpenConnectionAsync())
+            await using(var command=new NpgsqlCommand("insert into matches(match_id,status) values(@match_id,'SEATING')",connection))
+            {
+                command.Parameters.AddWithValue("match_id",roomId);Assert.Equal(1,await command.ExecuteNonQueryAsync());
+            }
+            await Assert.ThrowsAsync<MatchSessionException>(async()=>await journal.RecordAsync(entry,default));
+            await Assert.ThrowsAsync<MatchSessionException>(async()=>await new PostgresMatchPlayerStore(dataSource)
+                .SavePlayerSessionAsync(roomId,"alice","P1",ReconnectTokenHasher.Hash("old-room"),default));
+            var old=(await new PostgresMatchRecoveryStore(dataSource).LoadAsync(roomId,default))!;
+            Assert.False(old.IsConsistent);Assert.Empty(old.Commands);Assert.Null(old.AuthoritativeState);
+        }
+        finally {await DeleteRoomAsync(dataSource,roomId);}
+    }
+
     private static async Task ApplySchemaAsync(NpgsqlDataSource dataSource)
     {
         await using var connection = await dataSource.OpenConnectionAsync();

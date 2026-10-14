@@ -2,6 +2,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Npgsql;
 using NpgsqlTypes;
+using Riftbound.Contracts;
 using Riftbound.Engine;
 
 namespace Riftbound.Persistence;
@@ -17,6 +18,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
 
     public async ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
     {
+        entry.ValidateRuleInputs();
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
 
@@ -38,22 +40,23 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
     {
         const string sql = """
             insert into matches (
-                match_id, status, current_tick, last_event_sequence, ruleset_version, faq_version,
+                match_id, status, current_tick, last_event_sequence, ruleset_version, faq_version, rule_inputs,
                 rules_audit_status, rules_evidence, updated_at
             )
             values (
-                @match_id, @status, @current_tick, @last_event_sequence, @ruleset_version, @faq_version,
+                @match_id, @status, @current_tick, @last_event_sequence, @ruleset_version, @faq_version, @rule_inputs,
                 @rules_audit_status, @rules_evidence, now()
             )
             on conflict (match_id) do update
             set status = excluded.status,
                 current_tick = greatest(matches.current_tick, excluded.current_tick),
                 last_event_sequence = greatest(matches.last_event_sequence, excluded.last_event_sequence),
-                ruleset_version = excluded.ruleset_version,
-                faq_version = excluded.faq_version,
                 rules_audit_status = excluded.rules_audit_status,
                 rules_evidence = excluded.rules_evidence,
-                updated_at = now();
+                updated_at = now()
+            where matches.rule_inputs = excluded.rule_inputs
+              and matches.ruleset_version = excluded.ruleset_version
+              and matches.faq_version = excluded.faq_version;
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", entry.RoomId);
@@ -61,7 +64,9 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         command.Parameters.AddWithValue("current_tick", entry.CompletedTick);
         command.Parameters.AddWithValue("last_event_sequence", entry.CompletedEventSequence);
         AddRulesetParameters(command, entry);
-        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        if (await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false) != 1)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+                "stored match rule input identity differs from journal inputs");
     }
 
     private static async Task InsertCommandAsync(
@@ -75,13 +80,13 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
                 match_id, player_id, client_intent_id, command_type,
                 started_tick, completed_tick, accepted, error_message,
                 started_event_sequence, completed_event_sequence,
-                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+                ruleset_version, faq_version, rule_inputs, rules_audit_status, rules_evidence, payload
             )
             values (
                 @match_id, @player_id, @client_intent_id, @command_type,
                 @started_tick, @completed_tick, @accepted, @error_message,
                 @started_event_sequence, @completed_event_sequence,
-                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+                @ruleset_version, @faq_version, @rule_inputs, @rules_audit_status, @rules_evidence, @payload
             )
             on conflict (match_id, player_id, client_intent_id) do nothing;
             """;
@@ -119,6 +124,9 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
                   and client_intent_id = @client_intent_id
                   and command_type = @command_type
                   and payload = @payload
+                  and rule_inputs = @rule_inputs
+                  and ruleset_version = @ruleset_version
+                  and faq_version = @faq_version
             );
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
@@ -127,6 +135,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         command.Parameters.AddWithValue("client_intent_id", entry.ClientIntentId);
         command.Parameters.AddWithValue("command_type", entry.CommandType);
         AddCommandPayload(command, entry);
+        AddRulesetParameters(command, entry);
 
         var result = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
         return result is true;
@@ -165,6 +174,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             entry.ErrorMessage,
             entry.RulesetVersion,
             entry.FaqVersion,
+            entry.RuleInputs,
             entry.RulesAuditStatus
         });
     }
@@ -178,11 +188,11 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         const string sql = """
             insert into game_events (
                 match_id, event_sequence, event_tick, event_order, event_type,
-                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+                ruleset_version, faq_version, rule_inputs, rules_audit_status, rules_evidence, payload
             )
             values (
                 @match_id, @event_sequence, @event_tick, @event_order, @event_type,
-                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+                @ruleset_version, @faq_version, @rule_inputs, @rules_audit_status, @rules_evidence, @payload
             )
             on conflict (match_id, event_sequence) do nothing;
             """;
@@ -211,11 +221,11 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         const string sql = """
             insert into snapshots (
                 match_id, player_id, snapshot_tick, last_event_sequence,
-                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+                ruleset_version, faq_version, rule_inputs, rules_audit_status, rules_evidence, payload
             )
             values (
                 @match_id, @player_id, @snapshot_tick, @last_event_sequence,
-                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+                @ruleset_version, @faq_version, @rule_inputs, @rules_audit_status, @rules_evidence, @payload
             )
             on conflict (match_id, player_id, snapshot_tick) do update
             set last_event_sequence = excluded.last_event_sequence,
@@ -249,11 +259,11 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         const string sql = """
             insert into state_snapshots (
                 match_id, state_tick, last_event_sequence,
-                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+                ruleset_version, faq_version, rule_inputs, rules_audit_status, rules_evidence, payload
             )
             values (
                 @match_id, @state_tick, @last_event_sequence,
-                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+                @ruleset_version, @faq_version, @rule_inputs, @rules_audit_status, @rules_evidence, @payload
             )
             on conflict (match_id, state_tick, last_event_sequence) do update
             set ruleset_version = excluded.ruleset_version,
@@ -281,11 +291,11 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         const string sql = """
             insert into action_prompts (
                 match_id, player_id, prompt_tick, last_event_sequence,
-                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+                ruleset_version, faq_version, rule_inputs, rules_audit_status, rules_evidence, payload
             )
             values (
                 @match_id, @player_id, @prompt_tick, @last_event_sequence,
-                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+                @ruleset_version, @faq_version, @rule_inputs, @rules_audit_status, @rules_evidence, @payload
             )
             on conflict (match_id, player_id, prompt_tick) do update
             set last_event_sequence = excluded.last_event_sequence,
@@ -312,6 +322,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
 
     private static void AddRulesetParameters(NpgsqlCommand command, MatchJournalEntry entry)
     {
+        AddJson(command, "rule_inputs", entry.RuleInputs);
         command.Parameters.AddWithValue("ruleset_version", entry.RulesetVersion);
         command.Parameters.AddWithValue("faq_version", entry.FaqVersion);
         command.Parameters.AddWithValue("rules_audit_status", entry.RulesAuditStatus);

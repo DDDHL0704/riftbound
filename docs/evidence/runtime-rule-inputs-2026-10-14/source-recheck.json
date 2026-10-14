@@ -1,0 +1,250 @@
+{
+  "verifiedAtUtc": "2026-10-14T12:28:08.870252+00:00",
+  "scopeSha256": "5ebece0950a5efc82e63c78899ad424ee1158df99a572e47358c9630bbea5ffa",
+  "cnDocuments": [
+    {
+      "id": "DOC-04",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "fetchedAtUtc": "2026-10-14T11:53:14.860185+00:00",
+      "baselineSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "status": "UNCHANGED",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64"
+    },
+    {
+      "id": "DOC-05",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/836060c4535a4f71af5e8cff575097f1.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:31.089948+00:00",
+      "baselineSha256": "1fb6e2f7d6a5608d52aba156d5ee1a6f6127a15ed2a5fc02f2bbbcce86f78569",
+      "status": "UNCHANGED",
+      "sha256": "1fb6e2f7d6a5608d52aba156d5ee1a6f6127a15ed2a5fc02f2bbbcce86f78569"
+    },
+    {
+      "id": "DOC-06",
+      "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:33.372587+00:00",
+      "baselineSha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+      "status": "UNCHANGED",
+      "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742"
+    },
+    {
+      "id": "DOC-07",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-24/9fe1f19110dd4678a6ad7bd96e791bba.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:20.545922+00:00",
+      "baselineSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "status": "UNCHANGED",
+      "sha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b"
+    },
+    {
+      "id": "DOC-08",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/d91ee4548d224dfb9c7a3f5390cf0573.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:24.385075+00:00",
+      "baselineSha256": "e0326381f003a3e5d0a12db9521dc15eb1cc4ed0456188cee9fc46e0eb6d5ef7",
+      "status": "UNCHANGED",
+      "sha256": "e0326381f003a3e5d0a12db9521dc15eb1cc4ed0456188cee9fc46e0eb6d5ef7"
+    },
+    {
+      "id": "DOC-09",
+      "url": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:49.999081+00:00",
+      "baselineSha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "status": "UNCHANGED",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b"
+    },
+    {
+      "id": "DOC-10",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:33.663075+00:00",
+      "baselineSha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f",
+      "status": "UNCHANGED",
+      "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f"
+    },
+    {
+      "id": "DOC-11",
+      "requestedUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/破限系列 官方FAQ.pdf",
+      "encodedRequestUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/%E7%A0%B4%E9%99%90%E7%B3%BB%E5%88%97%20%E5%AE%98%E6%96%B9FAQ.pdf",
+      "fetchedAtUtc": "2026-10-14T11:55:20.239991+00:00",
+      "baselineSha256": "202ecb8a94af03af024daefcf677991c50db00afeeb36cf2c4b72683b623bd70",
+      "status": "UNCHANGED",
+      "sha256": "202ecb8a94af03af024daefcf677991c50db00afeeb36cf2c4b72683b623bd70"
+    },
+    {
+      "id": "DOC-12",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_勘误汇总_260114.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:33.605266+00:00",
+      "baselineSha256": "13ef6ec857b2b7d693d0e83f388c37f02a87bfb08886676e70e6bd69f8e7935d",
+      "status": "UNCHANGED",
+      "sha256": "13ef6ec857b2b7d693d0e83f388c37f02a87bfb08886676e70e6bd69f8e7935d"
+    },
+    {
+      "id": "DOC-13",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf",
+      "fetchedAtUtc": "2026-10-14T11:53:04.853970+00:00",
+      "baselineSha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01",
+      "status": "UNCHANGED",
+      "sha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01"
+    },
+    {
+      "id": "DOC-14",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+      "fetchedAtUtc": "2026-10-14T11:53:09.171483+00:00",
+      "baselineSha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+      "status": "UNCHANGED",
+      "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc"
+    },
+    {
+      "id": "DOC-15",
+      "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/裁判FAQ_251023.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:55.328321+00:00",
+      "baselineSha256": "4e960816dd71ffb110e6d37d66d628eb5f7bb3b771192af5975e7164087e2203",
+      "status": "UNCHANGED",
+      "sha256": "4e960816dd71ffb110e6d37d66d628eb5f7bb3b771192af5975e7164087e2203"
+    },
+    {
+      "id": "DOC-16",
+      "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/《符文战场》勘误汇总_1028.pdf",
+      "fetchedAtUtc": "2026-10-14T11:52:55.716040+00:00",
+      "baselineSha256": "1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c",
+      "status": "UNCHANGED",
+      "sha256": "1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c"
+    }
+  ],
+  "globalSupplementalArticles": [
+    {
+      "url": "https://playriftbound.com/en-us/news/rules-and-releases/vendetta-rules-faq-and-clarifications/",
+      "title": "Vendetta Rules FAQ and Clarifications",
+      "fetchedAtUtc": "2026-10-14T11:54:02.380576+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "28b5543c0edf4335e1d3f1256a3b874301b33e5d9c83fb7856151f4d84a714f0",
+      "published": "2026-08-14T01:00:00.000Z",
+      "revision": "xOUhMZ9vc49S6GmzdkrIRK",
+      "baselineBodySha256": "ca5137a80d898ab546eaad090876b8aac358023e17df7ff9090fbb17bc2ea578",
+      "bodySha256": "ca5137a80d898ab546eaad090876b8aac358023e17df7ff9090fbb17bc2ea578"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-spiritforged-faq/",
+      "title": "Riftbound Spiritforged FAQ",
+      "fetchedAtUtc": "2026-10-14T11:54:03.081023+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "e00ae42bdf1642816a835b72c661c75ac04b1c7c01e905c44e59826abc0d950d",
+      "published": "2026-01-14T02:00:00.000Z",
+      "revision": "5xgDHibkxp25pk3FnVT0MH",
+      "baselineBodySha256": "8fe22f4822dc64b3dbc96adac6ffabec750179f90fb813e935ddac2cbc509fbf",
+      "bodySha256": "8fe22f4822dc64b3dbc96adac6ffabec750179f90fb813e935ddac2cbc509fbf"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/rules-and-releases/unleashed-rules-faq-and-clarifications/",
+      "title": "Unleashed Rules FAQ and Clarifications",
+      "fetchedAtUtc": "2026-10-14T11:54:03.202269+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "7f5994d3f839d45985c07598b2a8f00c8b982c0fab784f218be8d5074fd8399f",
+      "published": "2026-04-29T16:00:00.000Z",
+      "revision": "juolGRHVtjOsRLFYBEaf3Z",
+      "baselineBodySha256": "d3b068e1074fe9f2c77a62b410d538f9936ca59c761425d492347c73cc407348",
+      "bodySha256": "d3b068e1074fe9f2c77a62b410d538f9936ca59c761425d492347c73cc407348"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-origins-faq/",
+      "title": "Riftbound Origins FAQ",
+      "fetchedAtUtc": "2026-10-14T11:54:02.487528+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "62858a258a88af7b24671bf235db8476b0a1072a87674de92a9b5f11741814af",
+      "published": "2025-10-16T19:00:00.000Z",
+      "revision": "K6OBYVD123yLLpF7jBugK5",
+      "baselineBodySha256": "db899944b2fbdb3e1ae326c30e9eb74962e8ee775d434bcab893bae97de202ff",
+      "bodySha256": "db899944b2fbdb3e1ae326c30e9eb74962e8ee775d434bcab893bae97de202ff"
+    },
+    {
+      "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-patch-notes/",
+      "title": "Riftbound Core Rules: Patch Notes",
+      "fetchedAtUtc": "2026-10-14T11:54:04.264576+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "71a8b4800877792f0fd180dc7fc8917980a8974be85193dfa0a589fcdee706b5",
+      "published": "2025-10-24T01:00:00.000Z",
+      "revision": "P2jdEKc6GZf6O4yCyb7qAi",
+      "baselineBodySha256": "2c0c4b69e20fff1858c0c4363e29383244db3c24deb3c5ce7f29a7e1225b2687",
+      "bodySha256": "2c0c4b69e20fff1858c0c4363e29383244db3c24deb3c5ce7f29a7e1225b2687"
+    },
+    {
+      "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-spiritforged-patch-notes/",
+      "title": "Riftbound Core Rules: Spiritforged Patch Notes",
+      "fetchedAtUtc": "2026-10-14T11:54:04.607003+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "5fd75776d3608194018d967d5dfe1c4940c9db50af26a313f5d4dee8853ce53f",
+      "published": "2025-12-05T02:00:00.000Z",
+      "revision": "P2jdEKc6GZf6O4yCyb7qAi",
+      "baselineBodySha256": "23230cd1b073fd32352a938372be7068ba91514ae4993dc624d3d479ae991162",
+      "bodySha256": "23230cd1b073fd32352a938372be7068ba91514ae4993dc624d3d479ae991162"
+    },
+    {
+      "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-unleashed-patch-notes/",
+      "title": "Riftbound Core Rules: Unleashed Patch Notes",
+      "fetchedAtUtc": "2026-10-14T11:54:05.373514+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "78b113db1b1d8dd4724be79e0e0901132acbce74cf5aca8f5a25b4388d60ed85",
+      "published": "2026-03-30T16:00:00.000Z",
+      "revision": "XCTgZQwSGIOEwOvRbvMYKc",
+      "baselineBodySha256": "b7d7723cd0c39905f955d161b11ae2d50cf306cd9f25f0f6cd5c289e8749e71d",
+      "bodySha256": "b7d7723cd0c39905f955d161b11ae2d50cf306cd9f25f0f6cd5c289e8749e71d"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/announcements/core-rules-vendetta-patch-notes",
+      "title": "Core Rules: Vendetta Patch Notes",
+      "fetchedAtUtc": "2026-10-14T11:54:04.796768+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "a2509de4c3d23a1eba9ac5b3a99184982d60f82e81c62988db81f13fc93bfb3b",
+      "published": "2026-07-17T00:30:00.000Z",
+      "revision": "JxwKjQ4plLez7JxHpqarfH",
+      "baselineBodySha256": "838cc550bfa0a1828521da4cc21ffee780cf9c90fad527995e088b84fa7b2aed",
+      "bodySha256": "838cc550bfa0a1828521da4cc21ffee780cf9c90fad527995e088b84fa7b2aed"
+    },
+    {
+      "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/",
+      "title": "Riftbound: Origins Card Errata",
+      "fetchedAtUtc": "2026-10-14T11:54:05.946955+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "4767ee2dfa2987e38ea2e75959ccf94be23e7eaad09040f960af4de4a71b0837",
+      "published": "2025-10-28T01:00:00.000Z",
+      "revision": "P2jdEKc6GZf6O4yCyb7qAi",
+      "baselineBodySha256": "b4df1ce3b9e19c988544e2206d124567ed088d61b16c90e16b6c063ca713183a",
+      "bodySha256": "b4df1ce3b9e19c988544e2206d124567ed088d61b16c90e16b6c063ca713183a"
+    },
+    {
+      "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-spiritforged-errata/",
+      "title": "Riftbound Spiritforged Errata",
+      "fetchedAtUtc": "2026-10-14T11:54:06.096714+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "20b61d75e7077f77d628932e195b18a872737d3d8059202d88ef29e9eca5c576",
+      "published": "2026-01-14T02:00:00.000Z",
+      "revision": "lUOsIMoAHmGZdg2cOiAhmD",
+      "baselineBodySha256": "01d9982336a8991c27fe5131ea075253b9674c183ec5e34d207d641b8f3846c7",
+      "bodySha256": "01d9982336a8991c27fe5131ea075253b9674c183ec5e34d207d641b8f3846c7"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/rules-and-releases/unleashed-errata-updates/",
+      "title": "Unleashed Errata Updates",
+      "fetchedAtUtc": "2026-10-14T11:54:05.798315+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "a82509f2ef264b4af1d86886178bfc4aee369ab50408c2ed452cf6621e4823af",
+      "published": "2026-04-03T01:00:00.000Z",
+      "revision": "CBOnzl0gEDUl3TLD2Ros2W",
+      "baselineBodySha256": "eea9309756bc2bc6aa9e12fabac0d15c612de6d256ea765c69e10c2662e53bf2",
+      "bodySha256": "eea9309756bc2bc6aa9e12fabac0d15c612de6d256ea765c69e10c2662e53bf2"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/announcements/vendetta-errata-updates",
+      "title": "Vendetta Errata Updates",
+      "fetchedAtUtc": "2026-10-14T11:54:07.550422+00:00",
+      "status": "UNCHANGED_CONTENT",
+      "sha256": "68888526fa54c115c38cb04b549998ed8b4c499ad913879786f7a6f02dc753d1",
+      "published": "2026-07-23T16:00:00.000Z",
+      "revision": "M4hdb3GDOMuirfurf2K1C0",
+      "baselineBodySha256": "c929968517bd9d30e6b4686c75995545d3baaa32438673607b0d6497b8336924",
+      "bodySha256": "c929968517bd9d30e6b4686c75995545d3baaa32438673607b0d6497b8336924"
+    }
+  ],
+  "qaIdentities": 1502,
+  "qaIdentityContentUnchanged": true,
+  "semanticCoverageCertified": false,
+  "rawEvidenceRoot": "var/qa/runtime-input-identity-20261014",
+  "scope": "Finite adopted source set only; no claim all live official sources or unknown dates are closed."
+}

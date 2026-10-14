@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Collections.Immutable;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -14,13 +15,29 @@ public sealed record OfficialCardCatalog(
     int Total,
     IReadOnlyList<OfficialCard> Cards)
 {
+    private static readonly Lazy<string> DefaultPath = new(ResolveDefaultCatalogPath);
+    private static readonly Lazy<Task<OfficialCardCatalog>> DefaultSnapshot = new(LoadDefaultSnapshotAsync);
+
+    private static async Task<OfficialCardCatalog> LoadDefaultSnapshotAsync()
+    {
+        var catalog=await OfficialCardCatalogLoader.LoadFromFileAsync(DefaultCatalogPath(), CancellationToken.None)
+            .ConfigureAwait(false);
+        return catalog with { Cards=catalog.Cards.Select(c=>c with {
+            CardCategoryList=c.CardCategoryList.ToImmutableArray(),CardCategoryNameList=c.CardCategoryNameList.ToImmutableArray(),
+            CardColorList=c.CardColorList.ToImmutableArray(),ProductCodeList=c.ProductCodeList.ToImmutableArray(),
+            ProductNameList=c.ProductNameList.ToImmutableArray() }).ToImmutableArray() };
+    }
+
     public static async Task<OfficialCardCatalog> LoadDefaultAsync(CancellationToken cancellationToken = default)
     {
-        return await OfficialCardCatalogLoader.LoadFromFileAsync(DefaultCatalogPath(), cancellationToken)
+        cancellationToken.ThrowIfCancellationRequested();
+        return await DefaultSnapshot.Value.WaitAsync(cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public static string DefaultCatalogPath()
+    public static string DefaultCatalogPath() => DefaultPath.Value;
+
+    private static string ResolveDefaultCatalogPath()
     {
         var outputPath = Path.Combine(AppContext.BaseDirectory, "data", "official", "card-catalog.zh-CN.json");
         if (File.Exists(outputPath))

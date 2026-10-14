@@ -1,4 +1,7 @@
 using Npgsql;
+using NpgsqlTypes;
+using System.Text.Json;
+using Riftbound.Contracts;
 using Riftbound.Engine;
 
 namespace Riftbound.Persistence;
@@ -67,14 +70,23 @@ public sealed class PostgresMatchPlayerStore(NpgsqlDataSource dataSource) : IMat
         CancellationToken cancellationToken)
     {
         const string sql = """
-            insert into matches (match_id, status, updated_at)
-            values (@match_id, 'SEATING', now())
+            insert into matches (match_id, status, updated_at, rule_inputs, ruleset_version, faq_version)
+            values (@match_id, 'SEATING', now(), @rule_inputs, @ruleset_version, @faq_version)
             on conflict (match_id) do update
-            set updated_at = now();
+            set updated_at = now()
+            where matches.rule_inputs = excluded.rule_inputs
+              and matches.ruleset_version = excluded.ruleset_version
+              and matches.faq_version = excluded.faq_version;
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", roomId);
-        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        command.Parameters.AddWithValue("rule_inputs", NpgsqlDbType.Jsonb,
+            JsonSerializer.Serialize(RuleInputIdentity.Current, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        command.Parameters.AddWithValue("ruleset_version", RuleInputIdentity.Current.IdentitySha256);
+        command.Parameters.AddWithValue("faq_version", RuleInputIdentity.Current.AuthoritySha256);
+        if (await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false) != 1)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+                "stored room rule input identity differs from running inputs");
     }
 
     private static async Task AcquireMatchPlayerSeatLockAsync(
