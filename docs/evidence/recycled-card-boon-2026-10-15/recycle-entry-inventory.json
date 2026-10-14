@@ -1,0 +1,82 @@
+{
+  "status": "ALL_TWELVE_CURRENT_CARD_RECYCLE_EMITTERS_CAPTURE_AT_INSTRUCTION",
+  "records": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+      "capturedEmitters": [
+        {
+          "line": 246,
+          "sha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+      "capturedEmitters": [
+        {
+          "line": 109,
+          "sha256": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Recast.cs",
+      "capturedEmitters": [
+        {
+          "line": 111,
+          "sha256": "7adb41ea6a6aedd3e4a668c6013f92d3a527475bd5957d135526d1cf4d3df4b7"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.RecyclingChoice.cs",
+      "capturedEmitters": [
+        {
+          "line": 63,
+          "sha256": "3d93512476fbb60d8ecf4a013bf820380ce7fb3a23790b41fd328af4aa621cd5"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "capturedEmitters": [
+        {
+          "line": 4344,
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        },
+        {
+          "line": 16866,
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        },
+        {
+          "line": 16937,
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        },
+        {
+          "line": 31363,
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        },
+        {
+          "line": 31426,
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        },
+        {
+          "line": 31652,
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        },
+        {
+          "line": 31722,
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        },
+        {
+          "line": 31809,
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        }
+      ]
+    }
+  ],
+  "privateInsightIdsPassedInternallyNotLogged": true,
+  "runeEventsExcludedFromCardBoon": true,
+  "actorAndMainDeckOwnerSeparated": true,
+  "wholeConsumerSemanticsCertified": false
+}

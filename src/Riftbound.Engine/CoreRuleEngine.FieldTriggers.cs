@@ -6,6 +6,8 @@ public sealed record TurnDrawLedger(int TurnNumber, IReadOnlyDictionary<string, 
 public sealed record FieldTriggerContext(string CardNo, string Kind, long SourceGeneration, string? BattlefieldId = null, string? ReturnFocusPlayerId = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public RecycledCardBoonOrigin? RecycledBoon { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ObjectLocationState? SourceLocation { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public RuleTextInstanceBinding? Origin { get; init; }
@@ -29,14 +31,17 @@ public sealed partial class CoreRuleEngine
         .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
     internal static bool ValidFieldContext(FieldTriggerContext context, string effect, string? cardNo = null)
         => effect == FieldTriggerEffect && context.SourceGeneration >= 0
-            && (context.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY"
+            && (context.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" or "RECYCLE_BOON"
                 ? (!context.SourceCeasedToExist || context.SourceTokenFactoryCardNo is not null)
                     && (context.SourceTokenFactoryCardNo is null
                         || P6TokenFactoryCatalog.TryGetByCardNo(context.SourceTokenFactoryCardNo, out var token)
                             && token.Tags.Contains(CardObjectTags.UnitCard))
                 : context.SourceTokenFactoryCardNo is null && !context.SourceCeasedToExist)
             && (cardNo is null || cardNo == context.CardNo)
-            && (context.Kind == "ENEMY_ATTACK_MIGHT" ? EnemyAttackMightSpec(context.CardNo) is not null
+            && (context.Kind == "RECYCLE_BOON" ? HasRecycledCardBoon(context.CardNo) && context.RecycledBoon is { CardCount: > 0, CapturedTick: >= 0, FaceRevision: >= 0 }
+                && context.BattlefieldId is null && context.SourceLocation is null && context.AffectedUnit is null
+                && !context.SourceCeasedToExist && !context.AffectedUnitCeasedToExist
+                : context.RecycledBoon is null && (context.Kind == "ENEMY_ATTACK_MIGHT" ? EnemyAttackMightSpec(context.CardNo) is not null
                 && context.AffectedUnit is { Generation: >= 0 } && context.SourceLocation is null && context.Origin is null
                 && !string.IsNullOrWhiteSpace(context.BattlefieldId)
                 : context.AffectedUnit is null && !context.AffectedUnitCeasedToExist && (context.Kind == "ATTACK_DECK_PLAY" ? AttackDeckPlaySpec(context.CardNo) is not null && context.SourceLocation is not null && !string.IsNullOrWhiteSpace(context.BattlefieldId)
@@ -44,7 +49,7 @@ public sealed partial class CoreRuleEngine
                 : context.Kind == "COMBAT_MIGHT" ? CombatMightSpec(context.CardNo) is not null && context.SourceLocation is not null
                 : context.Kind is "SECOND_DRAW" or "DEFEND" && HasFieldTrigger(context.CardNo, context.Kind)
                     && context.SourceLocation is null && context.Origin is null
-                    && (context.Kind == "SECOND_DRAW" ? context.BattlefieldId is null : !string.IsNullOrWhiteSpace(context.BattlefieldId))));
+                    && (context.Kind == "SECOND_DRAW" ? context.BattlefieldId is null : !string.IsNullOrWhiteSpace(context.BattlefieldId)))));
 
     private static CapturedDrawSource[] CaptureDrawTriggerSources(MatchState state, string player) => CaptureDrawTriggerSources(state.PlayerZones, state.CardObjects, player);
 
@@ -91,7 +96,7 @@ public sealed partial class CoreRuleEngine
             && IsObjectOnField(state.PlayerZones, c.ObjectId) && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, c.ObjectId)
             && (item.FieldContext!.Kind is "COMBAT_MIGHT" or "STANDBY_DEFEND" ? c.ControllerId != item.ControllerId
                 && IsCombatMightTargetHere(state, item, c.ObjectId)
-                : item.FieldContext.Kind == "SECOND_DRAW" ? c.ControllerId == item.ControllerId
+                : item.FieldContext.Kind is "SECOND_DRAW" or "RECYCLE_BOON" ? c.ControllerId == item.ControllerId
                 : c.ControllerId != item.ControllerId && state.BattleState.AttackerObjectIds.Contains(c.ObjectId)
                     && state.ObjectLocations.TryGetValue(c.ObjectId, out var location) && location.BattlefieldObjectId == item.FieldContext.BattlefieldId))
         .Select(c => c.ObjectId).Order(StringComparer.Ordinal).ToArray();
@@ -142,6 +147,7 @@ public sealed partial class CoreRuleEngine
                 item.FieldContext.Kind == "DEFEND" ? "选择一名进攻单位并摧毁狂热粉丝，或不选以放弃；确认后开放响应"
                     : item.FieldContext.Kind == "STANDBY_DEFEND" ? "选择此处一名敌方单位；确认目标和法盾费用后开放响应，结算时展示并按待命关键词造成伤害、回收"
                     : item.FieldContext.Kind == "COMBAT_MIGHT" ? "选择此处一名敌方单位，本回合降低战力；确认目标和法盾费用后开放响应"
+                    : item.FieldContext.Kind == "RECYCLE_BOON" ? "选择一名友方单位获得增益；确认后双方可以响应"
                     : "选择一名友方单位获得本回合 +2 战力；确认后开放响应",
                 item.SourceObjectId, item.EffectKind) { ResolvingStackItemId = item.StackItemId };
         }
@@ -279,6 +285,11 @@ public sealed partial class CoreRuleEngine
                     MinimumPowerAfterModifier: spec.MinimumPowerAfterModifier!.Value);
                 cards[target] = ApplyPowerModifier(state, card, behavior, item, target, spec.PowerDelta.Value, out var modified);
                 events.Add(modified);
+            }
+            else if (item.FieldContext.Kind == "RECYCLE_BOON")
+            {
+                using var instruction = new MightInstructionScope(state, zones, cards, events);
+                GrantLegendBoon(cards, target, item.ControllerId, item.SourceObjectId, item.EffectKind, events);
             }
             else if (item.FieldContext.Kind == "SECOND_DRAW")
             {

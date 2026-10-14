@@ -11,5 +11,9 @@ internal static class ReviewedCardErrata
         ? "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n"
             + "{{瞬息}}（在我控制者的下个开始阶段开始时，结算得分之前将我摧毁。）\n"
             + "当你打出我时，在此处打出两名“映像”。然后进行一次：它们变为我的复制体。"
-        : printedText;
+        : (id == 31473 && cardNo == "OGN·235/298" || id == 33346 && cardNo == "SFD·237/221"
+            || id == 33347 && cardNo == "SFD·237*/221")
+            // Current CN DOC-16-P005-B003, SHA256 1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c.
+            ? printedText.Replace("每当你回收任意数量的卡牌时", "每当你将任意数量的卡牌回收到自己的主牌堆时", StringComparison.Ordinal)
+            : printedText;
 }

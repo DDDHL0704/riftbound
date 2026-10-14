@@ -1,0 +1,261 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-14T21:28:24.150559+00:00",
+  "sha256": "d337fbf40767a6ce22ad094a95bace35e82d267b63fa2e5e0da94dc1578313dc",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "cards": [
+    {
+      "id": 33346,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·237/221",
+      "cardName": "卡尔玛",
+      "subTitle": "圣灵之媒",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "卡尔玛",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Andres Blanco",
+      "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+      "flavorText": "“结束何尝不是另一种开始。”",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "exalted_script",
+      "extendRarityName": "超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/e8808590b6ab43fa8e6f7c8897eaba3a.png",
+      "backImage": "",
+      "listSort": 727,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+      "otherDesc": 0
+    },
+    {
+      "id": 33347,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·237*/221",
+      "cardName": "卡尔玛",
+      "subTitle": "圣灵之媒",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "卡尔玛",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Andres Blanco",
+      "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+      "flavorText": "“结束何尝不是另一种开始。”",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "runemaster_mark",
+      "extendRarityName": "签名超编",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/5bc1e58d2cde4cd39260f9b43813b852.png",
+      "backImage": "",
+      "listSort": 726,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+      "otherDesc": 0
+    },
+    {
+      "id": 31473,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "OGN·235/298",
+      "cardName": "卡尔玛",
+      "subTitle": "圣灵之媒",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "卡尔玛",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+      "flavorText": "“心神合一。”",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/74539c8338a645228d8d543fd731891a.png",
+      "backImage": "",
+      "listSort": 232,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+      "otherDesc": 0
+    }
+  ],
+  "documents": [
+    {
+      "id": "DOC-04",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "fetchedAtUtc": "2026-10-14T21:30:07.976296+00:00",
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-15",
+      "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/裁判FAQ_251023.pdf",
+      "sha256": "4e960816dd71ffb110e6d37d66d628eb5f7bb3b771192af5975e7164087e2203",
+      "fetchedAtUtc": "2026-10-14T21:30:08.085921+00:00",
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-16",
+      "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/《符文战场》勘误汇总_1028.pdf",
+      "sha256": "1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c",
+      "fetchedAtUtc": "2026-10-14T21:30:08.168232+00:00",
+      "publicationDate": null,
+      "effectiveDate": null
+    }
+  ],
+  "frozenCnRowsMatch": true,
+  "errataScope": "DOC-16-P005-B003: recycle cards to your own main deck; runes excluded. No source denominator mutation.",
+  "consumerSources": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T21:51:36.600596+00:00",
+      "sha256": "8a82a3779066e3fa73fba5aeca35d25baeeb77edb9470d521e80f13252f618ee",
+      "card": {
+        "id": 31482,
+        "cardNo": "OGN·242/298",
+        "cardName": "海兽钓钩",
+        "cardEffect": "支付{{1}}和{{黄色}}，{{横置}}：摧毁一名友方单位，然后查看主牌堆顶部的五张牌。你可以选择从中打出一名战力比被摧毁单位最多高1点的单位卡牌，无视费用，然后回收其余的卡牌。",
+        "errata": "支付{{1}}和{{黄色}}，{{横置}}：摧毁一名友方单位。查看你主牌堆顶部的五张牌。你可以选择从中放逐一名战力比被摧毁单位最多高 1 点的单位卡牌，然后将其打出，无视费用。然后回收其余的卡牌。",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T21:51:36.593662+00:00",
+      "sha256": "c5cc0b49740658fa2dd3d092086a0ee9a81dd2130fd41842191777e4bf872da7",
+      "card": {
+        "id": 34679,
+        "cardNo": "UNL-136/219",
+        "cardName": "占卜花朵",
+        "cardEffect": "此牌以休眠状态进场。\n摧毁此牌，支付{{1}}，{{横置}}：{{洞察2}}，然后抽一张牌。获得1经验。（执行洞察2，即查看你主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）",
+        "errata": "",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T21:51:36.598748+00:00",
+      "sha256": "66bb43a6afba76e51ab6672a9acc3837a609cf6d0df501c188db594f4961e667",
+      "card": {
+        "id": 31231,
+        "cardNo": "OGN·025/298",
+        "cardName": "暴怒冲动",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，并当作自己的牌打出，无视费用，然后回收其余的卡牌。",
+        "errata": "{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，将其放逐，然后当作自己的牌打出，无视费用。然后回收其余的卡牌。",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T21:51:36.621484+00:00",
+      "sha256": "ec881e084741b35b90e01857fce0105872e9450f9f0c8cadb936e18e18e625fb",
+      "card": {
+        "id": 34850,
+        "cardNo": "SFD·026/221",
+        "cardName": "兰博",
+        "cardEffect": "你的“机械”属性单位获得{{强攻}}。（如果它是进攻方，则{{S}}+1。）\n当我征服一处战场时，你可以选择回收另一名友方单位，以此从废牌堆中打出一名“机械”属性单位，将其所需法力费用减去被回收单位的战力。",
+        "errata": "你的“机械”属性单位获得{{强攻}}。（如果它是进攻方，则{{S}}+1。）\n当我征服一处战场时，你可以选择回收另一名友方单位，以此从你的废牌堆中打出一名“机械”\n属性单位，将其所需法力费用减去被回收单位的战力。",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T21:51:36.716210+00:00",
+      "sha256": "d57e88022b7e8c2d4ba57152e90df1042614b92d95b680a459179319103af688",
+      "card": {
+        "id": 33139,
+        "cardNo": "SFD·059/221",
+        "cardName": "斯弗尔尚歌",
+        "cardEffect": "{{装配}}{{1}}{{绿色}}（支付{{1}}和{{绿色}}：将此牌贴附到你控制的一名单位上。）\n在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+        "errata": "",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    }
+  ]
+}

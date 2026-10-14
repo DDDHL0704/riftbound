@@ -165,6 +165,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSivirRuneRecycles(result);
+            result = QueueRecycledCardBoons(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))))));
@@ -4339,7 +4340,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Where(objectId => !recycledSet.Contains(objectId))
                 .ToArray()
         };
-        events.Add(CaptureSivirRuneRecycle(new GameEvent(
+        events.Add(CaptureRecycleObservers(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {randomizedCardIds.Count} 张牌",
             new Dictionary<string, object?>
@@ -10538,7 +10539,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var events = new List<GameEvent>
         {
-            CaptureSivirRuneRecycle(new(
+            CaptureRecycleObservers(new(
                 "RUNE_RECYCLED",
                 $"{intent.PlayerId} 回收符文获得 1 点{RuneTraitLabel(runeTrait)}符能",
                 new Dictionary<string, object?>
@@ -10957,7 +10958,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             runePools[playerId] = currentPool;
 
-            events.Add(CaptureSivirRuneRecycle(new GameEvent(
+            events.Add(CaptureRecycleObservers(new GameEvent(
                 "RUNE_RECYCLED",
                 $"{playerId} 在支付费用时回收符文获得 1 点{RuneTraitLabel(runeTrait)}符能",
                 new Dictionary<string, object?>
@@ -16861,7 +16862,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 MainDeck = zones.MainDeck.Skip(1).Concat([revealedObjectId]).ToArray()
             };
-            events.Add(CaptureSivirRuneRecycle(new GameEvent(
+            events.Add(CaptureRecycleObservers(new GameEvent(
                 "CARDS_RECYCLED",
                 $"{playerId} 回收展示的牌",
                 new Dictionary<string, object?>
@@ -16932,7 +16933,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = sourceObjectId,
                 ["targetObjectId"] = recycledRuneObjectIds[0]
             }));
-        events.Add(CaptureSivirRuneRecycle(new GameEvent(
+        events.Add(CaptureRecycleObservers(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {recycledRuneObjectIds.Length} 枚符文",
             new Dictionary<string, object?>
@@ -31358,7 +31359,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
                     .ToArray()
             };
-            events.Add(CaptureSivirRuneRecycle(new GameEvent(
+            events.Add(CaptureRecycleObservers(new GameEvent(
                 "CARDS_RECYCLED",
                 $"{ownerPlayerId} 回收 {recycledCardIds.Length} 张牌",
                 new Dictionary<string, object?>
@@ -31421,7 +31422,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
                     .ToArray()
             };
-            events.Add(CaptureSivirRuneRecycle(new GameEvent(
+            events.Add(CaptureRecycleObservers(new GameEvent(
                 "CARDS_RECYCLED",
                 $"{playerId} 回收 {recycledCardIds.Length} 张牌",
                 new Dictionary<string, object?>
@@ -31647,7 +31648,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .ToArray()
         };
 
-        events.Add(CaptureSivirRuneRecycle(new GameEvent(
+        events.Add(CaptureRecycleObservers(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
             new Dictionary<string, object?>
@@ -31717,7 +31718,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .ToArray()
         };
 
-        events.Add(CaptureSivirRuneRecycle(new GameEvent(
+        events.Add(CaptureRecycleObservers(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
             new Dictionary<string, object?>
@@ -31804,7 +31805,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (randomizedRecycledCardIds.Count > 0)
         {
-            events.Add(CaptureSivirRuneRecycle(new GameEvent(
+            events.Add(CaptureRecycleObservers(new GameEvent(
                 "CARDS_RECYCLED",
                 $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
                 new Dictionary<string, object?>

@@ -1,0 +1,66 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "records": [
+    {
+      "branch": "alternate-hook",
+      "productionCommands": 8,
+      "commands": 16,
+      "events": 29,
+      "coldRecoveries": 8,
+      "finalHash": "c2c1de69d6635e8eb67001dfe935fae43d9ba7c24b7906c1d98eea2f284a7a6f",
+      "receiptSha256": "3b41e2d2fa7b9b9507c15acdce1208ce4b6cb23932885aa468cbdc7ae3155c60"
+    },
+    {
+      "branch": "alternate-predict",
+      "productionCommands": 7,
+      "commands": 14,
+      "events": 22,
+      "coldRecoveries": 7,
+      "finalHash": "4fc8c23964ba99d063bc1f0046f7d4e64e876f8dfb5be3d1d3fef1e8f02c3abd",
+      "receiptSha256": "3bc6973f2623f3ffb034de1a05ac6a849a700ca7dccfca2c04fde4b14a10357d"
+    },
+    {
+      "branch": "primary-hook",
+      "productionCommands": 8,
+      "commands": 16,
+      "events": 29,
+      "coldRecoveries": 8,
+      "finalHash": "189c2923fd34e9e2883d44b36b8b5421d604f55f5daa410057f4f994508d075c",
+      "receiptSha256": "5388da5e7e2b42f23631eead30b1eb9e683d3bb86978a9948a4c14cedee99c34"
+    },
+    {
+      "branch": "primary-predict",
+      "productionCommands": 7,
+      "commands": 14,
+      "events": 22,
+      "coldRecoveries": 7,
+      "finalHash": "0d5fa7cf0b0ddb7cab27e3051ee9ec29ce7fe935a652817c63c5053a405ce2fd",
+      "receiptSha256": "56ea7f692881a366b7915ae326189b2f1dfc25981b788cec642155800bdec5e5"
+    },
+    {
+      "branch": "promo-hook",
+      "productionCommands": 8,
+      "commands": 16,
+      "events": 29,
+      "coldRecoveries": 8,
+      "finalHash": "094f8a7a87ae507d3a9e679ed85feded1bd7c17405d8a8f30973eb09d9ec9977",
+      "receiptSha256": "3b2519016f8ca49ef2c2e9292471c9d407c8e3a634391423629907c2b4de369e"
+    },
+    {
+      "branch": "promo-predict",
+      "productionCommands": 7,
+      "commands": 14,
+      "events": 22,
+      "coldRecoveries": 7,
+      "finalHash": "366e069a76ac11ce77fed3d00ae3988cf05f585a21cb61ca70ea7a9ad6256de1",
+      "receiptSha256": "d0a3de6c1e2b46bdbcba1f2cdd1065d34cf8ff23ccc953ab222534ea932a396a"
+    }
+  ],
+  "productionCommands": 45,
+  "loggedCommands": 90,
+  "events": 153,
+  "coldRecoveries": 45,
+  "deduplicateAndStalePromptRejection": true,
+  "fullActionAndEventReplayMatched": true,
+  "godotLogSha256": "826c38cfca57b101791e8eb5956840f5b370e2c0240eb39fbf9daa0e8f20aba9"
+}

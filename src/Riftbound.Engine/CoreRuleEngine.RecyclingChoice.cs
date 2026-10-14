@@ -60,13 +60,13 @@ public sealed partial class CoreRuleEngine
             if (!TryMoveTargetToOwnerMainDeck(zones, cards, id, "BOTTOM", out var owner, out _))
                 return RejectWithCorePrompts(state, "无法支付回收单位费用。", ErrorCodes.InvalidTarget);
             parent = parent with { RecycledUnit = new(id, card.ObjectGeneration, power) };
-            events.Add(new("CARDS_RECYCLED", "已回收所选单位，按离场前战力减少再次打出的法力费用", new Dictionary<string, object?>
+            events.Add(CaptureRecycleObservers(new("CARDS_RECYCLED", "已回收所选单位，按离场前战力减少再次打出的法力费用", new Dictionary<string, object?>
             {
                 ["playerId"] = parent.ControllerId, ["ownerPlayerId"] = owner,
                 ["sourceObjectId"] = parent.SourceObjectId, ["cardIds"] = selected.ToArray(),
                 ["count"] = 1, ["recycledUnitPower"] = power, ["destinationZone"] = "MAIN_DECK",
                 ["reason"] = parent.RecastContext!.Kind
-            }));
+            }), zones, cards));
         }
         events.Add(new("CARD_CHOICE_RESOLVED", selected.Count == 0 ? "放弃回收并再次打出" : "回收费用已支付",
             new Dictionary<string, object?> { ["choiceId"] = choice.ChoiceId, ["playerId"] = choice.PlayerId, ["chosenCount"] = selected.Count }));

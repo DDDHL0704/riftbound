@@ -1004,6 +1004,7 @@ public static class MatchRecoveryValidator
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
+        "CARDS_RECYCLED",
         "RUNE_RECYCLED",
         "TURN_END_STEP_STARTED",
         "UNIT_BECAME_POWERFUL",
@@ -23733,6 +23734,7 @@ public static class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContextState(state, field,
                 trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)
+                    || field.Kind == "RECYCLE_BOON" && trigger.TriggeredByEventKind != "CARDS_RECYCLED"
                 : trigger.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger context");
         foreach (var item in state.StackItems)
             if (item.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContextState(state, field,

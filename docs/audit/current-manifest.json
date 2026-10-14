@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "e58ef01d263aa867413f1b6e565bb2aa17d07087119a7a139a706c5e39388f37"
+      "sha256": "e9953c896731720891f0e15b806c1500bc0f7874d893720c6e18799a3fc923e7"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -104,11 +104,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
+          "sha256": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "55e1f3fb27742aadd7d61cbb88921f638f4c5538a353de259c25c5f2de1e4c6f"
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
         }
       ],
       "branches": [
@@ -236,7 +236,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
     },
@@ -252,7 +252,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
+          "sha256": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -260,7 +260,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "55e1f3fb27742aadd7d61cbb88921f638f4c5538a353de259c25c5f2de1e4c6f"
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
         }
       ],
       "branches": [
@@ -549,7 +549,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
     },
@@ -577,7 +577,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "55e1f3fb27742aadd7d61cbb88921f638f4c5538a353de259c25c5f2de1e4c6f"
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -585,7 +585,7 @@
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
-          "sha256": "e37471813f1146358e398029531d90e3334d2e61340bd7dd30849af5769b4a44"
+          "sha256": "e1ccc54102d3b62e09a2d563a36b13d2e8f66a984102fe0b1ab567fa6642ebbd"
         },
         {
           "path": "clients/godot/scripts/OfficialCardCatalogService.cs",
@@ -1163,7 +1163,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "static-granted-predict-entry-2026-10-15": {
@@ -1186,15 +1186,15 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
+          "sha256": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "55e1f3fb27742aadd7d61cbb88921f638f4c5538a353de259c25c5f2de1e4c6f"
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "e6a228d4a909d74b6c6e1efba3c2eae491ad03c5f2c8098cfe04b7ec8d79cd6d"
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -1781,7 +1781,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -1804,7 +1804,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
+          "sha256": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
@@ -1812,11 +1812,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "55e1f3fb27742aadd7d61cbb88921f638f4c5538a353de259c25c5f2de1e4c6f"
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "e6a228d4a909d74b6c6e1efba3c2eae491ad03c5f2c8098cfe04b7ec8d79cd6d"
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -2406,14 +2406,14 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
-          "sha256": "8010068d6cf8a67dbdbb8ca74da046bf13b1e2b96125568f4bc8a0dc4fd74829"
+          "sha256": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
@@ -2421,11 +2421,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "e6a228d4a909d74b6c6e1efba3c2eae491ad03c5f2c8098cfe04b7ec8d79cd6d"
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
+          "sha256": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
@@ -2433,7 +2433,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
-          "sha256": "0bddac18ec8ef27c92c26ab720e1c811bc930a8cef6e721f176a40b3fffe962b"
+          "sha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningRecycle.cs",
@@ -2453,7 +2453,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "55e1f3fb27742aadd7d61cbb88921f638f4c5538a353de259c25c5f2de1e4c6f"
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -2765,7 +2765,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
@@ -2784,7 +2784,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "e6a228d4a909d74b6c6e1efba3c2eae491ad03c5f2c8098cfe04b7ec8d79cd6d"
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -2792,7 +2792,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
-          "sha256": "8010068d6cf8a67dbdbb8ca74da046bf13b1e2b96125568f4bc8a0dc4fd74829"
+          "sha256": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1"
         }
       ],
       "branches": [
@@ -2925,14 +2925,14 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
-          "sha256": "820805c7483674c7f53cb37b958885cf5afe2da6957faf5e62e1bfdbfb64880a"
+          "sha256": "fa292ca7665b7962c7d5bd992b310676509eb28ad2da235040da377777564627"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerTargetPayment.cs",
@@ -2944,7 +2944,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
-          "sha256": "8010068d6cf8a67dbdbb8ca74da046bf13b1e2b96125568f4bc8a0dc4fd74829"
+          "sha256": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
@@ -2952,11 +2952,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "e6a228d4a909d74b6c6e1efba3c2eae491ad03c5f2c8098cfe04b7ec8d79cd6d"
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "55e1f3fb27742aadd7d61cbb88921f638f4c5538a353de259c25c5f2de1e4c6f"
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
         }
       ],
       "branches": [
@@ -3130,7 +3130,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "unit-conquest-gold-response-2026-10-15": {
@@ -3145,7 +3145,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "e6a228d4a909d74b6c6e1efba3c2eae491ad03c5f2c8098cfe04b7ec8d79cd6d"
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -3153,7 +3153,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "55e1f3fb27742aadd7d61cbb88921f638f4c5538a353de259c25c5f2de1e4c6f"
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -3367,7 +3367,701 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+      "currentImplementationIncludesUncommittedChanges": true
+    },
+    "own-main-deck-recycle-card-boon-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
+          "sha256": "e1ccc54102d3b62e09a2d563a36b13d2e8f66a984102fe0b1ab567fa6642ebbd"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CombatMight.cs",
+          "sha256": "2181eb9089493540eea254eded44301a1c1a0e417d65688309f6703142b7a50f"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "sha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "sha256": "fa292ca7665b7962c7d5bd992b310676509eb28ad2da235040da377777564627"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Recast.cs",
+          "sha256": "7adb41ea6a6aedd3e4a668c6013f92d3a527475bd5957d135526d1cf4d3df4b7"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+          "sha256": "aacf129aeb8c14213a58ecbae783605adfbee6233d9891b51270d341045187b7"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RecyclingChoice.cs",
+          "sha256": "3d93512476fbb60d8ecf4a013bf820380ce7fb3a23790b41fd328af4aa621cd5"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+          "sha256": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay"
+            ],
+            "requiredNativeBranches": [
+              "primary-predict",
+              "primary-hook",
+              "alternate-predict",
+              "alternate-hook",
+              "promo-predict",
+              "promo-hook"
+            ]
+          }
+        },
+        {
+          "id": "AttachedPrintedCopyCreatesASeparateRecycleSkillAndDoesNotStackExistingBoon",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.AttachedPrintedCopyCreatesASeparateRecycleSkillAndDoesNotStackExistingBoon"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "IndependentRecoveryRejectsForgedActorCountTickFaceAndPrinting",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.IndependentRecoveryRejectsForgedActorCountTickFaceAndPrinting"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "MandatoryOpponentTopSelectionRejectsDeclineWithoutRecycleOrBoon",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.MandatoryOpponentTopSelectionRejectsDeclineWithoutRecycleOrBoon"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "RecastRecycleCostOnlyObservesTheActorsOwnMainDeck",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.RecastRecycleCostOnlyObservesTheActorsOwnMainDeck"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "RuneResourceRecycleIsExcludedByTheOfficialErrata",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-242/298",
+            "UNL-136/219",
+            "SFD-026/221",
+            "SFD-059/221",
+            "DOC-16-P005-B003",
+            "DOC-15-P002-B014",
+            "DOC-15-P002-B016",
+            "DOC-15-P002-B018",
+            "DOC-15-P002-B019",
+            "DOC-04-P059-B010",
+            "DOC-04-P060-B006",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_RECYCLE_CONSUMER_SEMANTICS",
+            "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-242/298": "a79f532e3a2aafc9a35d4bc69b7e2fc273bef1adcf5a0f56a5f374def133989f",
+              "UNL-136/219": "1d0727dc43b6024ed6e9f80c07aa7b1392b112e0b4ccff39ead795f910a96dc3",
+              "SFD-026/221": "4a5c1bcd58f37a0c090977ba6035670f8cfda7f46df8f95814014d11e8367c60",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd",
+              "DOC-15-P002-B014": "b227640b970085767ee7bf2810a072e0e69392e08817dc20e5d4aaa839eaea93",
+              "DOC-15-P002-B016": "35c7c0b8a7a23660638bfba25ea90a1ab434105fb288ae0710a935ea93489d18",
+              "DOC-15-P002-B018": "9af4cccdfde313b4d8a4c6435a9754c6b6507858331b0881b5e34da2a2cd0719",
+              "DOC-15-P002-B019": "5264c016e606aa1817acf18e0766ed6d23e8b9d804741fa28ca4f28cca63d73b",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B002": "2bd5eb1b31c4ed7fff8ac8ecd75c6a7718a19bdb91daf004bbd6c43e1ec71232"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState"
+            ],
+            "requiredNativeBranches": []
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/recycled-card-boon-2026-10-15/focus.json",
+          "sha256": "0076ebae7eb28229cc8b5f74c622e1f4d14787c7394de9a4fcb4263efceff280",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/recycled-card-boon-2026-10-15/native-replay.json",
+          "sha256": "56eba964e8b8b571617a4a9988110ba45929778c907773633fce077cc0632c1a",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/recycled-card-boon-2026-10-15/sql.json",
+          "sha256": "0acfbea909ce50a00ca8c658ecdc2226039242c74c8b37b75978b874821b6089",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/recycled-card-boon-2026-10-15/check-parity.json",
+          "sha256": "72353a26c5aaae7822d5e33f8901b66fcf7724042cf26aa1462bcedc2d883e67",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/recycled-card-boon-2026-10-15/check-remediation.json",
+          "sha256": "2bb7a8c6277aacea6beba3de18e6bc9abeeab8a4d5c3382a3e45db4c0ad52c2c",
+          "role": "remediation"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },

@@ -19652,6 +19652,103 @@
         "FIXED_CURRENT_FULL",
         "FINAL_PRODUCT_ACCEPTANCE"
       ]
+    },
+    {
+      "id": "own-main-deck-recycle-card-boon-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Three applicable CN own-main-deck recycle-card boon printings: capture once per instruction and copied text instance, exclude runes and other owners, preserve original Hook pending permanent before target choice, independent source/target confirmation and response, cold/replay/native/SQL binding. All other rule-family consumers and whole-card semantics remain separate.",
+      "subjects": [
+        "OGN-235/298",
+        "SFD-237/221",
+        "SFD-237*/221"
+      ],
+      "ruleRecords": [
+        "DOC-16-P005-B003",
+        "DOC-15-P002-B014",
+        "DOC-15-P002-B016",
+        "DOC-15-P002-B018",
+        "DOC-15-P002-B019",
+        "DOC-04-P059-B010",
+        "DOC-04-P060-B006",
+        "DOC-04-P069-B001",
+        "DOC-04-P069-B002"
+      ],
+      "auditDocument": "docs/RECYCLED_CARD_BOON_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/recycled-card-boon-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/recycled-card-boon-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PASSED",
+        "newMethods": 11,
+        "newCases": 29,
+        "newMethodNames": [
+          "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.AttachedPrintedCopyCreatesASeparateRecycleSkillAndDoesNotStackExistingBoon",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.IndependentRecoveryRejectsForgedActorCountTickFaceAndPrinting",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.MandatoryOpponentTopSelectionRejectsDeclineWithoutRecycleOrBoon",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RecastRecycleCostOnlyObservesTheActorsOwnMainDeck",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState"
+        ],
+        "cases": [
+          "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"OGN·235/298\", hook: False)",
+          "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"OGN·235/298\", hook: True)",
+          "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"SFD·237*/221\", hook: False)",
+          "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"SFD·237*/221\", hook: True)",
+          "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"SFD·237/221\", hook: False)",
+          "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"SFD·237/221\", hook: True)",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.AttachedPrintedCopyCreatesASeparateRecycleSkillAndDoesNotStackExistingBoon",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.IndependentRecoveryRejectsForgedActorCountTickFaceAndPrinting",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger(card: \"OGN·235/298\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger(card: \"SFD·237*/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger(card: \"SFD·237/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.MandatoryOpponentTopSelectionRejectsDeclineWithoutRecycleOrBoon",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon(card: \"OGN·235/298\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon(card: \"SFD·237*/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon(card: \"SFD·237/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses(card: \"OGN·235/298\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses(card: \"SFD·237*/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses(card: \"SFD·237/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RecastRecycleCostOnlyObservesTheActorsOwnMainDeck(owner: \"P1\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RecastRecycleCostOnlyObservesTheActorsOwnMainDeck(owner: \"P2\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill(card: \"OGN·235/298\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill(card: \"SFD·237*/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill(card: \"SFD·237/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata(card: \"OGN·235/298\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata(card: \"SFD·237*/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata(card: \"SFD·237/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState(player: \"P1\", target: \"\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState(player: \"P1\", target: \"D1\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState(player: \"P2\", target: \"MECH\")"
+        ]
+      },
+      "fixedCommitCi": {
+        "state": "PENDING",
+        "implementationBaseCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+        "includesUncommittedChanges": true
+      },
+      "productAcceptance": {
+        "nativeControls": "SCOPED_PASS",
+        "actualSql": "SCOPED_PASS",
+        "visiblePairedScoreFinish": "OPEN",
+        "WindowsRuntime": "OPEN"
+      },
+      "remaining": [
+        "ALL_RECYCLE_CONSUMER_SEMANTICS",
+        "COPY_LIFECYCLE_AND_CEASED_TOKEN_COMPLETENESS",
+        "WHOLE_PRINTING_SEMANTICS",
+        "FIXED_CURRENT_FULL",
+        "FINAL_PRODUCT_ACCEPTANCE"
+      ]
     }
   ]
 }

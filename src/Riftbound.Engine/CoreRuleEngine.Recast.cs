@@ -108,10 +108,10 @@ public sealed partial class CoreRuleEngine
                 Banished = RemoveFromZone(own.Banished, card.ObjectId), Hand = RemoveFromZone(own.Hand, card.ObjectId),
                 MainDeck = own.MainDeck.Append(card.ObjectId).Distinct(StringComparer.Ordinal).ToArray() };
             ResetCardOutsidePlay(zones, cards, card.ObjectId, card, owner);
-            events.Add(new("CARDS_RECYCLED", "按再次打出效果回收法术", new Dictionary<string, object?>
-                { ["playerId"] = owner, ["sourceObjectId"] = instruction.SourceObjectId,
+            events.Add(CaptureRecycleObservers(new("CARDS_RECYCLED", "按再次打出效果回收法术", new Dictionary<string, object?>
+                { ["playerId"] = played.ControllerId, ["ownerPlayerId"] = owner, ["sourceObjectId"] = instruction.SourceObjectId,
                     ["cardIds"] = new[] { card.ObjectId }, ["count"] = 1, ["reason"] = instruction.TriggerKind,
-                    ["destinationZone"] = "MAIN_DECK" }));
+                    ["destinationZone"] = "MAIN_DECK" }), zones, cards));
         }
         return result with { PlayerZones = zones, CardObjects = cards, Events = events,
             ObjectLocations = ReconcileObjectLocations(result.ObjectLocations ?? before.ObjectLocations, zones) };

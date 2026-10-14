@@ -1,0 +1,10 @@
+{
+  "errors": [
+    "Attached-copy fixture replaced its main deck but left old cards/object locations; removed unused old deck objects before the explicit replacement.",
+    "A new Blind Fury fixture tried to decline its mandatory one-card selection; corrected to assert atomic rejection, and the actual cross-owner recycle boundary is exercised by the Rumble cost branches."
+  ],
+  "productionReproduction": "Six independent old-eb3 failures for all three printings: own Predict recycle and official Hook pending-permanent FAQ had no boon target/skill.",
+  "independentDiagnostics": "Known legitimate CARDS_RECYCLED queue event added; four original FORGED_EVENT rejection assertions retained with independent literal diagnostic list.",
+  "historyRewritten": false,
+  "validatorRelaxed": false
+}

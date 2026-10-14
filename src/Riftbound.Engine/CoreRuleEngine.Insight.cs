@@ -108,7 +108,7 @@ public sealed partial class CoreRuleEngine
             if (selected.Count > 0) {
                 var recycledEvent = new GameEvent("CARDS_RECYCLED", $"洞察回收 {selected.Count} 张牌", new Dictionary<string, object?>
                     { ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = selected.Count });
-                events.Add(CaptureSivirRuneRecycle(recycledEvent, zones, cards, selected));
+                events.Add(CaptureRecycleObservers(recycledEvent, zones, cards, selected));
             }
             if (retained.Length > 1)
             {
