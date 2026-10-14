@@ -1,0 +1,17 @@
+{
+  "status": "AUTOMATIC_RECONNECT_PENDING_FOCUS_PRESERVED",
+  "commit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
+  "room": "paired-1a5-20261015",
+  "tick": 25,
+  "score": {
+    "paired-1a5-a": 2,
+    "paired-1a5-b": 0
+  },
+  "focusPlayerId": "paired-1a5-a",
+  "sameEntireSqlState": true,
+  "manualReconnectClicks": 0,
+  "screenshots": {
+    "short-restored-a.png": "b24fddf9cdb46ece7e930d26d834fad9e49c859e0cd075cbb104276ebe082950",
+    "short-restored-b.png": "aff5f3428ff947733994cdfa4c7d7b0f0e07790d38efb433a6172af50d81c616"
+  }
+}

@@ -4,6 +4,7 @@ from urllib.request import urlopen,Request
 from concurrent.futures import ThreadPoolExecutor
 import argparse,json,hashlib,math,time,re
 from datetime import date
+from gallery_coverage import merge_gallery_views
 parser=argparse.ArgumentParser(description='Preserve CN QA and all returned global gallery entries with count gaps exposed.')
 parser.add_argument('--date',required=True)
 args=parser.parse_args();snapshot=date.fromisoformat(args.date).isoformat()
@@ -45,10 +46,10 @@ for c in raw_records:
   assert by_id[c['id']]==c,'Conflicting gallery identity; raw responses preserved for review'
   duplicates[c['id']]=duplicates.get(c['id'],1)+1
  else:by_id[c['id']]=c
-rechecks=[];previous_missing=[]
+rechecks=[];previous_missing=[];rechecked_records=[];prior_ids=set()
 previous=sorted(p for p in (ROOT/'data/official/upstream').glob('*/card-gallery.en-US.json') if p.parent.name<snapshot)
 if previous:
- prior=json.loads(previous[-1].read_text());missing={c['id'] for c in prior['cards']}-by_id.keys()
+ prior=json.loads(previous[-1].read_text());prior_ids={c['id'] for c in prior['cards']};missing=prior_ids-by_id.keys()
  ranges=set()
  for path in (ROOT/'var/official'/previous[-1].parent.name/'global').glob('gallery-api-*.json'):
   page=json.loads(path.read_text())
@@ -58,17 +59,28 @@ if previous:
  with ThreadPoolExecutor(max_workers=4) as ex:
   for offset,page in zip(sorted(ranges),ex.map(lambda i:get(base.replace('limit=200','limit=100')+str(i)),sorted(ranges))):
    assert page['metadata']['totalItems']==total,'Gallery drift while rechecking omitted identities'
+   rechecked_records.extend(page['data'])
    write(v/f'gallery-recheck-{offset:04}.json',page);added=[]
    for c in page['data']:
     if c['id'] in by_id:assert by_id[c['id']]==c,'Conflicting rechecked gallery identity; raw response preserved'
     else:by_id[c['id']]=c;added.append(c['id'])
    rechecks.append(dict(offset=offset,limit=100,returned=len(page['data']),newIds=added))
  previous_missing=sorted(missing-by_id.keys())
-records=list(by_id.values())
+# Offset pagination can repeat identities and omit others even when its raw
+# row count matches. Preserve an independent whole-list response and SSR view.
+whole_url=base.replace('limit=200','limit='+str(max(2000,total)))+'0'
+whole=get(whole_url);write(v/'gallery-api-whole.json',whole)
 with urlopen(Request('https://playriftbound.com/en-us/card-gallery/',headers={'User-Agent':'Mozilla/5.0'}),timeout=45) as response:html=response.read().decode()
 (v/'card-gallery.html').write_text(html)
 p=json.loads(re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>',html).group(1));write(v/'card-gallery.next.json',p)
 gallery=next(b for b in p['props']['pageProps']['page']['blades'] if b['type']=='riftboundCardGallery')
 ssr=gallery['cards']['items'];ssr_ids={c['id'] for c in ssr}
-write(d/'card-gallery.en-US.json',dict(source='https://playriftbound.com/en-us/card-gallery/',api=base,fetchedAt=snapshot,reportedTotal=total,rawReturnedEntries=len(raw_records),identicalDuplicateIds=duplicates,rechecks=rechecks,previousUnreturnedIds=previous_missing,returnedEntries=len(records),reportedMinusReturned=total-len(records),ssrRawEntries=len(ssr),ssrDistinctIds=len(ssr_ids),pagination=[dict(metadata=p['metadata'],count=len(p['data'])) for p in pages],sets=gallery['sets']['items'],cards=records,warning='Identical duplicate IDs are reported separately and raw responses are retained. Previously observed identities are rechecked at narrower page ranges; prior entries are never silently imported as current. A difference between reported total and distinct returned entries is an unresolved source coverage gap, not audited cards.'))
+records,comparison=merge_gallery_views([
+ dict(name='pagination',reportedTotal=total,records=raw_records),
+ dict(name='narrowRechecks',reportedTotal=total,records=rechecked_records),
+ dict(name='wholeList',reportedTotal=whole['metadata']['totalItems'],records=whole['data']),
+ dict(name='pageSsr',reportedTotal=gallery['cards']['async']['metadata']['totalItems'],records=ssr)])
+previous_missing=sorted(prior_ids-{c['id'] for c in records})
+write(v/'gallery-coverage-comparison.json',comparison)
+write(d/'card-gallery.en-US.json',dict(source='https://playriftbound.com/en-us/card-gallery/',api=base,fetchedAt=snapshot,reportedTotal=total,rawReturnedEntries=len(raw_records),identicalDuplicateIds=duplicates,rechecks=rechecks,previousUnreturnedIds=previous_missing,returnedEntries=len(records),reportedMinusReturned=total-len(records),ssrRawEntries=len(ssr),ssrDistinctIds=len(ssr_ids),pagination=[dict(metadata=p['metadata'],count=len(p['data'])) for p in pages],wholeList=dict(url=whole_url,metadata=whole['metadata'],count=len(whole['data'])),coverageComparisons=comparison,sets=gallery['sets']['items'],cards=records,warning='All current official pagination, whole-list and SSR identities are reconciled; count or content drift fails. Identical duplicates and reported-but-unreturned entries remain explicit. Prior entries are never imported as current. Collection does not certify semantics.'))
 print('EN gallery',total,'reported',len(records),'returned','SSR raw',len(ssr),'distinct',len(ssr_ids),'previous unreturned',len(previous_missing),flush=True)

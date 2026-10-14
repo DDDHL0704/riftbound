@@ -1,0 +1,1202 @@
+{
+  "status": "FIXED_COMMIT_FULL_CI_AND_PARITY_VERIFIED",
+  "verifiedAtUtc": "2026-10-14T23:20:23.401787+00:00",
+  "commit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+  "runId": 38645889819,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38645889819",
+  "jobs": {
+    "scope": "success",
+    "rules": "success",
+    "desktop (macos-latest)": "success",
+    "desktop (windows-latest)": "success"
+  },
+  "full": {
+    "cases": 11784,
+    "methods": 7261,
+    "seconds": 3578.28,
+    "assemblySha256": "3079c4e84b188929d78d9b2f933eb28b809f02b4bcbc04dadef8e6e234eb623a",
+    "failed": 0,
+    "skipped": 0,
+    "duplicates": []
+  },
+  "parity": {
+    "baselineCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
+    "oldCasesPreserved": 11695,
+    "oldMethodsPreserved": 7229,
+    "missingCases": [],
+    "missingMethods": [],
+    "addedCases": [
+      "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"SFD·069/221\", reaction: False)",
+      "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"SFD·069/221\", reaction: True)",
+      "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"UNL-222/219\", reaction: False)",
+      "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"UNL-222/219\", reaction: True)",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat(card: \"SFD·069/221\")",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat(card: \"UNL-222/219\")",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"SFD·069/221\")",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"UNL-222/219\")",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill(card: \"SFD·069/221\")",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill(card: \"UNL-222/219\")",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RecoveryRejectsMissingOrForgedCapturedPrintingGenerationAndBattlefield",
+      "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"OGN·235/298\", hook: False)",
+      "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"OGN·235/298\", hook: True)",
+      "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"SFD·237*/221\", hook: False)",
+      "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"SFD·237*/221\", hook: True)",
+      "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"SFD·237/221\", hook: False)",
+      "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay(card: \"SFD·237/221\", hook: True)",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.AttachedPrintedCopyCreatesASeparateRecycleSkillAndDoesNotStackExistingBoon",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.IndependentRecoveryRejectsForgedActorCountTickFaceAndPrinting",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger(card: \"OGN·235/298\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger(card: \"SFD·237*/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger(card: \"SFD·237/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.MandatoryOpponentTopSelectionRejectsDeclineWithoutRecycleOrBoon",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon(card: \"OGN·235/298\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon(card: \"SFD·237*/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon(card: \"SFD·237/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses(card: \"OGN·235/298\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses(card: \"SFD·237*/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses(card: \"SFD·237/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RecastRecycleCostOnlyObservesTheActorsOwnMainDeck(owner: \"P1\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RecastRecycleCostOnlyObservesTheActorsOwnMainDeck(owner: \"P2\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill(card: \"OGN·235/298\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill(card: \"SFD·237*/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill(card: \"SFD·237/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata(card: \"OGN·235/298\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata(card: \"SFD·237*/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata(card: \"SFD·237/221\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState(player: \"P1\", target: \"\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState(player: \"P1\", target: \"D1\")",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState(player: \"P2\", target: \"MECH\")",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 1)",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 2)",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: False)",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: True)",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: False)",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: True)",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: False)",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: True)",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck",
+      "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·203/221\", recycle: False)",
+      "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·203/221\", recycle: True)",
+      "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·250/221\", recycle: False)",
+      "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·250/221\", recycle: True)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·203/221\", pay: False)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·203/221\", pay: True)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·250/221\", pay: False)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·250/221\", pay: True)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·203/221\", pay: False)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·203/221\", pay: True)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·250/221\", pay: False)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·250/221\", pay: True)",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"FACE\")",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"GENERATION\")",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"MISSING\")",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"SOURCE\")",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.TargetConditionalCounterCannotChooseUntargetedSivirGoldTrigger",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"EXHAUSTED\")",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"HIDDEN\")",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"OPPONENT\")",
+      "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: False, pay: False)",
+      "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: False, pay: True)",
+      "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: True, pay: False)",
+      "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: True, pay: True)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·203/221\", pay: False)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·203/221\", pay: True)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·250/221\", pay: False)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·250/221\", pay: True)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: False, sivirPay: False)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: False, sivirPay: True)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: True, sivirPay: False)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: True, sivirPay: True)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: False, sivirPay: False)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: False, sivirPay: True)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: True, sivirPay: False)",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: True, sivirPay: True)"
+    ],
+    "addedMethods": [
+      "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill",
+      "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RecoveryRejectsMissingOrForgedCapturedPrintingGenerationAndBattlefield",
+      "Riftbound.ConformanceTests.RecycledCardBoonNativeTests.ProductionPredictHookRecycleAndBoonControlsColdRecoverDeduplicateAndReplay",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.AttachedPrintedCopyCreatesASeparateRecycleSkillAndDoesNotStackExistingBoon",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.IndependentRecoveryRejectsForgedActorCountTickFaceAndPrinting",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.KeepingTheObservedCardDoesNotCreateAnyRecycleTrigger",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.MandatoryOpponentTopSelectionRejectsDeclineWithoutRecycleOrBoon",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.OfficialHookFaqConfirmsNewPermanentBeforeChoosingItForRecycleBoon",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.OwnPrintedPredictRecycleOpensBoonTargetBeforeIndependentResponses",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RecastRecycleCostOnlyObservesTheActorsOwnMainDeck",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RecyclingTwoCardsInOneInstructionCreatesOneBoonSkill",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.RuneResourceRecycleIsExcludedByTheOfficialErrata",
+      "Riftbound.ConformanceTests.RecycledCardBoonTests.WrongActorPrivateCardAndMandatoryDeclineRejectWithoutChangingState",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower",
+      "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck",
+      "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.TargetConditionalCounterCannotChooseUntargetedSivirGoldTrigger",
+      "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold",
+      "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse",
+      "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion"
+    ]
+  },
+  "matrix": {
+    "seed": 424242,
+    "deckCount": 11,
+    "pairs": 110,
+    "allPairIdentitiesPreserved": true,
+    "finalHashChanges": {
+      "jhin-lowcurve-vs-kaisa-red-control": {
+        "before": "bb540a778015c226850a0096ce29cc3be659e88e177f4750bf795718faa925e8",
+        "after": "9703a16f357b1cf5bc8ef8245feb33db7d6746de2e1ba35ec824af25eca0299a"
+      },
+      "jhin-lowcurve-vs-kaisa-red-tempo": {
+        "before": "698647808ae6522441c70c9878f1236f52cfc5b20a482b711693d1e4cf044a93",
+        "after": "3a53dbc92e3b50401f36ff1b4cdd62d17395227adb83eb1dc989866313e939da"
+      },
+      "jhin-lowcurve-vs-lillia-lowcurve": {
+        "before": "51c56ce8b1a1604ff2094f90d35dcd33e1ad2645d1a8726a31abe0825e5ae3ba",
+        "after": "f46a3f0f1de775ccb5965b4452b791329d953a476c31edb3d84baf0a40f653aa"
+      },
+      "jhin-lowcurve-vs-poppy-demacia": {
+        "before": "971cfc26b925cd45b74bf5a0deb5b69ac66ef6681581efb37346bf6a83358396",
+        "after": "b9966649f7408d27b17dc96c0aab4acab2835af86614b719e5ff1155990bff6f"
+      },
+      "jhin-lowcurve-vs-poppy-standby": {
+        "before": "6a3fbde0db19404e6b6048816b74a270c6a8e3ea0e0633ce72c5fbb20caeea0a",
+        "after": "82e9977a338d1147cc4399ad98d249e03068dcf53f57d6f60c2e221534e49d86"
+      },
+      "jhin-lowcurve-vs-rumble-armaments": {
+        "before": "967ee638b699fd1df4a42c16d2bbc70b2c9c6174a0094d8745b6bd45e2321ab6",
+        "after": "c97fdd67887623cb13ae28cf71cfdf1879b5d54225bac920c7f31dbedc295988"
+      },
+      "jhin-lowcurve-vs-rumble-lowcurve": {
+        "before": "f4689a4715e2eb3c10321807ca668ad0d17822d0f7807acb85327108b590fe50",
+        "after": "c1367a8385e43246b8718b516668beba7c81f22fb54b2a180b922617622e3cc1"
+      },
+      "jhin-lowcurve-vs-vex-battlefields": {
+        "before": "708297656abd16311c21805a5c49ddd40408192bdedcce05659733cd936a7741",
+        "after": "f4e8946b78f82ec8d3ae1bdd15b93772e5426aaee84a0de0e0f9a1f341a8ba8d"
+      },
+      "jhin-lowcurve-vs-vex-response": {
+        "before": "c0b17f7845b4105490662850d519c235bf01cf35930a040147c6986c3018b2f6",
+        "after": "1445ec6c40fc778f0af048d0b0739d128c50e476047df31dba9b644da8b97560"
+      },
+      "jhin-lowcurve-vs-vex-spells": {
+        "before": "3acb960a38a5ec6d8d6eabcfb4be7a58e01329aacde9310425edae98692a01ab",
+        "after": "4989563e2e85abd2aab8187208163f780f3a8770389f92a0d7a2c12333bcbe24"
+      },
+      "kaisa-red-control-vs-jhin-lowcurve": {
+        "before": "730647159751ac3f47b2a7e03008034874e75c9bc2d47d5874f1a9a6c9ec1b07",
+        "after": "4eeee27fdc95938f2801d237096ceaab79e2321647e8369d72edf06b15e7f9b9"
+      },
+      "kaisa-red-control-vs-kaisa-red-tempo": {
+        "before": "2fb3b145cf8d64a9a532e35bc1246d3941182e8a34a2a583f510be74888a469f",
+        "after": "68b1ad12ef0961e3ce7cec96d6c9ce08412b5158cd140adc8c7248c73d67f753"
+      },
+      "kaisa-red-control-vs-lillia-lowcurve": {
+        "before": "68ede775517b7a14283e950dffbcc1932bb217634ebc193a27efefc9d94d3b5e",
+        "after": "245729eff237d25af6517462b74175f5d6dab6bd6c366c3daafa41f74c690c76"
+      },
+      "kaisa-red-control-vs-poppy-demacia": {
+        "before": "c61720763bcece9f6649e9fda51eea59c7ee971cb8dd9f4419906155d32e0909",
+        "after": "24c5e738e1da2d26ed4f0017b19c59cccc3a6ece678faf54aa68b61ef0a2ac85"
+      },
+      "kaisa-red-control-vs-poppy-standby": {
+        "before": "adfd37a738353e8abef6fd1ec34dc799bf6d0c08ac4e008fe2bc4e358445783c",
+        "after": "5bd36818ce8ea711200bfa4e4986ad2b23c7bd586c1934b09bffb66733eaa08e"
+      },
+      "kaisa-red-control-vs-rumble-armaments": {
+        "before": "2f0e4aea68ec503d075ee1ebcace8cdfbcc8d9f476797b2af80aaa45c156b307",
+        "after": "cc4ed4feb5f9be4d83af4c0a6e17ea010d0a5234a6f2eb3b9022392201cc6919"
+      },
+      "kaisa-red-control-vs-rumble-lowcurve": {
+        "before": "4a99698f5ea8b6af31366e623c00293096203a9033ba10759d418758c14fbfba",
+        "after": "b44c5f36fe73428a0a7193e0aafc2a31f380e48efd6e0c61d609bc646555d13d"
+      },
+      "kaisa-red-control-vs-vex-battlefields": {
+        "before": "ceeb0218b74fea9a18430593b3f93ebc5821d78f68ef61522fe90d3227ad516e",
+        "after": "170556f4eac67fa2daa94dc680642d0b7b5b9effbf260f6e75adf2319b128ab0"
+      },
+      "kaisa-red-control-vs-vex-response": {
+        "before": "1fc4cb9a51888be166b3a813c14bb3d2859a9b78d935c0cfd5192d33d9dc0d13",
+        "after": "5b764083f2a45bed828985d20dd9970b6b124583a934c34f541a24f6b4bf5db5"
+      },
+      "kaisa-red-control-vs-vex-spells": {
+        "before": "15ec122ef9fd5866da1a6db60a682612a7da98e411c604a7434ebacdbeae9ca9",
+        "after": "112526b23c743fa14a41f7ca97c0d375eb18322f4bd972a9e81bae598fa5be7a"
+      },
+      "kaisa-red-tempo-vs-jhin-lowcurve": {
+        "before": "fd658660c268d1465ca766175bf6f44af7f757179d3fa4476360852802180b0d",
+        "after": "b8e1df86e2c239dc0255e3090c284c1088793030d2fe98394796ea8030f08c86"
+      },
+      "kaisa-red-tempo-vs-kaisa-red-control": {
+        "before": "6197bae6110b3e26c098ad9fcbaeb45f2cb4322ab6a6948049c9e638074f260d",
+        "after": "a7da2324f7086aa3f9cece21625a99709e10378a24dceec59a1d6e44fa2bbc68"
+      },
+      "kaisa-red-tempo-vs-lillia-lowcurve": {
+        "before": "c551adb473792ab795d931e7a46682aeb516baf3348864d9edf71021299cb20a",
+        "after": "0bca453639191a5daf7ea7d1fda6213eb3af3ff2de90f715ffef76456dab1cd4"
+      },
+      "kaisa-red-tempo-vs-poppy-demacia": {
+        "before": "8897fca8ee6956df12dfca301566450304124b04a9874758bcd0d55254904ef7",
+        "after": "ea9dd4458822032ef7ed5d081d2f2a2e79c0e1af5f4f5cda8b02d38f776d8818"
+      },
+      "kaisa-red-tempo-vs-poppy-standby": {
+        "before": "439126b4a2f3b53491e5c036b72b69ab972059e66e97f4ed5422db0681df97b8",
+        "after": "c7bc0f6284ad2b3dc6e6667d57a1a6468ee68c0cf2f0f3b55cad4f785d5f0c8e"
+      },
+      "kaisa-red-tempo-vs-rumble-armaments": {
+        "before": "55a5304e0c36d2eabf7340043d650eb9c724a74864c6a89645b8cd5464b6d532",
+        "after": "951e9f383d912264116740ee5e559efbeda6b1bcb9586925dffc2f838309b521"
+      },
+      "kaisa-red-tempo-vs-rumble-lowcurve": {
+        "before": "8cc8cf08bf613c3a650c0f33b2c6c27f517c0fac2c529fd43ba5dd76a688a0a3",
+        "after": "8f7af2147ff15af8874b516331e762f3dab80945266ca2656ce5afa7157658aa"
+      },
+      "kaisa-red-tempo-vs-vex-battlefields": {
+        "before": "e7f34d5bb0b138d025085c4e7864bdfe783d340ac1b4d202f796959d61e74167",
+        "after": "0635d71b663c1f917f96a7a9258fcfe9ffe74c460f61167679791bf00268df85"
+      },
+      "kaisa-red-tempo-vs-vex-response": {
+        "before": "d3e7ca7c83bea81160d18bd6c6b9db7791119e1b3f43eaf963ea3f8a167d5d3b",
+        "after": "69bf8e2f2ebeec3033eedbd8d394c72b16fbc4eab46cd9b8c52af0edcb5a3ffe"
+      },
+      "kaisa-red-tempo-vs-vex-spells": {
+        "before": "74770994d0f6b575df59a7562ae6ba92886138350568a9f4ce39366da2971f83",
+        "after": "f148a4058b80d25b601713e84d5a18d964d3a88bd553bdb8589c52d5e8fdd057"
+      },
+      "lillia-lowcurve-vs-jhin-lowcurve": {
+        "before": "72ed5e45dc0ca4a68ea3f733ea05719ba54bb5be3fa1370341a18aba8d7485a1",
+        "after": "a063f84b9f813a423061c029a3f4462b2b2e3598c4a513f7241a9863b4c6be9f"
+      },
+      "lillia-lowcurve-vs-kaisa-red-control": {
+        "before": "30f7bc44f587fb809e4d410ec85b82086dc80c0fe034349e003626a1cc268a90",
+        "after": "a960ba531c6506ecd1193728d5e1675ec38b2cb9ee947f0954e4fc17a76f499a"
+      },
+      "lillia-lowcurve-vs-kaisa-red-tempo": {
+        "before": "f58f733b06612f4a601a2a8d645242d42c1a0ecce1b1fbbb78efabecc8ec169e",
+        "after": "ca6a4938dd09f8d8d0cbc952624f6386b71aa35b8ae467df0873f70bd00c0d63"
+      },
+      "lillia-lowcurve-vs-poppy-demacia": {
+        "before": "16cdeab4b02f35b62081902109c08fc51d3c7a8dfd1be718b4022d8319844818",
+        "after": "1b613ffa003297c4a117a6a737c25ccbf0ee7d5e03aac6aed68331b90b44bede"
+      },
+      "lillia-lowcurve-vs-poppy-standby": {
+        "before": "b7c5a76bf43e5cba496344bd2acb55da689d2cf299e77290dbc135df0c9e8fee",
+        "after": "09f5474a0b7c9d040cabc4279ab60620c56a4ee005bb11e7b9b62b82a1144f75"
+      },
+      "lillia-lowcurve-vs-rumble-armaments": {
+        "before": "6257ae83705f17e9feb7a8e10faab85d510ab2c19d15ef38bbf3b853e3daad02",
+        "after": "912b4a2c2604957b8723e365c972eb381b7faac0b1f245cc12870376c0eb11c1"
+      },
+      "lillia-lowcurve-vs-rumble-lowcurve": {
+        "before": "14cb2e6269a3ed4c31a14306390cc9d99b4956d94566e2548e0e61e92ebd120e",
+        "after": "eef85a6de94577ae45e8d4f6a58a40c498cf1637f1fe6d1210696b0b847be417"
+      },
+      "lillia-lowcurve-vs-vex-battlefields": {
+        "before": "72ee4f57b09f43b793aefd6a3b204658b9add41e45a4ea6ad6930bee08fd150f",
+        "after": "7c0d9eecf509efe75f150fd175ce7bf5f508ceb0676e2cde4a88c842493ba877"
+      },
+      "lillia-lowcurve-vs-vex-response": {
+        "before": "55f3624fac22e232d73f86f7ffd492db6a50708fbe272b1526c6fe7427d805a3",
+        "after": "b3d0725dd6f642f734cba0ae308e6c940003472ba945ccd73f887bf6f3bae80f"
+      },
+      "lillia-lowcurve-vs-vex-spells": {
+        "before": "cedb5730b1c4ac368c73f956f5acb0b1daaa02173d961c187adc935338a393c7",
+        "after": "56f5e7319a4edd65459a475611440e51e0f5fe77704c6360f9691ca2879b7b26"
+      },
+      "poppy-demacia-vs-jhin-lowcurve": {
+        "before": "d25db5d33795284b6be06ad884ca70cb1a9c6b18198282ff5abc36b99620ed0d",
+        "after": "04b63762b173fed3e86800ba2dbf714dfcfdaac5e8512d3e8369fd18952cb0b5"
+      },
+      "poppy-demacia-vs-kaisa-red-control": {
+        "before": "4867d1f8489d09b8171e2a9501974c724e147664d2205cde6a54073234512bd9",
+        "after": "4e4af0fa860110c5a99366814ec15f64e8680894210907e4a576ae9a4a18f5cd"
+      },
+      "poppy-demacia-vs-kaisa-red-tempo": {
+        "before": "e7179b68d1c526d14d77accff24ed901525a498c9fcf12a5c91a578d692b786c",
+        "after": "734f73ced509adb0fac723316186e170f623b64e25c594ea75224e30f8c70456"
+      },
+      "poppy-demacia-vs-lillia-lowcurve": {
+        "before": "833738da57c9268cf759fed253c6f7b21ccfbc02adfadb215611f749287afc1e",
+        "after": "eb7eb40f0f667604349c7c74f44ec2f260715d1939aa314b8aae5f984344264c"
+      },
+      "poppy-demacia-vs-poppy-standby": {
+        "before": "7ab0d8117e84e930d0e9797b15da62128ba5b00a1ec9e9883cc49457532c2cc9",
+        "after": "1ac02a47766fbce6886952e969d9ea2d4409263bf12a5950dba076f7b480e50e"
+      },
+      "poppy-demacia-vs-rumble-armaments": {
+        "before": "49ee1c4bf9f91a59583e8906a4a5c302bac5da37efb34436b519d3eb021a2fd1",
+        "after": "bf6c5ce75d2d50d41ef06f4a1485f30730903a71dc4231fceb96892d43095f41"
+      },
+      "poppy-demacia-vs-rumble-lowcurve": {
+        "before": "3191fc202039bc7ace510cb726433190b2d8a6d308ee57515a38a5e41d5cdbd2",
+        "after": "d8fa0cd30e3fb2bff65936515ac039f89511e7850aa81c36d4ba470a29d2c676"
+      },
+      "poppy-demacia-vs-vex-battlefields": {
+        "before": "c3272016b3747a148db280d5abc5e4bb73a4000278efc57735eb7dbd8d3c27e3",
+        "after": "e9391fe676ab4e24ebe8ef5f42f9f20fc26a7922cbf4b90f52a4dd981d5d8d35"
+      },
+      "poppy-demacia-vs-vex-response": {
+        "before": "db28bc847cdb7769ab8db931a02298ec7c26a26f4afe22ed578f2deb8bbf97d0",
+        "after": "bc17217f21d815727c8ed179fcafeae23a5c22fb01456a8b601bb42653c3b8d6"
+      },
+      "poppy-demacia-vs-vex-spells": {
+        "before": "97d8a64f162beb6f3529373186746dc0e269be468e88733fdacc62f63ea98f8d",
+        "after": "f1cd5f51a1e61a46d28531b7d5fcf996be45819137867dc5c0bfc042b2f924cb"
+      },
+      "poppy-standby-vs-jhin-lowcurve": {
+        "before": "93c19598bc999c133d556df73ef0f9ccb08873a065cc0dd797d3da318fbb69a8",
+        "after": "7ff2e7e16727916a1c8b0ba204e5f3aecf37fbcf8e9ea830b39cd4c61bc05950"
+      },
+      "poppy-standby-vs-kaisa-red-control": {
+        "before": "6eede9f25a02b2a86900f80ae244245a8678466fbef078a2683a3e210a74a571",
+        "after": "1689c89632ce5274fec972d76733600dfae552427369bf96e6ebc2c25f9fac76"
+      },
+      "poppy-standby-vs-kaisa-red-tempo": {
+        "before": "d4a64c539a135103d076b7f09659ddd61a460fa7b91de7c3ecf057a70e9f52c7",
+        "after": "4962cf051c823de3ddd024363cf8b8f8ddf9d2236295cdd0f488e9978b7b9cb7"
+      },
+      "poppy-standby-vs-lillia-lowcurve": {
+        "before": "f9eca03efbb57ab63762508490ab6c5312cf85fdd9b9d392556b7c40be621625",
+        "after": "94b0390d7a2106be9ed90264f527999b4f31835a5c493521ea56f84144fe3138"
+      },
+      "poppy-standby-vs-poppy-demacia": {
+        "before": "22cd71efbd7201bf0e1699aeb45e90e05ea707c930bd058d08c2ec5f605f3459",
+        "after": "405ead9ffefe3e5a3db753799d4dcbe05cffa9ff36d905b4f55c293dcf6e1fc5"
+      },
+      "poppy-standby-vs-rumble-armaments": {
+        "before": "b90d69fe4d5cda40b20a28cafb2f6a958ad896d508c9ec896d95cd4dc3d567d0",
+        "after": "63f4b35d3901e4910e1b4bfc3d20ffd86d0fa085ae979fe139df112cbc8f089e"
+      },
+      "poppy-standby-vs-rumble-lowcurve": {
+        "before": "b95075213738c9c0d77b3629b3d18072d12cf0b72ae0b7369c15ca1ae9910d71",
+        "after": "1cac421e86d0bddd2891b07cedce1ae49f91f231f0d35d66f61035872958d491"
+      },
+      "poppy-standby-vs-vex-battlefields": {
+        "before": "5f196aa70a67be4b029f21422299d7388e980b95c72f355a1a2cea76c237a466",
+        "after": "25d11a333e4e6e085af514e184666a2e8016cb4859923e99deb03e19b0723f3a"
+      },
+      "poppy-standby-vs-vex-response": {
+        "before": "03c3bf6f0d1fafe94a64894249ce1e534c1d6004e5c9cd16f9220ed7237ae320",
+        "after": "757b9fe65167d686f25b83558082019c7107695135d0833c029753b52ed0e466"
+      },
+      "poppy-standby-vs-vex-spells": {
+        "before": "1d66e5d297b12ed25b07db4c47b944144fe3ebdcec27ba0fd27981349ce1dbef",
+        "after": "3028324dbf8a8722e84a704edec9daad47a5b8941ae38daaab5c1b3e33f46923"
+      },
+      "rumble-armaments-vs-jhin-lowcurve": {
+        "before": "5b03d611fd4efcf5b5659c4b4b962fc928acb91886087976d2f12925ae14bdd9",
+        "after": "bb9c9eeae48c69f765ec43dc9acc5830907ac85f7dcae66d62dbced56c99284a"
+      },
+      "rumble-armaments-vs-kaisa-red-control": {
+        "before": "2c6e1cc672c642cc83654805a03209e563fe45abc2ce58f6082218c15f9a0854",
+        "after": "6657261acec319df8d03621aa3194163d6cedef8cca4b4fd9cef8c03f11fed92"
+      },
+      "rumble-armaments-vs-kaisa-red-tempo": {
+        "before": "e119608955a4da3b968c86ffd12e73d77dbc2a2b3dfa8035b9781909efe40b21",
+        "after": "3338a4b70a23929f45e7870772c28001294d8c2d39ed4021906c3be08725152e"
+      },
+      "rumble-armaments-vs-lillia-lowcurve": {
+        "before": "a037d9689760aea6ee3e7f85e2579a40adecb4a38820cd395ecdab84f7325cc4",
+        "after": "041657bf57b5ef788ffca2b0aad4a2ab70e3272f4c7c6ffd8ee96db2536e5152"
+      },
+      "rumble-armaments-vs-poppy-demacia": {
+        "before": "5ffc173866a5ed881c5350ceb1d4b4ac39a8db1270ef9100c9dd9946e8c01b73",
+        "after": "1100003a7c0ec4f2a66ba7892bbd6b0eba1f4472b7519753f9ac6d416fe714e7"
+      },
+      "rumble-armaments-vs-poppy-standby": {
+        "before": "771389897d664de8a546bfa23bf9c9f3d5953ca0acbc98758ad9136be091f788",
+        "after": "9b786011d9b82cddb329d79c6618b95935cd93cb2f618622c62d9b36ceb8d1a2"
+      },
+      "rumble-armaments-vs-rumble-lowcurve": {
+        "before": "f0a20a6c870d32b7a10cc86a3195f31f32aa60d919ce541d899443c6d42ceaf9",
+        "after": "0e74452f81d9d79752ed13dcb99234a3e3ab8b68f717129e1ae93f5c14363288"
+      },
+      "rumble-armaments-vs-vex-battlefields": {
+        "before": "11603d9836d03c321b95048889f3ca59b2084d5a85f66775201d9c12d51a0c6b",
+        "after": "14c5acdfdd9f3180804ddf9608b73f69065a6dbd900a20cc642922a23a08c1ad"
+      },
+      "rumble-armaments-vs-vex-response": {
+        "before": "506145a07f7002a3197b121d9890e7e9725e8f256132ce71c391b426cb534c43",
+        "after": "b225e3e9fabb3decc234a59f872a12c675d2e0a161759bc679284767b2f7c43e"
+      },
+      "rumble-armaments-vs-vex-spells": {
+        "before": "945e7b6294b78dd164b5681cc1644b95e45020f90a84ea5c72f76ea7c9b60c08",
+        "after": "ccd0d2cbff4ea723df753e1505f1d81ee6dd6eb49f79f4fc1594878bd160c049"
+      },
+      "rumble-lowcurve-vs-jhin-lowcurve": {
+        "before": "acb535ae3019cf8f19d5e7c18c8f35b51984fcb0c2c406ef5949ef423135b9d8",
+        "after": "74a418aae429c4e467329cd0d2e6d0dd83f9a1a6f6706974d3f6890d9737431b"
+      },
+      "rumble-lowcurve-vs-kaisa-red-control": {
+        "before": "099be9f76dbe8afdb30fa7965edebbdc926b8011a92a73d9e7264f87895cd673",
+        "after": "239b727a7b4250e5cdda22495c9322a92dac10e913ce547cb5f98e17b165f112"
+      },
+      "rumble-lowcurve-vs-kaisa-red-tempo": {
+        "before": "4ad6d151c985ff16666d77f55ba0628c2da135c064ad2548534cb0a56c5d7231",
+        "after": "de6f25c56adb69b49670d7f741196bf49dcca7004a3e5e6d4f6cf064eb26db9e"
+      },
+      "rumble-lowcurve-vs-lillia-lowcurve": {
+        "before": "454d989aab53850e2ad017571c4efdc9f06d6f800ef394e61876734db821572d",
+        "after": "e0de9ff1e0ac160e2105a730175d81cf5097c67ccc44023fc9d6a9743c0f2ab4"
+      },
+      "rumble-lowcurve-vs-poppy-demacia": {
+        "before": "afc83b1159b74175fe88a51e12c3202ff987e0d0c57f4f09d574ade6fa1155c2",
+        "after": "6d47fa1c7b40e399ed06fcd6887e2574dbfce121dbbe3233bcbd0a4632fcb4bc"
+      },
+      "rumble-lowcurve-vs-poppy-standby": {
+        "before": "d558b773f13fc63c2e218b1b4e7f8f5669207cf74296386ec25ea58f71c98a45",
+        "after": "9616ad4e982300cc987478e870658988dada71b9d36b44a052dde1c1b9707247"
+      },
+      "rumble-lowcurve-vs-rumble-armaments": {
+        "before": "293c7c15bff2af6bd5a9fbaaf23157b49e4e3438de7942ec19e27a94104b53fc",
+        "after": "6d189268a0d4d99fd96675c50156c0310f471d240b3bc26bb4e54da6b3e47718"
+      },
+      "rumble-lowcurve-vs-vex-battlefields": {
+        "before": "48306b129ca2ec5eaeb3849f96f78e4fa369e11aea1200c8818988dee500fd18",
+        "after": "e5f98ee92c2e987ee3180c920c0f10e7b819dde072083ef177dc7def1c582a60"
+      },
+      "rumble-lowcurve-vs-vex-response": {
+        "before": "aab0253185fe0bc6e2d3e47869524a8dbc7087fb4ca3d7c26644260ed18ec0e3",
+        "after": "c868a532e738c066b2738fca759b757a9099ac59d99c2c787f7b7667f30bb3aa"
+      },
+      "rumble-lowcurve-vs-vex-spells": {
+        "before": "eceb9054cd4357b9fddc3dc967cb61283907aa34420e1cad894b404a614ee5e6",
+        "after": "100618c7562ff0d6eb902286785eea9a4a2fe37dc435810088372af207b44bc1"
+      },
+      "vex-battlefields-vs-jhin-lowcurve": {
+        "before": "723ac875c4a87dc7121f560a2b2816aac6b6c331356bddc47fc09a9a7feae3dc",
+        "after": "609aeca67cd324419316374bcd17649a10a31bc6a3e4b3033edb517823156770"
+      },
+      "vex-battlefields-vs-kaisa-red-control": {
+        "before": "16f7c1085aa402e0366a4e4e611be70976fa8e31198043a916fd31e333e00d3d",
+        "after": "e35311e10f9125f8ff9d09e016b54b180216d0bcf071f8949b5b50322a4cc19a"
+      },
+      "vex-battlefields-vs-kaisa-red-tempo": {
+        "before": "d1be9cf158dab24cda867f007a410071f86659a9576aa55ae094b3a55aa6874a",
+        "after": "0d5724663a4e79f258ea3519171c9bd882b5952ad010f7989082ac26c91a782f"
+      },
+      "vex-battlefields-vs-lillia-lowcurve": {
+        "before": "2debb95911b118bb03034977a60076161f73a8272de1d96f5c3484ed70b95a1f",
+        "after": "0934f3bf08fb1c0d6a3de470751d03f85391f4f9d70c76e06f57a23c77219226"
+      },
+      "vex-battlefields-vs-poppy-demacia": {
+        "before": "a1ac191a6a6957f26cafdd28ef840cb6c2caa8b37046f26519985bd82688b5f6",
+        "after": "d2b63873be182f7893a9fac97238286973999ef713651f0deada0b8f519c0220"
+      },
+      "vex-battlefields-vs-poppy-standby": {
+        "before": "f314a6191e81b2eccb7c3f0a572442bd3e5d5c3f65a8a7aa7ea064bffb536712",
+        "after": "004c2f62bd186460ca8fd1f3fb76fe34711838e560b6d4e18918d214f041605e"
+      },
+      "vex-battlefields-vs-rumble-armaments": {
+        "before": "c6d55ddd73ba786e7ea11daa6ca0df4ffb0954b55749f4d9c4e246b6ac74e37d",
+        "after": "bb6de0a6b8fbee5f407f63078586507dba11ee4b0f91107edbef5ca5f1d8c627"
+      },
+      "vex-battlefields-vs-rumble-lowcurve": {
+        "before": "1b1ffc83006fc96ff3e2788a690ded2135e67ec83b6bf9465b03ef03e83d87a6",
+        "after": "a267789ad686c289de0e7e535ad9dabf8671ed25f7b2871656c963f28c08c2fb"
+      },
+      "vex-battlefields-vs-vex-response": {
+        "before": "dcbdf0574bb5578257877f284797d4a8a0ee03512a94219829b632d77b5a23fe",
+        "after": "a0c2c97e5e406a45dc49c5266aadc5bf5749f9e1c61a053653bd3926d480a77d"
+      },
+      "vex-battlefields-vs-vex-spells": {
+        "before": "680f617434c4bfb5936518c64de49355df7e2a2e9cca28bac88869b603fcbb6e",
+        "after": "ea05a0aa06db58fa364ad0437005a1c4746aabe9020f1981247e819b16163a66"
+      },
+      "vex-response-vs-jhin-lowcurve": {
+        "before": "1050ded17ff919160f8777bbbd7afcbf0d349eb0ff2908ea4c30fd6060d9bb73",
+        "after": "529e2dde82bb7da9b3dd49f344c2836832d39f75a77639463e9a751d527522e2"
+      },
+      "vex-response-vs-kaisa-red-control": {
+        "before": "6fe610989ae549ef7f38b024cf3f52eb9f8d457f9d01f610c134635850b722c9",
+        "after": "b7690bccce5c87a16f5aca39fe395e3e5e36902a1b8ac6d33edc2b3b07cf932b"
+      },
+      "vex-response-vs-kaisa-red-tempo": {
+        "before": "93dbdd41fac2888a2b0fcfb7f3ac913c8ffa74d87ddaae1556b9fa3e8585b81f",
+        "after": "62f94ad3d7d3e987ff970adcb295a91a9b6700c8c59528504ce612904d610ef0"
+      },
+      "vex-response-vs-lillia-lowcurve": {
+        "before": "200c87768487f297851da103c01e9e32b03b403f0552d16434e29b0d6dcdc398",
+        "after": "efabb40a20a46087e34b67bdf3a123d37d72264a672a720f0beb012e12b2382d"
+      },
+      "vex-response-vs-poppy-demacia": {
+        "before": "d2a618c55c0ebc12fba7f78c31506a977266264c52ea7f4feff7570266cd06a4",
+        "after": "42efb0f8b0917ec90e986c4b94cc41a0e24a870b30294be6a308d7c0dde84fa4"
+      },
+      "vex-response-vs-poppy-standby": {
+        "before": "0ca541dff7a6c3d4d0bf043347fac71863c917a8f42a500f307a5dc46e4d155a",
+        "after": "9c81d30b41fbf3fbc6738fe2afe360b51eac9ab7ca8b3906c59e29712d3017d5"
+      },
+      "vex-response-vs-rumble-armaments": {
+        "before": "52d2f7098b83e0427e5fb04a12a614afcdc783ca7ccd704e0ee3353c4fb004fc",
+        "after": "63b82563aa5581c635742b2902100939b93068e846d40ea9cdfb9e6bccebf382"
+      },
+      "vex-response-vs-rumble-lowcurve": {
+        "before": "20610ee8eed0e889d4160e0d6d0f57c2b584b3406f85f993123908499107a890",
+        "after": "fb1dcf3e53fa398b7b910724d3e8db7464773878d2453884def9ff5837b32724"
+      },
+      "vex-response-vs-vex-battlefields": {
+        "before": "afbe00fececd686aaa36b9f6adebf69a1b33f25dd804dbad8b6ca555c8962645",
+        "after": "c7dafebfb0092df9ec2236f27177fbe935601878303c56a542508edae0963143"
+      },
+      "vex-response-vs-vex-spells": {
+        "before": "051c854c0ffdf10690782ee73ea4147bc93279516d11ec0e9312b2fab0b8aad5",
+        "after": "6c9bf30a59f8c0ec2fdb6233a65d4f034d113fbce12aebf0a3cb98b1d07c4b9d"
+      },
+      "vex-spells-vs-jhin-lowcurve": {
+        "before": "dcc3d075513b596213a8801893194e7fcd174df56502240c940d1a4f946e4b1d",
+        "after": "aae6134df1f50f696c3c98eb202027d91f0af7e7c5ff736b8b223f9d46213c98"
+      },
+      "vex-spells-vs-kaisa-red-control": {
+        "before": "1ddf2cdf2b5a7434da18bf3170ad3e6d263aeb1b0d46c0912ede84468a878d27",
+        "after": "9b30e64041370afd08803ee5e7a6af9ce912c334293f7665b494fc7190d525ff"
+      },
+      "vex-spells-vs-kaisa-red-tempo": {
+        "before": "00573c54e3ba2edb1e2e91bfd3bef2f6a4a3e5b747ef435db034e5600fe021d1",
+        "after": "1cbe8dae9f78a0692a4991f5281e3ea1a75ee824b39a7af902a1f5ebb0f52b5a"
+      },
+      "vex-spells-vs-lillia-lowcurve": {
+        "before": "a3e9e1b5aa755fb00cfb7af4cd284b7bac8782ff7750c8d807fd7dea390f96f7",
+        "after": "8d6c3cd1d977c35ac9c0c02604dd212144d5c20db29e9ebe19ab62345430a921"
+      },
+      "vex-spells-vs-poppy-demacia": {
+        "before": "a55bfe346a1fe8d2a443a9f5673cb1725586b9b75717ae6c6655fd517924d436",
+        "after": "4f58e9aaa8209ce779e2a13de480cbad6a1b8762d7be8a526d08be94da69f4aa"
+      },
+      "vex-spells-vs-poppy-standby": {
+        "before": "0ed2ecfebcc2759f0cce615242d926763a674b443e709ab3bd50271ad2538bd1",
+        "after": "50e91b56540caea05c0592528eae8b360c9a5d9c38691798a4f670e6b621a0df"
+      },
+      "vex-spells-vs-rumble-armaments": {
+        "before": "7e602ebc1e880fc0e8b731f920735d59627941746bd4217b1e5b3e2329b5f278",
+        "after": "7f73997e222a66bcd486e04a52f3fa83b94da9a18ccf2982f1e213027220d325"
+      },
+      "vex-spells-vs-rumble-lowcurve": {
+        "before": "fea6a29dfbc990b3351270dc8b2d74d1696602388eac863800a339a9fbfac462",
+        "after": "efcdf338625b62b3492746c075a964497a7e901d46ab25b9b02cb5a47c5558ca"
+      },
+      "vex-spells-vs-vex-battlefields": {
+        "before": "947a272975e78f5cecb308b1b6986268c1e7f3acbe20b92e1cade508d86e0ff7",
+        "after": "b83ae851d869080db89a22e44420161e7836f864ff38a65baa16a1bb72d04bf8"
+      },
+      "vex-spells-vs-vex-response": {
+        "before": "951c9cdbbff9972c5641d496874f6ac46cf7e3c986b213c7f028b8cc94cfd4b4",
+        "after": "18e3d57bcb1ff947508fe36148a2e6de2f9512dd98eb0c01730fd627b0db437f"
+      }
+    },
+    "completed": {
+      "jhin-lowcurve-vs-kaisa-red-control": "9703a16f357b1cf5bc8ef8245feb33db7d6746de2e1ba35ec824af25eca0299a",
+      "jhin-lowcurve-vs-kaisa-red-tempo": "3a53dbc92e3b50401f36ff1b4cdd62d17395227adb83eb1dc989866313e939da",
+      "jhin-lowcurve-vs-lillia-lowcurve": "f46a3f0f1de775ccb5965b4452b791329d953a476c31edb3d84baf0a40f653aa",
+      "jhin-lowcurve-vs-poppy-demacia": "b9966649f7408d27b17dc96c0aab4acab2835af86614b719e5ff1155990bff6f",
+      "jhin-lowcurve-vs-poppy-standby": "82e9977a338d1147cc4399ad98d249e03068dcf53f57d6f60c2e221534e49d86",
+      "jhin-lowcurve-vs-rumble-armaments": "c97fdd67887623cb13ae28cf71cfdf1879b5d54225bac920c7f31dbedc295988",
+      "jhin-lowcurve-vs-rumble-lowcurve": "c1367a8385e43246b8718b516668beba7c81f22fb54b2a180b922617622e3cc1",
+      "jhin-lowcurve-vs-vex-battlefields": "f4e8946b78f82ec8d3ae1bdd15b93772e5426aaee84a0de0e0f9a1f341a8ba8d",
+      "jhin-lowcurve-vs-vex-response": "1445ec6c40fc778f0af048d0b0739d128c50e476047df31dba9b644da8b97560",
+      "jhin-lowcurve-vs-vex-spells": "4989563e2e85abd2aab8187208163f780f3a8770389f92a0d7a2c12333bcbe24",
+      "kaisa-red-control-vs-jhin-lowcurve": "4eeee27fdc95938f2801d237096ceaab79e2321647e8369d72edf06b15e7f9b9",
+      "kaisa-red-control-vs-kaisa-red-tempo": "68b1ad12ef0961e3ce7cec96d6c9ce08412b5158cd140adc8c7248c73d67f753",
+      "kaisa-red-control-vs-lillia-lowcurve": "245729eff237d25af6517462b74175f5d6dab6bd6c366c3daafa41f74c690c76",
+      "kaisa-red-control-vs-poppy-demacia": "24c5e738e1da2d26ed4f0017b19c59cccc3a6ece678faf54aa68b61ef0a2ac85",
+      "kaisa-red-control-vs-poppy-standby": "5bd36818ce8ea711200bfa4e4986ad2b23c7bd586c1934b09bffb66733eaa08e",
+      "kaisa-red-control-vs-rumble-armaments": "cc4ed4feb5f9be4d83af4c0a6e17ea010d0a5234a6f2eb3b9022392201cc6919",
+      "kaisa-red-control-vs-rumble-lowcurve": "b44c5f36fe73428a0a7193e0aafc2a31f380e48efd6e0c61d609bc646555d13d",
+      "kaisa-red-control-vs-vex-battlefields": "170556f4eac67fa2daa94dc680642d0b7b5b9effbf260f6e75adf2319b128ab0",
+      "kaisa-red-control-vs-vex-response": "5b764083f2a45bed828985d20dd9970b6b124583a934c34f541a24f6b4bf5db5",
+      "kaisa-red-control-vs-vex-spells": "112526b23c743fa14a41f7ca97c0d375eb18322f4bd972a9e81bae598fa5be7a",
+      "kaisa-red-tempo-vs-jhin-lowcurve": "b8e1df86e2c239dc0255e3090c284c1088793030d2fe98394796ea8030f08c86",
+      "kaisa-red-tempo-vs-kaisa-red-control": "a7da2324f7086aa3f9cece21625a99709e10378a24dceec59a1d6e44fa2bbc68",
+      "kaisa-red-tempo-vs-lillia-lowcurve": "0bca453639191a5daf7ea7d1fda6213eb3af3ff2de90f715ffef76456dab1cd4",
+      "kaisa-red-tempo-vs-poppy-demacia": "ea9dd4458822032ef7ed5d081d2f2a2e79c0e1af5f4f5cda8b02d38f776d8818",
+      "kaisa-red-tempo-vs-poppy-standby": "c7bc0f6284ad2b3dc6e6667d57a1a6468ee68c0cf2f0f3b55cad4f785d5f0c8e",
+      "kaisa-red-tempo-vs-rumble-armaments": "951e9f383d912264116740ee5e559efbeda6b1bcb9586925dffc2f838309b521",
+      "kaisa-red-tempo-vs-rumble-lowcurve": "8f7af2147ff15af8874b516331e762f3dab80945266ca2656ce5afa7157658aa",
+      "kaisa-red-tempo-vs-vex-battlefields": "0635d71b663c1f917f96a7a9258fcfe9ffe74c460f61167679791bf00268df85",
+      "kaisa-red-tempo-vs-vex-response": "69bf8e2f2ebeec3033eedbd8d394c72b16fbc4eab46cd9b8c52af0edcb5a3ffe",
+      "kaisa-red-tempo-vs-vex-spells": "f148a4058b80d25b601713e84d5a18d964d3a88bd553bdb8589c52d5e8fdd057",
+      "lillia-lowcurve-vs-jhin-lowcurve": "a063f84b9f813a423061c029a3f4462b2b2e3598c4a513f7241a9863b4c6be9f",
+      "lillia-lowcurve-vs-kaisa-red-control": "a960ba531c6506ecd1193728d5e1675ec38b2cb9ee947f0954e4fc17a76f499a",
+      "lillia-lowcurve-vs-kaisa-red-tempo": "ca6a4938dd09f8d8d0cbc952624f6386b71aa35b8ae467df0873f70bd00c0d63",
+      "lillia-lowcurve-vs-poppy-demacia": "1b613ffa003297c4a117a6a737c25ccbf0ee7d5e03aac6aed68331b90b44bede",
+      "lillia-lowcurve-vs-poppy-standby": "09f5474a0b7c9d040cabc4279ab60620c56a4ee005bb11e7b9b62b82a1144f75",
+      "lillia-lowcurve-vs-rumble-armaments": "912b4a2c2604957b8723e365c972eb381b7faac0b1f245cc12870376c0eb11c1",
+      "lillia-lowcurve-vs-rumble-lowcurve": "eef85a6de94577ae45e8d4f6a58a40c498cf1637f1fe6d1210696b0b847be417",
+      "lillia-lowcurve-vs-vex-battlefields": "7c0d9eecf509efe75f150fd175ce7bf5f508ceb0676e2cde4a88c842493ba877",
+      "lillia-lowcurve-vs-vex-response": "b3d0725dd6f642f734cba0ae308e6c940003472ba945ccd73f887bf6f3bae80f",
+      "lillia-lowcurve-vs-vex-spells": "56f5e7319a4edd65459a475611440e51e0f5fe77704c6360f9691ca2879b7b26",
+      "poppy-demacia-vs-jhin-lowcurve": "04b63762b173fed3e86800ba2dbf714dfcfdaac5e8512d3e8369fd18952cb0b5",
+      "poppy-demacia-vs-kaisa-red-control": "4e4af0fa860110c5a99366814ec15f64e8680894210907e4a576ae9a4a18f5cd",
+      "poppy-demacia-vs-kaisa-red-tempo": "734f73ced509adb0fac723316186e170f623b64e25c594ea75224e30f8c70456",
+      "poppy-demacia-vs-lillia-lowcurve": "eb7eb40f0f667604349c7c74f44ec2f260715d1939aa314b8aae5f984344264c",
+      "poppy-demacia-vs-poppy-standby": "1ac02a47766fbce6886952e969d9ea2d4409263bf12a5950dba076f7b480e50e",
+      "poppy-demacia-vs-rumble-armaments": "bf6c5ce75d2d50d41ef06f4a1485f30730903a71dc4231fceb96892d43095f41",
+      "poppy-demacia-vs-rumble-lowcurve": "d8fa0cd30e3fb2bff65936515ac039f89511e7850aa81c36d4ba470a29d2c676",
+      "poppy-demacia-vs-vex-battlefields": "e9391fe676ab4e24ebe8ef5f42f9f20fc26a7922cbf4b90f52a4dd981d5d8d35",
+      "poppy-demacia-vs-vex-response": "bc17217f21d815727c8ed179fcafeae23a5c22fb01456a8b601bb42653c3b8d6",
+      "poppy-demacia-vs-vex-spells": "f1cd5f51a1e61a46d28531b7d5fcf996be45819137867dc5c0bfc042b2f924cb",
+      "poppy-standby-vs-jhin-lowcurve": "7ff2e7e16727916a1c8b0ba204e5f3aecf37fbcf8e9ea830b39cd4c61bc05950",
+      "poppy-standby-vs-kaisa-red-control": "1689c89632ce5274fec972d76733600dfae552427369bf96e6ebc2c25f9fac76",
+      "poppy-standby-vs-kaisa-red-tempo": "4962cf051c823de3ddd024363cf8b8f8ddf9d2236295cdd0f488e9978b7b9cb7",
+      "poppy-standby-vs-lillia-lowcurve": "94b0390d7a2106be9ed90264f527999b4f31835a5c493521ea56f84144fe3138",
+      "poppy-standby-vs-poppy-demacia": "405ead9ffefe3e5a3db753799d4dcbe05cffa9ff36d905b4f55c293dcf6e1fc5",
+      "poppy-standby-vs-rumble-armaments": "63f4b35d3901e4910e1b4bfc3d20ffd86d0fa085ae979fe139df112cbc8f089e",
+      "poppy-standby-vs-rumble-lowcurve": "1cac421e86d0bddd2891b07cedce1ae49f91f231f0d35d66f61035872958d491",
+      "poppy-standby-vs-vex-battlefields": "25d11a333e4e6e085af514e184666a2e8016cb4859923e99deb03e19b0723f3a",
+      "poppy-standby-vs-vex-response": "757b9fe65167d686f25b83558082019c7107695135d0833c029753b52ed0e466",
+      "poppy-standby-vs-vex-spells": "3028324dbf8a8722e84a704edec9daad47a5b8941ae38daaab5c1b3e33f46923",
+      "rumble-armaments-vs-jhin-lowcurve": "bb9c9eeae48c69f765ec43dc9acc5830907ac85f7dcae66d62dbced56c99284a",
+      "rumble-armaments-vs-kaisa-red-control": "6657261acec319df8d03621aa3194163d6cedef8cca4b4fd9cef8c03f11fed92",
+      "rumble-armaments-vs-kaisa-red-tempo": "3338a4b70a23929f45e7870772c28001294d8c2d39ed4021906c3be08725152e",
+      "rumble-armaments-vs-lillia-lowcurve": "041657bf57b5ef788ffca2b0aad4a2ab70e3272f4c7c6ffd8ee96db2536e5152",
+      "rumble-armaments-vs-poppy-demacia": "1100003a7c0ec4f2a66ba7892bbd6b0eba1f4472b7519753f9ac6d416fe714e7",
+      "rumble-armaments-vs-poppy-standby": "9b786011d9b82cddb329d79c6618b95935cd93cb2f618622c62d9b36ceb8d1a2",
+      "rumble-armaments-vs-rumble-lowcurve": "0e74452f81d9d79752ed13dcb99234a3e3ab8b68f717129e1ae93f5c14363288",
+      "rumble-armaments-vs-vex-battlefields": "14c5acdfdd9f3180804ddf9608b73f69065a6dbd900a20cc642922a23a08c1ad",
+      "rumble-armaments-vs-vex-response": "b225e3e9fabb3decc234a59f872a12c675d2e0a161759bc679284767b2f7c43e",
+      "rumble-armaments-vs-vex-spells": "ccd0d2cbff4ea723df753e1505f1d81ee6dd6eb49f79f4fc1594878bd160c049",
+      "rumble-lowcurve-vs-jhin-lowcurve": "74a418aae429c4e467329cd0d2e6d0dd83f9a1a6f6706974d3f6890d9737431b",
+      "rumble-lowcurve-vs-kaisa-red-control": "239b727a7b4250e5cdda22495c9322a92dac10e913ce547cb5f98e17b165f112",
+      "rumble-lowcurve-vs-kaisa-red-tempo": "de6f25c56adb69b49670d7f741196bf49dcca7004a3e5e6d4f6cf064eb26db9e",
+      "rumble-lowcurve-vs-lillia-lowcurve": "e0de9ff1e0ac160e2105a730175d81cf5097c67ccc44023fc9d6a9743c0f2ab4",
+      "rumble-lowcurve-vs-poppy-demacia": "6d47fa1c7b40e399ed06fcd6887e2574dbfce121dbbe3233bcbd0a4632fcb4bc",
+      "rumble-lowcurve-vs-poppy-standby": "9616ad4e982300cc987478e870658988dada71b9d36b44a052dde1c1b9707247",
+      "rumble-lowcurve-vs-rumble-armaments": "6d189268a0d4d99fd96675c50156c0310f471d240b3bc26bb4e54da6b3e47718",
+      "rumble-lowcurve-vs-vex-battlefields": "e5f98ee92c2e987ee3180c920c0f10e7b819dde072083ef177dc7def1c582a60",
+      "rumble-lowcurve-vs-vex-response": "c868a532e738c066b2738fca759b757a9099ac59d99c2c787f7b7667f30bb3aa",
+      "rumble-lowcurve-vs-vex-spells": "100618c7562ff0d6eb902286785eea9a4a2fe37dc435810088372af207b44bc1",
+      "vex-battlefields-vs-jhin-lowcurve": "609aeca67cd324419316374bcd17649a10a31bc6a3e4b3033edb517823156770",
+      "vex-battlefields-vs-kaisa-red-control": "e35311e10f9125f8ff9d09e016b54b180216d0bcf071f8949b5b50322a4cc19a",
+      "vex-battlefields-vs-kaisa-red-tempo": "0d5724663a4e79f258ea3519171c9bd882b5952ad010f7989082ac26c91a782f",
+      "vex-battlefields-vs-lillia-lowcurve": "0934f3bf08fb1c0d6a3de470751d03f85391f4f9d70c76e06f57a23c77219226",
+      "vex-battlefields-vs-poppy-demacia": "d2b63873be182f7893a9fac97238286973999ef713651f0deada0b8f519c0220",
+      "vex-battlefields-vs-poppy-standby": "004c2f62bd186460ca8fd1f3fb76fe34711838e560b6d4e18918d214f041605e",
+      "vex-battlefields-vs-rumble-armaments": "bb6de0a6b8fbee5f407f63078586507dba11ee4b0f91107edbef5ca5f1d8c627",
+      "vex-battlefields-vs-rumble-lowcurve": "a267789ad686c289de0e7e535ad9dabf8671ed25f7b2871656c963f28c08c2fb",
+      "vex-battlefields-vs-vex-response": "a0c2c97e5e406a45dc49c5266aadc5bf5749f9e1c61a053653bd3926d480a77d",
+      "vex-battlefields-vs-vex-spells": "ea05a0aa06db58fa364ad0437005a1c4746aabe9020f1981247e819b16163a66",
+      "vex-response-vs-jhin-lowcurve": "529e2dde82bb7da9b3dd49f344c2836832d39f75a77639463e9a751d527522e2",
+      "vex-response-vs-kaisa-red-control": "b7690bccce5c87a16f5aca39fe395e3e5e36902a1b8ac6d33edc2b3b07cf932b",
+      "vex-response-vs-kaisa-red-tempo": "62f94ad3d7d3e987ff970adcb295a91a9b6700c8c59528504ce612904d610ef0",
+      "vex-response-vs-lillia-lowcurve": "efabb40a20a46087e34b67bdf3a123d37d72264a672a720f0beb012e12b2382d",
+      "vex-response-vs-poppy-demacia": "42efb0f8b0917ec90e986c4b94cc41a0e24a870b30294be6a308d7c0dde84fa4",
+      "vex-response-vs-poppy-standby": "9c81d30b41fbf3fbc6738fe2afe360b51eac9ab7ca8b3906c59e29712d3017d5",
+      "vex-response-vs-rumble-armaments": "63b82563aa5581c635742b2902100939b93068e846d40ea9cdfb9e6bccebf382",
+      "vex-response-vs-rumble-lowcurve": "fb1dcf3e53fa398b7b910724d3e8db7464773878d2453884def9ff5837b32724",
+      "vex-response-vs-vex-battlefields": "c7dafebfb0092df9ec2236f27177fbe935601878303c56a542508edae0963143",
+      "vex-response-vs-vex-spells": "6c9bf30a59f8c0ec2fdb6233a65d4f034d113fbce12aebf0a3cb98b1d07c4b9d",
+      "vex-spells-vs-jhin-lowcurve": "aae6134df1f50f696c3c98eb202027d91f0af7e7c5ff736b8b223f9d46213c98",
+      "vex-spells-vs-kaisa-red-control": "9b30e64041370afd08803ee5e7a6af9ce912c334293f7665b494fc7190d525ff",
+      "vex-spells-vs-kaisa-red-tempo": "1cbe8dae9f78a0692a4991f5281e3ea1a75ee824b39a7af902a1f5ebb0f52b5a",
+      "vex-spells-vs-lillia-lowcurve": "8d6c3cd1d977c35ac9c0c02604dd212144d5c20db29e9ebe19ab62345430a921",
+      "vex-spells-vs-poppy-demacia": "4f58e9aaa8209ce779e2a13de480cbad6a1b8762d7be8a526d08be94da69f4aa",
+      "vex-spells-vs-poppy-standby": "50e91b56540caea05c0592528eae8b360c9a5d9c38691798a4f670e6b621a0df",
+      "vex-spells-vs-rumble-armaments": "7f73997e222a66bcd486e04a52f3fa83b94da9a18ccf2982f1e213027220d325",
+      "vex-spells-vs-rumble-lowcurve": "efcdf338625b62b3492746c075a964497a7e901d46ab25b9b02cb5a47c5558ca",
+      "vex-spells-vs-vex-battlefields": "b83ae851d869080db89a22e44420161e7836f864ff38a65baa16a1bb72d04bf8",
+      "vex-spells-vs-vex-response": "18e3d57bcb1ff947508fe36148a2e6de2f9512dd98eb0c01730fd627b0db437f"
+    }
+  },
+  "trx": [
+    {
+      "path": "var/qa/recycle-boon-20261015/ci-a040-20261015/ci-rules/games-1/results.trx",
+      "sha256": "6d00fa9f0168fbc087bab9121587c24bb6138471a6e1bf7a40b04f547551a666",
+      "cases": 1
+    },
+    {
+      "path": "var/qa/recycle-boon-20261015/ci-a040-20261015/ci-rules/games-2/results.trx",
+      "sha256": "efb37590a7224aa39eb7354f863f74ff97365c9b913ec8ab975925bc93d01f65",
+      "cases": 49
+    },
+    {
+      "path": "var/qa/recycle-boon-20261015/ci-a040-20261015/ci-rules/games-3/results.trx",
+      "sha256": "c245a8c11de8d972b05b5b274a8e6bc41eac0365d0184e9b2d2d3016ec599d09",
+      "cases": 49
+    },
+    {
+      "path": "var/qa/recycle-boon-20261015/ci-a040-20261015/ci-rules/games-4/results.trx",
+      "sha256": "ae42dbd76c903d369d03e7236f338d565ebd957c1792fd8e159767d80597007f",
+      "cases": 52
+    },
+    {
+      "path": "var/qa/recycle-boon-20261015/ci-a040-20261015/ci-rules/rules/results.trx",
+      "sha256": "a023b3c9b233afb5ee53a1bbe18fe552d4c30a053c8432f97b561df22b343730",
+      "cases": 11633
+    }
+  ],
+  "acceptanceBoundary": "Actual fixed a040 complete suite, real CI PostgreSQL, native connection recovery and macOS/Windows build only; later 1a5 source changes and its visible product evidence remain separately attributed. Windows real runtime and whole-card/all-source semantics remain open.",
+  "gameplaySourceInputs": {
+    "commit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+    "files": {
+      "Directory.Build.props": "1f96de61a31136f74c07cc8d024e5426058f03c21dcf49365fd618ee15e98e37",
+      "clients/godot/Riftbound.GodotClient.csproj": "31b11d9976bd886566cf931ea810b4c29e0dc1f67c6851d246c7bba40a35e25b",
+      "clients/godot/project.godot": "dae511582551670f843d78cc1f2778baf1b21d91d2bafba3cc455f0ca04f0764",
+      "clients/godot/scenes/Main.tscn": "7469368531354aaa3a7caf3d00a71e662e31da4bc01bc575b670df8e6d09c25f",
+      "clients/godot/scenes/components/ActionBar.tscn": "793f2379d1fd35fd3dbf00bc51dc583c8bb687091440426286e26ee36c72dfca",
+      "clients/godot/scenes/components/OfficialCardView.tscn": "b2f5f024409f5f27779c763205fe77c1dea501dff36d62bfc80a4e51d6970a07",
+      "clients/godot/scenes/debug/AbilityCounterInteractionProof.tscn": "870736cab1f2f5f7b74c9d2482fdd1d41cd7251d45365d293b50b55991866440",
+      "clients/godot/scenes/debug/AhriCombatMightInteractionProof.tscn": "14fc418003f594e39a05a9b8deb12cdb22099b696f0d0cdfa4609e6b9897e3b5",
+      "clients/godot/scenes/debug/AmbushInteractionProof.tscn": "ccee640727085e61c2e76c333c140d5b38bc106075a6eb69bfe2c0f4c945e4ad",
+      "clients/godot/scenes/debug/ArmamentMightInteractionProof.tscn": "87194fcfe285f0b2a2a5c8a5b9a08d69a37843851cb04c35f6075ca4c52141d9",
+      "clients/godot/scenes/debug/AttachedRuleTextInteractionProof.tscn": "37f7198c382de4caae9dce9c0c1fa74bb348a704567c758621dc9d08a79e5802",
+      "clients/godot/scenes/debug/AttachmentModeInteractionProof.tscn": "9f8af3ade860a4d76f12bcb77d71b0b195575e1b7822b05fb393c36d82289dc5",
+      "clients/godot/scenes/debug/AttachmentObserverInteractionProof.tscn": "d67eb3a6aa6214ad5d85f72e05c8bd7af511628d5e74c3ae195e0471d927b0bc",
+      "clients/godot/scenes/debug/AttackDamageInteractionProof.tscn": "141c5593747d38400f5d17bb2980daf922e691c525d8838989a4666d311c164f",
+      "clients/godot/scenes/debug/AzirMovementInteractionProof.tscn": "65f645ec3bf3578fdac703d88be9b2233c04602308c79d65912e79e57c1ea0dc",
+      "clients/godot/scenes/debug/BattleTableInteractionProof.tscn": "820cdffad22063e4d1964c2904e5423f52e5a1f0f64a1009ff4210d322e77a0a",
+      "clients/godot/scenes/debug/BattlefieldMovementInteractionProof.tscn": "fbdedb29be16ea825b38cc40c7bd7fab0e8493c07c8c5201b4d510cce48e46c7",
+      "clients/godot/scenes/debug/BeginningDrawInteractionProof.tscn": "85cc1e46d7d47e5befc7b5373cf8d91a7afc89100836611027a166dc6b395c71",
+      "clients/godot/scenes/debug/ChosenMovementInteractionProof.tscn": "0db4e3b2fc7d0d0ecf2455f10620fe1806a59c2262cc6410d3b37418f82f48de",
+      "clients/godot/scenes/debug/CommandedMovementInteractionProof.tscn": "7a2dc696fab2fb011f3cfd814dcb2274688e90d04ab72b8027d2ad5051a15f0b",
+      "clients/godot/scenes/debug/ConquestTokenInteractionProof.tscn": "e01e7374ebc725a8eda8b3337118c857dc2403e559d2737be92919af64cc0859",
+      "clients/godot/scenes/debug/CopiedAttachmentObserverInteractionProof.tscn": "934327ca5e2139bfcc5acfd287971de3cd90c965cbe5e2f00c9a2c051c772115",
+      "clients/godot/scenes/debug/CopiedSpellInteractionProof.tscn": "04e25fcd4095c68125da12dd74f656c52066b73fa3064ce8c2d2e869741bda74",
+      "clients/godot/scenes/debug/CopyEntryChainProof.tscn": "1e312e4904bfc29be90b1e7f57ab80ef99fc38856dade0f1488d1aa12d1744a6",
+      "clients/godot/scenes/debug/CounterHoldInteractionProof.tscn": "c65cba3c7459688192e59779bdc51ea3b26dd412c8377864b6b53b40178734f3",
+      "clients/godot/scenes/debug/CurrentPowerTargetInteractionProof.tscn": "9342614f5ee05757d3b4ae25eda670acfd2c73a9979afbda7ed93081e52198ad",
+      "clients/godot/scenes/debug/DeathDuelInteractionProof.tscn": "1ec72f35633a1a4b17326e174bde8023ce6b3915a81d76655e21449d2c59c8c5",
+      "clients/godot/scenes/debug/DeathObserverInteractionProof.tscn": "a496360d031aeb876f7fb15884b77f6a2af3cd7dfb251aceb04cf4e932d3097e",
+      "clients/godot/scenes/debug/DestructionOrderInteractionProof.tscn": "487b7de3debf616546c699c1a723a6814e56ad87e5c846cb4554e0ab8db1b51a",
+      "clients/godot/scenes/debug/DuskRoseLabInteractionProof.tscn": "39da4c88fb430cce23a60070cb040a95ffa3a1af6618fb9fc0cda1ddab79710a",
+      "clients/godot/scenes/debug/EchoCostInteractionProof.tscn": "4c042258f54b1c008ee2f65efe9f0e56f3310456285e391fd69f0a1da8fba5a9",
+      "clients/godot/scenes/debug/EchoSingleDestinationInteractionProof.tscn": "64d2eb0610d8f2bb45a9571d9de23e7a0b5c147b4e4ea3ec92ad89d963785020",
+      "clients/godot/scenes/debug/ElderDragonCombatInteractionProof.tscn": "3f3d5ef833d7a3a419d5ed4986717545afa25ae0148c43bffe3b4e704acb93e0",
+      "clients/godot/scenes/debug/ElderDragonInteractionProof.tscn": "d7ba7d7b86c43344596f22de03e207ce2a3ab0c82da20e7e506f809d9a0eda2c",
+      "clients/godot/scenes/debug/EnemyAttackMightInteractionProof.tscn": "1882345b959d5491cc9dfd09d91299a4dbb85d3b09f954191253f21811251e37",
+      "clients/godot/scenes/debug/EphemeralStartInteractionProof.tscn": "384eb235f8add5c2bf4c25739641d8c98d90989acadb6aa56ca6b79b7a7cbef7",
+      "clients/godot/scenes/debug/FaceOffInteractionProof.tscn": "0b77abc3abaac70e46f8cc6362c8465d4c84b44a5eb31cb803b7e3de33a73cc7",
+      "clients/godot/scenes/debug/FocusedPromptOverlayProof.tscn": "6741680806365d7e64703950e84c4df1dd7b2142dccb09a3f637083acb836575",
+      "clients/godot/scenes/debug/FrostHoldInteractionProof.tscn": "0f8c44ab7833add115f67df7f2ef633cf1c498ffa3a4c01c1e8fab41684473c9",
+      "clients/godot/scenes/debug/GrantedPredictInteractionProof.tscn": "3895e043d1a297f5705c98995eb2971bc1e16e8ca70458faa1d4f9b1ccf14571",
+      "clients/godot/scenes/debug/GroupedPlayInteractionProof.tscn": "fcd86b201502ba3e5098f4c8e85a9c5b7c7b0983b16e104662cb5c8cfeb7dc50",
+      "clients/godot/scenes/debug/GroupedTargetInteractionProof.tscn": "875cdd42764390f546cc65c03641f660f1707bc5d5d0385e339e195524a8aebf",
+      "clients/godot/scenes/debug/HandChoiceInteractionProof.tscn": "f2e56ef0c031b93d47f3768e0cb6ed1fbd608ae9d5afd2ecbe4bcd89d9bd3d10",
+      "clients/godot/scenes/debug/HeldConfirmationInteractionProof.tscn": "defe7ceff00b84354d681e28e3aa772bad59d85d77e9eee544acbca5d3be3465",
+      "clients/godot/scenes/debug/HighestUnitMightInteractionProof.tscn": "4ef662391132172afa9f6bbdb78a0ccc40707b5593306c1e69a4a460be69349b",
+      "clients/godot/scenes/debug/HoldSequenceInteractionProof.tscn": "f880b7ab99cf89afeaf89a91d071b0ec4378c8889eb9c452362317fd9f321989",
+      "clients/godot/scenes/debug/InformationPermissionProof.tscn": "aebc268afa277634872b929eced00d668dfa56007fd37b08904f7763511ed77f",
+      "clients/godot/scenes/debug/InsightInteractionProof.tscn": "d243dadf75c88a1c9ab58d087614a6bc89c00b05101be986962e4d080abe1f50",
+      "clients/godot/scenes/debug/InsightSourceInteractionProof.tscn": "2c1fdea91b8cc6c12b2f85d76605b2e91d38ee59cba7fb4efd80155920623f92",
+      "clients/godot/scenes/debug/InsightTriggerInteractionProof.tscn": "3d1d098636c2e64f8a2fd69d518a7a489ff2befb1b2e14fb99178813722d9029",
+      "clients/godot/scenes/debug/LegendAttachmentInteractionProof.tscn": "fd426f22bcf4a154a00e4cf41351bc50ca2d3ad9d8031df04a48e6644a34df27",
+      "clients/godot/scenes/debug/LeonaMightInteractionProof.tscn": "bfa4a9ab7113ff894e524ebf5ffdfb169a570dc9c4e6645f7c76c75712a4b727",
+      "clients/godot/scenes/debug/LocalDestructionRecallInteractionProof.tscn": "74a454843ee6412ca91638acce731466755d651241578da012fb8173ac5eb1bd",
+      "clients/godot/scenes/debug/MaskedAttendantInteractionProof.tscn": "5802b548db8109aa731660d9386184833987e6cc463f4735635d6cae0aaa8138",
+      "clients/godot/scenes/debug/MechanicalRecastInteractionProof.tscn": "af0a0bb5d6dd00e8bd21e10afe74bd078ab7f42f779d52f92b4584f455a5259c",
+      "clients/godot/scenes/debug/MightyExperienceInteractionProof.tscn": "1b5985da8dfa77fab975fcd11c26cf2d21080ea605062c0e3dcc9ddf2d3db955",
+      "clients/godot/scenes/debug/MightyInstructionInteractionProof.tscn": "0ab3995051f84635ccb9c91a9713a253e459e7ee0e3c6161f312ed85d521ab10",
+      "clients/godot/scenes/debug/MightyTransitionInteractionProof.tscn": "964bb9c3e1d7362acf1e94d74b3c7523351099b06167127bc6d76c1a4154f68d",
+      "clients/godot/scenes/debug/MoonfallInteractionProof.tscn": "ccbea3d0443c2abfa8de550180afbf834332eb9f4c85efdc3f1427a7f9094bf0",
+      "clients/godot/scenes/debug/MorganaInteractionProof.tscn": "082c393a3538ddc7632a8ac3d85d4e05cc4164d4a6c3fee6135e07af6f6a104e",
+      "clients/godot/scenes/debug/MovementObserverInteractionProof.tscn": "e20c00a3479a238caf9e694ed424f94da949a76fd497ab68536d3a1f3b155f2a",
+      "clients/godot/scenes/debug/MovementThresholdInteractionProof.tscn": "2b788ea6eb8b27b0aca468596a7eef5ce7c8c219296e0f4c6be2874b0b48e3d7",
+      "clients/godot/scenes/debug/MultitypeEquipmentInteractionProof.tscn": "b2bc1d0ca36a9f16c3a39d44a801ea1b1a05fa171e639b91cf45ec6e6c557272",
+      "clients/godot/scenes/debug/MundoBeginningInteractionProof.tscn": "1440e4bc9eea83d6c9ad08556f91d87c83dac68774291a20543ffe8c7e845669",
+      "clients/godot/scenes/debug/OfficialCardViewProof.tscn": "8f4548a605f95009888763e973990d35c0f4a1102ea38bc5117821dc1895f45c",
+      "clients/godot/scenes/debug/OrbOfRegretInteractionProof.tscn": "c0d067f2fc924ff184d36114975516bebc83f73846902ade06b93db3c90fc4be",
+      "clients/godot/scenes/debug/PlayCardOverlayProof.tscn": "9e3cb4c3416c7f5ab35a3eb9b76e38067e51975b23e015c6d15162644d9bf57e",
+      "clients/godot/scenes/debug/PowerfulConsumerInteractionProof.tscn": "fa996af3817fc75d811a8f494e4ac41df9fbd9ddf9fdd8c6e7d713d720b7ff81",
+      "clients/godot/scenes/debug/PowerfulKeywordInteractionProof.tscn": "d14861458ca19e01787c9190d3fb1bfac8c5fecb38fb52bf223db3f9f56fc8c4",
+      "clients/godot/scenes/debug/PowerfulLastBreathInteractionProof.tscn": "e3259f37e1d7baefe5edff70187e286d221d0ebc45f0ce0320e1d9820726fa62",
+      "clients/godot/scenes/debug/PowerfulSacrificeInteractionProof.tscn": "24d754519faeecf45da82891a7b2b6cb32d528054e960618739267cd5ccbcde9",
+      "clients/godot/scenes/debug/RecastInteractionProof.tscn": "06fd36c237ae22a886546b9705c2e8579c256502c6e51a15b96e1a78f2b792eb",
+      "clients/godot/scenes/debug/RecycledCardBoonInteractionProof.tscn": "720069f776628be51fa857f93840bbbd69e26e2fc00de9627ed7ef262af45230",
+      "clients/godot/scenes/debug/ReflexiveMovementDuelInteractionProof.tscn": "bee9bbd67da36aa6198025083da756613d42f62f0386ab889406b69371559539",
+      "clients/godot/scenes/debug/RepeatChoiceInteractionProof.tscn": "416ee7b3708b1d4406e82c4ba65539b2adad1ee1879831439e08af5e3ab2bfc4",
+      "clients/godot/scenes/debug/ResourceAbilityInteractionProof.tscn": "8d85d08b35537598b15cace574f5f73237a57479235258cb99bcfa5606738e0a",
+      "clients/godot/scenes/debug/RevealedHandTableProof.tscn": "57b32d83adff9a2807a8672c95a14e9fde7d8bddd7417ed1de29c8e50b483f79",
+      "clients/godot/scenes/debug/RuneHeroInteractionProof.tscn": "95cc5fc444906d1d519203a80b6f1f9c61d51062250e31876d97aea4f3d7fd26",
+      "clients/godot/scenes/debug/RuneRecycleDestinationInteractionProof.tscn": "4698c7c34328e9dce9be95e77fafa7d9def6177fadf28a9e144ce8b38363fa37",
+      "clients/godot/scenes/debug/SequentialMovementInteractionProof.tscn": "f915fb82f836a6620a471f1cb433ef658ed783b91f9252ce6bb528a4f97c273e",
+      "clients/godot/scenes/debug/ShadySpectaclesInteractionProof.tscn": "835b4395aa40da425712741d7dbf3449104133441445066b439e97bed3d679a9",
+      "clients/godot/scenes/debug/SiphonEnergyInteractionProof.tscn": "8da1716da9d2363fa43b780adedb35b73bf41dae80e25adf254a7a378f97afb5",
+      "clients/godot/scenes/debug/SivirOptionalInteractionProof.tscn": "5be5e3ce914836d4e3c63e2ab1437a494d1384ff3cf79694bf8c6fd19fcf37ba",
+      "clients/godot/scenes/debug/SivirPaymentInteractionProof.tscn": "61d053edc11e43230ba69fd394c8df659283f932edf91957473c977ced97fc51",
+      "clients/godot/scenes/debug/SunkenTempleInteractionProof.tscn": "7755cdf4909aa69e28360876bc857da6f31a441184904d95a4458aa00f983840",
+      "clients/godot/scenes/debug/TemperedPlayInteractionProof.tscn": "5b85b67fdc79ff2a105a05d0ce3c684033314ce246cd476590a6da4bb0830fbc",
+      "clients/godot/scenes/debug/TokenCreationInteractionProof.tscn": "00d8601b84105603facb2566b3f47eebb1b9e2661f0e4e71eda889da1cce856e",
+      "clients/godot/scenes/debug/TokenReplacementInteractionProof.tscn": "cd82baed52b75c4343791994c0b5af4cf2e12215634c9924690bf2710304580a",
+      "clients/godot/scenes/debug/TriggerCostInteractionProof.tscn": "09ee03aed4514d2929d5715f2c4e204f8d0d5811d7f91fb8a5970463f290e031",
+      "clients/godot/scenes/debug/UncontrolledConquestInteractionProof.tscn": "b5c9569eefd970342050cedb3f1731b970293e30bc4f3874532b94f0d0de55fd",
+      "clients/godot/scenes/debug/WardCostInteractionProof.tscn": "a6247a8175df0569270f52442ee69b4470ed4627568562b5ba36de23d93c2c79",
+      "clients/godot/scenes/overlays/CardInspectOverlay.tscn": "81949f3bd3a0a41f097da62ec7d6013a0e991480679f9eeef96d365f8b100474",
+      "clients/godot/scenes/overlays/DamageAssignmentOverlay.tscn": "e1a9f4ea1cd387d940c8c5ee82369d8567a80880e4789e57bf3286d249194641",
+      "clients/godot/scenes/overlays/MulliganOverlay.tscn": "5733ef93eed774a2f4469def15cdbba8e18c27a7579b02074971662937cb8c89",
+      "clients/godot/scenes/overlays/ResultOverlay.tscn": "85ed1c4eed02f8b7286824b691931b2b2678afd307d2bece2580704e9d5a848b",
+      "clients/godot/scenes/overlays/TriggerOrderOverlay.tscn": "c3357559c6bd9ad7a11f3994164493ed97a39ab6c9d15faec2a24ff06fda436f",
+      "clients/godot/scenes/screens/LobbyScreen.tscn": "eda3868a57a911cd7fd29c1f6ea39157d105e7a9b44adaf882437db8d3230650",
+      "clients/godot/scenes/screens/MatchScreen.tscn": "ba7fb3509c52adaa7506a565b4b815568517b4585c967022c94645e696855aa6",
+      "clients/godot/scripts/CardCatalogEntry.cs": "565e18c98793a3f2510dc3fb0f226c364d290c0da9a0897d2aed3563ae76e96e",
+      "clients/godot/scripts/CardViewData.cs": "b7657edc6fa73cf791a5b0b9defba04fb28217e9c90fa27fd081605071f0006f",
+      "clients/godot/scripts/CardViewFactory.cs": "b715614f042afa7568b1fc55e1e49952762f168cd1f9b00472607ebcd166152b",
+      "clients/godot/scripts/DamageAssignmentModels.cs": "17e1d23da35c5c1959e4ff8d8e6ce7561aa9a0a45989309615e420bc4f75663e",
+      "clients/godot/scripts/Main.cs": "5dc4c46559d1b9f2c903690caa1232d73b068faa663a77249d1005705b4f4357",
+      "clients/godot/scripts/OfficialCardCatalogService.cs": "a7cbcc26fdfe93a24ce47f167fb835e718307f29501eb898c255e4c119c52e39",
+      "clients/godot/scripts/OfficialCardImageLoader.cs": "cd5d4a3b83c51c21d71b2b073c60b3b6b3a2f245be0f8b893e6e0e69eca471d4",
+      "clients/godot/scripts/PlayerSessionSettings.cs": "48f3ce26167fe3c79572fad7097b7c5a06b96c01579c568d3b158466093fa820",
+      "clients/godot/scripts/PreconstructedDeck.cs": "02b8c99c763d863f184939b171f79607d21741fdef7600101fe841f545ba7607",
+      "clients/godot/scripts/RiftboundApiClient.cs": "19b05775e180fe7481475689155031f98d22e293acf55e7ee3531ec9750fc0f4",
+      "clients/godot/scripts/RiftboundGameHubClient.cs": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561",
+      "clients/godot/scripts/SnapshotCardRef.cs": "88ee91f317e692c51ec92bdab92ce91dc5a2ad82002e05374901b274f789c1f8",
+      "clients/godot/scripts/SpecialPromptCommandBuilder.cs": "b72701ce17755cdfc5939883948e3f62dffe4ea755b3812215a15ac774e10375",
+      "clients/godot/scripts/debug/AbilityCounterInteractionProof.cs": "15f2e92a75b8039494753ee20a483e42f69c72e58bebcc842cf3ac62fd9aed71",
+      "clients/godot/scripts/debug/AhriCombatMightInteractionProof.cs": "bad498675be6c77d7a5e3e864f9684bc6b6d3b1a98fd91f8a6ec6e9cf3acfe7c",
+      "clients/godot/scripts/debug/AmbushInteractionProof.cs": "22cac893d1982f6446d8e049faf17171d6ccb1ad7fda90d4be10331868feb20a",
+      "clients/godot/scripts/debug/ArmamentMightInteractionProof.cs": "fdc6d76f2d53c21d83cdf58480f1fe4aac4b138c60c2eb28545e5f7078e8cfaa",
+      "clients/godot/scripts/debug/AttachedRuleTextInteractionProof.cs": "1e02dfe595e0d48ae11e6f700f1ed02be45f17f24432cd83636f52ba8834ca35",
+      "clients/godot/scripts/debug/AttachmentModeInteractionProof.cs": "3f3c974d641bf0c6240b6aac533a4573443251a703d8141c7184a3e73fe30d67",
+      "clients/godot/scripts/debug/AttachmentObserverInteractionProof.cs": "dece61bf3b099273ac54bf091cf759db6a3ea09fe26582193d44f1daebd4e510",
+      "clients/godot/scripts/debug/AttackDamageInteractionProof.cs": "875f5cf26f230fe8672f2f781994c612656fff9d798868e92f5a16a17035cbf7",
+      "clients/godot/scripts/debug/AzirMovementInteractionProof.cs": "bf65450ba5f732e9987a233b16b27d18f3be2119ed5204016a56134cbbd70a92",
+      "clients/godot/scripts/debug/BattleTableInteractionProof.cs": "775697166ce1b656f39b0e3eaee94741c6065c72d4ad1e236cbf7c2bbde61b4e",
+      "clients/godot/scripts/debug/BattlefieldMovementInteractionProof.cs": "009db9e56273a6b3632892fccfb7e2652b86d954e5b5d24b7465f1b85aa1e471",
+      "clients/godot/scripts/debug/BeginningDrawInteractionProof.cs": "a6efd3c125eb72de1add03c54af3788641ed7412a2c43835b2fea98d1c185841",
+      "clients/godot/scripts/debug/ChosenMovementInteractionProof.cs": "31095c58f5c5041290b1d45cdc8cb505fe33707f741fe5da641d7109360701b2",
+      "clients/godot/scripts/debug/CommandedMovementInteractionProof.cs": "4cdc633505e122f3e0122e0275ba20f40e028786d706cd70789e0647e6aa50d3",
+      "clients/godot/scripts/debug/ConquestTokenInteractionProof.cs": "9be9f9a256fead01a105757f1cbbd2aa40d4233d370f873ebe06df3dd50ea08e",
+      "clients/godot/scripts/debug/CopiedAttachmentObserverInteractionProof.cs": "39b30417efa7dee25e4e10a0d238bd916e5e544cbcab764fba9f131ba6092cf0",
+      "clients/godot/scripts/debug/CopiedSpellInteractionProof.cs": "614e733961ed5152b48de649039788ed633cba7cad24d3719921a76df92507cb",
+      "clients/godot/scripts/debug/CopyEntryChainProof.cs": "b8fccfc3895b878c8a381cd4ec576a4afd7873d8a1633b158adaf567702320e5",
+      "clients/godot/scripts/debug/CounterHoldInteractionProof.cs": "db25464a0637ee82c35a58bd27b11bb52c4bd1b17eed34640b20d9b29609a9f3",
+      "clients/godot/scripts/debug/CurrentPowerTargetInteractionProof.cs": "7180c0f6e5ac29e808fc266b973cbf361d95a60020ec43803f08db5786991497",
+      "clients/godot/scripts/debug/DeathDuelInteractionProof.cs": "2f459cd5a88f0dbe5f2d2299308410a75a7639ce582ca0c3e867ae6713bbaf4e",
+      "clients/godot/scripts/debug/DeathObserverInteractionProof.cs": "ecb7d5176dda1fa0d3e7076ea5fe413f354b4300700f4c1ab2df50a9a86fa0d7",
+      "clients/godot/scripts/debug/DestructionOrderInteractionProof.cs": "38dc4d3259cf990e40a8373cc31ea9c20e7ed0ebd1a954917de0161c2c248e62",
+      "clients/godot/scripts/debug/DuskRoseLabInteractionProof.cs": "bcb6129644cd81d53a82663dd49994742ccda921bb951fbdb12aef1b5474258b",
+      "clients/godot/scripts/debug/EchoCostInteractionProof.cs": "960d2a2adb8fe5cf4e131b24da354dd8c6f6e135f5b46f6cbce3515cb36af540",
+      "clients/godot/scripts/debug/EchoSingleDestinationInteractionProof.cs": "7eaef0a54c180e70fe44567664732e02685c187e612d08167001f692eceab7a3",
+      "clients/godot/scripts/debug/ElderDragonCombatInteractionProof.cs": "0eff86760bf5e4eae945d461acb0ff7f41799bdbc64e77da6ed50889968efd8d",
+      "clients/godot/scripts/debug/ElderDragonInteractionProof.cs": "7c3854030632ecac2d93e6cce06accef42d9405cff0dd67a1062fe2e4f4545dc",
+      "clients/godot/scripts/debug/EnemyAttackMightInteractionProof.cs": "a132b318016899dd2fd96cd274f9557de681835fcd736bb76dee7e378da6b276",
+      "clients/godot/scripts/debug/EphemeralStartInteractionProof.cs": "030487eebcfa8f80a2e1bf518f8cbbb39bfab2598b1a34ed978123c8b3849d3a",
+      "clients/godot/scripts/debug/FaceOffInteractionProof.cs": "ce0fb80402fd35d6602c1d948f52fe9ee8d7e2769f6b3a06bdb4538b0ffa2d7c",
+      "clients/godot/scripts/debug/FocusedPromptOverlayProof.cs": "24d2ed6987e49155a565a4103c92e1d11ced87c3f24945a90d8da7c4a743ff2f",
+      "clients/godot/scripts/debug/FrostHoldInteractionProof.cs": "5abeef32c7ee12ec385cfb12b7d3e409027224eb0e40817a0458d3135c1e6d03",
+      "clients/godot/scripts/debug/GrantedPredictInteractionProof.cs": "d467be668d768c154fc2324bbfe62b45b7a0155d0b76aaceb905cc5c16d4b8aa",
+      "clients/godot/scripts/debug/GroupedPlayInteractionProof.cs": "39af37c515f0c656c4960bb85ffaed74d4ea675bfad6d4bd7cf6e4c8a685b676",
+      "clients/godot/scripts/debug/GroupedTargetInteractionProof.cs": "2eca235ce8f567a858f180677ed2a5dedad4f529a40db4d94cd2875869bfc135",
+      "clients/godot/scripts/debug/HandChoiceInteractionProof.cs": "ec9ec49b0c17fa2ce48054a66be087f4980f38b894c3006b311f9e5796d34b26",
+      "clients/godot/scripts/debug/HeldConfirmationInteractionProof.cs": "97edfb71d72d592c4ee20a4856d4af749b83c9d4b6a065dde263cd85db18fa46",
+      "clients/godot/scripts/debug/HighestUnitMightInteractionProof.cs": "49e92ee4340895afbffb217f149a1c3987f9e6c371093cdf8127a12b83712f56",
+      "clients/godot/scripts/debug/HoldSequenceInteractionProof.cs": "36f63050bddbd597da14590038eb48204cee9af296aa5b8dc1bd4bdb028dbe86",
+      "clients/godot/scripts/debug/InformationPermissionProof.cs": "e2c3ffe8079fffe9d10761f3c87d696b2d33fb280a24d114d11223eb9f47830b",
+      "clients/godot/scripts/debug/InsightInteractionProof.cs": "1b834f331f3148b1dc0c906dba7a7bc054eeee4acd8a736f43f831a51ed025ee",
+      "clients/godot/scripts/debug/InsightSourceInteractionProof.cs": "10baca5688382ac408f75fdb90cdb2773dbc92de7c444901b489613e57d2a03a",
+      "clients/godot/scripts/debug/InsightTriggerInteractionProof.cs": "6658474021c64a3fd56c526831dbeb636a0a4c27c3ac0de10b22f68e1c9e89db",
+      "clients/godot/scripts/debug/LegendAttachmentInteractionProof.cs": "1ccd81422338073fcb27e658091386c1338b19b95fc2c408a9589145bc696d23",
+      "clients/godot/scripts/debug/LeonaMightInteractionProof.cs": "75d881fdca78158bcc865c58d0ca8a5b99fb222fa5933cd551cd825dcb720b2f",
+      "clients/godot/scripts/debug/LocalDestructionRecallInteractionProof.cs": "e1cc661ae3ceffac361a7ab081a56644d4f766c181378eb725fb34fc6539b8d9",
+      "clients/godot/scripts/debug/MaskedAttendantInteractionProof.cs": "20dd92a4e8d0bec0c44136d23e2f558137c95c605e104f5a81c3e6c0721ec33d",
+      "clients/godot/scripts/debug/MechanicalRecastInteractionProof.cs": "211fe1ad1942a9eb41072ded6c892f311426a5c7291384c04c78546eca91cda4",
+      "clients/godot/scripts/debug/MightyExperienceInteractionProof.cs": "a4003e4450407b6f623df6b23b7550a953733a88d2cc0dcd8cb5d1f2901574d2",
+      "clients/godot/scripts/debug/MightyInstructionInteractionProof.cs": "2d6a6733a47c7e440af2b63139b6e313ef2d8d084af4ebd90cf11bd1eb57ac6b",
+      "clients/godot/scripts/debug/MightyTransitionInteractionProof.cs": "c23aa6b8fe0ad871ba16bf3b783f0f7c4c5c706003638007e241b664f9edffed",
+      "clients/godot/scripts/debug/MoonfallInteractionProof.cs": "e3e9e1f4cce13c07e22ea338ccf4f9c0d9c947f5bd2acba28ba720cf7be39ac6",
+      "clients/godot/scripts/debug/MorganaInteractionProof.cs": "e4c43218c8e6aa4053a3684bc44fdea6f00679713887c8dec1f2a6b271d7e99f",
+      "clients/godot/scripts/debug/MovementObserverInteractionProof.cs": "1d7a4e4ee065cfdde66b4ed8a3460ae4d0e5b120a4103199442ea7d5863bf0f6",
+      "clients/godot/scripts/debug/MovementThresholdInteractionProof.cs": "0d3f033a9f63628c5730cdacb7731ceb144a2f51063dd15f4ec4a214253bcb11",
+      "clients/godot/scripts/debug/MultitypeEquipmentInteractionProof.cs": "418e7cb308c83821f60bb7bdb8323735ca60cb226a4030c6237d0b1322887918",
+      "clients/godot/scripts/debug/MundoBeginningInteractionProof.cs": "d7cbcae5025b325d71268a0aada2f14f6d929230e70e4ebe479ad870ad083d6c",
+      "clients/godot/scripts/debug/OfficialCardViewProof.cs": "249ddc629134ebb076b907d61d1ff909ea77669ccd4a5f338ba270bae91b410e",
+      "clients/godot/scripts/debug/OrbOfRegretInteractionProof.cs": "2f098a978d2629e2ad653595573bc44e233a856721e2379e62d165e462804981",
+      "clients/godot/scripts/debug/PlayCardOverlayProof.cs": "e22f9d7916ad6497293518de7ff3460ce19ffd247f51942615d147a10a31af6b",
+      "clients/godot/scripts/debug/PowerfulConsumerInteractionProof.cs": "1aa9627b4aef2185fa47cf766110d2329870f375dd8b30fa625e04eb22be60e6",
+      "clients/godot/scripts/debug/PowerfulKeywordInteractionProof.cs": "d2acf6f67005c6dfc35fbc0898963bcbc73b5f894c36ad0d4cea602e063b9a83",
+      "clients/godot/scripts/debug/PowerfulLastBreathInteractionProof.cs": "6b14ff2b51c23a5156b8f2e860fd57853866a318345a629b243bef13bccef8f3",
+      "clients/godot/scripts/debug/PowerfulSacrificeInteractionProof.cs": "6be5dc1715862492ac12da7ba463504f27d8f07f2f2fb22702d11ddd5360a209",
+      "clients/godot/scripts/debug/RecastInteractionProof.cs": "abbe3462a3f4ad5cb8e79bffc0774a624dc3afbac00f54261b0ee0c95999551f",
+      "clients/godot/scripts/debug/RecycledCardBoonInteractionProof.cs": "1bc794de829d4dd4c5f9a1517667738096a9d99e2d55ab4e1350f751cfc92e81",
+      "clients/godot/scripts/debug/ReflexiveMovementDuelInteractionProof.cs": "bcbef5ba3c001174e54668b26baf810e1cc7affc83c529b14e98cd1011bdb0ff",
+      "clients/godot/scripts/debug/RepeatChoiceInteractionProof.cs": "7f559c7e52b054fb04718326131613ab2806b88821daeab7a7dcd9e7c93c6b0e",
+      "clients/godot/scripts/debug/ResourceAbilityInteractionProof.cs": "ad37f8751fda72385ad4f171522f7d7a5e7eb7669d8d7161e2f1a11eb48e3fde",
+      "clients/godot/scripts/debug/RevealedHandTableProof.cs": "f74622e336255fbae9d21b8d93e79422a731beac57302ed8f75066cb80d6cbe5",
+      "clients/godot/scripts/debug/RuneHeroInteractionProof.cs": "7b4ad919289264d8ff792d1a465b8b0c5fe1067f417384771623f6a1d8f24035",
+      "clients/godot/scripts/debug/RuneRecycleDestinationInteractionProof.cs": "a9495c3926de53c375062a062d25ac02f152fa93d37b138680581c3a63dd75aa",
+      "clients/godot/scripts/debug/SequentialMovementInteractionProof.cs": "17108836581f0be2fd17a639c3048200a155365000efff5e816f21f83ff3604c",
+      "clients/godot/scripts/debug/ShadySpectaclesInteractionProof.cs": "6035469c87e9199293f8e06d278d4f3d7c6bbb6acfc4cdfcc0fe9c1ddd41b3e9",
+      "clients/godot/scripts/debug/SiphonEnergyInteractionProof.cs": "9d7a776caaf54033b6dd5bd8fa2fa116955a4ca62de914d9472e9a4ff96418d6",
+      "clients/godot/scripts/debug/SivirOptionalInteractionProof.cs": "526c72e8affb9abcc94e388292b07212c245ae323afd5093bcb2a51c5e6bff89",
+      "clients/godot/scripts/debug/SivirPaymentInteractionProof.cs": "c0471d0cf33c6ee9ae810cb202fd83ec21606b3ccb7ce5af4538055b65fa4846",
+      "clients/godot/scripts/debug/SunkenTempleInteractionProof.cs": "481293749993c89e8c00754b283462b4a010d0630c418e63b06a6a2e059cf8b3",
+      "clients/godot/scripts/debug/TemperedPlayInteractionProof.cs": "8deb42172b0a8984e6f9d97b8763683336e0dacf27f8d1b213d60da435336a1b",
+      "clients/godot/scripts/debug/TokenCreationInteractionProof.cs": "ceea53fec4d307d7e25e84cb0c17814b9646cc40eb329facdd86d9c008598789",
+      "clients/godot/scripts/debug/TokenReplacementInteractionProof.cs": "6de8c0764f01fab47eda4556e5dbe8d87212149f15dbd9e5928dd8d46bcf565a",
+      "clients/godot/scripts/debug/TriggerCostInteractionProof.cs": "3720c3a5cd6a740635a8ffe5b045b6b08c8cc8a8ae70058f4569e9b99ac2bbad",
+      "clients/godot/scripts/debug/UncontrolledConquestInteractionProof.cs": "e8d04ef14381702113c11ca45cda6f63600ac4aab2c8726fccf4242ad654c772",
+      "clients/godot/scripts/debug/WardCostInteractionProof.cs": "e766a5327b1d9fad8160eda099d8b846703884942ae033f05626c2e441c04cf0",
+      "clients/godot/scripts/interaction/PromptChoice.cs": "fc4fe996647c862fff68929b8f543508c6ce769b711e045e0f34df5405b6f516",
+      "clients/godot/scripts/interaction/PromptInteractionController.cs": "70df82fdd953087e17fd6041413828308ed600cc44b8e3034b72ecc93d8d5eb8",
+      "clients/godot/scripts/interaction/PromptSelectionState.cs": "6ddeb72c6f7eb47942d3ac707ea90b6bde806c7d88f3d1d010679afec048dbf8",
+      "clients/godot/scripts/ui/ActionBar.cs": "479a9c34cd82a57e544d438e3915d87892d32b5af555f1d262bea9038d04f7c4",
+      "clients/godot/scripts/ui/AppScreen.cs": "c9757c1c8460bcaba73b4cb16bffdd40827e151421176071a5fa6897830ebef2",
+      "clients/godot/scripts/ui/BattleDeclarationOverlay.cs": "d28add60cc2e232cb412ee54d91194632a63350d8ddb778702d36159910d7045",
+      "clients/godot/scripts/ui/BattleEventPresenter.cs": "9a5b22ce98294c412fdb2d360133309c801d0246cb8a1d4d4d86c8f7630ac97b",
+      "clients/godot/scripts/ui/CardInspectOverlay.cs": "f424f95c00a350640b9d195682e06624ffe49cc19a1b78c472d8ad3ecf2dfc11",
+      "clients/godot/scripts/ui/CardTextureLoader.cs": "0d5cace5f4bb88b6eda9f34d190ba1bb10fe8d9f45adfdf1be3b2714ba73e8fb",
+      "clients/godot/scripts/ui/DamageAssignmentOverlay.cs": "437a19078bda38d20397815b7aacd209f8997617191b8a205023da737fdac627",
+      "clients/godot/scripts/ui/FanHandContainer.cs": "cdefe24526c6518cd71ffabc672a88896792848ddd894cf87c8a04a141d1d94f",
+      "clients/godot/scripts/ui/LobbyScreen.cs": "ed542b1b03cb79cabe487eaea0e7ee92c74bd834ca24543a4884e2a8954541c9",
+      "clients/godot/scripts/ui/MatchPhasePresentation.cs": "15f89d680b83f96e8ab522b321583ff2149783782aa96adb7ddf5df63d3e4725",
+      "clients/godot/scripts/ui/MatchScreen.cs": "dffb71479c93297c89d3cb566a370b7df868982c409808f10dba9d32f9e5e055",
+      "clients/godot/scripts/ui/MatchTableLayout.cs": "642027aeb2a24bcfc1cb16b14ba24fd69fbf1d59dc0a987e6de166bf31c94002",
+      "clients/godot/scripts/ui/MatchTableRenderer.cs": "66163cff64cd27b12898751eb9f8cd7c26aa399fca7097f11c0e13f7e2278c74",
+      "clients/godot/scripts/ui/MinimalTheme.cs": "abec6cf1457913352a8b7286377f6bb9e11cc79c047e87e703030ddc57e52f33",
+      "clients/godot/scripts/ui/MovementOverlay.cs": "a44ac49535196d4faaac69562129044689335560d4f1759b00d144e4ddf3720f",
+      "clients/godot/scripts/ui/MulliganOverlay.cs": "a9e099d77688bea8a3969fc14573d8c28e04854dcda88d81966740f711d8a38e",
+      "clients/godot/scripts/ui/OfficialCardView.cs": "889696557115b56989d02c503e280051d32369b67d5d77afa3bd4d0d4baba357",
+      "clients/godot/scripts/ui/OfficialCardVisualState.cs": "1d40ff85a129a42e5ccba4dc28c8332368cfd05eb728c5e9f36b417f5248cdb6",
+      "clients/godot/scripts/ui/PlayCardOverlay.Movement.cs": "f8238755d16920d899cff5cb9a6e816926ef1b904c450c23b1f5b22056120ff1",
+      "clients/godot/scripts/ui/PlayCardOverlay.Repeats.cs": "e3678e4d3db60696916a73eb436cd3ddc8dda69f48be743ff3f2a47a8846a831",
+      "clients/godot/scripts/ui/PlayCardOverlay.Table.cs": "37cf1046de36c441857696b0bee3c9e512ad67b749f1397a63f2783502a2da66",
+      "clients/godot/scripts/ui/PlayCardOverlay.cs": "7c7e1e47a3730e26100b71dc8a11f7c0a3626112308d770c1c0eb21a2f5c6f87",
+      "clients/godot/scripts/ui/ResultOverlay.cs": "c0f87ad8959f005a4d6f2f5655f75a9c03cfd4ededc744ddd3f5d170fd7a98e8",
+      "clients/godot/scripts/ui/RuneActionPanel.cs": "5db8601c0f8c1e6146a3e050d837ae27a5831232f16c539e7019daf147e380aa",
+      "clients/godot/scripts/ui/TableDropZone.cs": "bb63bf50acfb4f6783e276eecfad51b4ddfd8d10c012955f7de78be0a6fa687f",
+      "clients/godot/scripts/ui/TableTargetLinks.cs": "1114af8fcbc91163a53da4216783ca6088651746c3466886b5e806ec85cad1e1",
+      "clients/godot/scripts/ui/TriggerOrderOverlay.cs": "0c69fe77e61b61dddf472e3f7c2836dc015306378450c36de768946464bc34ae",
+      "clients/godot/tests/fixtures/battle-declaration-prompt.json": "b159183155ed43d65dafa9cd08a530e7f85ee7cbf51771234876f9180e5f6cd0",
+      "clients/godot/tests/fixtures/table-interaction-prompt.json": "f4c4c4aa1dadcf4dd0d9a539872aa69849f507c9d4de0c99edc2f9b1b7e230fb",
+      "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+      "data/official/card-catalog.zh-CN.json": "bb23aba67c233762352425cf44b6ffdc336f31d5cc7099e2006f61ee4c4f532e",
+      "data/official/rule-input-scope.json": "5ebece0950a5efc82e63c78899ad424ee1158df99a572e47358c9630bbea5ffa",
+      "global.json": "b48d6da8fa62c0da7cc8a2da4ea036ac55836660a448ba533135abb5b8451b73",
+      "src/Riftbound.Api/DevUiCorsPolicy.cs": "0a1c1b8c0691220fd423e5ee944f277893b4e0ca258d6e8b862764292af5a8cb",
+      "src/Riftbound.Api/Hubs/CommandReceiptFollowups.cs": "c9360006eff1f10cdb93746a2490d384e4a45f8cff8d4b9010e143971008980d",
+      "src/Riftbound.Api/Hubs/GameEventObjectRefProjector.cs": "62a3da6ae2726b01bcf0c2629158efb964a8a0c45bef9f3de6afeb5170c83c0e",
+      "src/Riftbound.Api/Hubs/GameHub.cs": "2938e590d22bc2107cb84ca6b8bd6e5f05ccb824fa21666fde5176dc2d63914c",
+      "src/Riftbound.Api/PlayerProfileEndpoints.cs": "0d482f54eb0aab87f3122581b2c029644693b802b5de73c929ddbca0cbc98f60",
+      "src/Riftbound.Api/Program.cs": "8852e932a137dd4acbd846e4b83222e1044996e6ce46a4a15012251c15c72303",
+      "src/Riftbound.Api/Properties/AssemblyInfo.cs": "3a4ea5316540123ddae216abc55b038d69333170f79b0d46b1bf90cdc016d924",
+      "src/Riftbound.Api/Riftbound.Api.csproj": "6d2f25795a7fbc92e16fb576d534f781b3c327fbcee5ecf1fa9d9c6ce5e25cc3",
+      "src/Riftbound.Api/RiftboundOperationalStatus.cs": "959fa6529772ad7d224c51eee84863fbd4f23149c065a4b7cf1ea224d1401766",
+      "src/Riftbound.Api/appsettings.Development.json": "109fcebd5e1b2ded13ad0622e0faae3b0c5cfe238ee7036a1d2f6a292db860a4",
+      "src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs": "5f175a7ea7b302676a7641b8d5469a255ac9f67f8c35b19770646ca2d2c42485",
+      "src/Riftbound.CardCatalog/EmpowerParser.cs": "cc872293efd259807bed7b989c416552277e421f32dbf516b2ca08dbd3d1c2f0",
+      "src/Riftbound.CardCatalog/OfficialArmamentCatalog.cs": "fcc9a56d49f5a4ba37a0b1a5553fb796e4cd02bd1406ccf3e2bfb99c111d4237",
+      "src/Riftbound.CardCatalog/OfficialCardCatalog.cs": "efb2abf583a27ca1c8b85a90b8ea1ff7c453dc5e20c7cb0af798f285f4bd6546",
+      "src/Riftbound.CardCatalog/OfficialCardSchemaValidator.cs": "e1902db6b2b86bb9b603cfe5244aa613c1b5331c0116db41bf3323566a491c9b",
+      "src/Riftbound.CardCatalog/ReviewedCardErrata.cs": "e1ccc54102d3b62e09a2d563a36b13d2e8f66a984102fe0b1ab567fa6642ebbd",
+      "src/Riftbound.CardCatalog/Riftbound.CardCatalog.csproj": "a77cd6cf2698cd32ea7cd33c2d9a15b7bcb6b0613dfb745f7056416d79b92226",
+      "src/Riftbound.CardCatalog/RuleTextParsers.cs": "038ff1aad6ccfb745654aaa28f29433514c2304386e108a7ce97a42f1c282a30",
+      "src/Riftbound.CardCatalog/StandbyParser.cs": "5570dfae09911dbbbf311166c0b611732755e77270f5735d1314abd227969e41",
+      "src/Riftbound.Contracts/BehaviorSpecs.cs": "69787e94e73caad9d294401ffb10753fb978640be18422621f835f5c47258278",
+      "src/Riftbound.Contracts/GameCommandJsonMapper.cs": "2e89e90e985b90dfeb6b68f7aad7b23a9f5843365e3b917e142b83435da68832",
+      "src/Riftbound.Contracts/PlayCostQuote.cs": "4da83dd886390ccd3a55f889dab4ae78a17af04092362e5083fecdf1373ad24a",
+      "src/Riftbound.Contracts/Protocol.cs": "3e64fea885b0764521db2913070fed4ed00a56e4bc7b47e46c4c3d9e0ab600f9",
+      "src/Riftbound.Contracts/Riftbound.Contracts.csproj": "5652118905769e10741991c54720797db6530f731de65ce3d021de841d4d7a55",
+      "src/Riftbound.Engine/AmbushInteractionSpecRules.cs": "8f39907de1136b3f547cc410dd59612c2b1b2efec79cc8cb05d68ced4e56612d",
+      "src/Riftbound.Engine/AssembleEquipmentProfileCatalog.cs": "9c2ba4b7756898574844d1ac6e86ac4ea26a5d23a1731515775b837fa0f26e07",
+      "src/Riftbound.Engine/AttachedRuleText.cs": "139afb763aed7b3abcba6417da197fdb2c3c12a4eb25c02710daa9b4c44418c2",
+      "src/Riftbound.Engine/AttachmentUnitCopy.cs": "d469fa4cdf582fd3bcc26d55bae19d3bdd2bcc2e20b14e5a58305a722304f47a",
+      "src/Riftbound.Engine/BattlefieldContestRules.cs": "70324d797a4b87e443ec7155298906f96085b79f3796a8a0ecfb725bf979e5ca",
+      "src/Riftbound.Engine/BattlefieldLocalRules.cs": "601080a057d0e96dbcd706cca2719428d5cf13b2e3dd0f8e86b0fbb88c4d266b",
+      "src/Riftbound.Engine/BattlefieldStaticAbilitySpecRules.cs": "95c165f670bf0389bdbf86843d48077f858afd15f9cb541ee3a3a61951cf055e",
+      "src/Riftbound.Engine/BattlefieldTriggerSpecRules.cs": "65a560516237097c0029e3c6ae61a992aa754eeea354513aa4c67e35a684231f",
+      "src/Riftbound.Engine/BehaviorTemplateExecutor.cs": "d71cd729c7f8dc3b95d2aecab4d146d95114a9a434a394a2cf2abc9f618a21d7",
+      "src/Riftbound.Engine/BehaviorTemplatePrimitiveExecutor.cs": "87a8bab1e3188c27909ef77044012ba8d631373ecda6dd0eb08838b95cbf83bd",
+      "src/Riftbound.Engine/CardBasicActionRules.cs": "7768fd14396ef4877a0e2ac34d2c5db81a0ccbc08c0ff997effc68f3fc84a894",
+      "src/Riftbound.Engine/CardBehaviorRegistry.cs": "143355c220349ae7197cffb984cede56b59565d9f68120b94276074acb7c5328",
+      "src/Riftbound.Engine/CardCombatKeywordRules.cs": "2b4176b6954c60f3a5ad7cf198e9831eaff14e2bc451bbd21022ba4af86df9fe",
+      "src/Riftbound.Engine/CardControlRules.cs": "c9b7eacdbd37b1fa7b7f1edd4010e48c436f5c4cd10a25043a6bfb3b27228ee2",
+      "src/Riftbound.Engine/CardEquipmentKeywordRules.cs": "1b9e8308bdacd14eef402230d658ff5cd339938b478a26a6874df256c28d5ca8",
+      "src/Riftbound.Engine/CardInteractionKeywordRules.cs": "eba5e2362ce37fb090a5fe721c007a57401715bc84a98552366e1395b0ae16a4",
+      "src/Riftbound.Engine/CardLifecycleKeywordRules.cs": "609ba91ab6f7284fd6bab4ebed658c2fe4f0386a45e3b98d39729141dc8def52",
+      "src/Riftbound.Engine/CardPermissionKeywordRules.cs": "1fda72c497114c45576916b0f8dd7db3f98f8d7e4fae0a0231c93f77a8008dde",
+      "src/Riftbound.Engine/CardReplacementSpecRules.cs": "34f1d713c206c49285a7ab0522c7be00411af69acaf5c09bc789f63c4dd200f5",
+      "src/Riftbound.Engine/CardResourceKeywordRules.cs": "141ab289f5f67860d2b2e141ab59c388baf1e0b9b69c3ec3c50c6b581c847009",
+      "src/Riftbound.Engine/CardStaticAbilitySpecRules.cs": "0a0017de9226b1d8412d43f2eea5bcaf60f70591c989d40ce27668ca149b794a",
+      "src/Riftbound.Engine/ChosenChampionRules.cs": "7e5f3c0c865a202bd737e195a7322d1673abf51b8710db33f41d357291e09ba3",
+      "src/Riftbound.Engine/CopyCharacteristics.cs": "d7d284f971fba17a281943c7de6deb9fe0ce95dadde07f858b319c0aeeca1c5e",
+      "src/Riftbound.Engine/CopyFaceTimeline.cs": "0f5e37fa52d8e19e9344268f568ba462ea5255d5d3334b54a2247413f070e0b9",
+      "src/Riftbound.Engine/CoreRuleEngine.AmbushPermissions.cs": "7636bf59ce64bfae9e5100006b5f682e8b779f9b05cfe1ec7212fc4189bd6e21",
+      "src/Riftbound.Engine/CoreRuleEngine.AreaMovement.cs": "58775f0b3c47464df3ea136f23b274697f2785e5f60af84a651130355af0d7b4",
+      "src/Riftbound.Engine/CoreRuleEngine.ArmamentMight.cs": "ee6c155ce8045776443f0f7e26180b66f99bf3ac129f826afd84e7782634966f",
+      "src/Riftbound.Engine/CoreRuleEngine.AttachedRuleText.cs": "12b2eb7bb627eacd6377e49c6eb343dead7faf1f45467dab1bad7a2dec0618da",
+      "src/Riftbound.Engine/CoreRuleEngine.AttachmentModes.cs": "2ce9ad910084acaa400566798478f4350371d15bf56df1fd29b48c028f2b2c63",
+      "src/Riftbound.Engine/CoreRuleEngine.AttachmentObservers.cs": "2c404041e7c38d9d6e8e9060806f030c3654f457f65b5ac8e2cb0b307e947fd2",
+      "src/Riftbound.Engine/CoreRuleEngine.AttackDeckPlay.cs": "a4a9a0ad35f074f90cc469aca0fe07fb5c5c8d394daf6d497a9852f3a34ddfb9",
+      "src/Riftbound.Engine/CoreRuleEngine.AzirAttachmentChoice.cs": "3c2181b9e6c25197618381d94f839d587519203e8b95ab309b781b91598e8656",
+      "src/Riftbound.Engine/CoreRuleEngine.AzirMovement.cs": "2e7c007370d43935cabfead651bce80281ada72a5160e796d726eea2792ec145",
+      "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs": "b733efda64821fd825a2c369b63cb05fb93c802974677a61b6165f808236e733",
+      "src/Riftbound.Engine/CoreRuleEngine.BattleStartRoles.cs": "ea8a0725a308a61c135476a84304350a981b41e935d2f8a0d02c4d6e5963589a",
+      "src/Riftbound.Engine/CoreRuleEngine.BattlefieldConquestMight.cs": "3f31ce27f1d477b11288c4b5437107bcae21e49215996d207b8043c5de1baa17",
+      "src/Riftbound.Engine/CoreRuleEngine.BattlefieldControlCleanup.cs": "3f6e1429f01fd41aa8902fd37ab060bfe004fb5e856cbe49433de582f76de379",
+      "src/Riftbound.Engine/CoreRuleEngine.BattlefieldReplacement.cs": "22891bf29978761452061e7dfc5d4e26bc0fecc87f2505657785564eee032e1c",
+      "src/Riftbound.Engine/CoreRuleEngine.BattlefieldStart.cs": "886a2f98c9f52c60943676537c059ec146a6f14a78a1359a42b6b8c94946b871",
+      "src/Riftbound.Engine/CoreRuleEngine.BeginningDraw.cs": "8d33053648606942de7493561b70e59c4fe83dba9512f3ad2803364c2715b19a",
+      "src/Riftbound.Engine/CoreRuleEngine.BeginningRecycle.cs": "a2eea041471ea417250b512861117d5c4b6ec8daddf02bdc4c7c820085750f7e",
+      "src/Riftbound.Engine/CoreRuleEngine.BoonAmplifiers.cs": "8923935183c39e76ca301436c9627d8332488a4067444f92536e3eb06bbedecb",
+      "src/Riftbound.Engine/CoreRuleEngine.BoonInstructions.cs": "2144ce2220394bffe5f940563da260927f28b640440b794a70d894470316c34e",
+      "src/Riftbound.Engine/CoreRuleEngine.ChosenMovement.cs": "9fec061e17d007ef799f7e63675d2344deb6ea089531e5edead6f31443654d6f",
+      "src/Riftbound.Engine/CoreRuleEngine.CombatMight.cs": "2181eb9089493540eea254eded44301a1c1a0e417d65688309f6703142b7a50f",
+      "src/Riftbound.Engine/CoreRuleEngine.CommandedMovement.cs": "3bc6ff81b5214b6ef01ec6c3722662c2d783b6b472b679fa28e678d5b830a176",
+      "src/Riftbound.Engine/CoreRuleEngine.ConditionalPowerAuras.cs": "241d2576eb50feb9d966390a9d229c4d7331c470047ecfafdc04bb51a7def8c4",
+      "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs": "cb4376ad87d8f06d2022cee1718528760d924226824bbaf8f4b7d8e93651adb8",
+      "src/Riftbound.Engine/CoreRuleEngine.ConquestTokens.cs": "5f6ca0aa22e295de01e1bbf109cab0efe50f31b92782e02801d17ff66090ee87",
+      "src/Riftbound.Engine/CoreRuleEngine.DamageDistribution.cs": "4544a3f1eeedd171dd17140eb07e5bff300a4a5d8df5ffab1bc24a7257c404e6",
+      "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs": "8987b82a5f8b005af55d21b8399c3226c8a3311f6cd267e49ad7e09997d97676",
+      "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs": "a5008bf2acb0efe32f7da592a178fe233f40768c5dfcb7757eb20c2e968f2727",
+      "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs": "4cf5ffda617a696926d2cd2972bc6b582e8cf6d30c30cee05fbe2e891b8918a7",
+      "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569",
+      "src/Riftbound.Engine/CoreRuleEngine.DeclaredChoices.cs": "2313096edff9034e4e05e3c482cdb6e14f3010c32f343b0a274592cd7582bf2d",
+      "src/Riftbound.Engine/CoreRuleEngine.DelayedDestruction.cs": "4bf7bff0f88886dfa2f24c41c85aa08457df0b97ecaacc6c47ea4704919c4a66",
+      "src/Riftbound.Engine/CoreRuleEngine.DestroyDeckPlay.cs": "63d428b6adf0f46d1ba072ed800153642ca576cec463265f378ff6a4d1bfa9c0",
+      "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs": "57fe1fd3f394f46a19a3e69bf5a57d55536418f7eaa116a606380595782470a6",
+      "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs": "6b23a05aeecf05f885629b6623f5ea23869037e2ec0f98f28a1033b82f17f6cb",
+      "src/Riftbound.Engine/CoreRuleEngine.EndStep.cs": "60a03b5f909e1b4fe070995a69feec684686ca25706cb0eab76d506ec0704cd0",
+      "src/Riftbound.Engine/CoreRuleEngine.EnemyAttackMight.cs": "b6077fb823714a1f21ebd867e3130adc2da94edf6c8c10ae13a5d193efd3feef",
+      "src/Riftbound.Engine/CoreRuleEngine.EphemeralStart.cs": "e60892f1c0c6e6b1e82d55e800a9af17a840aa4aa07a8148eaaa637fa628788d",
+      "src/Riftbound.Engine/CoreRuleEngine.Equip.cs": "051a98d202c4115cdaa7e277a2a63d28ff80e9a8eeb0bec334826f7b77a8a51b",
+      "src/Riftbound.Engine/CoreRuleEngine.EquipmentCosts.cs": "b89d6a9934171a7ca9575d5c6d04ae366077bbb6d5298b8ac77bc2c065e8cd1a",
+      "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs": "fa292ca7665b7962c7d5bd992b310676509eb28ad2da235040da377777564627",
+      "src/Riftbound.Engine/CoreRuleEngine.GrantedConquestReturn.cs": "76c8bec4103d7df5ebe5b817e506134f81a4c6d40f20831399f31b7e9eccafb6",
+      "src/Riftbound.Engine/CoreRuleEngine.GrantedPredict.cs": "7bed6aff03d7376cf6998d0d71558bc7c49394f9341b99fadcdb8cab21d630ad",
+      "src/Riftbound.Engine/CoreRuleEngine.HeldConfirmation.cs": "7b5bf7dec69cc677616e959148bcd33228fb9debc3ee263d1cff04d17ab86236",
+      "src/Riftbound.Engine/CoreRuleEngine.Hold.cs": "591e6954e285dc85cba7c3594c58d180b2f09ae410343cf69ecba419a84a8dcf",
+      "src/Riftbound.Engine/CoreRuleEngine.InformationPermissions.cs": "41588c7c0f40759be7e77c76f5593103a1629ba0af75452867c0b1f357f4b3cb",
+      "src/Riftbound.Engine/CoreRuleEngine.Insight.cs": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665",
+      "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs": "1b408ad28cf53ea84bc5e893c12de30b6d60b17c5354a8463098cb70465fba11",
+      "src/Riftbound.Engine/CoreRuleEngine.LastKnownMight.cs": "a19ed1a882262af10b90e4e82f12f3beefe65f378e418fba689957c7b2bc05c3",
+      "src/Riftbound.Engine/CoreRuleEngine.LegendAttachment.cs": "87e28f1321850c0963f78abdff82e727b86413a797cf04545c15cf51d8389353",
+      "src/Riftbound.Engine/CoreRuleEngine.LegendConquest.cs": "5d7676f8c2464a6ac30e12478975a335f4eed30de45620387c3cbb88cae56d98",
+      "src/Riftbound.Engine/CoreRuleEngine.LegendImage.cs": "69fb98c3e6d455bfff5b3aa14530b18833e4603f5b6f9d4679df03507357f2dd",
+      "src/Riftbound.Engine/CoreRuleEngine.LegendTokens.cs": "d117a2933de49a2b68f3ec74ed7a274abef4a3f2f4f3a0e0b3230eefecd9f0b4",
+      "src/Riftbound.Engine/CoreRuleEngine.LethalDamage.cs": "2f1b2fdee9d1a0e0f2620a13056875eaf31ae1de24dc7fb518ec843cbb2fde2e",
+      "src/Riftbound.Engine/CoreRuleEngine.LocationDamage.cs": "c9b162bf68c53afeda0e772fdbee1e4bf9b74ec3a2e6a2c2ae91b4f793a40055",
+      "src/Riftbound.Engine/CoreRuleEngine.MightyTransitions.cs": "cf93058544e3b98bb926ea7548c8c94624f89e60d5bf2c6341cad1b4c9213504",
+      "src/Riftbound.Engine/CoreRuleEngine.MovementFollowUp.cs": "98a19f58d2d2e4a41153cf609db87203420de284c2c6a43a6dfb44cee90f092c",
+      "src/Riftbound.Engine/CoreRuleEngine.MovementObservers.cs": "6a7b5593cb832e332fc7f68440287e95c71be0d75e1353cad4f38886cd2f8386",
+      "src/Riftbound.Engine/CoreRuleEngine.MovementScore.cs": "e0cd56e97d55f958fc5d73321d82ef548ebb2900f31152eb9e489d20447177f1",
+      "src/Riftbound.Engine/CoreRuleEngine.MovementTokens.cs": "6a230f16760eaae3f4aa3535a9adbb95d342a70cff853ac7117eda95bd7c264c",
+      "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs": "db0e7bcc2652e9f88a581da82f51c96b5c5c11797bb6a6552f02789ebbfd5aeb",
+      "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs": "cfab10d52eff48679a39ab43b79ca9ea1a8af0777168c55bfdb3a70486b38e42",
+      "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs": "83499e84d76acdbfa8bafc8d6d7b22b98829c055d1bb47bdfbceda8ab8b81942",
+      "src/Riftbound.Engine/CoreRuleEngine.PlayCostPreview.cs": "ef552d3e71444855b430be6f5e1f87078a4bd208cae6821b0f265a6ccb257169",
+      "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs": "52d86c0b94f5ae4a30ece66d085439c74b63433fe17abf7d5faf8b1957e71066",
+      "src/Riftbound.Engine/CoreRuleEngine.PrintedPredict.cs": "04e2c8929a641a31f3e763732f3e397c529cf8c27869030e456845e9ad9c43ba",
+      "src/Riftbound.Engine/CoreRuleEngine.Recast.cs": "7adb41ea6a6aedd3e4a668c6013f92d3a527475bd5957d135526d1cf4d3df4b7",
+      "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs": "aacf129aeb8c14213a58ecbae783605adfbee6233d9891b51270d341045187b7",
+      "src/Riftbound.Engine/CoreRuleEngine.RecyclingChoice.cs": "3d93512476fbb60d8ecf4a013bf820380ce7fb3a23790b41fd328af4aa621cd5",
+      "src/Riftbound.Engine/CoreRuleEngine.ReflexiveCopy.cs": "be1312975680ff72280b107ec02b22fa9bf529454fe2686bdba0d3bc0c1d8a57",
+      "src/Riftbound.Engine/CoreRuleEngine.ReflexiveDuel.cs": "ad39a5e3460f94f3d3698524f808ac8888448f8257e920c428d95ac0006b406b",
+      "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs": "68a2d4a57df75d221cc19f0fcb470097b433eb6c8f6bb7ada44a2cc94669f844",
+      "src/Riftbound.Engine/CoreRuleEngine.ReplacementResources.cs": "e46c613612a95ce7c57371526428f74fe146127fe4aa9711e00a84a712ead4b6",
+      "src/Riftbound.Engine/CoreRuleEngine.ResolutionChoices.cs": "4938888faba8ea6f67fab1de7bf42c1553ead6c27d9adce49365fcbbc961db4c",
+      "src/Riftbound.Engine/CoreRuleEngine.Resources.cs": "dd1da50b28f305aeb263ca5991ec1bc771890a60dc930e1e8ad8c7f054e95503",
+      "src/Riftbound.Engine/CoreRuleEngine.RevealedHandChoices.cs": "562d0549967e338af02bc8f6b21178a27e48fac011368018fd1f33d946b0785e",
+      "src/Riftbound.Engine/CoreRuleEngine.RevealedHandPlay.cs": "44f9382bd3b1486d6cf57dcbe205337f3820ed1943966a303468abc412465f56",
+      "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs": "10dc524409b89e263913351d52258617103434ae0fff2e9eee607def2bc5aa17",
+      "src/Riftbound.Engine/CoreRuleEngine.RuleDerivedKeywords.cs": "f460369c6cbb2532553cebb4838c5cf562f213b64e5fdc87b79963c822107f16",
+      "src/Riftbound.Engine/CoreRuleEngine.RuneBatch.cs": "443ecab53da81a059f84adce0f8b62f563cda004233a984ed079cdcec5239a64",
+      "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs": "a50c4623ea64027fe30ed7f0cf525187c95307734aa2ab5999bbbb8a351fb45f",
+      "src/Riftbound.Engine/CoreRuleEngine.SelfCopyTokens.cs": "e16b7e4b46031d4f4d8da960cc895df22e893af1d27fe41c7cd4213790171363",
+      "src/Riftbound.Engine/CoreRuleEngine.SequentialMovement.cs": "ff8243684786e1298ba36c0ae5b94ff943c5ca43aeb3d805a61033173738f6ef",
+      "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1",
+      "src/Riftbound.Engine/CoreRuleEngine.SourceReplay.cs": "37bfcf9515fa7e93b0b4d8001436c6920542329bb53c1b3d9a6bdc836a0df4fc",
+      "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs": "e69d4f7039939b747e29ba4ac2ecfec93111132dee1850547d18afa7a2711180",
+      "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs": "9a2e7ab9e4cfff60122dd0b8d901bdf88701231b97cfb88c94887704170ad3a2",
+      "src/Riftbound.Engine/CoreRuleEngine.StandardMovement.cs": "e1720abf3b160efedab2ba63a65304a197b36b832752143d63c0ccef4e1a5d74",
+      "src/Riftbound.Engine/CoreRuleEngine.Standby.cs": "041635b09d383871c1eb7e5c20c134d3604878f9b97b95bee88b25b6695e7667",
+      "src/Riftbound.Engine/CoreRuleEngine.StandbyDefend.cs": "eaafc9dab37c6ebec30c87c0e1a2452f53c2898bddd455b858db6482a0215530",
+      "src/Riftbound.Engine/CoreRuleEngine.StandbyObservers.cs": "089b831b152e0b81b7c99de760112c1bf066ed7c84bfec8b0e6ef9580c854264",
+      "src/Riftbound.Engine/CoreRuleEngine.TargetGroups.cs": "dd59dfe6da9d0d68065e91eb80907353de28927d85a6b5f3909311b8e8174b1f",
+      "src/Riftbound.Engine/CoreRuleEngine.TargetReferencedMovement.cs": "6757649274345498f1a35eec3e018bc6071472d20989428196a52b5bd271acb7",
+      "src/Riftbound.Engine/CoreRuleEngine.TargetedPowerAbility.cs": "2dd28f576e974e2fb55b488d4c4fb5a0a66ca4c5bb0b3a680d8d23d71dfc8789",
+      "src/Riftbound.Engine/CoreRuleEngine.Tempered.cs": "e9863f1bc57fc3ea8ef3da2aa125b62f0abe98f95492ab9f640b48af402a4677",
+      "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs": "defd3fc8945f5c76080ead1a76c9bf94e9e15f9b6d5a07cb047074ee829b501d",
+      "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs": "d18a0a77d623708c15d9fa181356d5948ca7a481c2acd8ea7806915a2170ce88",
+      "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs": "99c601d1baa38c164d4e4b649a57920821d16eb0383d6147ec1293d358795e41",
+      "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs": "38f39a18d97a7c17c514da1757e0f1fe57d7be0ab64047e83b52e69dd8318357",
+      "src/Riftbound.Engine/CoreRuleEngine.TriggerTargetPayment.cs": "b86ef058ba9524723327b240efeee23a1df2c4dfc306cf4928ce07f125f81ba7",
+      "src/Riftbound.Engine/CoreRuleEngine.TurnSequence.cs": "0439bc47b42dce88cceab9c1f9fab831e0d385bfd56a5f771b77f0ccec525324",
+      "src/Riftbound.Engine/CoreRuleEngine.TurnUnitPlayGrants.cs": "5a46ae3763afba2397bfe923f421b3d318f4d001c37c76f604539ebf7e632e02",
+      "src/Riftbound.Engine/CoreRuleEngine.UnitConquest.cs": "fa3ed2997c3ce6caf091f369c58c5869fe4bc7696204592f01bdc98fec68840c",
+      "src/Riftbound.Engine/CoreRuleEngine.UnitEntry.cs": "fa4dc932d8dbcc1fa459af4c8769821cbc229739f0f7194b4d1e4696b1ffb8e9",
+      "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs": "35c0b60ebec6aad0fae1f46aacb16da91f412443043c8062e66481d6008a9754",
+      "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs": "4d66d4f4de3893c12adee82c90dc115e93a8696e0d55f8a462412c2a0d3127e1",
+      "src/Riftbound.Engine/CoreRuleEngine.cs": "8bf346cf029adf2ce7d6e450dfda3a8b9d6007e956ce106599431d1e3ce89fb3",
+      "src/Riftbound.Engine/EchoCostRules.cs": "c5df0ebc81cf04530a894550d40693662104cfcdc3e6fef36214c1cfefed7adb",
+      "src/Riftbound.Engine/EmpowerRules.cs": "7adc11e7e41073a44f39278086e02247da4ca60cf463e78b38ae6b30d7fb3cb1",
+      "src/Riftbound.Engine/EmpoweredSpellRules.cs": "f0f33f747f53d0c406b010e4952b9cba50f1102c415410c3eb37480ad0a31665",
+      "src/Riftbound.Engine/FieldObjectTypeRules.cs": "87f6dee58a0bd9f37006c67215d6ee94d433fe4fdd42280a1bf505f92e9853f9",
+      "src/Riftbound.Engine/HandDiscardTriggerSpecRules.cs": "920aa9759f8f579c9d43b811576450d71acfd9b38c61628e4f62ce217ad90a69",
+      "src/Riftbound.Engine/KeywordCoverageReporter.cs": "247f7a4da09b06d0b73d7f8ab909c9fb405b6a60212bfb4cc2c95e5b8d6679da",
+      "src/Riftbound.Engine/LegendActionAbilityCatalog.cs": "3623e1323f3780db858c6128b26d98eb3b3d75a099b5fd225be2adc8426d0990",
+      "src/Riftbound.Engine/LegendConquestTriggerSpecRules.cs": "27ddaf70efa28ff512e52b5c9408fa71a790ad22ec4603c18db159dd426bf08a",
+      "src/Riftbound.Engine/LegendIdentityCatalog.cs": "f204a9854a6b34941a2b43df4bf73b5f410f7053c3e0945ff2e64a7d3cbb57c6",
+      "src/Riftbound.Engine/MatchJournal.cs": "5da2a2fec9140af91917eccf3120d751a73b43c27f7b200e83e3dc6cb3bb517e",
+      "src/Riftbound.Engine/MatchPlayers.cs": "6c6bd8152ea14297297f31dc95c6cd56a5c2fe503ee83a3ccf754252d3f6801b",
+      "src/Riftbound.Engine/MatchRecovery.cs": "b03d5dfb7c057e7798aca0a593b93af8c8649462f822c13483bbc87726277c47",
+      "src/Riftbound.Engine/MatchResults.cs": "75c0210e02c76638c533153357831250cfa936bc7db84da1fc5be995fa13bedc",
+      "src/Riftbound.Engine/MatchSession.BattleHistoryScenario.cs": "3926d7379c9208dc6b24fb7b36a7c20301ab0d77d70b445cd53dafb53a03d656",
+      "src/Riftbound.Engine/MatchSession.cs": "f7ac6aac36b1ba16b5981df901851d67bf6161d658a03536fde78f819e47d974",
+      "src/Riftbound.Engine/Matchmaking.cs": "7c5deb95654ec871ae46d7944f417ed7684e7847de4ba87036885eec695f2956",
+      "src/Riftbound.Engine/ObjectLocationSnapshotZones.cs": "72d6c5f35a3a87c552ff43f9f831880b80b794ab2ed8e7d5e233df277a1b3dc9",
+      "src/Riftbound.Engine/OfficialCardSourceIdentityGroups.cs": "a10cc6af0ee115d5187d14cfc0371cb7326b5893b9d44e7f43a8c2f2ce4857db",
+      "src/Riftbound.Engine/OfficialDeckFormat.cs": "5fd4506e2204a27b44a06af5eb86711146097e357b610634a4ffad897c84f36f",
+      "src/Riftbound.Engine/OfficialDeckRules.cs": "b4f1bc4c218697b09d506a268bb65e44383255dc5796cbd3158e3e49eeff2060",
+      "src/Riftbound.Engine/OfficialPrintedTimingRules.cs": "2ca0a7b64bfb83a7ee0adbf17afd790023468d097b7f5ded0649e8f3e801b6eb",
+      "src/Riftbound.Engine/P4ActivatedAbilityCatalog.cs": "ec71b1ee3ddd6ac67e6fac178c44f2d418b839eb674ddd11a44d832bfd235af7",
+      "src/Riftbound.Engine/P6BattlefieldEffectCatalog.cs": "283bdfc3af8036dee82d26b45ac40413b6255ea3bb8708e0f6cd20d102cda9f7",
+      "src/Riftbound.Engine/P6LegendAbilityCatalog.cs": "52d3597f4287b80b461c56eee56c2cfaef501e8a7195c8a1e07c9c4ed5db8437",
+      "src/Riftbound.Engine/P6TokenFactoryCatalog.cs": "aa6186471b0d4e36dc9a1d6beb2d77a788469e1c6d52667a0946cd7aae805eee",
+      "src/Riftbound.Engine/PaymentCostRules.cs": "58be3dd56566ef25949b709e4bb8fb667137773ae81c38f2798aae3ce4b6a498",
+      "src/Riftbound.Engine/PlayerConnections.cs": "904d99262a9896eba6a2eeee79cabf4eca805095fa2feaa681a87e470632db32",
+      "src/Riftbound.Engine/PlayerIdentity.cs": "68463381619e8cba6d4799bb1718a08fc56a09ae3eca5b80a2787c3870aa810e",
+      "src/Riftbound.Engine/PreconstructedDeckCatalog.cs": "546e98b1b5596d7632ac53c764f5a4444afe9d413fc8b18bc3d487accce64d5a",
+      "src/Riftbound.Engine/PrintedCardFactory.cs": "d00bb943852e432b5567fdcba926084b170f5d5959c49ddf268b6196a3378a13",
+      "src/Riftbound.Engine/PrintedPowerCostRules.cs": "a452f188518863bfebabe740a5867035ca8b345f55cb2668a707517c2e2dd102",
+      "src/Riftbound.Engine/PublicMatchDirectory.cs": "81425230d175fbb82a5957c9fc218fe6cd9471e0c6f7f3bd3a0c4f6e34534a60",
+      "src/Riftbound.Engine/ResourceActionWindow.cs": "f9c8c89d4a0630969eeaa08bc0ddd77b5517513b12e4cc888df968c0b6b376ff",
+      "src/Riftbound.Engine/Riftbound.Engine.csproj": "821ed241ef606006443b20b6bc8cc3b48e68ff144e7af508b9530e084c88a732",
+      "src/Riftbound.Engine/RoomCodeGenerator.cs": "826d7854884783a4259039baeee679c8fbc770aef39b5d9444cecb4a943dee46",
+      "src/Riftbound.Engine/RuleInputIdentity.cs": "3313b202b3d0399a56d48a57177e2652ad566c44158fa45d6db607615d0ae446",
+      "src/Riftbound.Engine/SourceUnitPlayedTriggerSpecRules.cs": "32188770f5aabe7d1e7454a09ef02465a6f997bcf6898409360a46b074551ae9",
+      "src/Riftbound.Engine/SpellPlayedTriggerSpecRules.cs": "1156f0f6e77fb4afbdfc8a61d537a78a7eaac00af29ad1cbb56eaa32c6514174",
+      "src/Riftbound.Engine/StackObjectRules.cs": "660729434f34c472d3370cffcbfc0930a0f08089279c04a59d7151a2c8ad63f3",
+      "src/Riftbound.Engine/StandardMovementCostRules.cs": "5bc4d1837d80f48b579946c6381338208dc98334548326ed4c904a7adcdc153b",
+      "src/Riftbound.Engine/StandbyRules.cs": "0d89e74e4ce08d0a1479739db16fad133bb90f0f965d66ced7ffb7c477a4e865",
+      "src/Riftbound.Engine/StaticAuraSpecRules.cs": "1f0b807345182de93c8e5de1a01d2708fe2723b9def24973715d3f5d82f8ac71",
+      "src/Riftbound.Engine/TargetProtectionRules.cs": "4c9c2bfee2211a1feb28edde91346618f1e9b830d2fb3a4910b556c072291240",
+      "src/Riftbound.Engine/TemporaryCombatKeywordRules.cs": "d9318074593499b50157e0bff874c3182c047575f755074eb582fcd0b24c6705",
+      "src/Riftbound.Engine/UnitBattlefieldHeldTriggerSpecRules.cs": "a40f8f4dd5cbec313e1b3ff728be127fadb703425b6738b43acf7efcefcb607a",
+      "src/Riftbound.Engine/UnitBoonGrantedTriggerSpecRules.cs": "7e6533372b8a6fab373c3bf519bbbe0532a8a873085159e0ffbc3a3cb8536070",
+      "src/Riftbound.Engine/UnitConquestTriggerSpecRules.cs": "32b349a5887ece3105471eb8fee0d8d7278a15485586bc3a8158d013c6ce5889",
+      "src/Riftbound.Engine/UnitDestroyedTriggerSpecRules.cs": "e4ab4b2773c8dd33353a8ec9e118e245471c91c40825969917a846688cd68c77",
+      "src/Riftbound.Engine/UnitIdentityCatalog.cs": "b45cab63cbf736ad87e1625ac9b1fa8bf9a29c140f395e34bb04767be7c81601",
+      "src/Riftbound.Engine/UnitMovedTriggerSpecRules.cs": "5d2a2f0a3dad2d48b5699b68fc452bf068d59636f8e67fa7305fd293f68b6f8a",
+      "src/Riftbound.Engine/UnitMovementRules.cs": "2a47deb990e8fe52d975e026d16e88cd7da17bf1cdeefd8af0b745d381b0e918",
+      "src/Riftbound.Engine/UnitTriggerPaymentSpecRules.cs": "73f7893dd84c9f84b3417eb81d07e0f7fd8bdee1a9773c3641746198bedbb239",
+      "src/Riftbound.Persistence/PersistenceServiceCollectionExtensions.cs": "5cffee1a573c78300c6310fd89c149e21f38229522e518787b6890c592578b2e",
+      "src/Riftbound.Persistence/PostgresMatchJournal.cs": "c50011932d85e32fdeb498fcb096bfed9df666cac0c6350ae2a0f90280b75085",
+      "src/Riftbound.Persistence/PostgresMatchPlayerStore.cs": "842ba37a3073b1107d578076bba936c967cff1601a82228da0d144051709a680",
+      "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs": "0a31754fb4a87b5120b0253c729b7d97c14e08492ee2c2c1741e163f6f487e87",
+      "src/Riftbound.Persistence/PostgresMatchResultStore.cs": "82abd849c7923d01c8b541e1b7629fe02eadb2b27000f108ba151911b258e79c",
+      "src/Riftbound.Persistence/PostgresPlayerIdentityStore.cs": "951e3cc40837565b5af802d45507ea4e142d97b997790a83eb52c0c73c0b9fdd",
+      "src/Riftbound.Persistence/Riftbound.Persistence.csproj": "36ba9448ee27f4e90594ea7c16a8bc16a28c345e6e722c8f00e6983f3472ea06",
+      "src/Riftbound.Persistence/Sql/001_p1_event_store.sql": "a9ac98b4925daa23a85453c2bad26c874362fd041cffd2f940d88763cfe418bd",
+      "src/Riftbound.Persistence/Sql/002_p1_ruleset_audit.sql": "c7c449c8121f2224768a0a6773fb2990406f4f13b9bb8bb0fa84fbbc5517f5a9",
+      "src/Riftbound.Persistence/Sql/003_p1_event_sequence.sql": "a0589a27b597680f14cfd6bb63038c5af57fc5b1d7fb75f4477306cea244c18d",
+      "src/Riftbound.Persistence/Sql/004_p1_state_snapshots.sql": "a2bb2274088648a762159b068103b792baa18c474ec5a3b20786a3d3a58642b7",
+      "src/Riftbound.Persistence/Sql/005_p1_event_tick_order_not_unique.sql": "25bd0a733d33c9b9d1dfdc0382cd53200202c6eaa3f4bf91f735c3559c2ba2b9",
+      "src/Riftbound.Persistence/Sql/006_p1_match_player_seat_uniqueness.sql": "264af7f8cd9b89f46ccae728c71dba27e61ae7ab7b13946c698b2ce14b3f6583",
+      "src/Riftbound.Persistence/Sql/007_p2_player_identity.sql": "a543a908acb57b47a4db55b59248e167759d3c901d3d3f532c88818e525df9ed",
+      "src/Riftbound.Persistence/Sql/008_p2_match_results.sql": "97b07d1e59ec8a98e56edc958980e7d5f6a2173fa14d38ae6fc49aaaf83f9f34",
+      "src/Riftbound.Persistence/Sql/009_runtime_rule_inputs.sql": "a0ac37d459559449ed5eb0d5c1d1ee5879e1552f943215a3951ee0bb4dbcd6f5"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "status": "ACTUAL_OFFICIAL_EN_COLLECTOR_PASS",
+  "tool": "scripts/audit/snapshot-card-qa-and-gallery.py",
+  "profile": "live official EN HTTP in isolated output root; cached frozen CN QA explicitly reused",
+  "reportedTotal": 1416,
+  "distinctReturned": 1408,
+  "unresolvedGap": 8,
+  "views": [
+    {
+      "name": "pagination",
+      "rawEntries": 1408,
+      "distinctEntries": 1407,
+      "identicalDuplicateIds": {
+        "ogn-171-298": 2
+      },
+      "missingFromCurrentUnion": [
+        "unl-224-219"
+      ],
+      "narrowRecheckExecuted": true
+    },
+    {
+      "name": "narrowRechecks",
+      "rawEntries": 0,
+      "distinctEntries": 0,
+      "identicalDuplicateIds": {},
+      "missingFromCurrentUnion": [],
+      "narrowRecheckExecuted": false
+    },
+    {
+      "name": "wholeList",
+      "rawEntries": 1408,
+      "distinctEntries": 1408,
+      "identicalDuplicateIds": {},
+      "missingFromCurrentUnion": [],
+      "narrowRecheckExecuted": true
+    },
+    {
+      "name": "pageSsr",
+      "rawEntries": 1408,
+      "distinctEntries": 1408,
+      "identicalDuplicateIds": {},
+      "missingFromCurrentUnion": [],
+      "narrowRecheckExecuted": true
+    }
+  ],
+  "currentRecordsSha256": "4b193258bde650d9be0185f844a36b75863c5232d38d5d1e67812447b341db94",
+  "outputFileSha256": "e1ac94da31adbae6a9731cce601d837ce07f3fb7896ed316c909c2290b7003ec",
+  "pythonChecks": {
+    "total": 46,
+    "new": 6,
+    "allPassed": true
+  },
+  "legacyCnInputsNotRefreshed": true,
+  "existingSnapshotsRewritten": false,
+  "semanticCertificationGranted": false
+}

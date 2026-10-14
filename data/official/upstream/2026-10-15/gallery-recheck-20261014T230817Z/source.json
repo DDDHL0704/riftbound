@@ -1,0 +1,186 @@
+{
+  "region": "EN",
+  "language": "en-US",
+  "applicability": "Supplemental official gallery observation; existing CN/zh-CN 2026-10-14 certification round unchanged",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "wholeList": {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+    "fetchedAtUtc": "2026-10-14T23:08:17.013238+00:00",
+    "sha256": "ce2dd9991f2d70abd4fe6e7c7cd7026fda846106574b19026eb9262015161b8e",
+    "file": "limit-2000-from-0.raw.json",
+    "metadata": {
+      "channelMachineName": "riftbound_website",
+      "channelHostname": "playriftbound.com",
+      "smartListMachineName": "riftbound_gallery_cards",
+      "from": 0,
+      "limit": 2000,
+      "overrideSize": 0,
+      "totalItems": 1416,
+      "totalPages": 1,
+      "locale": "en-us",
+      "resultsUpdatedAt": "2026-10-14T23:08:15.494685930Z"
+    },
+    "returned": 1408,
+    "distinct": 1408,
+    "committedRawResponse": {
+      "path": "data/official/upstream/2026-10-15/gallery-recheck-20261014T230817Z/gallery-api-full.json",
+      "sha256": "ce2dd9991f2d70abd4fe6e7c7cd7026fda846106574b19026eb9262015161b8e"
+    }
+  },
+  "pageSsr": {
+    "url": "https://playriftbound.com/en-us/card-gallery/",
+    "fetchedAtUtc": "2026-10-14T23:08:38.526819+00:00",
+    "sha256": "6366a4efadca2b57abd90362abda984c280d6a85d375d36d753d8346f973c3dd",
+    "cardsKeys": [
+      "items",
+      "async"
+    ],
+    "cardsMetadata": {
+      "async": {
+        "linkdata": {
+          "self": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&from=0&limit=200",
+          "first": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&from=0&limit=200",
+          "last": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&from=1400&limit=200",
+          "next": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&from=200&limit=200"
+        },
+        "metadata": {
+          "channelHostname": "playriftbound.com",
+          "channelMachineName": "riftbound_website",
+          "overrideSize": 0,
+          "resultsUpdatedAt": "2026-10-14T23:07:55.610051831Z",
+          "smartListMachineName": "riftbound_gallery_cards",
+          "from": 0,
+          "limit": 200,
+          "totalItems": 1416,
+          "totalPages": 8,
+          "locale": "en-us",
+          "ssr": true,
+          "prefetchAll": true
+        }
+      }
+    },
+    "returned": 1408,
+    "distinct": 1408
+  },
+  "pagination100": {
+    "reportedTotal": 1416,
+    "largePageEntries": 1408,
+    "pagedDistinctEntries": 1405,
+    "pagedRawEntries": 1408,
+    "pages": [
+      {
+        "from": 0,
+        "limit": 100,
+        "returned": 100,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 100,
+        "limit": 100,
+        "returned": 100,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 200,
+        "limit": 100,
+        "returned": 100,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 300,
+        "limit": 100,
+        "returned": 99,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 400,
+        "limit": 100,
+        "returned": 99,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 500,
+        "limit": 100,
+        "returned": 100,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 600,
+        "limit": 100,
+        "returned": 100,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 700,
+        "limit": 100,
+        "returned": 98,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 800,
+        "limit": 100,
+        "returned": 100,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 900,
+        "limit": 100,
+        "returned": 100,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 1000,
+        "limit": 100,
+        "returned": 98,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 1100,
+        "limit": 100,
+        "returned": 100,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 1200,
+        "limit": 100,
+        "returned": 99,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 1300,
+        "limit": 100,
+        "returned": 99,
+        "reportedTotal": 1416
+      },
+      {
+        "from": 1400,
+        "limit": 100,
+        "returned": 16,
+        "reportedTotal": 1416
+      }
+    ],
+    "newIdsFromPaging": [],
+    "largeOnlyIds": [
+      "sfd-119a-221",
+      "sfd-250-221",
+      "unl-224-219"
+    ],
+    "withinPagingConflicts": [],
+    "pagedVsLargeChangedIds": [],
+    "reportedMinusPagedDistinct": 11
+  },
+  "unresolvedReportedMinusReturned": 8,
+  "rawResponsesRetainedAt": "var/qa/gallery-gap-20261015",
+  "semanticCoverageCertified": false,
+  "priorRawResponse": {
+    "path": "data/official/upstream/2026-10-14/gallery-delta-20261014T100013Z/gallery-api-full.json",
+    "sha256": "d061b920bfb429cefbba427462ed01845b45915f8c72d35d0b9a4d3e09f14db0"
+  },
+  "priorReturnedView": {
+    "path": "data/official/upstream/2026-10-15/gallery-recheck-20261014T230817Z/prior-returned-view.json",
+    "sha256": "5d24ca891cb65f2161fde5d0eeeb69f38ddd1d6afba5d8282c29c80d1020b8c7"
+  },
+  "currentReturnedRecordsUnchangedFromPriorRaw": true,
+  "newRawSourceVersionObligation": "Retained separately; no original printing or semantic review is certified"
+}

@@ -93,6 +93,17 @@
         "path": "data/official/upstream/2026-10-14/gallery-delta-20261014T100013Z/gallery-api-full.json",
         "sha256": "d061b920bfb429cefbba427462ed01845b45915f8c72d35d0b9a4d3e09f14db0"
       }
+    },
+    {
+      "kind": "cards",
+      "before": {
+        "path": "data/official/upstream/2026-10-15/gallery-recheck-20261014T230817Z/prior-returned-view.json",
+        "sha256": "5d24ca891cb65f2161fde5d0eeeb69f38ddd1d6afba5d8282c29c80d1020b8c7"
+      },
+      "after": {
+        "path": "data/official/upstream/2026-10-15/gallery-recheck-20261014T230817Z/gallery-api-full.json",
+        "sha256": "ce2dd9991f2d70abd4fe6e7c7cd7026fda846106574b19026eb9262015161b8e"
+      }
     }
   ],
   "reviewContexts": {
@@ -4065,9 +4076,16 @@
           "role": "remediation"
         }
       ],
-      "ciState": "PENDING",
-      "ciReceipts": [],
-      "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/recycled-card-boon-2026-10-15/full-ci-a040.json",
+          "sha256": "3f20d858d5b370176ad33812146eadb4599ed68178d286d3727893a85c7455e1",
+          "commit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+          "runId": 38645889819
+        }
+      ],
+      "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
       "currentImplementationCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
       "currentImplementationIncludesUncommittedChanges": true
     },
@@ -4281,14 +4299,22 @@
       "state": "OPEN",
       "requirement": "One fixed candidate with visible paired clients, real SQL, reconnect, normal score end and full replay",
       "priorFixedEvidence": {
-        "commit": "00420e2a2b453918e611812d18fda9f62632e15f",
-        "receipt": "docs/evidence/paired-sql-score-2026-10-15/product-receipt.json",
-        "sha256": "7077743632349d8019d4e76967fc39720d831f97a477970fa2d302316e6985bf",
-        "currentCandidateVerified": false,
-        "scope": "Transport, actual SQL, both reconnect modes, normal score victory and full replay at fixed 00420 only; final candidate rerun remains required.",
-        "currentCandidateReopenedReason": "Shared conquest-token gameplay changed after fixed 00420 product acceptance; original exact-candidate proof retained."
+        "commit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
+        "receipt": "docs/evidence/paired-1a5-2026-10-15/product-receipt.json",
+        "sha256": "b98cb71de56e9f56769e1f48f4ef41e87c392b4e8a3f3db1093543a7921e4c7e",
+        "currentCandidateVerified": true,
+        "scope": "Visible paired native macOS, actual SQL, automatic pending-focus reconnect, retry-exhaustion manual reconnect, normal 8:0 score and original-opening full replay at fixed 1a5 only. Whole-card semantics, complete CI and Windows runtime remain separate gates.",
+        "gameplaySourceInputCount": 457
       },
       "earlierFixedEvidence": [
+        {
+          "commit": "00420e2a2b453918e611812d18fda9f62632e15f",
+          "receipt": "docs/evidence/paired-sql-score-2026-10-15/product-receipt.json",
+          "sha256": "7077743632349d8019d4e76967fc39720d831f97a477970fa2d302316e6985bf",
+          "currentCandidateVerified": false,
+          "scope": "Transport, actual SQL, both reconnect modes, normal score victory and full replay at fixed 00420 only; final candidate rerun remains required.",
+          "currentCandidateReopenedReason": "Shared conquest-token gameplay changed after fixed 00420 product acceptance; original exact-candidate proof retained."
+        },
         {
           "commit": "d974d3e636e86ee24c1cd6a3db429268324f5d16",
           "receipt": "docs/evidence/paired-sql-score-2026-10-14/product-receipt.json",

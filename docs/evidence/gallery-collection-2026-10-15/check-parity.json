@@ -1,0 +1,41 @@
+{
+  "status": "CHECK_PASS_ALL_PREVIOUS_CASES_AND_METHODS_PRESERVED",
+  "baseCommit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
+  "profile": "check",
+  "cases": 11642,
+  "methods": 7123,
+  "seconds": 253.91,
+  "failed": 0,
+  "skipped": 0,
+  "previousCases": 11642,
+  "previousMethods": 7123,
+  "missingCases": [],
+  "missingMethods": [],
+  "addedCases": [],
+  "addedMethods": [],
+  "trx": [
+    {
+      "path": "var/qa/gallery-gap-20261015/check/check/results.trx",
+      "sha256": "729db96cd613c53a3147d4f1aef0a95c55ff28559e8f07a4a6b5d8711f45c0b5",
+      "cases": 11642
+    }
+  ],
+  "inputs": {
+    "recorded": 2134,
+    "unchanged": 2133,
+    "changedPythonTestFixture": [
+      "scripts/tests/test_gallery_coverage.py"
+    ],
+    "change": "Strengthened the newly added flags-conflict fixture so text is identical and flags alone differ. All 46 Python tests then passed. No .NET gameplay/test/build inputs changed.",
+    "gameplayInputsUnchanged": 457
+  },
+  "python": {
+    "methods": 46,
+    "oldMethodsPreserved": 40,
+    "newMethods": 6,
+    "allPassed": true
+  },
+  "nativeProductEvidenceCommit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
+  "fullCi": "New fixed commit required; older CI independently recorded",
+  "semanticCertificationGranted": false
+}
