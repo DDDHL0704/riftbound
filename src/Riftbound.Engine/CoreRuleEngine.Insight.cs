@@ -61,7 +61,7 @@ public sealed partial class CoreRuleEngine
                 triggerEvents.Add(new("CARD_REVEALED", "黛安娜展示洞察后的牌库顶", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                     ["cardObjectId"] = top, ["cardNo"] = card.CardNo }));
-                var remaining=ObserveDeckCards(state,triggerZones,triggerCards,item,item.ControllerId,[top],"REVEAL",0,triggerEvents);
+                var remaining=ObserveDeckCards(state,triggerZones,triggerCards,item with {InsightCompleted=true},item.ControllerId,[top],"REVEAL",0,triggerEvents);
                 shouldDraw = remaining.Length>0 && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var topBehavior) && IsSpellPlayBehavior(topBehavior);
             }
             if (shouldDraw)

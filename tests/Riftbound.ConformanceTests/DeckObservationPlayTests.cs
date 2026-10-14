@@ -66,6 +66,7 @@ public sealed class DeckObservationPlayTests
         var driver=Driver(initial,"three-nocturnes");await driver.Act("P1",new PlayCardCommand("TRICK","OGN·183/298",[]));await driver.Top();
         for(var i=0;i<3;i++)await Decide(driver,true);
         Assert.Null(driver.State.PendingCardChoice);Assert.DoesNotContain(driver.Events(),e=>e.Event.Kind is "CARD_ADDED_TO_HAND" or "CARDS_RECYCLED");
+        Assert.Equal(["NOCT","NOCT2","NOCT3"],driver.State.StackItems.Select(s=>s.SourceObjectId));
         foreach(var id in new[]{"NOCT","NOCT2","NOCT3"})await driver.Act("P1",new PlayCardCommand(id,Nocturne,[]));
         Assert.All(new[]{"NOCT","NOCT2","NOCT3"},id=>Assert.Contains(id,driver.State.PlayerZones["P1"].Base));
         Assert.Equal(["END_PREFIX","END_UNIT"],driver.State.PlayerZones["P1"].MainDeck);
@@ -183,14 +184,18 @@ public sealed class DeckObservationPlayTests
             await driver.Act(choice.PlayerId,new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[choice.LegalObjectIds.First()]));
         }
         Assert.Contains("PARENT",driver.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P1_TOP","P2_TOP"],driver.State.StackItems.Where(s=>s.ObservedDeckPlay is not null).Select(s=>s.SourceObjectId));
+        var originalOrder=driver.State.PendingEffectPlay!.Parent.ObservedPlayPermission!.Suspended!.Parent.DeckPlaySequence!.Queue;
+        Assert.Equal(["P2","P1"],originalOrder.Select(c=>c.OwnerId));
         foreach(var player in new[]{"P1","P2"})
         {
             Assert.Equal(player,driver.State.PendingEffectPlay!.PlayerId);
             await driver.Act(player,new PlayCardCommand(player+"_TOP",Nocturne,[]));
             Assert.Contains(player+"_TOP",driver.State.PlayerZones[player].Base);
         }
-        while(driver.State.PendingEffectPlay is { } original)
+        foreach(var expectedPlayer in new[]{"P2","P1"})
         {
+            var original=Assert.IsType<PendingEffectPlayState>(driver.State.PendingEffectPlay);Assert.Equal(expectedPlayer,original.PlayerId);
             var id=original.Sources.Keys.Single();var card=driver.State.CardObjects[id];
             await driver.Act(original.PlayerId,new PlayCardCommand(id,card.CardNo!,[]));
         }
@@ -357,6 +362,93 @@ public sealed class DeckObservationPlayTests
         Assert.False(waiting.Actionable);Assert.Contains(waiting.Candidates!,c=>c.Action==CommandTypes.Surrender && c.Enabled);
         await driver.Act("P2",new SurrenderCommand());Assert.Equal(MatchStatuses.Finished,driver.State.Status);
         Assert.DoesNotContain(driver.Events(),e=>e.Event.Kind=="UNIT_PLAYED_TO_BASE");
+        await RideTheWindCurrentMovementTests.Replay(initial,driver);
+    }
+
+    [Fact]
+    public async Task RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem()
+    {
+        var initial=Position();var cards=initial.CardObjects.ToDictionary();var locations=initial.ObjectLocations.ToDictionary();
+        cards["NOCT2"]=cards["NOCT"] with {ObjectId="NOCT2"};locations["NOCT2"]=new("P1","MAIN_DECK");
+        initial=initial with {CardObjects=cards,ObjectLocations=locations,PlayerZones=new Dictionary<string,PlayerZones>(initial.PlayerZones){
+            ["P1"]=initial.PlayerZones["P1"] with {MainDeck=["NOCT","NOCT2","END_PREFIX","END_UNIT"]}}};
+        var driver=new StandbyDefendObserverTests.Driver(initial);await driver.Act("P1",new PlayCardCommand("TRICK","OGN·183/298",[]));await driver.Top();
+        await Decide(driver,true);await Decide(driver,true);var choice=driver.State.PendingCardChoice!;
+        await driver.Act("P1",new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,["END_PREFIX"]));
+        var state=driver.State;var pending=state.PendingEffectPlay!;var later=state.ObservedDeckPlays!.Single(c=>c.Card.ObjectId=="NOCT2");
+        var forged=pending with {ChoiceId="OBSERVED-PLAY:"+later.Id,Sources=new Dictionary<string,long>{{later.Card.ObjectId,later.Card.Generation}},
+            Parent=pending.Parent with {StackItemId="OBSERVED-PERMISSION:"+later.Id,SourceObjectId=later.Card.ObjectId,
+                ObservedPlayPermission=pending.Parent.ObservedPlayPermission! with {Context=later}}};
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(state with {PendingEffectPlay=forged}),e=>e.Contains("observed deck play permission"));
+    }
+
+    [Theory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(bool reverseHistory)
+    {
+        var initial=Position();var cards=initial.CardObjects.ToDictionary();var locations=initial.ObjectLocations.ToDictionary();
+        cards["NOCT2"]=cards["NOCT"] with {ObjectId="NOCT2"};locations["NOCT2"]=new("P1","MAIN_DECK");
+        initial=initial with {CardObjects=cards,ObjectLocations=locations,PlayerZones=new Dictionary<string,PlayerZones>(initial.PlayerZones){
+            ["P1"]=initial.PlayerZones["P1"] with {MainDeck=["NOCT","NOCT2","END_PREFIX","END_UNIT"]}}};
+        var driver=new StandbyDefendObserverTests.Driver(initial);await driver.Act("P1",new PlayCardCommand("TRICK","OGN·183/298",[]));await driver.Top();
+        await Decide(driver,true);await Decide(driver,true);var state=driver.State;
+        if(reverseHistory)state=state with {ObservedDeckPlays=state.ObservedDeckPlays!.Reverse().ToArray()};
+        else
+        {
+            var reversed=state.StackItems.Where(s=>s.ObservedDeckPlay is not null).Reverse().ToArray();var index=0;
+            state=state with {StackItems=state.StackItems.Select(s=>s.ObservedDeckPlay is null?s:reversed[index++]).ToArray()};
+        }
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(state),e=>e.Contains("observed deck pending order"));
+    }
+
+    [Fact]
+    public async Task RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice()
+    {
+        var driver=new StandbyDefendObserverTests.Driver(Position());await driver.Act("P1",new PlayCardCommand("TRICK","OGN·183/298",[]));await driver.Top();await Decide(driver,true);
+        var state=driver.State;Assert.NotNull(state.PendingCardChoice);var c=state.ObservedDeckPlays!.Single();
+        var parent=new StackItemState("OBSERVED-PERMISSION:"+c.Id,"P1",c.Card.ObjectId,"OBSERVED_DECK_UNIT_PLAY_PERMISSION",Nocturne)
+            {ObservedPlayPermission=new(c)};
+        var forged=new PendingEffectPlayState("OBSERVED-PLAY:"+c.Id,"P1",parent,"STACK",
+            new Dictionary<string,long>{{c.Card.ObjectId,c.Card.Generation}},true,true,0,"",true);
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(state with {PendingCardChoice=null,PendingEffectPlay=forged}),e=>e.Contains("observed deck play permission"));
+    }
+
+    [Fact]
+    public async Task RecoveryRejectsNullCapturedObservationParentWithoutThrowing()
+    {
+        var driver=new StandbyDefendObserverTests.Driver(Position());await driver.Act("P1",new PlayCardCommand("TRICK","OGN·183/298",[]));await driver.Top();await Decide(driver,true);
+        var state=driver.State;var c=state.ObservedDeckPlays!.Single();
+        c=c with {Instruction=c.Instruction with {Parent=null!}};
+        var slots=state.StackItems.Select(s=>s.ObservedDeckPlay is null?s:s with {ObservedDeckPlay=c}).ToArray();
+        Assert.Contains(OfficialInsightAndSpellLockTests.Errors(state with {ObservedDeckPlays=[c],StackItems=slots}),e=>e.Contains("observed deck"));
+    }
+
+    [Fact]
+    public async Task DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit()
+    {
+        var initial=WithNocturne(WithNocturne(OfficialInsightSourceTests.Diana(),"D1","P2"),"D2","P2");
+        var driver=Driver(initial,"diana-two-observations");
+        await driver.Act("P1",new MoveUnitCommand("UNIT",Destination:"BATTLEFIELD:HILL",SourceObjectIds:["UNIT"]));
+        var p=driver.State.PendingPayment!;await driver.Act("P2",new PayCostCommand(p.PaymentId,p.PaymentWindow,["PAY"]));
+        await driver.Top();await Decide(driver,true);await Decide(driver,true);
+        Assert.Equal(["D1","D2"],driver.State.StackItems.Select(s=>s.SourceObjectId));
+        foreach(var id in new[]{"D1","D2"})await driver.Act("P2",new PlayCardCommand(id,Nocturne,[]));
+        Assert.Empty(driver.State.PlayerZones["P2"].MainDeck);Assert.Empty(driver.State.PlayerZones["P2"].Hand);
+        await RideTheWindCurrentMovementTests.Replay(initial,driver);
+    }
+
+    [Fact]
+    public async Task ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask()
+    {
+        var initial=AttackDamageDistributionTests.Spell(Position(),"INSIGHT","UNL-063/219","P1");
+        var driver=Driver(initial,"older-spell-under-observed");
+        await driver.Act("P1",new PlayCardCommand("TRICK","OGN·183/298",[]));
+        await driver.Act("P1",new PlayCardCommand("INSIGHT","UNL-063/219",["HOST"]));
+        await driver.Top();await Decide(driver,true);
+        Assert.Equal(["TRICK","NOCT"],driver.State.StackItems.Select(s=>s.SourceObjectId));
+        await driver.Act("P1",new PlayCardCommand("NOCT",Nocturne,[]));
+        Assert.Equal("TRICK",Assert.Single(driver.State.StackItems).SourceObjectId);await driver.Top();
+        var c=driver.State.PendingCardChoice!;await driver.Act("P1",new ChooseCardsCommand(c.ChoiceId,c.ChoiceWindow,["END_PREFIX"]));
         await RideTheWindCurrentMovementTests.Replay(initial,driver);
     }
 

@@ -1,0 +1,75 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "branches": 4,
+  "commands": 37,
+  "excludedNativeBranches": [],
+  "records": [
+    {
+      "branch": "bright-future-both-nocturnes",
+      "commands": 11,
+      "replaySha256": "1c50c23a568995fedd754766a4f89618d9bb84ae0da23266764dceee026ed2ef",
+      "commandSha256": [
+        "fdf59c78c6c7f8a1d2896f41390bc94510d903a3ca9b910cd62442884954697b",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "2339b65139be1d8b8e7abab72e3882ea4e7a16bdcc2f99bc69a0d35481ed00f5",
+        "6936a1e9cce81caabdbe7732d33c9730789871220cd642434f48b01dde7f337d",
+        "22adee9dcaf1b38560b46261e61247a8a8573a7961966761422c84199344908b",
+        "bc368b421eab1c6aa978116326a2c31d37259b6f366a3c4f2e55a85d5c709525",
+        "639dbee5848052df6d62c2631bafdbed4e5d56d9735c34b60886b1d393074e38",
+        "a91cc1438e7b16f6cb2020c71e558230674de4aaead38295eecd9153db48a16a",
+        "b058a7d6b8eb53ab5d7f6674eefea8747af544219a80f7352d740fdbf56c38b9",
+        "e95eda80068ede6f2bf6cc44a2cbd0a91d0286d1726885664dfd8084bf7ff629",
+        "70db77f7fab020d6a5ddb7c53383ed9731d94f7249410a8be3528a8a65460de1"
+      ]
+    },
+    {
+      "branch": "diana-two-observations",
+      "commands": 8,
+      "replaySha256": "f1395158cacc43fe26cf3e44bb686d0163df48df2aa0ab9cd6e39fc14674dccb",
+      "commandSha256": [
+        "62f67518b3016173a77ac7135a41a6a71c8e02268f23464979ca7d7daaa16f09",
+        "3d36db4ff231af82d1d9f73a6c1071eef764a4cd1450b8b9e67e45c2362b1a24",
+        "fe57b307c0d274b16b06f7d903aff81b1a4b0327e3774d2730b91bc36a9e4ded",
+        "cc05fd0a502fef4521ef78f05ad48ffac64d756efd8aea0bc557ea651a924fec",
+        "72071af2e822815c667842dcee7d66a45c1090bb665f2e83f38cc702b3a4b79f",
+        "6f533470c2f592d5ef5a24712e0cf5bc1b991445f9d43f5f20bcfd16f6baab9a",
+        "bdbeef2193a9acd3012572314c3d8138bc7fadb43758f37772227574b2a40e43",
+        "5ae6d85cb0278726168f9fc5488a31ceeb23d74e244041c90958e9f5c0942d97"
+      ]
+    },
+    {
+      "branch": "older-spell-under-observed",
+      "commands": 9,
+      "replaySha256": "5854f2552fbffb475da045dfa78cdc97efe896c0b714c8395a78a966a4fd6bd5",
+      "commandSha256": [
+        "b41ba432678cfd4212381f8f44434f1510c2b2c11a23740283c23ee252acf75a",
+        "9ebc010e1dd28b17a5361e86f0f3522883f197437ec0c51739ea847fd7afd35d",
+        "0b5fe3c170f25c4b4cf9d8eda3d61c1a546ba69623cd1bbd3d519fa001fe06c9",
+        "4af628b9dce93e8df6942353d0417248803d164ed82e542f211cc7dc5f052184",
+        "49be278703f839c290ea091b3298ed464b8d053d81c4081f37f98c4995721735",
+        "92b7410af8d9b1931d41fbc91babfa28ecdb65de90e061df742aadb5b3897810",
+        "1f7bb64033d79a928294a532f081df52a4f989ac17a2c2c22103e11859f83e88",
+        "cc6c64a0de8af4a28ad5bd917fc1cdcc1dc577b0bc5007bec4956efc9a6195c6",
+        "71d325a3ed04cd25573c33e29f5d03a9e6b6210535315ec667e65f5977bdcccb"
+      ]
+    },
+    {
+      "branch": "three-nocturnes",
+      "commands": 9,
+      "replaySha256": "49bc0d89a5b527a10756a798aa51a65cc8b6b94ef63d0b3bc33491d91b2031be",
+      "commandSha256": [
+        "b41ba432678cfd4212381f8f44434f1510c2b2c11a23740283c23ee252acf75a",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "2339b65139be1d8b8e7abab72e3882ea4e7a16bdcc2f99bc69a0d35481ed00f5",
+        "6936a1e9cce81caabdbe7732d33c9730789871220cd642434f48b01dde7f337d",
+        "00c90aeb884e73e4bbc7a6ce7afeead602a852ce240aacd60785e94770bc7acd",
+        "c7ffd8195582a385a783c7c5e653598a763fa37f02a97f29bae430b3ac6a9e49",
+        "27a4a350a7d0d3201ce8a8f48a45ba5a144e70474ba42d8e452f39c15e387ae5",
+        "271da0f6a7821eeada6937c258b5e2ab76feb44627b34d092ee1e9db56ba44a2",
+        "fa290b6a0946d442d5dd3975726bd300e71a88f0b5b28900d9cd6b2b932ecca9"
+      ]
+    }
+  ],
+  "proofLogSha256": "50e030e6f84b4d6ada4295f631295d4a3742b3039c5d3d55522777db0de791ac",
+  "scope": "Three Nocturnes, both-player Bright Future, completed Diana Insight then reveal, and older-spell anchor execute actual native controls. Actual command readback/cold/player/spectator/dedup/full replay; visible paired clients and Windows actual runtime open."
+}

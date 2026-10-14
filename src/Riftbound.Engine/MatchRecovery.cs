@@ -23778,6 +23778,7 @@ public static class MatchRecoveryValidator
             errors.Add("invalid observed deck pending history membership");
         foreach(var observed in state.ObservedDeckPlays??[])
             if(observed is null || !CoreRuleEngine.ValidObservedDeckPlay(state,observed))errors.Add("invalid observed deck play history");
+        if(!CoreRuleEngine.ValidObservedDeckOrder(state))errors.Add("invalid observed deck pending order");
         if(state.PendingEffectPlay is { } observedPending && !CoreRuleEngine.ValidObservedPlayPermission(state,observedPending))
             errors.Add("invalid observed deck play permission");
         foreach (var deckItem in state.StackItems)

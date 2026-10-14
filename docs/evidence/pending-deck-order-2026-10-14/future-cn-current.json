@@ -1,0 +1,61 @@
+{
+  "source": {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "fetchedAtUtc": "2026-10-14T09:00:00.485302+00:00",
+    "sha256": "55fb9284e621c45f4b46368f5eb9db9dc4a5e1eb886461349f2dc366e5a10626",
+    "bytes": 1446,
+    "language": "zh-CN",
+    "region": "CN",
+    "publicationDate": null,
+    "effectiveDate": null
+  },
+  "record": {
+    "id": 31334,
+    "cardCategoryList": [
+      "spell"
+    ],
+    "cardCategoryNameList": [
+      "法术"
+    ],
+    "cardNo": "OGN·115/298",
+    "cardName": "光明未来",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "blue"
+    ],
+    "hero": "",
+    "region": "",
+    "tag": "",
+    "artist": "Kudos Productions",
+    "cardEffect": "每名玩家可以查看主牌堆顶部的五张牌，从中选择一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些卡牌，并无视其法力费用（仍需支付所有符能费用）。",
+    "flavorText": "",
+    "energy": 5,
+    "returnEnergy": 1,
+    "power": null,
+    "productCodeList": [
+      "OGN(标准补充包)",
+      "OGN(进阶补充包)"
+    ],
+    "productNameList": [
+      "起源 标准补充包",
+      "起源 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_shard",
+    "rarityName": "稀有",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/062aadedf7ed44d2aa9720979ed798df.png",
+    "backImage": "",
+    "listSort": 371,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "每名玩家查看其主牌堆顶部的五张牌，放逐其中一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些被放逐的卡牌，无视其法力费用。（仍需支付所有符能费用。）",
+    "otherDesc": 0
+  },
+  "effectiveText": "每名玩家查看其主牌堆顶部的五张牌，放逐其中一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些被放逐的卡牌，无视其法力费用。（仍需支付所有符能费用。）"
+}

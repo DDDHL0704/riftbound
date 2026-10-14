@@ -1,0 +1,11 @@
+{
+  "status": "REAL_ORDER_AND_RECOVERY_DEFECTS_REPRODUCED",
+  "baseCommit": "bdac967d361830e48336b1ca64784db484541042",
+  "defects": [
+    "three observed Nocturnes stored reverse public stack order although confirmation used capture order",
+    "forged permission for second captured Nocturne accepted by cold recovery"
+  ],
+  "trxSha256": "a76239c120028c9c070af8b4c75fe090e08fff20608340fb617e8b3343412a3b",
+  "cases": 2,
+  "wholeGoalComplete": false
+}

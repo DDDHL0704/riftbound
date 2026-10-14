@@ -1,0 +1,7 @@
+{
+  "status": "REAL_SECOND_OBSERVATION_PHASE_FAILURE_RETAINED",
+  "case": "DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+  "cause": "After first Nocturne banishes from Insight, completed empty look proceeds to reveal next Nocturne, but captured parent still says InsightCompleted=false. Recovery correctly rejects wrong observation phase.",
+  "trxSha256": "f1e53b778f3fdead90bbd7b33a7b9d5ed7ab57fb9cd52edf28c0da35fbf650e9",
+  "fix": "Mark Insight completed in the captured parent for the distinct subsequent reveal instruction."
+}

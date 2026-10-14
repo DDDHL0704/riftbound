@@ -1,0 +1,28 @@
+{
+  "status": "LIVE_FULL_DISCOVERY_PLAN_PARITY_PASS_NOT_EXECUTION",
+  "baselineMethods": 7169,
+  "methods": 7175,
+  "expectedCases": 11547,
+  "newMethods": [
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice"
+  ],
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(reverseHistory: False)",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(reverseHistory: True)",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice"
+  ],
+  "fullGameMethods": 143,
+  "matrixPairs": 110,
+  "matrixSeed": 424242,
+  "frozenInputCount": 2269,
+  "assemblySha256": "32318841bf70c6042785b6285342ed93c5395e835c190efb710be32b55205b89"
+}

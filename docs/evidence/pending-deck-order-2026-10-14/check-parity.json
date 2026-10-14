@@ -1,0 +1,40 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "baselineCommit": "bdac967d361830e48336b1ca64784db484541042",
+  "baselineCases": 11391,
+  "baselineMethods": 7028,
+  "cases": 11398,
+  "methods": 7034,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "addedCases": [
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(reverseHistory: False)",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(reverseHistory: True)",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice"
+  ],
+  "failed": 0,
+  "skipped": 0,
+  "duplicates": [],
+  "baselineTrxSha256": "495114f038eff96be7ff028e0cdf4ad06bc03c44e21cc4bb03f31c21d126ab0c",
+  "currentTrxSha256": "0600b3d84880f288576702f69027dfaa10c802480cb94ad76047d463adebbd45",
+  "frozenInputCount": 2269,
+  "frozenInputsUnchanged": true,
+  "realPostgresSmokeCases": 5,
+  "pythonTests": 27,
+  "nativeReadbackBranches": 4,
+  "nativeReadbackCommands": 37,
+  "fullExecutionCertified": false,
+  "seconds": 225.19
+}

@@ -1,0 +1,25 @@
+{
+  "status": "SCOPED_ADJACENT_PASS",
+  "cases": 259,
+  "methods": 143,
+  "seconds": 28.1,
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(reverseHistory: False)",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(reverseHistory: True)",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice"
+  ],
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice"
+  ],
+  "trxSha256": "47d04977290833b2c318872c1a6ae78d7cb588d9f3d272a5baec6150abc78930",
+  "sourceScope": "captured observation order, earliest-permission security, source-anchor position, completed Insight next reveal, and existing recast/deck consumers"
+}

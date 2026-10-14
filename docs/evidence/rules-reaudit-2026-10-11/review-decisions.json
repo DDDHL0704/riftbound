@@ -18620,6 +18620,71 @@
         "Whole source universe and gaps"
       ],
       "wholeGoalComplete": false
+    },
+    {
+      "id": "observed-pending-capture-order-and-earliest-permission-2026-10-14",
+      "status": "SCOPED_CHECK_NATIVE_AND_RECOVERY_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Current CN337 earliest pending confirmation, source-anchor and captured observation order; reject skipped, early, reversed and malformed observation permissions/history. Real Diana next reveal after empty Insight and older reaction/ordinary spell continuation. Future original two-player confirmation order cross-checked; no inferred per-player interleaving or whole FEPR certificate.",
+      "subjects": [
+        "OGN·194/298",
+        "OGN·115/298",
+        "UNL-079/219",
+        "UNL-063/219"
+      ],
+      "auditDocument": "docs/PENDING_DECK_ORDER_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/pending-deck-order-2026-10-14",
+      "tests": [
+        "DeckObservationPlayTests",
+        "Insight tests",
+        "DeckPlaySequenceTests",
+        "AttackDeckPlayTests",
+        "HookDeckPlayTests",
+        "Recast tests"
+      ],
+      "validation": {
+        "check": {
+          "cases": 11398,
+          "methods": 7034,
+          "seconds": 225.19,
+          "newCases": 7,
+          "newMethods": 6,
+          "oldCasesAndMethodsPreserved": true,
+          "realPostgresSmokeCases": 5,
+          "pythonTests": 27,
+          "frozenInputCount": 2269,
+          "inputsUnchanged": true
+        },
+        "native": {
+          "branches": 4,
+          "commands": 37,
+          "generationAndBackendReadback": "PASS",
+          "coldPlayerSpectatorDedupFullJournal": "PASS"
+        },
+        "fixedFull": "REQUIRED_FOR_CURRENT_BATCH",
+        "previousFixedFull": {
+          "commit": "14ed89811e385809276029ef18b17dea57b77ee1",
+          "runId": 38534398383,
+          "status": "FIXED_COMMIT_FULL_CI_AND_PARITY_VERIFIED",
+          "cases": 11540,
+          "methods": 7169,
+          "pairs": 110,
+          "currentBatchCovered": false
+        }
+      },
+      "sourceTreatment": {
+        "core": "Fresh applicable July CN core samehashd0e36d00;physical39/40inspected;CN329/334/337",
+        "future": "Fresh exact OGN115 currentCNerrata matches runtime;ordinary plays start nextplayer after all choices",
+        "faq": "Fresh historical Origins FAQ selected3groups unchanged;rawhashchanged,notwholeFAQcertification;corroborated with current core/errata",
+        "futureVersion": "October16 not applied"
+      },
+      "open": [
+        "More than two players",
+        "All pending source types and triggers",
+        "Candlelit Sanctum",
+        "Whole card/rules/QA/universe and source gaps",
+        "Visible paired clients and actual Windows runtime"
+      ],
+      "wholeGoalComplete": false
     }
   ]
 }
