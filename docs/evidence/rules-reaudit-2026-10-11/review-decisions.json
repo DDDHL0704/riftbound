@@ -18685,6 +18685,77 @@
         "Visible paired clients and actual Windows runtime"
       ],
       "wholeGoalComplete": false
+    },
+    {
+      "id": "candlelit-conquest-private-look-recycle-order-2026-10-14",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "CN OGN291 conquest response and private subset/order; not whole-card certification",
+      "subjects": [
+        "OGN·291/298"
+      ],
+      "auditDocument": "docs/CANDLELIT_SANCTUM_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/candlelit-sanctum-2026-10-14",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/candlelit-sanctum-2026-10-14/source-current.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14",
+        "branches": [
+          "queued response before look",
+          "private optional recycle subset",
+          "retained top order",
+          "short deck",
+          "Nocturne original set",
+          "simultaneous legend confirmation order",
+          "captured-source recovery security"
+        ]
+      },
+      "testExecution": {
+        "focus": {
+          "cases": 2148,
+          "methods": 2020,
+          "seconds": 29.58
+        },
+        "originalFullGameAndLegacyPaths": {
+          "cases": 3,
+          "seconds": 16.97
+        },
+        "check": {
+          "cases": 11420,
+          "methods": 7042,
+          "seconds": 236.74,
+          "addedCases": 22,
+          "addedMethods": 8,
+          "oldCasesMethodsPreserved": true
+        },
+        "native": {
+          "branches": 12,
+          "commands": 101,
+          "backendColdPrivacyDedupFullReplay": "PASS"
+        },
+        "realPostgresSmoke": 5,
+        "pythonTests": 27,
+        "frozenInputs": 2270
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_CURRENT_COMMIT",
+        "previousFixed": "bdac967d361830e48336b1ca64784db484541042",
+        "previousRun": 38538221175,
+        "previousCoversCurrent": false
+      },
+      "productAcceptance": {
+        "visiblePairedSqlNetworkScoreReplayCombination": "OPEN",
+        "windowsUserActualRuntime": "OPEN"
+      },
+      "remainingObligations": [
+        "all applicable official source semantics and coverage gaps",
+        "current unified remaining obligations and current-manifest validation",
+        "actual game-input identity in journal/recovery/replay",
+        "deck observation family consumer closure",
+        "fixed candidate combined product acceptance"
+      ],
+      "wholeGoalComplete": false
     }
   ]
 }

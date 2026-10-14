@@ -747,11 +747,12 @@ public static class TriggerParser
             TriggerKinds.BattlefieldConquerRevealRecycle,
             TriggerTimings.BattlefieldConquered,
             match.Value,
-            "Battlefield conquered reveal/recycle trigger parsed for B4 routing; execution is available as a deterministic representative path when engine support reads BehaviorSpec.Triggers.",
+            "Battlefield conquered private look, optional recycle subset and retained-card order parsed from printed text.",
             RevealCount: revealCount,
             RevealSourceZone: TriggerZones.MainDeck,
             RecycleCount: revealCount,
-            RecycleDestinationZone: TriggerZones.MainDeck);
+            RecycleDestinationZone: TriggerZones.MainDeck,
+            Optional: false);
         return true;
     }
 

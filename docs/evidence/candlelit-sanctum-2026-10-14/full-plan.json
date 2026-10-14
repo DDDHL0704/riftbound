@@ -1,0 +1,22 @@
+{
+  "status": "LIVE_FULL_DISCOVERY_PARITY_NOT_EXECUTION",
+  "baselineMethods": 7175,
+  "methods": 7183,
+  "expectedCases": 11569,
+  "oldMethodsPreserved": true,
+  "newMethods": [
+    "Riftbound.ConformanceTests.CandlelitSanctumTests.ARealReactionFinishesBeforeTheConquestAbilityLooksAtTheAdjustedDeck",
+    "Riftbound.ConformanceTests.CandlelitSanctumTests.AShortDeckLooksOnlyAtExistingCardsWithoutDrawingOrBurning",
+    "Riftbound.ConformanceTests.CandlelitSanctumTests.ConquestQueuesAResponseableAbilityWithoutLookingRecyclingOrLeakingTheDeck",
+    "Riftbound.ConformanceTests.CandlelitSanctumTests.IllegalPrivateChoicesRejectAtomically",
+    "Riftbound.ConformanceTests.CandlelitSanctumTests.NocturnesLeaveTheOriginalLookBeforeSubsetAndOrderThenConfirmInCaptureOrder",
+    "Riftbound.ConformanceTests.CandlelitSanctumTests.RecoveryRejectsForgedConquestLookCapture",
+    "Riftbound.ConformanceTests.CandlelitSanctumTests.SimultaneousLegendCostIsConfirmedBeforeEitherChosenResolutionOrderCanLook",
+    "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards"
+  ],
+  "fullGameMethods": 143,
+  "matrixPairs": 110,
+  "seed": 424242,
+  "frozenInputCount": 2270,
+  "assemblySha256": "ff96c39a126b1070611f3fb0a4871ae4ef8873e0c2d06e1f5b27de7d0598d3f7"
+}

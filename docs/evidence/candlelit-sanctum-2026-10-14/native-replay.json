@@ -1,0 +1,195 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "branches": 12,
+  "commands": 101,
+  "excludedNativeBranches": [],
+  "records": [
+    {
+      "branch": "legend-order-False",
+      "commands": 13,
+      "replaySha256": "da46ae51961b1f30aca64237b7848b94a221681845407c7844e5fe0a9cae3b9a",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "4a460ef43dd9553526851c61c5445fd5a41b5a5e823db7edd2e5552513f0d499",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "90f5efd677db98080a5d42250f13c4c84e961f5e12d6ee0df295ad46d218d656",
+        "30a20550da8ebbb72f0ca6b47fca3df9646bbaa3386ff994b3a0fd436fb15fcb",
+        "ea8aeb5fada0f09241a4fee328c8b7277582a671c605d7c99391be219bdac50b",
+        "ee55cccae3b84dc9a96d15f202d7c535f346ba76c3ff7a75c9a198074fb58cfa",
+        "954f53dadb6c700d4e6dc089d2d9c2139d13f3916369bbdb847614f2b9757225",
+        "b131255d87721ce5cce75b1c2aa71ff44d4105ba03716ab0002363e3cf60596b",
+        "3c66c076ba6548d8001360a1f0c83767bae25368ec4b270f34c72fd43d6cc1a9",
+        "c4fe0a58b133929a44b405ad4d7d71e432898bbee72d18597c6651583cfb0969",
+        "52f2c1a13c124b28ecb47544736eef5022ef7c39bddaab971781f9d5ac7d756a",
+        "29ec6c647cca5d0c01c3294ebbf473c59b66b7273dfa07cd23a6cd57d99a636d"
+      ]
+    },
+    {
+      "branch": "legend-order-True",
+      "commands": 13,
+      "replaySha256": "9e39e00971aed7f5a8ea60c22934a3d95943ae23969acff4a2236c78ef589a8f",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "4a460ef43dd9553526851c61c5445fd5a41b5a5e823db7edd2e5552513f0d499",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "e2a82afee122e06c38ea662968e858199040c79b80ae4d7c111825b1affacc78",
+        "30a20550da8ebbb72f0ca6b47fca3df9646bbaa3386ff994b3a0fd436fb15fcb",
+        "ea8aeb5fada0f09241a4fee328c8b7277582a671c605d7c99391be219bdac50b",
+        "ee55cccae3b84dc9a96d15f202d7c535f346ba76c3ff7a75c9a198074fb58cfa",
+        "50502eb26300c541dfbde0ea5d65ed9879f9061ee2afcb831fbff029eee9ea1c",
+        "0f4495fe864df58655817429d78e4fe85035498c2513415ccde4536dd88b0f0d",
+        "3c66c076ba6548d8001360a1f0c83767bae25368ec4b270f34c72fd43d6cc1a9",
+        "c4fe0a58b133929a44b405ad4d7d71e432898bbee72d18597c6651583cfb0969",
+        "1a509ef1aae61e75a9e16c5f88db867db1df3c74ae661302c5420219d538b94c",
+        "13b78c273748ba0c42ba97063a6f6190654971af15b79de15dce0741ee87a269"
+      ]
+    },
+    {
+      "branch": "nocturnes-0",
+      "commands": 9,
+      "replaySha256": "cedc087eb91c294e25d4d5e458fb0116a9086a604fe8a47f2f5c7f00fe37026e",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "249e57fcf1c35817a4f18edf12c837478a366fddd0c15fdc378f22a045569c98",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e",
+        "3593671cb8218fcf7b73884072e200614db38f83e60b33e1101c03ef0330d8e3",
+        "e61af0f17f2f7dffe29fc80f37f40b2926e9c95a79c5cae6c90d94f0ded3cf25",
+        "50502eb26300c541dfbde0ea5d65ed9879f9061ee2afcb831fbff029eee9ea1c",
+        "09ad890608b26048d977dddac9f5bc970a0ba8a7b449b39ddefba2f7ad1a0d60"
+      ]
+    },
+    {
+      "branch": "nocturnes-1",
+      "commands": 9,
+      "replaySha256": "fb1d7ea752ab39785763ecf87577ba7d6d6b16f2e534d21eb39d654703261e3a",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "249e57fcf1c35817a4f18edf12c837478a366fddd0c15fdc378f22a045569c98",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e",
+        "a0eaf5e90fe5e50a6b05e488623d455ffa325967b6ccb6a8cc084020920180ea",
+        "e61af0f17f2f7dffe29fc80f37f40b2926e9c95a79c5cae6c90d94f0ded3cf25",
+        "50502eb26300c541dfbde0ea5d65ed9879f9061ee2afcb831fbff029eee9ea1c",
+        "726f32500ef4ebea09ce5e056c091278a3fb702f613814656ef04e98d6244667"
+      ]
+    },
+    {
+      "branch": "nocturnes-2",
+      "commands": 9,
+      "replaySha256": "7175c797d0a7881ff265d27a38b47e4ee8391c8cae0b2c603c6c3904bbad93a3",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "249e57fcf1c35817a4f18edf12c837478a366fddd0c15fdc378f22a045569c98",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e",
+        "a0eaf5e90fe5e50a6b05e488623d455ffa325967b6ccb6a8cc084020920180ea",
+        "dd85539605c6f81753a7caf23670cb6da2ba1e1859ded74089b123aea6b5b2ca",
+        "9ea521f47d4ea07725f82ed8805e63d01208a12675fd3bff93b25b10e814c34f",
+        "b858b5689cce8e91f97e3f552ed059a9222c5b7630d1424c4b1cd92ed9ebf305"
+      ]
+    },
+    {
+      "branch": "reaction-adjusts-top",
+      "commands": 11,
+      "replaySha256": "909cfeb696099ce78f295498608d924c78ad00f442a7eb690fa07ff8493b5bd7",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "f33d8128b0d607139708a8879aba17dc931bebb7d23d1b49ca783bf4c0485dd1",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "2314ba293661210fab69c5605ef261dc1b8672f4f057312a2af3598e44b24ec1",
+        "20e77a8591ec6bfbefbec1c69b17614281d7ea4f9900a4929c6b3f56b8218173",
+        "de8680f413dc6ddbcb228c61a0bd5390a2cbdfe939117361eb223d266605d3d6",
+        "d60a4bac6d56827735c2541e0794521f3edfffe306849d6b7a8baf4bf7327c79",
+        "461e12f9c12c9a70cd23bde4414dc6e0d9f7a2244bdead52ce926baf99fbe019",
+        "7062d56d8a2d9bbffaae4f71a80faaf9936a1e0e343eb77b2526cc26f6fe3e65",
+        "391cb09f9b882028489707d81337628eb9482e05318ef197138f5158daafcf61",
+        "50f07f70f0c20b1a6a27c61b0f0d48745b298abf399af3dc12ce979bb62a0cd1"
+      ]
+    },
+    {
+      "branch": "recycle-0",
+      "commands": 7,
+      "replaySha256": "7d89f3d3a9d2e8ec501ff7e00382a2a4d88fe613863471589021cfed9c05e3b7",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "249e57fcf1c35817a4f18edf12c837478a366fddd0c15fdc378f22a045569c98",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e",
+        "b55e0497ed4970eb105a7710d588d5974f0977266da5500b6b79c0fcd00e7efe",
+        "142b3683f4385130170333b22efad0aa82fc235991482aca4a6d31eaa39fe7f6"
+      ]
+    },
+    {
+      "branch": "recycle-1",
+      "commands": 6,
+      "replaySha256": "4b1e1b3e2db8145c572dd2d831bea7b524efae45bff8f1940a838765876b5b96",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "249e57fcf1c35817a4f18edf12c837478a366fddd0c15fdc378f22a045569c98",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e",
+        "763a0979904c25a4e8d607de2bd7c0c347299ec6acc541ac67cebc7e79ba6da8"
+      ]
+    },
+    {
+      "branch": "recycle-2",
+      "commands": 6,
+      "replaySha256": "221ad9c07c6fdd3d80e153c6bacff4c9112ba32300af58d9a9d5c9ea1cdde698",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "249e57fcf1c35817a4f18edf12c837478a366fddd0c15fdc378f22a045569c98",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e",
+        "e151e5d4a6d42b496a089307976e675749282cef6872e4b6cf096202617126e8"
+      ]
+    },
+    {
+      "branch": "response-before-look",
+      "commands": 7,
+      "replaySha256": "7d89f3d3a9d2e8ec501ff7e00382a2a4d88fe613863471589021cfed9c05e3b7",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "249e57fcf1c35817a4f18edf12c837478a366fddd0c15fdc378f22a045569c98",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e",
+        "b55e0497ed4970eb105a7710d588d5974f0977266da5500b6b79c0fcd00e7efe",
+        "142b3683f4385130170333b22efad0aa82fc235991482aca4a6d31eaa39fe7f6"
+      ]
+    },
+    {
+      "branch": "short-0",
+      "commands": 5,
+      "replaySha256": "d4ec3e769115e98175d10e6187e25cbfa92563b04832105564ae534750398761",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "f33d8128b0d607139708a8879aba17dc931bebb7d23d1b49ca783bf4c0485dd1",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e"
+      ]
+    },
+    {
+      "branch": "short-1",
+      "commands": 6,
+      "replaySha256": "0a28171811091c584f2eae24c73cff36dbbcecb24f0ec491978bf98ae5ccbe55",
+      "commandSha256": [
+        "dd25651380061585d5ff6de16275b0a00a1611ad059dca1e2aad3f9608b6ef48",
+        "f33d8128b0d607139708a8879aba17dc931bebb7d23d1b49ca783bf4c0485dd1",
+        "8f04bfdc9032f5749c5c99f7fceeaec68bff60b722485bcad2dd054f821d5a6e",
+        "52921545fd47c2ed9c56baf693aaa62438538d8f6707537aaf77acb096333249",
+        "93247bf00e2b2e0326993eecdd6fe227f3253a909e9149237acc9f6158011d2e",
+        "b55e0497ed4970eb105a7710d588d5974f0977266da5500b6b79c0fcd00e7efe"
+      ]
+    }
+  ],
+  "proofLogSha256": "57e88141804b28d89b5b567516b376daa516527b3fea0460a20c5eb04f1abdf9",
+  "scope": "Twelve Candlelit conquest, response, subset/order, Nocturne, short-deck and simultaneous legend-order paths execute actual native controls. Actual command readback/cold/player/spectator/dedup/full replay; visible paired clients and Windows actual runtime open."
+}

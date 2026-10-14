@@ -66,6 +66,8 @@ public sealed partial class CoreRuleEngine
             playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
         recastTriggers = recastTriggers.Concat(CaptureDelayedEndCreation(state with { PlayerZones=playerZones,CardObjects=cardObjects },
             playerId,battlefieldId,resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestLook(playerZones,cardObjects,
+            playerId,battlefieldId,resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield
@@ -110,16 +112,6 @@ public sealed partial class CoreRuleEngine
             rngCursor);
         rngCursor = battlefieldRecycleRuneTrigger.RngCursor;
         events.AddRange(battlefieldRecycleRuneTrigger.Events);
-        var battlefieldRevealRecycleTrigger = ResolveBattlefieldConquerRevealRecycleTrigger(
-            state,
-            playerZones,
-            cardObjects,
-            playerId,
-            battlefieldId,
-            sourceObjectId,
-            rngCursor);
-        rngCursor = battlefieldRevealRecycleTrigger.RngCursor;
-        events.AddRange(battlefieldRevealRecycleTrigger.Events);
         if (TryResolveBattlefieldConquerDiscardDrawTrigger(
                 state,
                 playerZones,

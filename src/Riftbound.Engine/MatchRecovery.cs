@@ -23737,6 +23737,7 @@ public static class MatchRecoveryValidator
             if (trigger.InsightContext is { } captured
                 ? captured.PaymentAccepted || !CoreRuleEngine.ValidInsightTrigger(captured, trigger.EffectKind, trigger.ControllerId)
                     || captured.Kind == "DUEL" && !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!)
+                    || !CoreRuleEngine.ValidConquestLookSource(state,captured,trigger.SourceObjectId)
                 : trigger.EffectKind == CoreRuleEngine.InsightTriggerEffect)
                 errors.Add("invalid captured Insight trigger");
         foreach (var item in state.StackItems)
@@ -23750,6 +23751,7 @@ public static class MatchRecoveryValidator
             if (item.InsightContext is { } captured
                 ? !CoreRuleEngine.ValidInsightTrigger(captured, item.EffectKind, item.ControllerId, item.CardNo)
                     || captured.Kind == "DUEL" && !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!)
+                    || !CoreRuleEngine.ValidConquestLookSource(state,captured,item.SourceObjectId)
                 : item.EffectKind == CoreRuleEngine.InsightTriggerEffect)
                 errors.Add("invalid captured Insight stack item");
             if (item.InsightCompleted)

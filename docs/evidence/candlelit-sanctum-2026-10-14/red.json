@@ -1,0 +1,64 @@
+{
+  "records": [
+    {
+      "run": "red",
+      "total": 4,
+      "failed": 4,
+      "passed": 0,
+      "sha256": "18e465ab44d8802837bc958666701a9ef5db627edf249bcf618298e7847c6a76",
+      "failures": [
+        {
+          "test": "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards(recycle: 1)",
+          "message": "Riftbound.Engine.MatchSessionException : 玩家编号不能为空。"
+        },
+        {
+          "test": "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards(recycle: 2)",
+          "message": "Riftbound.Engine.MatchSessionException : 玩家编号不能为空。"
+        },
+        {
+          "test": "Riftbound.ConformanceTests.CandlelitSanctumTests.ConquestQueuesAResponseableAbilityWithoutLookingRecyclingOrLeakingTheDeck",
+          "message": "Assert.Single() Failure: The collection was empty"
+        },
+        {
+          "test": "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards(recycle: 0)",
+          "message": "Riftbound.Engine.MatchSessionException : 玩家编号不能为空。"
+        }
+      ]
+    },
+    {
+      "run": "capture-security-red",
+      "total": 4,
+      "failed": 3,
+      "passed": 1,
+      "sha256": "5325bc6567ea567137198991677c2df9fcabfac9e743923e9e049a194d48454f",
+      "failures": [
+        {
+          "test": "Riftbound.ConformanceTests.CandlelitSanctumTests.RecoveryRejectsForgedConquestLookCapture(mutation: \"source\")",
+          "message": "Assert.NotEmpty() Failure: Collection was empty"
+        },
+        {
+          "test": "Riftbound.ConformanceTests.CandlelitSanctumTests.RecoveryRejectsForgedConquestLookCapture(mutation: \"generation\")",
+          "message": "Assert.NotEmpty() Failure: Collection was empty"
+        },
+        {
+          "test": "Riftbound.ConformanceTests.CandlelitSanctumTests.RecoveryRejectsForgedConquestLookCapture(mutation: \"battlefield\")",
+          "message": "Assert.NotEmpty() Failure: Collection was empty"
+        }
+      ]
+    },
+    {
+      "run": "adjacent",
+      "total": 146,
+      "failed": 1,
+      "passed": 145,
+      "sha256": "5daac3db2154e618b05ba8ebd2d745c95262e79f42147959c8788ae1b08b4923",
+      "failures": [
+        {
+          "test": "Riftbound.ConformanceTests.GameHubJoinTests.P79BattlefieldConquerRevealRecycleSeedOffersBattlefieldDestinationAndRecycles",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [WsServerMessage { Type = ERROR, RoomId = p7-9-battlefield-conquer-reveal-recycle, PlayerId = P1, ServerTick = 4, Payload = ErrorDto { Code = INVALID_PAYLOAD, Message = CHOOSE_CARDS 需要 choiceId、choiceWindow 与 chosenObjectIds。 }, ProtocolVersion = 1, SchemaVersion = 1 }]"
+        }
+      ]
+    }
+  ],
+  "scope": "Original missing optional response/look path, then independent forged source/battlefield/generation rejection. Hub development wrong chosenObjectIds field is a harness repair, not an engine failure."
+}

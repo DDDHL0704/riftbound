@@ -2495,13 +2495,14 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(TriggerTimings.BattlefieldConquered, trigger.Timing);
         Assert.Equal(2, trigger.RevealCount);
         Assert.Equal(2, trigger.RecycleCount);
+        Assert.False(trigger.Optional);
         Assert.Equal(TriggerZones.MainDeck, trigger.RevealSourceZone);
         Assert.Equal(TriggerZones.MainDeck, trigger.RecycleDestinationZone);
         Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("查看主牌堆顶部的两张牌", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("回收任意数量的卡牌", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(
-            "Battlefield conquered reveal/recycle trigger parsed for B4 routing; execution is available as a deterministic representative path when engine support reads BehaviorSpec.Triggers.",
+            "Battlefield conquered private look, optional recycle subset and retained-card order parsed from printed text.",
             trigger.Reason);
     }
 

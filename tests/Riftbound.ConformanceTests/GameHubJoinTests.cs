@@ -15254,18 +15254,32 @@ public sealed class GameHubJoinTests
         Assert.Empty(battleClients.CallerClient.Errors);
         var battleEvents = EventsFor(battleClients);
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
-        Assert.Contains(battleEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE", StringComparison.Ordinal));
-        Assert.Contains(battleEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["count"], 2));
-        Assert.Contains(battleEvents, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE", StringComparison.Ordinal)
-            && Equals(gameEvent.Payload["count"], 2));
+        Assert.Contains(battleEvents,e=>e.Kind=="TRIGGER_QUEUED" && Equals(e.Payload["effectKind"],"INSIGHT_TRIGGER"));
+        Assert.DoesNotContain(battleEvents,e=>e.Kind is "CARDS_REVEALED" or "CARDS_RECYCLED");
+        var session=await registry.GetOrCreateAsync(roomId,default);
+        var lookEvents=new List<GameEvent>(battleEvents);
+        for(var step=0;step<2;step++)
+        {
+            var actor=new[]{"P1","P2"}.Single(player=>session.PromptFor(player).EnabledActions().Contains(CommandTypes.PassPriority));
+            var passed=new RecordingHubClients();
+            await CreateHub(passed,new RecordingGroupManager(),actor=="P1"?"connection-1":"connection-2",registry)
+                .SubmitIntent(roomId,actor,"candle-private-pass-"+step,JsonSerializer.SerializeToElement(new {cmdType=CommandTypes.PassPriority}));
+            Assert.Empty(passed.CallerClient.Errors);lookEvents.AddRange(EventsFor(passed));
+        }
+        var candidate=Assert.Single(session.PromptFor("P1").Candidates!,c=>c.Action==CommandTypes.ChooseCards && c.Enabled);
+        var metadata=JsonSerializer.SerializeToElement(candidate.Metadata);
+        Assert.Equal(0,metadata.GetProperty("requiredCount").GetInt32());Assert.Equal(2,metadata.GetProperty("maxCount").GetInt32());
+        var selected=metadata.GetProperty("legalObjectIds").EnumerateArray().Select(e=>e.GetString()!).ToArray();
+        Assert.DoesNotContain(selected[0],JsonSerializer.Serialize(session.PromptFor("P2")));
+        var choiceClients=new RecordingHubClients();
+        await CreateHub(choiceClients,new RecordingGroupManager(),"connection-1",registry)
+            .SubmitIntent(roomId,"P1","candle-private-recycle",JsonSerializer.SerializeToElement(new {cmdType=CommandTypes.ChooseCards,
+                choiceId=metadata.GetProperty("choiceId").GetString(),choiceWindow=metadata.GetProperty("choiceWindow").GetString(),chosenObjectIds=selected}));
+        Assert.Empty(choiceClients.CallerClient.Errors);lookEvents.AddRange(EventsFor(choiceClients));
+        Assert.DoesNotContain(lookEvents,e=>e.Kind=="CARDS_REVEALED");
+        Assert.Contains(lookEvents,e=>e.Kind=="CARDS_RECYCLED" && Equals(e.Payload["count"],2) && !e.Payload.ContainsKey("cardIds"));
 
-        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var battleSnapshot = SnapshotFor(choiceClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.Equal(3, Assert.IsType<int>(p1Zones["mainDeckCount"]));

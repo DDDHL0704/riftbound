@@ -34,7 +34,7 @@ public sealed partial class CoreRuleEngine
                 WinnerPlayerId = effect.WinnerPlayerId ?? finished.WinnerPlayerId };
         }
         var choice = new PendingCardChoiceState("INSIGHT:" + item.StackItemId, "INSIGHT", item.ControllerId,
-            0, viewed.Length, viewed, viewed, $"洞察 {count}：选择任意数量的牌回收；不选则全部保留。若保留多张，下一步决定顶部顺序。", item.SourceObjectId, item.EffectKind)
+            0, viewed.Length, viewed, viewed, $"{(item.InsightContext?.Kind=="CONQUEST_LOOK"?"查看":"洞察")} {count}：选择任意数量的牌回收；不选则全部保留。若保留多张，下一步决定顶部顺序。", item.SourceObjectId, item.EffectKind)
             { DeckContext = new(item.StackItemId, 0) };
         return effect with { StackItems = stack, PendingCardChoice = choice,
             Events = effect.Events.Append(new GameEvent("INSIGHT_REQUESTED", "等待玩家私下完成洞察",

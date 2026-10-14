@@ -45615,17 +45615,18 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
-        var triggerEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE", StringComparison.Ordinal));
-        Assert.Equal("P1-BATTLEFIELD-CANDLELIT-SANCTUM", triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(["P1-BATTLEFIELD-CANDLE-001", "P1-BATTLEFIELD-CANDLE-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["revealedObjectIds"]));
-        var revealedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
-        Assert.Equal(2, revealedEvent.Payload["count"]);
-        var recycleEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE", StringComparison.Ordinal));
-        Assert.Equal(2, recycleEvent.Payload["count"]);
+        Assert.Contains(result.Events,e=>e.Kind=="TRIGGER_QUEUED" && Equals(e.Payload["effectKind"],"INSIGHT_TRIGGER"));
+        Assert.DoesNotContain(result.Events,e=>e.Kind is "CARDS_REVEALED" or "CARDS_RECYCLED");
+        var opened=await SpellResolutionTestDriver.Top(result);
+        var choice=Assert.IsType<PendingCardChoiceState>(opened.State.PendingCardChoice);
+        Assert.Equal(0,choice.RequiredCount);Assert.Equal(2,choice.MaxCount);
+        Assert.Equal(["P1-BATTLEFIELD-CANDLE-001","P1-BATTLEFIELD-CANDLE-002"],choice.LegalObjectIds);
+        Assert.DoesNotContain("P1-BATTLEFIELD-CANDLE-001",JsonSerializer.Serialize(opened.Prompts["P2"]));
+        var chosen=await OfficialInsightAndSpellLockTests.Act(opened.State,"P1",new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,choice.LegalObjectIds));
+        result=chosen with {Events=opened.Events.Concat(chosen.Events).ToArray()};
+        Assert.DoesNotContain(result.Events,e=>e.Kind=="CARDS_REVEALED");
+        var recycleEvent=Assert.Single(result.Events,e=>e.Kind=="CARDS_RECYCLED");
+        Assert.Equal(2,recycleEvent.Payload["count"]);Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
         Assert.Equal("P1-BATTLEFIELD-CANDLE-003", result.State.PlayerZones["P1"].MainDeck[0]);
         Assert.Equal(
             ["P1-BATTLEFIELD-CANDLE-001", "P1-BATTLEFIELD-CANDLE-002"],

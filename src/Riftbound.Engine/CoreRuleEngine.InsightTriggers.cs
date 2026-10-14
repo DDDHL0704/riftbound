@@ -17,11 +17,32 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidInsightTrigger(InsightTriggerContext context, string effect, string controller, string? cardNo = null)
         => effect == InsightTriggerEffect && context.ControllerId == controller && context.SourceGeneration >= 0
-            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED"
-            && context.Count == (context.Kind is "SPELL_PLAYED" or "DUEL" ? 1 : 2)
+            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK"
+            && context.Count == (context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
+                : context.Kind is "SPELL_PLAYED" or "DUEL" ? 1 : 2) && context.Count>0
             && (context.Kind == "DUEL" ? !string.IsNullOrEmpty(context.BattlefieldObjectId) && !string.IsNullOrEmpty(context.ReturnFocusPlayerId)
-                : context.BattlefieldObjectId is null && context.ReturnFocusPlayerId is null && !context.PaymentAccepted)
-            && IsInsightSource(context.CardNo, context.Kind) && (cardNo is null || cardNo == context.CardNo);
+                : (context.Kind=="CONQUEST_LOOK" ? !string.IsNullOrWhiteSpace(context.BattlefieldObjectId) : context.BattlefieldObjectId is null)
+                    && context.ReturnFocusPlayerId is null && !context.PaymentAccepted)
+            && (context.Kind=="CONQUEST_LOOK" || IsInsightSource(context.CardNo, context.Kind)) && (cardNo is null || cardNo == context.CardNo);
+
+    private static TriggerSpec? ConquestLookSpec(string? cardNo)
+        => BattlefieldTriggerSpecRules.TryGetTrigger(cardNo,BattlefieldTriggerSpecRules.IsBattlefieldConquerRevealRecycleTrigger,out var trigger)
+            ? trigger : null;
+
+    internal static bool ValidConquestLookSource(MatchState state,InsightTriggerContext? context,string source)
+        => context?.Kind!="CONQUEST_LOOK" || context.BattlefieldObjectId==source
+            && state.CardObjects.TryGetValue(source,out var card) && card.CardNo==context.CardNo
+            && card.ObjectGeneration==context.SourceGeneration && card.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag);
+
+    private static IReadOnlyList<TriggerQueueItemState> CaptureBattlefieldConquestLook(
+        IReadOnlyDictionary<string,PlayerZones> zones,IReadOnlyDictionary<string,CardObjectState> cards,
+        string player,string battlefield,long tick)
+    {
+        if(!TryGetBattlefieldCardObject(zones,cards,battlefield,out var source,out var card)
+            || ConquestLookSpec(card.CardNo) is not { } spec)return [];
+        return [new TriggerQueueItemState($"conquest-look-{tick}-{source}",player,source,InsightTriggerEffect,"BATTLEFIELD_CONQUERED") {
+            InsightContext=new(card.CardNo!,player,spec.RevealCount!.Value,card.ObjectGeneration,"CONQUEST_LOOK",source) }];
+    }
 
     private static IReadOnlyList<TriggerQueueItemState> BuildSpellPlayedInsightTriggers(MatchState state, string player,
         CardBehaviorDefinition behavior, StackItemState played, int paidMana)

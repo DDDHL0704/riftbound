@@ -7012,70 +7012,24 @@ public sealed partial class FullGameEndToEndTests
         ResolutionResult beforeBattle,
         ResolutionResult result)
     {
-        var battlefieldObjectId = BattlefieldObjectIdForCardNo(
-            result.State,
-            "P1",
-            CandlelitSanctumBattlefieldConquerRevealRecycleCardNo);
-        var attackerObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P1",
-            WildclawBeastmasterCardNo,
-            battlefieldObjectId,
-            readyOnly: true)
-            ?? throw new InvalidOperationException("B0 Candlelit Sanctum assertion could not locate Wildclaw Beastmaster before battle.");
-        var defenderObjectId = FindBattlefieldUnitByCardNo(
-            beforeBattle.State,
-            "P2",
-            WatchfulSentinelCardNo,
-            battlefieldObjectId,
-            readyOnly: true)
-            ?? throw new InvalidOperationException("B0 Candlelit Sanctum assertion could not locate Watchful Sentinel before battle.");
-        var expectedRevealedObjectIds = beforeBattle.State.PlayerZones["P1"].MainDeck.Take(2).ToArray();
-        Assert.Equal(2, expectedRevealedObjectIds.Length);
-        Assert.Null(result.State.PendingPayment);
-
-        var events = result.Events.ToArray();
-        var conqueredIndex = Array.FindIndex(
-            events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["battlefieldId"] as string, battlefieldObjectId, StringComparison.Ordinal));
-        Assert.True(conqueredIndex >= 0, $"Expected battlefield conquered before Candlelit trigger: {JsonSerializer.Serialize(result.Events)}");
-        var triggerIndex = Array.FindIndex(
-            events,
-            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
-                && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldConquerRevealRecycle, StringComparison.Ordinal));
-        Assert.True(triggerIndex > conqueredIndex, $"Expected Candlelit trigger after conquest: {JsonSerializer.Serialize(result.Events)}");
-
-        var triggerEvent = events[triggerIndex];
-        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, triggerEvent.Payload["battlefieldObjectId"]);
-        Assert.Equal(CandlelitSanctumBattlefieldConquerRevealRecycleCardNo, triggerEvent.Payload["battlefieldCardNo"]);
-        Assert.Equal(attackerObjectId, triggerEvent.Payload["sourceObjectId"]);
-        Assert.Equal(expectedRevealedObjectIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["revealedObjectIds"]));
-        var recycledObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["recycledObjectIds"]);
-        Assert.Equal(
-            expectedRevealedObjectIds.Order(StringComparer.Ordinal).ToArray(),
-            recycledObjectIds.Order(StringComparer.Ordinal).ToArray());
-        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["returnedObjectIds"]));
-
-        var revealedEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
-        Assert.Equal("P1", revealedEvent.Payload["playerId"]);
-        Assert.Equal(2, revealedEvent.Payload["count"]);
-        Assert.Equal("MAIN_DECK", revealedEvent.Payload["zone"]);
-        Assert.Equal(expectedRevealedObjectIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(revealedEvent.Payload["cardIds"]));
-
-        var recycleEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["reason"] as string, TriggerKinds.BattlefieldConquerRevealRecycle, StringComparison.Ordinal));
-        Assert.Equal("P1", recycleEvent.Payload["playerId"]);
-        Assert.Equal(battlefieldObjectId, recycleEvent.Payload["sourceObjectId"]);
-        Assert.Equal(2, recycleEvent.Payload["count"]);
-        Assert.Equal(recycledObjectIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
-        Assert.Equal(recycledObjectIds, result.State.PlayerZones["P1"].MainDeck.TakeLast(recycledObjectIds.Count).ToArray());
-        Assert.DoesNotContain(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
-        AssertNoHiddenZoneLeak(result);
+        var battlefieldObjectId=BattlefieldObjectIdForCardNo(result.State,"P1",CandlelitSanctumBattlefieldConquerRevealRecycleCardNo);
+        var attacker=FindBattlefieldUnitByCardNo(beforeBattle.State,"P1",WildclawBeastmasterCardNo,battlefieldObjectId,readyOnly:true);
+        var defender=FindBattlefieldUnitByCardNo(beforeBattle.State,"P2",WatchfulSentinelCardNo,battlefieldObjectId,readyOnly:true);
+        Assert.NotNull(attacker);Assert.NotNull(defender);
+        var expected=beforeBattle.State.PlayerZones["P1"].MainDeck.Take(2).ToArray();Assert.Equal(2,expected.Length);
+        var events=result.Events.ToArray();
+        var conquest=Array.FindIndex(events,e=>e.Kind=="BATTLEFIELD_CONQUERED" && Equals(e.Payload["battlefieldId"],battlefieldObjectId));
+        var queued=Array.FindIndex(events,e=>e.Kind=="TRIGGER_QUEUED" && Equals(e.Payload["sourceObjectId"],battlefieldObjectId)
+            && Equals(e.Payload["effectKind"],"INSIGHT_TRIGGER"));
+        var looked=Array.FindIndex(events,e=>e.Kind=="INSIGHT_REQUESTED" && Equals(e.Payload["sourceObjectId"],battlefieldObjectId));
+        Assert.True(conquest>=0 && queued>conquest && looked>queued);
+        Assert.DoesNotContain(events,e=>e.Kind=="CARDS_REVEALED" && Equals(e.Payload["sourceObjectId"],battlefieldObjectId));
+        var recycle=Assert.Single(events,e=>e.Kind=="CARDS_RECYCLED" && Equals(e.Payload["sourceObjectId"],battlefieldObjectId));
+        Assert.Equal("P1",recycle.Payload["playerId"]);Assert.Equal(2,recycle.Payload["count"]);Assert.False(recycle.Payload.ContainsKey("cardIds"));
+        Assert.Equal(expected.Order(StringComparer.Ordinal),result.State.PlayerZones["P1"].MainDeck.TakeLast(2).Order(StringComparer.Ordinal));
+        Assert.Equal(beforeBattle.State.PlayerZones["P1"].MainDeck.Skip(2),result.State.PlayerZones["P1"].MainDeck.SkipLast(2));
+        Assert.DoesNotContain(defender,result.State.PlayerZones["P2"].Battlefields);
+        Assert.Null(result.State.PendingCardChoice);Assert.Null(result.State.PendingPayment);AssertNoHiddenZoneLeak(result);
     }
 
     private static void AssertBattlefieldConquerRecycleRuneResolved(
@@ -17025,9 +16979,27 @@ public sealed partial class FullGameEndToEndTests
         var result = await PassOpenBattleResponseAsync(session, declared, $"{intentId}-battle-response");
         result = await ResolveOpenBattleDamageAssignmentsAsync(session, result, $"{intentId}-assign-damage");
         result = await PassOpenBattleResponseAsync(session, result, $"{intentId}-battle-response-after-assignment");
-        Assert.Null(result.State.PendingPayment);
-        AssertNoHiddenZoneLeak(result);
-        return result;
+        for(var index=0;result.State.PendingCardChoice is null && index<20;index++)
+        {
+            GameCommand continuation;string player;
+            if(PlayerWithEnabledCandidate(result,CommandTypes.OrderTriggers) is { } orderingPlayer)
+            {
+                player=orderingPlayer;var orderCandidate=EnabledCandidate(result.Prompts[player],CommandTypes.OrderTriggers)!;
+                var metadata=JsonSerializer.SerializeToElement(orderCandidate.Metadata);
+                continuation=new OrderTriggersCommand(OrderedTriggerIds:metadata.GetProperty("orderedTriggerIds").EnumerateArray().Select(v=>v.GetString()!).ToArray());
+            }
+            else if(result.State.PriorityPlayerId is { } priority){player=priority;continuation=new PassPriorityCommand();}
+            else break;
+            var next=await session.SubmitAsync(player,intentId+"-conquest-response-"+index,continuation,RawCommand(continuation),default);
+            AssertAccepted(next);AssertNoHiddenZoneLeak(next);result=next with {Events=result.Events.Concat(next.Events).ToArray()};
+        }
+        var choice=Assert.IsType<PendingCardChoiceState>(result.State.PendingCardChoice);
+        Assert.Equal("INSIGHT",choice.ChoiceWindow);Assert.Equal(0,choice.RequiredCount);Assert.Equal(2,choice.MaxCount);
+        Assert.DoesNotContain(choice.LegalObjectIds[0],JsonSerializer.Serialize(result.Prompts[opponentId]));
+        var choose=new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,choice.LegalObjectIds);
+        var chosen=await session.SubmitAsync(choice.PlayerId,intentId+"-private-recycle-both",choose,RawCommand(choose),default);
+        AssertAccepted(chosen);AssertNoHiddenZoneLeak(chosen);
+        return chosen with {Events=result.Events.Concat(chosen.Events).ToArray()};
     }
 
     private static async ValueTask<ResolutionResult> SubmitBattlefieldConquerRecycleRuneDeclareBattleAsync(
