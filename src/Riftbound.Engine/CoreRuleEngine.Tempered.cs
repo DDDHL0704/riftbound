@@ -298,7 +298,7 @@ public sealed partial class CoreRuleEngine
         }
         if (costs?.RecycledCards is { } costCards)
         {
-            var recycledCost = RecycleGraveyardCards(paid, zones, item.ControllerId, item.SourceObjectId, costCards.Select(b => b.ObjectId).ToArray());
+            var recycledCost = RecycleGraveyardCards(paid, zones, cards, item.ControllerId, item.SourceObjectId, costCards.Select(b => b.ObjectId).ToArray());
             events.AddRange(recycledCost.Events); result = result with { RngCursor = recycledCost.RngCursor };
         }
         IReadOnlyDictionary<string, ObjectLocationState> locations = ReconcileObjectLocations(state.ObjectLocations, zones);

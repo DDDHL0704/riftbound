@@ -243,9 +243,9 @@ public sealed partial class CoreRuleEngine
         {
             var recycled = RandomizeForMainDeckBottom(remaining, state.Seed, state.RngCursor, item.SourceObjectId);
             zones[owner] = zones[owner] with { MainDeck = zones[owner].MainDeck.Where(x => !remaining.Contains(x)).Concat(recycled).ToArray() };
-            if (remaining.Length > 0) events.Add(new("CARDS_RECYCLED", "回收未选择的牌", new Dictionary<string,object?> {
+            if (remaining.Length > 0) events.Add(CaptureSivirRuneRecycle(new("CARDS_RECYCLED", "回收未选择的牌", new Dictionary<string,object?> {
                 ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["count"] = remaining.Length, ["zone"] = "MAIN_DECK",
-                ["visibility"] = DeckPlaySequenceReveals(item) ? "REVEALED" : "LOOKED_NOT_REVEALED" }));
+                ["visibility"] = DeckPlaySequenceReveals(item) ? "REVEALED" : "LOOKED_NOT_REVEALED" }), zones, cards, remaining));
         }
         item = item with { DeckPlaySequence = c with { Selected = picked, SelectionIndex = c.SelectionIndex + 1 } };
         var next = state with { PendingCardChoice = null, PlayerZones = zones, CardObjects = cards,

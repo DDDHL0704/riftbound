@@ -1,0 +1,47 @@
+{
+  "status": "OPEN",
+  "wholeCardCertified": false,
+  "branches": [
+    {
+      "id": "RUNE_DESTINATION",
+      "state": "OPEN",
+      "sourceRefs": [
+        "DOC-04-P021-B011",
+        "DOC-04-P069-B001"
+      ],
+      "confirmedDefect": "Battlefield conquer recycle currently appends runes to MainDeck; current rule416.1.b requires RuneDeck. Existing legacy fixture and assertions retained pending dedicated destination-family correction."
+    },
+    {
+      "id": "CROSS_OWNER_RECYCLING_ACTOR",
+      "state": "OPEN",
+      "sourceRefs": [
+        "DOC-04-P069-B002",
+        "DOC-04-P069-B009"
+      ],
+      "requirement": "Separate instructed recycling player from destination owner for cross-player effects; current limited evidence only closes own-rune actions."
+    },
+    {
+      "id": "PAYMENT_RESOURCE_CONTINUATION",
+      "state": "OPEN",
+      "requirement": "Current capture hook exists at payment rune-resource primitive; separately verify deferred publication and optional cost ordering through actual quoted payment, cold recovery and controls."
+    },
+    {
+      "id": "ENEMY_DESTROYED_READY_TIMING",
+      "state": "OPEN",
+      "sourceRefs": [
+        "SFD-203/221",
+        "SFD-250/221"
+      ],
+      "requirement": "Second legend clause retains legacy immediate readiness and needs separate independent trigger-timing review."
+    },
+    {
+      "id": "FINAL_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+      "state": "OPEN"
+    },
+    {
+      "id": "WINDOWS_RUNTIME",
+      "state": "OPEN",
+      "reason": "User has no Windows device; do not infer acceptance from CI."
+    }
+  ]
+}

@@ -81,7 +81,7 @@ public sealed partial class CoreRuleEngine
             return RejectWithCorePrompts(state, "回收选择上下文已失效。", ErrorCodes.InvalidTarget);
         var item = state.StackItems.Last();
         var zones = NormalizeZonesForSeats(state);
-        var recycled = RecycleGraveyardCards(state, zones, item.ControllerId, item.SourceObjectId, selected.Order(StringComparer.Ordinal).ToArray(), "BEGINNING_EFFECT");
+        var recycled = RecycleGraveyardCards(state, zones, state.CardObjects, item.ControllerId, item.SourceObjectId, selected.Order(StringComparer.Ordinal).ToArray(), "BEGINNING_EFFECT");
         var nextItem = item with { BeginningRecycle = item.BeginningRecycle! with { Completed = true } };
         var next = state with { PendingCardChoice = null, PlayerZones = zones, RngCursor = recycled.RngCursor,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),

@@ -164,6 +164,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = RefreshRuleDerivedKeywordLayers(result);
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
+            result = QueueSivirRuneRecycles(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))))));
@@ -3194,7 +3195,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        var cardNo = trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -3207,7 +3208,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, UnitEntryContext = trigger.UnitEntryContext, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -4044,6 +4045,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var recycleResult = RecycleGraveyardCards(
                 state,
                 playerZones,
+                cardObjects,
                 intent.PlayerId,
                 command.SourceObjectId,
                 recycledAdditionalCostTargetObjectIds);
@@ -4305,6 +4307,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static RecycleResult RecycleGraveyardCards(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         string sourceObjectId,
         IReadOnlyList<string> recycledObjectIds,
@@ -4336,7 +4339,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Where(objectId => !recycledSet.Contains(objectId))
                 .ToArray()
         };
-        events.Add(new GameEvent(
+        events.Add(CaptureSivirRuneRecycle(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {randomizedCardIds.Count} 张牌",
             new Dictionary<string, object?>
@@ -4346,7 +4349,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["cardIds"] = recycledObjectIds.Order(StringComparer.Ordinal).ToArray(),
                 ["count"] = randomizedCardIds.Count,
                 ["reason"] = reason
-            }));
+            }), playerZones, cardObjects));
 
         return new RecycleResult(events, rngCursor);
     }
@@ -8575,8 +8578,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryGetSivirLegend(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         out string legendObjectId,
         out CardObjectState legendState)
@@ -10535,7 +10538,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var events = new List<GameEvent>
         {
-            new(
+            CaptureSivirRuneRecycle(new(
                 "RUNE_RECYCLED",
                 $"{intent.PlayerId} 回收符文获得 1 点{RuneTraitLabel(runeTrait)}符能",
                 new Dictionary<string, object?>
@@ -10547,7 +10550,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["trait"] = runeTrait,
                     ["power"] = BasicRuneRecyclePowerGain,
                     ["runeDeckCountAfter"] = playerZones[intent.PlayerId].RuneDeck.Count
-                }),
+                }), playerZones, cardObjects),
             new(
                 "POWER_GAINED",
                 $"{intent.PlayerId} 通过基础符文获得 1 点{RuneTraitLabel(runeTrait)}符能",
@@ -10954,7 +10957,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             runePools[playerId] = currentPool;
 
-            events.Add(new GameEvent(
+            events.Add(CaptureSivirRuneRecycle(new GameEvent(
                 "RUNE_RECYCLED",
                 $"{playerId} 在支付费用时回收符文获得 1 点{RuneTraitLabel(runeTrait)}符能",
                 new Dictionary<string, object?>
@@ -10968,7 +10971,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["paymentWindow"] = paymentWindow,
                     ["paymentId"] = paymentId,
                     ["runeDeckCountAfter"] = playerZones[playerId].RuneDeck.Count
-                }));
+                }), playerZones, cardObjects));
             events.Add(new GameEvent(
                 "POWER_GAINED",
                 $"{playerId} 通过支付资源动作获得 1 点{RuneTraitLabel(runeTrait)}符能",
@@ -16858,7 +16861,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 MainDeck = zones.MainDeck.Skip(1).Concat([revealedObjectId]).ToArray()
             };
-            events.Add(new GameEvent(
+            events.Add(CaptureSivirRuneRecycle(new GameEvent(
                 "CARDS_RECYCLED",
                 $"{playerId} 回收展示的牌",
                 new Dictionary<string, object?>
@@ -16869,7 +16872,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["count"] = 1,
                     ["sourceZone"] = trigger.RevealSourceZone,
                     ["destinationZone"] = trigger.RevealMissDestinationZone
-                }));
+                }), playerZones, cardObjects));
         }
 
         return new RecycleResult(events, rngCursor);
@@ -16926,7 +16929,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = sourceObjectId,
                 ["targetObjectId"] = recycledRuneObjectIds[0]
             }));
-        events.Add(new GameEvent(
+        events.Add(CaptureSivirRuneRecycle(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {recycledRuneObjectIds.Length} 枚符文",
             new Dictionary<string, object?>
@@ -16937,7 +16940,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["count"] = recycledRuneObjectIds.Length,
                 ["sourceZone"] = trigger.RecycleSourceZone,
                 ["destinationZone"] = trigger.RecycleDestinationZone
-            }));
+            }), playerZones, cardObjects));
 
         return new RecycleResult(events, rngCursor);
     }
@@ -20883,60 +20886,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
     }
 
-    private static IReadOnlyList<GameEvent> ResolveSivirRuneRecycledGoldTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        StackItemState stackItem,
-        IReadOnlyList<GameEvent> stackEvents)
-    {
-        if (!TryGetSivirLegend(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                out var legendObjectId,
-                out var legendState)
-            || legendState.IsExhausted
-            || !StackEventsRecycledControllerRune(cardObjects, stackItem.ControllerId, stackEvents))
-        {
-            return [];
-        }
-
-        cardObjects[legendObjectId] = legendState with { IsExhausted = true };
-        var events = new List<GameEvent>
-        {
-            new(
-                "LEGEND_TRIGGER_RESOLVED",
-                $"{stackItem.ControllerId} 的战争女神回收符文触发",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = stackItem.ControllerId,
-                    ["legendObjectId"] = legendObjectId,
-                    ["legendCardNo"] = legendState.CardNo,
-                    ["trigger"] = "RUNE_RECYCLED_CREATE_GOLD"
-                }),
-            new(
-                "LEGEND_EXHAUSTED",
-                $"{legendObjectId} 变为休眠状态",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = legendObjectId,
-                    ["reason"] = "RUNE_RECYCLED_CREATE_GOLD"
-                })
-        };
-        CreateLegendEquipmentToken(
-            playerZones,
-            cardObjects,
-            stackItem.ControllerId,
-            legendObjectId,
-            "LEGEND_TRIGGER_RUNE_RECYCLED_CREATE_GOLD",
-            "金币",
-            [CardObjectTags.EquipmentCard],
-            isExhausted: true,
-            events);
-        return events;
-    }
-
     private static IReadOnlyList<GameEvent> ResolveSivirEnemyDestroyedReadyTriggers(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -20992,20 +20941,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return TryGetPayloadString(gameEvent, "reason", out var reason)
             && (string.Equals(reason, "LETHAL_DAMAGE", StringComparison.Ordinal)
                 || string.Equals(reason, "DAMAGE_TRIGGERED_DESTROY", StringComparison.Ordinal));
-    }
-
-    private static bool StackEventsRecycledControllerRune(
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        IReadOnlyList<GameEvent> stackEvents)
-    {
-        return stackEvents.Any(gameEvent =>
-            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
-            && TryGetPayloadString(gameEvent, "playerId", out var recyclePlayerId)
-            && string.Equals(recyclePlayerId, playerId, StringComparison.Ordinal)
-            && PayloadStringValues(gameEvent, "cardIds")
-                .Any(cardId => cardObjects.TryGetValue(cardId, out var cardState)
-                    && cardState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)));
     }
 
     private static IReadOnlyList<string> PayloadStringValues(GameEvent gameEvent, string key)
@@ -24372,6 +24307,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.SpellContext is not null) return ResolveSpellTrigger(state, stackItem);
         if (stackItem.FieldContext is not null) return ResolveFieldTrigger(state, stackItem);
         if (stackItem.InsightContext is not null) return ResolveInsightTrigger(state, stackItem);
+        if (stackItem.SivirRuneRecycle is not null) return ResolveSivirRuneRecycle(state, stackItem);
         if (stackItem.EffectKind == P4ActivatedAbilityCatalog.NextSpellEchoEffectKind)
             return new(state.PlayerZones, state.CardObjects, state.PlayerScores, state.PlayerExperience, state.RunePools,
                 EchoCostRules.AddBaseCostGrant(state.UntilEndOfTurnEffects, stackItem.ControllerId), null,
@@ -25159,6 +25095,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var topDeckSelectionResult = DrawSelectedMainDeckTargetsAndRecycleRest(
                 state,
                 playerZones,
+                cardObjects,
                 stackItem.ControllerId,
                 stackItem.SourceObjectId,
                 MainDeckTargetObjectIds(stackItem.TargetObjectIds, behavior),
@@ -25189,6 +25126,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var recycleResult = RecycleTargetCards(
                 state,
                 playerZones,
+                cardObjects,
                 stackItem.ControllerId,
                 stackItem.SourceObjectId,
                 stackItem.TargetObjectIds);
@@ -26901,6 +26839,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var recycleResult = RecycleSelectedMainDeckTargets(
                 state,
                 playerZones,
+                cardObjects,
                 stackItem.ControllerId,
                 stackItem.SourceObjectId,
                 MainDeckTargetObjectIds(stackItem.TargetObjectIds, behavior),
@@ -27031,11 +26970,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem,
             events));
         events.AddRange(ResolveEclipseVanguardStunTriggers(
-            playerZones,
-            cardObjects,
-            stackItem,
-            events));
-        events.AddRange(ResolveSivirRuneRecycledGoldTrigger(
             playerZones,
             cardObjects,
             stackItem,
@@ -31378,6 +31312,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static RecycleResult RecycleTargetCards(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string controllerId,
         string sourceObjectId,
         IReadOnlyList<string> targetObjectIds)
@@ -31419,7 +31354,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
                     .ToArray()
             };
-            events.Add(new GameEvent(
+            events.Add(CaptureSivirRuneRecycle(new GameEvent(
                 "CARDS_RECYCLED",
                 $"{ownerPlayerId} 回收 {recycledCardIds.Length} 张牌",
                 new Dictionary<string, object?>
@@ -31428,7 +31363,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = sourceObjectId,
                     ["cardIds"] = randomizedCardIds,
                     ["count"] = randomizedCardIds.Count
-                }));
+                }), playerZones, cardObjects));
         }
 
         return new RecycleResult(events, rngCursor);
@@ -31482,7 +31417,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
                     .ToArray()
             };
-            events.Add(new GameEvent(
+            events.Add(CaptureSivirRuneRecycle(new GameEvent(
                 "CARDS_RECYCLED",
                 $"{playerId} 回收 {recycledCardIds.Length} 张牌",
                 new Dictionary<string, object?>
@@ -31491,7 +31426,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = sourceObjectId,
                     ["cardIds"] = randomizedCardIds,
                     ["count"] = randomizedCardIds.Count
-                }));
+                }), playerZones, cardObjects));
         }
 
         return new RecycleResult(events, rngCursor);
@@ -31611,6 +31546,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var recycleResult = RecycleLookedMainDeckCards(
             state,
             playerZones,
+                cardObjects,
             stackItem.ControllerId,
             stackItem.SourceObjectId,
             remainingViewed,
@@ -31675,6 +31611,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static RecycleResult RecycleLookedMainDeckCards(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         string sourceObjectId,
         IReadOnlyList<string> viewedCardIds,
@@ -31706,7 +31643,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .ToArray()
         };
 
-        events.Add(new GameEvent(
+        events.Add(CaptureSivirRuneRecycle(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
             new Dictionary<string, object?>
@@ -31715,7 +31652,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = sourceObjectId,
                 ["cardIds"] = randomizedRecycledCardIds,
                 ["count"] = randomizedRecycledCardIds.Count
-            }));
+            }), playerZones, cardObjects));
 
         return new RecycleResult(events, rngCursor);
     }
@@ -31732,6 +31669,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static RecycleResult RecycleSelectedMainDeckTargets(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         string sourceObjectId,
         IReadOnlyList<string> selectedObjectIds,
@@ -31775,7 +31713,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .ToArray()
         };
 
-        events.Add(new GameEvent(
+        events.Add(CaptureSivirRuneRecycle(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
             new Dictionary<string, object?>
@@ -31784,7 +31722,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = sourceObjectId,
                 ["cardIds"] = randomizedRecycledCardIds,
                 ["count"] = randomizedRecycledCardIds.Count
-            }));
+            }), playerZones, cardObjects));
 
         return new RecycleResult(events, rngCursor);
     }
@@ -31792,6 +31730,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static RecycleResult DrawSelectedMainDeckTargetsAndRecycleRest(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         string sourceObjectId,
         IReadOnlyList<string> selectedObjectIds,
@@ -31861,7 +31800,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (randomizedRecycledCardIds.Count > 0)
         {
-            events.Add(new GameEvent(
+            events.Add(CaptureSivirRuneRecycle(new GameEvent(
                 "CARDS_RECYCLED",
                 $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
                 new Dictionary<string, object?>
@@ -31870,7 +31809,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = sourceObjectId,
                     ["cardIds"] = randomizedRecycledCardIds,
                     ["count"] = randomizedRecycledCardIds.Count
-                }));
+                }), playerZones, cardObjects));
         }
 
         return new RecycleResult(events, rngCursor);

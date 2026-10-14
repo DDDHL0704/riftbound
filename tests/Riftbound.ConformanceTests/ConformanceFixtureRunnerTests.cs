@@ -35629,6 +35629,15 @@ public sealed class ConformanceFixtureRunnerTests
         p2Pass=await new CoreRuleEngine().ResolveAsync(p2Pass.State,new PlayerIntent("sivir-predict-choose","P1",CommandTypes.ChooseCards),
             new ChooseCardsCommand(predict.ChoiceId,predict.ChoiceWindow,["P1-SIVIR-RUNE-RECYCLE"]),CancellationToken.None);
         Assert.True(p2Pass.Accepted,p2Pass.ErrorMessage);
+        var recycledEvents = p2Pass.Events;
+        Assert.False(p2Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
+        var optional = Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
+        Assert.Equal("TRIGGER_COST_CONFIRMATION", optional.ChoiceWindow);
+        var paid = await OfficialGraveyardRecastTests.Act(p2Pass.State, "P1",
+            new ChooseCardsCommand(optional.ChoiceId, optional.ChoiceWindow, ["P1-LEGEND-SIVIR"]));
+        Assert.DoesNotContain(paid.Events, e => e.Kind == "EQUIPMENT_TOKEN_CREATED");
+        var resolved = await OfficialGraveyardRecastTests.Top(paid.State);
+        p2Pass = resolved with { Events = recycledEvents.Concat(paid.Events).Concat(resolved.Events).ToArray() };
         Assert.True(p2Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
         Assert.All(p2Pass.Events.Where(e => e.Kind == "CARDS_RECYCLED"), e => Assert.False(e.Payload.ContainsKey("cardIds")));
         Assert.Contains("P1-LEGEND-SIVIR-TOKEN-001", p2Pass.State.PlayerZones["P1"].Base);
@@ -62554,7 +62563,7 @@ public sealed class ConformanceFixtureRunnerTests
         };
     }
 
-    private static MatchState BattlefieldConquerRecycleRuneState()
+    internal static MatchState BattlefieldConquerRecycleRuneState()
     {
         return PunishmentState(mana: 0) with
         {
@@ -66909,7 +66918,7 @@ public sealed class ConformanceFixtureRunnerTests
         };
     }
 
-    private static MatchState SivirRuneRecycleState(string sourceCardNo, string sourceObjectId)
+    internal static MatchState SivirRuneRecycleState(string sourceCardNo, string sourceObjectId)
     {
         var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 2);
         var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);

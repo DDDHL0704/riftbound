@@ -19195,6 +19195,170 @@
         ]
       },
       "wholeGoalComplete": false
+    },
+    {
+      "id": "sivir-optional-rune-recycle-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Own-rune Sivir optional exhaustion before confirmation, separate response/token resolution, independent captured identity and production controls; whole legends, rune destination/actor, payment-resource continuation and final product remain open",
+      "subjects": [
+        "SFD-203/221",
+        "SFD-250/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P030-B021",
+        "DOC-04-P060-B002"
+      ],
+      "pendingRuleRecords": [
+        "DOC-04-P069-B001",
+        "DOC-04-P069-B002",
+        "DOC-04-P069-B009"
+      ],
+      "auditDocument": "docs/SIVIR_OPTIONAL_RUNE_RECYCLE_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/sivir-optional-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/sivir-optional-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PASSED",
+        "newMethods": 9,
+        "newCases": 23,
+        "newMethodNames": [
+          "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.TargetConditionalCounterCannotChooseUntargetedSivirGoldTrigger",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold"
+        ],
+        "cases": [
+          "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·203/221\", recycle: False)",
+          "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·203/221\", recycle: True)",
+          "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·250/221\", recycle: False)",
+          "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·250/221\", recycle: True)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·203/221\", pay: False)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·203/221\", pay: True)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·250/221\", pay: False)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·250/221\", pay: True)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·203/221\", pay: False)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·203/221\", pay: True)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·250/221\", pay: False)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·250/221\", pay: True)",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"FACE\")",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"GENERATION\")",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"MISSING\")",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"SOURCE\")",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.TargetConditionalCounterCannotChooseUntargetedSivirGoldTrigger",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"EXHAUSTED\")",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"HIDDEN\")",
+          "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"OPPONENT\")"
+        ],
+        "adjacentCases": 69,
+        "adjacentMethods": 38,
+        "adjacentFailures": [],
+        "originalFullGameMethods": [
+          "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMoonveilAltarConquerReadyEquipmentAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPoroForgeLegendAttachArmamentAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+        ],
+        "originalFullGameCases": 4,
+        "originalMethodsTheorySeedsAndVictoryReplayAssertionsRetained": true,
+        "trxSha256": "a24447089bf258b09f6fb2dd2d094231344a9c1e3aaa368a9d9ec290fe9647b6",
+        "originalGamesTrxSha256": "b7ca38da6c7c4e2b661f305207d4502a4d2fbc2a1c0127a75a548b1b6766b31f",
+        "check": {
+          "oldCasesPreserved": true,
+          "oldMethodsPreserved": true,
+          "oldCaseCount": 11546,
+          "oldMethodCount": 7088,
+          "checkCases": 11569,
+          "checkMethods": 7097,
+          "newCases": [
+            "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·203/221\", recycle: False)",
+            "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·203/221\", recycle: True)",
+            "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·250/221\", recycle: False)",
+            "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay(card: \"SFD·250/221\", recycle: True)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·203/221\", pay: False)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·203/221\", pay: True)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·250/221\", pay: False)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution(card: \"SFD·250/221\", pay: True)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·203/221\", pay: False)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·203/221\", pay: True)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·250/221\", pay: False)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow(card: \"SFD·250/221\", pay: True)",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"FACE\")",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"GENERATION\")",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"MISSING\")",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings(mutation: \"SOURCE\")",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.TargetConditionalCounterCannotChooseUntargetedSivirGoldTrigger",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"EXHAUSTED\")",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"HIDDEN\")",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold(kind: \"OPPONENT\")"
+          ],
+          "newMethods": [
+            "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.TargetConditionalCounterCannotChooseUntargetedSivirGoldTrigger",
+            "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold"
+          ],
+          "firstCheckFailed": [
+            "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+            "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch",
+            "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+            "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift"
+          ],
+          "status": "CHECK_FAILURE_CLOSED_BY_NAMED_REMEDIATION",
+          "firstCheckPassed": 11565,
+          "remediationCases": 59,
+          "remediationFailed": 0,
+          "remediationSkipped": 0,
+          "frozenInputsUnchanged": true,
+          "firstCheckTrxSha256": "dcb1b6974f3c6e3eb7dbd2e9c714c7b1b275025abc2e36a73cd7e6fbcee5b147",
+          "remediationTrxSha256": "7481c2d96a62e91e19f4f6f70e33e9ee0cb12b2963c82a5d1feb42e803bb7272",
+          "remediationInputChanges": [
+            "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs"
+          ],
+          "remediationScope": "Independent expected error enumeration only; original four forged-event refusal assertions retained. One check only, no claimed clean second check.",
+          "currentFull": "PENDING"
+        }
+      },
+      "fixedCommitCi": {
+        "state": "PENDING",
+        "implementationBaseCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
+        "includesUncommittedChanges": true
+      },
+      "productAcceptance": {
+        "nativeControls": "SCOPED_PASS",
+        "actualSql": "SCOPED_PASS",
+        "visiblePairedScoreFinish": "OPEN",
+        "WindowsRuntime": "OPEN"
+      },
+      "remaining": [
+        "RUNE_DESTINATION",
+        "CROSS_OWNER_RECYCLING_ACTOR",
+        "PAYMENT_RESOURCE_CONTINUATION",
+        "ENEMY_DESTROYED_READY_TIMING",
+        "OTHER_RECYCLING_CONSUMERS",
+        "FIXED_CURRENT_FULL",
+        "FINAL_PRODUCT_ACCEPTANCE"
+      ]
     }
   ]
 }

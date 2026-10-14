@@ -91,7 +91,7 @@ public sealed partial class CoreRuleEngine
             }
             if (spec.Action == RevealedHandAction.Recycle)
             {
-                var recycled = RecycleTargetCards(state, zones, item.ControllerId, item.SourceObjectId, selected);
+                var recycled = RecycleTargetCards(state, zones, cards, item.ControllerId, item.SourceObjectId, selected);
                 events.AddRange(recycled.Events); rng = recycled.RngCursor;
             }
             else

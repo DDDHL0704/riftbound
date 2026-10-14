@@ -1,0 +1,10 @@
+[
+  {
+    "method": "Riftbound.ConformanceTests.SivirOptionalRecycleTests.PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment",
+    "message": "Assert.False() Failure\nExpected: False\nActual:   True"
+  },
+  {
+    "method": "Riftbound.ConformanceTests.SivirOptionalRecycleTests.ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold",
+    "message": "Assert.IsType() Failure: Value is null\nExpected: typeof(Riftbound.Engine.PendingCardChoiceState)\nActual:   null"
+  }
+]

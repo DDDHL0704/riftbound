@@ -108,11 +108,7 @@ public sealed partial class CoreRuleEngine
             if (selected.Count > 0) {
                 var recycledEvent = new GameEvent("CARDS_RECYCLED", $"洞察回收 {selected.Count} 张牌", new Dictionary<string, object?>
                     { ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = selected.Count });
-                events.Add(recycledEvent);
-                // Recycling observers consume the actual private selection;
-                // the looked-card identities never enter the published event.
-                events.AddRange(ResolveSivirRuneRecycledGoldTrigger(zones, cards, item,
-                    [recycledEvent with { Payload = new Dictionary<string, object?>(recycledEvent.Payload) { ["cardIds"] = selected } }]));
+                events.Add(CaptureSivirRuneRecycle(recycledEvent, zones, cards, selected));
             }
             if (retained.Length > 1)
             {

@@ -77,16 +77,12 @@ public sealed partial class CoreRuleEngine
             remainingCount-=selected.Count-kept.Length;selected=kept;
         }
         var result = behavior.RecyclesSelectedMainDeckTargets
-            ? RecycleSelectedMainDeckTargets(state,zones,item.ControllerId,item.SourceObjectId,selected,remainingCount)
-            : DrawSelectedMainDeckTargetsAndRecycleRest(state, zones, item.ControllerId, item.SourceObjectId,
+            ? RecycleSelectedMainDeckTargets(state,zones, cards,item.ControllerId,item.SourceObjectId,selected,remainingCount)
+            : DrawSelectedMainDeckTargetsAndRecycleRest(state, zones, cards, item.ControllerId, item.SourceObjectId,
                 selected, remainingCount, behavior.RecyclesUnselectedMainDeckLookCards);
-        // Existing recycle observers consume the authoritative movement before
-        // private looked-card identities are removed from the public event.
-        var recycleObserverEvents=ResolveSivirRuneRecycledGoldTrigger(zones,cards,item,result.Events);
         var events = revealEvents.Concat(result.Events.Select(e => e.Kind == "CARDS_RECYCLED"
             ? e with { Payload = e.Payload.Where(field => field.Key != "cardIds").ToDictionary(field => field.Key, field => field.Value) }
             : e)).ToList();
-        events.AddRange(recycleObserverEvents);
         // Card Trick says 'put into hand', not 'draw'. Filtered choices explicitly
         // reveal the selected card; unselected looked cards remain private.
         if (!behavior.MainDeckSelectionIsDraw)

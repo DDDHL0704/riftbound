@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "3d6e4feb13c75196ca76a06d5677aeb115a329c08404e9492326a88e69ff545c"
+      "sha256": "c9eef492d4dcbdc6d576390fde7135b72ff23fd9283daa7670254fad8ba5284a"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -104,11 +104,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "57016ef61621e6e6188724b5e18d769a37dc46a53fe27c64629bb478cb2a45e3"
+          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
+          "sha256": "4c1697e83a24425f6a3ae14d5c006f8bf722223fb67ebfda6e685e3cd5aa8624"
         }
       ],
       "branches": [
@@ -252,7 +252,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "57016ef61621e6e6188724b5e18d769a37dc46a53fe27c64629bb478cb2a45e3"
+          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -260,7 +260,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
+          "sha256": "4c1697e83a24425f6a3ae14d5c006f8bf722223fb67ebfda6e685e3cd5aa8624"
         }
       ],
       "branches": [
@@ -577,11 +577,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
+          "sha256": "4c1697e83a24425f6a3ae14d5c006f8bf722223fb67ebfda6e685e3cd5aa8624"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9b041a7bfe6d3e66815b0d1ed7000536eca7077f722868e9551ed41d4ae8e6b6"
+          "sha256": "d6ec18cd91a8fcaf816178c9004b6928b6ebe2359a9c9ab63d2bb9e0b5fddbea"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -1186,19 +1186,19 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "57016ef61621e6e6188724b5e18d769a37dc46a53fe27c64629bb478cb2a45e3"
+          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
+          "sha256": "4c1697e83a24425f6a3ae14d5c006f8bf722223fb67ebfda6e685e3cd5aa8624"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "78c017ce2e026ad3f2aeaea1c1e1706a028534c67c0722ca2038824dcf3bb71c"
+          "sha256": "03c6924c7423ba39b0fd36cf0d851a39380cd84eed44beb39634e6ec83caa537"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9b041a7bfe6d3e66815b0d1ed7000536eca7077f722868e9551ed41d4ae8e6b6"
+          "sha256": "d6ec18cd91a8fcaf816178c9004b6928b6ebe2359a9c9ab63d2bb9e0b5fddbea"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -1804,7 +1804,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "57016ef61621e6e6188724b5e18d769a37dc46a53fe27c64629bb478cb2a45e3"
+          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
@@ -1812,11 +1812,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
+          "sha256": "4c1697e83a24425f6a3ae14d5c006f8bf722223fb67ebfda6e685e3cd5aa8624"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "78c017ce2e026ad3f2aeaea1c1e1706a028534c67c0722ca2038824dcf3bb71c"
+          "sha256": "03c6924c7423ba39b0fd36cf0d851a39380cd84eed44beb39634e6ec83caa537"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -2396,10 +2396,369 @@
           "role": "check"
         }
       ],
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/printed-predict-2026-10-15/full-ci-74353e40.json",
+          "sha256": "47ba4aaadb29b041f0e6489c63db79bc07c41713386f499f606a2b32fa245660",
+          "commit": "74353e405fd2242ece0bae05972f209950b2c9de",
+          "runId": 38611480740
+        }
+      ],
+      "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
+      "currentImplementationCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
+      "currentImplementationIncludesUncommittedChanges": true
+    },
+    "sivir-optional-rune-recycle-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+          "sha256": "8010068d6cf8a67dbdbb8ca74da046bf13b1e2b96125568f4bc8a0dc4fd74829"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "sha256": "99c601d1baa38c164d4e4b649a57920821d16eb0383d6147ec1293d358795e41"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "03c6924c7423ba39b0fd36cf0d851a39380cd84eed44beb39634e6ec83caa537"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "26d840c2be957e6cbda9e8fe92b3d3331b60cc32e4ebcde33d54e227d0dff0e3"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "sha256": "a5008bf2acb0efe32f7da592a178fe233f40768c5dfcb7757eb20c2e968f2727"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "sha256": "0bddac18ec8ef27c92c26ab720e1c811bc930a8cef6e721f176a40b3fffe962b"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningRecycle.cs",
+          "sha256": "a2eea041471ea417250b512861117d5c4b6ec8daddf02bdc4c7c820085750f7e"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandChoices.cs",
+          "sha256": "562d0549967e338af02bc8f6b21178a27e48fac011368018fd1f33d946b0785e"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Tempered.cs",
+          "sha256": "e9863f1bc57fc3ea8ef3da2aa125b62f0abe98f95492ab9f640b48af402a4677"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "d6ec18cd91a8fcaf816178c9004b6928b6ebe2359a9c9ab63d2bb9e0b5fddbea"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "4c1697e83a24425f6a3ae14d5c006f8bf722223fb67ebfda6e685e3cd5aa8624"
+        },
+        {
+          "path": "src/Riftbound.Engine/StackObjectRules.cs",
+          "sha256": "3d399d79614bedef2577b303fab2a646f37f4b56ccea3b874299c5f528b4d603"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalNativeTests.ProductionRuneCostAndResponseControlsColdRecoverDeduplicateAndReplay"
+            ],
+            "requiredNativeBranches": [
+              "primary-pay",
+              "primary-decline",
+              "alternate-pay",
+              "alternate-decline"
+            ]
+          }
+        },
+        {
+          "id": "ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalRecycleTests.ActualRuneResourceRecycleLetsSivirDeclineBeforeExhaustionOrGold"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BatchedRuneResourceRecycleCapturesOneIndependentTriggerPerRune"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BattlefieldConquestRuneRecycleCapturesSivirOutsideSpellResolution"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalRecycleTests.BothPrintingsAllowDecliningOrPayingBeforeTheGoldResponseWindow"
+            ],
+            "requiredNativeBranches": [
+              "primary-pay",
+              "primary-decline",
+              "alternate-pay",
+              "alternate-decline"
+            ]
+          }
+        },
+        {
+          "id": "PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalRecycleTests.PrintedPredictRuneRecycleDoesNotAutomaticallyChooseSivirPayment"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "RecoveryIndependentlyRejectsMissingAndForgedSivirBindings",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalRecycleTests.RecoveryIndependentlyRejectsMissingAndForgedSivirBindings"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "TargetConditionalCounterCannotChooseUntargetedSivirGoldTrigger",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalRecycleTests.TargetConditionalCounterCannotChooseUntargetedSivirGoldTrigger"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independently tested own-rune optional exhaustion and identity/control branch only. Legacy battlefield case closes observer routing only; rune destination/actor, second legend clause and payment-resource timing remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirOptionalRecycleTests.UnpayableOrInapplicableSourcesDoNotAutomaticallyCreateGold"
+            ],
+            "requiredNativeBranches": []
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/sivir-optional-2026-10-15/focus.json",
+          "sha256": "e8fed35d4c57a43e96f13c464c6c266716c9f3419dcb1407a9ba8b632fb18f29",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/sivir-optional-2026-10-15/native-replay.json",
+          "sha256": "01dbc537abcd2f0bedd93a7c30157e53a43ff5e76f02ee426c57685c363157b8",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/sivir-optional-2026-10-15/sql-sivir.json",
+          "sha256": "0b8b8430873c62593aef1bf49db3e6fe3319a88d5645be7599e789a2eb0179b2",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/sivir-optional-2026-10-15/check-parity.json",
+          "sha256": "09abff1ebd3a01ec0d684e48da60d76b71fb3c314c2026082ba174adac53d200",
+          "role": "check"
+        }
+      ],
       "ciState": "PENDING",
       "ciReceipts": [],
-      "evidenceCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
-      "currentImplementationCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
+      "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
+      "currentImplementationCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },
@@ -2443,7 +2802,7 @@
       "id": "USER_WINDOWS_RUNTIME",
       "state": "OPEN",
       "requirement": "Independent real user Windows install/runtime evidence",
-      "userAvailability": "User confirmed no Windows device on 2026-10-14; retain actual runtime acceptance as incomplete"
+      "userAvailability": "User confirmed no Windows device; 2026-10-15 continuation retains real runtime acceptance OPEN, with no substitute from CI."
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker."

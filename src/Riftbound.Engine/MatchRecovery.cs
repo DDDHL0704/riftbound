@@ -1004,6 +1004,7 @@ public static class MatchRecoveryValidator
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
+        "RUNE_RECYCLED",
         "TURN_END_STEP_STARTED",
         "UNIT_BECAME_POWERFUL",
         "TURN_START_BEGAN",
@@ -23756,6 +23757,19 @@ public static class MatchRecoveryValidator
         if (state.PendingPayment is { } payment
             && (payment.PaymentWindow is not (CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.TriggerTargetCostWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow) && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
             && !CoreRuleEngine.ValidInsightPayment(state, payment)) errors.Add("invalid Insight payment continuation");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.SivirRuneRecycle is { } sivir
+                ? !CoreRuleEngine.ValidSivirRuneContext(sivir, trigger.EffectKind)
+                    || !CoreRuleEngine.ValidSivirRuneSource(state, sivir, trigger.SourceObjectId)
+                : trigger.EffectKind == CoreRuleEngine.SivirRuneRecycleEffect)
+                errors.Add("invalid captured Sivir rune recycle trigger");
+        foreach (var item in state.StackItems)
+            if (item.SivirRuneRecycle is { } sivir
+                ? !CoreRuleEngine.ValidSivirRuneContext(sivir, item.EffectKind, item.CardNo)
+                    || !CoreRuleEngine.ValidSivirRuneSource(state, sivir, item.SourceObjectId)
+                    || item.TargetObjectIds.Count != 0 || item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
+                : item.EffectKind == CoreRuleEngine.SivirRuneRecycleEffect)
+                errors.Add("invalid captured Sivir rune recycle stack item");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.InsightContext is { } captured
                 ? captured.PaymentAccepted || !CoreRuleEngine.ValidInsightTrigger(captured, trigger.EffectKind, trigger.ControllerId)
