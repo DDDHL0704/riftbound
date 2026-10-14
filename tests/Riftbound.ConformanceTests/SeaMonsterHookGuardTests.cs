@@ -423,6 +423,7 @@ public sealed class SeaMonsterHookGuardTests
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        p2Pass = await CompleteHookPlay(engine, p2Pass, "P1-ELIGIBLE-UNIT");
         Assert.Empty(p2Pass.State.StackItems);
         Assert.Equal(
             [SeaMonsterHookBaseObjectId, "P1-OTHER-EQUIPMENT", "P1-ELIGIBLE-UNIT"],
@@ -430,7 +431,7 @@ public sealed class SeaMonsterHookGuardTests
         Assert.Equal(["P1-TARGET-UNIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
         CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-TARGET-UNIT", "GRAVEYARD");
         Assert.True(p2Pass.State.CardObjects[SeaMonsterHookBaseObjectId].IsExhausted);
-        Assert.False(p2Pass.State.CardObjects["P1-ELIGIBLE-UNIT"].IsExhausted);
+        Assert.True(p2Pass.State.CardObjects["P1-ELIGIBLE-UNIT"].IsExhausted);
         Assert.Equal("P1", p2Pass.State.CardObjects["P1-ELIGIBLE-UNIT"].ControllerId);
         Assert.Equal("P1-DECK-KEEP", p2Pass.State.PlayerZones["P1"].MainDeck[0]);
         Assert.DoesNotContain("P1-ELIGIBLE-UNIT", p2Pass.State.PlayerZones["P1"].MainDeck);
@@ -445,8 +446,7 @@ public sealed class SeaMonsterHookGuardTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-TARGET-UNIT", StringComparison.Ordinal));
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-ELIGIBLE-UNIT", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceZone"] as string, "MAIN_DECK", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P1-ELIGIBLE-UNIT", StringComparison.Ordinal));
         var recycleEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
         Assert.Equal(4, recycleEvent.Payload["count"]);
         Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
@@ -503,7 +503,7 @@ public sealed class SeaMonsterHookGuardTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-TARGET-UNIT", StringComparison.Ordinal));
         var recycleEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
         Assert.Equal(5, recycleEvent.Payload["count"]);
-        Assert.Equal("LOOKED_NOT_REVEALED", recycleEvent.Payload["visibility"]);
+        Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
         Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
     }
 
@@ -535,7 +535,7 @@ public sealed class SeaMonsterHookGuardTests
 
         Assert.True(activated.Accepted, activated.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
-        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Single(p2Pass.State.StackItems);
         Assert.Equal(["P1-TARGET-UNIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
         CardZoneTestAssertions.RetainedOutsidePlay(p2Pass.State, "P1-TARGET-UNIT", "GRAVEYARD");
         Assert.Contains(p2Pass.Events, gameEvent =>
@@ -544,9 +544,10 @@ public sealed class SeaMonsterHookGuardTests
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_CHOICE_REQUESTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, SeaMonsterHookBaseObjectId, StringComparison.Ordinal)
-            && Assert.IsType<int>(gameEvent.Payload["requiredCount"]) == 0
-            && Assert.IsType<int>(gameEvent.Payload["maxCount"]) == 1
-            && Assert.IsType<int>(gameEvent.Payload["legalCount"]) == 2);
+            && !gameEvent.Payload.ContainsKey("legalCount"));
+        Assert.Equal(0, p2Pass.State.PendingCardChoice!.RequiredCount);
+        Assert.Equal(1, p2Pass.State.PendingCardChoice.MaxCount);
+        Assert.Equal(2, p2Pass.State.PendingCardChoice.LegalObjectIds.Count);
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
@@ -561,7 +562,7 @@ public sealed class SeaMonsterHookGuardTests
             candidate => string.Equals(candidate.Action, "CHOOSE_CARDS", StringComparison.Ordinal));
         Assert.True(chooseCandidate.Enabled);
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(chooseCandidate.Metadata);
-        Assert.Equal("SEA_MONSTER_HOOK_TOP_FIVE_PLAY", metadata["choiceWindow"]);
+        Assert.Equal("DECK_PLAY_SELECTION", metadata["choiceWindow"]);
         Assert.Equal("P1", metadata["choosingPlayerId"]);
         Assert.Equal(0, Assert.IsType<int>(metadata["requiredCount"]));
         Assert.Equal(1, Assert.IsType<int>(metadata["maxCount"]));
@@ -587,7 +588,7 @@ public sealed class SeaMonsterHookGuardTests
         var choosePayload = JsonSerializer.SerializeToElement(new
         {
             choiceId,
-            choiceWindow = "SEA_MONSTER_HOOK_TOP_FIVE_PLAY",
+            choiceWindow = "DECK_PLAY_SELECTION",
             chosenObjectIds = new[] { "P1-SECOND-ELIGIBLE-UNIT" }
         });
         var chosen = await engine.ResolveAsync(
@@ -597,6 +598,9 @@ public sealed class SeaMonsterHookGuardTests
             CancellationToken.None);
 
         Assert.True(chosen.Accepted, chosen.ErrorMessage);
+        Assert.NotNull(chosen.State.PendingEffectPlay);
+        Assert.Equal("STACK", chosen.State.ObjectLocations["P1-SECOND-ELIGIBLE-UNIT"].Zone);
+        chosen = await CompleteHookPlay(engine, chosen, "P1-SECOND-ELIGIBLE-UNIT");
         Assert.Empty(chosen.State.StackItems);
         Assert.Equal(
             [SeaMonsterHookBaseObjectId, "P1-OTHER-EQUIPMENT", "P1-SECOND-ELIGIBLE-UNIT"],
@@ -608,17 +612,15 @@ public sealed class SeaMonsterHookGuardTests
         Assert.Contains("P1-TOP-EQUIPMENT", chosen.State.PlayerZones["P1"].MainDeck);
         Assert.Contains("P1-TOP-RUNE", chosen.State.PlayerZones["P1"].MainDeck);
         Assert.Contains(chosen.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_CHOICE_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["choiceId"] as string, choiceId, StringComparison.Ordinal)
+            string.Equals(gameEvent.Kind, "CARD_BANISHED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, SeaMonsterHookBaseObjectId, StringComparison.Ordinal)
-            && Assert.IsType<int>(gameEvent.Payload["chosenCount"]) == 1);
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-SECOND-ELIGIBLE-UNIT", StringComparison.Ordinal));
         Assert.Contains(chosen.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-SECOND-ELIGIBLE-UNIT", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceZone"] as string, "MAIN_DECK", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P1-SECOND-ELIGIBLE-UNIT", StringComparison.Ordinal));
         var recycleEvent = Assert.Single(chosen.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
         Assert.Equal(4, recycleEvent.Payload["count"]);
-        Assert.Equal("LOOKED_NOT_REVEALED", recycleEvent.Payload["visibility"]);
+        Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
         Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
         Assert.DoesNotContain(chosen.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
     }
@@ -639,7 +641,7 @@ public sealed class SeaMonsterHookGuardTests
             new PlayerIntent("intent-sea-monster-hook-multi-decline", "P1", CommandTypes.ChooseCards),
             new ChooseCardsCommand(
                 choiceId,
-                "SEA_MONSTER_HOOK_TOP_FIVE_PLAY",
+                "DECK_PLAY_SELECTION",
                 []),
             CancellationToken.None);
 
@@ -657,14 +659,35 @@ public sealed class SeaMonsterHookGuardTests
         Assert.DoesNotContain(declined.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             || string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
-        Assert.Contains(declined.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_CHOICE_RESOLVED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["choiceId"] as string, choiceId, StringComparison.Ordinal)
-            && Assert.IsType<int>(gameEvent.Payload["chosenCount"]) == 0);
+        Assert.Null(declined.State.PendingCardChoice);
+        Assert.Null(declined.State.PendingEffectPlay);
+        Assert.Empty(declined.State.PlayerZones["P1"].Banished);
         var recycleEvent = Assert.Single(declined.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
         Assert.Equal(5, recycleEvent.Payload["count"]);
-        Assert.Equal("LOOKED_NOT_REVEALED", recycleEvent.Payload["visibility"]);
         Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
+        Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
+    }
+
+    private static async Task<ResolutionResult> CompleteHookPlay(CoreRuleEngine engine, ResolutionResult opened, string id)
+    {
+        var events = opened.Events.ToList();
+        if (opened.State.PendingCardChoice is { } choice)
+        {
+            Assert.Equal(0, choice.RequiredCount);
+            opened = await engine.ResolveAsync(opened.State, new("legacy-hook-select", "P1", CommandTypes.ChooseCards),
+                new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [id]), default);
+            Assert.True(opened.Accepted, opened.ErrorMessage); events.AddRange(opened.Events);
+        }
+        Assert.True(opened.State.PendingEffectPlay!.IgnoreAllCosts);
+        Assert.Equal("STACK", opened.State.ObjectLocations[id].Zone);
+        Assert.Single(opened.State.PendingEffectPlay.Sources);
+        var mana = opened.State.RunePools["P1"].Mana;
+        var power = opened.State.RunePools["P1"].TotalPower;
+        var played = await engine.ResolveAsync(opened.State, new("legacy-hook-play", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand(id, opened.State.CardObjects[id].CardNo!, []), default);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        Assert.Equal(mana, played.State.RunePools["P1"].Mana); Assert.Equal(power, played.State.RunePools["P1"].TotalPower);
+        return played with { Events = events.Concat(played.Events).ToArray() };
     }
 
     private static async Task<ResolutionResult> PlaySeaMonsterHookAsync(

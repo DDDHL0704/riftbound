@@ -2480,8 +2480,8 @@ public static class ActivatedAbilityParser
             || !int.TryParse(costMatch.Groups["mana"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var manaCost)
             || !ResourceTraitByChineseColor.TryGetValue(costMatch.Groups["trait"].Value, out var trait)
             || !effect.Contains("摧毁一名友方单位", StringComparison.Ordinal)
-            || !effect.Contains("查看主牌堆顶部的五张牌", StringComparison.Ordinal)
-            || !effect.Contains("战力比被摧毁单位最多高1点", StringComparison.Ordinal)
+            || !Regex.IsMatch(effect, @"查看你?主牌堆顶部的五张牌", RegexOptions.CultureInvariant)
+            || !Regex.IsMatch(effect, @"战力比被摧毁单位最多高\s*1\s*点", RegexOptions.CultureInvariant)
             || !effect.Contains("无视费用", StringComparison.Ordinal)
             || !effect.Contains("回收其余", StringComparison.Ordinal))
         {

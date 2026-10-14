@@ -1,0 +1,71 @@
+{
+  "source": {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "海兽钓钩",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-14T03:35:23.035379+00:00",
+    "sha256": "cb16609153025b41ecd5ddb58523603dfa40c1fa27c70945e136c5e1cf5d0ec4",
+    "bytes": 1556,
+    "language": "zh-CN",
+    "region": "CN",
+    "publicationDate": null,
+    "effectiveDate": null
+  },
+  "records": [
+    {
+      "id": 31482,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "OGN·242/298",
+      "cardName": "海兽钓钩",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "支付{{1}}和{{黄色}}，{{横置}}：摧毁一名友方单位，然后查看主牌堆顶部的五张牌。你可以选择从中打出一名战力比被摧毁单位最多高1点的单位卡牌，无视费用，然后回收其余的卡牌。",
+      "flavorText": "小鱼总是会被大鱼吃掉，有些还不是一般地大。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/ce63a14742a348d18de6f546074fa775.png",
+      "backImage": "",
+      "listSort": 223,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "支付{{1}}和{{黄色}}，{{横置}}：摧毁一名友方单位。查看你主牌堆顶部的五张牌。你可以选择从中放逐一名战力比被摧毁单位最多高 1 点的单位卡牌，然后将其打出，无视费用。然后回收其余的卡牌。",
+      "otherDesc": 0
+    }
+  ]
+}

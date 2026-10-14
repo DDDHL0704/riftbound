@@ -18351,7 +18351,7 @@
     },
     {
       "id": "attack-deck-banish-pending-current-here-2026-10-14",
-      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "status": "SCOPED_CURRENT_FIXED_FULL_NATIVE_AND_CI_SQL_PASS",
       "scope": "RekSai Swarm Queen SFD170/SFD170a current optional attack reveal, optional banish and real pending normal play; recycle before confirmation, normal mana/power costs, unit-only current source location permission; real response movement/return, real Shady copy/detach, actually created copied Sand Soldier cessation; private current source projection and strict bound historical source recovery. Listed two-seat paths only; no whole card or source certification.",
       "subjects": [
         "SFD·170/221",
@@ -18393,15 +18393,77 @@
         "focus": "2338cases/2163methods84.92s;21newcases/11methods",
         "native": "12branches103 full prompt/tick production commands with backend cold/player/spectator/dedup/full journal replay; final check readback pass",
         "check": "11295cases/6977methods216.75s;all11274/6966preserved;2263frozen;SQL5/Python27;owned database stopped",
-        "fixedFull": "REQUIRED",
+        "fixedFull": "ea4e45ae/38506419454:11444cases/7118methods3663.74s;all11423/7107preserved;+21/11;110pairs and hashes preserved;all CI jobs/network success;source Hook worktree excluded",
         "previousFixed37a824b9": "38500551234 still in progress at scoped delivery; desktop macOS/Windows success, rules/SQL/network not certified",
         "runtimeEntries": 1031,
-        "runtimeFunctionalUnits": 830
+        "runtimeFunctionalUnits": 830,
+        "fixedFullEvidence": "docs/evidence/hook-deck-play-2026-10-14/fixed-ea4e45ae-ci.json",
+        "ciPostgres": "64commands/167events/65cold/5tamper;opening+fourbattle histories only",
+        "ciPostgresEvidence": "docs/evidence/hook-deck-play-2026-10-14/fixed-ea4e45ae-sql.json"
       },
       "sources": {
         "cn": "fresh API 2026-10-14 current errata exact IDs33264/33265",
         "en": "fresh gallery old text retained; reconciled with official Spiritforged FAQ effective2026-01-14",
         "rules": "fresh current CN July core SHA256d0e36d00 unchanged; physical52/53 visually verified; futureOctober16 not applied"
+      },
+      "wholeGoalComplete": false
+    },
+    {
+      "id": "hook-shared-limited-unit-deck-banish-pending-kill-might-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Baited Hook OGN242 current two-seat activation: capture original target/source, resolve actual kill and public current Might, optional private limited unit choice even one candidate, banish and recycle before real free pending normal unit play, current controlled-field destination, all-cost waiver including three mandatory cost types, absent/killed/replaced target referents, real assembled Might/zero Might/token cessation, strict history and permission recovery. Whole card, Nocturne/deck-look interference and all-source semantics remain unreviewed.",
+      "subjects": [
+        "OGN·242/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P027-B017",
+        "DOC-04-P037-B021",
+        "DOC-04-P039-B001",
+        "DOC-04-P039-B002",
+        "DOC-04-P039-B016",
+        "DOC-04-P039-B023",
+        "DOC-04-P040-B002",
+        "DOC-04-P040-B003",
+        "DOC-04-P040-B004",
+        "DOC-04-P040-B005",
+        "DOC-04-P040-B006",
+        "DOC-04-P052-B001",
+        "DOC-04-P052-B005",
+        "DOC-04-P052-B006",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P075-B007",
+        "DOC-04-P075-B008",
+        "DOC-04-P075-B011",
+        "DOC-04-P075-B012"
+      ],
+      "auditDocument": "docs/HOOK_DECK_PLAY_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/hook-deck-play-2026-10-14",
+      "tests": [
+        "HookDeckPlayTests",
+        "SeaMonsterHookGuardTests",
+        "DeckPlaySequenceTests",
+        "SingleDeckPlaySequenceTests",
+        "AttackDeckPlayTests",
+        "CardCatalogBaselineTests",
+        "AhriCombatMightTests",
+        "MatchRecoveryTests"
+      ],
+      "validation": {
+        "focus": "2325cases/2165methods70.57s;final repeat guard36cases/20methods9.80s;23newcases/11methods",
+        "native": "12branches74 full Godot production commands with actual backend prompt/tick/cold/player/spectator/dedup/full journal replay;final check readback pass",
+        "check": "11318cases/6988methods213.05s;all11295/6977preserved;2265frozen;SQL5/Python27;owned database stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixedea4e45ae": "11444cases/7118methods3663.74s;all11423/7107preserved;110pairs and hashes unchanged;all CI jobs/network successful;SQL64commands167events65cold5tamper",
+        "runtimeEntries": 1031,
+        "runtimeFunctionalUnits": 830
+      },
+      "sources": {
+        "cn": "fresh current errata API ID31482 OGN242",
+        "en": "fresh galleryogn-242-298 matches current CN errata;Origins errata2025-10-28",
+        "faq": "historical Origins warning retained;Baited Hook referent corroborated by current core;Unleashed board-control case scoped only",
+        "rules": "fresh current CN July core SHA256d0e36d00 unchanged;physical27/37/52/53 visually verified;CN190.4.c separate from EN187.4.c;futureOctober16 not applied",
+        "armament": "fresh DoransShieldAPI and exact image verified+1;scope actual assembly fixture only"
       },
       "wholeGoalComplete": false
     }

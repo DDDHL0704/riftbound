@@ -1,0 +1,28 @@
+{
+  "status": "DISCOVERY_ONLY_FULL_NOT_EXECUTED",
+  "baselineCommit": "ea4e45ae64d63e1120f11f5dbe4c4065a19ef20f",
+  "previousMethods": 7118,
+  "currentMethods": 7129,
+  "oldMethodsPreserved": true,
+  "newMethods": [
+    "Riftbound.ConformanceTests.HookDeckPlayTests.ARealDeathReplacementLeavesNoKilledUnitReferentButStillRecyclesTheLookedCards",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.ARealMoonfallResponseMakesTheKilledUnitsMightZeroBeforeSelection",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.ARealReactionReturningTheTargetStillLooksButSuppliesNoKilledUnitMight",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.ARealReturnReactionCanCeaseTheDeclaredTokenBeforeTheHookWithoutInventingKilledMight",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.AUniqueEligibleUnitStillRequiresAnOptionalBanishChoiceAndRealFreePlayConfirmation",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.ActualAssembledMightIsCapturedBeforeTheTargetAndItsEquipmentLeaveTheField",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.AnActuallyCreatedSandSoldierCanBeKilledAndItsMightSurvivesItsCessation",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.FreePendingPlayIgnoresPrintedManaPowerAndMandatoryAdditionalCosts",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.KillingTheOnlyFriendlyUnitRetainsBattlefieldControlThroughTheRealPendingPlay",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.RecoveryRejectsForgedKillHistorySelectionAndFreePlayPermission",
+    "Riftbound.ConformanceTests.HookDeckPlayTests.TheControllerCanDeclineTheOnlyEligibleUnitWithoutAutomaticPlay"
+  ],
+  "fullGameMethods": 143,
+  "fullGameMethodsPreserved": true,
+  "matrixPairsRequired": 110,
+  "matrixSeedRequired": 424242,
+  "planSha256": "3095f9376d30e20123588c5ec690a616af193fe5588d6257fedc2c9dfc6e9823",
+  "expectedCases": 11467,
+  "expectedAddedCases": 23,
+  "fixedFullRequired": true
+}

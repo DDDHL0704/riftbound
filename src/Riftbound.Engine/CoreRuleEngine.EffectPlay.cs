@@ -17,6 +17,14 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.DestroyDeckPlay is { Prepared: true } killed && DestroyDeckPlayDefinition(parent, out var ability))
+        {
+            definition = new(parent.CardNo, ability.DisplayName, 0, parent.EffectKind, 0, 0,
+                MainDeckLookCount: ability.MainDeckLookCount, DeckPlayKind: "SINGLE_PRIVATE_LIMITED_UNIT_PLAY",
+                DeckPlayMaximumUnitMight: killed.KilledMight is { } might ? might + ability.PlayPowerDelta : null,
+                EffectPlayOptional: true, EffectPlayIgnoreBaseMana: true, EffectPlayIgnoreBasePower: true, EffectPlayIgnoreAllCosts: true);
+            return true;
+        }
         if (parent.FieldContext is { Kind: "ATTACK_DECK_PLAY" } attack && AttackDeckPlaySpec(attack.CardNo) is { } spec)
         {
             definition = new(attack.CardNo, "进攻展示并打出", 0, parent.EffectKind, 0, 0,

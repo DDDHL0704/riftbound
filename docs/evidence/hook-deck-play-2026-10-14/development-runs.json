@@ -1,0 +1,179 @@
+[
+  {
+    "run": "all-deck-consumers-and-old-flow",
+    "trxSha256": "f705b1cbcd226c95d31187ccd389c76cc5010a626f573e5b0ba96fa273510969",
+    "total": 499,
+    "passed": 496,
+    "failed": 3,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithNoEligibleTopFiveUnitsRecyclesAllLookedCardsPrivatelyWithoutChoice",
+        "message": "System.Collections.Generic.KeyNotFoundException : The given key 'visibility' was not present in the dictionary."
+      },
+      {
+        "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.BehaviorSpecCatalogParsesSeaMonsterHookActivatedAbility",
+        "message": "Assert.Contains() Failure: Sub-string not found\nString:    \"摧毁一名友方单位。查看你主牌堆顶部的五张牌。你可以选择从中放逐一名战力比被摧毁单位\"···\nNot found: \"查看主牌堆顶部的五张牌\""
+      },
+      {
+        "case": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithMultipleEligibleTopFiveUnitsPromptsControllerToChoosePrivately",
+        "message": "System.Collections.Generic.KeyNotFoundException : The given key 'requiredCount' was not present in the dictionary."
+      }
+    ]
+  },
+  {
+    "run": "bound-resumption-and-old-consumers",
+    "trxSha256": "9e9f9c2eb7aada5d8afb0d7d38f51f5912562c4f30dc52bb2a8ef617d7dd6191",
+    "total": 14,
+    "passed": 10,
+    "failed": 4,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityTopFiveChoiceCanDeclineAndRecycleAllLookedCardsPrivately",
+        "message": "CHOOSE_CARDS 与当前服务端卡牌选择窗口不匹配。"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithNoEligibleTopFiveUnitsRecyclesAllLookedCardsPrivatelyWithoutChoice",
+        "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [StackItemState { DestroyDeckPlay = DestroyDeckPlayContext { Source = ObjectBinding { ObjectId = P1-BASE-SEA-MONSTER-HOOK, Generation = 0 }, CardNo = OGN·242/298, AbilityId = OGN_242_298_DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST, Target = ObjectBinding { ObjectId = P1-TARGET-UNIT, Generation = 0 }, Prepared = True, KilledMight = 3, KilledFrame = LastKnownMightFrame { PlayerZones = System.Collections.Generic.Dictionary`2[System.String,Riftbound.Engine.PlayerZones], CardObjects = System.Collections.Generic.Dictionary`2[System.String,Riftbound.Engine.CardObjectSta"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityDestroysFriendlyUnitPlaysUniqueEligibleTopFiveUnitAndRecyclesRest",
+        "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [StackItemState { DestroyDeckPlay = DestroyDeckPlayContext { Source = ObjectBinding { ObjectId = P1-BASE-SEA-MONSTER-HOOK, Generation = 0 }, CardNo = OGN·242/298, AbilityId = OGN_242_298_DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST, Target = ObjectBinding { ObjectId = P1-TARGET-UNIT, Generation = 0 }, Prepared = True, KilledMight = 3, KilledFrame = LastKnownMightFrame { PlayerZones = System.Collections.Generic.Dictionary`2[System.String,Riftbound.Engine.PlayerZones], CardObjects = System.Collections.Generic.Dictionary`2[System.String,Riftbound.Engine.CardObjectSta"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.SeaMonsterHookGuardTests.SeaMonsterHookActivatedAbilityWithMultipleEligibleTopFiveUnitsPromptsControllerToChoosePrivately",
+        "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [StackItemState { DestroyDeckPlay = DestroyDeckPlayContext { Source = ObjectBinding { ObjectId = P1-BASE-SEA-MONSTER-HOOK, Generation = 0 }, CardNo = OGN·242/298, AbilityId = OGN_242_298_DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST, Target = ObjectBinding { ObjectId = P1-TARGET-UNIT, Generation = 0 }, Prepared = True, KilledMight = 3, KilledFrame = LastKnownMightFrame { PlayerZones = System.Collections.Generic.Dictionary`2[System.String,Riftbound.Engine.PlayerZones], CardObjects = System.Collections.Generic.Dictionary`2[System.String,Riftbound.Engine.CardObjectSta"
+      }
+    ]
+  },
+  {
+    "run": "declared-token-and-real-shield",
+    "trxSha256": "9c568e42ad8488d2455206cd6de4b82617c49c180a14a347b43756f00435416d",
+    "total": 21,
+    "passed": 21,
+    "failed": 0,
+    "skipped": 0,
+    "failures": []
+  },
+  {
+    "run": "native-generation-and-adjacent",
+    "trxSha256": "5a942d667d8e1fb165bfc00fe92a26659d09a27b1fdc8f1c46e27a357ddb2d7e",
+    "total": 2325,
+    "passed": 2325,
+    "failed": 0,
+    "skipped": 0,
+    "failures": []
+  },
+  {
+    "run": "real-cost-might-target-lifecycle",
+    "trxSha256": "39bb2febeaf4522ab62a8722440045cec08604266922748d05b2a1c907aa7fcc",
+    "total": 391,
+    "passed": 389,
+    "failed": 2,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.HookDeckPlayTests.ActualAssembledMightIsCapturedBeforeTheTargetAndItsEquipmentLeaveTheField",
+        "message": "System.InvalidOperationException : Sequence contains no elements"
+      },
+      {
+        "case": "Riftbound.ConformanceTests.HookDeckPlayTests.AnActuallyCreatedSandSoldierCanBeKilledAndItsMightSurvivesItsCessation",
+        "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state stack item STACK-4-GEAR-ABILIT\"···]"
+      }
+    ]
+  },
+  {
+    "run": "real-replacement-and-permission-forgeries",
+    "trxSha256": "0b352f8dc6dd889450f10ed0b48c393d8c96ce0e1f928f195dc117adfb98ca86",
+    "total": 32,
+    "passed": 31,
+    "failed": 1,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.HookDeckPlayTests.ARealDeathReplacementLeavesNoKilledUnitReferentButStillRecyclesTheLookedCards",
+        "message": "System.NullReferenceException : Object reference not set to an instance of an object."
+      }
+    ]
+  },
+  {
+    "run": "red-unique-real-play",
+    "trxSha256": "22b6a0d8df772df55a5da13ac16e2c4d7b7f1c64ea613a8c26b979db0b40c5f8",
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.HookDeckPlayTests.AUniqueEligibleUnitStillRequiresAnOptionalBanishChoiceAndRealFreePlayConfirmation",
+        "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state object location D0 is missing \"···, \"authoritative state object location D1 is missing \"···, \"authoritative state object location D10 is missing\"···, \"authoritative state object location D11 is missing\"···, \"authoritative state object location D2 is missing \"···, ···]"
+      }
+    ]
+  },
+  {
+    "run": "red-valid-unique-real-play",
+    "trxSha256": "cfca1bd0483e66b1c4c4f32508613b8a4a49ede80080820854fb7083b25e5e81",
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.HookDeckPlayTests.AUniqueEligibleUnitStillRequiresAnOptionalBanishChoiceAndRealFreePlayConfirmation",
+        "message": "Assert.IsType() Failure: Value is null\nExpected: typeof(Riftbound.Engine.PendingCardChoiceState)\nActual:   null"
+      }
+    ]
+  },
+  {
+    "run": "repeat-guard-native-inputs",
+    "trxSha256": "26e84c2d93c3545672017a569573db7c15a69cbe59381f5fe873894b284aac1e",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0,
+    "failures": []
+  },
+  {
+    "run": "roundtrip-parent",
+    "trxSha256": "7a01e59d06f8629e5dc6e255bb782f675a02c72d7ac5bbca5a0f4ff8c812c64a",
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.HookDeckPlayTests.AUniqueEligibleUnitStillRequiresAnOptionalBanishChoiceAndRealFreePlayConfirmation",
+        "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"cb98380bbaf0b8bf6d48bdde953e545a63ab61aa6\"···\nActual:   \"3b7a5032b132ab6318f18651c67a13080d30be650\"···\n           ↑ (pos 0)"
+      }
+    ]
+  },
+  {
+    "run": "shared-banish-first",
+    "trxSha256": "5f685f7f0acd4fa3eb9b52f99921cbedf224b7e163f8f0fcece49d86b51ba981",
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.HookDeckPlayTests.AUniqueEligibleUnitStillRequiresAnOptionalBanishChoiceAndRealFreePlayConfirmation",
+        "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"cb98380bbaf0b8bf6d48bdde953e545a63ab61aa6\"···\nActual:   \"3b7a5032b132ab6318f18651c67a13080d30be650\"···\n           ↑ (pos 0)"
+      }
+    ]
+  },
+  {
+    "run": "zero-might-control-and-all-recovery",
+    "trxSha256": "48a85bc18c188867057e38557e927e6994b39e5a3ea525dd7b9e05ecc50cf4c9",
+    "total": 2325,
+    "passed": 2324,
+    "failed": 1,
+    "skipped": 0,
+    "failures": [
+      {
+        "case": "Riftbound.ConformanceTests.HookDeckPlayTests.ARealDeathReplacementLeavesNoKilledUnitReferentButStillRecyclesTheLookedCards",
+        "message": "System.NullReferenceException : Object reference not set to an instance of an object."
+      }
+    ]
+  }
+]

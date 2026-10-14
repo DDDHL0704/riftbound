@@ -275,7 +275,9 @@ public sealed record CardBehaviorDefinition(
     int TargetTraitsManaReduction = 0,
     bool CanCounterAbilities = false,
     SelectedBattlefieldEffectSpec? SelectedBattlefieldEffect = null,
-    StandbyPlacement? StandbyPlayFrom = null);
+    StandbyPlacement? StandbyPlayFrom = null,
+    int? DeckPlayMaximumUnitMight = null,
+    bool EffectPlayIgnoreAllCosts = false);
 
 public static class CardDamageConditionKinds
 {

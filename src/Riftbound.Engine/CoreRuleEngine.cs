@@ -37,7 +37,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string SourceStealEnemyEquipmentDefaultReason = "SOURCE_STEAL_ENEMY_EQUIPMENT";
     private const string SourceBattlefieldTriggerContextMarker = "::BATTLEFIELD::";
     private const string UndercoverAgentHandChoiceWindow = "UNDERCOVER_AGENT_LAST_BREATH_DISCARD_DRAW";
-    private const string SeaMonsterHookTopFiveChoiceWindow = "SEA_MONSTER_HOOK_TOP_FIVE_PLAY";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
@@ -3184,164 +3183,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "DECK_EFFECT") return ResolveDeckChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == DeckPlayChoiceWindow) return ResolveDeckPlaySelection(state, pendingChoice, submittedObjectIds);
 
-        if (string.Equals(pendingChoice.ChoiceWindow, SeaMonsterHookTopFiveChoiceWindow, StringComparison.Ordinal)
-            && string.Equals(
-                pendingChoice.EffectKind,
-                ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
-                StringComparison.Ordinal))
-        {
-            return ResolveSeaMonsterHookTopFiveCardChoiceRuntime(
-                state,
-                intent,
-                pendingChoice,
-                submittedObjectIds);
-        }
-
         return RejectWithCorePrompts(
             state,
             "当前卡牌选择窗口尚未由服务端实现。",
             ErrorCodes.PhaseNotAllowed);
-    }
-
-    private static ResolutionResult ResolveSeaMonsterHookTopFiveCardChoiceRuntime(
-        MatchState state,
-        PlayerIntent intent,
-        PendingCardChoiceState pendingChoice,
-        IReadOnlyList<string> chosenObjectIds)
-    {
-        var playerZones = NormalizeZonesForSeats(state);
-        if (!playerZones.TryGetValue(intent.PlayerId, out var zones))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "CHOOSE_CARDS 找不到选择玩家区域。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var contextObjectIds = pendingChoice.ContextObjectIds.ToArray();
-        var contextSet = contextObjectIds.ToHashSet(StringComparer.Ordinal);
-        if (contextObjectIds.Length == 0
-            || contextObjectIds.Any(objectId => !zones.MainDeck.Contains(objectId, StringComparer.Ordinal)))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "CHOOSE_CARDS 查看牌集合已失效。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var selectedObjectId = chosenObjectIds.Count == 1
-            ? chosenObjectIds[0]
-            : string.Empty;
-        if (!string.IsNullOrWhiteSpace(selectedObjectId)
-            && !zones.MainDeck.Contains(selectedObjectId, StringComparer.Ordinal))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "CHOOSE_CARDS 选择的卡牌不在可处理区域。",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var events = new List<GameEvent>();
-        var recycledObjectIds = contextObjectIds
-            .Where(objectId => !string.Equals(objectId, selectedObjectId, StringComparison.Ordinal))
-            .ToArray();
-        var rngCursor = state.RngCursor;
-        var randomizedRecycledObjectIds = RandomizeForMainDeckBottom(
-            recycledObjectIds,
-            state.Seed,
-            rngCursor,
-            pendingChoice.SourceObjectId);
-        if (recycledObjectIds.Length > 1)
-        {
-            rngCursor++;
-        }
-
-        playerZones[intent.PlayerId] = zones with
-        {
-            MainDeck = zones.MainDeck
-                .Where(objectId => !contextSet.Contains(objectId))
-                .Concat(randomizedRecycledObjectIds)
-                .ToArray()
-        };
-
-        if (!string.IsNullOrWhiteSpace(selectedObjectId)
-            && TryPutSelectedMainDeckUnitToBase(
-                playerZones,
-                cardObjects,
-                intent.PlayerId,
-                selectedObjectId,
-                out var selectedState))
-        {
-            cardObjects[selectedObjectId] = selectedState with
-            {
-                OwnerId = string.IsNullOrWhiteSpace(selectedState.OwnerId)
-                    ? intent.PlayerId
-                    : selectedState.OwnerId,
-                ControllerId = intent.PlayerId
-            };
-            events.Add(CaptureUnitEntry(new GameEvent(
-                "UNIT_PLAYED_TO_BASE",
-                $"{intent.PlayerId} 打出选择的单位到基地",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["sourceObjectId"] = pendingChoice.SourceObjectId,
-                    ["targetObjectId"] = selectedObjectId,
-                    ["ownerPlayerId"] = intent.PlayerId,
-                    ["playedByPlayerId"] = intent.PlayerId,
-                    ["sourceZone"] = "MAIN_DECK",
-                    ["destinationZone"] = "BASE",
-                    ["ignoreManaCost"] = true
-                }), playerZones, cardObjects, state.UntilEndOfTurnEffects));
-        }
-
-        if (randomizedRecycledObjectIds.Count > 0)
-        {
-            events.Add(new GameEvent(
-                "CARDS_RECYCLED",
-                $"{intent.PlayerId} 回收 {randomizedRecycledObjectIds.Count} 张查看的牌",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["sourceObjectId"] = pendingChoice.SourceObjectId,
-                    ["count"] = randomizedRecycledObjectIds.Count,
-                    ["zone"] = "MAIN_DECK",
-                    ["visibility"] = "LOOKED_NOT_REVEALED"
-                }));
-        }
-
-        events.Add(new GameEvent(
-            "CARD_CHOICE_RESOLVED",
-            $"{intent.PlayerId} 完成卡牌选择",
-            new Dictionary<string, object?>
-            {
-                ["choiceId"] = pendingChoice.ChoiceId,
-                ["choiceWindow"] = pendingChoice.ChoiceWindow,
-                ["playerId"] = intent.PlayerId,
-                ["sourceObjectId"] = pendingChoice.SourceObjectId,
-                ["effectKind"] = pendingChoice.EffectKind,
-                ["chosenCount"] = chosenObjectIds.Count
-            }));
-
-        var nextState = state with
-        {
-            Tick = state.Tick + 1,
-            ActivePlayerId = state.TurnPlayerId,
-            PlayerZones = playerZones,
-            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
-            CardObjects = cardObjects,
-            RngCursor = rngCursor,
-            PendingCardChoice = null
-        };
-
-        return new ResolutionResult(
-            true,
-            null,
-            nextState,
-            events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
     }
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
@@ -5976,7 +5821,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             targetObjectIds,
             0,
             1,
-            []);
+            [], targetGenerations: new Dictionary<string,long> { [targetObjectIds[0]] = state.CardObjects[targetObjectIds[0]].ObjectGeneration }) {
+                DestroyDeckPlay = new(new(command.SourceObjectId, sourceState.ObjectGeneration), sourceState.CardNo ?? ability.SourceCardNo, ability.AbilityId,
+                    new(targetObjectIds[0], state.CardObjects[targetObjectIds[0]].ObjectGeneration), CapturePublicMightFrame(state, state.PlayerZones, state.CardObjects)) };
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -24926,212 +24773,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                                                                                                             : "battlefield unit";
     }
 
-    private static StackResolutionResult ResolveDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestStackItem(
-        MatchState state,
-        StackItemState stackItem,
-        P4ActivatedAbilityDefinition ability)
-    {
-        if (stackItem.TargetObjectIds.Count != 1
-            || !IsLegalDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestTarget(
-                state.PlayerZones,
-                state.CardObjects,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                stackItem.TargetObjectIds[0]))
-        {
-            return NoopStackResolutionResult(state);
-        }
-
-        var playerZones = NormalizeZonesForSeats(state);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var playerExperience = NormalizeExperienceForSeats(state);
-        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var events = new List<GameEvent>();
-        var destroyedUnitOwnerIds = new List<string>();
-        var rngCursor = state.RngCursor;
-        var targetObjectId = stackItem.TargetObjectIds[0];
-        var destroyedPower = cardObjects.TryGetValue(targetObjectId, out var targetState)
-            ? Math.Max(0, targetState.Power)
-            : 0;
-
-        if (!TryDestroyTarget(state, playerZones, cardObjects, runePools, targetObjectId, out var removalResult))
-        {
-            return NoopStackResolutionResult(state);
-        }
-
-        events.AddRange(BuildFieldRemovalEvents(ability.DisplayName, stackItem, targetObjectId, removalResult));
-        if (removalResult.WasDestroyed
-            && removalResult.WasUnit
-            && !string.IsNullOrWhiteSpace(removalResult.OwnerPlayerId))
-        {
-            destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
-        }
-
-        if (playerZones.TryGetValue(stackItem.ControllerId, out var zones))
-        {
-            var lookCount = Math.Max(0, ability.MainDeckLookCount);
-            var viewedObjectIds = zones.MainDeck.Take(lookCount).ToArray();
-            var maxPlayablePower = destroyedPower + Math.Max(0, ability.PlayPowerDelta);
-            var eligibleObjectIds = viewedObjectIds
-                .Where(objectId => ability.IgnorePlayManaCost
-                    && string.Equals(ability.PlayCardFilter, CardObjectTags.UnitCard, StringComparison.Ordinal)
-                    && cardObjects.TryGetValue(objectId, out var cardObject)
-                    && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    && !cardObject.IsFaceDown
-                    && !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
-                    && !cardObject.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
-                    && !cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-                    && Math.Max(0, cardObject.Power) <= maxPlayablePower)
-                .ToArray();
-            if (eligibleObjectIds.Length > 1)
-            {
-                var pendingChoice = new PendingCardChoiceState(
-                    choiceId: BuildSeaMonsterHookTopFiveChoiceId(stackItem),
-                    choiceWindow: SeaMonsterHookTopFiveChoiceWindow,
-                    playerId: stackItem.ControllerId,
-                    requiredCount: 0,
-                    maxCount: 1,
-                    legalObjectIds: eligibleObjectIds,
-                    contextObjectIds: viewedObjectIds,
-                    reason: ability.Kind,
-                    sourceObjectId: stackItem.SourceObjectId,
-                    effectKind: ability.EffectKind);
-                events.Add(new GameEvent(
-                    "CARD_CHOICE_REQUESTED",
-                    $"{stackItem.ControllerId} 查看主牌堆顶部并选择可打出的单位",
-                    new Dictionary<string, object?>
-                    {
-                        ["choiceId"] = pendingChoice.ChoiceId,
-                        ["choiceWindow"] = pendingChoice.ChoiceWindow,
-                        ["playerId"] = stackItem.ControllerId,
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["effectKind"] = ability.EffectKind,
-                        ["requiredCount"] = pendingChoice.RequiredCount,
-                        ["maxCount"] = pendingChoice.MaxCount,
-                        ["legalCount"] = pendingChoice.LegalObjectIds.Count,
-                        ["contextCount"] = pendingChoice.ContextObjectIds.Count
-                    }));
-
-                return new StackResolutionResult(
-                    playerZones,
-                    cardObjects,
-                    state.PlayerScores,
-                    playerExperience,
-                    runePools,
-                    state.UntilEndOfTurnEffects,
-                    null,
-                    events,
-                    destroyedUnitOwnerIds
-                        .Where(ownerId => !string.IsNullOrWhiteSpace(ownerId))
-                        .Distinct(StringComparer.Ordinal)
-                        .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
-                        .ToArray(),
-                    null,
-                    [],
-                    null,
-                    [],
-                    rngCursor,
-                    PendingCardChoice: pendingChoice,
-                    ObjectLocations: ReconcileObjectLocations(state.ObjectLocations, playerZones));
-            }
-
-            var selectedObjectId = eligibleObjectIds.Length == 1
-                ? eligibleObjectIds[0]
-                : string.Empty;
-            var recycledObjectIds = viewedObjectIds
-                .Where(objectId => !string.Equals(objectId, selectedObjectId, StringComparison.Ordinal))
-                .ToArray();
-            var randomizedRecycledObjectIds = ability.RecycleUnplayedLookedCards
-                ? RandomizeForMainDeckBottom(
-                    recycledObjectIds,
-                    state.Seed,
-                    rngCursor,
-                    stackItem.SourceObjectId)
-                : [];
-            if (ability.RecycleUnplayedLookedCards
-                && recycledObjectIds.Length > 1)
-            {
-                rngCursor++;
-            }
-
-            var viewedSet = viewedObjectIds.ToHashSet(StringComparer.Ordinal);
-            playerZones[stackItem.ControllerId] = zones with
-            {
-                MainDeck = zones.MainDeck
-                    .Where(objectId => !viewedSet.Contains(objectId))
-                    .Concat(randomizedRecycledObjectIds)
-                    .ToArray()
-            };
-
-            if (!string.IsNullOrWhiteSpace(selectedObjectId)
-                && TryPutSelectedMainDeckUnitToBase(
-                    playerZones,
-                    cardObjects,
-                    stackItem.ControllerId,
-                    selectedObjectId,
-                    out var selectedState))
-            {
-                cardObjects[selectedObjectId] = selectedState with
-                {
-                    OwnerId = string.IsNullOrWhiteSpace(selectedState.OwnerId)
-                        ? stackItem.ControllerId
-                        : selectedState.OwnerId,
-                    ControllerId = stackItem.ControllerId
-                };
-                events.Add(CaptureUnitEntry(new GameEvent(
-                    "UNIT_PLAYED_TO_BASE",
-                    $"{stackItem.ControllerId} 打出查看的单位到基地",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = stackItem.ControllerId,
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = selectedObjectId,
-                        ["ownerPlayerId"] = stackItem.ControllerId,
-                        ["playedByPlayerId"] = stackItem.ControllerId,
-                        ["sourceZone"] = "MAIN_DECK",
-                        ["destinationZone"] = "BASE",
-                        ["ignoreManaCost"] = ability.IgnorePlayManaCost
-                    }), playerZones, cardObjects, state.UntilEndOfTurnEffects));
-            }
-
-            if (randomizedRecycledObjectIds.Count > 0)
-            {
-                events.Add(new GameEvent(
-                    "CARDS_RECYCLED",
-                    $"{stackItem.ControllerId} 回收 {randomizedRecycledObjectIds.Count} 张查看的牌",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = stackItem.ControllerId,
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["count"] = randomizedRecycledObjectIds.Count,
-                        ["zone"] = "MAIN_DECK",
-                        ["visibility"] = "LOOKED_NOT_REVEALED"
-                    }));
-            }
-        }
-
-        return new StackResolutionResult(
-            playerZones,
-            cardObjects,
-            state.PlayerScores,
-            playerExperience,
-            runePools,
-            state.UntilEndOfTurnEffects,
-            null,
-            events,
-            destroyedUnitOwnerIds
-                .Where(ownerId => !string.IsNullOrWhiteSpace(ownerId))
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
-                .ToArray(),
-            null,
-            [],
-            null,
-            [],
-            rngCursor,
-            ObjectLocations: ReconcileObjectLocations(state.ObjectLocations, playerZones));
-    }
-
     private static StackResolutionResult NoopStackResolutionResult(MatchState state)
     {
         return new StackResolutionResult(
@@ -25307,10 +24948,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ActivatedAbilityKinds.DestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRest,
                 StringComparison.Ordinal))
         {
-            return ResolveDestroyFriendlyUnitLookTopPlayPowerPlusOneRecycleRestStackItem(
-                state,
-                stackItem,
-                activatedAbility);
+            return ResolveDestroyDeckPlay(state, stackItem);
         }
 
         if (P4ActivatedAbilityCatalog.TryGetByEffectKind(stackItem.EffectKind, out var powerAbility)
@@ -28654,11 +28292,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             null,
             [],
             drawApplication.RngCursor);
-    }
-
-    private static string BuildSeaMonsterHookTopFiveChoiceId(StackItemState stackItem)
-    {
-        return $"CARD-CHOICE-{stackItem.StackItemId}";
     }
 
     private static void CreateBaseUnitTokensFromTrigger(

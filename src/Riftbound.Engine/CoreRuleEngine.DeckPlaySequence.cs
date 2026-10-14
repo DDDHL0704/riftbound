@@ -29,9 +29,14 @@ public sealed partial class CoreRuleEngine
     internal static bool DeckPlaySequenceReveals(StackItemState item)
         => TryGetEffectPlayDefinition(item, out var definition) && (definition.DeckPlayKind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayRevealsCards);
 
-    private static string[] DeckPlayLegalSelection(MatchState state, DeckPlaySequenceContext c, string owner)
-        => c.Viewed[owner].Keys.Where(id => c.Kind != "SINGLE_PRIVATE_UNIT_PLAY"
-            || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)).ToArray();
+    private static string[] DeckPlayLegalSelection(MatchState state, StackItemState item, DeckPlaySequenceContext c, string owner)
+    {
+        TryGetEffectPlayDefinition(item, out var definition);
+        return c.Viewed[owner].Keys.Where(id => c.Kind is not ("SINGLE_PRIVATE_UNIT_PLAY" or "SINGLE_PRIVATE_LIMITED_UNIT_PLAY")
+            || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)
+                && (c.Kind != "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" || definition.DeckPlayMaximumUnitMight is { } maximum
+                    && state.CardObjects[id].Power <= maximum)).ToArray();
+    }
 
     private static PendingEffectPlayState DeckPlayPending(StackItemState item, DeckPlaySequenceContext c)
     {
@@ -43,13 +48,13 @@ public sealed partial class CoreRuleEngine
             c.Kind is "OPPONENT_REVEAL_PLAY" or "EACH_PLAYER_LOOK_PLAY" || definition.EffectPlayIgnoreBaseMana,
             c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreBasePower,
             definition.EffectPlayManaReduction, definition.EffectPlayDestination, false,
-            IgnoreAllCosts: c.Kind == "OPPONENT_REVEAL_PLAY");
+            IgnoreAllCosts: c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreAllCosts);
     }
 
     private static StackResolutionResult BeginDeckPlaySequence(MatchState state, StackItemState item, CardBehaviorDefinition definition)
     {
         // Declared deck identities are never valid targets for these effects.
-        if (item.TargetObjectIds.Count != 0) return ResolveStackItemEffect(state, item with { EffectPlayCompleted = true });
+        if (item.TargetObjectIds.Count != 0 && item.DestroyDeckPlay is not { Prepared: true }) return ResolveStackItemEffect(state, item with { EffectPlayCompleted = true });
         var events = new List<GameEvent>();
         var c = item.DeckPlaySequence;
         if (c is null)
@@ -58,7 +63,7 @@ public sealed partial class CoreRuleEngine
             var count = DeckPlayLookCount(definition);
             var viewed = players.ToDictionary(p => p, p => (IReadOnlyDictionary<string,long>)state.PlayerZones[p].MainDeck.Take(count)
                 .ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), StringComparer.Ordinal);
-            var generation = item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } field ? field.SourceGeneration : state.CardObjects[item.SourceObjectId].ObjectGeneration;
+            var generation = item.DestroyDeckPlay?.Source.Generation ?? (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } field ? field.SourceGeneration : state.CardObjects[item.SourceObjectId].ObjectGeneration);
             c = new(definition.DeckPlayKind, new(item.SourceObjectId, generation),
                 item.CardNo!, item.ControllerId, players, viewed, new Dictionary<string,ObjectBinding>(), 0, 0);
             if (DeckPlaySequenceReveals(item))
@@ -74,7 +79,13 @@ public sealed partial class CoreRuleEngine
         {
             var owner = c.Players[c.SelectionIndex];
             var ids = c.Viewed[owner].Keys.ToArray();
-            var legal = DeckPlayLegalSelection(state, c, owner);
+            var legal = DeckPlayLegalSelection(state, item, c, owner);
+            if (c.Kind == "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" && legal.Length == 0)
+            {
+                var (next, recycled) = ApplyDeckPlaySelection(state, item, owner, null, definition);
+                var resumed = BeginDeckPlaySequence(next, next.StackItems.Last(), definition);
+                return resumed with { Events = events.Concat(recycled).Concat(resumed.Events).ToArray() };
+            }
             var required = definition.EffectPlayOptional ? 0 : 1;
             var actor = c.Kind == "OPPONENT_REVEAL_PLAY" ? item.ControllerId : owner;
             var choice = new PendingCardChoiceState(DeckPlaySelectionId(item, c), DeckPlayChoiceWindow,
@@ -158,7 +169,16 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.Last(); var c = item.DeckPlaySequence!;
         if (!ValidDeckPlayChoice(state, choice)) return RejectWithCorePrompts(state, "本次牌堆选择上下文已失效。", ErrorCodes.InvalidTarget);
         TryGetEffectPlayDefinition(item, out var definition);
-        var owner = c.Players[c.SelectionIndex]; var id = selected.SingleOrDefault();
+        var owner = c.Players[c.SelectionIndex];
+        var (next, events) = ApplyDeckPlaySelection(state, item, owner, selected.SingleOrDefault(), definition);
+        var resumed = ResolvePassPriority(next, new("deck-play-choice", choice.PlayerId, CommandTypes.PassPriority), forceResolve: true);
+        return resumed with { Events = events.Concat(resumed.Events).ToArray() };
+    }
+
+    private static (MatchState State, IReadOnlyList<GameEvent> Events) ApplyDeckPlaySelection(MatchState state,
+        StackItemState item, string owner, string? id, CardBehaviorDefinition definition)
+    {
+        var c = item.DeckPlaySequence!;
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
         var events = new List<GameEvent>();
         var picked = c.Selected.ToDictionary(p => p.Key, p => p.Value);
@@ -188,8 +208,7 @@ public sealed partial class CoreRuleEngine
         var next = state with { PendingCardChoice = null, PlayerZones = zones, CardObjects = cards,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), RngCursor = state.RngCursor + (!definition.DeckPlayDrawsUnselected && remaining.Length > 1 ? 1 : 0),
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(item).ToArray() };
-        var resumed = ResolvePassPriority(next, new("deck-play-choice", choice.PlayerId, CommandTypes.PassPriority), forceResolve: true);
-        return resumed with { Events = events.Concat(resumed.Events).ToArray() };
+        return (next, events);
     }
 
     private static string DeckPlaySelectionId(StackItemState item, DeckPlaySequenceContext c)
@@ -202,7 +221,9 @@ public sealed partial class CoreRuleEngine
         if (!TryGetEffectPlayDefinition(item, out var b) || b.DeckPlayKind != c.Kind || b.CardNo != item.CardNo
             || c.CardNo != item.CardNo || c.ControllerId != item.ControllerId || c.Source is null
             || c.Source.ObjectId != item.SourceObjectId || c.Source.Generation < 0
-            || (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } captured
+            || (item.DestroyDeckPlay is { } destroyed
+                ? c.Source.Generation != destroyed.Source.Generation || !ValidDestroyDeckPlayContext(state, item)
+                : item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } captured
                 ? c.Source.Generation != captured.SourceGeneration || !ValidFieldContextState(state, captured, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
                 : !state.CardObjects.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration < c.Source.Generation)
             || c.Players is null || c.Viewed is null || c.Selected is null || c.Queue is null
@@ -229,6 +250,8 @@ public sealed partial class CoreRuleEngine
                 }
                 if (!c.Selected.TryGetValue(player,out var picked) || picked is null || !viewed.TryGetValue(picked.ObjectId,out var before)
                     || picked.Generation != before+1 || !state.CardObjects.TryGetValue(picked.ObjectId,out var card) || card.ObjectGeneration < picked.Generation
+                    || c.Kind == "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" && (!card.Tags.Contains(CardObjectTags.UnitCard)
+                        || b.DeckPlayMaximumUnitMight is not { } maximum || card.Power > maximum)
                     || !c.ParentCompleted && !state.PlayerZones[player].Banished.Contains(picked.ObjectId)) return false;
                 if (c.ParentCompleted && !c.Queue.Any(q => q.OwnerId == player && q.ExecutionIndex == c.ExecutionIndex && q.Card.ObjectId == picked.ObjectId)) return false;
             }
@@ -256,7 +279,7 @@ public sealed partial class CoreRuleEngine
         if (item?.DeckPlaySequence is not { } c || !ValidDeckPlaySequence(state, item) || c.SelectionIndex >= c.Players.Count) return false;
         TryGetEffectPlayDefinition(item, out var definition);
         var owner = c.Players[c.SelectionIndex]; var ids = c.Viewed[owner].Keys.ToArray();
-        var legal = DeckPlayLegalSelection(state, c, owner);
+        var legal = DeckPlayLegalSelection(state, item, c, owner);
         return choice.ChoiceWindow == DeckPlayChoiceWindow && choice.ChoiceId == DeckPlaySelectionId(item, c)
             && choice.PlayerId == (c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : c.Players[c.SelectionIndex])
             && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind

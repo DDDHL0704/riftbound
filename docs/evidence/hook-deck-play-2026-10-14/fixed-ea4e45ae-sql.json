@@ -1,0 +1,53 @@
+{
+  "status": "FIXED_EA4E45AE_ACTUAL_POSTGRES_RESULTS_VERIFIED",
+  "commit": "ea4e45ae64d63e1120f11f5dbe4c4065a19ef20f",
+  "runId": 38506419454,
+  "opening": {
+    "commands": 8,
+    "events": 19,
+    "coldCheckpoints": 5,
+    "tamperRejected": true,
+    "sha256": "1bdeb0a19b9e7631e4574e2103354a7ccba035b3c4f2338a9b86e16de425cb50"
+  },
+  "battleHistory": [
+    {
+      "scenario": "battle-history-attacker-burnout",
+      "submitted": 14,
+      "events": 38,
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "sha256": "aaedeeda161fe8e81042790f48d6f062d181334d5fcd8754e64e5d5ddb32e9aa"
+    },
+    {
+      "scenario": "battle-history-attacker-deck",
+      "submitted": 14,
+      "events": 37,
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "sha256": "b67a640d16b094160e54021c13a13fdec18efa70b2d4e2f609247a274b5589ed"
+    },
+    {
+      "scenario": "battle-history-burnout",
+      "submitted": 14,
+      "events": 37,
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "sha256": "107cc0d1352e9d0f921db1c059ca541249f4c1ed2277b6691a3a2c998fec72ac"
+    },
+    {
+      "scenario": "battle-history-deck",
+      "submitted": 14,
+      "events": 36,
+      "coldCheckpoints": 15,
+      "tamperRejected": true,
+      "sha256": "8e9a049a990432b47865a0bfdeb37adce1b5b8b5a57e7b57a5d2ff06f59ef469"
+    }
+  ],
+  "totals": {
+    "commands": 64,
+    "events": 167,
+    "coldCheckpoints": 65,
+    "tamperRejections": 5
+  },
+  "scope": "Actual SQL rows and fixedea4e45ae only; subsequent Hook worktree excluded."
+}

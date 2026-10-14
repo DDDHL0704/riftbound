@@ -1,0 +1,23 @@
+{
+  "status": "FIXED_FULL_REQUIRED",
+  "commit": null,
+  "expectedCases": 11467,
+  "expectedMethods": 7129,
+  "expectedAddedCases": 23,
+  "expectedAddedMethods": 11,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "baselineCommit": "ea4e45ae64d63e1120f11f5dbe4c4065a19ef20f",
+  "baselineRunId": 38506419454,
+  "baselineRulesPath": "var/qa/hook-deck-play-20261014/ci-ea4e45ae/conformance-results/ci-rules",
+  "baselineWholeRequiredAcceptancePassed": true,
+  "baselineActualCases": 11444,
+  "baselineActualMethods": 7118,
+  "baselineActualPairs": 110,
+  "baselineActualSqlCommands": 64,
+  "baselineActualSqlEvents": 167,
+  "baselineActualColdCheckpoints": 65,
+  "baselineActualTamperRejections": 5,
+  "wholeGoalComplete": false,
+  "fullCertified": false
+}

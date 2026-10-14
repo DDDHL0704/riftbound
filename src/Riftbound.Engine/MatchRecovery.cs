@@ -23770,6 +23770,7 @@ public static class MatchRecoveryValidator
         }
         foreach (var deckItem in state.StackItems)
         {
+            if (!CoreRuleEngine.ValidDestroyDeckPlayContext(state, deckItem)) errors.Add("invalid destroy deck play context");
             if (!CoreRuleEngine.ValidDeckPlaySequence(state, deckItem)) errors.Add("invalid deck play sequence");
             if (!CoreRuleEngine.ValidDeckPlayPendingCard(state, deckItem)) errors.Add("invalid deck pending card");
         }
@@ -27053,6 +27054,8 @@ public static class MatchRecoveryValidator
                     errors);
             }
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (stackItem.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, stackItem, destroyDeck.Target.ObjectId))
+                targetReferences.Add(destroyDeck.Target.ObjectId);
             if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
                 && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell or CardTargetScopes.FriendlyUnitThenStackSpell)
             {
@@ -31831,6 +31834,8 @@ public static class MatchRecoveryValidator
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original)
             {
+                if (original.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, original, destroyDeck.Target.ObjectId))
+                    targetReferences.Add(destroyDeck.Target.ObjectId);
                 if (VisibleObjectIdsForSpectator(authoritativeState, original.TargetObjectIds).Contains("HIDDEN"))
                     targetReferences.Add("HIDDEN");
                 if (CardBehaviorRegistry.TryGetByEffectKind(original.EffectKind, out var behavior)

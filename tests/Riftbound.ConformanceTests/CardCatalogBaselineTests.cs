@@ -688,7 +688,7 @@ public sealed class CardCatalogBaselineTests
         AssertFamily(report, BehaviorTemplateIds.Move, 123, 123, 0, 0, 102, 102, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 63, 63, 0, 0, 51, 51, 0);
         // Scoped deck-play errata add explicit banish instructions; printings and groups remain separately counted.
-        AssertFamily(report, BehaviorTemplateIds.Banish, 19, 19, 0, 0, 15, 15, 0);
+        AssertFamily(report, BehaviorTemplateIds.Banish, 20, 20, 0, 0, 16, 16, 0);
         AssertFamily(report, BehaviorTemplateIds.TempMight, 260, 260, 0, 0, 208, 208, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
@@ -8800,7 +8800,7 @@ public sealed class CardCatalogBaselineTests
 
         Assert.Equal("支付{{1}}和{{黄色}}，{{横置}}", ability.CostText);
         Assert.Contains("摧毁一名友方单位", ability.EffectText, StringComparison.Ordinal);
-        Assert.Contains("查看主牌堆顶部的五张牌", ability.EffectText, StringComparison.Ordinal);
+        Assert.Contains("查看你主牌堆顶部的五张牌", ability.EffectText, StringComparison.Ordinal);
         Assert.True(ability.ExhaustsSourceAsCost);
         Assert.True(ability.RequiresBaseEquipmentSource);
         Assert.Equal(1, ability.ManaCost);
