@@ -33,7 +33,7 @@ public sealed class PrimitiveTargetGuardSourceTests
 
         Assert.Contains("RequiresVisibleFieldUnitPrimitiveTarget", coreRuleEngineSource, StringComparison.Ordinal);
         Assert.Contains("RequiresVisibleFieldUnitPrimitiveTarget", matchSessionSource, StringComparison.Ordinal);
-        Assert.Contains("RequiresPublicUnitMainDeckPrimitiveTarget", coreRuleEngineSource, StringComparison.Ordinal);
+        Assert.Contains("BeginDeckPlaySequence", coreRuleEngineSource, StringComparison.Ordinal);
     }
 
     private static readonly string[] RepresentativeTargetGuardMethodNames =

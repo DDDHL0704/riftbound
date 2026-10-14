@@ -13,7 +13,7 @@ public sealed class BerserkImpulseGuardTests
         var engine = new CoreRuleEngine();
         var state = BuildBerserkImpulseState("P2-TOP-UNIT");
 
-        var played = await PlayBerserkImpulseAsync(engine, state, "P2-TOP-UNIT");
+        var played = await PlayBerserkImpulseAsync(engine, state, string.Empty);
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.Equal(new RunePool(0, 0), played.State.RunePools["P1"]);
         Assert.Empty(played.State.PlayerZones["P1"].Hand);
@@ -32,6 +32,14 @@ public sealed class BerserkImpulseGuardTests
 
         Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        var choice = Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
+        var selected = await engine.ResolveAsync(p2Pass.State, new("select-top", "P1", CommandTypes.ChooseCards),
+            new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["P2-TOP-UNIT"]), default);
+        Assert.Equal("STACK", selected.State.PendingEffectPlay!.SourceZone);
+        var actual = await engine.ResolveAsync(selected.State, new("play-top", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P2-TOP-UNIT", "UNL-146/219", []), default);
+        Assert.True(actual.Accepted, actual.ErrorMessage);
+        p2Pass = actual;
         Assert.Equal(["P1-BASE-UNIT", "P2-TOP-UNIT"], p2Pass.State.PlayerZones["P1"].Base);
         Assert.Equal(["P2-SECOND-UNIT"], p2Pass.State.PlayerZones["P2"].MainDeck);
         Assert.Equal(["P1-SPELL-BERSERK-IMPULSE"], p2Pass.State.PlayerZones["P1"].Graveyard);
@@ -44,11 +52,9 @@ public sealed class BerserkImpulseGuardTests
         Assert.Equal("P1", p2Pass.State.CardObjects["P2-TOP-UNIT"].ControllerId);
         Assert.Contains(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SPELL-BERSERK-IMPULSE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-TOP-UNIT", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["ownerPlayerId"] as string, "P2", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["playedByPlayerId"] as string, "P1", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceZone"] as string, "MAIN_DECK", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-TOP-UNIT", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal)
+
             && string.Equals(gameEvent.Payload["destinationZone"] as string, "BASE", StringComparison.Ordinal));
     }
 
@@ -142,7 +148,7 @@ public sealed class BerserkImpulseGuardTests
         var command = new PlayCardCommand(
             berserkImpulseObjectId,
             berserkImpulseCardNo,
-            ["P2-TOP-UNIT"]);
+            []);
 
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
@@ -151,7 +157,7 @@ public sealed class BerserkImpulseGuardTests
         var playCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, CommandTypes.PlayCard, StringComparison.Ordinal));
-        Assert.False(playCandidate.Enabled);
+        Assert.True(playCandidate.Enabled);
         var hiddenOrIllegalTargetObjectIds = new[]
         {
             "P2-TOP-UNIT",
@@ -172,7 +178,7 @@ public sealed class BerserkImpulseGuardTests
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
                 rawSourceRequirements)
             .ToArray();
-        Assert.Empty(sourceRequirements);
+        Assert.Single(sourceRequirements);
 
         if (metadata.TryGetValue("targetChoicesByIndex", out var rawTargetChoicesByIndex))
         {
@@ -214,7 +220,7 @@ public sealed class BerserkImpulseGuardTests
         Assert.Null(accepted.ErrorCode);
         Assert.Contains(accepted.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["effectKind"] as string, "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT", StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "BLIND_FURY_REVEAL_BANISH_EFFECT_PLAY", StringComparison.Ordinal));
         var acceptedStackItem = AssertBerserkImpulseStackPriorityState(accepted);
         var acceptedStateHash = MatchStateHasher.Hash(accepted.State);
         var acceptedPromptsHash = MatchStateHasher.HashValue(accepted.Prompts);
@@ -360,7 +366,7 @@ public sealed class BerserkImpulseGuardTests
             new PlayCardCommand(
                 "P1-SPELL-BERSERK-IMPULSE",
                 "OGN·025/298",
-                [targetObjectId]),
+                string.IsNullOrEmpty(targetObjectId) ? [] : [targetObjectId]),
             CancellationToken.None);
     }
 
@@ -463,9 +469,9 @@ public sealed class BerserkImpulseGuardTests
         var stackItem = Assert.Single(result.State.StackItems);
         Assert.Equal("P1-SPELL-BERSERK-IMPULSE", stackItem.SourceObjectId);
         Assert.Equal("OGN·025/298", stackItem.CardNo);
-        Assert.Equal(["P2-TOP-UNIT"], stackItem.TargetObjectIds);
+        Assert.Empty(stackItem.TargetObjectIds);
         Assert.Empty(stackItem.OptionalCosts);
-        Assert.Equal("BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT", stackItem.EffectKind);
+        Assert.Equal("BLIND_FURY_REVEAL_BANISH_EFFECT_PLAY", stackItem.EffectKind);
         Assert.Equal(0, stackItem.DamageAmount);
         Assert.Equal(1, stackItem.EffectRepeatCount);
         if (expectedStackItem is not null)
@@ -576,7 +582,7 @@ public sealed class BerserkImpulseGuardTests
                     "STACK-BERSERK-IMPULSE-DIRTY",
                     "P1",
                     "P1-SPELL-BERSERK-IMPULSE",
-                    "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT",
+                    "BLIND_FURY_REVEAL_BANISH_EFFECT_PLAY",
                     "OGN·025/298",
                     [targetObjectId])
             ]);
@@ -606,6 +612,7 @@ public sealed class BerserkImpulseGuardTests
             ["P1-TOP-UNIT"] = Unit("P1-TOP-UNIT", power: 2),
             ["P2-TOP-UNIT"] = new(
                 "P2-TOP-UNIT",
+                cardNo: "UNL-146/219", ownerId: "P2", controllerId: "P2",
                 damage: 1,
                 untilEndOfTurnEffects: ["STUNNED"],
                 power: 8,

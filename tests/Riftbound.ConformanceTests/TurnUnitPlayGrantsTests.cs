@@ -195,7 +195,10 @@ public sealed class TurnUnitPlayGrantsTests
                 MainDeck = initial.PlayerZones["P2"].MainDeck.Prepend("OPPONENT_TOP").ToArray() } } };
         var driver = Driver(initial, card == Confront ? "confront-opponent-owned-play" : "rally-opponent-owned-play");
         await driver.Act("P1", new PlayCardCommand("GRANT", card, [])); await driver.Top();
-        await driver.Act("P1", new PlayCardCommand("IMPULSE", "OGN·025/298", ["OPPONENT_TOP"])); await driver.Top();
+        await driver.Act("P1", new PlayCardCommand("IMPULSE", "OGN·025/298", [])); await driver.Top();
+        var choose = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
+        await driver.Act(choose.PlayerId, new ChooseCardsCommand(choose.ChoiceId, choose.ChoiceWindow, ["OPPONENT_TOP"]));
+        await driver.Act("P1", new PlayCardCommand("OPPONENT_TOP", "OGN·096/298", []));
         Assert.Equal("P2", driver.State.CardObjects["OPPONENT_TOP"].OwnerId);
         Assert.Equal("P1", driver.State.CardObjects["OPPONENT_TOP"].ControllerId);
         if (card == Confront) Assert.False(driver.State.CardObjects["OPPONENT_TOP"].IsExhausted);
@@ -241,13 +244,19 @@ public sealed class TurnUnitPlayGrantsTests
                 MainDeck = initial.PlayerZones["P2"].MainDeck.Prepend("OPPONENT_TOP").ToArray() } } };
         var driver = Driver(initial, card == Confront ? "confront-opponent-excluded" : "rally-opponent-excluded");
         await driver.Act("P1", new PlayCardCommand("GRANT", card, [])); await driver.Top();
-        await driver.Act("P1", new PlayCardCommand("FUTURE", "OGN·115/298", ["OWN_TOP", "OPPONENT_TOP"])); var resolved = await driver.Top();
+        await driver.Act("P1", new PlayCardCommand("FUTURE", "OGN·115/298", [])); await driver.Top();
+        var choose = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
+        await driver.Act(choose.PlayerId, new ChooseCardsCommand(choose.ChoiceId, choose.ChoiceWindow, ["OWN_TOP"]));
+        choose = Assert.IsType<PendingCardChoiceState>(driver.State.PendingCardChoice);
+        await driver.Act(choose.PlayerId, new ChooseCardsCommand(choose.ChoiceId, choose.ChoiceWindow, ["OPPONENT_TOP"]));
+        var resolved = await driver.Act("P2", new PlayCardCommand("OPPONENT_TOP", "OGN·096/298", []));
         Assert.Equal(initial.TurnNumber, driver.State.TurnNumber);
         Assert.Equal("BASE", driver.State.ObjectLocations["OPPONENT_TOP"].Zone);
-        Assert.False(driver.State.CardObjects["OPPONENT_TOP"].IsExhausted); // Bright Future itself plays both units ready.
-        var opponentEntry = Assert.Single(resolved.Events, e => e.Kind == "UNIT_PLAYED_TO_BASE" && Equals(e.Payload.GetValueOrDefault("targetObjectId"), "OPPONENT_TOP"));
+        Assert.True(driver.State.CardObjects["OPPONENT_TOP"].IsExhausted); // Normal CN 143.4 entry; no P1 grant applies.
+        var opponentEntry = Assert.Single(resolved.Events, e => e.Kind == "UNIT_PLAYED_TO_BASE" && Equals(e.Payload.GetValueOrDefault("sourceObjectId"), "OPPONENT_TOP"));
         Assert.False(opponentEntry.Payload.ContainsKey("turnUnitPlayReady"));
         Assert.DoesNotContain(CardObjectTags.Boon, driver.State.CardObjects["OPPONENT_TOP"].Tags);
+        await driver.Act("P1", new PlayCardCommand("OWN_TOP", "OGN·096/298", []));
         if (card == Confront) Assert.False(driver.State.CardObjects["OWN_TOP"].IsExhausted);
         else { var trigger = Assert.Single(driver.State.StackItems); Assert.Equal("OWN_TOP", trigger.TurnUnitPlayBoon!.Unit.ObjectId); await driver.Top(); }
         await RideTheWindCurrentMovementTests.Replay(initial, driver);

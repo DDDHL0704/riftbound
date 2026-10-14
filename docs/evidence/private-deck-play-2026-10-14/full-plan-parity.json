@@ -1,0 +1,29 @@
+{
+  "status": "FULL_PLAN_ONLY_METHOD_PARITY_VERIFIED",
+  "oldMethods": 7085,
+  "methods": 7097,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.BlindFuryActuallyPlaysEquipmentOrANormalSpellAndKeepsTheOpponentsOwnership",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.BlindFuryIsDeclaredWithoutPrivateTargetsThenRevealsExilesAndActuallyPlaysTheCard",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.BrightFutureCannotWaivePrintedPowerAndReturnsTheUnplayableCardToBanishment",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.BrightFutureKeepsBothOrdinarySpellsInTheirOriginalPendingOrderAndNoResponseBeforeConfirmationEnds",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.BrightFuturePermitsAnActualMatchingRuneRecycleToPayTheChosenUnitsPrintedPower",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.BrightFutureUsesPrivateChoicesThenRealOpponentFirstPlaysWithManaWaived",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.LookingOrRevealingEmptyDecksFinishesTheParentWithoutBurnoutOrInventedPlays",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.RealControlChangeKeepsTheTurnPlayersChoiceOrderAndFinishesTheSourceBeforeConfirmation",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.RealEchoCompletesBothChoiceExecutionsBeforeTheParentFinishesAndAnyChosenCardIsConfirmed",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.RecoveryRejectsIndependentPendingSequenceAndPermissionForgeries",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.RecoveryRejectsPublicPendingCardReceiptForgeriesForBothPlayersAndSpectators",
+    "Riftbound.ConformanceTests.DeckPlaySequenceTests.RejectedPowerPaymentKeepsTheRealPendingCardAndAllAuthoritativeStateUnchanged"
+  ],
+  "missingMethods": [],
+  "fullGameMethods": 143,
+  "fullGameMethodIdentitiesPreserved": true,
+  "expectedCases": 11395,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "sameCheckAndPlanAssemblySha256": "27c6550c3a5c6cda5611b6ee1f14cce88527ec90a77302b7655cee145c205aa8",
+  "frozenInputCount": 2260,
+  "frozenInputsUnchanged": true,
+  "fullExecutionCertified": false
+}

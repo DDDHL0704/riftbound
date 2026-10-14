@@ -240,8 +240,23 @@ public sealed class AhriCombatMightTests
         var historical = await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName, "data/official/upstream/2026-10-11/active-catalog.zh-CN.json"));
         var current = await OfficialCardCatalog.LoadDefaultAsync();
         Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1031, current.Cards.Count);
+        // Only these exact printings adopt the current official deck-play errata.
+        // Keep the archived source and every other historical field unchanged.
+        var errata = new Dictionary<string,(string Before,string After)> {
+            ["OGN·025/298"] = ("{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，并当作自己的牌打出，无视费用，然后回收其余的卡牌。",
+                "{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，将其放逐，然后当作自己的牌打出，无视费用。然后回收其余的卡牌。"),
+            ["OGN·115/298"] = ("每名玩家可以查看主牌堆顶部的五张牌，从中选择一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些卡牌，并无视其法力费用（仍需支付所有符能费用）。",
+                "每名玩家查看其主牌堆顶部的五张牌，放逐其中一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些被放逐的卡牌，无视其法力费用。（仍需支付所有符能费用。）") };
         foreach (var card in historical.Cards)
-            Assert.Equal(JsonSerializer.Serialize(card), JsonSerializer.Serialize(current.Cards.Single(c => c.CardNo == card.CardNo)));
+        {
+            var actual = current.Cards.Single(c => c.CardNo == card.CardNo);
+            if (errata.TryGetValue(card.CardNo, out var change))
+            {
+                Assert.Equal(change.Before, card.CardEffect); Assert.Equal(change.After, actual.CardEffect);
+                Assert.Equal(JsonSerializer.Serialize(card), JsonSerializer.Serialize(actual with { CardEffect = card.CardEffect }));
+            }
+            else Assert.Equal(JsonSerializer.Serialize(card), JsonSerializer.Serialize(actual));
+        }
         Assert.Equal(22, current.Cards.Count(c => !historical.Cards.Any(old => old.CardNo == c.CardNo)));
         var added = Assert.Single(current.Cards, c => c.CardNo == "VEN·SP3");
         Assert.Equal("VEN·SP3", added.CardNo); Assert.Equal(37918, added.Id); Assert.Equal(3, added.Power);

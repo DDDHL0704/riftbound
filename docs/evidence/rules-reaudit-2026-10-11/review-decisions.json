@@ -18239,6 +18239,58 @@
         "Visible paired native clients and user Windows runtime",
         "Source gaps remain"
       ]
+    },
+    {
+      "id": "private-deck-play-choice-banish-real-pending-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Current CN OGN025/OGN115 errata with independent EN and scoped FAQ reconciliation: no private declared targets, resolution-time selection/banish/recycle, all repeated choices before source completion, real pending stack order and normal unit/equipment/spell confirmation, printed-power payment, controller/owner distinction, real Reversal, empty decks, recovery and rejection invariance. Listed paths only, not whole-card/all-consumer certification.",
+      "subjects": [
+        "OGN·025/298",
+        "OGN·115/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P039-B001",
+        "DOC-04-P039-B002",
+        "DOC-04-P039-B016",
+        "DOC-04-P039-B023",
+        "DOC-04-P040-B002",
+        "DOC-04-P040-B003",
+        "DOC-04-P040-B004",
+        "DOC-04-P040-B005",
+        "DOC-04-P040-B006",
+        "DOC-04-P075-B007",
+        "DOC-04-P075-B008",
+        "DOC-04-P075-B011",
+        "DOC-04-P075-B012"
+      ],
+      "auditDocument": "docs/PRIVATE_DECK_PLAY_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/private-deck-play-2026-10-14",
+      "tests": [
+        "DeckPlaySequenceTests",
+        "BerserkImpulseGuardTests",
+        "TurnUnitPlayGrantsTests",
+        "MatchRecoveryTests",
+        "PrimitiveTargetGuardSourceTests",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBerserkImpulseOpponentTopUnit",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBrightFutureEachPlayerTopFiveUnit",
+        "AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource",
+        "CardCatalogBaselineTests.P6SecondaryTemplateFamiliesReportEntryAndFunctionalUnitCoverage"
+      ],
+      "validation": {
+        "focus": "1924cases/1857methods20.36s;31newcases/12methods; source-current and recovery forgery reds retained",
+        "native": "37branches/287 production Godot commands,1924cases/1857methods19.91s readback; cold/dedup/full journal; includes previous four private deck gaps",
+        "check": "11246cases/6956methods238.85s;all11215/6944preserved;31newcases/12methods;2260frozen no drift;actual SQL5/Python27;287nativecommands repeated;owned database stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixed94ebda99": "11364cases/7085methods3546.11s with110pairs unchanged; whole run CANCELLED at60-minute budget,SQL cancelled/network skipped; rules-only receipt retained"
+      },
+      "exclusions": [
+        "Whole card/source coverage and eight missing English API records",
+        "Mandatory additional-cost native composers and nested effect plays",
+        "Other deck-play consumers including Void Burrower/Void Rush/Reinforce",
+        "Multiplayer formats",
+        "Visible paired clients and user Windows runtime",
+        "Fixed candidate full CI not yet executed"
+      ]
     }
   ]
 }

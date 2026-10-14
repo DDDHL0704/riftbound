@@ -3182,6 +3182,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == "REVEALED_HAND_EFFECT") return ResolveRevealedHandChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == GraveyardRecycleWindow) return ResolveGraveyardRecycleChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "DECK_EFFECT") return ResolveDeckChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == DeckPlayChoiceWindow) return ResolveDeckPlaySelection(state, pendingChoice, submittedObjectIds);
 
         if (string.Equals(pendingChoice.ChoiceWindow, SeaMonsterHookTopFiveChoiceWindow, StringComparison.Ordinal)
             && string.Equals(
@@ -3652,8 +3653,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         if (state.PendingEffectPlay is { SourceZone: not ("HAND" or "STACK") }
             && cardObjects.TryGetValue(command.SourceObjectId, out var replayed)
-            && PrintedCardFactory.TryRestoreOutsidePlay(replayed, intent.PlayerId, out var printedReplay))
-            cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration };
+            && PrintedCardFactory.TryRestoreOutsidePlay(replayed, replayed.OwnerId ?? intent.PlayerId, out var printedReplay))
+            cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration, ControllerId = intent.PlayerId };
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         var runePools = ApplyRecycleRunePaymentResourceActions(
             state.RunePools,
@@ -18954,7 +18955,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)))
+        if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)
+            && !(item.DeckPlayPendingCard is not null && ValidDeckPlayPendingCard(state, item))))
         {
             rejection = Reject(
                 state,
@@ -22515,11 +22517,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (behavior.PlaysEachPlayerTopFiveUnitToBase)
-        {
-            return true;
-        }
-
         if (targetIndex < behavior.MainDeckLookTargetStartIndex)
         {
             return true;
@@ -22537,8 +22534,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        if (behavior.MainDeckLookCount <= 0
-            || behavior.PlaysEachPlayerTopFiveUnitToBase)
+        if (behavior.MainDeckLookCount <= 0)
         {
             return true;
         }
@@ -22646,28 +22642,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         return targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || targetState.Tags.Count == 0;
-    }
-
-    private static bool IsPublicUnitMainDeckPrimitiveTargetAllowed(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        string objectId)
-    {
-        if (!RequiresPublicUnitMainDeckPrimitiveTarget(behavior))
-        {
-            return true;
-        }
-
-        return IsPublicUnitCardObject(state.CardObjects, objectId);
-    }
-
-    private static bool RequiresPublicUnitMainDeckPrimitiveTarget(CardBehaviorDefinition behavior)
-    {
-        return behavior.PlaysOpponentTopMainDeckUnitToBase
-            && string.Equals(
-                PlayCardTargetScopeForBehavior(behavior),
-                CardTargetScopes.OpponentMainDeckTopCard,
-                StringComparison.Ordinal);
     }
 
     private static bool IsTargetManaCostAllowed(MatchState state, string playerId, string objectId, CardBehaviorDefinition behavior)
@@ -22970,36 +22944,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         return selectedObjectIds.Length == 2;
-    }
-
-    private static bool HasValidEachPlayerTopFiveUnitTargets(
-        MatchState state,
-        CardBehaviorDefinition behavior,
-        IReadOnlyList<string> targetObjectIds)
-    {
-        if (!behavior.PlaysEachPlayerTopFiveUnitToBase)
-        {
-            return true;
-        }
-
-        var playerIds = SeatPlayerIds(state);
-        if (targetObjectIds.Count != playerIds.Length)
-        {
-            return false;
-        }
-
-        var selectedPlayerIds = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var targetObjectId in targetObjectIds)
-        {
-            if (!CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)
-                || !TryGetTopMainDeckOwner(state, state.PlayerZones, targetObjectId, behavior.MainDeckLookCount, out var playerId)
-                || !selectedPlayerIds.Add(playerId))
-            {
-                return false;
-            }
-        }
-
-        return selectedPlayerIds.SetEquals(playerIds);
     }
 
     private static bool PlayCardTargetsExposeKnownCardNumbers(
@@ -25197,7 +25141,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 [], null, [], null, [], state.RngCursor);
         if (!skipInsight && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var insightBehavior) && insightBehavior.PerformsInsight)
             return ResolveInsightSpell(state, stackItem, insightBehavior);
-        if (stackItem.RepeatExecutions is { Count: > 0 }) return ResolveSeparateSpellExecutions(state, stackItem);
+        if (stackItem.RepeatExecutions is { Count: > 0 }
+            && !(CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var deckRepeat) && deckRepeat.DeckPlayKind.Length > 0))
+            return ResolveSeparateSpellExecutions(state, stackItem);
         if (stackItem.SourceReplayDecisionCompleted) return CompleteSourceReplayDecision(state, stackItem);
         if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var movementFollowUpBehavior)
             && movementFollowUpBehavior.OptionalEquipmentAfterMovement)
@@ -25369,9 +25315,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && (!HasValidResolvedTargetCount(behavior, chosenStackItem)
             || !HasValidTargetEffectAdditionalCostTargets(behavior, chosenStackItem.TargetObjectIds, stackItem.OptionalCosts)))
         {
+            var invalidZones = NormalizeZonesForSeats(state);
+            var invalidCards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
+            CompleteSpellSource(invalidZones, invalidCards, stackItem, behavior);
             return new StackResolutionResult(
-                state.PlayerZones,
-                state.CardObjects,
+                invalidZones,
+                invalidCards,
                 state.PlayerScores,
                 state.PlayerExperience,
                 state.RunePools,
@@ -25388,6 +25337,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (!confirmPermanent && state.WinnerPlayerId is null && behavior.HandChoice is not null && stackItem.CompletedHandExecutions < stackItem.EffectRepeatCount)
             return BeginRevealedHandChoice(state, stackItem, behavior.HandChoice);
+        if (!confirmPermanent && behavior.DeckPlayKind.Length > 0 && !stackItem.EffectPlayCompleted)
+            return BeginDeckPlaySequence(state, stackItem, behavior);
         if (!confirmPermanent && IsDeferredDeckChoice(behavior) && !stackItem.DeckChoiceCompleted)
             return BeginDeckChoice(state, stackItem, behavior);
         stackItem = ResolveTargetGroup(state, MaskTargetsNoLongerLegal(state, stackItem, behavior), behavior);
@@ -25967,21 +25918,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }));
             }
         }
-        else if (behavior.PlaysEachPlayerTopFiveUnitToBase)
-        {
-            var topDeckPlayResult = PlayEachPlayerTopFiveUnitsToBase(
-                state,
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                stackItem.SourceObjectId,
-                stackItem.TargetObjectIds,
-                behavior.MainDeckLookCount,
-                rngCursor);
-            events.AddRange(topDeckPlayResult.Events);
-            rngCursor = topDeckPlayResult.RngCursor;
-            drawCountOverride = 0;
-        }
         else if (behavior.DrawsSelectedMainDeckTarget && !IsDeferredDeckChoice(behavior))
         {
             var topDeckSelectionResult = DrawSelectedMainDeckTargetsAndRecycleRest(
@@ -26520,36 +26456,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         ["effectId"] = effectId,
                         ["optionalCost"] = StandbyHideFreeOptionalCost
                     }));
-            }
-        }
-        else if (behavior.PlaysOpponentTopMainDeckUnitToBase)
-        {
-            foreach (var targetObjectId in stackItem.TargetObjectIds)
-            {
-                if (!TryPlayOpponentTopMainDeckUnitToBase(
-                        state,
-                        playerZones,
-                        cardObjects,
-                        stackItem.ControllerId,
-                        targetObjectId,
-                        out var ownerPlayerId,
-                        out _))
-                {
-                    continue;
-                }
-
-                events.Add(CaptureUnitEntry(new GameEvent(
-                    "UNIT_PLAYED_TO_BASE",
-                    $"{behavior.DisplayName}打出对手主牌堆顶部单位到己方基地",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = targetObjectId,
-                        ["ownerPlayerId"] = ownerPlayerId,
-                        ["playedByPlayerId"] = stackItem.ControllerId,
-                        ["sourceZone"] = "MAIN_DECK",
-                        ["destinationZone"] = "BASE"
-                    }), playerZones, cardObjects, state.UntilEndOfTurnEffects));
             }
         }
         else if (behavior.DealsMutualTargetPowerDamage
@@ -32359,107 +32265,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return new RecycleResult(events, rngCursor);
     }
 
-    private static RecycleResult PlayEachPlayerTopFiveUnitsToBase(
-        MatchState state,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string controllerId,
-        string sourceObjectId,
-        IReadOnlyList<string> selectedObjectIds,
-        int lookCount,
-        long rngCursor)
-    {
-        var events = new List<GameEvent>();
-        if (lookCount <= 0)
-        {
-            return new RecycleResult(events, rngCursor);
-        }
-
-        var selectedByPlayerId = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var selectedObjectId in selectedObjectIds)
-        {
-            if (TryGetTopMainDeckOwner(state, playerZones, selectedObjectId, lookCount, out var playerId))
-            {
-                selectedByPlayerId[playerId] = selectedObjectId;
-            }
-        }
-
-        foreach (var playerId in SeatPlayerIds(state))
-        {
-            if (!selectedByPlayerId.TryGetValue(playerId, out var selectedObjectId)
-                || !playerZones.TryGetValue(playerId, out var zones))
-            {
-                continue;
-            }
-
-            var viewedCardIds = zones.MainDeck.Take(lookCount).ToArray();
-            var unselectedCardIds = viewedCardIds
-                .Where(cardId => !string.Equals(cardId, selectedObjectId, StringComparison.Ordinal))
-                .ToArray();
-            var removedCardIds = viewedCardIds.ToHashSet(StringComparer.Ordinal);
-            var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
-                unselectedCardIds,
-                state.Seed,
-                rngCursor,
-                sourceObjectId);
-            if (unselectedCardIds.Length > 1)
-            {
-                rngCursor++;
-            }
-
-            playerZones[playerId] = zones with
-            {
-                MainDeck = zones.MainDeck
-                    .Where(cardId => !removedCardIds.Contains(cardId))
-                    .Concat(randomizedRecycledCardIds)
-                    .ToArray()
-            };
-
-            if (randomizedRecycledCardIds.Count > 0)
-            {
-                events.Add(new GameEvent(
-                    "CARDS_RECYCLED",
-                    $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = playerId,
-                        ["sourceObjectId"] = sourceObjectId,
-                        ["cardIds"] = randomizedRecycledCardIds,
-                        ["count"] = randomizedRecycledCardIds.Count
-                    }));
-            }
-        }
-
-        foreach (var playerId in PlayerIdsStartingAfter(state, controllerId))
-        {
-            if (!selectedByPlayerId.TryGetValue(playerId, out var selectedObjectId)
-                || !TryPutSelectedMainDeckUnitToBase(
-                    playerZones,
-                    cardObjects,
-                    playerId,
-                    selectedObjectId,
-                    out _))
-            {
-                continue;
-            }
-
-            events.Add(CaptureUnitEntry(new GameEvent(
-                "UNIT_PLAYED_TO_BASE",
-                $"{playerId} 打出主牌堆选择的单位到基地",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = sourceObjectId,
-                    ["targetObjectId"] = selectedObjectId,
-                    ["ownerPlayerId"] = playerId,
-                    ["playedByPlayerId"] = playerId,
-                    ["sourceZone"] = "MAIN_DECK",
-                    ["destinationZone"] = "BASE"
-                }), playerZones, cardObjects, state.UntilEndOfTurnEffects));
-        }
-
-        return new RecycleResult(events, rngCursor);
-    }
-
     private static bool TryPutSelectedMainDeckUnitToBase(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -33547,57 +33352,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             };
             cardObjects[targetObjectId] = controlledTargetState;
             previousControllerId = playerId;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool TryPlayOpponentTopMainDeckUnitToBase(
-        MatchState context,
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string controllerId,
-        string targetObjectId,
-        out string ownerPlayerId,
-        out CardObjectState targetState)
-    {
-        ownerPlayerId = string.Empty;
-        targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
-            ? existingTargetState
-            : new CardObjectState(targetObjectId);
-        if (!playerZones.ContainsKey(controllerId))
-        {
-            return false;
-        }
-
-        foreach (var (playerId, zones) in playerZones)
-        {
-            if (string.Equals(playerId, controllerId, StringComparison.Ordinal)
-                || zones.MainDeck.Count == 0
-                || !string.Equals(zones.MainDeck[0], targetObjectId, StringComparison.Ordinal)
-                || !IsPublicUnitCardObject(cardObjects, targetObjectId)
-                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
-            {
-                continue;
-            }
-
-            playerZones[playerId] = zones with
-            {
-                MainDeck = RemoveFromZone(zones.MainDeck, targetObjectId)
-            };
-
-            var controllerZones = playerZones[controllerId];
-            playerZones[controllerId] = controllerZones with
-            {
-                Base = controllerZones.Base.Contains(targetObjectId, StringComparer.Ordinal)
-                    ? controllerZones.Base
-                    : controllerZones.Base.Concat([targetObjectId]).ToArray()
-            };
-
-            targetState = InitializeEffectPlayedUnit(context, playerZones, cardObjects, targetState,
-                NonFieldDestinationOwner(playerZones, targetState, playerId), controllerId, countsAsPlay: true);
-            ownerPlayerId = playerId;
             return true;
         }
 

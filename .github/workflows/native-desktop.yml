@@ -59,8 +59,10 @@ jobs:
     if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
     runs-on: ubuntu-latest
     # The complete suite retains every game and all 110 pairings. The recorded
-    # 2026-10-13 hosted run exceeded 35 minutes without completing two shards.
-    timeout-minutes: 60
+    # 94ebda99 completed all rule shards after 59 minutes; the 60-minute job
+    # limit then cancelled PostgreSQL acceptance and skipped network recovery.
+    # Keep those required stages in this same fixed-commit job with headroom.
+    timeout-minutes: 120
     concurrency:
       group: rules-${{ github.ref }}-${{ github.sha }}
       cancel-in-progress: true

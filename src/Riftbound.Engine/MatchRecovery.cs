@@ -10181,7 +10181,8 @@ public static class MatchRecoveryValidator
         var zones = authoritativeState.PlayerZones.TryGetValue(playerId, out var playerZones)
             ? playerZones
             : PlayerZones.Empty;
-        return zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(authoritativeState, id)).Order(StringComparer.Ordinal).Concat(zones.Base)
+        return zones.Hand.Where(id => CoreRuleEngine.IsPubliclyRevealedHandCard(authoritativeState, id)).Order(StringComparer.Ordinal)
+            .Concat(zones.MainDeck.Where(id => CoreRuleEngine.IsPubliclyRevealedDeckCard(authoritativeState, id))).Concat(zones.Base)
             .Concat(zones.Battlefields.Where(objectId => !IsHiddenBattlefieldStandbyForSpectator(authoritativeState, objectId)))
             .Concat(zones.Graveyard)
             .Concat(zones.Banished)
@@ -23031,6 +23032,7 @@ public static class MatchRecoveryValidator
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateDeckPlayPendingCardViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23642,7 +23644,7 @@ public static class MatchRecoveryValidator
             if (item.CompletedHandExecutions < 0 || item.CompletedHandExecutions > item.EffectRepeatCount
                 || item.CompletedHandExecutions > 0 && !CoreRuleEngine.TryGetRevealedHandChoiceSpec(item, out _))
                 errors.Add("invalid revealed hand execution count");
-        if (state.PendingEffectPlay is { } handPlay && (handPlay.RevealedHand is not null || handPlay.IgnoreAllCosts
+        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null } handPlay && (handPlay.RevealedHand is not null || handPlay.IgnoreAllCosts
             || CardBehaviorRegistry.TryGetByEffectKind(handPlay.Parent.EffectKind, out var handDefinition)
                 && handDefinition.EffectPlaySourceZone == "OPPONENT_HAND") && !CoreRuleEngine.ValidRevealedHandPlay(state, handPlay))
             errors.Add("invalid revealed hand effect-play continuation");
@@ -23766,7 +23768,18 @@ public static class MatchRecoveryValidator
                     || !CoreRuleEngine.ValidSequentialMovementPlan(state, execution.EffectKind, execution.TargetObjectIds.Count, execution.MovementDestinations))))
                 errors.Add("invalid spell repeat execution plan");
         }
-        if (state.PendingCardChoice is { ChoiceWindow: "DECK_EFFECT" } choice)
+        foreach (var deckItem in state.StackItems)
+        {
+            if (!CoreRuleEngine.ValidDeckPlaySequence(state, deckItem)) errors.Add("invalid deck play sequence");
+            if (!CoreRuleEngine.ValidDeckPlayPendingCard(state, deckItem)) errors.Add("invalid deck pending card");
+        }
+        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: not null } deckPending
+            && !CoreRuleEngine.ValidDeckPlayPending(state, deckPending)) errors.Add("invalid selected banished deck play continuation");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.DeckPlayChoiceWindow } deckChoice)
+        {
+            if (!CoreRuleEngine.ValidDeckPlayChoice(state, deckChoice)) errors.Add("invalid deck play selection");
+        }
+        else if (state.PendingCardChoice is { ChoiceWindow: "DECK_EFFECT" } choice)
         {
             var top = state.StackItems.LastOrDefault();
             if (choice.DeckContext is not { } context || top is null || context.StackItemId != top.StackItemId
@@ -23830,6 +23843,25 @@ public static class MatchRecoveryValidator
                     errors.Add("public target controller damage alternative choice differs from authoritative state");
             }
             catch (JsonException) { errors.Add("invalid public target controller damage alternative choice"); }
+        }
+    }
+
+    private static void ValidateDeckPlayPendingCardViews(IReadOnlyList<object?> payloads, MatchState state, List<string> errors)
+    {
+        foreach (var payload in payloads)
+        {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            var expected = state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.DeckPlayPendingCard;
+            try
+            {
+                var json = JsonSerializer.SerializeToElement(payload);
+                if (json.ValueKind != JsonValueKind.Object) continue;
+                var actual = json.TryGetProperty("deckPlayPendingCard", out var raw) && raw.ValueKind != JsonValueKind.Null
+                    ? raw.Deserialize<DeckPlayPendingCardContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+                if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(expected))
+                    errors.Add("public deck pending card differs from authoritative state");
+            }
+            catch (JsonException) { errors.Add("invalid public deck pending card"); }
         }
     }
 
@@ -23903,7 +23935,7 @@ public static class MatchRecoveryValidator
         foreach (var item in state.TriggerQueue)
             if (!CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.SourceCardNo))
                 errors.Add("invalid captured unit play boon trigger");
-        if (state.PendingEffectPlay is { } sourcePending && (sourcePending.SourceReplay is not null || sourcePending.SourceZone == "STACK")
+        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null } sourcePending && (sourcePending.SourceReplay is not null || sourcePending.SourceZone == "STACK")
             && !CoreRuleEngine.ValidSourceReplayPending(state, sourcePending)) errors.Add("invalid source replay continuation");
         foreach (var item in state.StackItems)
             if (item.SourceReplay is { } sourceProgress ? !CoreRuleEngine.ValidSourceReplayProgress(state, sourceProgress, item)
@@ -31826,6 +31858,7 @@ public static class MatchRecoveryValidator
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
         ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
         ValidateResolutionDamageChoiceViews(stackItems, authoritativeState, errors);
+        ValidateDeckPlayPendingCardViews(stackItems, authoritativeState, errors);
         ValidateBattlefieldConquestMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateMightySkillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");
@@ -33362,7 +33395,7 @@ public static class MatchRecoveryValidator
             return false;
         }
 
-        if (CoreRuleEngine.IsPubliclyRevealedHandCard(state, objectId)) return false;
+        if (CoreRuleEngine.IsPubliclyRevealedHandCard(state, objectId) || CoreRuleEngine.IsPubliclyRevealedDeckCard(state, objectId)) return false;
 
         foreach (var zones in state.PlayerZones.Values)
         {

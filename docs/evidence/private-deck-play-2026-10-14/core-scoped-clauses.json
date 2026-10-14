@@ -1,0 +1,794 @@
+[
+  {
+    "id": "DOC-04-P008-B013",
+    "document": "DOC-04",
+    "page": 8,
+    "clauseAnchors": [
+      "128.1"
+    ],
+    "text": "128.1.           准备阶段 描述了多种不同的区域 。游戏中,卡牌将必定处于其中的一个区域。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P008-B014",
+    "document": "DOC-04",
+    "page": 8,
+    "clauseAnchors": [
+      "128.2"
+    ],
+    "text": "128.2.           根据卡牌在特定时间的状态或所在位置,其会具有不同等级的隐私属性。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P008-B015",
+    "document": "DOC-04",
+    "page": 8,
+    "clauseAnchors": [
+      "128.2.a"
+    ],
+    "text": "128.2.a.              除非卡牌状态另有说明,否则卡牌的隐私属性与其所在区域相同。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P008-B016",
+    "document": "DOC-04",
+    "page": 8,
+    "clauseAnchors": [
+      "128.3"
+    ],
+    "text": "128.3.           隐秘: 此隐私等级表示,任何玩家都不得阅读卡面文字,也不得查看卡面。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P009-B001",
+    "document": "DOC-04",
+    "page": 9,
+    "clauseAnchors": [
+      "128.4"
+    ],
+    "text": "128.4.          私密: 此隐私等级表示,当卡牌位于场上时,只有卡牌的控制者可以阅读卡面文字,或查看卡面;当卡牌位于其他\n                区域时,只有其所属者可以阅读卡面文字,或查看卡面。\n                        举例:玩家的手牌为该玩家所有。只有该玩家可以阅读卡面文字,或查看卡面。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P009-B003",
+    "document": "DOC-04",
+    "page": 9,
+    "clauseAnchors": [
+      "128.5"
+    ],
+    "text": "128.5.          公开: 此隐私等级表示,所有玩家都可以阅读卡面文字,或查看卡面。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P009-B004",
+    "document": "DOC-04",
+    "page": 9,
+    "clauseAnchors": [
+      "128.6"
+    ],
+    "text": "128.6.          如果某个行动提及指定的卡牌类型或特性,但会作用于隐私属性为隐秘或私密的卡牌,则也不会强制玩家执行这类\n                行动。\n                        举例:一张卡牌的效果为“从你的手牌中打出一名单位,无视其费用。”虽然效果文本中没有“可以选择”字\n                        样,但即使玩家的手牌中确实有单位牌,也可以选择不执行该行动,因为该效果指定了卡牌类型。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P009-B005",
+    "document": "DOC-04",
+    "page": 9,
+    "clauseAnchors": [
+      "128.6.a"
+    ],
+    "text": "128.6.a.                如果某个效果试图强制玩家对隐秘或私密的卡牌执行某个行动,且该效果指定了卡牌的类型或特性,则相\n                        关玩家可以选择无视该指示。被无视的指示将被视为无法完成。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P038-B023",
+    "document": "DOC-04",
+    "page": 38,
+    "clauseAnchors": [
+      "329.1"
+    ],
+    "text": "329.1.            待处理项目 会放置到结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B001",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "329.2"
+    ],
+    "text": "329.2.          在进行至打出卡牌的“检查合法性”步骤之前,所有结算链项目都是处于待处理状态。\n                     想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B002",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "329.3"
+    ],
+    "text": "329.3.          当待处理的结算链项目 不再处于待处理状态时,就会被确认并成为已确认的结算链项目 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B015",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "334.1"
+    ],
+    "text": "334.1.          在处理未决任务的过程中,可能会有结算链项目添加至结算链中。 此类效果会留在结算链中,直到任务完成。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B016",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "334.2"
+    ],
+    "text": "334.2.          当所有未决任务完成后,所有待处理结算链项目将按 FEPR 流程依次处理。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B017",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "334.2.a"
+    ],
+    "text": "334.2.a.              FEPR 流程进行期间也可能会产生新的任务。先完成流程的当前步骤,然后暂停并完成必要的任务,之后\n                      再继续。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B021",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "336.1"
+    ],
+    "text": "336.1.          在依顺序进行 FEPR 流程期间,可能会有更多的结算链项目变为待处理结算链项目 。此类效果需按生成它们的同一\n                FEPR 流程进行处理。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P039-B023",
+    "document": "DOC-04",
+    "page": 39,
+    "clauseAnchors": [
+      "337.1"
+    ],
+    "text": "337.1.          如果有至少一个结算链项目处于待处理状态,则其中最早的待处理结算链项目 的控制者必须完成打出该待处理项目",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B002",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.1.a"
+    ],
+    "text": "337.1.a.               在结算链上对项目进行确认不会让过优先行动权。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B003",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.1.b"
+    ],
+    "text": "337.1.b.               结算链项目会按照被添加到结算链的顺序进行确认。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B004",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.2"
+    ],
+    "text": "337.2.            如果在结算链项目完成确认后,该项目为单位、装备或获得资源的技能,则会立即结算——进入步骤 4:结算。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B005",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.3"
+    ],
+    "text": "337.3.            如果在结算链项目完成确认后,仍有待处理的结算链项目,返回步骤 1:确认。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P040-B006",
+    "document": "DOC-04",
+    "page": 40,
+    "clauseAnchors": [
+      "337.4"
+    ],
+    "text": "337.4.            如果在结算链项目完成确认后,结算链上不再有需要确认的项目,则结算链上的下一个项目的控制者将获得优先行\n                  动权 。进入步骤 2:执行。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P049-B019",
+    "document": "DOC-04",
+    "page": 49,
+    "clauseAnchors": [
+      "359.3.b"
+    ],
+    "text": "359.3.b.              如果结算链中有其他的待处理项目,则每个待处理项目的控制者为这些效果完成“打出卡牌”部分的第 2 步\n                      到第 5 步,然后继续处理本流程。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P068-B021",
+    "document": "DOC-04",
+    "page": 68,
+    "clauseAnchors": [
+      "416.1"
+    ],
+    "text": "416.1.          回收 卡牌是指玩家从特定区域选择一张或多张卡牌,然后将其放到相应牌堆的底部。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P068-B022",
+    "document": "DOC-04",
+    "page": 68,
+    "clauseAnchors": [
+      "416.1.a"
+    ],
+    "text": "416.1.a.            主牌堆 的卡牌被回收 时,会回到主牌堆 中。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B001",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.1.b"
+    ],
+    "text": "416.1.b.              符文 被回收 时,会回到符文牌堆 中。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B002",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.1.c"
+    ],
+    "text": "416.1.c.              每名玩家回收卡牌时,都需要将其放回自己的主牌堆与符文牌堆。这与游戏指示由哪名玩家进行回收行动\n                      无关。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B003",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.2"
+    ],
+    "text": "416.2.            这是一个限定行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B004",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.2.a"
+    ],
+    "text": "416.2.a.              当其它游戏效果或费用指示玩家回收卡牌时,玩家必须从指定的区域回收卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B005",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.3"
+    ],
+    "text": "416.3.            当回收被列为行动的费用时,这项行动必须能够完成,才能进行费用支付。\n                      举例:“蔚 - 铲除者”拥有“从你的废牌堆回收一张卡牌:给予我在本回合内[M]+1”的技能。每次玩家激活此\n                      技能时,都需要从废牌堆中回收一张卡牌,作为支付费用。如果玩家的废牌堆中没有卡牌,则无法支付费\n                      用,因此无法激活技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B006",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.4"
+    ],
+    "text": "416.4.            回收 作为效果的一部分时,玩家必须从指定区域回收 所有能被回收 的卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B007",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.5"
+    ],
+    "text": "416.5.            如果同时有 2 张或以上的卡牌被回收到主牌堆,则要以随机顺序放置到牌堆底部。\n                      举例:“拾荒小能手”拥有“从你的废牌堆中回收三张牌,支付[1],[E]:抽一张牌”的技能。要支付激活这一\n                      技能的费用,需要其控制者从自己的废牌堆中选择三张卡牌,将其以随机顺序放到主牌堆底部。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B008",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.5.a"
+    ],
+    "text": "416.5.a.              如果同时有 2 张或以上的卡牌被回收到符文牌堆,则要以拥有者安排的顺序放置到牌堆底部。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P069-B009",
+    "document": "DOC-04",
+    "page": 69,
+    "clauseAnchors": [
+      "416.6"
+    ],
+    "text": "416.6.            该行动的表达格式可能体现为“从[区域]回收 X 张牌。”这句话代表的行动为:由受到指示的玩家从相关区域中选择 X\n                  张牌,将其回收。此类指示不会将回收的卡牌选取为目标。\n                      举例:“蒙多医生 - 主治大夫”拥有“在你的回合开始阶段,从你的废牌堆中回收三张牌”的技能。在这个技\n                      能进行结算的过程中,其控制者要从自己的废牌堆中回收三张卡牌。如果该玩家的废牌堆中卡牌不足三\n                      张,则有多少就回收多少。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B009",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.3"
+    ],
+    "text": "419.3.            游戏效果可能会导致卡牌在结算过程中被打出。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B010",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.3.a"
+    ],
+    "text": "419.3.a.               这会将打出视为限定行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B011",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.3.b"
+    ],
+    "text": "419.3.b.               按照正常流程执行所有打出步骤,除非游戏效果另外说明要将打出行动作为限定打出效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B012",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.3.c"
+    ],
+    "text": "419.3.c.               如果玩家被指示按照这种方式打出卡牌,却没有符合条件的卡牌可以打出,则不会发生任何操作,且结算\n                       继续。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B013",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.4"
+    ],
+    "text": "419.4.            某些技能则会在卡牌打出时触发,或者会检查卡牌是否打出。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B014",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.4.a"
+    ],
+    "text": "419.4.a.               所有这类触发式技能会在卡牌效果的结算使打出卡牌的动作完成时触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B015",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.4.a.1"
+    ],
+    "text": "419.4.a.1.                   如果有游戏效果阻止了卡牌的结算(如卡牌被无效化),则以“卡牌打出”作为触发条件的技能也\n                             不会触发。\n                                   想获取更多有关信息,请查阅规则 425.无效化。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B016",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.4.b"
+    ],
+    "text": "419.4.b.               检查卡牌是否被打出的非触发式技能,是通过引用这些卡牌是否已被确认来检查。\n                             举例:一名玩家打出一张法术牌,但该法术因“蔑视”而被无效化。由该玩家控制的游戏物体的所\n                             有“鼓舞”技能都会生效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B012",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.1"
+    ],
+    "text": "424.1.            展示 指的是从一名或多名玩家无法获得信息的区域中拿起某张卡牌,并向所有玩家展示的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B013",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.1.a"
+    ],
+    "text": "424.1.a.               展示 是一个临时状态,不是区域。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B014",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.1.a.1"
+    ],
+    "text": "424.1.a.1.                   其他卡牌(包括被展示的卡牌)均可引用被展示的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B015",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.1.a.2"
+    ],
+    "text": "424.1.a.2.                   被展示的卡牌会留在所处的区域。\n                                 举例:一张卡牌从一名玩家的主牌堆顶部被展示后,仍是该玩家主牌堆的顶部卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B016",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.1.a.3"
+    ],
+    "text": "424.1.a.3.                   被展示的状态持续时间由游戏效果指定;如果没有指定持续时间,并且该状态是由法术或技能\n                             指示的展示行动引起,那么该状态会持续到该法术或技能完成结算为止。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B017",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.1.b"
+    ],
+    "text": "424.1.b.               除非另有描述,被展示的卡牌只会暂时成为所有玩家均可知悉的信息,不会执行任何其他效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B018",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.2"
+    ],
+    "text": "424.2.            展示 是一种限定行动 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B019",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.2.a"
+    ],
+    "text": "424.2.a.               玩家只能在游戏效果的指示下,从私密或隐秘区域展示卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B020",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.2.b"
+    ],
+    "text": "424.2.b.               在《符文战场》的游戏过程中,玩家可以选择向一名或多名玩家分享私密信息。这一行动不会被视为“展\n                       示”,也不会触发任何在“卡牌被展示时”触发的效果。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P073-B021",
+    "document": "DOC-04",
+    "page": 73,
+    "clauseAnchors": [
+      "424.3"
+    ],
+    "text": "424.3.            此行动的格式为“展示[区域]的 X 张牌。”或“展示[区域]。”\n                       举例:“展示主牌堆顶部的 2 张牌”的执行方法为:从你的主牌堆顶部拿出两张牌,将其展示给所有玩家,\n                       让所有玩家清晰阅读并理解卡牌内容。当所有玩家都已获得机会查看并理解展示的信息后,将这两张卡牌\n                       以原有顺序放回主牌堆顶部即可。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P074-B001",
+    "document": "DOC-04",
+    "page": 74,
+    "clauseAnchors": [
+      "424.3.a"
+    ],
+    "text": "424.3.a.                当明确指定被展示区域,但未指定卡牌数量时,指的是“当前在指定区域中的所有卡牌”。\n                             举例:卡牌描述为“选择一名对手并展示你的手牌。被选择的玩家从你手牌中选一张牌。你可以\n                             选择在本回合内打出其余的牌(无视费用)。”当被要求展示手牌时,该玩家会展示其当前手牌\n                             中的所有卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P074-B002",
+    "document": "DOC-04",
+    "page": 74,
+    "clauseAnchors": [
+      "424.3.a.1"
+    ],
+    "text": "424.3.a.1.                   这些牌会被赋予展示状态。在指令执行后,任何后续进入该区域的卡牌都无需被展示。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P074-B003",
+    "document": "DOC-04",
+    "page": 74,
+    "clauseAnchors": [
+      "424.4"
+    ],
+    "text": "424.4.             游戏效果 可在卡牌被展示 时,对受到展示 的卡牌进行操纵或影响。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P074-B004",
+    "document": "DOC-04",
+    "page": 74,
+    "clauseAnchors": [
+      "424.4.a"
+    ],
+    "text": "424.4.a.                卡牌被展示时,可受到进一步的操纵或使用。某些情况下,被展示的卡牌放回的区域也会受到调整。\n                             举例:“展示你主牌堆顶部的两张牌。将其中一张加入你的手牌,并将另一张回收”的执行方法\n                             为:从你的主牌堆顶部拿出两张牌,将其展示给所有玩家,让所有玩家清晰阅读并理解卡牌内\n                             容。当所有玩家都已获得机会查看并理解展示的信息后,你可以从中选择一张放入手牌。未被\n                             你选中的一张则会被回收,放到主牌堆底部。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B007",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.1"
+    ],
+    "text": "427.1.          放逐 指的是将一张卡牌从任意其他区域放置到放逐 区域的行动。\n                     想获取更多有关信息,请查阅规则 108.6.放逐。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B008",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.2"
+    ],
+    "text": "427.2.          一张卡牌受到放逐时,将直接从原位置放置到放逐区域。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B009",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.2.a"
+    ],
+    "text": "427.2.a.             放逐不属于摧毁。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B010",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.2.b"
+    ],
+    "text": "427.2.b.             放逐不属于弃置。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B011",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.3"
+    ],
+    "text": "427.3.          卡牌和效果可以引用被同一个游戏物体(即该卡牌和效果)放逐的卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B012",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.3.a"
+    ],
+    "text": "427.3.a.             一个游戏物体或游戏效果产生多个放逐卡牌的实例时,该游戏物体或游戏效果无法引用被同名物体或源自\n                     同名卡牌的效果放逐的其他卡牌。\n                          举例:某法术描述为:“放逐你主牌堆顶部的一张牌。当你在本回合征服一处战场时,抽取该卡\n                          牌。”此卡牌效果允许你在符合条件的情况下,从放逐区域抽取被放逐的卡牌。如果有多个同样\n                          效果的卡牌同时打出,则每个效果均分别触发。每张卡牌也将分别抽取。如果回合玩家在没有\n                          抽取该卡牌的情况下选择让过行动,则该卡牌将无限期停留在放逐区域。如果该玩家又打出一\n                          张相同的法术,放逐了另一张卡牌,并满足了法术设定的条件,则可打出最新被放逐的卡牌,\n                          但不能打出上一张被放逐的卡牌。\n                          想获取更多有关信息,请查阅规则 393.关联技能。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B013",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.4"
+    ],
+    "text": "427.4.          放逐 是一种限定行动 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B014",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.4.a"
+    ],
+    "text": "427.4.a.             玩家仅可在游戏效果的指示下对卡牌或常驻牌进行放逐。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P075-B015",
+    "document": "DOC-04",
+    "page": 75,
+    "clauseAnchors": [
+      "427.5"
+    ],
+    "text": "427.5.          该行动的格式为“放逐[一张或以上的卡牌或常驻牌]。”\n                     举例:“放逐你的一张手牌。”\n                     举例:“放逐你废牌堆中的两张卡牌。”\n                     举例:“查看你主牌堆顶部的两张牌。选择其中一张加入手牌,并放逐另一张卡牌。”",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P102-B004",
+    "document": "DOC-04",
+    "page": 102,
+    "clauseAnchors": [
+      "702.3"
+    ],
+    "text": "702.3.            每名单位同时只能拥有一个增益。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P102-B005",
+    "document": "DOC-04",
+    "page": 102,
+    "clauseAnchors": [
+      "702.3.a"
+    ],
+    "text": "702.3.a.               如果一个单位已经拥有增益,而有游戏效果要让其获得增益,则该单位不会获得此增益。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

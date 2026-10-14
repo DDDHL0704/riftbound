@@ -22771,7 +22771,8 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var differences = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(differences.Count == 0, string.Join(Environment.NewLine, differences));
         Assert.Equal(
             ["P1-BASE-UNIT-001", "P2-BERSERK-IMPULSE-TOP-UNIT"],
             result.FinalState.PlayerZones["P1"].Base);
@@ -22856,7 +22857,7 @@ public sealed class ConformanceFixtureRunnerTests
                     "STACK-BERSERK-IMPULSE-DIRTY-MAIN-DECK",
                     "P1",
                     "P1-SPELL-BERSERK-IMPULSE",
-                    "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT",
+                    "BLIND_FURY_REVEAL_BANISH_EFFECT_PLAY",
                     "OGN·025/298",
                     ["P2-DIRTY-P1-CONTROLLED-TOP-UNIT"])
             ],
@@ -22917,7 +22918,8 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var differences = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(differences.Count == 0, string.Join(Environment.NewLine, differences));
         Assert.Equal(
             ["P1-BASE-UNIT-001", "P1-BRIGHT-FUTURE-CHOSEN-UNIT"],
             result.FinalState.PlayerZones["P1"].Base);

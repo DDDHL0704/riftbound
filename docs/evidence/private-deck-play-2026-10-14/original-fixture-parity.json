@@ -1,0 +1,28 @@
+[
+  {
+    "fixture": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-berserk-impulse-play-opponent-top-unit.fixture.json",
+    "beforeSha256": "63b6920d2637e02ba62831bb5754559a914578e2d9ae728615e3c296afeb6367",
+    "afterSha256": "b6a11cfea61a579eaa142021097e73ddaaa7d11acdf1438c0917e43d3d8a6814",
+    "seed": 2603302837,
+    "originalThreeCommandIdsAndActorsRetained": true,
+    "declaredPrivateTargetsRemoved": true,
+    "lateChoiceAndActualPlayCommandsAdded": 2,
+    "originalNumericFinalStateAndPromptExpectationsRetained": true,
+    "printedCharacteristicsNowPhysicalCardMetadata": true,
+    "unitCategoryTagsRetained": true,
+    "exhaustionCorrection": null
+  },
+  {
+    "fixture": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bright-future-play-each-player-top-five-unit.fixture.json",
+    "beforeSha256": "95ebb786decc1fc48024ccc3e8a0228c7ac71caad3a0afb7e2c53aaeafafc7bc",
+    "afterSha256": "8ba24df3a0a7b82c8439d33895c6f1aa70df31bc6ce2c02a66cecadd94d60a96",
+    "seed": 2603302838,
+    "originalThreeCommandIdsAndActorsRetained": true,
+    "declaredPrivateTargetsRemoved": true,
+    "lateChoiceAndActualPlayCommandsAdded": 4,
+    "originalNumericFinalStateAndPromptExpectationsRetained": true,
+    "printedCharacteristicsNowPhysicalCardMetadata": true,
+    "unitCategoryTagsRetained": true,
+    "exhaustionCorrection": "143.4 default exhausted entry; no intrinsic ready clause in current Promising Future"
+  }
+]

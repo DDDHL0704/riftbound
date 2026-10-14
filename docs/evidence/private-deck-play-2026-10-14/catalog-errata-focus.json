@@ -1,0 +1,8 @@
+{
+  "status": "PASSED",
+  "cases": 33,
+  "methods": 14,
+  "seconds": 12.23,
+  "trxSha256": "b6da3853627ba012fc1e6def208d39db98292ea5f56ed005c96c01fde74707df",
+  "scope": "Exact historical catalog parity after two current errata strings and explicit banish family count, plus all new sequence tests"
+}

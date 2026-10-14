@@ -25386,7 +25386,18 @@ public sealed partial class FullGameEndToEndTests
                     else Assert.DoesNotContain(objectId, exposedStringValues);
                 }
                 foreach (var objectId in zones.MainDeck.Concat(zones.RuneDeck))
-                    Assert.DoesNotContain(objectId, exposedStringValues);
+                {
+                    if (result.State.StackItems.LastOrDefault()?.DeckPlaySequence is { Kind: "OPPONENT_REVEAL_PLAY" } revealed
+                        && revealed.Viewed.TryGetValue(playerId, out var cards) && cards.TryGetValue(objectId, out var generation))
+                    {
+                        var parent = result.State.StackItems.Last();
+                        Assert.Equal("OGN·025/298", parent.CardNo); Assert.Equal(parent.ControllerId, revealed.ControllerId);
+                        Assert.Equal(parent.SourceObjectId, revealed.Source.ObjectId); Assert.Single(cards);
+                        Assert.Equal(zones.MainDeck.First(), objectId);
+                        Assert.Equal(generation, result.State.CardObjects[objectId].ObjectGeneration);
+                    }
+                    else Assert.DoesNotContain(objectId, exposedStringValues);
+                }
             }
         }
     }

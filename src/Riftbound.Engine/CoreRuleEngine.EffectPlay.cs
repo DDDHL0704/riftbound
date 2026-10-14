@@ -34,7 +34,10 @@ public sealed partial class CoreRuleEngine
             : b.PlaysSourceToBaseAsUnit));
 
     internal static bool IsPubliclyRevealedDeckCard(MatchState state, string id)
-        => state.PendingEffectPlay is { SourceZone: "MAIN_DECK", ViewedCardIds: { } viewed } pending
+        => state.StackItems.LastOrDefault()?.DeckPlaySequence is { Kind: "OPPONENT_REVEAL_PLAY" } sequence
+            && sequence.Viewed.Values.Any(v => v.TryGetValue(id, out var generation)
+                && state.CardObjects.TryGetValue(id, out var card) && card.ObjectGeneration == generation)
+            || state.PendingEffectPlay is { SourceZone: "MAIN_DECK", ViewedCardIds: { } viewed } pending
             && TryGetEffectPlayDefinition(pending.Parent, out var definition) && definition.EffectPlayRevealsCards
             && viewed.Contains(id) && state.PlayerZones[pending.PlayerId].MainDeck.Contains(id);
 
@@ -59,7 +62,7 @@ public sealed partial class CoreRuleEngine
                 ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
-        var sourceZone = pending.SourceZone switch { "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, "MAIN_DECK" => zones.MainDeck, _ => [] };
+        var sourceZone = pending.SourceZone switch { "STACK" when pending.Parent.DeckPlaySequence is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK").ToArray(), "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, "MAIN_DECK" => zones.MainDeck, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(x.Key, out var card) && card.ObjectGeneration == x.Value
             && (RecastSpec(pending.Parent) is not { } spec || RecastSourceAllowed(state, playerId, card, spec)))
@@ -164,7 +167,8 @@ public sealed partial class CoreRuleEngine
     internal static string EffectPlayReason(PendingEffectPlayState pending)
     {
         var name = TryGetEffectPlayDefinition(pending.Parent, out var card) || CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out card) ? card.DisplayName : "卡牌效果";
-        var cost = pending.SourceReplay is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? "忽略一切费用；不能支付额外费用；必须打到指定战场"
+        var cost = pending.SourceReplay is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? pending.Parent.DeckPlaySequence is not null
+            ? "忽略一切费用，按正常步骤选择并打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
             : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
             : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : pending.ManaReduction > 0 ? $"费用减少 {pending.ManaReduction}，仍需支付符能" : "正常支付法力、符能及额外费用";
         return $"《{name}》要求再次打出 · {cost}";
@@ -264,8 +268,23 @@ public sealed partial class CoreRuleEngine
                     && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrWhiteSpace(play.Destination) ? "BASE" : play.Destination))
                 || IsAmbushPlayMode(play.Mode))
                 return RejectWithCorePrompts(state, "再次打出的来源或位置已失效。", ErrorCodes.InvalidTarget);
-            var result = ResolvePlayCard(state, intent, play);
-            if (!result.Accepted) return result;
+            var playState = pending.Parent.DeckPlaySequence is null ? state : state with {
+                StackItems = state.StackItems.Where(s => s.DeckPlayPendingCard?.Card.ObjectId != play.SourceObjectId).ToArray() };
+            var result = ResolvePlayCard(playState, intent, play);
+            if (!result.Accepted) return pending.Parent.DeckPlaySequence is null ? result : result with {
+                State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+            if (pending.Parent.DeckPlaySequence is not null)
+            {
+                var slotIndex = state.StackItems.Select((item, index) => (item, index))
+                    .Single(p => p.item.DeckPlayPendingCard?.Card.ObjectId == play.SourceObjectId).index;
+                var actual = result.State.StackItems.FirstOrDefault(s => s.SourceObjectId == play.SourceObjectId && !s.SourceConfirmed);
+                if (actual is not null)
+                {
+                    var stack = result.State.StackItems.Where(s => s.StackItemId != actual.StackItemId).ToList();
+                    stack.Insert(Math.Min(slotIndex, stack.Count), actual);
+                    result = result with { State = result.State with { StackItems = stack } };
+                }
+            }
             result = ApplyEffectPlayFollowup(result, pending, play);
             return FinishEffectPlay(result.State, intent, pending, result.Events.Concat(RecastPlayedEvents(result.State, pending, play)).ToArray());
         }
@@ -281,6 +300,7 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult FinishEffectPlay(MatchState state, PlayerIntent intent, PendingEffectPlayState pending, IReadOnlyList<GameEvent> playEvents)
     {
+        if (pending.Parent.DeckPlaySequence is not null) return FinishDeckPlaySequence(state, intent, pending, playEvents);
         if (pending.ViewedCardIds is { } viewed)
         {
             var zones = NormalizeZonesForSeats(state);

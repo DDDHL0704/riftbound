@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-bright-future-play-each-player-top-five-unit",
-  "description": "Bright Future lets each player choose a unit from their top five, recycles the rest, then plays the chosen units starting with the next player.",
+  "description": "Current errata: resolution selection, banishment, ordered normal effect plays; original seed and printed unit power/mana assertions retained.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p2-preflight-bright-future-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302838,
     "turnNumber": 838,
@@ -43,7 +46,7 @@
       },
       "P2": {
         "mana": 0,
-        "power": 0
+        "power": 1
       }
     },
     "players": {
@@ -56,14 +59,25 @@
           "P1-BRIGHT-FUTURE-UNSELECTED-004",
           "P1-BRIGHT-FUTURE-DECK-KEEP"
         ],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-BRIGHT-FUTURE"],
-        "base": ["P1-BASE-UNIT-001"],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-BRIGHT-FUTURE"
+        ],
+        "base": [
+          "P1-BASE-UNIT-001"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
         "mainDeck": [
@@ -74,42 +88,188 @@
           "P2-BRIGHT-FUTURE-UNSELECTED-004",
           "P2-BRIGHT-FUTURE-DECK-KEEP"
         ],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
-        "base": ["P2-BASE-UNIT-001"],
+        "base": [
+          "P2-BASE-UNIT-001"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-BASE-UNIT-001": {
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ]
       },
       "P2-BASE-UNIT-001": {
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ]
       },
       "P1-BRIGHT-FUTURE-CHOSEN-UNIT": {
         "damage": 2,
         "power": 4,
         "manaCost": 4,
-        "untilEndOfTurnEffects": ["STUNNED"],
+        "untilEndOfTurnEffects": [
+          "STUNNED"
+        ],
         "isExhausted": true,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "cardNo": "OGN·065/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P2-BRIGHT-FUTURE-CHOSEN-UNIT": {
         "damage": 1,
         "power": 6,
         "manaCost": 6,
-        "untilEndOfTurnEffects": ["STUNNED"],
+        "untilEndOfTurnEffects": [
+          "STUNNED"
+        ],
         "isExhausted": true,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "cardNo": "UNL-146/219",
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P1-SPELL-BRIGHT-FUTURE": {
+        "objectId": "P1-SPELL-BRIGHT-FUTURE",
+        "cardNo": "OGN·115/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-BRIGHT-FUTURE-UNSELECTED-001": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P1-BRIGHT-FUTURE-UNSELECTED-002": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P1-BRIGHT-FUTURE-UNSELECTED-003": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P1-BRIGHT-FUTURE-UNSELECTED-004": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P1-BRIGHT-FUTURE-DECK-KEEP": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P2-BRIGHT-FUTURE-UNSELECTED-001": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P2-BRIGHT-FUTURE-UNSELECTED-002": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P2-BRIGHT-FUTURE-UNSELECTED-003": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P2-BRIGHT-FUTURE-UNSELECTED-004": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P2-BRIGHT-FUTURE-DECK-KEEP": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P2",
+        "controllerId": "P2"
       }
     }
   },
@@ -121,39 +281,101 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-BRIGHT-FUTURE",
         "cardNo": "OGN·115/298",
-        "targetObjectIds": [
-          "P1-BRIGHT-FUTURE-CHOSEN-UNIT",
-          "P2-BRIGHT-FUTURE-CHOSEN-UNIT"
-        ]
+        "targetObjectIds": []
       }
     },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p2-preflight-bright-future-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     },
     {
       "playerId": "P2",
       "clientIntentId": "intent-p2-preflight-bright-future-p2-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "deck-play-select-0",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "DECK-PLAY-STACK-1-P1-SPELL-BRIGHT-FUTURE-0",
+        "choiceWindow": "DECK_PLAY_SELECTION",
+        "chosenObjectIds": [
+          "P1-BRIGHT-FUTURE-CHOSEN-UNIT"
+        ]
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "deck-play-select-1",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "DECK-PLAY-STACK-1-P1-SPELL-BRIGHT-FUTURE-1",
+        "choiceWindow": "DECK_PLAY_SELECTION",
+        "chosenObjectIds": [
+          "P2-BRIGHT-FUTURE-CHOSEN-UNIT"
+        ]
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "deck-play-actual-0",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P2-BRIGHT-FUTURE-CHOSEN-UNIT",
+        "cardNo": "UNL-146/219",
+        "targetObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "deck-play-actual-1",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-BRIGHT-FUTURE-CHOSEN-UNIT",
+        "cardNo": "OGN·065/298",
+        "targetObjectIds": []
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 7,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
+      "STACK_ITEM_SUSPENDED",
+      "CARD_CHOICE_REQUESTED",
+      "CARD_BANISHED",
+      "CARDS_RECYCLED",
+      "STACK_ITEM_SUSPENDED",
+      "CARD_CHOICE_REQUESTED",
+      "CARD_BANISHED",
+      "CARDS_RECYCLED",
+      "EFFECT_PLAY_REQUESTED",
+      "STACK_ITEM_PENDING",
+      "STACK_ITEM_PENDING",
       "STACK_ITEM_RESOLVED",
-      "CARDS_RECYCLED",
-      "CARDS_RECYCLED",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -168,58 +390,102 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-BRIGHT-FUTURE",
           "cardNo": "OGN·115/298",
-          "targetObjectIds": [
-            "P1-BRIGHT-FUTURE-CHOSEN-UNIT",
-            "P2-BRIGHT-FUTURE-CHOSEN-UNIT"
-          ],
-          "effectKind": "BRIGHT_FUTURE_PLAY_EACH_PLAYER_TOP_FIVE_UNIT"
+          "targetObjectIds": [],
+          "effectKind": "PROMISING_FUTURE_LOOK_BANISH_SEQUENTIAL_PLAY"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_SUSPENDED"
+      },
+      {
+        "kind": "CARD_CHOICE_REQUESTED"
+      },
+      {
+        "kind": "CARD_BANISHED"
+      },
       {
         "kind": "CARDS_RECYCLED",
         "payload": {
           "playerId": "P1",
-          "sourceObjectId": "P1-SPELL-BRIGHT-FUTURE",
           "count": 4
         }
+      },
+      {
+        "kind": "STACK_ITEM_SUSPENDED"
+      },
+      {
+        "kind": "CARD_CHOICE_REQUESTED"
+      },
+      {
+        "kind": "CARD_BANISHED"
       },
       {
         "kind": "CARDS_RECYCLED",
         "payload": {
           "playerId": "P2",
-          "sourceObjectId": "P1-SPELL-BRIGHT-FUTURE",
           "count": 4
         }
       },
       {
-        "kind": "UNIT_PLAYED_TO_BASE",
-        "payload": {
-          "sourceObjectId": "P1-SPELL-BRIGHT-FUTURE",
-          "targetObjectId": "P2-BRIGHT-FUTURE-CHOSEN-UNIT",
-          "ownerPlayerId": "P2",
-          "playedByPlayerId": "P2",
-          "sourceZone": "MAIN_DECK",
-          "destinationZone": "BASE"
-        }
+        "kind": "EFFECT_PLAY_REQUESTED"
+      },
+      {
+        "kind": "STACK_ITEM_PENDING"
+      },
+      {
+        "kind": "STACK_ITEM_PENDING"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED"
       },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
-          "sourceObjectId": "P1-SPELL-BRIGHT-FUTURE",
-          "targetObjectId": "P1-BRIGHT-FUTURE-CHOSEN-UNIT",
-          "ownerPlayerId": "P1",
-          "playedByPlayerId": "P1",
-          "sourceZone": "MAIN_DECK",
+          "sourceObjectId": "P2-BRIGHT-FUTURE-CHOSEN-UNIT",
+          "playerId": "P2",
+          "destinationZone": "BASE"
+        }
+      },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED"
+      },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "sourceObjectId": "P1-BRIGHT-FUTURE-CHOSEN-UNIT",
+          "playerId": "P1",
           "destinationZone": "BASE"
         }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 838,
@@ -232,8 +498,14 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
@@ -242,7 +514,9 @@
             "P1-BASE-UNIT-001",
             "P1-BRIGHT-FUTURE-CHOSEN-UNIT"
           ],
-          "graveyard": ["P1-SPELL-BRIGHT-FUTURE"]
+          "graveyard": [
+            "P1-SPELL-BRIGHT-FUTURE"
+          ]
         },
         "P2": {
           "base": [
@@ -256,19 +530,35 @@
           "damage": 0,
           "power": 4,
           "manaCost": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_CATEGORY:单位",
+            "CARD_TYPE:UNIT",
+            "COLOR:green"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true,
+          "cardNo": "OGN·065/298",
+          "ownerId": "P1",
+          "controllerId": "P1"
         },
         "P2-BRIGHT-FUTURE-CHOSEN-UNIT": {
           "damage": 0,
           "power": 6,
           "manaCost": 6,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_CATEGORY:英雄单位",
+            "CARD_TYPE:HERO",
+            "CARD_TYPE:UNIT",
+            "COLOR:purple",
+            "HERO:辛德拉"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": false
+          "isExhausted": true,
+          "cardNo": "UNL-146/219",
+          "ownerId": "P2",
+          "controllerId": "P2"
         }
       },
       "stackItems": []
@@ -276,11 +566,15 @@
     "prompts": {
       "P1": {
         "actionable": true,
-        "actions": ["END_TURN"]
+        "actions": [
+          "END_TURN"
+        ]
       },
       "P2": {
         "actionable": false,
-        "actions": ["WAIT"]
+        "actions": [
+          "WAIT"
+        ]
       }
     }
   }

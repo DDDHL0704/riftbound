@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-berserk-impulse-play-opponent-top-unit",
-  "description": "Berserk Impulse plays the chosen opponent top-deck unit as the controller's own card.",
+  "description": "Current errata: resolution selection, banishment, ordered normal effect plays; original seed and printed unit power/mana assertions retained.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -26,7 +26,10 @@
     }
   ],
   "roomId": "p2-preflight-berserk-impulse-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302837,
     "turnNumber": 837,
@@ -53,48 +56,102 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-BERSERK-IMPULSE"],
-        "base": ["P1-BASE-UNIT-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-BERSERK-IMPULSE"
+        ],
+        "base": [
+          "P1-BASE-UNIT-001"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
         "mainDeck": [
           "P2-BERSERK-IMPULSE-TOP-UNIT",
           "P2-BERSERK-IMPULSE-DECK-KEEP"
         ],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-BASE-UNIT-001": {
         "damage": 0,
         "power": 2,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ]
       },
       "P2-BERSERK-IMPULSE-TOP-UNIT": {
         "damage": 1,
         "power": 6,
         "manaCost": 6,
-        "untilEndOfTurnEffects": ["STUNNED"],
+        "untilEndOfTurnEffects": [
+          "STUNNED"
+        ],
         "isExhausted": true,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "cardNo": "UNL-146/219",
+        "ownerId": "P2",
+        "controllerId": "P2"
       },
       "P2-BERSERK-IMPULSE-DECK-KEEP": {
         "manaCost": 1,
-        "tags": ["CARD_TYPE:SPELL"]
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P1-SPELL-BERSERK-IMPULSE": {
+        "objectId": "P1-SPELL-BERSERK-IMPULSE",
+        "cardNo": "OGN·025/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-MAIN-001": {
+        "damage": 0,
+        "power": 0,
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1"
       }
     }
   },
@@ -106,33 +163,70 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-BERSERK-IMPULSE",
         "cardNo": "OGN·025/298",
-        "targetObjectIds": ["P2-BERSERK-IMPULSE-TOP-UNIT"]
+        "targetObjectIds": []
       }
     },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p2-preflight-berserk-impulse-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     },
     {
       "playerId": "P2",
       "clientIntentId": "intent-p2-preflight-berserk-impulse-p2-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "deck-play-select-0",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "DECK-PLAY-STACK-1-P1-SPELL-BERSERK-IMPULSE-0",
+        "choiceWindow": "DECK_PLAY_SELECTION",
+        "chosenObjectIds": [
+          "P2-BERSERK-IMPULSE-TOP-UNIT"
+        ]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "deck-play-actual-0",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P2-BERSERK-IMPULSE-TOP-UNIT",
+        "cardNo": "UNL-146/219",
+        "targetObjectIds": []
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 5,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
+      "STACK_ITEM_SUSPENDED",
+      "CARDS_REVEALED",
+      "CARD_CHOICE_REQUESTED",
+      "CARD_BANISHED",
+      "EFFECT_PLAY_REQUESTED",
+      "STACK_ITEM_PENDING",
       "STACK_ITEM_RESOLVED",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -147,28 +241,62 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-BERSERK-IMPULSE",
           "cardNo": "OGN·025/298",
-          "targetObjectIds": ["P2-BERSERK-IMPULSE-TOP-UNIT"],
-          "effectKind": "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT"
+          "targetObjectIds": [],
+          "effectKind": "BLIND_FURY_REVEAL_BANISH_EFFECT_PLAY"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_SUSPENDED"
+      },
+      {
+        "kind": "CARDS_REVEALED"
+      },
+      {
+        "kind": "CARD_CHOICE_REQUESTED"
+      },
+      {
+        "kind": "CARD_BANISHED"
+      },
+      {
+        "kind": "EFFECT_PLAY_REQUESTED"
+      },
+      {
+        "kind": "STACK_ITEM_PENDING"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID"
+      },
+      {
+        "kind": "PERMANENT_CONFIRMED"
+      },
       {
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
-          "sourceObjectId": "P1-SPELL-BERSERK-IMPULSE",
-          "targetObjectId": "P2-BERSERK-IMPULSE-TOP-UNIT",
-          "ownerPlayerId": "P2",
-          "playedByPlayerId": "P1",
-          "sourceZone": "MAIN_DECK",
+          "sourceObjectId": "P2-BERSERK-IMPULSE-TOP-UNIT",
+          "playerId": "P1",
           "destinationZone": "BASE"
         }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 837,
@@ -181,8 +309,14 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
@@ -191,10 +325,14 @@
             "P1-BASE-UNIT-001",
             "P2-BERSERK-IMPULSE-TOP-UNIT"
           ],
-          "graveyard": ["P1-SPELL-BERSERK-IMPULSE"]
+          "graveyard": [
+            "P1-SPELL-BERSERK-IMPULSE"
+          ]
         },
         "P2": {
-          "mainDeck": ["P2-BERSERK-IMPULSE-DECK-KEEP"],
+          "mainDeck": [
+            "P2-BERSERK-IMPULSE-DECK-KEEP"
+          ],
           "base": [],
           "graveyard": []
         }
@@ -204,14 +342,25 @@
           "damage": 0,
           "power": 6,
           "manaCost": 6,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_CATEGORY:英雄单位",
+            "CARD_TYPE:HERO",
+            "CARD_TYPE:UNIT",
+            "COLOR:purple",
+            "HERO:辛德拉"
+          ],
           "untilEndOfTurnEffects": [],
           "untilEndOfTurnPowerModifier": 0,
-          "isExhausted": true
+          "isExhausted": true,
+          "cardNo": "UNL-146/219",
+          "ownerId": "P2",
+          "controllerId": "P1"
         },
         "P2-BERSERK-IMPULSE-DECK-KEEP": {
           "manaCost": 1,
-          "tags": ["CARD_TYPE:SPELL"]
+          "tags": [
+            "CARD_TYPE:SPELL"
+          ]
         }
       },
       "stackItems": []
@@ -219,11 +368,15 @@
     "prompts": {
       "P1": {
         "actionable": true,
-        "actions": ["END_TURN"]
+        "actions": [
+          "END_TURN"
+        ]
       },
       "P2": {
         "actionable": false,
-        "actions": ["WAIT"]
+        "actions": [
+          "WAIT"
+        ]
       }
     }
   }

@@ -1,0 +1,112 @@
+[
+  {
+    "run": "red-public-receipt",
+    "trxSha256": "96b6f0beae08967caf3f9d0d264b4f0e605754ee4857d9762895a7fe922b8eef",
+    "counters": {
+      "total": "7",
+      "executed": "7",
+      "passed": "0",
+      "failed": "7",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  {
+    "run": "public-receipts-and-adjacent",
+    "trxSha256": "888b876d01d165fbc8b348207f105a373b96ac279edbcb39f3975ba28fcce9f9",
+    "counters": {
+      "total": "1923",
+      "executed": "1923",
+      "passed": "1923",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  {
+    "run": "red-rejected-payment",
+    "trxSha256": "29e4febd6a824ee72c74d097514ee530db711228de8f795109db18b9eda2cae6",
+    "counters": {
+      "total": "1",
+      "executed": "1",
+      "passed": "0",
+      "failed": "1",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  {
+    "run": "rejection-invariance-and-adjacent",
+    "trxSha256": "ac1147223f28c3a5fa1aa13c976b3a1bad18af8ee729955aafcae48fc4354851",
+    "counters": {
+      "total": "1924",
+      "executed": "1924",
+      "passed": "1924",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  },
+  {
+    "run": "native-input-generation",
+    "trxSha256": "319e9e1ea012128852563f9f49844846d66de15c0de51f424969c248598857ab",
+    "counters": {
+      "total": "72",
+      "executed": "72",
+      "passed": "72",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  }
+]

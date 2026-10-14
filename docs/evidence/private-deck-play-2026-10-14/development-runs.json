@@ -1,0 +1,944 @@
+{
+  "scope": "Raw run inventory only; distinct input versions, no pass inheritance or rewritten history",
+  "runs": [
+    {
+      "run": "actual-reversal-and-sequence",
+      "buildLogSha256": "639e061c7a60b2be49bb0c57a72e4eea6777230dd47e1f1a96dad012bca3781e",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 46.57,
+        "total": 1913,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 1913,
+            "passed": 1913,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 19.72
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/actual-reversal-and-sequence/focus/results.trx",
+          "sha256": "f8206a49b7afd23fc6d4a0a00afe1432fd56ba4b904784e95e627fbf23b8fe07",
+          "counters": {
+            "total": "1913",
+            "executed": "1913",
+            "passed": "1913",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "adjacent-current-deck-semantics",
+      "buildLogSha256": "0f250a4c8906e75350770aa8b8256ec9504ee1657ad52e4291f4ab134d3f753a",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/adjacent-current-deck-semantics/focus/results.trx",
+          "sha256": "d814b6618b318af24372a6a4abbb9b5424f77271730c6fd960cfa954394544c2",
+          "counters": {
+            "total": "79",
+            "executed": "79",
+            "passed": "66",
+            "failed": "13",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "check",
+      "buildLogSha256": "6ba0e701e6bb2d8d33233cf8748087b99afab08c64c838470f5aa1233e0fc7fd",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/check/check/results.trx",
+          "sha256": "ea0662ed264a6666d5dba481f2ebfc52d5bd7d09f2f9b40e0cfa9aa474d1fc12",
+          "counters": {
+            "total": "11246",
+            "executed": "11246",
+            "passed": "11244",
+            "failed": "2",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "check-final",
+      "buildLogSha256": "3c53e77934f09e25634dc76d9a38be1a4f692fcbbfd13a45096e7845325e87db",
+      "trx": [],
+      "status": "NO_TERMINAL_TRX_INVENTORY_ONLY"
+    },
+    {
+      "run": "complete-private-deck-flow",
+      "buildLogSha256": "022e7bd597ca0c4a9a430dea6134e128d1e93f7262948534221075353da3bdea",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 48.62,
+        "total": 1916,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 1916,
+            "passed": 1916,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 19.77
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/complete-private-deck-flow/focus/results.trx",
+          "sha256": "4d246cc4832c43ea81c02221b0124dac2f1609978bc5b2ad8d53cebb8cb95106",
+          "counters": {
+            "total": "1916",
+            "executed": "1916",
+            "passed": "1916",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "current-catalog-and-original-fixtures",
+      "buildLogSha256": "f520bc224b1c5695033863f0063afd032653d7fb071cae44beefe3764c3b16d3",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 21.71,
+        "total": 79,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 79,
+            "passed": 79,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 18.05
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/current-catalog-and-original-fixtures/focus/results.trx",
+          "sha256": "a5cfab2a6560d5677f6619967255be943f88aa1b6bdfcbc882c137fc92ca8b11",
+          "counters": {
+            "total": "79",
+            "executed": "79",
+            "passed": "79",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "current-errata-catalog-parity",
+      "buildLogSha256": "675d8c41a3316779d3818f23a6cac971b7e65a0e12f0b9cd6df78ce18a3bab73",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 41.14,
+        "total": 33,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 33,
+            "passed": 33,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 12.23
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/current-errata-catalog-parity/focus/results.trx",
+          "sha256": "b6da3853627ba012fc1e6def208d39db98292ea5f56ed005c96c01fde74707df",
+          "counters": {
+            "total": "33",
+            "executed": "33",
+            "passed": "33",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "echo-before-confirmation",
+      "buildLogSha256": "9cfc0a35666850cec44580bc3ec23d479990d62ab0bbd80cd146c2a57172befd",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/echo-before-confirmation/focus/results.trx",
+          "sha256": "7895e121e278878609fb5e65a4b90ea3bf7cc75a2daf32002bd608309e49fb7b",
+          "counters": {
+            "total": "24",
+            "executed": "24",
+            "passed": "23",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "executable-original-expectations",
+      "buildLogSha256": "6f58777878c6cd1e185ec5abcaf4cccc9e390cd685b7b0fc7ef4a8a8d931b3c1",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/executable-original-expectations/focus/results.trx",
+          "sha256": "b165563cc9af00b48570dcca3beab3e8219a4f1a34e391af399caf739609e9c5",
+          "counters": {
+            "total": "79",
+            "executed": "79",
+            "passed": "77",
+            "failed": "2",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "first-complete-sequence",
+      "buildLogSha256": "b1a23277683d28d4345723255d054b5e088e099b6b2adc23015fa3e4b48d3fcb",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 16.22,
+        "total": 2,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 2,
+            "passed": 2,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 7.91
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/first-complete-sequence/focus/results.trx",
+          "sha256": "f4a3ee9fb2485e586c6661c9cff041339ef07fdb2a11afa640dfa3be82fd877a",
+          "counters": {
+            "total": "2",
+            "executed": "2",
+            "passed": "2",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "first-sequence",
+      "buildLogSha256": "bd9bb520b63995a67cb8b078029ceaba98faaa3e602483cc1784714cedbd0a74",
+      "trx": [],
+      "status": "NO_TERMINAL_TRX_INVENTORY_ONLY"
+    },
+    {
+      "run": "native-input-generation",
+      "buildLogSha256": "6ba0e701e6bb2d8d33233cf8748087b99afab08c64c838470f5aa1233e0fc7fd",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 23.0,
+        "total": 72,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 72,
+            "passed": 72,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 19.28
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/native-input-generation/focus/results.trx",
+          "sha256": "319e9e1ea012128852563f9f49844846d66de15c0de51f424969c248598857ab",
+          "counters": {
+            "total": "72",
+            "executed": "72",
+            "passed": "72",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "native-readback-and-adjacent",
+      "buildLogSha256": "f520bc224b1c5695033863f0063afd032653d7fb071cae44beefe3764c3b16d3",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 23.6,
+        "total": 1924,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 1924,
+            "passed": 1924,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 19.91
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/native-readback-and-adjacent/focus/results.trx",
+          "sha256": "efd011308ae6503480e5db9dd0988640b86424a74f3e7d609d8cb058f2761496",
+          "counters": {
+            "total": "1924",
+            "executed": "1924",
+            "passed": "1924",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "old-and-new-deck-consumers",
+      "buildLogSha256": "d664e544f9c68c822efd50ed64b3849dc3d1376cb49acd5ee450809fb62e4d19",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/old-and-new-deck-consumers/focus/results.trx",
+          "sha256": "f522a46cc9dfe2655135cf57cd773722040aadb0d30cd74e55f369da78cba0b2",
+          "counters": {
+            "total": "79",
+            "executed": "79",
+            "passed": "69",
+            "failed": "10",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "original-fixtures-current-sequence",
+      "buildLogSha256": "e8228a947a74fdbbffff6730e512b89bd539ab22753cca5a3b00000bbac41b20",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/original-fixtures-current-sequence/focus/results.trx",
+          "sha256": "d0311e6535126df72a00702dcb61b99f44777c9a85b00c944d545b27b9f79bb6",
+          "counters": {
+            "total": "79",
+            "executed": "79",
+            "passed": "76",
+            "failed": "3",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "parent-completion-and-public-recovery",
+      "buildLogSha256": "4cf1ec1e0ee2bde84df1f0959d2f27a44c3412dc1ebb95b5661fe5d71aa0cef1",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/parent-completion-and-public-recovery/focus/results.trx",
+          "sha256": "7eb60e35cb472f88ece221f331311092b122fb22652d0634f706368757f4b2e6",
+          "counters": {
+            "total": "2",
+            "executed": "2",
+            "passed": "1",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "pending-chain-built",
+      "buildLogSha256": "88028cf4d30c49281a4d607287d2b773450f79fd43fb7ad046ca79872c1c2874",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/pending-chain-built/focus/results.trx",
+          "sha256": "43cb0dfc96d5eaa54ed79da6a8b8630a5ecb8d66228e623813f8a2685cbbf19d",
+          "counters": {
+            "total": "2",
+            "executed": "2",
+            "passed": "0",
+            "failed": "2",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "pending-chain-validation",
+      "buildLogSha256": "f25b26287a78a4ded704c8c65c6e375222bdf70c885d80b5ca537dc66f830abe",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 35.44,
+        "total": 2,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 2,
+            "passed": 2,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 8.31
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/pending-chain-validation/focus/results.trx",
+          "sha256": "c5b28b91d6e3b4502d583c078da2839e8d73d7b6f4ca88285287bde3cd5f3c89",
+          "counters": {
+            "total": "2",
+            "executed": "2",
+            "passed": "2",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "public-receipts-and-adjacent",
+      "buildLogSha256": "a74ffa5cef3312a63482a3beb56a7e036607f1e29e7c95886b27ea74a38fe836",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 55.07,
+        "total": 1923,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 1923,
+            "passed": 1923,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 20.79
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/public-receipts-and-adjacent/focus/results.trx",
+          "sha256": "888b876d01d165fbc8b348207f105a373b96ac279edbcb39f3975ba28fcce9f9",
+          "counters": {
+            "total": "1923",
+            "executed": "1923",
+            "passed": "1923",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "public-reveal-and-real-plays",
+      "buildLogSha256": "2b8b842bcd904e6b3fc886294e74c9fb30e1f98345a7c2eeca6036ba5d0f7bf6",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/public-reveal-and-real-plays/focus/results.trx",
+          "sha256": "94dcd9f0d9fdd7e60f8ba8e0b1858fd146520a9639a03e38a2c69f87c1dbc45d",
+          "counters": {
+            "total": "2",
+            "executed": "2",
+            "passed": "1",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "queued-repeated-deck-plays",
+      "buildLogSha256": "c0cf234821c198106c466dad886b574139817da6a4c31357155a53164b570b9f",
+      "trx": [],
+      "status": "NO_TERMINAL_TRX_INVENTORY_ONLY"
+    },
+    {
+      "run": "real-pending-chain-cards",
+      "buildLogSha256": "a08b7da1b8e64ac1837a88206a350e979f6159858eed0eb684f9b5bb58dec1db",
+      "trx": [],
+      "status": "NO_TERMINAL_TRX_INVENTORY_ONLY"
+    },
+    {
+      "run": "red-deck-sequence",
+      "buildLogSha256": "7bac70fe2ef36af3e2bd338634554bb926540200de8c5e743387d9ce0819df30",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/red-deck-sequence/focus/results.trx",
+          "sha256": "afa6e209dde4391af6ef40d14233acd4cf06a059081242f183176aad1f4a86b2",
+          "counters": {
+            "total": "2",
+            "executed": "2",
+            "passed": "0",
+            "failed": "2",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "red-public-receipt",
+      "buildLogSha256": "9397774ec989e510ee8d46af03f8078dcfe97146b14d219c592e56245c35dbb8",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/red-public-receipt/focus/results.trx",
+          "sha256": "96b6f0beae08967caf3f9d0d264b4f0e605754ee4857d9762895a7fe922b8eef",
+          "counters": {
+            "total": "7",
+            "executed": "7",
+            "passed": "0",
+            "failed": "7",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "red-rejected-payment",
+      "buildLogSha256": "275d5af9f2a32999e5e69f930ed552e76d4a35630ab33009f2e819d770aeb865",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/red-rejected-payment/focus/results.trx",
+          "sha256": "29e4febd6a824ee72c74d097514ee530db711228de8f795109db18b9eda2cae6",
+          "counters": {
+            "total": "1",
+            "executed": "1",
+            "passed": "0",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "rejection-invariance-and-adjacent",
+      "buildLogSha256": "269c88d71f54d20d65cb56563a601fc4db33192d5ed03035232a97f2e1b8cfcd",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 28.82,
+        "total": 1924,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 1924,
+            "passed": 1924,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 20.36
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/rejection-invariance-and-adjacent/focus/results.trx",
+          "sha256": "ac1147223f28c3a5fa1aa13c976b3a1bad18af8ee729955aafcae48fc4354851",
+          "counters": {
+            "total": "1924",
+            "executed": "1924",
+            "passed": "1924",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "sequence-built",
+      "buildLogSha256": "f51c73c9fdb0bc604d7ee8583df20d49fbff5e8bdc232415300813f26e8a2d85",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/sequence-built/focus/results.trx",
+          "sha256": "668cbe7e775752b01b10e9172bd18a1b1ceca0331ba6bfdf91c20a923f5a0dfc",
+          "counters": {
+            "total": "2",
+            "executed": "2",
+            "passed": "1",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "sequence-source-control-and-payment",
+      "buildLogSha256": "6f947e6587f22be077dcfc198cc174d9fcf2766758d3b2b59cadac93ad10ba5a",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/sequence-source-control-and-payment/focus/results.trx",
+          "sha256": "7e1ff0ff279a02f8fbeff7da5402619ee3d25b475ce5ae77794444c68038ee1e",
+          "counters": {
+            "total": "1913",
+            "executed": "1913",
+            "passed": "1912",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "shared-queue-built",
+      "buildLogSha256": "f3579a44e73845086369a4e6e604e149488c0925c1e9ef59465cbcc3efffc329",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 44.05,
+        "total": 22,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 22,
+            "passed": 22,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 11.17
+          }
+        ]
+      },
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/shared-queue-built/focus/results.trx",
+          "sha256": "11a2c522fe981ad4936302c491380ecda087d928a1dfcdbb8bb6913e97b66511",
+          "counters": {
+            "total": "22",
+            "executed": "22",
+            "passed": "22",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    {
+      "run": "typed-sequence-spells-and-costs",
+      "buildLogSha256": "39a06b3eff6489742d47ab2ff4efcd3e7479112605830cfc90349877709996f8",
+      "trx": [
+        {
+          "path": "var/qa/private-deck-play-20261014/typed-sequence-spells-and-costs/focus/results.trx",
+          "sha256": "bc60b76b5ec51235dca5e2b4006ded7bbed3e0db4c6e27b2fe376ca78565d542",
+          "counters": {
+            "total": "17",
+            "executed": "17",
+            "passed": "15",
+            "failed": "2",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    }
+  ]
+}
