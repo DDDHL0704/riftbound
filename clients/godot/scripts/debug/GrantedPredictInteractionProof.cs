@@ -15,7 +15,8 @@ public partial class GrantedPredictInteractionProof : Control
             var catalog=await new OfficialCardCatalogService().LoadSnapshotAsync("res://data/card-catalog.zh-CN.json");
             Check(catalog["SFD·065/221"].EffectText.Contains("机械") && catalog["OGN·100/298"].EffectText.Contains("其他友方单位"),"Native catalog retains both applicable grant texts");
             var root=OS.GetCmdlineUserArgs().Single(a=>a.StartsWith("--evidence="))[11..]; var count=0;
-            foreach(var branch in new[]{"keep","recycle"}) {
+            var printed = OS.GetCmdlineUserArgs().Contains("--printed-predict");
+            foreach(var branch in printed ? new[]{"unit-keep","unit-recycle","equipment-keep","equipment-recycle"} : new[]{"keep","recycle"}) {
                 var dir=Path.Combine(root,branch);
                 foreach(var step in JsonSerializer.Deserialize<string[]>(File.ReadAllText(Path.Combine(dir,"steps.json")))!.Where(s=>!s.StartsWith("setup-"))) { Produce(dir,step);count++; }
             }

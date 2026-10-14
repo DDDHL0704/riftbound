@@ -163,6 +163,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = EndDetachedUnitCopies(state, result);
             result = RefreshRuleDerivedKeywordLayers(result);
             result = QueueGrantedPredict(state, result);
+            result = QueuePrintedPredict(state, result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))))));
@@ -29673,6 +29674,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem,
                 behavior,
                 equipmentState));
+        playedEvent = CapturePrintedPredict(playedEvent, playerZones, equipmentState);
         events.Add(stackItem.PlayedFromStandby is null ? playedEvent : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
     }
 

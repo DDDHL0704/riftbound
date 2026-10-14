@@ -1,0 +1,6 @@
+{
+  "method": "Riftbound.ConformanceTests.PrintedPredictEntryTests.BanishThenPlayDaseScoutCapturesItsPrintedPredictAtNewEntry",
+  "outcome": "Failed",
+  "message": "Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: []",
+  "baselineCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29"
+}

@@ -170,12 +170,13 @@ public sealed class GrantedPredictTests
     {
         var initial = AddAura(Hand(Seer), "A", Seer);
         var played = await Act(initial, "P1", new PlayCardCommand("MECH", Seer, []));
-        Assert.Equal(2, played.State.StackItems.Count); Restore(played.State);
+        Assert.Equal(2, played.State.TriggerQueue.Count); Restore(played.State);
+        played = await Act(played.State, "P1", new OrderTriggersCommand(OrderedTriggerIds: played.State.TriggerQueue.Select(t => t.TriggerId).ToArray()));
         var first = await Top(played.State); var firstChoice = first.State.PendingCardChoice!;
         Assert.Equal("INSIGHT", firstChoice.ChoiceWindow); Assert.Equal([initial.PlayerZones["P1"].MainDeck[0]], firstChoice.LegalObjectIds);
         var kept = await Act(first.State, "P1", new ChooseCardsCommand(firstChoice.ChoiceId, firstChoice.ChoiceWindow, [])); Restore(kept.State);
         var second = await Top(kept.State); var secondChoice = second.State.PendingCardChoice!;
-        Assert.Equal("DECK_EFFECT", secondChoice.ChoiceWindow); Assert.Equal(firstChoice.LegalObjectIds, secondChoice.LegalObjectIds);
+        Assert.Equal("INSIGHT", secondChoice.ChoiceWindow); Assert.Equal(firstChoice.LegalObjectIds, secondChoice.LegalObjectIds);
         var done = await Act(second.State, "P1", new ChooseCardsCommand(secondChoice.ChoiceId, secondChoice.ChoiceWindow, []));
         Assert.Empty(done.State.StackItems); Restore(done.State);
     }

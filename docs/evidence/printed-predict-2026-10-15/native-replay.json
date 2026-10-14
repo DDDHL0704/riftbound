@@ -1,0 +1,68 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "godotVersion": "4.7.2",
+  "productionCommands": 16,
+  "recordedCommands": 32,
+  "events": 54,
+  "coldRecoveries": 16,
+  "records": [
+    {
+      "branch": "unit-keep",
+      "recycle": false,
+      "native": 4,
+      "commands": 8,
+      "restores": 4,
+      "events": 13,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "6d69fa8c42e7a48289157dde439e260753dcdc7e6bcd0c3bf79cf784db6f1373",
+        "expectedStateHash": "6d69fa8c42e7a48289157dde439e260753dcdc7e6bcd0c3bf79cf784db6f1373",
+        "errors": []
+      }
+    },
+    {
+      "branch": "unit-recycle",
+      "recycle": true,
+      "native": 4,
+      "commands": 8,
+      "restores": 4,
+      "events": 14,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "1bc3bc11ae419da1991f15f8bd666b0dc86792cfbc80a3604e10e0b72652fe88",
+        "expectedStateHash": "1bc3bc11ae419da1991f15f8bd666b0dc86792cfbc80a3604e10e0b72652fe88",
+        "errors": []
+      }
+    },
+    {
+      "branch": "equipment-keep",
+      "recycle": false,
+      "native": 4,
+      "commands": 8,
+      "restores": 4,
+      "events": 13,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "5d619d9ddf4f00dfeba16db6e6f45023c9cc8d252e2bae50cb8b9ab344762948",
+        "expectedStateHash": "5d619d9ddf4f00dfeba16db6e6f45023c9cc8d252e2bae50cb8b9ab344762948",
+        "errors": []
+      }
+    },
+    {
+      "branch": "equipment-recycle",
+      "recycle": true,
+      "native": 4,
+      "commands": 8,
+      "restores": 4,
+      "events": 14,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "308623702f6d4df318fa1604f0179e1f45f1e9cc5f619c820e7cee804ddc434c",
+        "expectedStateHash": "308623702f6d4df318fa1604f0179e1f45f1e9cc5f619c820e7cee804ddc434c",
+        "errors": []
+      }
+    }
+  ],
+  "acceptanceBoundary": "Production headless buttons and complete backend replay; final visible paired score/network combination and Windows actual runtime remain open.",
+  "finalProductionInputReadback": true
+}

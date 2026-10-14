@@ -1,0 +1,30 @@
+{
+  "wholePrintingAndWholeFamilyCertified": false,
+  "outsideRuntimePrintedPredict": [
+    {
+      "id": 37937,
+      "cardNo": "VEN·065",
+      "cardName": "斯维因",
+      "state": "NOT_IMPLEMENTED_IN_RUNTIME_CATALOG",
+      "applicability": "REQUIRES_VERSION_AND_SEMANTIC_DISPOSITION",
+      "printedPredictText": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌。你可以选择将其回收。）\n当我征服一处战场时，如果你在本回合内打出了一名非指示物单位、一件非指示物装备和一个法术，则你获得1分。"
+    },
+    {
+      "id": 37876,
+      "cardNo": "VEN·173",
+      "cardName": "斯维因",
+      "state": "NOT_IMPLEMENTED_IN_RUNTIME_CATALOG",
+      "applicability": "REQUIRES_VERSION_AND_SEMANTIC_DISPOSITION",
+      "printedPredictText": "{{预知}}\n当我征服一处战场时，如果你在本回合内打出了一名非指示物单位、一件非指示物装备和一个法术，则你获得1分。"
+    }
+  ],
+  "otherOpen": [
+    "Source gaps and final effective-source refresh",
+    "Other keyword acquisition through attached rule text",
+    "Owner-directed effect play destination choices and complete underlying spell semantics",
+    "Other whole-card/FAQ/QA interactions",
+    "Current fixed full and final visible paired SQL/network/normal-score/replay acceptance",
+    "Windows actual runtime",
+    "Sivir rune recycling optional exhaust choice and independent response: live text permits declining, existing helper currently auto-accepts; private handoff preservation is not legend semantic certification."
+  ]
+}

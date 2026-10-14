@@ -18963,10 +18963,12 @@
         }
       },
       "fixedCommitCi": {
-        "state": "PENDING_CURRENT_COMMIT",
-        "previousFixed": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-        "previousRun": 38595636591,
-        "previousCoversCurrent": false
+        "state": "FAILED_FIXED_COMMIT_NAMED_REMEDIATION_PASS_NEW_FULL_PENDING",
+        "commit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
+        "runId": 38603306458,
+        "failure": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
+        "namedRemediation": "docs/evidence/granted-predict-2026-10-15/full-failure-remediation.json",
+        "coversCurrent": false
       },
       "productAcceptance": {
         "visiblePairedSqlNetworkScoreReplayCombination": "OPEN_FINAL_CURRENT_CANDIDATE",
@@ -18978,6 +18980,220 @@
         "Other applicable official source semantics and source gaps",
         "Whole printing and final product certification"
       ],
+      "wholeGoalComplete": false
+    },
+    {
+      "id": "printed-predict-permanent-entry-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Eleven active CN printed Predict entry consumers, owner-directed replay, mixed queue and independent continuation identity; outside-runtime VEN sources, whole cards and Sivir optional trigger semantics remain open",
+      "subjects": [
+        "UNL-161/219",
+        "SFD-237/221",
+        "SFD-237*/221",
+        "OGN-235/298",
+        "UNL-224/219",
+        "OGN-171/298",
+        "OGN-174/298",
+        "OGN-086/298",
+        "OGN-100/298",
+        "UNL-089/219",
+        "UNL-089A/219"
+      ],
+      "ruleRecords": [
+        "DOC-04-P118-B009",
+        "DOC-04-P118-B010",
+        "DOC-04-P118-B011",
+        "DOC-04-P118-B012",
+        "DOC-04-P118-B013",
+        "DOC-04-P118-B014",
+        "DOC-04-P118-B015",
+        "DOC-04-P118-B016"
+      ],
+      "auditDocument": "docs/PRINTED_PREDICT_ENTRY_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/printed-predict-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/printed-predict-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "newMethods": 9,
+        "newCases": 38,
+        "adjacent": {
+          "status": "PASSED",
+          "profile": "focus",
+          "seconds": 99.11,
+          "total": 461,
+          "caseParityVerified": false,
+          "shards": [
+            {
+              "shard": "focus",
+              "total": 461,
+              "passed": 461,
+              "failed": 0,
+              "notExecuted": 0,
+              "seconds": 64.87
+            }
+          ]
+        },
+        "check": {
+          "status": "CHECK_FAILURE_CLOSED_BY_NAMED_REMEDIATION",
+          "checkCases": 11546,
+          "checkMethods": 7088,
+          "firstCheckPassed": 11544,
+          "firstCheckFailed": [
+            "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerSivirSkipsGoldWhenLegendBecomesOpponentOwned",
+            "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerSivirCreatesDormantGoldWhenControllerRecyclesRune"
+          ],
+          "remediationCases": 151,
+          "remediationFailed": 0,
+          "remediationSkipped": 0,
+          "oldCasesPreserved": true,
+          "oldMethodsPreserved": true,
+          "oldCaseCount": 11508,
+          "oldMethodCount": 7079,
+          "newCases": [
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ActualResponseReturningSourceToHandKeepsItsCapturedPredict",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.BanishThenPlayDaseScoutCapturesItsPrintedPredictAtNewEntry",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.CopyingPrintedPredictOntoAnAlreadyEnteredImageDoesNotTriggerEntryAgain",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"OGN·086/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"OGN·100/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"OGN·171/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"OGN·174/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"OGN·235/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"SFD·237*/221\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"SFD·237/221\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"UNL-089/219\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"UNL-089a/219\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"UNL-161/219\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger(card: \"UNL-224/219\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.MixedPrintedAndGrantedInstancesColdRecoverAndReplayEveryResponseAndChoice",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.OwnerDirectedReplayPredictUsesTheOwnerRatherThanTheSpellCaster",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance(mutation: \"COUNT\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance(mutation: \"FACE\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance(mutation: \"GENERATION\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance(mutation: \"MISSING\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance(mutation: \"REVISION\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance(mutation: \"SOURCE\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance(mutation: \"TICK\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance(mutation: \"TOKEN\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"OGN·086/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"OGN·100/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"OGN·171/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"OGN·174/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"OGN·235/298\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"SFD·237*/221\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"SFD·237/221\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"UNL-089/219\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"UNL-089a/219\")",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation(card: \"UNL-224/219\")",
+            "Riftbound.ConformanceTests.PrintedPredictNativeTests.ProductionPrintedUnitEquipmentChoicesRecoverDeduplicateAndReplay(card: \"OGN·174/298\", recycle: False)",
+            "Riftbound.ConformanceTests.PrintedPredictNativeTests.ProductionPrintedUnitEquipmentChoicesRecoverDeduplicateAndReplay(card: \"OGN·174/298\", recycle: True)",
+            "Riftbound.ConformanceTests.PrintedPredictNativeTests.ProductionPrintedUnitEquipmentChoicesRecoverDeduplicateAndReplay(card: \"UNL-161/219\", recycle: False)",
+            "Riftbound.ConformanceTests.PrintedPredictNativeTests.ProductionPrintedUnitEquipmentChoicesRecoverDeduplicateAndReplay(card: \"UNL-161/219\", recycle: True)"
+          ],
+          "newMethods": [
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ActualResponseReturningSourceToHandKeepsItsCapturedPredict",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.BanishThenPlayDaseScoutCapturesItsPrintedPredictAtNewEntry",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.CopyingPrintedPredictOntoAnAlreadyEnteredImageDoesNotTriggerEntryAgain",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.MixedPrintedAndGrantedInstancesColdRecoverAndReplayEveryResponseAndChoice",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.OwnerDirectedReplayPredictUsesTheOwnerRatherThanTheSpellCaster",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance",
+            "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation",
+            "Riftbound.ConformanceTests.PrintedPredictNativeTests.ProductionPrintedUnitEquipmentChoicesRecoverDeduplicateAndReplay"
+          ],
+          "frozenInputsUnchanged": false,
+          "changedAfterCheck": [
+            "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+            "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs"
+          ],
+          "separateCleanCheckClaimed": false,
+          "explanation": "First check retained. Named window migration exposed the old Sivir private-recycle observer gap; repaired shared Insight handoff and retained all golden-token/control assertions. Legend optional acceptance and independent timing remain open.",
+          "priorFullFailureNamedRemediation": "docs/evidence/granted-predict-2026-10-15/full-failure-remediation.json"
+        },
+        "namedCheckRemediationCases": 151,
+        "priorFullFailureRemediation": {
+          "status": "NAMED_FIXED_FULL_FAILURES_REMEDIATED",
+          "failedCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
+          "failedRun": 38603306458,
+          "methods": [
+            "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+            "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+            "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMoonveilAltarConquerReadyEquipmentAndScoreVictoryActionLogReplaysToFinalStateHash",
+            "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPoroForgeLegendAttachArmamentAndScoreVictoryActionLogReplaysToFinalStateHash"
+          ],
+          "result": {
+            "status": "PASSED",
+            "profile": "focus",
+            "seconds": 85.63,
+            "total": 4,
+            "caseParityVerified": false,
+            "shards": [
+              {
+                "shard": "focus",
+                "total": 4,
+                "passed": 4,
+                "failed": 0,
+                "notExecuted": 0,
+                "seconds": 52.2
+              }
+            ]
+          },
+          "trxSha256": "de57e544ed7e7f0ecf6052dd0fb1c8eb23c4824192dfa9f5412d1b80d1d7610a",
+          "assertionsPreserved": "All four original seeds, score-victory, full action/event replay and hash assertions are retained; existing server-authoritative choice driver finishes pending entry windows.",
+          "remaining": "New fixed candidate full is required; no green status claimed for c74853be."
+        },
+        "nativeCommands": 16,
+        "nativeRecordedCommands": 32,
+        "nativeEvents": 54,
+        "nativeColdRecoveries": 16,
+        "sqlCommands": 8,
+        "sqlEvents": 23,
+        "sqlColdRecoveries": 8,
+        "actualSqlPrintedOriginTamperRejected": true,
+        "pythonTests": 40
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_CANDIDATE",
+        "previousCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
+        "previousRun": 38603306458,
+        "previousConclusion": "failure",
+        "previousCoversCurrent": false
+      },
+      "remainingObligations": {
+        "wholePrintingAndWholeFamilyCertified": false,
+        "outsideRuntimePrintedPredict": [
+          {
+            "id": 37937,
+            "cardNo": "VEN·065",
+            "cardName": "斯维因",
+            "state": "NOT_IMPLEMENTED_IN_RUNTIME_CATALOG",
+            "applicability": "REQUIRES_VERSION_AND_SEMANTIC_DISPOSITION",
+            "printedPredictText": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌。你可以选择将其回收。）\n当我征服一处战场时，如果你在本回合内打出了一名非指示物单位、一件非指示物装备和一个法术，则你获得1分。"
+          },
+          {
+            "id": 37876,
+            "cardNo": "VEN·173",
+            "cardName": "斯维因",
+            "state": "NOT_IMPLEMENTED_IN_RUNTIME_CATALOG",
+            "applicability": "REQUIRES_VERSION_AND_SEMANTIC_DISPOSITION",
+            "printedPredictText": "{{预知}}\n当我征服一处战场时，如果你在本回合内打出了一名非指示物单位、一件非指示物装备和一个法术，则你获得1分。"
+          }
+        ],
+        "otherOpen": [
+          "Source gaps and final effective-source refresh",
+          "Other keyword acquisition through attached rule text",
+          "Owner-directed effect play destination choices and complete underlying spell semantics",
+          "Other whole-card/FAQ/QA interactions",
+          "Current fixed full and final visible paired SQL/network/normal-score/replay acceptance",
+          "Windows actual runtime",
+          "Sivir rune recycling optional exhaust choice and independent response: live text permits declining, existing helper currently auto-accepts; private handoff preservation is not legend semantic certification."
+        ]
+      },
       "wholeGoalComplete": false
     }
   ]

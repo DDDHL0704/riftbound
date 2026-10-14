@@ -15522,6 +15522,7 @@ public sealed partial class FullGameEndToEndTests
         var result = current;
         for (var turnIndex = 0; turnIndex < 12; turnIndex++)
         {
+            result = await ResolveDriverPendingEffectsAsync(session, result, $"{intentPrefix}-entry-choices-{turnIndex}");
             if (result.State.BattleState.IsActive && result.State.PriorityPlayerId is not null)
             {
                 result = await PassOpenBattleResponseAsync(session, result, $"{intentPrefix}-response-{turnIndex}");
@@ -21859,6 +21860,7 @@ public sealed partial class FullGameEndToEndTests
 
             AssertNoHiddenZoneLeak(attempted);
             var resolved = await ResolveStackPassPassAsync(session, attempted, $"{intentPrefix}-resolve-{index}");
+            resolved = await ResolveDriverPendingEffectsAsync(session, resolved, $"{intentPrefix}-entry-choices-{index}");
             if (claimAfterPlay)
             {
                 if (resolved.State.CardObjects[sourceObjectId].IsExhausted)
@@ -22128,6 +22130,7 @@ public sealed partial class FullGameEndToEndTests
         string battlefieldDestination,
         string intentId)
     {
+        current = await ResolveDriverPendingEffectsAsync(session, current, $"{intentId}-entry-choices");
         if (!current.State.PlayerZones[playerId].Base.Any(id => IsReadyUnit(current.State, id))
             && current.State.PlayerZones[playerId].Base.Any(id => current.State.CardObjects.TryGetValue(id, out var unit)
                 && unit.Tags.Contains(CardObjectTags.UnitCard) && !IsDriverStandbyUnit(unit)))

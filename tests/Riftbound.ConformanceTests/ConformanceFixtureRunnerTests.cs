@@ -35625,11 +35625,12 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(p2Pass.Accepted);
         var predict=Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
-        Assert.Equal("DECK_EFFECT",predict.ChoiceWindow);Assert.Equal(["P1-SIVIR-RUNE-RECYCLE"],predict.LegalObjectIds);
+        Assert.Equal("INSIGHT",predict.ChoiceWindow);Assert.Equal(["P1-SIVIR-RUNE-RECYCLE"],predict.LegalObjectIds);
         p2Pass=await new CoreRuleEngine().ResolveAsync(p2Pass.State,new PlayerIntent("sivir-predict-choose","P1",CommandTypes.ChooseCards),
             new ChooseCardsCommand(predict.ChoiceId,predict.ChoiceWindow,["P1-SIVIR-RUNE-RECYCLE"]),CancellationToken.None);
         Assert.True(p2Pass.Accepted,p2Pass.ErrorMessage);
         Assert.True(p2Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
+        Assert.All(p2Pass.Events.Where(e => e.Kind == "CARDS_RECYCLED"), e => Assert.False(e.Payload.ContainsKey("cardIds")));
         Assert.Contains("P1-LEGEND-SIVIR-TOKEN-001", p2Pass.State.PlayerZones["P1"].Base);
         var token = p2Pass.State.CardObjects["P1-LEGEND-SIVIR-TOKEN-001"];
         Assert.True(token.IsExhausted);
@@ -35677,7 +35678,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(p2Pass.Accepted);
         var predict=Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
-        Assert.Equal("DECK_EFFECT",predict.ChoiceWindow);Assert.Equal(["P1-SIVIR-RUNE-RECYCLE"],predict.LegalObjectIds);
+        Assert.Equal("INSIGHT",predict.ChoiceWindow);Assert.Equal(["P1-SIVIR-RUNE-RECYCLE"],predict.LegalObjectIds);
         p2Pass=await new CoreRuleEngine().ResolveAsync(p2Pass.State,new PlayerIntent("sivir-predict-choose","P1",CommandTypes.ChooseCards),
             new ChooseCardsCommand(predict.ChoiceId,predict.ChoiceWindow,["P1-SIVIR-RUNE-RECYCLE"]),CancellationToken.None);
         Assert.True(p2Pass.Accepted,p2Pass.ErrorMessage);

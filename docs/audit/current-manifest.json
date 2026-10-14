@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "434edc71d33ddc24cc965c00de4f5e3daeb331f7b20c2381e5529ac686baaa14"
+      "sha256": "3d6e4feb13c75196ca76a06d5677aeb115a329c08404e9492326a88e69ff545c"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -100,15 +100,15 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
-          "sha256": "086757a65e8a9205b2384886c6ff7c680615299e62b6fcb8b01637859f8288ea"
+          "sha256": "4cf5ffda617a696926d2cd2972bc6b582e8cf6d30c30cee05fbe2e891b8918a7"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "ee58be6c3e485895f2eb2ad670c6ecf75ab611fd8a0e5e7f03356e6286ec6b8f"
+          "sha256": "57016ef61621e6e6188724b5e18d769a37dc46a53fe27c64629bb478cb2a45e3"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "44ccf4f9cfa2a6388fe768f5fb9505f135effa28b42b8634cfc7e1173d4bd7be"
+          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
         }
       ],
       "branches": [
@@ -236,7 +236,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
+      "currentImplementationCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
     },
@@ -248,11 +248,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
-          "sha256": "ed47d98fcf619d6f57fe60f0efb804d564c6d5fc86f37e3585d7dc5f51511bf4"
+          "sha256": "1b408ad28cf53ea84bc5e893c12de30b6d60b17c5354a8463098cb70465fba11"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "ee58be6c3e485895f2eb2ad670c6ecf75ab611fd8a0e5e7f03356e6286ec6b8f"
+          "sha256": "57016ef61621e6e6188724b5e18d769a37dc46a53fe27c64629bb478cb2a45e3"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -260,7 +260,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "44ccf4f9cfa2a6388fe768f5fb9505f135effa28b42b8634cfc7e1173d4bd7be"
+          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
         }
       ],
       "branches": [
@@ -549,7 +549,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
+      "currentImplementationCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
     },
@@ -577,7 +577,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "44ccf4f9cfa2a6388fe768f5fb9505f135effa28b42b8634cfc7e1173d4bd7be"
+          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -1163,7 +1163,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
+      "currentImplementationCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "static-granted-predict-entry-2026-10-15": {
@@ -1174,27 +1174,27 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
-          "sha256": "ed47d98fcf619d6f57fe60f0efb804d564c6d5fc86f37e3585d7dc5f51511bf4"
+          "sha256": "1b408ad28cf53ea84bc5e893c12de30b6d60b17c5354a8463098cb70465fba11"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
-          "sha256": "655931a56e5a5992957f8f4e8b3851c8a2714429c1d41ea2016e3b0ce9a37d30"
+          "sha256": "35c0b60ebec6aad0fae1f46aacb16da91f412443043c8062e66481d6008a9754"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
-          "sha256": "086757a65e8a9205b2384886c6ff7c680615299e62b6fcb8b01637859f8288ea"
+          "sha256": "4cf5ffda617a696926d2cd2972bc6b582e8cf6d30c30cee05fbe2e891b8918a7"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "ee58be6c3e485895f2eb2ad670c6ecf75ab611fd8a0e5e7f03356e6286ec6b8f"
+          "sha256": "57016ef61621e6e6188724b5e18d769a37dc46a53fe27c64629bb478cb2a45e3"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "44ccf4f9cfa2a6388fe768f5fb9505f135effa28b42b8634cfc7e1173d4bd7be"
+          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "bf8e6c24f30aecdf6340a7147454f523fbbce3bcc4f3a137719f429626471696"
+          "sha256": "78c017ce2e026ad3f2aeaea1c1e1706a028534c67c0722ca2038824dcf3bb71c"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -1781,7 +1781,625 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
+      "currentImplementationCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "lastFixedCiFailure": {
+        "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
+        "sha256": "90d0c6a7fe540c1f1473ec3f5faad62092131aaf4c332a2a0e165fb0be84802e"
+      }
+    },
+    "printed-predict-permanent-entry-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PrintedPredict.cs",
+          "sha256": "04e2c8929a641a31f3e763732f3e397c529cf8c27869030e456845e9ad9c43ba"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+          "sha256": "1b408ad28cf53ea84bc5e893c12de30b6d60b17c5354a8463098cb70465fba11"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+          "sha256": "35c0b60ebec6aad0fae1f46aacb16da91f412443043c8062e66481d6008a9754"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "57016ef61621e6e6188724b5e18d769a37dc46a53fe27c64629bb478cb2a45e3"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "sha256": "4cf5ffda617a696926d2cd2972bc6b582e8cf6d30c30cee05fbe2e891b8918a7"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "afc9a4d935dd39959ca711959904ae8dc27a031810d80231b8fdf1d440140822"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "78c017ce2e026ad3f2aeaea1c1e1706a028534c67c0722ca2038824dcf3bb71c"
+        },
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "143355c220349ae7197cffb984cede56b59565d9f68120b94276074acb7c5328"
+        },
+        {
+          "path": "src/Riftbound.Engine/CardLifecycleKeywordRules.cs",
+          "sha256": "609ba91ab6f7284fd6bab4ebed658c2fe4f0386a45e3b98d39729141dc8def52"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ActualResponseReturningSourceToHandKeepsItsCapturedPredict",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictEntryTests.ActualResponseReturningSourceToHandKeepsItsCapturedPredict"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "BanishThenPlayDaseScoutCapturesItsPrintedPredictAtNewEntry",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictEntryTests.BanishThenPlayDaseScoutCapturesItsPrintedPredictAtNewEntry"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "CopyingPrintedPredictOntoAnAlreadyEnteredImageDoesNotTriggerEntryAgain",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictEntryTests.CopyingPrintedPredictOntoAnAlreadyEnteredImageDoesNotTriggerEntryAgain"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictEntryTests.EveryRuntimePrintedPredictFaceUsesAnIndependentOptionalEntryTrigger"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "MixedPrintedAndGrantedInstancesColdRecoverAndReplayEveryResponseAndChoice",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictEntryTests.MixedPrintedAndGrantedInstancesColdRecoverAndReplayEveryResponseAndChoice"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "OwnerDirectedReplayPredictUsesTheOwnerRatherThanTheSpellCaster",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictEntryTests.OwnerDirectedReplayPredictUsesTheOwnerRatherThanTheSpellCaster"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "RecoveryRejectsForgedPrintedPredictProvenance",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictEntryTests.RecoveryRejectsForgedPrintedPredictProvenance"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictEntryTests.ReplayedRuntimeUnitFacesCapturePredictAtTheirNewIncarnation"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "ProductionPrintedUnitEquipmentChoicesRecoverDeduplicateAndReplay",
+          "sourceRefs": [
+            "UNL-161/219",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "OGN-235/298",
+            "UNL-224/219",
+            "OGN-171/298",
+            "OGN-174/298",
+            "OGN-086/298",
+            "OGN-100/298",
+            "UNL-089/219",
+            "UNL-089A/219",
+            "DOC-04-P118-B009",
+            "DOC-04-P118-B010",
+            "DOC-04-P118-B011",
+            "DOC-04-P118-B012",
+            "DOC-04-P118-B013",
+            "DOC-04-P118-B014",
+            "DOC-04-P118-B015",
+            "DOC-04-P118-B016"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OUTSIDE_RUNTIME_AND_ATTACHED_RULE_TEXT_CONSUMERS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent limited printed-entry/identity behavior only; Sivir optional semantics, outside-runtime identities, whole cards and fixed/current evidence remain separate.",
+            "sourceFingerprints": {
+              "UNL-161/219": "f4d8abc41491b889b68f66af2d2b5f59227c8348288020c33d46dbf7a9455ba8",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "UNL-224/219": "3d13926dbfd197c413ce95c0465db1dfd1384507fae0e665d27634e7b40f85ef",
+              "OGN-171/298": "0599faff940a6321987f5d7b17e1b2a6ed39e47c7f7503de8dbc2bf8f295ce81",
+              "OGN-174/298": "911b52855ef44f9eaafdd9429b65f43aa8642820446e8aa15c88371e0730c86d",
+              "OGN-086/298": "c7cc367f3b2c8010c0348c75480a510fd5f49db1e4201343f803c5ed5f0bdd6d",
+              "OGN-100/298": "2f83f9c1b6944489de67c8c5acf6832266bc9419c7985451d7ec6de751d65825",
+              "UNL-089/219": "d6f1ce0029bbdb7eefc57c549112e8e3f0616d357b5b72d6aa51a98f636e7466",
+              "UNL-089A/219": "efd3960217c45761e6a7e32736d5b5eb9109991af1d753f50684f510c5d8df92",
+              "DOC-04-P118-B009": "20131af27b606f5662fdce090877b0ef4f57b54ce7dca2b605bda2da523538fa",
+              "DOC-04-P118-B010": "2144e9c5a8edb80523db373b9462844ea5678fa3d12aa9bd0a8cd79ddcce404c",
+              "DOC-04-P118-B011": "7b631934b273ab10f47946606fafb88a2917a31c91bef36829206e0b166d0a32",
+              "DOC-04-P118-B012": "9a00a34e8bb1d56645d1c5c3535a2f4b61848c26b66d02fa79ad3113d7325212",
+              "DOC-04-P118-B013": "4d41e7453077709c6ab4271e6f71c603744b16528915dc09e67870e7b74093ed",
+              "DOC-04-P118-B014": "1c8d344c4dbd60b5d9a88a930d930ea447c9c72fc23e5a6afd737b1139e20161",
+              "DOC-04-P118-B015": "d5c89a13b9d17b461d9e3e4e049fd5bf00e0174ed71bda41dcca9b5d76d0d0f3",
+              "DOC-04-P118-B016": "94ab8688e02a4738609a0a975011ac60473d09e455cbabd22d263bd095d8dabf"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.PrintedPredictNativeTests.ProductionPrintedUnitEquipmentChoicesRecoverDeduplicateAndReplay"
+            ],
+            "requiredNativeBranches": [
+              "unit-keep",
+              "unit-recycle",
+              "equipment-keep",
+              "equipment-recycle"
+            ]
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/printed-predict-2026-10-15/focus.json",
+          "sha256": "2fcec04e9d49f0c4323394c7136401e07ff4b469b48b75aefc5ab754a2608609",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/printed-predict-2026-10-15/native-replay.json",
+          "sha256": "6a2e35b22b839814f6411ef9d5643c7a97975f393dae9762032c5703775468b2",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/printed-predict-2026-10-15/sql-predict.json",
+          "sha256": "0488d2c8a5f6eed1364abc9366d2479c91ddfb13e0c1834968710613c0eade58",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/printed-predict-2026-10-15/check-parity.json",
+          "sha256": "9e24eb6443e6d6239aa13070a361a75f24e259862dd70718029d97fdc6ed6e71",
+          "role": "check"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
+      "currentImplementationCommit": "c74853beec8ddb13c7bdf256462b2b72aa22fc29",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },

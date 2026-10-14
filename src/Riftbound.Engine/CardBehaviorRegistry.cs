@@ -2126,11 +2126,7 @@ public static class CardBehaviorRegistry
             2,
             "SCRYING_SHELL_PLAY_EQUIPMENT_PREDICT",
             0,
-            1,
-            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount: 0,
-            MainDeckLookCount: 1,
-            RecyclesSelectedMainDeckTargets: true,
+            0,
             PlaysSourceToBaseAsEquipment: true),
         new(
             "SFD·118a/221·P",
@@ -6169,11 +6165,7 @@ public static class CardBehaviorRegistry
             2,
             "UNL_BABBLING_PORO_PLAY_UNIT_PREDICT",
             0,
-            1,
-            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount: 0,
-            MainDeckLookCount: 1,
-            RecyclesSelectedMainDeckTargets: true,
+            0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
             SourceUnitTags: "魄罗|预知"),
@@ -6183,11 +6175,7 @@ public static class CardBehaviorRegistry
             2,
             "BABBLING_PORO_PLAY_UNIT_PREDICT",
             0,
-            1,
-            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount: 0,
-            MainDeckLookCount: 1,
-            RecyclesSelectedMainDeckTargets: true,
+            0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
             SourceUnitTags: "魄罗|预知"),
@@ -6197,11 +6185,7 @@ public static class CardBehaviorRegistry
             5,
             "GEMSTONE_GOLEM_PLAY_UNIT_PREDICT",
             0,
-            1,
-            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount: 0,
-            MainDeckLookCount: 1,
-            RecyclesSelectedMainDeckTargets: true,
+            0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
             SourceUnitTags: "预知|坚守"),
@@ -6211,11 +6195,7 @@ public static class CardBehaviorRegistry
             6,
             "DASE_SCOUT_PLAY_UNIT_PREDICT",
             0,
-            1,
-            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount: 0,
-            MainDeckLookCount: 1,
-            RecyclesSelectedMainDeckTargets: true,
+            0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
             SourceUnitTags: "预知"),
@@ -6225,11 +6205,7 @@ public static class CardBehaviorRegistry
             4,
             "JHIN_PLAY_UNIT_PREDICT",
             0,
-            1,
-            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount: 0,
-            MainDeckLookCount: 1,
-            RecyclesSelectedMainDeckTargets: true,
+            0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "预知"),
@@ -6239,11 +6215,7 @@ public static class CardBehaviorRegistry
             4,
             "JHIN_ALT_A_PLAY_UNIT_PREDICT",
             0,
-            1,
-            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount: 0,
-            MainDeckLookCount: 1,
-            RecyclesSelectedMainDeckTargets: true,
+            0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "预知"),
@@ -8760,37 +8732,7 @@ public static class CardBehaviorRegistry
     }
 
     private static CardBehaviorDefinition ApplyLifecycleKeywordDefaults(CardBehaviorDefinition definition)
-    {
-        definition = OfficialPrintedTimingRules.Apply(definition);
-        if (definition.MainDeckLookCount > 0
-            || definition.RequiredTargetCount != 0
-            || !PlaysSourceAsPermanent(definition)
-            || !HasSourceKeyword(definition, CardLifecycleKeywordNames.Predict))
-        {
-            return definition;
-        }
-
-        return definition with
-        {
-            RequiredTargetCount = 1,
-            TargetScope = CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount = 0,
-            MainDeckLookCount = 1,
-            RecyclesSelectedMainDeckTargets = true
-        };
-    }
-
-    private static bool PlaysSourceAsPermanent(CardBehaviorDefinition definition)
-    {
-        return definition.PlaysSourceToBaseAsUnit
-            || definition.PlaysSourceToBaseAsEquipment;
-    }
-
-    private static bool HasSourceKeyword(CardBehaviorDefinition definition, string keyword)
-    {
-        return HasDelimitedValue(definition.SourceUnitTags, keyword)
-            || HasDelimitedValue(definition.SourceEquipmentTags, keyword);
-    }
+        => OfficialPrintedTimingRules.Apply(definition);
 
     private static bool HasDelimitedValue(string value, string expected)
     {

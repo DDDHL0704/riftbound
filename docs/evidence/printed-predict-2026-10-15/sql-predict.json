@@ -1,0 +1,69 @@
+{
+  "status": "REAL_POSTGRES_PRINTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+  "room": "postgres-printed-predict-93f40b8ca90a40ee96fa7c5576c1bb42",
+  "submitted": 8,
+  "events": 23,
+  "coldRecoveries": 8,
+  "printedOriginTamperRejected": true,
+  "checks": [
+    {
+      "tick": 1,
+      "sequence": 6,
+      "stack": 0,
+      "isMatch": true
+    },
+    {
+      "tick": 2,
+      "sequence": 8,
+      "stack": 2,
+      "isMatch": true
+    },
+    {
+      "tick": 3,
+      "sequence": 9,
+      "stack": 2,
+      "isMatch": true
+    },
+    {
+      "tick": 4,
+      "sequence": 12,
+      "stack": 2,
+      "isMatch": true
+    },
+    {
+      "tick": 5,
+      "sequence": 16,
+      "stack": 1,
+      "isMatch": true
+    },
+    {
+      "tick": 6,
+      "sequence": 17,
+      "stack": 1,
+      "isMatch": true
+    },
+    {
+      "tick": 7,
+      "sequence": 20,
+      "stack": 1,
+      "isMatch": true
+    },
+    {
+      "tick": 8,
+      "sequence": 23,
+      "stack": 0,
+      "isMatch": true
+    }
+  ],
+  "finalHash": "82617afac899957467f80f39db2e51cab506c42e1704ee9da752f45eb8409ae0",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+    "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+    "implementationSha256": "1776212fea4d80602683f5389415652449be33420ffbcad8f05f8bd1e72eb26f",
+    "identitySha256": "92fe1bff3935e0f95ccf8c7939536afa3c49d64b69d06eaad49b49a4bea9b8b9"
+  },
+  "scope": "Isolated explicit rules fixture with actual SQL commands/events/states/views and retained initial-state replay."
+}

@@ -40,8 +40,7 @@ public static class CardLifecycleKeywordRules
         var hasPredict = HasKeyword(spec, CardLifecycleKeywordNames.Predict)
             || HasExactKeyword(tags, CardLifecycleKeywordNames.Predict);
         var hasPredictRecyclePath = behavior is not null
-            && behavior.MainDeckLookCount > 0
-            && behavior.RecyclesSelectedMainDeckTargets;
+            && CoreRuleEngine.HasPrintedPredict(behavior.CardNo);
         var hasAnyLifecycleKeyword = hasEphemeral
             || hasLastBreath
             || hasPredict;
@@ -58,7 +57,7 @@ public static class CardLifecycleKeywordRules
                 LifecycleKeywordProfileStatuses.Implemented =>
                     "P4.3 implements Ephemeral turn-start cleanup for controlled base/battlefield objects; no additional lifecycle keyword is present on this profile.",
                 LifecycleKeywordProfileStatuses.RecognizedDelegated =>
-                    "P4.9 recognizes Predict and delegates the audited top-card recycle/no-recycle path to existing P2 behavior; broader static grants remain deferred.",
+                    "P4.9 recognizes printed Predict and delegates top-card Insight to shared captured entry triggers; this profile does not certify other lifecycle or whole-card branches.",
                 LifecycleKeywordProfileStatuses.RecognizedDeferred =>
                     "P4.9 recognizes lifecycle keyword surfaces, but Last Breath trigger queues, broad Predict grants, and non-audited lifecycle branches remain deferred.",
                 _ =>

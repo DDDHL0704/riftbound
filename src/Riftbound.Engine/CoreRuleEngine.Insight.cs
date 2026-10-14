@@ -94,6 +94,7 @@ public sealed partial class CoreRuleEngine
         if (!ValidInsightChoice(state, choice, item))
             return RejectWithCorePrompts(state, "洞察上下文已经失效。", ErrorCodes.InvalidTarget);
         var zones = NormalizeZonesForSeats(state);
+        var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var player = choice.PlayerId;
         var deck = zones[player].MainDeck;
         var events = new List<GameEvent>();
@@ -104,21 +105,30 @@ public sealed partial class CoreRuleEngine
             var recycled = RandomizeForMainDeckBottom(selected, state.Seed, rng, item!.SourceObjectId);
             if (selected.Count > 1) rng++;
             zones[player] = zones[player] with { MainDeck = retained.Concat(deck.Skip(choice.ContextObjectIds.Count)).Concat(recycled).ToArray() };
-            if (selected.Count > 0) events.Add(new("CARDS_RECYCLED", $"洞察回收 {selected.Count} 张牌", new Dictionary<string, object?>
-                { ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = selected.Count }));
+            if (selected.Count > 0) {
+                var recycledEvent = new GameEvent("CARDS_RECYCLED", $"洞察回收 {selected.Count} 张牌", new Dictionary<string, object?>
+                    { ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = selected.Count });
+                events.Add(recycledEvent);
+                // Recycling observers consume the actual private selection;
+                // the looked-card identities never enter the published event.
+                events.AddRange(ResolveSivirRuneRecycledGoldTrigger(zones, cards, item,
+                    [recycledEvent with { Payload = new Dictionary<string, object?>(recycledEvent.Payload) { ["cardIds"] = selected } }]));
+            }
             if (retained.Length > 1)
             {
                 var order = new PendingCardChoiceState("INSIGHT-ORDER:" + item.StackItemId, "INSIGHT_ORDER", player,
                     retained.Length, retained.Length, retained, retained, "请按从顶到底的顺序选择保留的牌。", item.SourceObjectId, item.EffectKind)
                     { DeckContext = new(item.StackItemId, 0) };
-                var ordering = state with { Tick = state.Tick + 1, PlayerZones = zones, RngCursor = rng, PendingCardChoice = order };
+                var ordering = state with { Tick = state.Tick + 1, PlayerZones = zones, CardObjects = cards,
+                    ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), RngCursor = rng, PendingCardChoice = order };
                 events.Add(new("INSIGHT_ORDER_REQUESTED", "等待玩家私下决定牌库顶部顺序", new Dictionary<string, object?>
                     { ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = retained.Length }));
                 return new(true, null, ordering, events, ResolutionResult.BuildSnapshots(ordering), BuildCorePrompts(ordering));
             }
         }
         else zones[player] = zones[player] with { MainDeck = selected.Concat(deck.Skip(choice.ContextObjectIds.Count)).ToArray() };
-        var next = state with { PendingCardChoice = null, PlayerZones = zones, RngCursor = rng,
+        var next = state with { PendingCardChoice = null, PlayerZones = zones, CardObjects = cards,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), RngCursor = rng,
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(item! with { InsightCompleted = true }).ToArray() };
         var resumed = ResolvePassPriority(next, new("insight-continuation", player, CommandTypes.PassPriority), forceResolve: true);
         events.Add(new("INSIGHT_COMPLETED", "已完成洞察", new Dictionary<string, object?>
@@ -131,7 +141,7 @@ public sealed partial class CoreRuleEngine
     {
         if (item is null || item.InsightCompleted || item.EffectRepeatCount != 1
             || item.InsightContext is { Kind: "DUEL", PaymentAccepted: false }
-            || item.InsightContext is { } capturedSource && !ValidGrantedPredictBindings(state, capturedSource, item.SourceObjectId)
+            || item.InsightContext is { } capturedSource && !ValidPredictEntryBindings(state, capturedSource, item.SourceObjectId)
             || choice.DeckContext is not { ExecutionIndex: 0 } context || context.StackItemId != item.StackItemId
             || choice.PlayerId != item.ControllerId || choice.SourceObjectId != item.SourceObjectId || choice.EffectKind != item.EffectKind
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)) return false;
