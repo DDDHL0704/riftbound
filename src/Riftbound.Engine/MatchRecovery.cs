@@ -26914,12 +26914,8 @@ public static class MatchRecoveryValidator
                 || effectPlay.SourceZone is not ("HAND" or "GRAVEYARD" or "BANISHED" or "MAIN_DECK" or "STACK")
                 || effectPlay.Sources.Values.Any(generation => generation < 0))
                 errors.Add("pending effect play has an invalid actor, source zone or generation");
-            if (effectPlay.SourceZone == "MAIN_DECK")
-            {
-                if (!CoreRuleEngine.ValidDeckEffectPlay(authoritativeState, effectPlay))
-                    errors.Add("invalid deck effect-play continuation");
-            }
-            else if (effectPlay.ViewedCardIds is not null) errors.Add("viewed deck cards outside deck effect play");
+            if (effectPlay.SourceZone == "MAIN_DECK") errors.Add("obsolete direct deck effect-play continuation");
+            if (effectPlay.ViewedCardIds is not null) errors.Add("viewed deck cards outside deck effect play");
         }
 
         if (authoritativeState.PendingCardChoice is not null)

@@ -34,9 +34,16 @@ public partial class CounterHoldInteractionProof : Control
             var command=(Dictionary<string,object?>)build.Invoke(null,[candidate,selection,controller.PromptId,controller.SnapshotTick])!;
             Check(((IEnumerable<string>)command["chosenObjectIds"]!).SequenceEqual(["E2"]),"Template keeps chosen equipment");
             File.WriteAllText(Path.Combine(root,"native-ornn-command.json"),JsonSerializer.Serialize(command));
-            using var effectPrompt=JsonDocument.Parse(File.ReadAllText(Path.Combine(root,"reinforcements-prompt.json")));
+            using var effectPrompt=JsonDocument.Parse(File.ReadAllText(Path.Combine(root,"reinforcements-choice-prompt.json")));
             var effectView=(Godot.Collections.Dictionary)map.Invoke(null,[effectPrompt.RootElement])!;
             Check(effectView["message"].AsString().Contains("仅你可见"),"Reinforcements shows the owner's viewed cards");
+            controller.Load(effectView);
+            Check(controller.TrySelectObject("U"),"Choose a viewed unit before banishing it");
+            var effectCandidate=effectPrompt.RootElement.GetProperty("candidates").EnumerateArray().Single(c=>c.GetProperty("action").GetString()=="CHOOSE_CARDS");
+            var effectSelection=Activator.CreateInstance(selectionType,[null,new[]{"U"},null,null,Array.Empty<string>()]);
+            var effectCommand=(Dictionary<string,object?>)build.Invoke(null,[effectCandidate,effectSelection,controller.PromptId,controller.SnapshotTick])!;
+            Check(((IEnumerable<string>)effectCommand["chosenObjectIds"]!).SequenceEqual(["U"]),"Current card selection survives the production template");
+            File.WriteAllText(Path.Combine(root,"native-reinforcements-choice-command.json"),JsonSerializer.Serialize(effectCommand));
             GD.Print("COUNTER_HOLD_INTERACTION_PASS: counter repeat targets, Ornn equipment selection, reduced-cost deck play, private prompts");
             GetTree().Quit();
         }

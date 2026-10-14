@@ -85,7 +85,7 @@ public sealed partial class CoreRuleEngine
         var context = item.LegendConquest!;
         if (context.Kind != "READY_SELF" && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind == "EXHAUST_DECK_PLAY" && !item.EffectPlayCompleted
-            && TryGetEffectPlayDefinition(item, out var definition)) return BeginEffectPlay(state, item, definition);
+            && TryGetEffectPlayDefinition(item, out var definition)) return BeginDeckPlaySequence(state, item, definition);
         var cards = state.CardObjects.ToDictionary(e => e.Key, e => e.Value);
         var events = new List<GameEvent>();
         if (HasLegendConquestTarget(item))

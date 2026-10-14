@@ -18291,6 +18291,63 @@
         "Visible paired clients and user Windows runtime",
         "Fixed candidate full CI not yet executed"
       ]
+    },
+    {
+      "id": "single-deck-banish-pending-and-mandatory-cost-composition-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Reinforce OGN062, Void Rush SFD188, Void Burrower SFD187/SFD243: current banish then real pending normal play, optional selection, reduced or normal mana with power/additional costs retained, recycle/draw unbanished cards before source completion, all Echo selections before confirmation, empty/impossible branches, strict parent policy and selected queue recovery. Shared ordinary/powerful/trait destroy and equipment return native cost choices; only listed consumers and destinations.",
+      "subjects": [
+        "OGN·062/298",
+        "SFD·188/221",
+        "SFD·187/221",
+        "SFD·243/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P039-B001",
+        "DOC-04-P039-B002",
+        "DOC-04-P039-B016",
+        "DOC-04-P039-B023",
+        "DOC-04-P040-B002",
+        "DOC-04-P040-B003",
+        "DOC-04-P040-B004",
+        "DOC-04-P040-B005",
+        "DOC-04-P040-B006",
+        "DOC-04-P075-B007",
+        "DOC-04-P075-B008",
+        "DOC-04-P075-B011",
+        "DOC-04-P075-B012"
+      ],
+      "auditDocument": "docs/DECK_PLAY_CONSUMERS_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/deck-play-consumers-2026-10-14",
+      "tests": [
+        "SingleDeckPlaySequenceTests",
+        "DeckPlaySequenceTests",
+        "OfficialReinforcementsTests",
+        "OfficialLegendDeckPlayTests",
+        "PowerfulSacrificeCostTests",
+        "PlayCostPreviewTests",
+        "MatchRecoveryTests",
+        "ConformanceFixtureShapeTests",
+        "CardCatalogBaselineTests",
+        "AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource",
+        "ConformanceFixtureRunnerTests.CoreRuleEnginePlaysVoidRushDrawNoFreePlay"
+      ],
+      "validation": {
+        "focus": "2427cases/2296methods63.49s;28newcases/10methods",
+        "native": "31branches/191 full production commands plus6 legacy checkpoint and4 continuation intents; final check native readback/cold/player/spectator/dedup/full journal pass; checkpoint boundaries separately recorded",
+        "check": "11274cases/6966methods220.40s;all11246/6956preserved;28newcases/10methods;2261frozen;SQL5/Python27;owned database stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixed9fc055d7": "11395cases/7097methods3215.74s;110pairs/hash preserved;allCIjobs success;actualSQL64commands167events65cold5tamper"
+      },
+      "sourceReconciliation": "SFD187 current CN lacks errata and EN gallery is old; common current behavior explicitly supported by SFD243 CN and international FAQ, all raw printings preserved. SFD188 EN old wording independently retained.",
+      "exclusions": [
+        "Whole card/all-source certification and English API eight-record gap",
+        "SFD170/SFD170a Reksai attack/current-here/copy consumers",
+        "UNL166 ambush and additional battlefield permission",
+        "Nested effect plays and other legacy direct-placement consumers",
+        "Visible paired clients/user Windows runtime",
+        "Fixed candidate full and all required integration results not yet terminal"
+      ]
     }
   ]
 }

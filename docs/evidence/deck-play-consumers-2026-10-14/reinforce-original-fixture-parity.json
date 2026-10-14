@@ -1,0 +1,8 @@
+{
+  "status": "REINFORCE_ORIGINAL_SEED_FOUR_INTENTS_TICK_FINAL_STATE_AND_PROMPTS_RETAINED",
+  "fixture": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-reinforcements-no-selection-recycle-top-five.fixture.json",
+  "beforeSha256": "fb181e480628eb02e555573493acc77559f470355c124339d0234dd7514f2ebe",
+  "afterSha256": "2838ef62f956c0af2564f79e6dbc93774b691958e1315ffb6ff5ece6b7b2b7f1",
+  "updatedFields": "Fourth command current choiceId/window; physical deck metadata; suspended choice event before the same5-card recycling; sequence offset updated by one added event",
+  "acceptedJournalRewritten": false
+}

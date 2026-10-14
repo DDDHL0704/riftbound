@@ -1,0 +1,69 @@
+{
+  "status": "FAILED_ADDITIONAL_OLD_CONSUMERS_REQUIRE_REAL_SELECTION",
+  "trxSha256": "d0cac0a5682d715f852d20733b0fb22b8db313dfaf38b77f2a69ac30ed3a7993",
+  "counters": {
+    "total": "11274",
+    "executed": "11274",
+    "passed": "11263",
+    "failed": "11",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "failures": [
+    {
+      "case": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerReksaiMayDeclineAndRecycleBothNonUnitCards",
+      "message": "System.NullReferenceException : Object reference not set to an instance of an object."
+    },
+    {
+      "case": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerReksaiRevealsTopTwoPlaysUnitAndRecyclesRestOnConquer",
+      "message": "\u5f53\u524d\u9700\u8981\u5148\u5b8c\u6210\u670d\u52a1\u7aef\u5361\u724c\u9009\u62e9\u7a97\u53e3\u3002"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.LegendDeckNativeTests.NativeDeckChoiceRestoresAndReplays(branch: \"deck-decline\", no: \"SFD\u00b7125/221\")",
+      "message": "System.NullReferenceException : Object reference not set to an instance of an object."
+    },
+    {
+      "case": "Riftbound.ConformanceTests.LegendDeckNativeTests.NativeDeckChoiceRestoresAndReplays(branch: \"cost-accept\", no: \"SFD\u00b7125/221\")",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: True\nActual:   False"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.LegendDeckNativeTests.NativeDeckChoiceRestoresAndReplays(branch: \"deck-equipment\", no: \"SFD\u00b7042/221\")",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.LegendDeckNativeTests.NativeDeckChoiceRestoresAndReplays(branch: \"deck-unit\", no: \"SFD\u00b7125/221\")",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.LegendDeckNativeTests.NativeDeckChoiceRestoresAndReplays(branch: \"deck-spell\", no: \"OGN\u00b7048/298\")",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.CounterHoldContinuationTests.ProductionCommandsRecoverAndReplayEveryContinuation(scenario: \"reinforcements\")",
+      "message": "CHOOSE_CARDS \u5305\u542b\u975e\u6cd5\u5361\u724c\u5bf9\u8c61\u3002"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.VoidBurrowerLegendActionDomainGuardTests.VoidBurrowerConquerOffersUnitChoiceAndPaysItsCost",
+      "message": "\u5f53\u524d\u9700\u8981\u5148\u5b8c\u6210\u670d\u52a1\u7aef\u5361\u724c\u9009\u62e9\u7a97\u53e3\u3002"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysReinforcementsNoSelectionRecycleTopFive",
+      "message": "System.Collections.Generic.KeyNotFoundException : The given key 'P1-REINFORCEMENTS-RECYCLE-A' was not present in the dictionary."
+    },
+    {
+      "case": "Riftbound.ConformanceTests.VoidBurrowerLegendActionDomainGuardTests.ReprintCanPlayEquipmentWhenNeitherRevealedCardIsAUnit",
+      "message": "System.NullReferenceException : Object reference not set to an instance of an object."
+    }
+  ],
+  "disposition": "Preserve every method/row/seed/result assertion; supply actual choice before existing play or decline, and recertify the old native producers. No restarted unchanged input."
+}

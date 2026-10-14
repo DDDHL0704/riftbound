@@ -13,6 +13,7 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
     public async Task VoidBurrowerConquerOffersUnitChoiceAndPaysItsCost()
     {
         var opened = await Open(Position());
+        opened = await Select(opened.State, "DECK0");
         var done = await Act(opened.State, "P1", new PlayCardCommand("DECK0", "SFD·125/221", []));
         Assert.True(done.State.CardObjects["DECK0"].IsExhausted);
         Assert.Equal(16, done.State.RunePools["P1"].Mana);
@@ -23,7 +24,8 @@ public sealed class VoidBurrowerLegendActionDomainGuardTests
     public async Task ReprintCanPlayEquipmentWhenNeitherRevealedCardIsAUnit()
     {
         var opened = await Open(Position("SFD·243/221", top: ["OGN·048/298", "SFD·042/221"]));
-        Assert.Equal(2, opened.State.PendingEffectPlay!.Sources.Count);
+        Assert.Equal(2, opened.State.PendingCardChoice!.LegalObjectIds.Count);
+        opened = await Select(opened.State, "DECK1");
         var done = await Act(opened.State, "P1", new PlayCardCommand("DECK1", "SFD·042/221", []));
         Assert.Contains("DECK1", done.State.PlayerZones["P1"].Base); Assert.Equal(["TAIL", "DECK0"], done.State.PlayerZones["P1"].MainDeck); Restore(done.State);
     }

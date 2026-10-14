@@ -1,0 +1,9 @@
+{
+  "status": "FROZEN_INPUTS_CHECK_PASS_NO_DRIFT",
+  "count": 2261,
+  "manifestSha256": "26889c14e2cae2df6957d0af81d118a6ca29d43481e3a22c6d095745f3e6595c",
+  "ownedPostgresClusterStopped": true,
+  "testAssemblySha256": "4a2dcbc7042c35d1936379340059efd313cf7ad57a9c947f53f710a517461155",
+  "firstFailedRunKept": true,
+  "correctedInputPolicy": "Refrozen only after real old-consumer fixes; source/bin immutable within each execution."
+}

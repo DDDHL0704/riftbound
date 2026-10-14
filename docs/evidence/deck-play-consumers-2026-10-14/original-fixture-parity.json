@@ -1,0 +1,11 @@
+{
+  "status": "ORIGINAL_FIXTURE_SEED_COMMANDS_FINAL_STATE_AND_PROMPTS_PRESERVED",
+  "fixture": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-rush-draw-no-free-play.fixture.json",
+  "beforeSha256": "64bfeae5627c1b03be31c038a48dc365379dfeb5511a3dd3fcc649e897f22f60",
+  "afterSha256": "0fdc563573090f3697680f9f45cc363cf98f19fbeefbffffe92db91187b56820",
+  "originalCommands": 3,
+  "lateExplicitOptionalDeclineCommands": 1,
+  "originalFinalStateAndPromptExpectationsUnchanged": true,
+  "currentEventSequence": "Retains all original events; adds public reveal and suspended private choice; draw remainder before parent completion",
+  "metadata": "Adds physical parent and two revealed cards; no accepted journal rewritten"
+}

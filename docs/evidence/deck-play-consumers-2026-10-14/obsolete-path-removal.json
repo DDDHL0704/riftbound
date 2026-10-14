@@ -1,0 +1,12 @@
+{
+  "status": "DEAD_DIRECT_MAIN_DECK_EFFECT_PLAY_PATH_REMOVED",
+  "proof": "rg found no remaining registrations/dynamic definitions setting EffectPlaySourceZone MAIN_DECK; both consumers moved to shared DeckPlayKind. Recovery explicitly rejects this obsolete permission. ViewedCardIds remains nullable for strict malformed/legacy rejection; normal graveyard/banished/hand handlers remain.",
+  "removed": [
+    "ValidDeckEffectPlay",
+    "BeginEffectPlay direct MAIN_DECK source branch",
+    "FinishEffectPlay recycle-after-child branch",
+    "UnsupportedPlayCardCompositionReason mandatory-cost blanket rejection"
+  ],
+  "retained": "TryPutSelectedMainDeckUnitToBase remains used by separate legacy activated/choice consumers; not certified or removed in this batch",
+  "tests": "All old methods and Theory rows kept with late real selection; numeric cost, draw, recycling, exhaustion, priority and cold/replay expectations retained."
+}

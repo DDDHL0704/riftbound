@@ -30,6 +30,8 @@ public sealed class OfficialLegendDeckPlayTests
         var paid = await Confirm(captured.State, true);
         return await Top(paid.State);
     }
+    internal static Task<ResolutionResult> Select(MatchState state, string id) => Act(state, "P1", new ChooseCardsCommand(
+        state.PendingCardChoice!.ChoiceId, state.PendingCardChoice.ChoiceWindow, [id]));
     [Theory]
     [InlineData("SFD·187/221")]
     [InlineData("SFD·243/221")]
@@ -61,7 +63,7 @@ public sealed class OfficialLegendDeckPlayTests
         Assert.DoesNotContain("DECK0", JsonSerializer.Serialize(confirmed.Snapshots["P2"]));
         if (!pay) { Assert.Empty(confirmed.State.StackItems); return; }
         var shown = await Top(confirmed.State); Restore(shown.State);
-        Assert.Equal(["DECK0", "DECK1"], shown.State.PendingEffectPlay!.Sources.Keys);
+        Assert.Equal(["DECK0", "DECK1"], shown.State.PendingCardChoice!.LegalObjectIds);
         Assert.Contains("DECK0", JsonSerializer.Serialize(shown.Snapshots["P1"]));
         Assert.Contains("DECK1", JsonSerializer.Serialize(shown.Snapshots["P2"]));
         Assert.DoesNotContain("TAIL", JsonSerializer.Serialize(shown.Snapshots["P2"]));
@@ -77,13 +79,14 @@ public sealed class OfficialLegendDeckPlayTests
     public async Task CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost(string no, bool spell)
     {
         var opened = await Open(Position(top: ["SFD·125/221", no]));
+        opened = await Select(opened.State, "DECK1");
         var command = new PlayCardCommand("DECK1", no, []);
         var quote = new CoreRuleEngine().PreviewPlayCard(opened.State, "P1", PlayCostPreviewTests.Request(opened.State, command));
         Assert.True(quote.CanPay, quote.Message); Assert.True(quote.Cost!.Mana > 0);
         var done = await Act(opened.State, "P1", command); Restore(done.State);
         Assert.Equal(opened.State.RunePools["P1"].Mana - quote.Cost.Mana, done.State.RunePools["P1"].Mana);
         Assert.Null(done.State.PendingEffectPlay); Assert.Equal(["TAIL", "DECK0"], done.State.PlayerZones["P1"].MainDeck);
-        Assert.Equal(1, Assert.Single(done.Events, e => e.Kind == "CARDS_RECYCLED").Payload["count"]);
+        Assert.Equal(1, Assert.Single(opened.Events, e => e.Kind == "CARDS_RECYCLED").Payload["count"]);
         Assert.DoesNotContain("DECK0", JsonSerializer.Serialize(done.Snapshots["P2"]));
         if (spell) {
             Assert.Single(done.State.StackItems); Assert.DoesNotContain("DECK1", done.State.PlayerZones["P1"].Graveyard);
@@ -97,8 +100,8 @@ public sealed class OfficialLegendDeckPlayTests
     [Fact]
     public async Task DecliningAfterRevealRecyclesAllAndWithdrawsPublicVisibility()
     {
-        var opened = await Open(Position()); var p = opened.State.PendingEffectPlay!;
-        var done = await Act(opened.State, "P1", new ChooseCardsCommand(p.ChoiceId, "EFFECT_PLAY", []));
+        var opened = await Open(Position()); var p = opened.State.PendingCardChoice!;
+        var done = await Act(opened.State, "P1", new ChooseCardsCommand(p.ChoiceId, p.ChoiceWindow, []));
         Assert.Equal("TAIL", done.State.PlayerZones["P1"].MainDeck[0]); Assert.Equal(3, done.State.PlayerZones["P1"].MainDeck.Count);
         Assert.True(done.State.CardObjects["LEGEND"].IsExhausted); Assert.Empty(done.State.StackItems); Restore(done.State);
         Assert.DoesNotContain("DECK0", JsonSerializer.Serialize(done.Snapshots["P2"]));
@@ -111,12 +114,14 @@ public sealed class OfficialLegendDeckPlayTests
     public async Task NoFreePlayAndNoChoiceFromBelowRevealedCards()
     {
         var opened = await Open(Position(top: ["SFD·143/221", "SFD·022/221"]));
+        var picked = await Select(opened.State, "DECK0");
         foreach (var command in new[] { new PlayCardCommand("TAIL", "SFD·125/221", []), new PlayCardCommand("DECK0", "SFD·143/221", []) }) {
-            var s = opened.State with { RunePools = new Dictionary<string,RunePool>(opened.State.RunePools) { ["P1"] = new(20,0) } };
+            var s = picked.State with { RunePools = new Dictionary<string,RunePool>(picked.State.RunePools) { ["P1"] = new(20,0) } };
             var bad = await new CoreRuleEngine().ResolveAsync(s, new("bad", "P1", CommandTypes.PlayCard), command, default);
             Assert.False(bad.Accepted); Assert.Equal(MatchStateHasher.Hash(s), MatchStateHasher.Hash(bad.State));
         }
-        var emptyPool = opened.State with { RunePools = new Dictionary<string,RunePool>(opened.State.RunePools) { ["P1"] = RunePool.Empty } };
+        var equipment = await Select(opened.State, "DECK1");
+        var emptyPool = equipment.State with { RunePools = new Dictionary<string,RunePool>(equipment.State.RunePools) { ["P1"] = RunePool.Empty } };
         var rejected = await new CoreRuleEngine().ResolveAsync(emptyPool, new("poor", "P1", CommandTypes.PlayCard), new PlayCardCommand("DECK1", "SFD·022/221", []), default);
         Assert.False(rejected.Accepted); Assert.Equal(MatchStateHasher.Hash(emptyPool), MatchStateHasher.Hash(rejected.State));
     }
@@ -125,8 +130,9 @@ public sealed class OfficialLegendDeckPlayTests
     public async Task NormalSpellProhibitionAndExtraCostsStillApply()
     {
         var opened = await Open(Position(top: ["OGN·048/298", "OGN·208/298"]));
-        var s = opened.State with { UntilEndOfTurnEffects = [CardPermissionKeywordRules.SpellPlayProhibitionPrefix + "P1"] };
         foreach (var command in new[] { new PlayCardCommand("DECK0", "OGN·048/298", []), new PlayCardCommand("DECK1", "OGN·208/298", []) }) {
+            var picked = await Select(opened.State, command.SourceObjectId);
+            var s = picked.State with { UntilEndOfTurnEffects = [CardPermissionKeywordRules.SpellPlayProhibitionPrefix + "P1"] };
             var quote = new CoreRuleEngine().PreviewPlayCard(s, "P1", PlayCostPreviewTests.Request(s, command)); Assert.False(quote.CanPay);
             var bad = await new CoreRuleEngine().ResolveAsync(s, new("blocked", "P1", command.CmdType), command, default);
             Assert.False(bad.Accepted); Assert.Equal(MatchStateHasher.Hash(s), MatchStateHasher.Hash(bad.State));
@@ -140,7 +146,7 @@ public sealed class OfficialLegendDeckPlayTests
         var s = paid.State with { CardObjects = new Dictionary<string, CardObjectState>(paid.State.CardObjects) {
             ["LEGEND"] = paid.State.CardObjects["LEGEND"] with { ControllerId = "P2", ObjectGeneration = 2 } },
             PlayerZones = new Dictionary<string,PlayerZones>(paid.State.PlayerZones) { ["P1"] = paid.State.PlayerZones["P1"] with { MainDeck = ["TAIL", "DECK1", "DECK0"] } } };
-        var opened = await Top(s); Assert.Equal(["TAIL", "DECK1"], opened.State.PendingEffectPlay!.ViewedCardIds); Restore(opened.State);
+        var opened = await Top(s); Assert.Equal(["TAIL", "DECK1"], opened.State.PendingCardChoice!.ContextObjectIds); Restore(opened.State);
     }
 
     [Theory]
@@ -152,7 +158,7 @@ public sealed class OfficialLegendDeckPlayTests
             ["P1"] = s.PlayerZones["P1"] with { MainDeck = count == 0 ? [] : ["DECK0"] } } };
         var opened = await Open(s);
         if (count == 0) { Assert.Null(opened.State.PendingEffectPlay); Assert.Empty(opened.State.StackItems); }
-        else { Assert.Equal(["DECK0"], opened.State.PendingEffectPlay!.ViewedCardIds); }
+        else { Assert.Equal(["DECK0"], opened.State.PendingCardChoice!.ContextObjectIds); }
         Restore(opened.State);
     }
 
@@ -160,6 +166,7 @@ public sealed class OfficialLegendDeckPlayTests
     public async Task UnitMayEnterControlledBattlefieldAndPlayAbilityWaitsForResponses()
     {
         var opened = await Open(Position(top: ["SFD·058/221", "SFD·022/221"]));
+        opened = await Select(opened.State, "DECK0");
         var done = await Act(opened.State, "P1", new PlayCardCommand("DECK0", "SFD·058/221", [], Destination: "BATTLEFIELD:BF"));
         Assert.Equal("BF", done.State.ObjectLocations["DECK0"].BattlefieldObjectId);
         Assert.Single(done.State.StackItems); Assert.True(done.State.StackItems[0].SourceConfirmed); Restore(done.State);
@@ -169,7 +176,7 @@ public sealed class OfficialLegendDeckPlayTests
     [Fact]
     public async Task RecoveryRejectsFreePlayWrongSourcesMissingReceiptAndOtherActor()
     {
-        var opened = await Open(Position()); var p = opened.State.PendingEffectPlay!;
+        var opened = await Open(Position()); opened = await Select(opened.State, "DECK0"); var p = opened.State.PendingEffectPlay!;
         foreach (var forged in new[] { p with { IgnoreBaseMana = true }, p with { PlayerId = "P2" },
             p with { Sources = new Dictionary<string,long>() }, p with { Parent = p.Parent with { TriggerCost = null } },
             p with { Parent = p.Parent with { LegendConquest = null } }, p with { ViewedCardIds = ["TAIL"] } })
@@ -182,6 +189,7 @@ public sealed class OfficialLegendDeckPlayTests
     public async Task EchoStillPaysExtraCostAndChildSpellResolvesAfterRecycling()
     {
         var opened = await Open(Position(top: ["OGN·048/298", "SFD·042/221"]));
+        opened = await Select(opened.State, "DECK0");
         var state = opened.State with { UntilEndOfTurnEffects = [EchoCostRules.GrantPrefix + "P1"] };
         var engine = new CoreRuleEngine(); var plain = new PlayCardCommand("DECK0", "OGN·048/298", []);
         var echo = plain with { OptionalCosts = ["ECHO"] };

@@ -47,7 +47,7 @@ public static class EchoCostRules
     // Deck effects need a resumable private selection; do not route placeholder
     // no-selection behavior through a paid repeat.
     public static bool SupportsRepeatResolution(CardBehaviorDefinition behavior)
-        => CoreRuleEngine.SupportsSeparateExecution(behavior) || CoreRuleEngine.IsDeferredDeckChoice(behavior);
+        => behavior.DeckPlayKind.Length > 0 || CoreRuleEngine.SupportsSeparateExecution(behavior) || CoreRuleEngine.IsDeferredDeckChoice(behavior);
 
     public static Cost? PrintedFor(string cardNo) => Printed.Value.GetValueOrDefault(cardNo);
     public static bool IsEcho(string id) => id == "ECHO" || id.StartsWith("ECHO:", StringComparison.Ordinal);

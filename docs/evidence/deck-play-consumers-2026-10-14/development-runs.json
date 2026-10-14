@@ -1,0 +1,373 @@
+{
+  "scope": "Raw distinct-input run inventory; no pass inheritance; current running check excluded from certification",
+  "runs": [
+    {
+      "run": "check",
+      "buildLogSha256": "ca2a8bc0e49859b3e17ced748108f33f968a40f3f452496fc980ec04c59fdaf6",
+      "trx": [],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "current-catalog-and-all-consumer-surfaces",
+      "buildLogSha256": "49f5627c8afc4c1a98d2d3fd6fa124d2cf52cc742e52bb7c46175cb4e776ea3c",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/current-catalog-and-all-consumer-surfaces/focus/results.trx",
+          "sha256": "28a4637716c05e53b72b591156ec258df638b1ca5009282daa864021d073a0e2",
+          "counters": {
+            "total": "2425",
+            "executed": "2425",
+            "passed": "2425",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "PASSED",
+      "cases": 2425,
+      "seconds": 97.83
+    },
+    {
+      "run": "echo-decline-inability-and-forgeries",
+      "buildLogSha256": "f1b5588f684e8849d8f9f5b805a99399b7b56adf9d5d0de74997e2ce5026a418",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/echo-decline-inability-and-forgeries/focus/results.trx",
+          "sha256": "5b3944c137c284f5701b335fd1b30a786e512b1821acbbf74884c4dc0c751ec1",
+          "counters": {
+            "total": "89",
+            "executed": "89",
+            "passed": "87",
+            "failed": "2",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "mandatory-cost-composer-and-consumers",
+      "buildLogSha256": "8db76a374899c4ecf3b31dbf3b7925496948d8b42b2673f505d4c67a068eeadb",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/mandatory-cost-composer-and-consumers/focus/results.trx",
+          "sha256": "0f5d7f976a466812c4d5ade1cae63c1433a3e2af2278b097327797fd8f4e1201",
+          "counters": {
+            "total": "73",
+            "executed": "73",
+            "passed": "73",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "PASSED",
+      "cases": 73,
+      "seconds": 47.36
+    },
+    {
+      "run": "native-input-generation-and-adjacent",
+      "buildLogSha256": "42a8d4a85ab7f0af174f2e14bba82d1b3fe874fa7417956fe04385f259ac3b3b",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/native-input-generation-and-adjacent/focus/results.trx",
+          "sha256": "be31afa8732b5c4690904a131919ad463d9c6b3aa6388e549f90ed38aea20a0a",
+          "counters": {
+            "total": "2427",
+            "executed": "2427",
+            "passed": "2427",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "PASSED",
+      "cases": 2427,
+      "seconds": 72.96
+    },
+    {
+      "run": "original-consumers-current-stage",
+      "buildLogSha256": "fa9df2ecee00e2ba966749589bfc650abedc3c6f5fac5e2de8d29d0887d6d8b5",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/original-consumers-current-stage/focus/results.trx",
+          "sha256": "e251c326898f04e0f3d321ac1c7d9baa5246fb9de833df2b7cb4a46209d00ebe",
+          "counters": {
+            "total": "56",
+            "executed": "56",
+            "passed": "55",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "red-native-additional-composition",
+      "buildLogSha256": "a445c4f9c6c337de5160d1e83ebf90168ef2f7c8c86fdaf7f3e06e1f7af11b43",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/red-native-additional-composition/focus/results.trx",
+          "sha256": "29d1d698aa2e3c18e4d491f56dc13eeaf83dad348fc858b9728a6d8bfd0a9921",
+          "counters": {
+            "total": "3",
+            "executed": "3",
+            "passed": "0",
+            "failed": "3",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "red-real-conquest-and-deck",
+      "buildLogSha256": "036e9d7ad049902f507d482152c2f91c983a024c4b8e220969888202ad52bd34",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/red-real-conquest-and-deck/focus/results.trx",
+          "sha256": "2d52ce989e06d2e635264b29fb7db9b2af9e0161cc58a32c418bab2008356470",
+          "counters": {
+            "total": "3",
+            "executed": "3",
+            "passed": "0",
+            "failed": "3",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "red-selected-queue-binding",
+      "buildLogSha256": "dfa01816d45c3d3763917bfec46c08e76e1d8883a6f3d8d224dc35e11782008b",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/red-selected-queue-binding/focus/results.trx",
+          "sha256": "f53a138b9ebdc10aaab2b0e92e30d83053f1e42630011db524679e5662ad5ece",
+          "counters": {
+            "total": "9",
+            "executed": "9",
+            "passed": "7",
+            "failed": "2",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "red-single-deck-consumers",
+      "buildLogSha256": "290425dc826442e19af9128ef1696881c1021a0eccd3d117954dc44743092c94",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/red-single-deck-consumers/focus/results.trx",
+          "sha256": "94d2553824ecff5567460b6780764896b11eb0a5bde451e45a8d5bfc0b885a2d",
+          "counters": {
+            "total": "3",
+            "executed": "3",
+            "passed": "0",
+            "failed": "3",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "shared-consumers-costs-echo-and-adjacent",
+      "buildLogSha256": "d4ca9a3443ebe870edbbb7d4e2c8e33b9c3b47065f34cb235b42b727f42bf729",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/shared-consumers-costs-echo-and-adjacent/focus/results.trx",
+          "sha256": "b15cda684bd9b2710efb8c9d66ed3d33ce5409aa476f464102ab1b33b9a3ca45",
+          "counters": {
+            "total": "2050",
+            "executed": "2050",
+            "passed": "2050",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "PASSED",
+      "cases": 2050,
+      "seconds": 50.3
+    },
+    {
+      "run": "single-shared-queue-built",
+      "buildLogSha256": "748d60e56067cad5d05898105f9cd8ac099292206d4680b867457395340de804",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/single-shared-queue-built/focus/results.trx",
+          "sha256": "f71f4384d77418aa265423f4c65f431e628428defa8bdb540728fec1a1c55ade",
+          "counters": {
+            "total": "34",
+            "executed": "34",
+            "passed": "33",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "single-shared-queue-first",
+      "buildLogSha256": "5bd35e5aa5047680566f80d0dac2b6ef369a382f77324acad36d4d0bc0955c36",
+      "trx": [],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    },
+    {
+      "run": "three-consumers-and-original-methods",
+      "buildLogSha256": "a74ffa5cef3312a63482a3beb56a7e036607f1e29e7c95886b27ea74a38fe836",
+      "trx": [
+        {
+          "path": "var/qa/deck-play-consumers-20261014/three-consumers-and-original-methods/focus/results.trx",
+          "sha256": "e795e7a93786b7576fe28df69d6206293a9c2f203a412f92b161ca71b242ad8c",
+          "counters": {
+            "total": "1861",
+            "executed": "1861",
+            "passed": "1858",
+            "failed": "3",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "status": "NO_PASS_SUMMARY_RECORDED"
+    }
+  ]
+}

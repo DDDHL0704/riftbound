@@ -25387,13 +25387,15 @@ public sealed partial class FullGameEndToEndTests
                 }
                 foreach (var objectId in zones.MainDeck.Concat(zones.RuneDeck))
                 {
-                    if (result.State.StackItems.LastOrDefault()?.DeckPlaySequence is { Kind: "OPPONENT_REVEAL_PLAY" } revealed
+                    if (result.State.StackItems.LastOrDefault()?.DeckPlaySequence is { Kind: "OPPONENT_REVEAL_PLAY" or "SINGLE_PUBLIC_PLAY" } revealed
                         && revealed.Viewed.TryGetValue(playerId, out var cards) && cards.TryGetValue(objectId, out var generation))
                     {
                         var parent = result.State.StackItems.Last();
-                        Assert.Equal("OGN·025/298", parent.CardNo); Assert.Equal(parent.ControllerId, revealed.ControllerId);
-                        Assert.Equal(parent.SourceObjectId, revealed.Source.ObjectId); Assert.Single(cards);
-                        Assert.Equal(zones.MainDeck.First(), objectId);
+                        if (revealed.Kind == "OPPONENT_REVEAL_PLAY") { Assert.Equal("OGN·025/298", parent.CardNo); Assert.Single(cards); }
+                        else { Assert.Contains(parent.CardNo, new[]{"SFD·188/221","SFD·187/221","SFD·243/221"}); Assert.True(cards.Count <= 2); }
+                        Assert.Equal(parent.ControllerId, revealed.ControllerId);
+                        Assert.Equal(parent.SourceObjectId, revealed.Source.ObjectId);
+                        Assert.Contains(objectId, zones.MainDeck.Take(cards.Count));
                         Assert.Equal(generation, result.State.CardObjects[objectId].ObjectGeneration);
                     }
                     else Assert.DoesNotContain(objectId, exposedStringValues);

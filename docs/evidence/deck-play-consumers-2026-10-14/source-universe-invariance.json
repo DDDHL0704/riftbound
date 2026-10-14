@@ -1,0 +1,22 @@
+{
+  "status": "FULL_UNIVERSE_AND_UNREVIEWED_STATUSES_RETAINED",
+  "sha256": "7d2b5a1b4656daca394ff9ed4d2c13464572e3d25574cda610383f7ab61ca097",
+  "counts": {
+    "cnOfficialPrintings": 1502,
+    "enReturnedPrintings": 1407,
+    "enReportedTotal": 1415,
+    "enSourceCountGap": 8,
+    "combinedExactPrintingNumbers": 1738,
+    "activeCatalogEntries": 1031,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1502,
+    "cnNonemptyQaFields": 0
+  },
+  "semanticCoverageCertified": false,
+  "currentCardLedger": {
+    "path": "docs/evidence/rules-reaudit-2026-10-14/source-refresh-20261013T164814Z/all-card-ledger.json",
+    "sha256": "501f4635f66afcf5b4a922bc3c56e11686bcee49ea9dd4e47cd02de9005b34e6"
+  },
+  "activeFunctionalUnits": 830,
+  "note": "Only four effective text updates; complete existing source universe and raw historical snapshots preserved. Full check verifies current catalog counts."
+}

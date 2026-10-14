@@ -12674,9 +12674,7 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
-            && !CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId)
-            && CoreRuleEngine.PowerfulDestructionAdditionalCostCandidates(state, playerId).Count == 0)
+        if (!CoreRuleEngine.HasMandatoryPlayAdditionalCostChoices(state, playerId, behavior))
             return false;
         var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
         var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
@@ -14315,11 +14313,14 @@ internal static class ActionPromptBuilder
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
 
-        if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost)
-            choices.AddRange(CoreRuleEngine.PowerfulDestructionAdditionalCostCandidates(state, playerId).Select(id => {
-                var choice = ObjectChoice(state, id, "必付额外费用；不是法术目标");
-                return new ActionPromptChoiceDto($"DESTROY_FRIENDLY_POWERFUL_UNIT:{id}",
-                    $"摧毁友方强力单位：{choice.Label}", choice.Reason);
+        if (!CoreRuleEngine.EffectPlayIgnoresAllCosts(state, playerId))
+            choices.AddRange(CoreRuleEngine.MandatoryPlayAdditionalCostCandidates(state, playerId, behavior).Select(cost => {
+                var parts = cost.Split(':', 2);
+                var choice = ObjectChoice(state, parts[1], "必付额外费用；不是法术目标");
+                var label = parts[0] switch {
+                    "DESTROY_FRIENDLY_POWERFUL_UNIT" => "摧毁友方强力单位", "DESTROY_FRIENDLY_TRAIT_UNIT" => "摧毁符合属性的友方单位",
+                    "RETURN_FRIENDLY_EQUIPMENT" => "返回友方装备", _ => "摧毁友方单位" };
+                return new ActionPromptChoiceDto(cost, $"{label}：{choice.Label}", choice.Reason);
             }));
 
         if (CanPromptSourceStealEnemyEquipmentOptionalCost(
@@ -15355,7 +15356,7 @@ internal static class ActionPromptBuilder
         {
             metadata["cardChoices"] = PendingCardChoiceDtos(state, choice);
             if (choice.DeckContext is not null)
-                metadata["viewedCards"] = choice.ContextObjectIds.Select(id => new ActionPromptChoiceDto(id, CoreRuleEngine.DeckChoiceLabel(state, id), state.StackItems.LastOrDefault()?.DeckPlaySequence?.Kind == "OPPONENT_REVEAL_PLAY" ? "已公开展示" : "仅你可见；查看不等于展示")).ToArray();
+                metadata["viewedCards"] = choice.ContextObjectIds.Select(id => new ActionPromptChoiceDto(id, CoreRuleEngine.DeckChoiceLabel(state, id), state.StackItems.LastOrDefault() is { } deckItem && CoreRuleEngine.DeckPlaySequenceReveals(deckItem) ? "已公开展示" : "仅你可见；查看不等于展示")).ToArray();
             if (choice.HandContext is not null)
             {
                 metadata["viewedCardsPublic"] = true;
@@ -16230,7 +16231,6 @@ internal static class ActionPromptBuilder
                 targetIndex => targetIndex.ToString(System.Globalization.CultureInfo.InvariantCulture),
                 targetIndex => (object?)PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex),
                 StringComparer.Ordinal);
-        var unsupportedReason = UnsupportedPlayCardCompositionReason(behavior);
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
@@ -16306,8 +16306,8 @@ internal static class ActionPromptBuilder
             ["availablePowerByTraitWithPaymentResources"] = availablePowerByTraitWithPaymentResources,
             ["hasteReadyPowerCost"] = behavior.HasteReadyPowerCost,
             ["hasteReadyPowerTrait"] = HasteReadyPowerTrait(behavior),
-            ["composable"] = string.IsNullOrWhiteSpace(unsupportedReason),
-            ["unsupportedReason"] = unsupportedReason
+            ["composable"] = true,
+            ["unsupportedReason"] = string.Empty
         };
     }
 
@@ -16407,22 +16407,6 @@ internal static class ActionPromptBuilder
 
     private static bool PromptBattlefieldStaticPreventsUnitPlayToBattlefield(MatchState state, string playerId, string destination) =>
         BattlefieldLocalRules.PreventsUnitPlay(state, destination);
-
-    private static string UnsupportedPlayCardCompositionReason(CardBehaviorDefinition behavior)
-    {
-        if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
-            || behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost)
-        {
-            return "该牌需要服务端提供额外费用牺牲目标选择，当前前端入口暂不提交。";
-        }
-
-        if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost)
-        {
-            return "该牌需要服务端提供额外费用返回装备选择，当前前端入口暂不提交。";
-        }
-
-        return string.Empty;
-    }
 
     private static IEnumerable<string> PublicBoardObjects(MatchState state)
     {

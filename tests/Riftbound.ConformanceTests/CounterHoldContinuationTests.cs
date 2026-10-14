@@ -58,8 +58,10 @@ public sealed class CounterHoldContinuationTests
         {
             if (result.State.PendingCardChoice is { } choice)
             {
-                Export("ornn-prompt.json", result.Prompts["P1"]);
-                result = await Submit("P1", NativeOrDefault("native-ornn-command.json", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["E2"])));
+                var prefix = scenario == "reinforcements" ? "reinforcements-choice" : "ornn";
+                Export(prefix + "-prompt.json", result.Prompts["P1"]);
+                result = await Submit("P1", NativeOrDefault("native-" + prefix + "-command.json",
+                    new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, scenario == "reinforcements" ? ["U"] : ["E2"])));
             }
             else if (result.State.PendingEffectPlay is not null)
             {

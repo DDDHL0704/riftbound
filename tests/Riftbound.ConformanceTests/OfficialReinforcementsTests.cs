@@ -15,10 +15,11 @@ public sealed class OfficialReinforcementsTests
         var opened = await Open(unit);
         var state = opened.State;
         var pending = Assert.IsType<PendingEffectPlayState>(state.PendingEffectPlay);
-        Assert.Equal("MAIN_DECK", pending.SourceZone);
-        Assert.Equal(["U", "N1", "N2", "N3", "N4"], pending.ViewedCardIds);
+        Assert.Equal("STACK", pending.SourceZone);
+        Assert.Null(pending.ViewedCardIds);
+        Assert.Equal(["U", "N1", "N2", "N3", "N4"], pending.Parent.DeckPlaySequence!.Viewed["P1"].Keys);
         Assert.Equal(["U"], pending.Sources.Keys);
-        Assert.DoesNotContain("\"U\"", JsonSerializer.Serialize(opened.Prompts["P2"]));
+        Assert.Contains("\"U\"", JsonSerializer.Serialize(opened.Prompts["P2"])); // Chosen card is now a public pending stack item.
         Assert.DoesNotContain("\"N1\"", JsonSerializer.Serialize(opened.Snapshots["P2"]));
         Assert.DoesNotContain("\"N1\"", JsonSerializer.Serialize(opened.Events));
         var restored = JsonSerializer.Deserialize<MatchState>(JsonSerializer.Serialize(state))!;
@@ -36,7 +37,7 @@ public sealed class OfficialReinforcementsTests
         Assert.Equal(state.RunePools["P1"].Mana - remainingMana, result.State.RunePools["P1"].Mana);
         Assert.Equal("TAIL", result.State.PlayerZones["P1"].MainDeck[0]);
         Assert.Equal(5, result.State.PlayerZones["P1"].MainDeck.Count);
-        Assert.Equal(4, Assert.Single(result.Events, e => e.Kind == "CARDS_RECYCLED").Payload["count"]);
+        Assert.Equal(4, Assert.Single(opened.Events, e => e.Kind == "CARDS_RECYCLED").Payload["count"]);
         Assert.Contains("CARD", result.State.PlayerZones["P1"].Graveyard);
         Assert.DoesNotContain("\"N1\"", JsonSerializer.Serialize(result.Events));
     }
@@ -44,7 +45,7 @@ public sealed class OfficialReinforcementsTests
     [Fact]
     public async Task MayDeclineAndCannotPickBelowTopFiveOrSkipPrintedPower()
     {
-        var opened = await Open("SFD·143/221");
+        var opened = await Open("SFD·143/221", select: false);
         var state = opened.State with { RunePools = new Dictionary<string,RunePool>(opened.State.RunePools) { ["P1"] = new(20,0) } };
         var engine = new CoreRuleEngine();
         foreach (var command in new[] { new PlayCardCommand("TAIL", "SFD·125/221", []), new PlayCardCommand("N1", "SFD·022/221", []), new PlayCardCommand("U", "SFD·143/221", []) })
@@ -53,10 +54,14 @@ public sealed class OfficialReinforcementsTests
             Assert.False(result.Accepted);
             Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(result.State));
         }
-        var pending = state.PendingEffectPlay!;
-        var forged = state with { PendingEffectPlay = pending with { ManaReduction = 100 } };
-        Assert.Contains(MatchRecoveryValidator.Validate(forged.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), forged, forged.Tick), e => e.Contains("deck effect-play"));
-        var declined = await Act(state, new ChooseCardsCommand(pending.ChoiceId, "EFFECT_PLAY", []));
+        var chosen = await Select(state, "U");
+        var unpaid = await engine.ResolveAsync(chosen.State, new("unpaid", "P1", CommandTypes.PlayCard), new PlayCardCommand("U", "SFD·143/221", []), default);
+        Assert.False(unpaid.Accepted); Assert.Equal(MatchStateHasher.Hash(chosen.State), MatchStateHasher.Hash(unpaid.State));
+        var pending = chosen.State.PendingEffectPlay!;
+        var forged = chosen.State with { PendingEffectPlay = pending with { ManaReduction = 100 } };
+        Assert.Contains(MatchRecoveryValidator.Validate(forged.RoomId, 0, [], [], new Dictionary<string, RecoveredPlayerView>(), forged, forged.Tick), e => e.Contains("deck play"));
+        var choice = state.PendingCardChoice!;
+        var declined = await Act(state, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
         Assert.Null(declined.State.PendingEffectPlay);
         Assert.Empty(declined.State.PlayerZones["P1"].Base);
         Assert.Equal(6, declined.State.PlayerZones["P1"].MainDeck.Count);
@@ -90,14 +95,19 @@ public sealed class OfficialReinforcementsTests
         var result = await new CoreRuleEngine().ResolveAsync(state, new("pass-"+state.Tick, state.PriorityPlayerId!, CommandTypes.PassPriority), new PassPriorityCommand(), default);
         Assert.True(result.Accepted, result.ErrorMessage); return result;
     }
-    internal static async Task<ResolutionResult> Open(string unit)
+    internal static Task<ResolutionResult> Select(MatchState state, string unit) => Act(state,
+        new ChooseCardsCommand(state.PendingCardChoice!.ChoiceId, state.PendingCardChoice.ChoiceWindow, [unit]));
+    internal static async Task<ResolutionResult> Open(string unit, bool select = true)
     {
         var initial = Position(unit);
         Assert.DoesNotContain("\"N1\"", JsonSerializer.Serialize(ResolutionResult.BuildPrompts(initial)));
         var played = await Act(initial, new PlayCardCommand("CARD", "OGN·062/298", []));
         Assert.Null(played.State.PendingEffectPlay);
         var first = await Pass(played.State);
-        return await Pass(first.State);
+        var shown = await Pass(first.State);
+        Assert.DoesNotContain("\"U\"", JsonSerializer.Serialize(shown.Prompts["P2"]));
+        Assert.DoesNotContain("\"N1\"", JsonSerializer.Serialize(shown.Snapshots["P2"]));
+        return select ? await Select(shown.State, "U") : shown;
     }
     internal static MatchState Position(string unit)
     {

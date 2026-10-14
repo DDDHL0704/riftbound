@@ -23781,6 +23781,36 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .OrderBy(id => id, StringComparer.Ordinal).ToArray();
     }
 
+    internal static IReadOnlyList<string> MandatoryPlayAdditionalCostCandidates(MatchState state, string playerId, CardBehaviorDefinition behavior)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+        var choices = new List<string>();
+        foreach (var id in zones.Base.Concat(zones.Battlefields).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+        {
+            if (behavior.RequiresDestroyFriendlyUnitAdditionalCost && CanDestroyFriendlyUnitAsAdditionalCost(state, playerId, id))
+                choices.Add(DestroyFriendlyUnitAdditionalCostPrefix + id);
+            if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost && CanDestroyFriendlyPowerfulUnitAsAdditionalCost(state, playerId, id))
+                choices.Add(DestroyFriendlyPowerfulUnitAdditionalCostPrefix + id);
+            if (behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && CanDestroyFriendlyTraitUnitAsAdditionalCost(state, playerId, id))
+                choices.Add(DestroyFriendlyTraitUnitAdditionalCostPrefix + id);
+            if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost && CanReturnFriendlyEquipmentAsAdditionalCost(state, playerId, id))
+                choices.Add(ReturnFriendlyEquipmentAdditionalCostPrefix + id);
+        }
+        return choices;
+    }
+
+    internal static bool HasMandatoryPlayAdditionalCostChoices(MatchState state, string playerId, CardBehaviorDefinition behavior)
+    {
+        if (EffectPlayIgnoresAllCosts(state, playerId)) return true;
+        if (!behavior.RequiresDestroyFriendlyUnitAdditionalCost && !behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
+            && !behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost && !behavior.RequiresReturnFriendlyEquipmentAdditionalCost) return true;
+        var choices = MandatoryPlayAdditionalCostCandidates(state, playerId, behavior);
+        return (!behavior.RequiresDestroyFriendlyUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix)))
+            && (!behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyPowerfulUnitAdditionalCostPrefix)))
+            && (!behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost || choices.Any(c => c.StartsWith(DestroyFriendlyTraitUnitAdditionalCostPrefix)))
+            && (!behavior.RequiresReturnFriendlyEquipmentAdditionalCost || choices.Any(c => c.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix)));
+    }
+
     private static bool CanDestroyFriendlyUnitAsAdditionalCost(
         MatchState state,
         string playerId,

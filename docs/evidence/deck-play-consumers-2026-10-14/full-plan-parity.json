@@ -1,0 +1,27 @@
+{
+  "status": "FULL_PLAN_ONLY_METHOD_PARITY_VERIFIED",
+  "oldMethods": 7097,
+  "methods": 7107,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.AnUnavailableMandatoryCostReturnsTheChosenUnitToBanishmentWithoutInventingAPlay",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.ChosenUnitsOfferTheirActualMandatoryAdditionalCostToTheProductionComposer",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.DecliningBeforeBanishmentRecyclesOrDrawsExactlyTheViewedCards",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.EmptyDecksDoNotBurnOutWhenTheInstructionOnlyLooksOrDrawsUnbanishedViewedCards",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.RealEchoCompletesBothOptionalSelectionsAndRemainderInstructionsBeforeConfirmingEitherUnit",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.RecoveryRejectsIndependentSinglePlayerPermissionAndPolicyForgeries",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.ReinforceSelectsPrivatelyAndBanishesBeforeTheParentEndsAndTheUnitIsActuallyPlayed",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.VoidBurrowerPaidConquestRevealsThenBanishesBeforeItsAbilityEndsAndPaysNormalCost",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.VoidRushActuallyConfirmsEquipmentAndOrdinarySpellsWithTheTwoManaReduction",
+    "Riftbound.ConformanceTests.SingleDeckPlaySequenceTests.VoidRushBanishesOneAndDrawsTheOtherBeforeAnySelectedCardIsConfirmed"
+  ],
+  "missingMethods": [],
+  "fullGameMethods": 143,
+  "sameGameMethodIdentities": true,
+  "expectedCases": 11423,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "sameCheckAndPlanAssemblySha256": "4a2dcbc7042c35d1936379340059efd313cf7ad57a9c947f53f710a517461155",
+  "frozenInputs": 2261,
+  "frozenInputsUnchanged": true,
+  "fullExecutionCertified": false
+}

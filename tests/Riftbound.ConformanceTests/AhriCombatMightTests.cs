@@ -240,13 +240,21 @@ public sealed class AhriCombatMightTests
         var historical = await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName, "data/official/upstream/2026-10-11/active-catalog.zh-CN.json"));
         var current = await OfficialCardCatalog.LoadDefaultAsync();
         Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1031, current.Cards.Count);
-        // Only these exact printings adopt the current official deck-play errata.
+        // Only these exact printings adopt the scoped current deck-play errata.
         // Keep the archived source and every other historical field unchanged.
         var errata = new Dictionary<string,(string Before,string After)> {
             ["OGN·025/298"] = ("{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，并当作自己的牌打出，无视费用，然后回收其余的卡牌。",
                 "{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，将其放逐，然后当作自己的牌打出，无视费用。然后回收其余的卡牌。"),
             ["OGN·115/298"] = ("每名玩家可以查看主牌堆顶部的五张牌，从中选择一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些卡牌，并无视其法力费用（仍需支付所有符能费用）。",
-                "每名玩家查看其主牌堆顶部的五张牌，放逐其中一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些被放逐的卡牌，无视其法力费用。（仍需支付所有符能费用。）") };
+                "每名玩家查看其主牌堆顶部的五张牌，放逐其中一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些被放逐的卡牌，无视其法力费用。（仍需支付所有符能费用。）"),
+            ["OGN·062/298"] = ("查看主牌堆顶部的五张牌，你可以从中选择一名单位，将它的法力费用减少{{5}}后打出，然后回收其余卡牌。",
+                "查看你主牌堆顶部的五张牌。你可以选择从中放逐一名单位，然后将其打出，其费用减少{{5}}。回收其余的卡牌。"),
+            ["SFD·188/221"] = ("展示你主牌堆顶部的两张牌。你可以选择其中一张，将其费用减少{{2}}后打出。抽取其中未以此方式打出的卡牌。",
+                "展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出，其费用减少{{2}}。抽取其中未被放逐的卡牌。"),
+            ["SFD·187/221"] = ("当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。你可以选择打出其中一张牌，然后回收其余的卡牌。",
+                "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出。回收其余的卡牌。"),
+            ["SFD·243/221"] = ("当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。你可以选择打出其中一张牌，然后回收其余的卡牌。",
+                "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出。回收其余的卡牌。") };
         foreach (var card in historical.Cards)
         {
             var actual = current.Cards.Single(c => c.CardNo == card.CardNo);

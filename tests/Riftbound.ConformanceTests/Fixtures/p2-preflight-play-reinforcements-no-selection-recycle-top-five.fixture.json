@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-reinforcements-no-selection-recycle-top-five",
-  "description": "Reinforcements may choose no unit card from the top five cards and recycles all viewed cards.",
+  "description": "Current Reinforce explicitly declines banishment and recycles the original top five; original costs, seed and final deck order retained.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -23,6 +23,11 @@
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·062/298",
       "note": "2026-10-09: decline is now an explicit private choice after response, not automatic recycling; choosing a unit goes through formal play and mana reduction."
+    },
+    {
+      "source": "docs/evidence/deck-play-consumers-2026-10-14/source-current.json",
+      "locator": "OGN062 ID31274 current errata",
+      "note": "Decline is a resolution-time zero-card DECK_PLAY_SELECTION; all viewed cards recycled before source ends."
     }
   ],
   "roomId": "p2-preflight-reinforcements-no-selection-room",
@@ -99,6 +104,71 @@
           "P2-CHAMPION-001"
         ]
       }
+    },
+    "cardObjects": {
+      "P1-SPELL-REINFORCEMENTS-NO-SELECT": {
+        "cardNo": "OGN·062/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 5,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-REINFORCEMENTS-RECYCLE-A": {
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-REINFORCEMENTS-RECYCLE-B": {
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-REINFORCEMENTS-RECYCLE-C": {
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-REINFORCEMENTS-RECYCLE-D": {
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-REINFORCEMENTS-RECYCLE-E": {
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-MAIN-KEEPER": {
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      }
     }
   },
   "commands": [
@@ -131,8 +201,8 @@
       "clientIntentId": "reinforcements-decline",
       "cmd": {
         "cmdType": "CHOOSE_CARDS",
-        "choiceId": "EFFECT-PLAY:3:STACK-1-P1-SPELL-REINFORCEMENTS-NO-SELECT",
-        "choiceWindow": "EFFECT_PLAY",
+        "choiceId": "DECK-PLAY-STACK-1-P1-SPELL-REINFORCEMENTS-NO-SELECT-0",
+        "choiceWindow": "DECK_PLAY_SELECTION",
         "chosenObjectIds": []
       }
     }
@@ -145,7 +215,8 @@
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "EFFECT_PLAY_REQUESTED",
+      "STACK_ITEM_SUSPENDED",
+      "CARD_CHOICE_REQUESTED",
       "CARDS_RECYCLED",
       "STACK_ITEM_RESOLVED"
     ],
@@ -166,12 +237,20 @@
         "kind": "PRIORITY_PASSED"
       },
       {
-        "kind": "EFFECT_PLAY_REQUESTED"
+        "kind": "STACK_ITEM_SUSPENDED"
+      },
+      {
+        "kind": "CARD_CHOICE_REQUESTED",
+        "payload": {
+          "playerId": "P1",
+          "choiceWindow": "DECK_PLAY_SELECTION",
+          "contextCount": 5
+        }
       },
       {
         "kind": "CARDS_RECYCLED",
         "tick": 4,
-        "sequence": 7,
+        "sequence": 8,
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-SPELL-REINFORCEMENTS-NO-SELECT",

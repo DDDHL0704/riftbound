@@ -17,6 +17,35 @@ public sealed partial class CoreRuleEngine
 {
     internal const string DeckPlayChoiceWindow = "DECK_PLAY_SELECTION";
 
+    private static string[] DeckPlayPlayers(MatchState state, string controller, string kind)
+        => kind.StartsWith("SINGLE_", StringComparison.Ordinal) ? [controller]
+            : kind == "OPPONENT_REVEAL_PLAY" ? PlayerIdsStartingAfter(state, controller).Where(p => p != controller).ToArray()
+            : new[] { state.TurnPlayerId }.Concat(PlayerIdsStartingAfter(state, state.TurnPlayerId).Where(p => p != state.TurnPlayerId)).ToArray();
+
+    private static int DeckPlayLookCount(CardBehaviorDefinition definition)
+        => definition.DeckPlayKind == "OPPONENT_REVEAL_PLAY" ? 1
+            : definition.DeckPlayKind == "EACH_PLAYER_LOOK_PLAY" ? 5 : definition.MainDeckLookCount;
+
+    internal static bool DeckPlaySequenceReveals(StackItemState item)
+        => TryGetEffectPlayDefinition(item, out var definition) && (definition.DeckPlayKind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayRevealsCards);
+
+    private static string[] DeckPlayLegalSelection(MatchState state, DeckPlaySequenceContext c, string owner)
+        => c.Viewed[owner].Keys.Where(id => c.Kind != "SINGLE_PRIVATE_UNIT_PLAY"
+            || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)).ToArray();
+
+    private static PendingEffectPlayState DeckPlayPending(StackItemState item, DeckPlaySequenceContext c)
+    {
+        TryGetEffectPlayDefinition(item, out var definition);
+        var chosen = c.Queue[c.PlayIndex]; var card = chosen.Card;
+        var actor = c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : chosen.OwnerId;
+        return new($"DECK-PLAY-EFFECT-{item.StackItemId}-{c.PlayIndex}", actor, item, "STACK",
+            new Dictionary<string,long> { [card.ObjectId] = card.Generation },
+            c.Kind is "OPPONENT_REVEAL_PLAY" or "EACH_PLAYER_LOOK_PLAY" || definition.EffectPlayIgnoreBaseMana,
+            c.Kind == "OPPONENT_REVEAL_PLAY" || definition.EffectPlayIgnoreBasePower,
+            definition.EffectPlayManaReduction, definition.EffectPlayDestination, false,
+            IgnoreAllCosts: c.Kind == "OPPONENT_REVEAL_PLAY");
+    }
+
     private static StackResolutionResult BeginDeckPlaySequence(MatchState state, StackItemState item, CardBehaviorDefinition definition)
     {
         // Declared deck identities are never valid targets for these effects.
@@ -25,15 +54,13 @@ public sealed partial class CoreRuleEngine
         var c = item.DeckPlaySequence;
         if (c is null)
         {
-            var players = definition.DeckPlayKind == "OPPONENT_REVEAL_PLAY"
-                ? PlayerIdsStartingAfter(state, item.ControllerId).Where(p => p != item.ControllerId).ToArray()
-                : new[] { state.TurnPlayerId }.Concat(PlayerIdsStartingAfter(state, state.TurnPlayerId).Where(p => p != state.TurnPlayerId)).ToArray();
-            var count = definition.DeckPlayKind == "OPPONENT_REVEAL_PLAY" ? 1 : 5;
+            var players = DeckPlayPlayers(state, item.ControllerId, definition.DeckPlayKind);
+            var count = DeckPlayLookCount(definition);
             var viewed = players.ToDictionary(p => p, p => (IReadOnlyDictionary<string,long>)state.PlayerZones[p].MainDeck.Take(count)
                 .ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), StringComparer.Ordinal);
             c = new(definition.DeckPlayKind, new(item.SourceObjectId, state.CardObjects[item.SourceObjectId].ObjectGeneration),
                 item.CardNo!, item.ControllerId, players, viewed, new Dictionary<string,ObjectBinding>(), 0, 0);
-            if (c.Kind == "OPPONENT_REVEAL_PLAY")
+            if (DeckPlaySequenceReveals(item))
                 foreach (var player in players)
                     if (viewed[player].Count > 0) events.Add(new("CARDS_REVEALED", "对手展示主牌堆顶部的卡牌", new Dictionary<string,object?> {
                         ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = viewed[player].Count,
@@ -46,9 +73,14 @@ public sealed partial class CoreRuleEngine
         {
             var owner = c.Players[c.SelectionIndex];
             var ids = c.Viewed[owner].Keys.ToArray();
+            var legal = DeckPlayLegalSelection(state, c, owner);
+            var required = definition.EffectPlayOptional ? 0 : 1;
             var actor = c.Kind == "OPPONENT_REVEAL_PLAY" ? item.ControllerId : owner;
             var choice = new PendingCardChoiceState(DeckPlaySelectionId(item, c), DeckPlayChoiceWindow,
-                actor, 1, 1, ids, ids, c.Kind == "OPPONENT_REVEAL_PLAY" ? "选择展示的卡牌，放逐后无视费用打出" : "私下查看主牌堆顶部的牌，放逐其中一张并回收其余牌",
+                actor, required, legal.Length > 0 ? 1 : 0, legal, ids,
+                c.Kind == "OPPONENT_REVEAL_PLAY" ? "选择展示的卡牌，放逐后无视费用打出"
+                    : definition.DeckPlayDrawsUnselected ? "可以放逐一张展示的牌并打出；抽取未放逐的牌"
+                    : "查看主牌堆顶部的牌，选择放逐并打出，回收其余牌",
                 item.SourceObjectId, item.EffectKind) { DeckContext = new(item.StackItemId, c.SelectionIndex) };
             events.Add(new("CARD_CHOICE_REQUESTED", "等待结算中的牌堆选择", new Dictionary<string,object?> {
                 ["playerId"] = actor, ["sourceObjectId"] = item.SourceObjectId, ["choiceId"] = choice.ChoiceId,
@@ -63,11 +95,11 @@ public sealed partial class CoreRuleEngine
         c = c with { Queue = queued };
         if (c.ExecutionIndex + 1 < item.EffectRepeatCount)
         {
-            var count = c.Kind == "OPPONENT_REVEAL_PLAY" ? 1 : 5;
+            var count = DeckPlayLookCount(definition);
             c = c with { ExecutionIndex = c.ExecutionIndex + 1, SelectionIndex = 0,
                 Selected = new Dictionary<string,ObjectBinding>(), Viewed = c.Players.ToDictionary(p => p,
                     p => (IReadOnlyDictionary<string,long>)state.PlayerZones[p].MainDeck.Take(count).ToDictionary(id => id,id => state.CardObjects[id].ObjectGeneration)) };
-            if (c.Kind == "OPPONENT_REVEAL_PLAY")
+            if (DeckPlaySequenceReveals(item))
                 foreach (var player in c.Players)
                     if (c.Viewed[player].Count > 0) events.Add(new("CARDS_REVEALED", "下一次执行展示主牌堆顶部的卡牌", new Dictionary<string,object?> {
                         ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = c.Viewed[player].Count,
@@ -113,11 +145,7 @@ public sealed partial class CoreRuleEngine
                 ["effectKind"] = item.EffectKind, ["cardNo"] = item.CardNo, ["targetObjectIds"] = item.TargetObjectIds }));
         }
         item = item with { DeckPlaySequence = c, EffectPlayCompleted = true };
-        var chosen = c.Queue[c.PlayIndex]; var selectedCard = chosen.Card;
-        var playerId = c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : chosen.OwnerId;
-        var pending = new PendingEffectPlayState($"DECK-PLAY-EFFECT-{item.StackItemId}-{c.PlayIndex}", playerId, item,
-            "STACK", new Dictionary<string,long> { [selectedCard.ObjectId] = selectedCard.Generation }, true,
-            c.Kind == "OPPONENT_REVEAL_PLAY", 0, "ANY", false, IgnoreAllCosts: c.Kind == "OPPONENT_REVEAL_PLAY");
+        var pending = DeckPlayPending(item, c);
         return (completed ?? NoopStackResolutionResult(state)) with { PendingEffectPlay = pending, Events = events };
     }
 
@@ -128,25 +156,36 @@ public sealed partial class CoreRuleEngine
     {
         var item = state.StackItems.Last(); var c = item.DeckPlaySequence!;
         if (!ValidDeckPlayChoice(state, choice)) return RejectWithCorePrompts(state, "本次牌堆选择上下文已失效。", ErrorCodes.InvalidTarget);
-        var owner = c.Players[c.SelectionIndex]; var id = selected.Single();
+        TryGetEffectPlayDefinition(item, out var definition);
+        var owner = c.Players[c.SelectionIndex]; var id = selected.SingleOrDefault();
         var zones = NormalizeZonesForSeats(state); var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value);
-        var old = cards[id];
-        var card = PrintedCardFactory.TryRestoreOutsidePlay(old, old.OwnerId ?? owner, out var printed) ? printed : old;
-        cards[id] = card with { ControllerId = c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : owner,
-            ObjectGeneration = checked(old.ObjectGeneration + 1) };
-        zones[owner] = zones[owner] with { MainDeck = RemoveFromZone(zones[owner].MainDeck, id), Banished = zones[owner].Banished.Append(id).ToArray() };
+        var events = new List<GameEvent>();
+        var picked = c.Selected.ToDictionary(p => p.Key, p => p.Value);
+        if (id is not null)
+        {
+            var old = cards[id];
+            var card = PrintedCardFactory.TryRestoreOutsidePlay(old, old.OwnerId ?? owner, out var printed) ? printed : old;
+            cards[id] = card with { ControllerId = c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : owner,
+                ObjectGeneration = checked(old.ObjectGeneration + 1) };
+            zones[owner] = zones[owner] with { MainDeck = RemoveFromZone(zones[owner].MainDeck, id), Banished = zones[owner].Banished.Append(id).ToArray() };
+            picked[owner] = new(id, cards[id].ObjectGeneration);
+            events.Add(new("CARD_BANISHED", "所选牌被放逐，等待再次打出", new Dictionary<string,object?> {
+                ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
+                ["cardNo"] = cards[id].CardNo, ["destinationZone"] = "BANISHED" }));
+        }
         var remaining = c.Viewed[owner].Keys.Where(x => x != id).ToArray();
-        var recycled = RandomizeForMainDeckBottom(remaining, state.Seed, state.RngCursor, item.SourceObjectId);
-        zones[owner] = zones[owner] with { MainDeck = zones[owner].MainDeck.Where(x => !remaining.Contains(x)).Concat(recycled).ToArray() };
-        var events = new List<GameEvent> { new("CARD_BANISHED", "所选牌被放逐，等待再次打出", new Dictionary<string,object?> {
-            ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
-            ["cardNo"] = cards[id].CardNo, ["destinationZone"] = "BANISHED" }) };
-        if (remaining.Length > 0) events.Add(new("CARDS_RECYCLED", "回收未选择的牌", new Dictionary<string,object?> {
-            ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["count"] = remaining.Length }));
-        var picked = c.Selected.ToDictionary(p => p.Key, p => p.Value); picked[owner] = new(id, cards[id].ObjectGeneration);
+        if (definition.DeckPlayDrawsUnselected)
+            ApplyDrawToPlayer(state, zones, state.PlayerScores, owner, remaining.Length, state.RngCursor, events);
+        else
+        {
+            var recycled = RandomizeForMainDeckBottom(remaining, state.Seed, state.RngCursor, item.SourceObjectId);
+            zones[owner] = zones[owner] with { MainDeck = zones[owner].MainDeck.Where(x => !remaining.Contains(x)).Concat(recycled).ToArray() };
+            if (remaining.Length > 0) events.Add(new("CARDS_RECYCLED", "回收未选择的牌", new Dictionary<string,object?> {
+                ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["count"] = remaining.Length }));
+        }
         item = item with { DeckPlaySequence = c with { Selected = picked, SelectionIndex = c.SelectionIndex + 1 } };
         var next = state with { PendingCardChoice = null, PlayerZones = zones, CardObjects = cards,
-            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), RngCursor = state.RngCursor + (remaining.Length > 1 ? 1 : 0),
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), RngCursor = state.RngCursor + (!definition.DeckPlayDrawsUnselected && remaining.Length > 1 ? 1 : 0),
             StackItems = state.StackItems.Take(state.StackItems.Count - 1).Append(item).ToArray() };
         var resumed = ResolvePassPriority(next, new("deck-play-choice", choice.PlayerId, CommandTypes.PassPriority), forceResolve: true);
         return resumed with { Events = events.Concat(resumed.Events).ToArray() };
@@ -157,29 +196,34 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidDeckPlaySequence(MatchState state, StackItemState item)
     {
-        if (item.DeckPlaySequence is not { } c) return !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var plain)
+        if (item.DeckPlaySequence is not { } c) return !TryGetEffectPlayDefinition(item, out var plain)
             || plain.DeckPlayKind.Length == 0 || item.TargetObjectIds.Count == 0;
-        if (!CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var b) || b.DeckPlayKind != c.Kind
+        if (!TryGetEffectPlayDefinition(item, out var b) || b.DeckPlayKind != c.Kind || b.CardNo != item.CardNo
             || c.CardNo != item.CardNo || c.ControllerId != item.ControllerId || c.Source is null
             || c.Source.ObjectId != item.SourceObjectId || c.Source.Generation < 0
             || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration < c.Source.Generation
             || c.Players is null || c.Viewed is null || c.Selected is null || c.Queue is null
             || c.SelectionIndex < 0 || c.SelectionIndex > c.Players.Count || c.PlayIndex < 0 || c.PlayIndex > c.Queue.Count
             || c.ExecutionIndex < 0 || c.ExecutionIndex >= item.EffectRepeatCount
-            || !c.ParentCompleted && c.PlayIndex != 0) return false;
-        var players = c.Kind == "OPPONENT_REVEAL_PLAY" ? PlayerIdsStartingAfter(state,c.ControllerId).Where(p => p != c.ControllerId).ToArray()
-            : new[] { state.TurnPlayerId }.Concat(PlayerIdsStartingAfter(state,state.TurnPlayerId).Where(p => p != state.TurnPlayerId)).ToArray();
+            || !c.ParentCompleted && c.PlayIndex != 0
+            || item.LegendConquest is not null && (item.TriggerCost is null || !ValidTriggerCostReceipt(state, item))) return false;
+        var players = DeckPlayPlayers(state, c.ControllerId, c.Kind);
         if (!players.SequenceEqual(c.Players) || !c.Viewed.Keys.Order().SequenceEqual(players.Order())
             || c.Selected.Keys.Any(p => !players.Contains(p)) || c.Queue.Any(q => q is null)
             || c.Queue.Select(q => q.Card?.ObjectId).Distinct().Count() != c.Queue.Count) return false;
         for (var i=0;i<players.Length;i++)
         {
             var player=players[i];var viewed=c.Viewed[player];
-            if (viewed is null || viewed.Count > (c.Kind == "OPPONENT_REVEAL_PLAY" ? 1 : 5)
+            if (viewed is null || viewed.Count > DeckPlayLookCount(b)
                 || viewed.Any(p => p.Value < 0 || !state.CardObjects.TryGetValue(p.Key,out var card) || card.ObjectGeneration < p.Value)) return false;
             if (i >= c.SelectionIndex && !state.PlayerZones[player].MainDeck.Take(viewed.Count).SequenceEqual(viewed.Keys)) return false;
             if (i < c.SelectionIndex && viewed.Count > 0)
             {
+                if (!c.Selected.ContainsKey(player) && b.EffectPlayOptional)
+                {
+                    if (c.ParentCompleted && c.Queue.Any(q => q.OwnerId == player && q.ExecutionIndex == c.ExecutionIndex)) return false;
+                    continue;
+                }
                 if (!c.Selected.TryGetValue(player,out var picked) || picked is null || !viewed.TryGetValue(picked.ObjectId,out var before)
                     || picked.Generation != before+1 || !state.CardObjects.TryGetValue(picked.ObjectId,out var card) || card.ObjectGeneration < picked.Generation
                     || !c.ParentCompleted && !state.PlayerZones[player].Banished.Contains(picked.ObjectId)) return false;
@@ -207,11 +251,13 @@ public sealed partial class CoreRuleEngine
     {
         var item = state.StackItems.LastOrDefault();
         if (item?.DeckPlaySequence is not { } c || !ValidDeckPlaySequence(state, item) || c.SelectionIndex >= c.Players.Count) return false;
-        var ids = c.Viewed[c.Players[c.SelectionIndex]].Keys.ToArray();
+        TryGetEffectPlayDefinition(item, out var definition);
+        var owner = c.Players[c.SelectionIndex]; var ids = c.Viewed[owner].Keys.ToArray();
+        var legal = DeckPlayLegalSelection(state, c, owner);
         return choice.ChoiceWindow == DeckPlayChoiceWindow && choice.ChoiceId == DeckPlaySelectionId(item, c)
             && choice.PlayerId == (c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : c.Players[c.SelectionIndex])
             && choice.SourceObjectId == item.SourceObjectId && choice.EffectKind == item.EffectKind
-            && choice.RequiredCount == 1 && choice.MaxCount == 1 && ids.SequenceEqual(choice.LegalObjectIds)
+            && choice.RequiredCount == (definition.EffectPlayOptional ? 0 : 1) && choice.MaxCount == (legal.Length > 0 ? 1 : 0) && legal.SequenceEqual(choice.LegalObjectIds)
             && ids.SequenceEqual(choice.ContextObjectIds) && choice.DeckContext == new DeckChoiceContext(item.StackItemId, c.SelectionIndex);
     }
 
@@ -220,13 +266,13 @@ public sealed partial class CoreRuleEngine
         if (pending.Parent.DeckPlaySequence is not { } c || !ValidDeckPlaySequence(state, pending.Parent)
             || c.SelectionIndex != c.Players.Count || c.PlayIndex >= c.Queue.Count || !c.ParentCompleted
             || !pending.Parent.EffectPlayCompleted) return false;
-        var queued = c.Queue[c.PlayIndex]; var owner = queued.OwnerId; var picked = queued.Card;
-        return pending.SourceZone == "STACK" && pending.PlayerId == (c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : owner)
-            && pending.ChoiceId == $"DECK-PLAY-EFFECT-{pending.Parent.StackItemId}-{c.PlayIndex}"
-            && pending.Sources.Count == 1 && pending.Sources.GetValueOrDefault(picked.ObjectId, -1) == picked.Generation
-            && pending.IgnoreBaseMana && pending.IgnoreBasePower == (c.Kind == "OPPONENT_REVEAL_PLAY")
-            && pending.IgnoreAllCosts == (c.Kind == "OPPONENT_REVEAL_PLAY") && pending.ManaReduction == 0
-            && pending.DestinationPolicy == "ANY" && !pending.Optional && pending.ViewedCardIds is null && pending.RevealedHand is null;
+        var expected = DeckPlayPending(pending.Parent, c);
+        return pending.SourceZone == expected.SourceZone && pending.PlayerId == expected.PlayerId
+            && pending.ChoiceId == expected.ChoiceId
+            && pending.Sources.Count == 1 && expected.Sources.All(s => pending.Sources.GetValueOrDefault(s.Key, -1) == s.Value)
+            && pending.IgnoreBaseMana == expected.IgnoreBaseMana && pending.IgnoreBasePower == expected.IgnoreBasePower
+            && pending.IgnoreAllCosts == expected.IgnoreAllCosts && pending.ManaReduction == expected.ManaReduction
+            && pending.DestinationPolicy == expected.DestinationPolicy && !pending.Optional && pending.ViewedCardIds is null && pending.RevealedHand is null;
     }
 
     private static ResolutionResult FinishDeckPlaySequence(MatchState state, PlayerIntent intent, PendingEffectPlayState pending, IReadOnlyList<GameEvent> events)

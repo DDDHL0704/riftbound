@@ -1,27 +1,30 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-void-rush-draw-no-free-play",
-  "description": "Void Rush draws both revealed cards when no card is chosen for the free-play branch.",
+  "description": "Current Void Rush reveal/optional banish branch: explicitly decline, then draw both revealed cards; normal cost reduction is independently tested.",
   "source": "manual-pdf-faq-preflight",
-  "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
-  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "auditStatus": "CURRENT_SCOPED_DECLINE_AND_DRAW",
+  "rulesVersion": "current-CN-July-2026",
+  "faqVersion": "current-fetched-Spiritforged-2026-10-14",
   "catalogVersion": "official-2026-04-27",
   "seed": 2603302197,
   "rulesEvidence": [
     {
-      "source": "official/card-catalog.zh-CN.json",
-      "locator": "SFD·188/221 虚空猛冲",
-      "note": "官方卡面：费用 2；展示主牌堆顶部两张牌，可以选择其中一张费用减少 2 后打出，并抽取未以此方式打出的牌。本 fixture 锁定当前 preflight 中不选择打出牌、因此抽取两张展示牌的分支；免费打出分支暂缓。"
+      "source": "docs/evidence/deck-play-consumers-2026-10-14/source-current.json",
+      "locator": "CN SFD188 ID33286 current errata",
+      "note": "Reveal two; optional banish, normal play with two mana reduction, draw only unbanished. This original fixture explicitly declines and retains its two-card draw, fees and final state."
     },
     {
-      "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p39-p42 rules 355-356; p57 rule 413.4",
-      "note": "打出法术需要费用、目标和指示合法，并作为结算链项目在双方让过后结算；抽牌按主牌堆顶顺序移动到手牌。"
+      "source": "docs/evidence/deck-play-consumers-2026-10-14/faq-current.json",
+      "locator": "Cards that Tell You to Play Other Cards from Your Deck; Void Rush",
+      "note": "Current applicable errata reconciled with CN core 329/337/427; pending confirmation and source completion are separate."
     }
   ],
   "roomId": "p2-preflight-void-rush-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302197,
     "turnNumber": 97,
@@ -48,29 +51,78 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-VOID-RUSH-DRAW-001", "P1-VOID-RUSH-DRAW-002"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-VOID-RUSH"],
+        "mainDeck": [
+          "P1-VOID-RUSH-DRAW-001",
+          "P1-VOID-RUSH-DRAW-002"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-VOID-RUSH"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P1-SPELL-VOID-RUSH": {
+        "cardNo": "SFD·188/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 2,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-VOID-RUSH-DRAW-001": {
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      },
+      "P1-VOID-RUSH-DRAW-002": {
+        "cardNo": "OGN·169/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "manaCost": 1,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ]
+      }
+    }
   },
   "commands": [
     {
@@ -97,21 +149,36 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-void-rush-explicit-decline",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "DECK-PLAY-STACK-1-P1-SPELL-VOID-RUSH-0",
+        "choiceWindow": "DECK_PLAY_SELECTION",
+        "chosenObjectIds": []
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED",
-      "CARD_DRAWN"
+      "STACK_ITEM_SUSPENDED",
+      "CARDS_REVEALED",
+      "CARD_CHOICE_REQUESTED",
+      "CARD_DRAWN",
+      "STACK_ITEM_RESOLVED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -128,23 +195,55 @@
           "sourceObjectId": "P1-SPELL-VOID-RUSH",
           "cardNo": "SFD·188/221",
           "targetObjectIds": [],
-          "effectKind": "VOID_RUSH_DRAW_TWO_NO_FREE_PLAY"
+          "effectKind": "VOID_RUSH_REVEAL_BANISH_PLAY_DRAW_REST"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_SUSPENDED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-VOID-RUSH"
+        }
+      },
+      {
+        "kind": "CARDS_REVEALED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-VOID-RUSH",
+          "count": 2
+        }
+      },
+      {
+        "kind": "CARD_CHOICE_REQUESTED",
+        "payload": {
+          "playerId": "P1",
+          "choiceWindow": "DECK_PLAY_SELECTION",
+          "contextCount": 2
+        }
+      },
       {
         "kind": "CARD_DRAWN",
         "payload": {
           "playerId": "P1",
           "count": 2
         }
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 97,
@@ -157,21 +256,42 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "mainDeck": [],
-          "hand": ["P1-VOID-RUSH-DRAW-001", "P1-VOID-RUSH-DRAW-002"],
-          "graveyard": ["P1-SPELL-VOID-RUSH"]
+          "hand": [
+            "P1-VOID-RUSH-DRAW-001",
+            "P1-VOID-RUSH-DRAW-002"
+          ],
+          "graveyard": [
+            "P1-SPELL-VOID-RUSH"
+          ]
         }
       },
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

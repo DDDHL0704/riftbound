@@ -36792,6 +36792,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79LegendTriggerReksaiRevealsTopTwoPlaysUnitAndRecyclesRestOnConquer()
     {
         var opened = await OfficialLegendDeckPlayTests.Open(OfficialLegendDeckPlayTests.Position());
+        opened = await OfficialLegendDeckPlayTests.Select(opened.State, "DECK0");
         var done = await OfficialGraveyardRecastTests.Act(opened.State, "P1", new PlayCardCommand("DECK0", "SFD·125/221", []));
         Assert.True(done.State.CardObjects["DECK0"].IsExhausted); Assert.Equal(16, done.State.RunePools["P1"].Mana);
         Assert.Equal(["TAIL", "DECK1"], done.State.PlayerZones["P1"].MainDeck);
@@ -36801,8 +36802,9 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task P79LegendTriggerReksaiMayDeclineAndRecycleBothNonUnitCards()
     {
         var opened = await OfficialLegendDeckPlayTests.Open(OfficialLegendDeckPlayTests.Position("SFD·243/221", top: ["OGN·048/298", "SFD·022/221"]));
-        Assert.Equal(2, opened.State.PendingEffectPlay!.Sources.Count);
-        var done = await OfficialGraveyardRecastTests.Act(opened.State, "P1", new ChooseCardsCommand(opened.State.PendingEffectPlay.ChoiceId, "EFFECT_PLAY", []));
+        Assert.Equal(2, opened.State.PendingCardChoice!.LegalObjectIds.Count);
+        var choice = opened.State.PendingCardChoice;
+        var done = await OfficialGraveyardRecastTests.Act(opened.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, []));
         Assert.Equal("TAIL", done.State.PlayerZones["P1"].MainDeck[0]); Assert.Equal(3, done.State.PlayerZones["P1"].MainDeck.Count);
         Assert.Equal(2, Assert.Single(done.Events, e => e.Kind == "CARDS_RECYCLED").Payload["count"]);
     }
