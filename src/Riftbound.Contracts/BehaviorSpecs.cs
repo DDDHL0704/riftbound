@@ -327,6 +327,7 @@ public static class TriggerTokenDestinations
 public static class TriggerZones
 {
     public const string MainDeck = "MAIN_DECK";
+    public const string RuneDeck = "RUNE_DECK";
     public const string Base = "BASE";
     public const string Battlefield = "BATTLEFIELD";
     public const string Hand = "HAND";

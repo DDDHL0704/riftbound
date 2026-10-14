@@ -2541,7 +2541,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(TriggerTargetScopes.OwnedRuneInBase, trigger.TargetScope);
         Assert.Equal(1, trigger.RecycleCount);
         Assert.Equal(TriggerZones.Base, trigger.RecycleSourceZone);
-        Assert.Equal(TriggerZones.MainDeck, trigger.RecycleDestinationZone);
+        Assert.Equal(TriggerZones.RuneDeck, trigger.RecycleDestinationZone);
         Assert.Contains("当你征服此处时", trigger.Text, StringComparison.Ordinal);
         Assert.Contains("回收一枚你的符文", trigger.Text, StringComparison.Ordinal);
         Assert.Equal(

@@ -37360,7 +37360,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-MAIN-001", "P1-BATTLEFIELD-RECYCLE-RUNE-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-MAIN-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-BATTLEFIELD-RECYCLE-RUNE-001"], result.State.PlayerZones["P1"].RuneDeck);
         Assert.Equal(["P2-BATTLEFIELD-RECYCLE-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
@@ -37372,7 +37373,7 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-THUNDER-RUNE", StringComparison.Ordinal));
         Assert.Equal(["P1-BATTLEFIELD-RECYCLE-RUNE-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
         Assert.Equal("BASE", recycleEvent.Payload["sourceZone"]);
-        Assert.Equal("MAIN_DECK", recycleEvent.Payload["destinationZone"]);
+        Assert.Equal("RUNE_DECK", recycleEvent.Payload["destinationZone"]);
     }
 
     [Fact]
@@ -37407,7 +37408,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(result.Accepted);
         Assert.Equal(["P1-BATTLEFIELD-RECYCLE-DIRTY-P2-RUNE"], result.State.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-MAIN-001", "P1-BATTLEFIELD-RECYCLE-RUNE-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-MAIN-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-BATTLEFIELD-RECYCLE-RUNE-001"], result.State.PlayerZones["P1"].RuneDeck);
         var recycleEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-THUNDER-RUNE", StringComparison.Ordinal));

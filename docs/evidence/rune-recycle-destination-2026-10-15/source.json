@@ -1,0 +1,29 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-14T19:18:22.334676+00:00",
+  "sha256": "17a35827026ed12d26f6f881aac914d281020cfcf4bd1421e777083e4bdd1f0c",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "cards": [
+    {
+      "id": 31532,
+      "cardNo": "OGN·287/298",
+      "cardEffect": "当你征服此处时，回收一枚你的符文。",
+      "errata": "当你征服此处时，你必须回收一枚你的符文。（此行动不会做出任何选择。）"
+    }
+  ],
+  "basis": {
+    "currentCoreCorpus": "DOC-04",
+    "coreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "ruleRecords": [
+      "DOC-04-P021-B011",
+      "DOC-04-P069-B001",
+      "DOC-04-P069-B004",
+      "DOC-04-P069-B006"
+    ],
+    "ruleMeaning": "Recycled runes return to RuneDeck; mandatory instructions apply to available cards from the specified source zone."
+  }
+}

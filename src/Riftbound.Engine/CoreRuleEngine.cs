@@ -16880,7 +16880,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static RecycleResult ResolveBattlefieldConquerRecycleRuneTrigger(
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
@@ -16913,8 +16913,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             Base = zones.Base
                 .Where(objectId => !recycledRuneObjectIds.Contains(objectId, StringComparer.Ordinal))
                 .ToArray(),
-            MainDeck = zones.MainDeck.Concat(recycledRuneObjectIds).ToArray()
+            RuneDeck = zones.RuneDeck.Concat(recycledRuneObjectIds).ToArray()
         };
+
+        foreach (var id in recycledRuneObjectIds)
+            cardObjects[id] = cardObjects[id] with { IsFaceDown = false, IsExhausted = false };
 
         events.Add(new GameEvent(
             "BATTLEFIELD_TRIGGER_RESOLVED",

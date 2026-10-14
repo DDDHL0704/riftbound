@@ -19359,6 +19359,110 @@
         "FIXED_CURRENT_FULL",
         "FINAL_PRODUCT_ACCEPTANCE"
       ]
+    },
+    {
+      "id": "battlefield-conquer-rune-destination-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Single owned rune destination for generic battlefield-conquer instruction; prefixes, no power, exhausted rune reset, current explicit cold frames, controls and SQL. Other recycling consumers, lifecycle/actor/timing and whole printing remain open",
+      "subjects": [
+        "OGN-287/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P021-B011",
+        "DOC-04-P069-B001",
+        "DOC-04-P069-B004",
+        "DOC-04-P069-B006"
+      ],
+      "auditDocument": "docs/RUNE_RECYCLE_DESTINATION_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/rune-recycle-destination-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/rune-recycle-destination-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PASSED",
+        "newMethods": 3,
+        "newCases": 9,
+        "newMethodNames": [
+          "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+        ],
+        "cases": [
+          "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 1)",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 2)",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: False)",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: True)",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: False)",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: True)",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: False)",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: True)",
+          "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+        ],
+        "adjacentCases": 37,
+        "adjacentMethods": 18,
+        "originalFullGameMethods": [
+          "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesThunderSigilConquerRecycleRuneAndScoreVictoryActionLogReplaysToFinalStateHash"
+        ],
+        "originalMethodsTheorySeedsAndVictoryReplayAssertionsRetained": true,
+        "scope": "Independent metadata destination, current explicit battle frames, no/one/two available runes, rune readiness, deck prefixes, no generated resource power, cold recovery and production controls. Old erroneous destination/count assertions corrected; original game victory/replay/seed retained.",
+        "check": {
+          "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+          "checkCases": 11578,
+          "checkMethods": 7100,
+          "failed": 0,
+          "skipped": 0,
+          "oldCasesPreserved": true,
+          "oldMethodsPreserved": true,
+          "oldCaseCount": 11569,
+          "oldMethodCount": 7097,
+          "newCases": [
+            "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 1)",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 2)",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: False)",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: True)",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: False)",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: True)",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: False)",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: True)",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+          ],
+          "newMethods": [
+            "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower",
+            "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+          ],
+          "frozenInputsUnchanged": true,
+          "frozenInputCount": 855,
+          "checkSeconds": 253.3,
+          "trxSha256": "ad30c5887e1ca38fe3db9becb16540603a8f4b1fde7e0396f8ab5f0b8264c2c0",
+          "currentFixedFull": "PENDING"
+        }
+      },
+      "fixedCommitCi": {
+        "state": "PENDING",
+        "implementationBaseCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
+        "includesUncommittedChanges": true
+      },
+      "productAcceptance": {
+        "nativeControls": "SCOPED_PASS",
+        "actualSql": "SCOPED_PASS",
+        "visiblePairedScoreFinish": "OPEN",
+        "WindowsRuntime": "OPEN"
+      },
+      "remaining": [
+        "OTHER_RECYCLING_CONSUMERS",
+        "OWNER_VERSUS_ACTOR",
+        "MULTIPLE_RUNE_ORDER",
+        "RUNE_GENERATION",
+        "FULL_TRIGGER_TIMING",
+        "WHOLE_PRINTING",
+        "FIXED_CURRENT_FULL",
+        "FINAL_PRODUCT_ACCEPTANCE"
+      ]
     }
   ]
 }

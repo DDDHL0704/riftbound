@@ -1,0 +1,28 @@
+{
+  "status": "PASSED",
+  "newMethods": 3,
+  "newCases": 9,
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+  ],
+  "cases": [
+    "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 1)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 2)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: False)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: True)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: False)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: True)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: False)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: True)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+  ],
+  "adjacentCases": 37,
+  "adjacentMethods": 18,
+  "originalFullGameMethods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesThunderSigilConquerRecycleRuneAndScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "originalMethodsTheorySeedsAndVictoryReplayAssertionsRetained": true,
+  "scope": "Independent metadata destination, current explicit battle frames, no/one/two available runes, rune readiness, deck prefixes, no generated resource power, cold recovery and production controls. Old erroneous destination/count assertions corrected; original game victory/replay/seed retained."
+}

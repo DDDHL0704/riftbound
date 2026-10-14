@@ -7087,7 +7087,7 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal("P1", recycleEvent.Payload["playerId"]);
         Assert.Equal(1, recycleEvent.Payload["count"]);
         Assert.Equal(TriggerZones.Base, recycleEvent.Payload["sourceZone"]);
-        Assert.Equal(TriggerZones.MainDeck, recycleEvent.Payload["destinationZone"]);
+        Assert.Equal(TriggerZones.RuneDeck, recycleEvent.Payload["destinationZone"]);
         Assert.Equal([expectedRuneObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
 
         Assert.Equal(
@@ -7095,9 +7095,11 @@ public sealed partial class FullGameEndToEndTests
                 .Where(objectId => !string.Equals(objectId, expectedRuneObjectId, StringComparison.Ordinal))
                 .ToArray(),
             result.State.PlayerZones["P1"].Base);
+        Assert.Equal(beforeBattle.State.PlayerZones["P1"].MainDeck, result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(
-            beforeBattle.State.PlayerZones["P1"].MainDeck.Concat([expectedRuneObjectId]).ToArray(),
-            result.State.PlayerZones["P1"].MainDeck);
+            beforeBattle.State.PlayerZones["P1"].RuneDeck.Concat([expectedRuneObjectId]).ToArray(),
+            result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[expectedRuneObjectId].Zone);
         Assert.DoesNotContain(defenderObjectId, result.State.PlayerZones["P2"].Battlefields);
         AssertNoHiddenZoneLeak(result);
     }

@@ -1,0 +1,8 @@
+{
+  "status": "REAL_SQL_FIRST_EXECUTION_REJECTED_MALFORMED_AUDIT_RAW_COMMAND",
+  "recordedAtUtc": "2026-10-14T19:36:14.188910+00:00",
+  "message": "command rune-destination-sql-0 raw DECLARE_BATTLE battlefieldTargetObjectIds must be an array",
+  "cause": "Audit fallback serialized optional target field as null; actual Godot declaration emits an empty array. SQL independent raw-history validator correctly rejected it. Fix fixture command, retain validator unchanged.",
+  "originalTwelveScenariosPassed": true,
+  "newDestinationBranchesVerified": false
+}

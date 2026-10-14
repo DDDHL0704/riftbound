@@ -225,7 +225,7 @@ internal static class BattlefieldTriggerSpecRules
             && string.Equals(trigger.Timing, TriggerTimings.BattlefieldConquered, StringComparison.Ordinal)
             && string.Equals(trigger.TargetScope, TriggerTargetScopes.OwnedRuneInBase, StringComparison.Ordinal)
             && string.Equals(trigger.RecycleSourceZone, TriggerZones.Base, StringComparison.Ordinal)
-            && string.Equals(trigger.RecycleDestinationZone, TriggerZones.MainDeck, StringComparison.Ordinal)
+            && string.Equals(trigger.RecycleDestinationZone, TriggerZones.RuneDeck, StringComparison.Ordinal)
             && trigger.RecycleCount is > 0;
     }
 

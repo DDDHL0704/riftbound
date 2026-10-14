@@ -1,0 +1,32 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "checkCases": 11578,
+  "checkMethods": 7100,
+  "failed": 0,
+  "skipped": 0,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "oldCaseCount": 11569,
+  "oldMethodCount": 7097,
+  "newCases": [
+    "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 1)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay(runeCount: 2)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: False)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: True)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: False)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: True)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: False)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: True)",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+  ],
+  "newMethods": [
+    "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower",
+    "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+  ],
+  "frozenInputsUnchanged": true,
+  "frozenInputCount": 855,
+  "checkSeconds": 253.3,
+  "trxSha256": "ad30c5887e1ca38fe3db9becb16540603a8f4b1fde7e0396f8ab5f0b8264c2c0",
+  "currentFixedFull": "PENDING"
+}

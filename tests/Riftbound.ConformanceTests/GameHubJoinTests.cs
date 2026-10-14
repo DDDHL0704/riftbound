@@ -9469,7 +9469,8 @@ public sealed class GameHubJoinTests
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
-        Assert.Equal(2, Assert.IsType<int>(p1Zones["mainDeckCount"]));
+        Assert.Equal(1, Assert.IsType<int>(p1Zones["mainDeckCount"]));
+        Assert.Equal(2, Assert.IsType<int>(p1Zones["runeDeckCount"]));
     }
 
     [Fact]

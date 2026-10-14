@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "c9eef492d4dcbdc6d576390fde7135b72ff23fd9283daa7670254fad8ba5284a"
+      "sha256": "932c9e673ef91e28a986a71e9b009fdbe242021539a593f63186ffd46eb0ab2f"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -256,7 +256,7 @@
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
-          "sha256": "42b213d60549db1ca2f7923fbb11018222feae6bc48d3d015995d790c5c88698"
+          "sha256": "038ff1aad6ccfb745654aaa28f29433514c2304386e108a7ce97a42f1c282a30"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -1194,7 +1194,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "03c6924c7423ba39b0fd36cf0d851a39380cd84eed44beb39634e6ec83caa537"
+          "sha256": "90ec16d1b27b20febfbc2a3cf8881b4e03a976cce181ab835cfeedadd5060647"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -1816,7 +1816,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "03c6924c7423ba39b0fd36cf0d851a39380cd84eed44beb39634e6ec83caa537"
+          "sha256": "90ec16d1b27b20febfbc2a3cf8881b4e03a976cce181ab835cfeedadd5060647"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -2421,7 +2421,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "03c6924c7423ba39b0fd36cf0d851a39380cd84eed44beb39634e6ec83caa537"
+          "sha256": "90ec16d1b27b20febfbc2a3cf8881b4e03a976cce181ab835cfeedadd5060647"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -2759,6 +2759,159 @@
       "ciReceipts": [],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
       "currentImplementationCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
+      "currentImplementationIncludesUncommittedChanges": true
+    },
+    "battlefield-conquer-rune-destination-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+          "sha256": "69787e94e73caad9d294401ffb10753fb978640be18422621f835f5c47258278"
+        },
+        {
+          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+          "sha256": "038ff1aad6ccfb745654aaa28f29433514c2304386e108a7ce97a42f1c282a30"
+        },
+        {
+          "path": "src/Riftbound.Engine/BattlefieldTriggerSpecRules.cs",
+          "sha256": "65a560516237097c0029e3c6ae61a992aa754eeea354513aa4c67e35a684231f"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "90ec16d1b27b20febfbc2a3cf8881b4e03a976cce181ab835cfeedadd5060647"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "sha256": "e2e782a488cb7d1e593c8109e5eb30cdb011cc1900bbcc3b7b3c4856f53321fe"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+          "sha256": "8010068d6cf8a67dbdbb8ca74da046bf13b1e2b96125568f4bc8a0dc4fd74829"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay",
+          "sourceRefs": [
+            "OGN-287/298",
+            "DOC-04-P021-B011",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B004",
+            "DOC-04-P069-B006"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent single owned-rune destination and control/recovery branch only; other consumers, actor/owner, multiple-rune ordering, incarnation and whole trigger timing remain open.",
+            "sourceFingerprints": {
+              "OGN-287/298": "b971f41e6113b93cad7c6d4ae093a63a6e59c61cf711e454bf5eb3cf9e0a1ba2",
+              "DOC-04-P021-B011": "35e985dc83df0c10d9c1eee31324cc1f628c2f3e9757568b55ed34c839554465",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B004": "13d816aa98639d26a8e66a0d750e2f4b9d19ea401ffbff1de3116a28a5f60752",
+              "DOC-04-P069-B006": "16beb43fa0a7b879015837b95c5d6dba88476da3fa985cbac8f6b54941b2877a"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RuneRecycleDestinationNativeTests.ProductionBattleRuneReturnAndOptionalCostColdRecoverDeduplicateAndReplay"
+            ],
+            "requiredNativeBranches": [
+              "single",
+              "multiple"
+            ]
+          }
+        },
+        {
+          "id": "ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower",
+          "sourceRefs": [
+            "OGN-287/298",
+            "DOC-04-P021-B011",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B004",
+            "DOC-04-P069-B006"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent single owned-rune destination and control/recovery branch only; other consumers, actor/owner, multiple-rune ordering, incarnation and whole trigger timing remain open.",
+            "sourceFingerprints": {
+              "OGN-287/298": "b971f41e6113b93cad7c6d4ae093a63a6e59c61cf711e454bf5eb3cf9e0a1ba2",
+              "DOC-04-P021-B011": "35e985dc83df0c10d9c1eee31324cc1f628c2f3e9757568b55ed34c839554465",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B004": "13d816aa98639d26a8e66a0d750e2f4b9d19ea401ffbff1de3116a28a5f60752",
+              "DOC-04-P069-B006": "16beb43fa0a7b879015837b95c5d6dba88476da3fa985cbac8f6b54941b2877a"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck",
+          "sourceRefs": [
+            "OGN-287/298",
+            "DOC-04-P021-B011",
+            "DOC-04-P069-B001",
+            "DOC-04-P069-B004",
+            "DOC-04-P069-B006"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent single owned-rune destination and control/recovery branch only; other consumers, actor/owner, multiple-rune ordering, incarnation and whole trigger timing remain open.",
+            "sourceFingerprints": {
+              "OGN-287/298": "b971f41e6113b93cad7c6d4ae093a63a6e59c61cf711e454bf5eb3cf9e0a1ba2",
+              "DOC-04-P021-B011": "35e985dc83df0c10d9c1eee31324cc1f628c2f3e9757568b55ed34c839554465",
+              "DOC-04-P069-B001": "36d17698b4038789fc73dd10d028227625e0ee64cc49ebffc039f14841bea357",
+              "DOC-04-P069-B004": "13d816aa98639d26a8e66a0d750e2f4b9d19ea401ffbff1de3116a28a5f60752",
+              "DOC-04-P069-B006": "16beb43fa0a7b879015837b95c5d6dba88476da3fa985cbac8f6b54941b2877a"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck"
+            ],
+            "requiredNativeBranches": []
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/rune-recycle-destination-2026-10-15/focus.json",
+          "sha256": "f5e422187c034ccf271440116303285b070471ade50f7f6ec5d1dd8b166362b0",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/rune-recycle-destination-2026-10-15/native-replay.json",
+          "sha256": "b2ce0e9a834f0b4566b48421ecd8be96eb1af2dd2f176da281c875d12553b888",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/rune-recycle-destination-2026-10-15/sql-rune.json",
+          "sha256": "30ca59d7392a5966539570f68723a0e8d597bab1db8aa99e8f23893b93c112f2",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/rune-recycle-destination-2026-10-15/check-parity.json",
+          "sha256": "bd51d3ec69edbfc6b41ff136b14ca8f9633666398cdf3e04521c93be3a8a779f",
+          "role": "check"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
+      "currentImplementationCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },

@@ -1442,7 +1442,7 @@ public static class TriggerParser
                 TargetScope: TriggerTargetScopes.OwnedRuneInBase,
                 RecycleCount: 1,
                 RecycleSourceZone: TriggerZones.Base,
-                RecycleDestinationZone: TriggerZones.MainDeck);
+                RecycleDestinationZone: TriggerZones.RuneDeck);
         }
 
         var battlefieldConquerConsumeBoonDrawMatch = Regex.Match(

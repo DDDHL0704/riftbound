@@ -1,0 +1,42 @@
+{
+  "status": "RUNTIME_DESTINATION_DEFECT_REPRODUCED",
+  "rows": [
+    {
+      "case": "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: True)",
+      "outcome": "Passed",
+      "message": ""
+    },
+    {
+      "case": "Riftbound.ConformanceTests.RuneRecycleDestinationTests.OfficialThunderSigilMetadataRoutesTheRuneToItsRuneDeck",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"RUNE_DECK\"\nActual:   \"MAIN_DECK\"\n           ↑ (pos 0)"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: False)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Collections differ\nExpected: [···, \"D9\", \"D10\", \"D11\", \"D12\"]\nActual:   [···, \"D9\", \"D10\", \"D11\", \"D12\", \"RUNE\"]\n                                           ↑ (pos 12)"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: False)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Collections differ\nExpected: [···, \"D9\", \"D10\", \"D11\", \"D12\"]\nActual:   [···, \"D9\", \"D10\", \"D11\", \"D12\", \"RUNE\"]\n                                           ↑ (pos 12)"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 0, exhausted: False)",
+      "outcome": "Passed",
+      "message": ""
+    },
+    {
+      "case": "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 1, exhausted: True)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Collections differ\nExpected: [···, \"D9\", \"D10\", \"D11\", \"D12\"]\nActual:   [···, \"D9\", \"D10\", \"D11\", \"D12\", \"RUNE\"]\n                                           ↑ (pos 12)"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.RuneRecycleDestinationTests.ConquestRuneReturnPreservesBothDeckPrefixesAndDoesNotProduceResourcePower(runeCount: 2, exhausted: True)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Collections differ\nExpected: [···, \"D9\", \"D10\", \"D11\", \"D12\"]\nActual:   [···, \"D9\", \"D10\", \"D11\", \"D12\", \"RUNE\"]\n                                           ↑ (pos 12)"
+    }
+  ],
+  "trxSha256": "0c6b9e3b385bd010c4f17ddbc5cbb68a9a0f32812596a3b9dbe8a0e21e159ddf",
+  "priorFixtureReadinessErrorsNotCountedAsDestinationRed": true
+}
