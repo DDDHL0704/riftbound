@@ -1,0 +1,32 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "checkCases": 11642,
+  "checkMethods": 7123,
+  "failed": 0,
+  "skipped": 0,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "oldCaseCount": 11635,
+  "oldMethodCount": 7120,
+  "baselineFailedCases": 1,
+  "baselineCheckFailureRetained": true,
+  "newCases": [
+    "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay(card: \"OGN·235/298\")",
+    "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay(card: \"SFD·237*/221\")",
+    "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay(card: \"SFD·237/221\")",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"OGN·235/298\")",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"SFD·237*/221\")",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"SFD·237/221\")",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.IndependentRecoveryRejectsMissingForgedAndPrematureCeasedWitness"
+  ],
+  "newMethods": [
+    "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.IndependentRecoveryRejectsMissingForgedAndPrematureCeasedWitness"
+  ],
+  "frozenInputsUnchanged": true,
+  "frozenInputCount": 877,
+  "seconds": 228.82,
+  "trxSha256": "922d63de1c199659f744352ce430109d55d250e17284c8083f2e1f9c3a264fc5",
+  "currentFixedFull": "PENDING"
+}

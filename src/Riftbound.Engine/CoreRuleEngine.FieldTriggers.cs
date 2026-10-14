@@ -40,7 +40,7 @@ public sealed partial class CoreRuleEngine
             && (cardNo is null || cardNo == context.CardNo)
             && (context.Kind == "RECYCLE_BOON" ? HasRecycledCardBoon(context.CardNo) && context.RecycledBoon is { CardCount: > 0, CapturedTick: >= 0, FaceRevision: >= 0 }
                 && context.BattlefieldId is null && context.SourceLocation is null && context.AffectedUnit is null
-                && !context.SourceCeasedToExist && !context.AffectedUnitCeasedToExist
+                && !context.AffectedUnitCeasedToExist
                 : context.RecycledBoon is null && (context.Kind == "ENEMY_ATTACK_MIGHT" ? EnemyAttackMightSpec(context.CardNo) is not null
                 && context.AffectedUnit is { Generation: >= 0 } && context.SourceLocation is null && context.Origin is null
                 && !string.IsNullOrWhiteSpace(context.BattlefieldId)

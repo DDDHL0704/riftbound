@@ -1,0 +1,66 @@
+{
+  "status": "REAL_POSTGRES_COPIED_KARMA_CEASED_SOURCE_ALL_THREE_BRANCHES_PASS",
+  "records": [
+    {
+      "branch": "alternate",
+      "commands": 15,
+      "events": 42,
+      "coldRecoveries": 15,
+      "ceasedGenerationTamperRejected": true,
+      "finalHash": "d49da2d6fdba92a8c7659e104841a4ac6c50371eee315387a7281702d9c83788",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9cbbf6441d3ed3766ada1f1dbc14ceba0140161d7a06b8494c1fb85f6ce17f5e",
+        "implementationSha256": "10c70198ec9ffc44b79c3c8ecc9d6abcacf45e0ce5165c915cc35a3f46971e68",
+        "identitySha256": "9ef00d6a1c64602a362fcd713610be3854cef431c3198f9b4e94f1d3ca8435fd"
+      },
+      "receiptSha256": "1b6e06835a8a54540fcb06efcddbf5e0ecd8d8aec3687975f3d4753d820793ca"
+    },
+    {
+      "branch": "primary",
+      "commands": 15,
+      "events": 42,
+      "coldRecoveries": 15,
+      "ceasedGenerationTamperRejected": true,
+      "finalHash": "f5cf4448a913cbd8cef7ee3b198e48ab1a00d7d9716b562182c386fec26d2bc2",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9cbbf6441d3ed3766ada1f1dbc14ceba0140161d7a06b8494c1fb85f6ce17f5e",
+        "implementationSha256": "10c70198ec9ffc44b79c3c8ecc9d6abcacf45e0ce5165c915cc35a3f46971e68",
+        "identitySha256": "9ef00d6a1c64602a362fcd713610be3854cef431c3198f9b4e94f1d3ca8435fd"
+      },
+      "receiptSha256": "b4f0969681068f03eb102e291716a37d1d329d39d65ff2d8b8784850eb7b5866"
+    },
+    {
+      "branch": "promo",
+      "commands": 15,
+      "events": 42,
+      "coldRecoveries": 15,
+      "ceasedGenerationTamperRejected": true,
+      "finalHash": "ecefd06e26430041c89fd4d535f99b754635fea015ad4d3c78bfcf77f7f5455c",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9cbbf6441d3ed3766ada1f1dbc14ceba0140161d7a06b8494c1fb85f6ce17f5e",
+        "implementationSha256": "10c70198ec9ffc44b79c3c8ecc9d6abcacf45e0ce5165c915cc35a3f46971e68",
+        "identitySha256": "9ef00d6a1c64602a362fcd713610be3854cef431c3198f9b4e94f1d3ca8435fd"
+      },
+      "receiptSha256": "c224119e16a4e42d9b1bdcbf5934963ebb0ecc26e16bbd11dcd9d0617af0accd"
+    }
+  ],
+  "commands": 45,
+  "events": 126,
+  "coldRecoveries": 45,
+  "tamperRejections": 3,
+  "actualDatabaseConnection": true,
+  "explicitInitialIncludesActualCopyAndFaceConfirmation": true,
+  "cleanup": "Owned explicit fixture rooms cleaned; dedicated PostgreSQL stopped; earlier paired-score historical data retained."
+}

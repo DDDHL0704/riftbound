@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "e9953c896731720891f0e15b806c1500bc0f7874d893720c6e18799a3fc923e7"
+      "sha256": "ac3c6857926aa242acfca274bd5ccbc75158e25569940455b08144d1274166e7"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -2932,7 +2932,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
-          "sha256": "fa292ca7665b7962c7d5bd992b310676509eb28ad2da235040da377777564627"
+          "sha256": "b7f9f46bbd4b17af5dd40dc9705b45d41b999609e01d12ef1d4fb80e2774cbc6"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerTargetPayment.cs",
@@ -3130,7 +3130,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+      "currentImplementationCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "unit-conquest-gold-response-2026-10-15": {
@@ -3364,9 +3364,16 @@
           "role": "check"
         }
       ],
-      "ciState": "PENDING",
-      "ciReceipts": [],
-      "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/conquest-token-2026-10-15/full-ci-eb3.json",
+          "sha256": "8dfc82e20227447082d8331d1b73e739b030a65f272abc7afe0500268e74b805",
+          "commit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+          "runId": 38640029939
+        }
+      ],
+      "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
       "currentImplementationIncludesUncommittedChanges": true
     },
@@ -3386,7 +3393,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
-          "sha256": "fa292ca7665b7962c7d5bd992b310676509eb28ad2da235040da377777564627"
+          "sha256": "b7f9f46bbd4b17af5dd40dc9705b45d41b999609e01d12ef1d4fb80e2774cbc6"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -3398,7 +3405,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
-          "sha256": "aacf129aeb8c14213a58ecbae783605adfbee6233d9891b51270d341045187b7"
+          "sha256": "675f23d82dbe35c4003264cb8d25b9e5b49221a9321616ce07274194b30dbdad"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.RecyclingChoice.cs",
@@ -4061,7 +4068,185 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+      "currentImplementationCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+      "currentImplementationIncludesUncommittedChanges": true
+    },
+    "copied-recycle-boon-ceased-source-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+          "sha256": "675f23d82dbe35c4003264cb8d25b9e5b49221a9321616ce07274194b30dbdad"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "sha256": "b7f9f46bbd4b17af5dd40dc9705b45d41b999609e01d12ef1d4fb80e2774cbc6"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs",
+          "sha256": "64c7580fe78733b4b639191508970250f0cfc6530a072508c8a658477127e1a6"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "UNL-200/219",
+            "OGN-104/298",
+            "UNL-063/219",
+            "DOC-04-P026-B007",
+            "DOC-04-P044-B004",
+            "DOC-04-P059-B010",
+            "DOC-16-P005-B003"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_COPY_AND_RECYCLE_LIFECYCLE_BRANCHES",
+            "ATTACHED_AND_QUEUED_CEASED_SOURCE_VARIANTS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable copied Karma faces only: actual copy/reflexive confirmation, own recycle and target, real return reaction ceasing the source, explicit bound ceased-source witness and subsequent independent skill resolution. Missing/forged/future/live-source cease records reject; other lifecycle paths and whole cards remain open.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "UNL-200/219": "427c0f444b359f6cb5375504da641b72673f21a3235acac19934e8cee68be3ae",
+              "OGN-104/298": "a040220a338943b6b6c82bc83edc5ed04ba7f9eb72fbedb327bf938924873c71",
+              "UNL-063/219": "085cc2e7ac436dd5f433839b5f7b4db1d63ebd61732c5024c9c65116ea966158",
+              "DOC-04-P026-B007": "f88d425cc0293e97bfabcfd24ad28c42a771ffacdab4ac9b8f75c9088367edf6",
+              "DOC-04-P044-B004": "6e590425e030220c2049d7a6c8afcc484ae8591f1ceddbac877f71c2a37bc614",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay"
+            ],
+            "requiredNativeBranches": [
+              "primary",
+              "alternate",
+              "promo"
+            ]
+          }
+        },
+        {
+          "id": "ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "UNL-200/219",
+            "OGN-104/298",
+            "UNL-063/219",
+            "DOC-04-P026-B007",
+            "DOC-04-P044-B004",
+            "DOC-04-P059-B010",
+            "DOC-16-P005-B003"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_COPY_AND_RECYCLE_LIFECYCLE_BRANCHES",
+            "ATTACHED_AND_QUEUED_CEASED_SOURCE_VARIANTS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable copied Karma faces only: actual copy/reflexive confirmation, own recycle and target, real return reaction ceasing the source, explicit bound ceased-source witness and subsequent independent skill resolution. Missing/forged/future/live-source cease records reject; other lifecycle paths and whole cards remain open.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "UNL-200/219": "427c0f444b359f6cb5375504da641b72673f21a3235acac19934e8cee68be3ae",
+              "OGN-104/298": "a040220a338943b6b6c82bc83edc5ed04ba7f9eb72fbedb327bf938924873c71",
+              "UNL-063/219": "085cc2e7ac436dd5f433839b5f7b4db1d63ebd61732c5024c9c65116ea966158",
+              "DOC-04-P026-B007": "f88d425cc0293e97bfabcfd24ad28c42a771ffacdab4ac9b8f75c9088367edf6",
+              "DOC-04-P044-B004": "6e590425e030220c2049d7a6c8afcc484ae8591f1ceddbac877f71c2a37bc614",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "IndependentRecoveryRejectsMissingForgedAndPrematureCeasedWitness",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "UNL-200/219",
+            "OGN-104/298",
+            "UNL-063/219",
+            "DOC-04-P026-B007",
+            "DOC-04-P044-B004",
+            "DOC-04-P059-B010",
+            "DOC-16-P005-B003"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "ALL_COPY_AND_RECYCLE_LIFECYCLE_BRANCHES",
+            "ATTACHED_AND_QUEUED_CEASED_SOURCE_VARIANTS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three applicable copied Karma faces only: actual copy/reflexive confirmation, own recycle and target, real return reaction ceasing the source, explicit bound ceased-source witness and subsequent independent skill resolution. Missing/forged/future/live-source cease records reject; other lifecycle paths and whole cards remain open.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "UNL-200/219": "427c0f444b359f6cb5375504da641b72673f21a3235acac19934e8cee68be3ae",
+              "OGN-104/298": "a040220a338943b6b6c82bc83edc5ed04ba7f9eb72fbedb327bf938924873c71",
+              "UNL-063/219": "085cc2e7ac436dd5f433839b5f7b4db1d63ebd61732c5024c9c65116ea966158",
+              "DOC-04-P026-B007": "f88d425cc0293e97bfabcfd24ad28c42a771ffacdab4ac9b8f75c9088367edf6",
+              "DOC-04-P044-B004": "6e590425e030220c2049d7a6c8afcc484ae8591f1ceddbac877f71c2a37bc614",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08",
+              "DOC-16-P005-B003": "ba8b4be2f7bbc4497577b0d14574f118e4802520e6bfc0e1dc3c2eb69e2890fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.IndependentRecoveryRejectsMissingForgedAndPrematureCeasedWitness"
+            ],
+            "requiredNativeBranches": []
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/recycle-boon-lifecycle-2026-10-15/focus.json",
+          "sha256": "5ad127fb6dcbbe25cfdbd8b06d7d30c6a83799733c7696832f8927f235ef236b",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/recycle-boon-lifecycle-2026-10-15/native-replay.json",
+          "sha256": "8f4c5f89ae771ae6f4c4ba47a16b6f86c25b3fa7ede652f426071f1fc6bcd97e",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/recycle-boon-lifecycle-2026-10-15/sql.json",
+          "sha256": "8debd5fcc27751bc44dac47339c8f2ea28b48d18442991c416ae15f0afdd7a7b",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/recycle-boon-lifecycle-2026-10-15/check-parity.json",
+          "sha256": "c172d30c2d8dda0a816d51d79becd9bc33383c579c5deb836e87ff727cc19ba3",
+          "role": "check"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+      "currentImplementationCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },

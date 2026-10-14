@@ -1,0 +1,25 @@
+{
+  "status": "COPIED_KARMA_CEASED_SOURCE_RECOVERY_RED",
+  "commit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+  "rows": [
+    {
+      "case": "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"OGN·235/298\")",
+      "outcome": "Failed",
+      "message": "authoritative state stack item ordered-recycle-boon-10-0-0 source object C-TOKEN-001 is missing from object registry; expected [ALLY, C, D1, D10, D11, D12, D2, D3, D4, D5, D6, D7, D8, D9, LEAVE, LEGEND, LOOK, SPELL1, SPELL2, TARGET] but got C-TOKEN-001",
+      "stack": "   at Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/RecycledCardBoonLifecycleTests.cs:line 31\n--- End of stack trace from previous location ---"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"SFD·237/221\")",
+      "outcome": "Failed",
+      "message": "authoritative state stack item ordered-recycle-boon-10-0-0 source object C-TOKEN-001 is missing from object registry; expected [ALLY, C, D1, D10, D11, D12, D2, D3, D4, D5, D6, D7, D8, D9, LEAVE, LEGEND, LOOK, SPELL1, SPELL2, TARGET] but got C-TOKEN-001",
+      "stack": "   at Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/RecycledCardBoonLifecycleTests.cs:line 31\n--- End of stack trace from previous location ---"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"SFD·237*/221\")",
+      "outcome": "Failed",
+      "message": "authoritative state stack item ordered-recycle-boon-10-0-0 source object C-TOKEN-001 is missing from object registry; expected [ALLY, C, D1, D10, D11, D12, D2, D3, D4, D5, D6, D7, D8, D9, LEAVE, LEGEND, LOOK, SPELL1, SPELL2, TARGET] but got C-TOKEN-001",
+      "stack": "   at Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/RecycledCardBoonLifecycleTests.cs:line 31\n--- End of stack trace from previous location ---"
+    }
+  ],
+  "trxSha256": "fea84e86c19fffd460dbe4e60047c4ab559e0e9f1bc3ecb9fbe768b986b4fb19"
+}

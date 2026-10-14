@@ -19749,6 +19749,68 @@
         "FIXED_CURRENT_FULL",
         "FINAL_PRODUCT_ACCEPTANCE"
       ]
+    },
+    {
+      "id": "copied-recycle-boon-ceased-source-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Three applicable copied Karma faces only: actual copy/reflexive confirmation, own recycle and target, real return reaction ceasing the source, explicit bound ceased-source witness and subsequent independent skill resolution. Missing/forged/future/live-source cease records reject; other lifecycle paths and whole cards remain open.",
+      "subjects": [
+        "OGN-235/298",
+        "SFD-237/221",
+        "SFD-237*/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P026-B007",
+        "DOC-04-P044-B004",
+        "DOC-04-P059-B010",
+        "DOC-16-P005-B003"
+      ],
+      "auditDocument": "docs/RECYCLE_BOON_LIFECYCLE_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/recycle-boon-lifecycle-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/recycle-boon-lifecycle-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PASSED",
+        "newMethods": 3,
+        "newCases": 7,
+        "newMethodNames": [
+          "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay",
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse",
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.IndependentRecoveryRejectsMissingForgedAndPrematureCeasedWitness"
+        ],
+        "cases": [
+          "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay(card: \"OGN·235/298\")",
+          "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay(card: \"SFD·237*/221\")",
+          "Riftbound.ConformanceTests.RecycleBoonLifecycleNativeTests.ProductionCopyLookRecycleReturnAndSurvivingBoonColdRecoverDeduplicateAndReplay(card: \"SFD·237/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"OGN·235/298\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"SFD·237*/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.ActualCopiedImageRecycleSkillSurvivesItsSourceCeasingDuringResponse(card: \"SFD·237/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.IndependentRecoveryRejectsMissingForgedAndPrematureCeasedWitness"
+        ]
+      },
+      "fixedCommitCi": {
+        "state": "PENDING",
+        "implementationBaseCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+        "includesUncommittedChanges": true
+      },
+      "productAcceptance": {
+        "nativeControls": "SCOPED_PASS",
+        "actualSql": "SCOPED_PASS",
+        "visiblePairedScoreFinish": "OPEN",
+        "WindowsRuntime": "OPEN"
+      },
+      "remaining": [
+        "ALL_COPY_AND_RECYCLE_LIFECYCLE_BRANCHES",
+        "ATTACHED_AND_QUEUED_CEASED_SOURCE_VARIANTS",
+        "WHOLE_PRINTING_SEMANTICS",
+        "FIXED_CURRENT_FULL",
+        "FINAL_PRODUCT_ACCEPTANCE"
+      ]
     }
   ]
 }

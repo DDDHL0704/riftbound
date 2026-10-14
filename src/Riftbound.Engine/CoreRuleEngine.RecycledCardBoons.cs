@@ -3,7 +3,12 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record RecycledCardBoonOrigin(string PlayerId, int CardCount, long CapturedTick, long FaceRevision);
+public sealed record CeasedRecycledBoonSource(ObjectBinding Source, string FactoryCardNo, long Tick);
+public sealed record RecycledCardBoonOrigin(string PlayerId, int CardCount, long CapturedTick, long FaceRevision)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CeasedRecycledBoonSource? CeasedSource { get; init; }
+}
 
 public sealed partial class CoreRuleEngine
 {
@@ -59,6 +64,12 @@ public sealed partial class CoreRuleEngine
     private static bool ValidRecycledBoonSource(MatchState state, FieldTriggerContext context, string id, string controller)
         => context.RecycledBoon is { CardCount: > 0, CapturedTick: >= 0, FaceRevision: >= 0 } origin
             && origin.PlayerId == controller && state.Seats.ContainsKey(controller) && origin.CapturedTick <= state.Tick
+            && (context.SourceCeasedToExist
+                ? origin.CeasedSource is { } ceased && ceased.Source == new ObjectBinding(id, context.SourceGeneration)
+                    && ceased.FactoryCardNo == context.SourceTokenFactoryCardNo && ceased.Tick >= origin.CapturedTick && ceased.Tick <= state.Tick
+                    && !state.CardObjects.ContainsKey(id) && P6TokenFactoryCatalog.TryGetByCardNo(ceased.FactoryCardNo, out var token)
+                    && token.Tags.Contains(CardObjectTags.UnitCard)
+                : origin.CeasedSource is null)
             && (!state.CardObjects.TryGetValue(id, out var source) || source.TokenFactoryCardNo == context.SourceTokenFactoryCardNo)
             && (context.Origin is null
                 ? PredictBindingMatches(state, new(id, context.SourceGeneration), context.CardNo, origin.FaceRevision,
