@@ -1,0 +1,15 @@
+{
+  "status": "CURRENT_AUTHORITY_CLIENT_MAPPING_TRACE",
+  "inspectedAtUtc": "2026-10-14T08:38:23.956996+00:00",
+  "sourceFiles": {
+    "clients/godot/scripts/Main.cs": "5dc4c46559d1b9f2c903690caa1232d73b068faa663a77249d1005705b4f4357",
+    "clients/godot/scripts/interaction/PromptInteractionController.cs": "70df82fdd953087e17fd6041413828308ed600cc44b8e3034b72ecc93d8d5eb8",
+    "clients/godot/scripts/ui/ActionBar.cs": "479a9c34cd82a57e544d438e3915d87892d32b5af555f1d262bea9038d04f7c4",
+    "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs": "c384b52c09fe2841857f5bcb6b6804c1e3a10bd3df714a04dfca2500bbc7816a",
+    "tests/Riftbound.ConformanceTests/DeckObservationPlayTests.cs": "802f17a8a325fb76984317a2c55186576b7c20696153e764bd0b89ceef36ba3f"
+  },
+  "scope": "Server-enabled SURRENDER remains available during non-actionable waiting prompts; no other action bypasses responsibility and disabled authority candidate stays disabled. Existing confirmation and prompt/tick command path used.",
+  "rulesChanged": false,
+  "cardUniverseChanged": false,
+  "sourceBaseline": "docs/evidence/nocturne-observation-2026-10-14/source-disposition.json"
+}

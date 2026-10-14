@@ -18589,6 +18589,37 @@
         "filtered selected reveal",
         "native cost preview parity"
       ]
+    },
+    {
+      "id": "native-waiting-player-surrender-2026-10-14",
+      "status": "SCOPED_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "Close exactly two existing native waiting-opponent SURRENDER defects through current authoritative enabled candidate, unchanged waiting responsibility, real action/confirmation and prompt/tick command mapping. No rules or card-universe change.",
+      "subjects": [
+        "OGN·194/298"
+      ],
+      "auditDocument": "docs/WAITING_SURRENDER_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/waiting-surrender-2026-10-14",
+      "tests": [
+        "DeckObservationPlayTests.SurrenderDoesNotStartAnotherObservedConfirmation",
+        "PromptResponsibilityTests",
+        "ShadySpectaclesInteractionProof"
+      ],
+      "validation": {
+        "focus": "6cases/5methods9.82s;two originalTheoryrows retained",
+        "native": "2branches10Godotproductioncommands and backend cold/player/spectator/dedup/fulljournal pass;authority-disabled surrender and priority actions rejected",
+        "check": "11391cases/7028methods252.78s;exact oldcase/method multisets preserved;zero failure/skip/duplicate;2269immutableinputandassembly;SQL5/Python27pass;owned database stopped",
+        "fixedFull": "REQUIRED",
+        "fullPlan": "7169 unchanged methods11540expectedcases143games110pairsseed424242;discoveryonly",
+        "previousFixedFull": "14ed8981CI38534398383 actual rules step in_progress;desktop bothsuccess;notterminal"
+      },
+      "open": [
+        "Current visible paired clients",
+        "User Windows actual runtime",
+        "Future pending order current-source audit",
+        "Candlelit Sanctum private subset/order",
+        "Whole source universe and gaps"
+      ],
+      "wholeGoalComplete": false
     }
   ]
 }

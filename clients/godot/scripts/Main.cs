@@ -2657,7 +2657,7 @@ public partial class Main : Control
     {
         var action = ReadString(candidate, "action");
         var label = ReadString(candidate, "label");
-        var enabled = promptActionable && ReadBool(candidate, "enabled");
+        var enabled = ReadBool(candidate, "enabled") && (promptActionable || action == "SURRENDER");
         var reason = ReadString(candidate, "reason");
         var submitKind = DirectSubmitKind(action);
         var cmdType = DirectCommandType(action);

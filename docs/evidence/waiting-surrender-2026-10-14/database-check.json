@@ -1,0 +1,8 @@
+{
+  "status": "OWNED_DATABASE_STOPPED_AFTER_ACTUAL_CHECK",
+  "port": 55439,
+  "sqlSmokeCases": 5,
+  "profile": "check-final",
+  "stop": "pg_ctl -m fast -w stop: server stopped",
+  "authorityTrxSha256": "495114f038eff96be7ff028e0cdf4ad06bc03c44e21cc4bb03f31c21d126ab0c"
+}

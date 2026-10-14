@@ -346,15 +346,15 @@ public sealed class DeckObservationPlayTests
     [InlineData(false)] [InlineData(true)]
     public async Task SurrenderDoesNotStartAnotherObservedConfirmation(bool beforeOriginalChoiceCompletes)
     {
-        // Waiting-opponent SURRENDER is server-enabled but BuildPromptView gates
-        // every candidate by actionable; retain backend proof and track native gap.
-        var initial=Position();var driver=new StandbyDefendObserverTests.Driver(initial);
+        var initial=Position();var driver=Driver(initial,beforeOriginalChoiceCompletes?"surrender-during-look":"surrender-during-permission");
         await driver.Act("P1",new PlayCardCommand("TRICK","OGN·183/298",[]));await driver.Top();
         if(!beforeOriginalChoiceCompletes)
         {
             await Decide(driver,true);var c=driver.State.PendingCardChoice!;
             await driver.Act("P1",new ChooseCardsCommand(c.ChoiceId,c.ChoiceWindow,["END_PREFIX"]));
         }
+        var waiting=ResolutionResult.BuildPrompts(driver.State)["P2"];
+        Assert.False(waiting.Actionable);Assert.Contains(waiting.Candidates!,c=>c.Action==CommandTypes.Surrender && c.Enabled);
         await driver.Act("P2",new SurrenderCommand());Assert.Equal(MatchStatuses.Finished,driver.State.Status);
         Assert.DoesNotContain(driver.Events(),e=>e.Event.Kind=="UNIT_PLAYED_TO_BASE");
         await RideTheWindCurrentMovementTests.Replay(initial,driver);

@@ -1,0 +1,29 @@
+{
+  "status": "CURRENT_NATIVE_BACKEND_AND_ADJACENT_PASS",
+  "cases": 6,
+  "methods": 5,
+  "seconds": 9.82,
+  "trxSha256": "14953b87a718f8ccb501b079e15e45d2e1a351d4e5fb3b9d734a0312fb60cbcb",
+  "caseNames": [
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.SurrenderDoesNotStartAnotherObservedConfirmation(beforeOriginalChoiceCompletes: False)",
+    "Riftbound.ConformanceTests.PromptResponsibilityTests.MainActionPromptsExposeServerResponsibilityForBothPlayers",
+    "Riftbound.ConformanceTests.PromptResponsibilityTests.ServerFlowRelatedObjectIdsExposeVisibleRuleQueueObjects",
+    "Riftbound.ConformanceTests.PromptResponsibilityTests.ServerFlowRelatedObjectIdsKeepOpponentHandChoicesHidden",
+    "Riftbound.ConformanceTests.PromptResponsibilityTests.ServerFlowTriggerLaneUsesSafeHeadlineOnly",
+    "Riftbound.ConformanceTests.DeckObservationPlayTests.SurrenderDoesNotStartAnotherObservedConfirmation(beforeOriginalChoiceCompletes: True)"
+  ],
+  "newCaseNames": [],
+  "newMethodNames": [],
+  "oldSurrenderTheoryRowsPreserved": true,
+  "nativeBranches": [
+    "surrender-during-look",
+    "surrender-during-permission"
+  ],
+  "nativeCommands": 10,
+  "nativeGuards": [
+    "waiting responsibility preserved",
+    "only server-enabled surrender available",
+    "server-disabled surrender rejected",
+    "priority action remains disabled"
+  ]
+}

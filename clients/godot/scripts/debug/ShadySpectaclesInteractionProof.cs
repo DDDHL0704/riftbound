@@ -118,6 +118,22 @@ public partial class ShadySpectaclesInteractionProof : Control
     {
         using var doc = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, step + "-prompt.json"))); var prompt = doc.RootElement;
         var view = (Godot.Collections.Dictionary)typeof(Main).GetMethod("BuildPromptView", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [prompt])!;
+        if(actionName=="SURRENDER" && !prompt.GetProperty("actionable").GetBoolean())
+        {
+            var actions=view["actions"].AsGodotArray().Select(a=>a.AsGodotDictionary()).ToArray();
+            Check(!view["actionable"].AsBool(),"Waiting responsibility remains unchanged");
+            Check(actions.Single(a=>a["action"].AsString()=="SURRENDER")["enabled"].AsBool(),"Server-enabled waiting surrender remains available");
+            Check(actions.Where(a=>a["action"].AsString()!="SURRENDER").All(a=>!a["enabled"].AsBool()),"Waiting player cannot perform other actions");
+            var disabled=System.Text.Json.Nodes.JsonNode.Parse(prompt.GetRawText())!.AsObject();
+            disabled["candidates"]!.AsArray().Single(c=>c!["action"]!.GetValue<string>()=="SURRENDER")!["enabled"]=false;
+            var candidate=disabled["candidates"]![0]!.DeepClone().AsObject();candidate["action"]="PASS_PRIORITY";candidate["enabled"]=true;
+            disabled["candidates"]!.AsArray().Add(candidate);
+            using var negative=JsonDocument.Parse(disabled.ToJsonString());
+            var blocked=(Godot.Collections.Dictionary)typeof(Main).GetMethod("BuildPromptView",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,[negative.RootElement])!;
+            var negativeController=new PromptInteractionController();negativeController.Load(blocked);
+            Check(!negativeController.SelectAction("SURRENDER"),"Server-disabled surrender cannot be selected");
+            Check(!negativeController.SelectAction("PASS_PRIORITY"),"Non-actionable prompt cannot acquire priority action");
+        }
         Dictionary<string, object?>? command = null;
         if (actionName == "ORDER_TRIGGERS") {
             var action = view["actions"].AsGodotArray().Select(v => v.AsGodotDictionary()).Single(a => a["action"].AsString() == actionName);
@@ -168,7 +184,7 @@ public partial class ShadySpectaclesInteractionProof : Control
                 if (actionName is "PAY_COST" or "CHOOSE_CARDS") {
                     foreach (var choice in expected.GetProperty(actionName == "PAY_COST" ? "paymentChoiceIds" : "chosenObjectIds").EnumerateArray())
                         Check(controller.TrySelectChoice("target", choice.GetString()!), "Server-offered friendly copy source");
-                } else {
+                } else if(actionName!="SURRENDER") {
                     var source = expected.GetProperty("sourceObjectId").GetString()!;
                     if (controller.Current!.SourceId != source) Check(controller.TrySelectChoice("source", source), "Select equipment or acquired ability source");
                     if (actionName == "ACTIVATE_ABILITY") {
