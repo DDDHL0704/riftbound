@@ -29,6 +29,7 @@ public sealed partial class CoreRuleEngine
     {
         var state = result.State;
         if (!result.Accepted || state.Status != MatchStatuses.InProgress
+            || HasObservedConfirmationBeforeTriggers(state)
             || state.PendingPayment is not null || state.PendingHandChoice is not null
             || state.PendingCardChoice is not null || state.PendingEffectPlay is not null)
             return result;

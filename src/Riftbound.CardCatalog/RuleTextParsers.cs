@@ -2529,6 +2529,9 @@ public static class StaticAbilityParser
         IReadOnlyList<KeywordSpec> keywords)
     {
         var staticSpecs = new List<StaticAbilitySpec>();
+        if (text.Contains("你查看或展示主牌堆顶部的卡牌并看到我时，可以选择将我放逐。如选择放逐，则你可以选择支付{{A}}将我打出。", StringComparison.Ordinal))
+            staticSpecs.Add(new(StaticAbilityKinds.DeckObservationBanishPlay, text,
+                BehaviorImplementationStatuses.Unimplemented, "Static top-deck observation banish permission with substituted generic-power play cost.", Amount: 1));
         foreach (var keyword in keywords)
         {
             staticSpecs.Add(new StaticAbilitySpec(

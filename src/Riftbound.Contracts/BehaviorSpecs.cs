@@ -343,6 +343,7 @@ public static class TriggerCardFilters
 
 public static class StaticAbilityKinds
 {
+    public const string DeckObservationBanishPlay = "DECK_OBSERVATION_BANISH_PLAY";
     public const string ControllerSpellSkillDamageBonus = "CONTROLLER_SPELL_SKILL_DAMAGE_BONUS";
     public const string AttachedArmamentBaseMightMultiplier = "ATTACHED_ARMAMENT_BASE_MIGHT_MULTIPLIER";
     public const string UnitCannotBecomeActive = "UNIT_CANNOT_BECOME_ACTIVE";

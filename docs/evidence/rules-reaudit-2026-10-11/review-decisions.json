@@ -18470,7 +18470,7 @@
     },
     {
       "id": "end-step-deck-play-rune-target-delay-2026-10-14",
-      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_FAILED",
       "scope": "Current CN four runtime printings only: begin ending step before expiration, generic captured triggers and response/target selection, first-unit reveal/banish/mandatory free pending play, up-to rune choice, Sona battlefield at trigger/departure, real Targon conquest creates delayed ability on resolution then chooses runes at end, invalid target recycling, strict serialized continuation/choice/history guards. Nocturne interception, copied/token end sources and cleanup re-entry remain open.",
       "subjects": [
         "OGN·160/298",
@@ -18516,12 +18516,13 @@
         "focus": "874 cases/428 methods81.39s;39 new cases/16 methods",
         "native": "17branches72 full Godot production commands with actual backend prompt/tick/cold/player/spectator/dedup/full journal replay;final check readback pass",
         "check": "11357cases/7004methods229.55s;all11318/6988preserved;2267frozen;SQL5/Python27;owned database stopped",
-        "fixedFull": "REQUIRED",
+        "fixedFull": "8b5ad569 CI38521044511 terminal FAILURE; original Hook obsolete selection window; macOS/Windows success, SQL/network incomplete",
         "previousFixedHook": "2aba5bdd failure retained, missing shared recycle zone;desktop success;SQL/network incomplete",
         "runtimeEntries": 1031,
         "runtimeFunctionalUnits": 830,
         "initialCheck": "11357 cases/7004 methods executed;five failed legacy conquest/diagnostic expectations;72/72 native readbacks and SQL5 executed;immutable2267 inputs. Retain failure receipt and rerun corrected check.",
-        "fullPlan": "7145methods11506expectedcases;old7129methods/143games/110pairs seed424242 unchanged;discovery only"
+        "fullPlan": "7145methods11506expectedcases;old7129methods/143games/110pairs seed424242 unchanged;discovery only",
+        "fixedFullFailureEvidence": "docs/evidence/nocturne-observation-2026-10-14/fixed-8b5ad569-failed.json"
       },
       "sources": {
         "cn": "Fresh four exact runtime printings effective errata;VEN SP2 source retained unreviewed",
@@ -18530,6 +18531,64 @@
         "rules": "Fresh July CN core sameSHA d0e36d00;physical36/53 inspected;317 and359.3.e.16 scoped;futureOctober16 not applied"
       },
       "wholeGoalComplete": false
+    },
+    {
+      "id": "nocturne-deck-observation-static-permission-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "One exact current CN runtime identity and shared observation/private preview/banish/pending confirmation/payment/recovery. Real tested consumers only; no whole card/universe or pending chronology certification.",
+      "subjects": [
+        "OGN·194/298"
+      ],
+      "auditDocument": "docs/NOCTURNE_OBSERVATION_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/nocturne-observation-2026-10-14",
+      "tests": [
+        "DeckObservationPlayTests",
+        "OfficialRepeatAndDeckChoiceTests",
+        "Insight tests",
+        "DeckPlaySequenceTests",
+        "HookDeckPlayTests",
+        "AttackDeckPlayTests",
+        "OfficialLegendDeckPlayTests",
+        "OfficialHoldSequenceTests",
+        "StandbyDefendTeemoTests",
+        "CardCatalogBaselineTests",
+        "AhriCombatMightTests",
+        "PlayCostPreviewTests",
+        "FullGameEndToEndTests original 4 SeaMonsterHook and 2 StaticGrantedPredict games"
+      ],
+      "sources": {
+        "CN": "Fresh effective errata OGN194; one runtime text changed,1031/830 unchanged",
+        "EN": "Live gallery old text retained; definitive Origins errata agrees with current CN",
+        "FAQ": "Retired historical Nocturne examples cross-checked; no whole FAQ certification",
+        "rules": "Current July CN same PDF hash,physical39/40/81/118 visually checked;futureOct16 not applied"
+      },
+      "validation": {
+        "focus": "793cases/508methods95.00s;34 new cases24 methods;post-native preview42 cases and real held turn34 cases passed",
+        "native": "22branches136actualGodotproductioncommandsandbackendreadback,cold/player/spectator/dedup/fulljournalpass;waiting-opponentSURRENDER2nativebranchesexplicitlyOPEN,backendretained",
+        "check": "11391cases/7028methods230.18s;all11357/7004preserved;34/24added;zero failed/skip/dup;2269inputsandassemblyunchanged;SQL5/Python27pass;owneddatabase stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixedFull": "8b5ad569 terminal failureCI38521044511,old Hook fullgame windows;four original Hook games now pass locally with actual choices/plays",
+        "runtimeEntries": 1031,
+        "runtimeFunctionalUnits": 830,
+        "initialCheck": "11391cases/7028methods executed;7 retained fixture/legacy Predict expectations failed;native22/136 andSQL5 executed;2269 immutable inputs;failure receipt retained",
+        "retainedFailures": "9 original methods/cases8.58s passed;5fixtures explicit choice/reveal ordering;2Sivir methods real Predict choice and existing recycle observer handoff, original gold/control assertions preserved",
+        "fullPlan": "7169methods11540expectedcases;143games110pairsseed424242;auxiliarycatalog/pairsourcehashesunchanged;discoveryonly"
+      },
+      "open": [
+        "Candlelit Sanctum private optional recycle/order and trigger lifecycle",
+        "Future generic and observed pending chronology beyond current scoped all-Noct-first test",
+        "Multiplayer beyond two seats",
+        "Native waiting-opponent SURRENDER gating despite authority enabled",
+        "Full-card/all-source/shared consumer coverage andEN8gaps",
+        "Current visible paired clients and user Windows actual runtime"
+      ],
+      "wholeGoalComplete": false,
+      "sharedMechanisms": [
+        "deck observation",
+        "predict resolution choice",
+        "filtered selected reveal",
+        "native cost preview parity"
+      ]
     }
   ]
 }

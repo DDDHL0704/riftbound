@@ -7842,7 +7842,7 @@ public sealed partial class FullGameEndToEndTests
         Assert.Contains(destroyedUnitObjectId, resolved.State.PlayerZones["P1"].Graveyard);
         CardZoneTestAssertions.RetainedOutsidePlay(resolved.State, destroyedUnitObjectId, "GRAVEYARD");
         Assert.Equal("P1", resolved.State.CardObjects[eligibleUnitObjectId].ControllerId);
-        Assert.False(resolved.State.CardObjects[eligibleUnitObjectId].IsExhausted);
+        Assert.True(resolved.State.CardObjects[eligibleUnitObjectId].IsExhausted);
         Assert.DoesNotContain(eligibleUnitObjectId, resolved.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(beforeActivation.State.PlayerZones["P1"].MainDeck.Count - 1, resolved.State.PlayerZones["P1"].MainDeck.Count);
 
@@ -7851,8 +7851,7 @@ public sealed partial class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, destroyedUnitObjectId, StringComparison.Ordinal));
         Assert.Contains(resolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, eligibleUnitObjectId, StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, eligibleUnitObjectId, StringComparison.Ordinal));
         var recycled = Assert.Single(resolved.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal));
@@ -7913,7 +7912,9 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal(ability.EffectKind, stackItem.EffectKind);
         Assert.Equal([destroyedUnitObjectId], stackItem.TargetObjectIds);
 
-        Assert.Empty(pendingChoice.State.StackItems);
+        Assert.Single(pendingChoice.State.StackItems);
+        Assert.Equal(0,pendingChoice.State.PendingCardChoice!.RequiredCount);
+        Assert.Equal(2,pendingChoice.State.PendingCardChoice.LegalObjectIds.Count);
         Assert.NotNull(pendingChoice.State.PendingCardChoice);
         Assert.Contains(destroyedUnitObjectId, pendingChoice.State.PlayerZones["P1"].Graveyard);
         CardZoneTestAssertions.RetainedOutsidePlay(pendingChoice.State, destroyedUnitObjectId, "GRAVEYARD");
@@ -7924,9 +7925,8 @@ public sealed partial class FullGameEndToEndTests
         Assert.Contains(pendingChoice.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_CHOICE_REQUESTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
-            && Assert.IsType<int>(gameEvent.Payload["requiredCount"]) == 0
-            && Assert.IsType<int>(gameEvent.Payload["maxCount"]) == 1
-            && Assert.IsType<int>(gameEvent.Payload["legalCount"]) == 2);
+);
+        Assert.Equal(1,pendingChoice.State.PendingCardChoice.MaxCount);
 
         Assert.Empty(chosen.State.StackItems);
         Assert.Null(chosen.State.PendingCardChoice);
@@ -7935,7 +7935,7 @@ public sealed partial class FullGameEndToEndTests
         Assert.Contains(destroyedUnitObjectId, chosen.State.PlayerZones["P1"].Graveyard);
         CardZoneTestAssertions.RetainedOutsidePlay(chosen.State, destroyedUnitObjectId, "GRAVEYARD");
         Assert.Equal("P1", chosen.State.CardObjects[selectedObjectId].ControllerId);
-        Assert.False(chosen.State.CardObjects[selectedObjectId].IsExhausted);
+        Assert.True(chosen.State.CardObjects[selectedObjectId].IsExhausted);
         Assert.DoesNotContain(selectedObjectId, chosen.State.PlayerZones["P1"].MainDeck);
         Assert.Contains(unselectedEligibleObjectId, chosen.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(beforeActivation.State.PlayerZones["P1"].MainDeck.Count - 1, chosen.State.PlayerZones["P1"].MainDeck.Count);
@@ -7946,8 +7946,7 @@ public sealed partial class FullGameEndToEndTests
             && Assert.IsType<int>(gameEvent.Payload["chosenCount"]) == 1);
         Assert.Contains(chosen.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
-            && string.Equals(gameEvent.Payload["targetObjectId"] as string, selectedObjectId, StringComparison.Ordinal));
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, selectedObjectId, StringComparison.Ordinal));
         var recycled = Assert.Single(chosen.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal));
@@ -7992,12 +7991,14 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal(ability.EffectKind, stackItem.EffectKind);
         Assert.Equal([destroyedUnitObjectId], stackItem.TargetObjectIds);
 
-        Assert.Empty(pendingChoice.State.StackItems);
+        Assert.Single(pendingChoice.State.StackItems);
+        Assert.Equal(0,pendingChoice.State.PendingCardChoice!.RequiredCount);
+        Assert.Equal(2,pendingChoice.State.PendingCardChoice.LegalObjectIds.Count);
         Assert.NotNull(pendingChoice.State.PendingCardChoice);
         Assert.Contains(pendingChoice.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_CHOICE_REQUESTED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, sourceObjectId, StringComparison.Ordinal)
-            && Assert.IsType<int>(gameEvent.Payload["legalCount"]) == 2);
+);
 
         Assert.Empty(declined.State.StackItems);
         Assert.Null(declined.State.PendingCardChoice);
@@ -9851,14 +9852,10 @@ public sealed partial class FullGameEndToEndTests
             requirement => string.Equals(requirement["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
 
         Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
         var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-            .Select(choice => choice.Id)
-            .ToArray();
-
-        Assert.Equal([topMainDeckObjectId], firstTargetChoiceIds);
+        Assert.Empty(choicesByIndex);
     }
 
     private static void AssertPrescientMechStaticGrantedPredictResolved(
@@ -9903,7 +9900,8 @@ public sealed partial class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
         Assert.Equal("P1", recycleEvent.Payload["playerId"]);
         Assert.Equal(1, recycleEvent.Payload["count"]);
-        Assert.Equal([recycledObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(recycledObjectId,state.PlayerZones["P1"].MainDeck.Last());
+        Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
@@ -9942,14 +9940,10 @@ public sealed partial class FullGameEndToEndTests
             requirement => string.Equals(requirement["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
 
         Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
         var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-            .Select(choice => choice.Id)
-            .ToArray();
-
-        Assert.Equal([topMainDeckObjectId], firstTargetChoiceIds);
+        Assert.Empty(choicesByIndex);
     }
 
     private static void AssertGemstoneSeerOtherFriendlyStaticGrantedPredictResolved(
@@ -9994,7 +9988,8 @@ public sealed partial class FullGameEndToEndTests
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
         Assert.Equal("P1", recycleEvent.Payload["playerId"]);
         Assert.Equal(1, recycleEvent.Payload["count"]);
-        Assert.Equal([recycledObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal(recycledObjectId,state.PlayerZones["P1"].MainDeck.Last());
+        Assert.False(recycleEvent.Payload.ContainsKey("cardIds"));
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, targetObjectId, StringComparison.Ordinal));
@@ -15431,7 +15426,7 @@ public sealed partial class FullGameEndToEndTests
         var command = new PlayCardCommand(
             sourceObjectId,
             ProgressGloryMechanicalUnitCardNo,
-            [recycledObjectId],
+            [],
             Destination: "BASE");
         var played = await session.SubmitAsync(
             playerId,
@@ -15441,7 +15436,13 @@ public sealed partial class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(played);
         AssertNoHiddenZoneLeak(played);
-        return await ResolveStackPassPassAsync(session, played, $"{intentPrefix}-resolve");
+        var opened=await ResolveStackPassPassAsync(session,played,$"{intentPrefix}-resolve");
+        var choice=Assert.IsType<PendingCardChoiceState>(opened.State.PendingCardChoice);
+        Assert.Equal("DECK_EFFECT",choice.ChoiceWindow);Assert.Equal([recycledObjectId],choice.LegalObjectIds);
+        var choose=new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[recycledObjectId]);
+        var chosen=await session.SubmitAsync(playerId,$"{intentPrefix}-predict-recycle",choose,RawCommand(choose),CancellationToken.None);
+        AssertAccepted(chosen);AssertNoHiddenZoneLeak(chosen);
+        return chosen with {Events=played.Events.Concat(opened.Events).Concat(chosen.Events).ToArray()};
     }
 
     private static async ValueTask<ResolutionResult> SubmitGemstoneSeerOtherFriendlyStaticGrantedPredictProgressGloryAsync(
@@ -15463,7 +15464,7 @@ public sealed partial class FullGameEndToEndTests
         var command = new PlayCardCommand(
             sourceObjectId,
             ProgressGloryMechanicalUnitCardNo,
-            [recycledObjectId],
+            [],
             Destination: "BASE");
         var played = await session.SubmitAsync(
             playerId,
@@ -15473,7 +15474,13 @@ public sealed partial class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(played);
         AssertNoHiddenZoneLeak(played);
-        return await ResolveStackPassPassAsync(session, played, $"{intentPrefix}-resolve");
+        var opened=await ResolveStackPassPassAsync(session,played,$"{intentPrefix}-resolve");
+        var choice=Assert.IsType<PendingCardChoiceState>(opened.State.PendingCardChoice);
+        Assert.Equal("DECK_EFFECT",choice.ChoiceWindow);Assert.Equal([recycledObjectId],choice.LegalObjectIds);
+        var choose=new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[recycledObjectId]);
+        var chosen=await session.SubmitAsync(playerId,$"{intentPrefix}-predict-recycle",choose,RawCommand(choose),CancellationToken.None);
+        AssertAccepted(chosen);AssertNoHiddenZoneLeak(chosen);
+        return chosen with {Events=played.Events.Concat(opened.Events).Concat(chosen.Events).ToArray()};
     }
 
     private static async ValueTask<ResolutionResult> DriveBaseUnitToBattlefieldWhenReadyAsync(
@@ -17735,6 +17742,16 @@ public sealed partial class FullGameEndToEndTests
             activated,
             $"{intentId}-resolve");
         AssertNoHiddenZoneLeak(resolved);
+        if(resolved.State.PendingCardChoice is {ChoiceWindow:"DECK_PLAY_SELECTION",LegalObjectIds.Count:1} choice)
+        {
+            var id=choice.LegalObjectIds.Single();var choose=new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[id]);
+            var selected=await session.SubmitAsync(playerId,intentId+"-choose-unit",choose,RawCommand(choose),CancellationToken.None);
+            AssertAccepted(selected);AssertNoHiddenZoneLeak(selected);
+            var play=new PlayCardCommand(id,selected.State.CardObjects[id].CardNo!,[]);
+            var played=await session.SubmitAsync(playerId,intentId+"-play-unit",play,RawCommand(play),CancellationToken.None);
+            AssertAccepted(played);AssertNoHiddenZoneLeak(played);
+            resolved=played with {Events=resolved.Events.Concat(selected.Events).Concat(played.Events).ToArray()};
+        }
         return (activated, resolved);
     }
 
@@ -17758,7 +17775,7 @@ public sealed partial class FullGameEndToEndTests
             candidate => string.Equals(candidate.Action, CommandTypes.ChooseCards, StringComparison.Ordinal));
         Assert.True(chooseCandidate.Enabled);
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(chooseCandidate.Metadata);
-        Assert.Equal("SEA_MONSTER_HOOK_TOP_FIVE_PLAY", metadata["choiceWindow"]);
+        Assert.Equal("DECK_PLAY_SELECTION", metadata["choiceWindow"]);
         Assert.Equal(playerId, metadata["choosingPlayerId"]);
         Assert.Equal(0, Assert.IsType<int>(metadata["requiredCount"]));
         Assert.Equal(1, Assert.IsType<int>(metadata["maxCount"]));
@@ -17785,7 +17802,7 @@ public sealed partial class FullGameEndToEndTests
         var choiceId = Assert.IsType<string>(metadata["choiceId"]);
         var command = new ChooseCardsCommand(
             choiceId,
-            "SEA_MONSTER_HOOK_TOP_FIVE_PLAY",
+            "DECK_PLAY_SELECTION",
             [selectedObjectId]);
         var chosen = await session.SubmitAsync(
             playerId,
@@ -17795,6 +17812,10 @@ public sealed partial class FullGameEndToEndTests
             CancellationToken.None);
         AssertAccepted(chosen);
         AssertNoHiddenZoneLeak(chosen);
+        var play=new PlayCardCommand(selectedObjectId,selectedCardNo,[]);
+        var played=await session.SubmitAsync(playerId,$"{intentId}-play-selected",play,RawCommand(play),CancellationToken.None);
+        AssertAccepted(played);AssertNoHiddenZoneLeak(played);
+        chosen=played with {Events=chosen.Events.Concat(played.Events).ToArray()};
         return (activated, pendingChoice, chosen);
     }
 
@@ -17817,7 +17838,7 @@ public sealed partial class FullGameEndToEndTests
             candidate => string.Equals(candidate.Action, CommandTypes.ChooseCards, StringComparison.Ordinal));
         Assert.True(chooseCandidate.Enabled);
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(chooseCandidate.Metadata);
-        Assert.Equal("SEA_MONSTER_HOOK_TOP_FIVE_PLAY", metadata["choiceWindow"]);
+        Assert.Equal("DECK_PLAY_SELECTION", metadata["choiceWindow"]);
         Assert.Equal(playerId, metadata["choosingPlayerId"]);
         Assert.Equal(0, Assert.IsType<int>(metadata["requiredCount"]));
         Assert.Equal(1, Assert.IsType<int>(metadata["maxCount"]));
@@ -17827,7 +17848,7 @@ public sealed partial class FullGameEndToEndTests
         var choiceId = Assert.IsType<string>(metadata["choiceId"]);
         var command = new ChooseCardsCommand(
             choiceId,
-            "SEA_MONSTER_HOOK_TOP_FIVE_PLAY",
+            "DECK_PLAY_SELECTION",
             []);
         var declined = await session.SubmitAsync(
             playerId,
@@ -25215,6 +25236,8 @@ public sealed partial class FullGameEndToEndTests
 
     internal static void AssertNoHiddenZoneLeak(ResolutionResult result)
     {
+        if(result.State.PendingRuleChoice is {Request.Preview:{ } preview} pending)
+            result=result with {State=preview with {Tick=result.State.Tick,PendingRuleChoice=pending}};
         foreach (var viewerId in result.State.Seats.Keys)
         {
             var snapshot = JsonNode.Parse(JsonSerializer.Serialize(result.Snapshots[viewerId],
@@ -25375,7 +25398,13 @@ public sealed partial class FullGameEndToEndTests
                 }
                 foreach (var objectId in zones.MainDeck.Concat(zones.RuneDeck))
                 {
-                    if (result.State.StackItems.LastOrDefault()?.DeckPlaySequence is { Kind: "OPPONENT_REVEAL_PLAY" or "SINGLE_PUBLIC_PLAY" } revealed
+                    if(result.State.DeckObservationView is {Public:true} observation && observation.Cards.TryGetValue(objectId,out var observedGeneration))
+                    {
+                        Assert.Equal("DECK_OBSERVATION_BANISH",result.State.PendingRuleChoice?.Request.Kind);
+                        Assert.Equal(observedGeneration,result.State.CardObjects[objectId].ObjectGeneration);
+                        Assert.Contains(objectId,exposedStringValues);
+                    }
+                    else if (result.State.StackItems.LastOrDefault()?.DeckPlaySequence is { Kind: "OPPONENT_REVEAL_PLAY" or "SINGLE_PUBLIC_PLAY" } revealed
                         && revealed.Viewed.TryGetValue(playerId, out var cards) && cards.TryGetValue(objectId, out var generation))
                     {
                         var parent = result.State.StackItems.Last();

@@ -1,0 +1,19 @@
+{
+  "status": "RETAINED_FAILED_CASES_TARGETED_PASS",
+  "cases": 9,
+  "methods": 9,
+  "seconds": 8.58,
+  "caseNames": [
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysReinforcementsNoSelectionRecycleTopFive",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerSivirCreatesDormantGoldWhenControllerRecyclesRune",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBrightFutureEachPlayerTopFiveUnit",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerSivirSkipsGoldWhenLegendBecomesOpponentOwned",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerSivirReadiesWhenOpponentDestroysOwnUnit",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysDragonTigerDrawUnitRecycleRest",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P79LegendTriggerSivirReadiesWhenEnemyUnitDestroyed",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBerserkImpulseOpponentTopUnit",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysVoidRushDrawNoFreePlay"
+  ],
+  "trxSha256": "a20e13a85b9fee87721fcb97eba53c54361f84a89baab85d9407e86853d3aba4",
+  "acceptedHistoryRewritten": false
+}

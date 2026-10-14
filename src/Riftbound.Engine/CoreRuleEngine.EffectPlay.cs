@@ -17,6 +17,12 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if(parent.ObservedPlayPermission is { } observed)
+        {
+            definition=new(parent.CardNo,"查看期间放逐的卡牌",0,ObservedDeckPlayEffect,0,0,
+                EffectPlaySourceZone:"STACK",EffectPlayIgnoreBaseMana:true,EffectPlayIgnoreBasePower:true,EffectPlayOptional:true);
+            return ObservationPlayCosts.Value.ContainsKey(observed.Context.CardNo);
+        }
         if (parent.EndAbility is { Kind: TriggerKinds.TurnEndRevealUntilUnit } end && EndSpec(end.CardNo) is not null)
         {
             definition = new(end.CardNo, "结束步骤展示并打出", 0, parent.EffectKind, 0, 0,
@@ -57,7 +63,9 @@ public sealed partial class CoreRuleEngine
             : b.PlaysSourceToBaseAsUnit));
 
     internal static bool IsPubliclyRevealedDeckCard(MatchState state, string id)
-        => state.StackItems.LastOrDefault() is { DeckPlaySequence: { } sequence } item && DeckPlaySequenceReveals(item)
+        => state.DeckObservationView is {Public:true} v && v.Cards.TryGetValue(id,out var observedGeneration)
+            && state.CardObjects.TryGetValue(id,out var observedCard) && observedCard.ObjectGeneration==observedGeneration
+            || state.StackItems.LastOrDefault() is { DeckPlaySequence: { } sequence } item && DeckPlaySequenceReveals(item)
             && sequence.Viewed.Values.Any(v => v.TryGetValue(id, out var generation)
                 && state.CardObjects.TryGetValue(id, out var card) && card.ObjectGeneration == generation);
 
@@ -68,7 +76,7 @@ public sealed partial class CoreRuleEngine
                 ? handZones.Hand.Concat(handZones.ChampionZone).Concat(StandbyPlaySources(state, playerId)).Distinct(StringComparer.Ordinal).ToArray() : [];
         if (pending.RevealedHand is { Choosing: true }) return [];
         if (pending.PlayerId != playerId || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
-        var sourceZone = pending.SourceZone switch { "STACK" when pending.Parent.DeckPlaySequence is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK").ToArray(), "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };
+        var sourceZone = pending.SourceZone switch { "STACK" when pending.Parent.DeckPlaySequence is not null || pending.Parent.ObservedPlayPermission is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK").ToArray(), "STACK" when pending.SourceReplay is not null => pending.Sources.Keys.Where(id => state.ObjectLocations.GetValueOrDefault(id)?.Zone == "STACK" && !state.StackItems.Any(i => i.SourceObjectId == id)).ToArray(), "HAND" => zones.Hand, "GRAVEYARD" => zones.Graveyard, "BANISHED" => zones.Banished, _ => [] };
         return pending.Sources.Where(x => sourceZone.Contains(x.Key, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(x.Key, out var card) && card.ObjectGeneration == x.Value
             && (RecastSpec(pending.Parent) is not { } spec || RecastSourceAllowed(state, playerId, card, spec)))
@@ -178,7 +186,7 @@ public sealed partial class CoreRuleEngine
     internal static string EffectPlayReason(PendingEffectPlayState pending)
     {
         var name = TryGetEffectPlayDefinition(pending.Parent, out var card) || CardBehaviorRegistry.TryGetByCardNo(pending.Parent.CardNo, out card) ? card.DisplayName : "卡牌效果";
-        var cost = pending.SourceReplay is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? pending.Parent.DeckPlaySequence is not null
+        var cost = pending.SourceReplay is not null || pending.Parent.ObservedPlayPermission is not null ? "以 1 通用符能替换基础费用，额外费用仍需支付" : pending.IgnoreAllCosts ? pending.Parent.DeckPlaySequence is not null
             ? "忽略一切费用，按正常步骤选择并打出" : "忽略一切费用；不能支付额外费用；必须打到指定战场"
             : pending.IgnoreBasePower ? "忽略基础法力与符能，额外费用仍需支付"
             : pending.IgnoreBaseMana ? "忽略基础法力，仍需支付符能与额外费用" : pending.ManaReduction > 0 ? $"费用减少 {pending.ManaReduction}，仍需支付符能" : "正常支付法力、符能及额外费用";
@@ -273,10 +281,12 @@ public sealed partial class CoreRuleEngine
                     && !EffectPlayDestinations(state, intent.PlayerId).Contains(string.IsNullOrWhiteSpace(play.Destination) ? "BASE" : play.Destination))
                 || IsAmbushPlayMode(play.Mode))
                 return RejectWithCorePrompts(state, "再次打出的来源或位置已失效。", ErrorCodes.InvalidTarget);
-            var playState = pending.Parent.DeckPlaySequence is null ? state : state with {
+            var playState = pending.Parent.ObservedPlayPermission is not null ? state with {
+                StackItems=state.StackItems.Where(s=>s.ObservedDeckPlay?.Card.ObjectId!=play.SourceObjectId).ToArray() }
+                : pending.Parent.DeckPlaySequence is null ? state : state with {
                 StackItems = state.StackItems.Where(s => s.DeckPlayPendingCard?.Card.ObjectId != play.SourceObjectId).ToArray() };
             var result = ResolvePlayCard(playState, intent, play);
-            if (!result.Accepted) return pending.Parent.DeckPlaySequence is null ? result : result with {
+            if (!result.Accepted) return pending.Parent.DeckPlaySequence is null && pending.Parent.ObservedPlayPermission is null ? result : result with {
                 State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
             if (pending.Parent.DeckPlaySequence is not null)
             {
@@ -305,6 +315,7 @@ public sealed partial class CoreRuleEngine
 
     private static ResolutionResult FinishEffectPlay(MatchState state, PlayerIntent intent, PendingEffectPlayState pending, IReadOnlyList<GameEvent> playEvents)
     {
+        if(pending.Parent.ObservedPlayPermission is not null)return FinishObservedDeckPlay(state,pending,playEvents);
         if (pending.Parent.DeckPlaySequence is not null) return FinishDeckPlaySequence(state, intent, pending, playEvents);
         if (pending.SourceReplay is not null)
             pending = pending with { Parent = pending.Parent with { SourceReplayDecisionCompleted = true } };

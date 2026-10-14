@@ -17,3 +17,5 @@
 首轮check11,357项中的五处旧期望失败已逐项保存于[失败收据](evidence/end-deck-play-2026-10-14/initial-check-failed.json)。独立恢复诊断列表显式增加TURN_END_STEP_STARTED，保留四条伪造事件的原拒绝与投影一致性断言；征服Theory原两行保留，巨神峰行加入真实让过后再检查延迟技能。修正后[16用例/13方法](evidence/end-deck-play-2026-10-14/retained-check-failures.json)9.59秒通过。
 
 [最终check及精确集合收据](evidence/end-deck-play-2026-10-14/check-parity.json)11,357用例/7,004方法、229.55秒通过，旧11,318/6,988全部保留，新增39/16，零失败/跳过/重复；真实PostgreSQL五项与Python27通过，独立数据库已停止。[2,267冻结输入](evidence/end-deck-play-2026-10-14/frozen-inputs.json)及测试程序集前后无漂移。[最终原生命令回读](evidence/end-deck-play-2026-10-14/native-replay.json)17分支72条全部通过。[完整计划](evidence/end-deck-play-2026-10-14/full-plan-parity.json)7,145方法、预期11,506用例，旧7,129方法/143对局及预组目录、配对生成方法、110配对与seed424242保留。计划发现不是完整执行，新的固定提交full仍待独立核验。运行1,031/830不变，限定review83条，全量状态不提升。
+
+固定8b5ad569的[完整CI38521044511](https://github.com/DDDHL0704/riftbound/actions/runs/38521044511)终态已核对为失败：[失败收据](evidence/nocturne-observation-2026-10-14/fixed-8b5ad569-failed.json)保留原海怪钩多候选放弃对局仍提交旧选择窗口的原因。两平台构建通过，规则/SQL/网络整体没有完成认证。后续魔腾批次保留四条海怪钩完整对局及胜利/日志重放，改为当前真实选择与出牌命令；后续通过不改变8b自身失败结论。

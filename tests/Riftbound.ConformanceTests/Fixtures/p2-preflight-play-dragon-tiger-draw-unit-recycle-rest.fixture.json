@@ -154,9 +154,9 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_SUSPENDED",
       "CARD_CHOICE_REQUESTED",
+      "CARD_REVEALED",
       "CARD_DRAWN",
       "CARDS_RECYCLED",
-      "CARD_REVEALED",
       "CARD_CHOICE_RESOLVED",
       "STACK_ITEM_RESOLVED"
     ],
@@ -183,9 +183,12 @@
         "kind": "CARD_CHOICE_REQUESTED"
       },
       {
+        "kind": "CARD_REVEALED"
+      },
+      {
         "kind": "CARD_DRAWN",
         "tick": 4,
-        "sequence": 8,
+        "sequence": 9,
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-SPELL-DRAGON-TIGER",
@@ -195,15 +198,12 @@
       {
         "kind": "CARDS_RECYCLED",
         "tick": 4,
-        "sequence": 9,
+        "sequence": 10,
         "payload": {
           "playerId": "P1",
           "sourceObjectId": "P1-SPELL-DRAGON-TIGER",
           "count": 2
         }
-      },
-      {
-        "kind": "CARD_REVEALED"
       },
       {
         "kind": "CARD_CHOICE_RESOLVED"
@@ -283,5 +283,6 @@
         ]
       }
     }
-  }
+  },
+  "sourceCorrection": "2026-10-14 current printed unit reveal precedes drawing; retain exact draw/recycle quantities and final zones. No accepted history rewritten."
 }

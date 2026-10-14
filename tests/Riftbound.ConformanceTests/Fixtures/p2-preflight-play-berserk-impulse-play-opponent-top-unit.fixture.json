@@ -215,6 +215,7 @@
       "CARDS_REVEALED",
       "CARD_CHOICE_REQUESTED",
       "CARD_BANISHED",
+      "CARD_CHOICE_RESOLVED",
       "EFFECT_PLAY_REQUESTED",
       "STACK_ITEM_PENDING",
       "STACK_ITEM_RESOLVED",
@@ -262,6 +263,9 @@
       },
       {
         "kind": "CARD_BANISHED"
+      },
+      {
+        "kind": "CARD_CHOICE_RESOLVED"
       },
       {
         "kind": "EFFECT_PLAY_REQUESTED"
@@ -379,5 +383,6 @@
         ]
       }
     }
-  }
+  },
+  "sourceCorrection": "2026-10-14 retained original exact case and final zone/cost assertions; shared deck selection publishes CARD_CHOICE_RESOLVED after the actual choice."
 }

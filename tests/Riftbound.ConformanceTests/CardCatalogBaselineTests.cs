@@ -654,7 +654,7 @@ public sealed class CardCatalogBaselineTests
                 BehaviorTemplateIds.Stun
             ]);
 
-        AssertFamily(report, BehaviorTemplateIds.Draw, 137, 137, 0, 0, 117, 117, 0);
+        AssertFamily(report, BehaviorTemplateIds.Draw, 136, 136, 0, 0, 116, 116, 0);
         AssertFamily(report, BehaviorTemplateIds.Damage, 151, 151, 0, 0, 132, 132, 0);
         AssertFamily(report, BehaviorTemplateIds.Destroy, 127, 127, 0, 0, 118, 118, 0);
         AssertFamily(report, BehaviorTemplateIds.Stun, 33, 33, 0, 0, 29, 29, 0);
@@ -688,7 +688,7 @@ public sealed class CardCatalogBaselineTests
         AssertFamily(report, BehaviorTemplateIds.Move, 123, 123, 0, 0, 102, 102, 0);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 63, 63, 0, 0, 51, 51, 0);
         // Scoped deck-play errata add explicit banish instructions; printings and groups remain separately counted.
-        AssertFamily(report, BehaviorTemplateIds.Banish, 21, 21, 0, 0, 17, 17, 0);
+        AssertFamily(report, BehaviorTemplateIds.Banish, 22, 22, 0, 0, 18, 18, 0);
         AssertFamily(report, BehaviorTemplateIds.TempMight, 260, 260, 0, 0, 208, 208, 0);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 66, 0, 0, 48, 48, 0);
         AssertFamily(report, BehaviorTemplateIds.Control, 5, 5, 0, 0, 5, 5, 0);
@@ -971,12 +971,12 @@ public sealed class CardCatalogBaselineTests
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Trigger,
-            entries: 549,
-            specImplementedEntries: 549,
+            entries: 548,
+            specImplementedEntries: 548,
             manualRuleRequiredEntries: 0,
             unimplementedEntries: 0,
-            functionalUnits: 439,
-            specImplementedFunctionalUnits: 439,
+            functionalUnits: 438,
+            specImplementedFunctionalUnits: 438,
             pendingFunctionalUnits: 0);
         AssertTimingSurfaceCoverage(
             timingRows,

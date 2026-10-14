@@ -14664,17 +14664,10 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-OGN-GEMSTONE-SEER",
                 StringComparison.Ordinal));
 
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
-        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-            .Select(choice => choice.Id)
-            .ToArray();
-
-        Assert.Equal(["P1-GEMSTONE-SEER-TOP-001"], firstTargetChoiceIds);
-        Assert.DoesNotContain("P1-GEMSTONE-SEER-SECOND-001", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-GEMSTONE-SEER-HIDDEN-001", firstTargetChoiceIds);
+        Assert.Equal(0,Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(0,Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var choicesByIndex=Assert.IsAssignableFrom<IReadOnlyDictionary<string,object?>>(sourceRequirement["targetChoicesByIndex"]);
+        Assert.Empty(choicesByIndex);
     }
 
     [Fact]
@@ -14754,17 +14747,10 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-PROGRESS-GLORY",
                 StringComparison.Ordinal));
 
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
-        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-            .Select(choice => choice.Id)
-            .ToArray();
-
-        Assert.Equal(["P1-PROGRESS-GLORY-TOP-001"], firstTargetChoiceIds);
-        Assert.DoesNotContain("P1-PROGRESS-GLORY-SECOND-001", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-PROGRESS-GLORY-HIDDEN-001", firstTargetChoiceIds);
+        Assert.Equal(0,Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(0,Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var choicesByIndex=Assert.IsAssignableFrom<IReadOnlyDictionary<string,object?>>(sourceRequirement["targetChoicesByIndex"]);
+        Assert.Empty(choicesByIndex);
     }
 
     [Fact]
@@ -14844,17 +14830,10 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-PROGRESS-GLORY",
                 StringComparison.Ordinal));
 
-        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
-        var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
-            sourceRequirement["targetChoicesByIndex"]);
-        var firstTargetChoiceIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
-            .Select(choice => choice.Id)
-            .ToArray();
-
-        Assert.Equal(["P1-PROGRESS-GLORY-TOP-001"], firstTargetChoiceIds);
-        Assert.DoesNotContain("P1-PROGRESS-GLORY-SECOND-001", firstTargetChoiceIds);
-        Assert.DoesNotContain("P2-PROGRESS-GLORY-HIDDEN-001", firstTargetChoiceIds);
+        Assert.Equal(0,Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(0,Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var choicesByIndex=Assert.IsAssignableFrom<IReadOnlyDictionary<string,object?>>(sourceRequirement["targetChoicesByIndex"]);
+        Assert.Empty(choicesByIndex);
     }
 
     [Theory]
@@ -14986,7 +14965,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-UNIT-PROGRESS-GLORY",
                 "SFD·075/221",
-                ["P1-PROGRESS-GLORY-RECYCLE-001"]),
+                []),
             CancellationToken.None);
         Assert.True(playResult.Accepted, playResult.ErrorMessage);
 
@@ -15004,6 +14983,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        var choice=Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
+        p2Pass=await OfficialInsightAndSpellLockTests.Act(p2Pass.State,"P1",new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,["P1-PROGRESS-GLORY-RECYCLE-001"]));
         Assert.Equal(
             ["P1-UNIT-OGN-GEMSTONE-SEER", "P1-UNIT-PROGRESS-GLORY"],
             p2Pass.State.PlayerZones["P1"].Base);
@@ -35624,7 +35605,7 @@ public sealed class ConformanceFixtureRunnerTests
         var playResult = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-sivir-play-scrying-shell", "P1", "PLAY_CARD"),
-            new PlayCardCommand("P1-SCRYING-SHELL", "UNL-161/219", ["P1-SIVIR-RUNE-RECYCLE"]),
+            new PlayCardCommand("P1-SCRYING-SHELL", "UNL-161/219", []),
             CancellationToken.None);
 
         Assert.True(playResult.Accepted);
@@ -35640,6 +35621,11 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted);
+        var predict=Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
+        Assert.Equal("DECK_EFFECT",predict.ChoiceWindow);Assert.Equal(["P1-SIVIR-RUNE-RECYCLE"],predict.LegalObjectIds);
+        p2Pass=await new CoreRuleEngine().ResolveAsync(p2Pass.State,new PlayerIntent("sivir-predict-choose","P1",CommandTypes.ChooseCards),
+            new ChooseCardsCommand(predict.ChoiceId,predict.ChoiceWindow,["P1-SIVIR-RUNE-RECYCLE"]),CancellationToken.None);
+        Assert.True(p2Pass.Accepted,p2Pass.ErrorMessage);
         Assert.True(p2Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
         Assert.Contains("P1-LEGEND-SIVIR-TOKEN-001", p2Pass.State.PlayerZones["P1"].Base);
         var token = p2Pass.State.CardObjects["P1-LEGEND-SIVIR-TOKEN-001"];
@@ -35662,7 +35648,7 @@ public sealed class ConformanceFixtureRunnerTests
         var playResult = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-p7-9-sivir-play-scrying-shell-dirty-legend", "P1", "PLAY_CARD"),
-            new PlayCardCommand("P1-SCRYING-SHELL", "UNL-161/219", ["P1-SIVIR-RUNE-RECYCLE"]),
+            new PlayCardCommand("P1-SCRYING-SHELL", "UNL-161/219", []),
             CancellationToken.None);
 
         Assert.True(playResult.Accepted);
@@ -35687,6 +35673,11 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(p2Pass.Accepted);
+        var predict=Assert.IsType<PendingCardChoiceState>(p2Pass.State.PendingCardChoice);
+        Assert.Equal("DECK_EFFECT",predict.ChoiceWindow);Assert.Equal(["P1-SIVIR-RUNE-RECYCLE"],predict.LegalObjectIds);
+        p2Pass=await new CoreRuleEngine().ResolveAsync(p2Pass.State,new PlayerIntent("sivir-predict-choose","P1",CommandTypes.ChooseCards),
+            new ChooseCardsCommand(predict.ChoiceId,predict.ChoiceWindow,["P1-SIVIR-RUNE-RECYCLE"]),CancellationToken.None);
+        Assert.True(p2Pass.Accepted,p2Pass.ErrorMessage);
         Assert.False(p2Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
         Assert.DoesNotContain("P1-LEGEND-SIVIR-TOKEN-001", p2Pass.State.PlayerZones["P1"].Base);
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>

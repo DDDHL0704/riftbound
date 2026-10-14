@@ -159,6 +159,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
+            result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);
             result = RefreshRuleDerivedKeywordLayers(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
@@ -175,8 +176,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             collected = RecordBattleDuelRoles(state, collected);
             collected = RecordMightyTransitions(state, collected);
             return ValueTask.FromResult(RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
-                PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
-                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected)))))))))));
+                PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
+                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
@@ -12526,7 +12527,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var combatEvents = new List<GameEvent>();
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var battlefieldRevealSpellTrigger = ResolveBattlefieldDefendRevealSpellTrigger(
-            playerZones,
+            state, playerZones,
             cardObjects,
             defendingPlayerId ?? string.Empty,
             battlefieldId,
@@ -16767,8 +16768,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static RecycleResult ResolveBattlefieldDefendRevealSpellTrigger(
-        Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        MatchState state, Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
@@ -16822,6 +16823,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["count"] = 1,
                 ["zone"] = trigger.RevealSourceZone
             }));
+
+        var observer=new StackItemState($"field-defend-observe-{state.Tick}-{battlefieldObjectId}",playerId,battlefieldObjectId,
+            trigger.Kind,battlefieldState.CardNo);
+        var remaining=ObserveDeckCards(state,playerZones,cardObjects,observer,playerId,revealedObjectIds,"REVEAL",0,events);
+        if(remaining.Length==0)return new RecycleResult(events,rngCursor);
+        zones=playerZones[playerId];
 
         if (revealedIsSpell)
         {
@@ -16936,7 +16943,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static RecycleResult ResolveBattlefieldConquerRevealRecycleTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string battlefieldId,
         string sourceObjectId,
@@ -16960,10 +16967,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
-        var recycledSourceObjectIds = revealedObjectIds
+        var observationEvents=new List<GameEvent>();
+        var observer=new StackItemState($"field-conquest-observe-{state.Tick}-{battlefieldObjectId}",playerId,battlefieldObjectId,
+            trigger.Kind,battlefieldState.CardNo);
+        var remaining=ObserveDeckCards(state,playerZones,cardObjects,observer,playerId,revealedObjectIds,"REVEAL",0,observationEvents);
+        zones=playerZones[playerId];
+
+        var recycledSourceObjectIds = remaining
             .Take(Math.Min(trigger.RecycleCount.GetValueOrDefault(), revealedObjectIds.Length))
             .ToArray();
-        var returnedObjectIds = revealedObjectIds
+        var returnedObjectIds = remaining
             .Skip(recycledSourceObjectIds.Length)
             .ToArray();
         var recycledObjectIds = RandomizeForMainDeckBottom(
@@ -16979,7 +16992,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         playerZones[playerId] = zones with
         {
             MainDeck = returnedObjectIds
-                .Concat(zones.MainDeck.Skip(revealedObjectIds.Length))
+                .Concat(zones.MainDeck.Skip(remaining.Length))
                 .Concat(recycledObjectIds)
                 .ToArray()
         };
@@ -17010,6 +17023,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["count"] = revealedObjectIds.Length,
                 ["zone"] = "MAIN_DECK"
             }));
+        events.AddRange(observationEvents);
         events.Add(new GameEvent(
             "CARDS_RECYCLED",
             $"{playerId} 回收 {recycledObjectIds.Count} 张牌",
@@ -18672,7 +18686,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)
-            && !(item.DeckPlayPendingCard is not null && ValidDeckPlayPendingCard(state, item))))
+            && !(item.DeckPlayPendingCard is not null && ValidDeckPlayPendingCard(state, item))
+            && !(item.ObservedDeckPlay is { } observed && state.PendingEffectPlay?.Parent.ObservedPlayPermission?.Context.Id==observed.Id
+                && ValidObservedDeckSlot(state,item) && ValidObservedPlayPermission(state,state.PendingEffectPlay))))
         {
             rejection = Reject(
                 state,
@@ -27053,7 +27069,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 events);
         }
 
-        if (behavior.RecyclesSelectedMainDeckTargets)
+        if (behavior.RecyclesSelectedMainDeckTargets && !IsDeferredDeckChoice(behavior))
         {
             var recycleResult = RecycleSelectedMainDeckTargets(
                 state,
@@ -31733,6 +31749,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["damageAmount"] = damageAmount
             }));
 
+        var remainingViewed=ObserveDeckCards(state,playerZones,cardObjects,stackItem,stackItem.ControllerId,viewedCardIds,"REVEAL",0,events);
+
         if (damageAmount > 0)
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
@@ -31767,7 +31785,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             playerZones,
             stackItem.ControllerId,
             stackItem.SourceObjectId,
-            viewedCardIds,
+            remainingViewed,
             rngCursor);
         events.AddRange(recycleResult.Events);
         return new RecycleResult([], recycleResult.RngCursor);

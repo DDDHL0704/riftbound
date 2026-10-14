@@ -1,0 +1,7 @@
+{
+  "status": "ACTUAL_NATIVE_FAILURE_RETAINED",
+  "step": "attack-own-permission/defend-step-6",
+  "cause": "Cost preview rejects valid observed pending slot as source already on stack; actual effect PLAY removes slot before planning. Shared plan must admit exact validated current observed permission.",
+  "logSha256": "051c62e4fdd4709eb1f99aaff382d4dfea25116f9720caf666f5a6d3070cd3f5",
+  "notAcceptance": true
+}

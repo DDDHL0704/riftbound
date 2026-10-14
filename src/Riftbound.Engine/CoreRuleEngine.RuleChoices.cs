@@ -4,7 +4,8 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record RuleChoiceOption(string Id, string Label, IReadOnlyList<string>? ObjectIds = null);
-public sealed record RuleChoiceRequest(string Id, string PlayerId, string Reason, IReadOnlyList<RuleChoiceOption> Options, int PowerCost = 0, string Kind = "DESTRUCTION_REPLACEMENT", MatchState? Preview = null);
+public sealed record RuleChoiceRequest(string Id, string PlayerId, string Reason, IReadOnlyList<RuleChoiceOption> Options, int PowerCost = 0, string Kind = "DESTRUCTION_REPLACEMENT", MatchState? Preview = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? PrivateReason = null);
 public sealed record RuleChoiceAnswer(string RequestHash, string OptionId);
 // Deterministic command checkpoint for synchronous decisions.
 // Until all synchronous replacement decisions are known, the original action is uncommitted.
@@ -27,11 +28,12 @@ public sealed partial class CoreRuleEngine
         public int? CurrentDestructionBatch { get; set; }
         public LastKnownMightFrame? CurrentDestructionMightFrame { get; set; }
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
+        public List<ObservedDeckPlayContext> ObservedPlays {get;}=[];
         public HashSet<string> NestedDestroyedOwners { get; } = [];
         private int cursor;
-        public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT", MatchState? preview = null)
+        public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT", MatchState? preview = null, string? privateReason = null)
         {
-            var request = new RuleChoiceRequest($"REPLACEMENT:{Origin.Tick}:{cursor}", player, reason, options, powerCost, kind, preview);
+            var request = new RuleChoiceRequest($"REPLACEMENT:{Origin.Tick}:{cursor}", player, reason, options, powerCost, kind, preview, privateReason);
             if (cursor == answers.Count) throw new RuleChoiceRequired(request);
             var answer = answers[cursor++];
             if (answer.RequestHash != MatchStateHasher.HashValue(request) || !options.Any(o => o.Id == answer.OptionId))
@@ -93,7 +95,7 @@ public sealed partial class CoreRuleEngine
         var pending = state.PendingRuleChoice!;
         var projection = VisibleRuleChoiceState(state) with { PendingPayment = RuleChoicePayment(pending) };
         return state.Seats.Keys.ToDictionary(id => id, id => ActionPromptBuilder.Build(projection, id,
-            id == pending.Request.PlayerId, id == pending.Request.PlayerId ? pending.Request.Reason : "等待对手完成结算选择",
+            id == pending.Request.PlayerId, id == pending.Request.PlayerId ? pending.Request.PrivateReason ?? pending.Request.Reason : "等待对手完成结算选择",
             id == pending.Request.PlayerId ? [CommandTypes.PayCost, CommandTypes.Surrender] : ["WAIT", CommandTypes.Surrender]));
     }
 

@@ -116,7 +116,7 @@ public sealed partial class CoreRuleEngine
         if (LeadingTriggerCost(item) is not null && item.TriggerCost is null) return NoopStackResolutionResult(state);
         if (context.Kind is "IVERN" or "BRUSH_RETURN") return ResolveBattlefieldReplacement(state, item);
         if (context.Kind == "LEBLANC_DISCARD") return ResolveDiscardTokenCreation(state, item);
-        if (context.Kind == "LOOK_EQUIPMENT" && TryGetDeckChoiceBehavior(item, out var deckBehavior))
+        if (context.Kind == "LOOK_EQUIPMENT" && TryGetDeckChoiceBehavior(state,item, out var deckBehavior))
         {
             if (!item.DeckChoiceCompleted) return BeginDeckChoice(state, item, deckBehavior);
             return new(state.PlayerZones, state.CardObjects, state.PlayerScores, state.PlayerExperience, state.RunePools,

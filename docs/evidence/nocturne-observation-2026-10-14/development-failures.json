@@ -1,0 +1,35 @@
+{
+  "status": "FAILURES_RETAINED_NO_ACCEPTED_HISTORY_REWRITE",
+  "receipts": [
+    {
+      "path": "var/qa/nocturne-observation-20261014/owner-and-retained-hook/focus/results.trx",
+      "sha256": "131720f1f6fedb83125094fd3ca943a6226df5556ae2a4d93ac6613087dbc149",
+      "status": "DEVELOPMENTAL_FAILURE_RETAINED",
+      "purpose": "Original full-game current command migration, stricter privacy or new captured-consumer development; not canonical final input."
+    },
+    {
+      "path": "var/qa/nocturne-observation-20261014/retained-fullgame-current-timing/focus/results.trx",
+      "sha256": "9a9633b4b8cd5bc70937c4d245e358c7b30219d9aef49d4e53a1fe6452198c4b",
+      "status": "DEVELOPMENTAL_FAILURE_RETAINED",
+      "purpose": "Original full-game current command migration, stricter privacy or new captured-consumer development; not canonical final input."
+    },
+    {
+      "path": "var/qa/nocturne-observation-20261014/suspended-parent-and-retained-games/focus/results.trx",
+      "sha256": "60ba438678c816cce7170308eadab72221ce9320a273134e8d0b07c7b2ed5893",
+      "status": "DEVELOPMENTAL_FAILURE_RETAINED",
+      "purpose": "Original full-game current command migration, stricter privacy or new captured-consumer development; not canonical final input."
+    },
+    {
+      "path": "var/qa/nocturne-observation-20261014/held-and-legend-consumers/focus/results.trx",
+      "sha256": "be8bef3700ccce65f24315fe0423312606850a23ba7cf04b06279c1465585985",
+      "status": "DEVELOPMENTAL_FAILURE_RETAINED",
+      "purpose": "Original full-game current command migration, stricter privacy or new captured-consumer development; not canonical final input."
+    },
+    {
+      "path": "var/qa/nocturne-observation-20261014/insight-retained-final/build.log",
+      "sha256": "32f6651e0e1a7ede28c0c77f3c4827cdd8e66264edb1d1b175fdfad375d51aba",
+      "status": "DEVELOPMENTAL_FAILURE_RETAINED",
+      "purpose": "Original full-game current command migration, stricter privacy or new captured-consumer development; not canonical final input."
+    }
+  ]
+}

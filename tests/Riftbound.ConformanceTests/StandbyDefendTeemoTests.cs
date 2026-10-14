@@ -424,7 +424,7 @@ public sealed class StandbyDefendTeemoTests
             && Equals(actual, expected);
     }
 
-    private static MatchState BuildState(
+    internal static MatchState BuildState(
         string teemoCardNo,
         bool includeSecondEnemyTarget = false,
         bool includeSecondDefender = false,

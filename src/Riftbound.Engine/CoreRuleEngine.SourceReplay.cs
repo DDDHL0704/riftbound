@@ -13,7 +13,9 @@ public sealed record SourceReplayContinuation(SourceReplayProgress Progress, Obj
 public sealed partial class CoreRuleEngine
 {
     internal static int SourceReplayPowerCost(MatchState state, string player)
-        => state.PendingEffectPlay is { PlayerId: var actor, SourceReplay: not null } p && actor == player
+        => state.PendingEffectPlay is { Parent.ObservedPlayPermission: { } observed } && state.PendingEffectPlay.PlayerId == player
+            ? observed.Context.PowerCost
+            : state.PendingEffectPlay is { PlayerId: var actor, SourceReplay: not null } p && actor == player
             && CardBehaviorRegistry.TryGetByEffectKind(p.Parent.EffectKind, out var behavior)
             ? behavior.SourceReplay?.GenericPowerCost ?? 0 : 0;
 

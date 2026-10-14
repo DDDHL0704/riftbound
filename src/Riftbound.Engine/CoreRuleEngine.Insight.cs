@@ -21,6 +21,11 @@ public sealed partial class CoreRuleEngine
             UntilEndOfTurnEffects = effect.UntilEndOfTurnEffects, StackItems = stack, RngCursor = effect.RngCursor,
             ObjectLocations = effect.ObjectLocations ?? ReconcileObjectLocations(state.ObjectLocations, effect.PlayerZones) };
         var viewed = current.PlayerZones[item.ControllerId].MainDeck.Take(count).ToArray();
+        var observationZones=NormalizeZonesForSeats(current);var observationCards=current.CardObjects.ToDictionary();var observationEvents=new List<GameEvent>();
+        viewed=ObserveDeckCards(current,observationZones,observationCards,item,item.ControllerId,viewed,"LOOK",0,observationEvents);
+        current=current with {PlayerZones=observationZones,CardObjects=observationCards,ObjectLocations=ReconcileObjectLocations(current.ObjectLocations,observationZones)};
+        effect=effect with {PlayerZones=current.PlayerZones,CardObjects=current.CardObjects,ObjectLocations=current.ObjectLocations,
+            Events=effect.Events.Concat(observationEvents).ToArray()};
         if (viewed.Length == 0 || effect.WinnerPlayerId is not null)
         {
             var finished = FinishInsight(current, item);
@@ -42,6 +47,7 @@ public sealed partial class CoreRuleEngine
         if (item.InsightContext is { } context)
         {
             var triggerZones = NormalizeZonesForSeats(state);
+            var triggerCards = state.CardObjects.ToDictionary();
             var triggerEvents = new List<GameEvent>();
             var scores = state.PlayerScores;
             var experience = state.PlayerExperience;
@@ -55,7 +61,8 @@ public sealed partial class CoreRuleEngine
                 triggerEvents.Add(new("CARD_REVEALED", "黛安娜展示洞察后的牌库顶", new Dictionary<string, object?> {
                     ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                     ["cardObjectId"] = top, ["cardNo"] = card.CardNo }));
-                shouldDraw = CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var topBehavior) && IsSpellPlayBehavior(topBehavior);
+                var remaining=ObserveDeckCards(state,triggerZones,triggerCards,item,item.ControllerId,[top],"REVEAL",0,triggerEvents);
+                shouldDraw = remaining.Length>0 && CardBehaviorRegistry.TryGetByCardNo(card.CardNo ?? "", out var topBehavior) && IsSpellPlayBehavior(topBehavior);
             }
             if (shouldDraw)
             {
@@ -67,6 +74,7 @@ public sealed partial class CoreRuleEngine
             triggerEvents.Add(new("TRIGGER_RESOLVED", "洞察技能结算完成", new Dictionary<string, object?> {
                 ["sourceObjectId"] = item.SourceObjectId, ["controllerId"] = item.ControllerId, ["effectKind"] = item.EffectKind }));
             return NoopStackResolutionResult(state) with { PlayerZones = triggerZones, PlayerScores = scores,
+                CardObjects=triggerCards,
                 PlayerExperience = experience, RngCursor = rng, WinnerPlayerId = winner,
                 ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, triggerZones),
                 StackItems = state.StackItems.Where(s => s.StackItemId != item.StackItemId).ToArray(), Events = triggerEvents };
@@ -133,7 +141,7 @@ public sealed partial class CoreRuleEngine
             || !choice.ContextObjectIds.SequenceEqual(choice.LegalObjectIds)) return false;
         return choice.ChoiceWindow switch {
             "INSIGHT" => choice.ChoiceId == "INSIGHT:" + item.StackItemId && choice.RequiredCount == 0
-                && choice.MaxCount == Math.Min(count, zones.MainDeck.Count) && viewedCount == choice.MaxCount,
+                && choice.MaxCount == (ObservedRemainingDeckCards(state,item,item.ControllerId,0)?.Length ?? Math.Min(count, zones.MainDeck.Count)) && viewedCount == choice.MaxCount,
             "INSIGHT_ORDER" => choice.ChoiceId == "INSIGHT-ORDER:" + item.StackItemId && viewedCount > 1 && viewedCount <= count
                 && choice.RequiredCount == viewedCount && choice.MaxCount == viewedCount,
             _ => false };

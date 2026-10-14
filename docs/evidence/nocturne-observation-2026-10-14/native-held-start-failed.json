@@ -1,0 +1,6 @@
+{
+  "status": "ACTUAL_NATIVE_FAILURE_RETAINED",
+  "step": "held-equipment-look/defend-step-0",
+  "cause": "Synthetic turn-start initial position has no native PASS_PRIORITY candidate. Replace scenario with real opponent END_TURN into hold, and a real rune recycle to pay Nocturne. No native branch excluded.",
+  "logSha256": "d4e4e3be7416b3cacfc40407500f0cb58e025d3bfdb52cf00e1b8acb3c652c8e"
+}

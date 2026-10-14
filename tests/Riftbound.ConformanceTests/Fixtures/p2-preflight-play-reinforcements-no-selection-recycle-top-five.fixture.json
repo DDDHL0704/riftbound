@@ -218,6 +218,7 @@
       "STACK_ITEM_SUSPENDED",
       "CARD_CHOICE_REQUESTED",
       "CARDS_RECYCLED",
+      "CARD_CHOICE_RESOLVED",
       "STACK_ITEM_RESOLVED"
     ],
     "events": [
@@ -256,6 +257,9 @@
           "sourceObjectId": "P1-SPELL-REINFORCEMENTS-NO-SELECT",
           "count": 5
         }
+      },
+      {
+        "kind": "CARD_CHOICE_RESOLVED"
       },
       {
         "kind": "STACK_ITEM_RESOLVED"
@@ -326,5 +330,6 @@
         ]
       }
     }
-  }
+  },
+  "sourceCorrection": "2026-10-14 retained original exact case and final zone/cost assertions; shared deck selection publishes CARD_CHOICE_RESOLVED after the actual choice."
 }

@@ -173,6 +173,7 @@
       "CARDS_REVEALED",
       "CARD_CHOICE_REQUESTED",
       "CARD_DRAWN",
+      "CARD_CHOICE_RESOLVED",
       "STACK_ITEM_RESOLVED"
     ],
     "events": [
@@ -234,6 +235,9 @@
         }
       },
       {
+        "kind": "CARD_CHOICE_RESOLVED"
+      },
+      {
         "kind": "STACK_ITEM_RESOLVED"
       }
     ],
@@ -293,5 +297,6 @@
         ]
       }
     }
-  }
+  },
+  "sourceCorrection": "2026-10-14 retained original exact case and final zone/cost assertions; shared deck selection publishes CARD_CHOICE_RESOLVED after the actual choice."
 }

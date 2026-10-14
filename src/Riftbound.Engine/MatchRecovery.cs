@@ -23645,7 +23645,7 @@ public static class MatchRecoveryValidator
             if (item.CompletedHandExecutions < 0 || item.CompletedHandExecutions > item.EffectRepeatCount
                 || item.CompletedHandExecutions > 0 && !CoreRuleEngine.TryGetRevealedHandChoiceSpec(item, out _))
                 errors.Add("invalid revealed hand execution count");
-        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null } handPlay && (handPlay.RevealedHand is not null || handPlay.IgnoreAllCosts
+        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null, Parent.ObservedPlayPermission: null } handPlay && (handPlay.RevealedHand is not null || handPlay.IgnoreAllCosts
             || CardBehaviorRegistry.TryGetByEffectKind(handPlay.Parent.EffectKind, out var handDefinition)
                 && handDefinition.EffectPlaySourceZone == "OPPONENT_HAND") && !CoreRuleEngine.ValidRevealedHandPlay(state, handPlay))
             errors.Add("invalid revealed hand effect-play continuation");
@@ -23769,8 +23769,20 @@ public static class MatchRecoveryValidator
                     || !CoreRuleEngine.ValidSequentialMovementPlan(state, execution.EffectKind, execution.TargetObjectIds.Count, execution.MovementDestinations))))
                 errors.Add("invalid spell repeat execution plan");
         }
+        if(state.DeckObservationView is not null && state.PendingRuleChoice is not {Request.Kind:"DECK_OBSERVATION_BANISH"})
+            errors.Add("invalid observed deck visibility outside static choice");
+        if(state.ObservedDeckPlays is { } observedHistory && (observedHistory.Any(c=>c is null || c.Card is null || c.Instruction is null)
+            || observedHistory.Select(c=>c.Id).Distinct().Count()!=observedHistory.Count
+            || observedHistory.Select(c=>c.Card.ObjectId).Distinct().Count()!=observedHistory.Count
+            || observedHistory.Any(c=>state.StackItems.Count(s=>s.ObservedDeckPlay?.Id==c.Id)!=1)))
+            errors.Add("invalid observed deck pending history membership");
+        foreach(var observed in state.ObservedDeckPlays??[])
+            if(observed is null || !CoreRuleEngine.ValidObservedDeckPlay(state,observed))errors.Add("invalid observed deck play history");
+        if(state.PendingEffectPlay is { } observedPending && !CoreRuleEngine.ValidObservedPlayPermission(state,observedPending))
+            errors.Add("invalid observed deck play permission");
         foreach (var deckItem in state.StackItems)
         {
+            if (!CoreRuleEngine.ValidObservedDeckSlot(state,deckItem))errors.Add("invalid observed deck pending slot");
             if (!CoreRuleEngine.ValidEndAbility(state, deckItem)) errors.Add("invalid end-step ability");
             if (!CoreRuleEngine.ValidDestroyDeckPlayContext(state, deckItem)) errors.Add("invalid destroy deck play context");
             if (!CoreRuleEngine.ValidDeckPlaySequence(state, deckItem)) errors.Add("invalid deck play sequence");
@@ -23794,8 +23806,9 @@ public static class MatchRecoveryValidator
             if (choice.DeckContext is not { } context || top is null || context.StackItemId != top.StackItemId
                 || context.ExecutionIndex != top.CompletedDeckExecutions || top.DeckChoiceCompleted
                 || choice.PlayerId != top.ControllerId || choice.SourceObjectId != top.SourceObjectId
-                || !CoreRuleEngine.TryGetDeckChoiceBehavior(top, out var behavior)
-                || !state.PlayerZones[top.ControllerId].MainDeck.Take(behavior.MainDeckLookCount).SequenceEqual(choice.ContextObjectIds))
+                || !CoreRuleEngine.TryGetDeckChoiceBehavior(state,top, out var behavior)
+                || !(CoreRuleEngine.ObservedRemainingDeckCards(state,top,top.ControllerId,top.CompletedDeckExecutions)
+                    ?? state.PlayerZones[top.ControllerId].MainDeck.Take(behavior.MainDeckLookCount).ToArray()).SequenceEqual(choice.ContextObjectIds))
                 errors.Add("invalid private deck choice continuation");
             else
             {
@@ -23944,7 +23957,7 @@ public static class MatchRecoveryValidator
         foreach (var item in state.TriggerQueue)
             if (!CoreRuleEngine.ValidTurnUnitPlayBoon(state, item.TurnUnitPlayBoon, item.EffectKind, item.SourceObjectId, item.ControllerId, item.SourceCardNo))
                 errors.Add("invalid captured unit play boon trigger");
-        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null } sourcePending && (sourcePending.SourceReplay is not null || sourcePending.SourceZone == "STACK")
+        if (state.PendingEffectPlay is { Parent.DeckPlaySequence: null } sourcePending && (sourcePending.SourceReplay is not null || sourcePending.SourceZone == "STACK" && sourcePending.Parent.ObservedPlayPermission is null)
             && !CoreRuleEngine.ValidSourceReplayPending(state, sourcePending)) errors.Add("invalid source replay continuation");
         foreach (var item in state.StackItems)
             if (item.SourceReplay is { } sourceProgress ? !CoreRuleEngine.ValidSourceReplayProgress(state, sourceProgress, item)

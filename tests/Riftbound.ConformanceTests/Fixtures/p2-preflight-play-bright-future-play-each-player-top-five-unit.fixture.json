@@ -355,10 +355,12 @@
       "CARD_CHOICE_REQUESTED",
       "CARD_BANISHED",
       "CARDS_RECYCLED",
+      "CARD_CHOICE_RESOLVED",
       "STACK_ITEM_SUSPENDED",
       "CARD_CHOICE_REQUESTED",
       "CARD_BANISHED",
       "CARDS_RECYCLED",
+      "CARD_CHOICE_RESOLVED",
       "EFFECT_PLAY_REQUESTED",
       "STACK_ITEM_PENDING",
       "STACK_ITEM_PENDING",
@@ -417,6 +419,9 @@
         }
       },
       {
+        "kind": "CARD_CHOICE_RESOLVED"
+      },
+      {
         "kind": "STACK_ITEM_SUSPENDED"
       },
       {
@@ -431,6 +436,9 @@
           "playerId": "P2",
           "count": 4
         }
+      },
+      {
+        "kind": "CARD_CHOICE_RESOLVED"
       },
       {
         "kind": "EFFECT_PLAY_REQUESTED"
@@ -577,5 +585,6 @@
         ]
       }
     }
-  }
+  },
+  "sourceCorrection": "2026-10-14 retained original exact case and final zone/cost assertions; shared deck selection publishes CARD_CHOICE_RESOLVED after the actual choice."
 }

@@ -1,0 +1,35 @@
+{
+  "status": "CURRENT_CN_EFFECTIVE_ERRATA_ADOPTED_SCOPED",
+  "runtimeDeltaCount": 1,
+  "runtimeEntries": 1031,
+  "runtimeFunctionalUnits": 830,
+  "changedIdentity": "OGN·194/298",
+  "sourceFiles": [
+    "source-current.json",
+    "en-current.json",
+    "origins-errata-current.json",
+    "origins-faq-current.json",
+    "current-core.json"
+  ],
+  "sourceTreatment": {
+    "CN": "Live nonempty errata used for the exact existing runtime identity. Publication/effective dates not supplied by endpoint.",
+    "EN": "Live gallery still old trigger/non-draw text; definitive Origins errata agrees with current CN static banish wording.",
+    "FAQ": "Historical and retired; selected Nocturne interactions cross-checked with current CN core and definitive errata. No whole FAQ certification.",
+    "future": "October 16 version not applied."
+  },
+  "sourceUniverse": {
+    "path": "docs/evidence/rules-reaudit-2026-10-14/source-refresh-20261013T164814Z/source-coverage.json",
+    "identities": 1738,
+    "status": "NOT_REVIEWED",
+    "enGap": 8
+  },
+  "open": [
+    "Candlelit Sanctum private subset/order and proper response lifecycle",
+    "Multiplayer beyond two seats",
+    "Future generic queue interleaving and earliest pending chronology beyond tested all-Noct-first subset",
+    "Whole official universe/source gaps",
+    "Current visible paired clients and user Windows actual runtime",
+    "Full-card and full lifecycle semantics",
+    "Native waiting-opponent SURRENDER disabled despite server-enabled candidate; two branches backend-only"
+  ]
+}
