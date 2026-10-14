@@ -19585,6 +19585,73 @@
         "FIXED_CURRENT_FULL",
         "FINAL_PRODUCT_ACCEPTANCE"
       ]
+    },
+    {
+      "id": "unit-conquest-gold-response-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Current CN two active Gold unit printings only: natural/combat response timing, actual reaction removal, captured printing/generation/battlefield rejection and durable native/SQL journal replay. Other unit-conquest effects, repeat/order and whole token/card semantics remain open.",
+      "subjects": [
+        "UNL-222/219",
+        "SFD-069/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P059-B007",
+        "DOC-04-P059-B010",
+        "DOC-04-P060-B006",
+        "DOC-04-P064-B019"
+      ],
+      "auditDocument": "docs/CONQUEST_TOKEN_TRIGGER_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/conquest-token-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/conquest-token-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PASSED",
+        "newMethods": 5,
+        "newCases": 11,
+        "newMethodNames": [
+          "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RecoveryRejectsMissingOrForgedCapturedPrintingGenerationAndBattlefield"
+        ],
+        "cases": [
+          "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"SFD·069/221\", reaction: False)",
+          "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"SFD·069/221\", reaction: True)",
+          "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"UNL-222/219\", reaction: False)",
+          "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"UNL-222/219\", reaction: True)",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat(card: \"SFD·069/221\")",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat(card: \"UNL-222/219\")",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"SFD·069/221\")",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"UNL-222/219\")",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill(card: \"SFD·069/221\")",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill(card: \"UNL-222/219\")",
+          "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RecoveryRejectsMissingOrForgedCapturedPrintingGenerationAndBattlefield"
+        ]
+      },
+      "fixedCommitCi": {
+        "state": "PENDING",
+        "implementationBaseCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
+        "includesUncommittedChanges": true
+      },
+      "productAcceptance": {
+        "nativeControls": "SCOPED_PASS",
+        "actualSql": "SCOPED_PASS",
+        "visiblePairedScoreFinish": "OPEN",
+        "WindowsRuntime": "OPEN"
+      },
+      "remaining": [
+        "OTHER_CONQUEST_CONSUMERS_AND_ORDER",
+        "TOKEN_PLAY_AND_ALL_STATIC_CONSUMERS",
+        "WHOLE_PRINTING_SEMANTICS",
+        "FIXED_CURRENT_FULL",
+        "FINAL_PRODUCT_ACCEPTANCE"
+      ]
     }
   ]
 }

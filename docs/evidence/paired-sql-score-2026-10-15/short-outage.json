@@ -1,0 +1,16 @@
+{
+  "status": "BOTH_VISIBLE_AUTOMATIC_RECONNECT_WITH_PENDING_TRIGGER_PASS",
+  "commit": "00420e2a2b453918e611812d18fda9f62632e15f",
+  "room": "paired-00420-20261015",
+  "checkpointTick": 33,
+  "checkpointHash": "d07f10f97e4c867d7100f49f50f2f0a33577d862dba5c99872f85802d4f7f748",
+  "scores": {
+    "paired-00420-a": 7,
+    "paired-00420-b": 0
+  },
+  "sameAuthoritativeCheckpoint": true,
+  "manualReconnectClicks": 0,
+  "pendingTriggerPreserved": true,
+  "observation": "After immediate API restart both native clients automatically returned to the pending Unity Sanctuary response window, then A and B passed normally. Historical SQL tick 33 is compared because gameplay subsequently advanced; this is not an unchanged-latest-state assertion.",
+  "recordedAtUtc": "2026-10-14T20:50:06.344229+00:00"
+}

@@ -1,0 +1,33 @@
+{
+  "status": "CURRENT_SOURCE_FOCUS_AND_ORIGINAL_GAMES_PASS",
+  "newCaseCount": 11,
+  "newMethodCount": 5,
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RecoveryRejectsMissingOrForgedCapturedPrintingGenerationAndBattlefield"
+  ],
+  "newCases": [
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"SFD·069/221\", reaction: False)",
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"SFD·069/221\", reaction: True)",
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"UNL-222/219\", reaction: False)",
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"UNL-222/219\", reaction: True)",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat(card: \"SFD·069/221\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat(card: \"UNL-222/219\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"SFD·069/221\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"UNL-222/219\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill(card: \"SFD·069/221\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill(card: \"UNL-222/219\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RecoveryRejectsMissingOrForgedCapturedPrintingGenerationAndBattlefield"
+  ],
+  "selectedCases": 41,
+  "selectedMethods": 31,
+  "originalGames": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameRejectsDefensiveReckonerArenaHeldActivateConquestAndReplaysScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "trxSha256": "51dbdda0d32b2b39578c0194a72264b3e35a342bba6399067a397a488eed58fc",
+  "scope": "Two active unit-conquest Gold printings: response timing, real source destruction and independent recovery binding only."
+}

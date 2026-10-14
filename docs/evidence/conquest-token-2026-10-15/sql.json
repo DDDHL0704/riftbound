@@ -1,0 +1,83 @@
+{
+  "status": "REAL_POSTGRES_CONQUEST_TOKEN_ALL_FOUR_BRANCHES_PASS",
+  "records": [
+    {
+      "branch": "alternate-plain",
+      "commands": 5,
+      "events": 16,
+      "coldRecoveries": 5,
+      "tokenSourceTamperRejected": true,
+      "finalHash": "c756d9287e9710cdbd08ad75ee2c56c7093a1d10083af8fbee0e5b5380087fd1",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+        "implementationSha256": "76ac3b4fe4d56b954bb9c5f243275c70d2d258c7ed113df02a24cb23b3d48a13",
+        "identitySha256": "5aa34380f4921a0a77244e9367b8c3591bd7cd00b7ee00e99b75faaf332652f8"
+      },
+      "receiptSha256": "bfb4c8374eefb027f018915af000872c4c6ba94e73aa43207f72e7b58a874c1d"
+    },
+    {
+      "branch": "alternate-reaction",
+      "commands": 9,
+      "events": 26,
+      "coldRecoveries": 9,
+      "tokenSourceTamperRejected": true,
+      "finalHash": "3be5ccfe021b357a1539b3a0ae3f3b8bc37c85026dd3d76ce9607c513531ba2d",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+        "implementationSha256": "76ac3b4fe4d56b954bb9c5f243275c70d2d258c7ed113df02a24cb23b3d48a13",
+        "identitySha256": "5aa34380f4921a0a77244e9367b8c3591bd7cd00b7ee00e99b75faaf332652f8"
+      },
+      "receiptSha256": "1037471e7c140ca6c8c5c7e2dbb6590be2718b452c49eb03f750f881f5234f47"
+    },
+    {
+      "branch": "primary-plain",
+      "commands": 5,
+      "events": 16,
+      "coldRecoveries": 5,
+      "tokenSourceTamperRejected": true,
+      "finalHash": "d3769b6626fbd7a3055434e080c4ba085bbe209514a14b8d1c57a93fcbbceb93",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+        "implementationSha256": "76ac3b4fe4d56b954bb9c5f243275c70d2d258c7ed113df02a24cb23b3d48a13",
+        "identitySha256": "5aa34380f4921a0a77244e9367b8c3591bd7cd00b7ee00e99b75faaf332652f8"
+      },
+      "receiptSha256": "e541b717bd64735921ae937e417664a5c7ca1cc537e4172602ea13d55ef01f5b"
+    },
+    {
+      "branch": "primary-reaction",
+      "commands": 9,
+      "events": 26,
+      "coldRecoveries": 9,
+      "tokenSourceTamperRejected": true,
+      "finalHash": "13d913c565c35e53ea0be93fb8af4ee676d917300b236f56e66c34e4d3f36255",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+        "implementationSha256": "76ac3b4fe4d56b954bb9c5f243275c70d2d258c7ed113df02a24cb23b3d48a13",
+        "identitySha256": "5aa34380f4921a0a77244e9367b8c3591bd7cd00b7ee00e99b75faaf332652f8"
+      },
+      "receiptSha256": "5792605a9f7f9bd7838b5300b6a014a8c6fc443950556a3a1af98ae918205af1"
+    }
+  ],
+  "commands": 28,
+  "events": 84,
+  "coldRecoveries": 28,
+  "tamperRejections": 4,
+  "actualDatabaseConnection": true,
+  "cleanup": "Only owned explicit fixture rooms were cleaned in finally; dedicated cluster stopped; paired-00420 original SQL history retained."
+}

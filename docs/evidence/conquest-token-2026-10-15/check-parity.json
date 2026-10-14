@@ -1,0 +1,37 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "checkCases": 11606,
+  "checkMethods": 7109,
+  "failed": 0,
+  "skipped": 0,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "oldCaseCount": 11595,
+  "oldMethodCount": 7104,
+  "newCases": [
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"SFD·069/221\", reaction: False)",
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"SFD·069/221\", reaction: True)",
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"UNL-222/219\", reaction: False)",
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay(card: \"UNL-222/219\", reaction: True)",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat(card: \"SFD·069/221\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat(card: \"UNL-222/219\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"SFD·069/221\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"UNL-222/219\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill(card: \"SFD·069/221\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill(card: \"UNL-222/219\")",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RecoveryRejectsMissingOrForgedCapturedPrintingGenerationAndBattlefield"
+  ],
+  "newMethods": [
+    "Riftbound.ConformanceTests.ConquestTokenNativeTests.ProductionMovementFocusReactionAndGoldResponsesColdRecoverDeduplicateAndReplay",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.CombatConquestAlsoQueuesGoldInsteadOfCreatingItDuringCombat",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RealReactionDestroysSourceWithoutCancellingItsCapturedGoldSkill",
+    "Riftbound.ConformanceTests.ConquestTokenTriggerTests.RecoveryRejectsMissingOrForgedCapturedPrintingGenerationAndBattlefield"
+  ],
+  "frozenInputsUnchanged": true,
+  "frozenInputCount": 866,
+  "seconds": 229.96,
+  "trxSha256": "1e00f8e05131417f9c9c9b33112dd17adb726eada40256445e28ad156cb9e553",
+  "baselineTrxSha256": "7e74950fa869e4676859bf95dc96bdd35feeb1e4d4f737b0322c093e97e34b8c",
+  "currentFixedFull": "PENDING"
+}

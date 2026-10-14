@@ -68,6 +68,9 @@ public sealed partial class CoreRuleEngine
             playerId,battlefieldId,resolutionTick)).ToArray();
         recastTriggers = recastTriggers.Concat(CaptureBattlefieldConquestLook(playerZones,cardObjects,
             playerId,battlefieldId,resolutionTick)).ToArray();
+        recastTriggers = recastTriggers.Concat(CaptureConquestTokens(state with { PlayerZones = playerZones,
+            CardObjects = cardObjects, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones) },
+            playerId, battlefieldId, conqueringUnitObjectIds, resolutionTick)).ToArray();
         events.AddRange(recastTriggers.Select(BuildTriggerQueuedEvent));
         var naturalUnitConquestEvents = new List<GameEvent>();
         if (conqueredRealBattlefield
@@ -80,7 +83,8 @@ public sealed partial class CoreRuleEngine
                 untilEndOfTurnEffects,
                 playerId,
                 battlefieldId,
-                conqueringUnitObjectIds,
+                conqueringUnitObjectIds.Where(id => !cardObjects.TryGetValue(id, out var unit)
+                    || ConquestTokenSpec(unit.CardNo) is null).ToArray(),
                 assignedOverkillDamageToEnemyUnits,
                 rngCursor,
                 naturalUnitConquestEvents,

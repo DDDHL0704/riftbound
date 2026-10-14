@@ -1,0 +1,16 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-14T20:39:13.297387+00:00",
+  "sha256": "cf7f1c4097ab774745c1765c38c3b60497851b3731b2043aebb373e2c49c69ac",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "card": {
+    "id": 33149,
+    "cardNo": "SFD·069/221",
+    "cardEffect": "当我征服一处战场时，打出一个休眠的“金币”装备指示物。",
+    "errata": ""
+  }
+}

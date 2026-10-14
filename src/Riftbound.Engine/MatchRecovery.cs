@@ -23758,6 +23758,18 @@ public static class MatchRecoveryValidator
             && (payment.PaymentWindow is not (CoreRuleEngine.TriggerCostWindow or CoreRuleEngine.TriggerTargetCostWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow) && payment.ResolvingStackItemId is not null || payment.PaymentWindow == "INSIGHT_EFFECT")
             && !CoreRuleEngine.ValidInsightPayment(state, payment)) errors.Add("invalid Insight payment continuation");
         foreach (var trigger in state.TriggerQueue)
+            if (trigger.ConquestToken is { } token
+                ? !CoreRuleEngine.ValidConquestToken(state, token, trigger.SourceObjectId, trigger.EffectKind)
+                    || trigger.TriggeredByEventKind != "BATTLEFIELD_CONQUERED"
+                : trigger.EffectKind == TriggerKinds.UnitConquestCreateDormantGold)
+                errors.Add("invalid captured conquest token trigger");
+        foreach (var item in state.StackItems)
+            if (item.ConquestToken is { } token
+                ? !CoreRuleEngine.ValidConquestToken(state, token, item.SourceObjectId, item.EffectKind, item.CardNo)
+                    || item.TargetObjectIds.Count != 0 || item.OptionalCosts.Count != 0 || item.EffectRepeatCount != 1
+                : item.EffectKind == TriggerKinds.UnitConquestCreateDormantGold)
+                errors.Add("invalid captured conquest token stack item");
+        foreach (var trigger in state.TriggerQueue)
             if (trigger.SivirRuneRecycle is { } sivir
                 ? !CoreRuleEngine.ValidSivirRuneContext(sivir, trigger.EffectKind)
                     || !CoreRuleEngine.ValidSivirRuneSource(state, sivir, trigger.SourceObjectId)

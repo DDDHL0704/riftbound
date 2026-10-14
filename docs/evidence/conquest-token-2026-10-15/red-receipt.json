@@ -1,0 +1,19 @@
+{
+  "status": "INDEPENDENT_CURRENT_PRINTING_RED_REPRODUCED",
+  "candidate": "00420e2a2b453918e611812d18fda9f62632e15f",
+  "cases": [
+    {
+      "case": "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"UNL-222/219\")",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"UNIT-TOKEN-001\"]"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.ConquestTokenTriggerTests.NaturalConquestWaitsForBothResponsesBeforePlayingDormantGold(card: \"SFD·069/221\")",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"UNIT-TOKEN-001\"]"
+    }
+  ],
+  "source": "source.json",
+  "liveRoom": "paired-00420-20261015",
+  "redScope": "Gold already exists before either player responds; both exact active printings reproduce. Initial legacy battlefield location shape was later made explicit for modern capture tests; the red assertion fails earlier on actual immediate token creation."
+}
