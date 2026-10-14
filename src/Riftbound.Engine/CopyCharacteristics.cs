@@ -16,7 +16,7 @@ internal static class CopyCharacteristics
     // CN 477.1.b: copy the printed/copied face, never a materialized combat value,
     // buffs, granted keywords, damage, attachments, controller or status. CardNo
     // already resolves rules text/cost/name/traits for a copy of another copy.
-    internal static CardObjectState CreateImage(string objectId, string controller, CardObjectState source)
+    internal static CardObjectState CreateImage(string objectId, string controller, CardObjectState source, bool grantsEphemeral = true)
     {
         CardObjectState copied;
         if (source.CardNo is not null && P6TokenFactoryCatalog.TryGetByCardNo(source.CardNo, out var token))
@@ -31,7 +31,7 @@ internal static class CopyCharacteristics
             : [];
         return copied with {
             TokenFactoryCardNo = P6TokenFactoryCatalog.ImageTokenCardNo,
-            Tags = copied.Tags.Concat(printedKeywords).Append(CardObjectTags.Ephemeral)
+            Tags = copied.Tags.Concat(printedKeywords).Concat(grantsEphemeral ? [CardObjectTags.Ephemeral] : [])
                 .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
             IsExhausted = false
         };

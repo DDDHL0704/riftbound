@@ -18756,6 +18756,84 @@
         "fixed candidate combined product acceptance"
       ],
       "wholeGoalComplete": false
+    },
+    {
+      "id": "masked-attendant-reflexive-self-copy-2026-10-14",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "CN exact UNL-081/219 / id34615 creation, reflexive self copy, current here, recovery and reviewed card wording; not whole-printing certification",
+      "subjects": [
+        "UNL-081/219"
+      ],
+      "auditDocument": "docs/MASKED_ATTENDANT_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/masked-attendant-2026-10-14",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/masked-attendant-2026-10-14/source-current.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "focus": {
+          "status": "PASSED",
+          "profile": "focus",
+          "seconds": 50.92,
+          "total": 361,
+          "caseParityVerified": false,
+          "shards": [
+            {
+              "shard": "focus",
+              "total": 361,
+              "passed": 361,
+              "failed": 0,
+              "notExecuted": 0,
+              "seconds": 13.3
+            }
+          ]
+        },
+        "newMethods": 14,
+        "newCases": 24,
+        "nativeCommands": 23,
+        "nativeRecordedCommands": 64,
+        "nativeColdRecoveries": 32,
+        "sqlCommands": 5,
+        "sqlEvents": 18,
+        "sqlColdRecoveries": 5,
+        "check": {
+          "status": "CHECK_FAILURE_CLOSED_BY_NAMED_REMEDIATION",
+          "checkCases": 11479,
+          "checkMethods": 7066,
+          "firstCheckPassed": 11478,
+          "firstCheckFailed": [
+            "Riftbound.ConformanceTests.AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource"
+          ],
+          "remediationCases": 78,
+          "oldCasesPreserved": true,
+          "oldMethodsPreserved": true
+        },
+        "pythonTests": 40
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_CURRENT_COMMIT",
+        "previousFixed": "d974d3e636e86ee24c1cd6a3db429268324f5d16",
+        "previousRun": 38565674807,
+        "previousCoversCurrent": false
+      },
+      "productAcceptance": {
+        "visiblePairedSqlNetworkScoreReplayCombination": {
+          "state": "EARLY_PASS_PREVIOUS_FIXED_CANDIDATE",
+          "commit": "d974d3e636e86ee24c1cd6a3db429268324f5d16",
+          "coversCurrent": false
+        },
+        "windowsUserActualRuntime": "OPEN_USER_HAS_NO_DEVICE"
+      },
+      "remainingObligations": [
+        "all applicable official source semantics and source gaps",
+        "other self-copy source face/control and shared-family interactions not covered by these branches",
+        "current fixed full CI and final product candidate acceptance",
+        "Windows actual runtime"
+      ],
+      "wholeGoalComplete": false
     }
   ]
 }

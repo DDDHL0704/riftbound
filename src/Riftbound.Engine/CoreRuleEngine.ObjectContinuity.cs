@@ -56,6 +56,13 @@ public sealed partial class CoreRuleEngine
         var previousItems = before.StackItems.ToDictionary(item => item.StackItemId, StringComparer.Ordinal);
         var stack = after.StackItems.Select(item =>
         {
+            if (item.SelfCopySource is { } source && !previousItems.ContainsKey(item.StackItemId)
+                && before.CardObjects.TryGetValue(source.ObjectId, out var oldSource)
+                && source.Generation == oldSource.ObjectGeneration && cards.TryGetValue(source.ObjectId, out var entered)
+                && !IsObjectOnField(before.PlayerZones, source.ObjectId) && IsObjectOnField(after.PlayerZones, source.ObjectId)
+                && entered.ObjectGeneration != source.Generation) {
+                item = item with { SelfCopySource = source with { Generation = entered.ObjectGeneration } }; changed = true;
+            }
             if (item.PermanentPlayTargetsPending) return item;
             if (previousItems.TryGetValue(item.StackItemId, out var previousItem)
                 && previousItem.TargetObjectIds.SequenceEqual(item.TargetObjectIds, StringComparer.Ordinal)) return item;

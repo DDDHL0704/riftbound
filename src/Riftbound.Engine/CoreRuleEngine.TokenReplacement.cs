@@ -40,7 +40,8 @@ public sealed partial class CoreRuleEngine
         if (CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
             && (!behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment || item.SourceConfirmed)
             && ShouldCreateBaseUnitTokens(behavior, item))
-            return behavior.CreatedBaseUnitTokenCount * item.EffectRepeatCount;
+            return behavior.CreatedBaseUnitTokensCopySource && SelfCopyTokenLocation(state, item) is null
+                ? 0 : behavior.CreatedBaseUnitTokenCount * item.EffectRepeatCount;
         return 0;
     }
 

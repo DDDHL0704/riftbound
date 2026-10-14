@@ -23,6 +23,7 @@ public sealed record OfficialCardCatalog(
         var catalog=await OfficialCardCatalogLoader.LoadFromFileAsync(DefaultCatalogPath(), CancellationToken.None)
             .ConfigureAwait(false);
         return catalog with { Cards=catalog.Cards.Select(c=>c with {
+            CardEffect=ReviewedCardErrata.EffectiveText(c.Id,c.CardNo,c.CardEffect),
             CardCategoryList=c.CardCategoryList.ToImmutableArray(),CardCategoryNameList=c.CardCategoryNameList.ToImmutableArray(),
             CardColorList=c.CardColorList.ToImmutableArray(),ProductCodeList=c.ProductCodeList.ToImmutableArray(),
             ProductNameList=c.ProductNameList.ToImmutableArray() }).ToImmutableArray() };

@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "41cb05b55ca567e9243b9dccc2340f1d12643a66892c005e2263968ff6e1b5d3"
+      "sha256": "d79bf95f524f06331fad37811f56b40372ac7f909798b9e904d8a254b1b0cb2a"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -108,7 +108,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a85c52093796761f55b2bae8906c0b1edc356208a57081d6d2193b347d30620a"
+          "sha256": "a02e349833774c5f58453a1b288997471a2b07eb74c7a615383366f4cdd06475"
         }
       ],
       "branches": [
@@ -237,7 +237,8 @@
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
       "currentImplementationCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationIncludesUncommittedChanges": true,
+      "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
       "implementation": [
@@ -259,7 +260,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a85c52093796761f55b2bae8906c0b1edc356208a57081d6d2193b347d30620a"
+          "sha256": "a02e349833774c5f58453a1b288997471a2b07eb74c7a615383366f4cdd06475"
         }
       ],
       "branches": [
@@ -549,6 +550,613 @@
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
       "currentImplementationCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
+    },
+    "masked-attendant-reflexive-self-copy-2026-10-14": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SelfCopyTokens.cs",
+          "sha256": "e16b7e4b46031d4f4d8da960cc895df22e893af1d27fe41c7cd4213790171363"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ReflexiveCopy.cs",
+          "sha256": "be1312975680ff72280b107ec02b22fa9bf529454fe2686bdba0d3bc0c1d8a57"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
+          "sha256": "db0e7bcc2652e9f88a581da82f51c96b5c5c11797bb6a6552f02789ebbfd5aeb"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "sha256": "cfab10d52eff48679a39ab43b79ca9ea1a8af0777168c55bfdb3a70486b38e42"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
+          "sha256": "defd3fc8945f5c76080ead1a76c9bf94e9e15f9b6d5a07cb047074ee829b501d"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "a02e349833774c5f58453a1b288997471a2b07eb74c7a615383366f4cdd06475"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "d4a00b3aa7274ecd729b3224f2c7206bb459d3584968cf9e3b6e3b97beeea465"
+        },
+        {
+          "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
+          "sha256": "e37471813f1146358e398029531d90e3334d2e61340bd7dd30849af5769b4a44"
+        },
+        {
+          "path": "clients/godot/scripts/OfficialCardCatalogService.cs",
+          "sha256": "a7cbcc26fdfe93a24ce47f167fb835e718307f29501eb898c255e4c119c52e39"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantNativeTests.ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay"
+            ],
+            "requiredNativeBranches": [
+              "normal",
+              "standby",
+              "replace",
+              "decline"
+            ]
+          }
+        },
+        {
+          "id": "ANewGenerationCannotReceiveThePreviousObjectsInstruction",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.ANewGenerationCannotReceiveThePreviousObjectsInstruction"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "ActualResponseReturningSourceToHandCannotUseItsPreviousObject",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.ActualResponseReturningSourceToHandCannotUseItsPreviousObject"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "AnImageReturnedDuringTheCopyWindowCannotBeRecreated",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.AnImageReturnedDuringTheCopyWindowCannotBeRecreated"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "ColdRecoveryAtBothResponseWindowsKeepsCompleteActionAndEventReplay",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.ColdRecoveryAtBothResponseWindowsKeepsCompleteActionAndEventReplay"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "CopiesUsePrintedFaceAndPreserveImagesExistingModifications",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.CopiesUsePrintedFaceAndPreserveImagesExistingModifications"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "IndependentRecoveryChecksRejectMissingAndForgedSourceBindings",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.IndependentRecoveryChecksRejectMissingAndForgedSourceBindings"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "NormalPlaySkillCreatesTwoImagesWhichImmediatelyCopyItsPrintedCharacteristics",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.NormalPlaySkillCreatesTwoImagesWhichImmediatelyCopyItsPrintedCharacteristics"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "OptionalReplacementAddsAnImageBeforeTheIndependentCopyTrigger",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.OptionalReplacementAddsAnImageBeforeTheIndependentCopyTrigger"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "OriginalAndCopiesHaveIndependentEphemeralBeginningTriggers",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.OriginalAndCopiesHaveIndependentEphemeralBeginningTriggers"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "PublicCopyEventKeepsItsPayloadHashAcrossTheSqlJsonConvention",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.PublicCopyEventKeepsItsPayloadHashAcrossTheSqlJsonConvention"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "RuntimeCardTextUsesTheApplicableAprilErratum",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.RuntimeCardTextUsesTheApplicableAprilErratum"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "SelfReferenceIsNotSubjectToTargetProtectionOrWardPayment",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.SelfReferenceIsNotSubjectToTargetProtectionOrWardPayment"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages",
+          "sourceRefs": [
+            "UNL-081/219",
+            "DOC-10-P003-B005",
+            "DOC-10-P003-B006",
+            "DOC-10-P003-B007",
+            "DOC-04-P053-B006",
+            "DOC-04-P053-B007",
+            "DOC-04-P026-B014",
+            "DOC-04-P093-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_APPLICABLE_FAMILY_INTERACTIONS",
+            "WHOLE_PRINTING_SEMANTICS",
+            "CURRENT_FIXED_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Named independent current-CN scope; source, semantic, test, CI and product status remain separate. No whole-printing certification.",
+            "sourceFingerprints": {
+              "UNL-081/219": "46e30624bc66351d67b323ae56b5d9bf33293f2ec4efad4c54ead0a5281e9434",
+              "DOC-10-P003-B005": "284dcadda1fd32f0f8cf14aa090aed263c23d116736ce1198ffe53383e3f7a29",
+              "DOC-10-P003-B006": "b7658fd7cd340152356f2e97f3e15821dd1c35e63ec2011c661149decfa8cab9",
+              "DOC-10-P003-B007": "fa8f91ae5eb772191fedf4dc0ba55d0d230e76602aa0ea93bb6344d119734516",
+              "DOC-04-P053-B006": "0652a200fae227047b706318a5d9da0a1b22241a040d53162a772b761ac8b1a6",
+              "DOC-04-P053-B007": "daf6da5793e30e8cb02dad44234b0bf26a5182ba7663f78558b267e65e0b4c24",
+              "DOC-04-P026-B014": "7e77aab6255df3fd5adf4c3e3b5f9f521d42c8bb6d0546a6fda1613b9daca821",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.MaskedAttendantTests.StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages"
+            ],
+            "requiredNativeBranches": []
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/masked-attendant-2026-10-14/adjacent-focus.json",
+          "sha256": "48377c337b6a4b5db80e03deeb368e683f83732c53369e0025acd2b97f3ca61a",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/masked-attendant-2026-10-14/native-replay.json",
+          "sha256": "716935a2111f85224b84319ae6aefc2e7e58f4b148735029bd5314c10d552545",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/masked-attendant-2026-10-14/sql-copy.json",
+          "sha256": "27640c1be6b2c2bd76900dfbb8a6892e52017127f11ed168e4afd33ce5c02b50",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/masked-attendant-2026-10-14/check-parity.json",
+          "sha256": "9e8f9efd2b993aebd1ebd4a35bf16a82319d908ee56aee428832d95216c10fd8",
+          "role": "check"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "d974d3e636e86ee24c1cd6a3db429268324f5d16",
+      "currentImplementationCommit": "d974d3e636e86ee24c1cd6a3db429268324f5d16",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },
@@ -581,12 +1189,18 @@
     {
       "id": "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
       "state": "OPEN",
-      "requirement": "One fixed candidate with visible paired clients, real SQL, reconnect, normal score end and full replay"
+      "requirement": "One fixed candidate with visible paired clients, real SQL, reconnect, normal score end and full replay",
+      "priorFixedEvidence": {
+        "commit": "d974d3e636e86ee24c1cd6a3db429268324f5d16",
+        "receipt": "docs/evidence/paired-sql-score-2026-10-14/product-receipt.json",
+        "currentCandidateVerified": false
+      }
     },
     {
       "id": "USER_WINDOWS_RUNTIME",
       "state": "OPEN",
-      "requirement": "Independent real user Windows install/runtime evidence"
+      "requirement": "Independent real user Windows install/runtime evidence",
+      "userAvailability": "User confirmed no Windows device on 2026-10-14; retain actual runtime acceptance as incomplete"
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker."

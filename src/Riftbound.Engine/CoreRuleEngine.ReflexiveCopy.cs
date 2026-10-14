@@ -1,19 +1,27 @@
 using Riftbound.Contracts;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Riftbound.Engine;
 
 public sealed record ObjectBinding(string ObjectId, long Generation);
 public sealed record ReflexiveCopyContext(string CardNo, ObjectBinding? CopySource, IReadOnlyList<ObjectBinding> Recipients,
-    string? BattlefieldId = null, bool TargetConfirmed = true);
+    string? BattlefieldId = null, bool TargetConfirmed = true,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CopySourceIsSelf = false);
 
 public sealed partial class CoreRuleEngine
 {
     internal const string ReflexiveCopyEffect = "REFLEXIVE_COPY_UNIT";
 
-    internal static bool ValidReflexiveCopy(ReflexiveCopyContext context, string effect, string? cardNo = null)
+    internal static bool ValidReflexiveCopy(ReflexiveCopyContext context, string effect, string? cardNo = null, string? sourceObjectId = null)
         => effect == ReflexiveCopyEffect && (cardNo is null || cardNo == context.CardNo)
             && (LegendCardHasIdentity(context.CardNo, LeblancLegendIdentityId)
-                || CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var behavior) && behavior.CreatedBaseUnitTokenCopiesFirstTarget)
+                || CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var behavior)
+                    && (behavior.CreatedBaseUnitTokenCopiesFirstTarget || behavior.CreatedBaseUnitTokensCopySource))
+            && (context.CopySourceIsSelf
+                ? CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var self) && self.CreatedBaseUnitTokensCopySource
+                    && context.CopySource is not null && (sourceObjectId is null || context.CopySource.ObjectId == sourceObjectId)
+                : !CardBehaviorRegistry.TryGetByCardNo(context.CardNo, out var other) || !other.CreatedBaseUnitTokensCopySource)
             && (LegendCardHasIdentity(context.CardNo, LeblancLegendIdentityId)
                 ? !string.IsNullOrWhiteSpace(context.BattlefieldId) && (context.TargetConfirmed ? context.CopySource is not null : context.CopySource is null)
                 : context.BattlefieldId is null && context.TargetConfirmed)
@@ -29,7 +37,10 @@ public sealed partial class CoreRuleEngine
                 || card.TokenFactoryCardNo == P6TokenFactoryCatalog.ImageTokenCardNo && card.CardNo == P6TokenFactoryCatalog.ImageTokenCardNo));
 
     internal static bool ValidReflexiveCopyStack(MatchState state, StackItemState item)
-        => item.ReflexiveCopy is not { BattlefieldId: not null } copy
+        => (item.ReflexiveCopy is not { CopySourceIsSelf: true } self
+                || self.CopySource?.ObjectId == item.SourceObjectId && item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
+                    && !self.Recipients.Any(r => r.ObjectId == item.SourceObjectId))
+            && (item.ReflexiveCopy is not { BattlefieldId: not null } copy
             || (copy.TargetConfirmed
                 ? copy.CopySource is { } source && item.TargetObjectIds.SequenceEqual([source.ObjectId])
                     && item.TargetGenerations is { Count: 1 } generations && generations.TryGetValue(source.ObjectId, out var generation)
@@ -37,14 +48,14 @@ public sealed partial class CoreRuleEngine
                 : state.PriorityPlayerId is null && (item.TargetObjectIds.Count == 0 && item.TargetGenerations is null
                     || state.PendingPayment is { PaymentWindow: TriggerTargetCostWindow } payment && payment.ResolvingStackItemId == item.StackItemId
                         && item.TargetObjectIds.Count == 1 && item.TargetGenerations is { Count: 1 } bound
-                        && bound.ContainsKey(item.TargetObjectIds[0]) && !copy.Recipients.Any(r => r.ObjectId == item.TargetObjectIds[0])));
+                        && bound.ContainsKey(item.TargetObjectIds[0]) && !copy.Recipients.Any(r => r.ObjectId == item.TargetObjectIds[0]))));
 
     private static void AddReflexiveCopyEvent(List<GameEvent> events, string player, string sourceId,
-        string cardNo, CardObjectState? copySource, IReadOnlyList<CardObjectState> recipients, string? battlefieldId = null)
+        string cardNo, CardObjectState? copySource, IReadOnlyList<CardObjectState> recipients, string? battlefieldId = null, bool copySourceIsSelf = false)
     {
         var context = new ReflexiveCopyContext(cardNo,
             copySource is null ? null : new(copySource.ObjectId, copySource.ObjectGeneration),
-            recipients.Select(r => new ObjectBinding(r.ObjectId, r.ObjectGeneration)).ToArray(), battlefieldId, battlefieldId is null);
+            recipients.Select(r => new ObjectBinding(r.ObjectId, r.ObjectGeneration)).ToArray(), battlefieldId, battlefieldId is null, copySourceIsSelf);
         events.Add(new("REFLEXIVE_COPY_CREATED", "映像已进场，复制效果等待双方响应", new Dictionary<string, object?> {
             ["playerId"] = player, ["sourceObjectId"] = sourceId, ["reflexiveCopyContext"] = context }));
     }
@@ -56,6 +67,11 @@ public sealed partial class CoreRuleEngine
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i)))
         {
             if (ev.Kind != "REFLEXIVE_COPY_CREATED" || ev.Payload.GetValueOrDefault("reflexiveCopyContext") is not ReflexiveCopyContext context) continue;
+            // The typed context is internal until the trigger is captured.
+            // Publish the same JSON names used by the SQL journal so hashes of
+            // live and deserialized event payloads remain equal.
+            events[index] = ev with { Payload = new Dictionary<string, object?>(ev.Payload) {
+                ["reflexiveCopyContext"] = JsonSerializer.SerializeToElement(context, new JsonSerializerOptions(JsonSerializerDefaults.Web)) } };
             var trigger = new TriggerQueueItemState($"copy-{result.State.Tick}-{index}",
                 (string)ev.Payload["playerId"]!, (string)ev.Payload["sourceObjectId"]!, ReflexiveCopyEffect, "UNIT_TOKEN_CREATED") { ReflexiveCopy = context };
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
@@ -103,23 +119,25 @@ public sealed partial class CoreRuleEngine
             && candidate.ObjectGeneration == source.Generation && IsObjectOnField(state.PlayerZones, source.ObjectId)
             && IsFaceUpNonStandbyUnit(candidate)
             && (context.BattlefieldId is null || HeldUnitsAt(state, context.BattlefieldId).Contains(source.ObjectId))
-            && TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, source.ObjectId)) copySource = candidate;
+            && (context.CopySourceIsSelf || TargetProtectionRules.IsLegalActivatedSkillTarget(state, item.ControllerId, source.ObjectId))) copySource = candidate;
         foreach (var recipient in context.Recipients)
         {
             if (!cards.TryGetValue(recipient.ObjectId, out var image) || image.ObjectGeneration != recipient.Generation
                 || !IsObjectOnField(state.PlayerZones, recipient.ObjectId)) continue;
             // This is an effect on the existing object, not a new entry: damage,
             // granted abilities, status, owner/controller and attachments survive.
-            var copied = copySource is null ? null : CopyCharacteristics.CreateImage(image.ObjectId, image.ControllerId!, copySource);
+            var copied = copySource is null ? null : CopyCharacteristics.CreateImage(image.ObjectId, image.ControllerId!, copySource, grantsEphemeral: !context.CopySourceIsSelf);
             var transformed = copied?.CardNo is { } face ? CopyFaceTimeline.ChangeFace(image, face, state.Tick + 1) : image;
             cards[image.ObjectId] = transformed with {
                 ManaCost = copied?.ManaCost ?? image.ManaCost,
                 Power = image.Power + (copied?.Power ?? 0),
-                GrantedTags = (image.GrantedTags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
+                GrantedTags = context.CopySourceIsSelf ? image.GrantedTags
+                    : (image.GrantedTags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(),
                 Tags = image.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag)
-                    .Concat(copied?.Tags ?? []).Append(CardObjectTags.Ephemeral).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
+                    .Concat(copied?.Tags.Where(t => t != P6TokenFactoryCatalog.CopySourceRequiredTag) ?? [])
+                    .Concat(context.CopySourceIsSelf ? [] : [CardObjectTags.Ephemeral]).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
             };
-            events.Add(new("UNIT_COPY_RESOLVED", copySource is null ? "复制来源已离场，映像获得瞬息" : "映像复制所选单位并获得瞬息",
+            events.Add(new("UNIT_COPY_RESOLVED", copySource is null ? "复制来源失效" : "映像复制来源单位",
                 new Dictionary<string, object?> { ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
                     ["targetObjectId"] = image.ObjectId, ["copiedCardNo"] = copied?.CardNo, ["power"] = cards[image.ObjectId].Power }));
         }

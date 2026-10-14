@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
     <ProjectReference Include="../../src/Riftbound.Contracts/Riftbound.Contracts.csproj" />
+    <Compile Include="../../src/Riftbound.CardCatalog/ReviewedCardErrata.cs" Link="ReviewedCardErrata.cs" />
   </ItemGroup>
   <Target Name="BundleOfficialCatalog" BeforeTargets="BeforeBuild">
     <MakeDir Directories="$(MSBuildProjectDirectory)/data" />

@@ -1,0 +1,39 @@
+{
+  "status": "SCOPED_FOCUS_PASS",
+  "summary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 50.92,
+    "total": 361,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 361,
+        "passed": 361,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 13.3
+      }
+    ]
+  },
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.MaskedAttendantNativeTests.ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ANewGenerationCannotReceiveThePreviousObjectsInstruction",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ActualResponseReturningSourceToHandCannotUseItsPreviousObject",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.AnImageReturnedDuringTheCopyWindowCannotBeRecreated",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ColdRecoveryAtBothResponseWindowsKeepsCompleteActionAndEventReplay",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.CopiesUsePrintedFaceAndPreserveImagesExistingModifications",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.IndependentRecoveryChecksRejectMissingAndForgedSourceBindings",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.NormalPlaySkillCreatesTwoImagesWhichImmediatelyCopyItsPrintedCharacteristics",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.OptionalReplacementAddsAnImageBeforeTheIndependentCopyTrigger",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.OriginalAndCopiesHaveIndependentEphemeralBeginningTriggers",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.PublicCopyEventKeepsItsPayloadHashAcrossTheSqlJsonConvention",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.RuntimeCardTextUsesTheApplicableAprilErratum",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.SelfReferenceIsNotSubjectToTargetProtectionOrWardPayment",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages"
+  ],
+  "newCases": 24,
+  "newMethods": 14,
+  "oldFixtureMethodAndTheoryRowsRetained": true
+}

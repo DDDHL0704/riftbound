@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-masked-attendant-ephemeral-copy-static",
-  "description": "Masked Attendant enters as a standby ephemeral unit while copy-token play text is deferred.",
+  "description": "Masked Attendant confirms exhausted, creates two zero-Might exhausted Images, then separately responds to the April-erratum reflexive self copy.",
   "source": "manual-pdf-faq-preflight",
-  "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
-  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "auditStatus": "SCOPED_CN_2026_10_14_SELF_COPY",
+  "rulesVersion": "CN-core-2026-07-17",
+  "faqVersion": "CN-UNL-errata-260403",
   "catalogVersion": "official-2026-04-27",
   "seed": 2603302779,
   "rulesEvidence": [
@@ -28,10 +28,18 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf",
+      "locator": "DOC-10-P003-B005/B006/B007; DOC-04-P053-B006/B007; DOC-04-P093-B008/B011",
+      "note": "Applicable April erratum creates a separate reflexive copy trigger. Original source, cost, readiness and seed assertions retained; copies added explicitly."
     }
   ],
   "roomId": "p2-preflight-unl-081-masked-attendant-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302779,
     "turnNumber": 779,
@@ -39,33 +47,62 @@
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 2,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-MASKED-ATTENDANT"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-MASKED-ATTENDANT"
+        ],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {}
@@ -81,11 +118,37 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-081-masked-attendant-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-081-masked-attendant-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-unl-081-masked-attendant-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-unl-081-masked-attendant-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "masked-copy-pass-P1",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "masked-copy-pass-P2",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 5,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -94,25 +157,57 @@
       "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "STACK_ITEM_RESOLVED",
+      "UNIT_TOKEN_CREATED",
+      "UNIT_TOKEN_CREATED",
+      "REFLEXIVE_COPY_CREATED",
+      "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_COPY_RESOLVED",
+      "UNIT_COPY_RESOLVED"
     ],
-    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
     "finalState": {
       "turnNumber": 779,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
-          "base": ["P1-UNIT-MASKED-ATTENDANT"],
+          "base": [
+            "P1-UNIT-MASKED-ATTENDANT",
+            "P1-UNIT-MASKED-ATTENDANT-TOKEN-001",
+            "P1-UNIT-MASKED-ATTENDANT-TOKEN-002"
+          ],
           "graveyard": []
         }
       },
@@ -120,14 +215,54 @@
       "cardObjects": {
         "P1-UNIT-MASKED-ATTENDANT": {
           "power": 1,
-          "tags": ["CARD_TYPE:UNIT", "待命", "瞬息"],
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "待命",
+            "瞬息"
+          ],
           "isExhausted": true
+        },
+        "P1-UNIT-MASKED-ATTENDANT-TOKEN-001": {
+          "power": 1,
+          "tags": [
+            "CARD_CATEGORY:单位",
+            "CARD_TYPE:UNIT",
+            "COLOR:blue",
+            "待命",
+            "瞬息"
+          ],
+          "isExhausted": true,
+          "manaCost": 2,
+          "cardNo": "UNL-081/219"
+        },
+        "P1-UNIT-MASKED-ATTENDANT-TOKEN-002": {
+          "power": 1,
+          "tags": [
+            "CARD_CATEGORY:单位",
+            "CARD_TYPE:UNIT",
+            "COLOR:blue",
+            "待命",
+            "瞬息"
+          ],
+          "isExhausted": true,
+          "manaCost": 2,
+          "cardNo": "UNL-081/219"
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

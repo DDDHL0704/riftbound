@@ -277,7 +277,8 @@ public sealed record CardBehaviorDefinition(
     SelectedBattlefieldEffectSpec? SelectedBattlefieldEffect = null,
     StandbyPlacement? StandbyPlayFrom = null,
     int? DeckPlayMaximumUnitMight = null,
-    bool EffectPlayIgnoreAllCosts = false);
+    bool EffectPlayIgnoreAllCosts = false,
+    bool CreatedBaseUnitTokensCopySource = false);
 
 public static class CardDamageConditionKinds
 {
@@ -7293,7 +7294,10 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 1,
-            SourceUnitTags: "待命|瞬息"),
+            SourceUnitTags: "待命|瞬息",
+            CreatedBaseUnitTokenCount: 2,
+            CreatedBaseUnitTokenName: "映像",
+            CreatedBaseUnitTokensCopySource: true),
         new(
             "UNL-147/219",
             "纳什男爵",

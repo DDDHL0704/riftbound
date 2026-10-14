@@ -23627,6 +23627,8 @@ public static class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidLegendUnitToken(item)) errors.Add("invalid legend unit token instruction");
         foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidSelfCopyTokenPlay(state, item)) errors.Add("invalid self copy token instruction");
+        foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidTokenEntryPlan(state, item)
                 || item.TokenEntryPlan is { } tokenPlan && tokenPlan.NextToken < tokenPlan.OriginalCount
                     && (state.PendingCardChoice?.ChoiceWindow != CoreRuleEngine.TokenReplacementWindow
@@ -23644,7 +23646,7 @@ public static class MatchRecoveryValidator
             if (item.UnitEntryContext is { } entry ? !CoreRuleEngine.ValidUnitEntryTrigger(entry, item.EffectKind, item.ControllerId, item.CardNo)
                 || !state.Seats.ContainsKey(entry.EnteringPlayerId) : item.EffectKind == CoreRuleEngine.EnemyUnitEntryEffect) errors.Add("invalid unit entry stack");
         foreach (var trigger in state.TriggerQueue)
-            if (trigger.ReflexiveCopy is { } copy ? !CoreRuleEngine.ValidReflexiveCopy(copy, trigger.EffectKind) || !CoreRuleEngine.ValidCopyRecipients(state, copy)
+            if (trigger.ReflexiveCopy is { } copy ? !CoreRuleEngine.ValidReflexiveCopy(copy, trigger.EffectKind, sourceObjectId: trigger.SourceObjectId) || !CoreRuleEngine.ValidCopyRecipients(state, copy)
                 : trigger.EffectKind == CoreRuleEngine.ReflexiveCopyEffect) errors.Add("invalid reflexive copy trigger");
         foreach (var item in state.StackItems)
             if (item.ReflexiveCopy is { } copy ? !CoreRuleEngine.ValidReflexiveCopy(copy, item.EffectKind, item.CardNo) || !CoreRuleEngine.ValidCopyRecipients(state, copy)

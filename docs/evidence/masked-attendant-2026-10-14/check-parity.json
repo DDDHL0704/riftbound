@@ -1,0 +1,88 @@
+{
+  "status": "CHECK_FAILURE_CLOSED_BY_NAMED_REMEDIATION",
+  "checkCases": 11479,
+  "checkMethods": 7066,
+  "firstCheckPassed": 11478,
+  "firstCheckFailed": [
+    "Riftbound.ConformanceTests.AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource"
+  ],
+  "remediationCases": 78,
+  "remediationSummary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 47.09,
+    "total": 78,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 78,
+        "passed": 78,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 12.62
+      }
+    ]
+  },
+  "failedCasesPassedOnRemediation": true,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "baselineCases": 11455,
+  "baselineMethods": 7052,
+  "addedCases": [
+    "Riftbound.ConformanceTests.MaskedAttendantNativeTests.ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay(branch: \"decline\")",
+    "Riftbound.ConformanceTests.MaskedAttendantNativeTests.ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay(branch: \"normal\")",
+    "Riftbound.ConformanceTests.MaskedAttendantNativeTests.ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay(branch: \"replace\")",
+    "Riftbound.ConformanceTests.MaskedAttendantNativeTests.ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay(branch: \"standby\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ANewGenerationCannotReceiveThePreviousObjectsInstruction(branch: \"recipient-before-copy\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ANewGenerationCannotReceiveThePreviousObjectsInstruction(branch: \"source-before-copy\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ANewGenerationCannotReceiveThePreviousObjectsInstruction(branch: \"source-before-entry\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ActualResponseReturningSourceToHandCannotUseItsPreviousObject(stage: \"before-copy\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ActualResponseReturningSourceToHandCannotUseItsPreviousObject(stage: \"before-entry\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.AnImageReturnedDuringTheCopyWindowCannotBeRecreated",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ColdRecoveryAtBothResponseWindowsKeepsCompleteActionAndEventReplay",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.CopiesUsePrintedFaceAndPreserveImagesExistingModifications",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.IndependentRecoveryChecksRejectMissingAndForgedSourceBindings",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.NormalPlaySkillCreatesTwoImagesWhichImmediatelyCopyItsPrintedCharacteristics",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.OptionalReplacementAddsAnImageBeforeTheIndependentCopyTrigger",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.OriginalAndCopiesHaveIndependentEphemeralBeginningTriggers",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.PublicCopyEventKeepsItsPayloadHashAcrossTheSqlJsonConvention(self: False)",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.PublicCopyEventKeepsItsPayloadHashAcrossTheSqlJsonConvention(self: True)",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.RuntimeCardTextUsesTheApplicableAprilErratum",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.SelfReferenceIsNotSubjectToTargetProtectionOrWardPayment",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages(branch: \"base\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages(branch: \"field\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages(branch: \"other-field\")",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages(branch: \"prevented\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.MaskedAttendantNativeTests.ProductionPlayReplacementAndBothResponseWindowsRestoreAndReplay",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ANewGenerationCannotReceiveThePreviousObjectsInstruction",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ActualResponseReturningSourceToHandCannotUseItsPreviousObject",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.AnImageReturnedDuringTheCopyWindowCannotBeRecreated",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.ColdRecoveryAtBothResponseWindowsKeepsCompleteActionAndEventReplay",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.CopiesUsePrintedFaceAndPreserveImagesExistingModifications",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.IndependentRecoveryChecksRejectMissingAndForgedSourceBindings",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.NormalPlaySkillCreatesTwoImagesWhichImmediatelyCopyItsPrintedCharacteristics",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.OptionalReplacementAddsAnImageBeforeTheIndependentCopyTrigger",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.OriginalAndCopiesHaveIndependentEphemeralBeginningTriggers",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.PublicCopyEventKeepsItsPayloadHashAcrossTheSqlJsonConvention",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.RuntimeCardTextUsesTheApplicableAprilErratum",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.SelfReferenceIsNotSubjectToTargetProtectionOrWardPayment",
+    "Riftbound.ConformanceTests.MaskedAttendantTests.StandbyPlayReadsTheSourcesCurrentLocationWhenCreatingImages"
+  ],
+  "failed": 0,
+  "skipped": 0,
+  "originalMethodAndTheoryRowsPreserved": true,
+  "scope": "One check executed all current cases. Its only failure was the exact historical-catalog whitelist; only that named assertion changed, independently checking the official Before/After and all other fields. Current fixed full CI remains required; this is not a clean second check.",
+  "trx": [
+    {
+      "path": "var/qa/masked-attendant-20261014/check/check/results.trx",
+      "sha256": "52fc0f1b445aa1705ab019e2e2e3f8ddcbb184999bfe0da6b9bbf7f11efe85fd"
+    },
+    {
+      "path": "var/qa/masked-attendant-20261014/check-remediation/focus/results.trx",
+      "sha256": "2065eb1246fe7be36db0b3e3fbaf8f5cf1a86443d39a742ffc4d3214f7c0bc8f"
+    }
+  ]
+}

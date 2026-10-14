@@ -42,7 +42,7 @@ public sealed class OfficialCardCatalogService
                 ReadInt(card, "energy"),
                 ReadInt(card, "power"),
                 ReadString(card, "tag"),
-                ReadString(card, "cardEffect"),
+                Riftbound.CardCatalog.ReviewedCardErrata.EffectiveText(ReadInt(card, "id") ?? -1, ReadString(card, "cardNo"), ReadString(card, "cardEffect")),
                 ReadString(card, "rarityName"),
                 ReadStringArray(card, "cardColorList"));
         }

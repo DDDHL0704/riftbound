@@ -24,6 +24,9 @@ public sealed partial class CoreRuleEngine
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards, List<GameEvent> events)
     {
         var ability = item with { SourceConfirmed = true };
+        if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var copyBehavior)
+            && copyBehavior.CreatedBaseUnitTokensCopySource)
+            ability = ability with { SelfCopySource = new(item.SourceObjectId, cards[item.SourceObjectId].ObjectGeneration) };
         if (CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var targeted)
             && HasIndependentPermanentTargets(StandbyDefinition(targeted, item.PlayedFromStandby)))
             ability = ability with { PermanentPlayTargetsPending = true, TargetGenerations = null };

@@ -240,9 +240,11 @@ public sealed class AhriCombatMightTests
         var historical = await OfficialCardCatalogLoader.LoadFromFileAsync(Path.Combine(root.FullName, "data/official/upstream/2026-10-11/active-catalog.zh-CN.json"));
         var current = await OfficialCardCatalog.LoadDefaultAsync();
         Assert.Equal(1009, historical.Cards.Count); Assert.Equal(1031, current.Cards.Count);
-        // Only these exact printings adopt the scoped current deck-play errata.
+        // Only these exact printings adopt the reviewed applicable errata.
         // Keep the archived source and every other historical field unchanged.
         var errata = new Dictionary<string,(string Before,string After)> {
+            ["UNL-081/219"] = ("{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{瞬息}}（在我控制者的开始阶段开始时，结算得分之前将我摧毁。）\n当你打出我时，在此处打出两名“映像”。它们变为我的复制体。",
+                "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{瞬息}}（在我控制者的下个开始阶段开始时，结算得分之前将我摧毁。）\n当你打出我时，在此处打出两名“映像”。然后进行一次：它们变为我的复制体。"),
             ["OGN·025/298"] = ("{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，并当作自己的牌打出，无视费用，然后回收其余的卡牌。",
                 "{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，将其放逐，然后当作自己的牌打出，无视费用。然后回收其余的卡牌。"),
             ["OGN·115/298"] = ("每名玩家可以查看主牌堆顶部的五张牌，从中选择一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些卡牌，并无视其法力费用（仍需支付所有符能费用）。",

@@ -1,0 +1,39 @@
+{
+  "status": "VISIBLE_PAIRED_NATIVE_REAL_SQL_NORMAL_SCORE_AND_FULL_REPLAY_PASS",
+  "room": "paired-export-d974-20261014",
+  "currentTick": 38,
+  "lastEventSequence": 203,
+  "commands": 39,
+  "events": 203,
+  "winner": "export-a-d974",
+  "scores": {
+    "export-a-d974": 8,
+    "export-b-d974": 0
+  },
+  "inputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+    "catalogSha256": "b81d531e9f7add627b18bee5e21133b8067126502aa334028f41270b8b57ace5",
+    "implementationSha256": "e4a604ce94235254c25e4a36639fef9d2b8e5f98023e3bdacf4f764124a2d1eb",
+    "identitySha256": "15e99d481b48e6ab994d24a6dfc30330b891a43c38eef65f03454cc6f7c5ac06"
+  },
+  "finalHash": "436afed684430704ef5bbecd257f7ff48f33441e960e693b95f0522345d8d996",
+  "fullActionLogReplayMatched": true,
+  "noSurrender": true,
+  "noSeededState": true,
+  "scope": "Current fixed runtime normal transport/score/replay only; encountered Masked Attendant semantic defect and Windows runtime remain open",
+  "commit": "d974d3e636e86ee24c1cd6a3db429268324f5d16",
+  "longOutage": "Native reconnect button used after automatic retry exhaustion",
+  "shortOutage": "Automatic restoration observed on both unchanged native clients",
+  "screenshots": {
+    "export-a-opening-result.png": "e6003089639f1eb24f2cf97294f6a8ad3ed772f56d92051b804cc7c9d33dec8a",
+    "export-b-opening-result.png": "35b9410ded5ea1c9c8d27f59a86729d3fad0ecf185b7a209502875ee538accff"
+  },
+  "cleanup": "Own native clients and API stopped; dedicated PostgreSQL stopped; actual SQL data and accepted history retained.",
+  "windowsRuntime": "OPEN",
+  "semanticDefects": [
+    "UNL-081/219 self-copy images missing: independent expected 2 / actual 0"
+  ]
+}

@@ -24462,6 +24462,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && movementFollowUpBehavior.OptionalEquipmentAfterMovement)
             return ResolveMovementFollowUp(state, stackItem, movementFollowUpBehavior, deferCompletion);
         if (!confirmPermanent && BeginTokenReplacement(state, stackItem) is { } tokenChoice) return tokenChoice;
+        if (!confirmPermanent && stackItem.SourceConfirmed
+            && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var selfCopyBehavior)
+            && selfCopyBehavior.CreatedBaseUnitTokensCopySource)
+            return ResolveSelfCopyTokenPlay(state, stackItem, selfCopyBehavior);
         if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var choiceBehavior)
             && choiceBehavior.MayPayPowerToGainControlAndRemakeSpellChoices)
             return ResolveOptionalSpellControl(state, stackItem, choiceBehavior);
