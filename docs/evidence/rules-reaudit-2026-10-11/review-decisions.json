@@ -19811,6 +19811,61 @@
         "FIXED_CURRENT_FULL",
         "FINAL_PRODUCT_ACCEPTANCE"
       ]
+    },
+    {
+      "id": "ceased-recycle-source-exact-printing-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Three copied Karma printings: bind the actual pre-departure historical face, revision and text-capture tick to the ceased-source witness; reject joint stack/context printing replacement against that witness, witness mismatches and missing JSON fields. Complete forged-state/journal causality and other lifecycle branches remain separate.",
+      "subjects": [
+        "OGN-235/298",
+        "SFD-237/221",
+        "SFD-237*/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P026-B007",
+        "DOC-04-P044-B004",
+        "DOC-04-P059-B010"
+      ],
+      "auditDocument": "docs/RECYCLE_SOURCE_PRINTING_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/recycle-printing-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/recycle-printing-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PASSED",
+        "newMethods": 1,
+        "newCases": 3,
+        "newMethodNames": [
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting"
+        ],
+        "cases": [
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"OGN·235/298\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"SFD·237*/221\")",
+          "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"SFD·237/221\")"
+        ]
+      },
+      "fixedCommitCi": {
+        "state": "PENDING",
+        "implementationBaseCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
+        "includesUncommittedChanges": true
+      },
+      "productAcceptance": {
+        "nativeControls": "SCOPED_PASS",
+        "actualSql": "SCOPED_PASS",
+        "visiblePairedScoreFinish": "OPEN",
+        "WindowsRuntime": "OPEN"
+      },
+      "remaining": [
+        "OTHER_ATTACHED_AND_QUEUED_CEASED_SOURCE_VARIANTS",
+        "COMPLETE_STATE_FORGERY_AND_JOURNAL_CAUSALITY",
+        "WHOLE_PRINTING_SEMANTICS",
+        "FIXED_CURRENT_FULL",
+        "FINAL_PRODUCT_ACCEPTANCE"
+      ]
     }
   ]
 }

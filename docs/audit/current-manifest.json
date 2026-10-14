@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "ac3c6857926aa242acfca274bd5ccbc75158e25569940455b08144d1274166e7"
+      "sha256": "2d26c2b5e7363f9944ff9ee671f3f329fa9fef7aa16e82c60ba742c7eab9d878"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -3416,7 +3416,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
-          "sha256": "675f23d82dbe35c4003264cb8d25b9e5b49221a9321616ce07274194b30dbdad"
+          "sha256": "69e8c0380f74de4031ed8f6b90345f0defe5ab0f2a2e563f90d4f3c357a8472e"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.RecyclingChoice.cs",
@@ -4093,7 +4093,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
-          "sha256": "675f23d82dbe35c4003264cb8d25b9e5b49221a9321616ce07274194b30dbdad"
+          "sha256": "69e8c0380f74de4031ed8f6b90345f0defe5ab0f2a2e563f90d4f3c357a8472e"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
@@ -4101,7 +4101,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs",
-          "sha256": "64c7580fe78733b4b639191508970250f0cfc6530a072508c8a658477127e1a6"
+          "sha256": "ff62da8c082b0ef4ef7e5a97665df0a67a06845dac15b9f4d2317ee290c2827d"
         }
       ],
       "branches": [
@@ -4261,10 +4261,103 @@
           "role": "check"
         }
       ],
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/recycle-boon-lifecycle-2026-10-15/full-ci-1a5.json",
+          "sha256": "b9e22808dad49e15bb29e722ea98dfae95ad7d3b7abde12c4fbfb021ed797e94",
+          "commit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
+          "runId": 38648801415
+        }
+      ],
+      "evidenceCommit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
+      "currentImplementationCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+      "currentImplementationIncludesUncommittedChanges": true
+    },
+    "ceased-recycle-source-exact-printing-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+          "sha256": "69e8c0380f74de4031ed8f6b90345f0defe5ab0f2a2e563f90d4f3c357a8472e"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs",
+          "sha256": "ff62da8c082b0ef4ef7e5a97665df0a67a06845dac15b9f4d2317ee290c2827d"
+        }
+      ],
+      "branches": [
+        {
+          "id": "CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "UNL-200/219",
+            "OGN-104/298",
+            "UNL-063/219",
+            "DOC-04-P026-B007",
+            "DOC-04-P044-B004",
+            "DOC-04-P059-B010"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_ATTACHED_AND_QUEUED_CEASED_SOURCE_VARIANTS",
+            "COMPLETE_STATE_FORGERY_AND_JOURNAL_CAUSALITY",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three copied Karma printings: bind the actual pre-departure historical face, revision and text-capture tick to the ceased-source witness; reject joint stack/context printing replacement against that witness, witness mismatches and missing JSON fields. Complete forged-state/journal causality and other lifecycle branches remain separate.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "UNL-200/219": "427c0f444b359f6cb5375504da641b72673f21a3235acac19934e8cee68be3ae",
+              "OGN-104/298": "a040220a338943b6b6c82bc83edc5ed04ba7f9eb72fbedb327bf938924873c71",
+              "UNL-063/219": "085cc2e7ac436dd5f433839b5f7b4db1d63ebd61732c5024c9c65116ea966158",
+              "DOC-04-P026-B007": "f88d425cc0293e97bfabcfd24ad28c42a771ffacdab4ac9b8f75c9088367edf6",
+              "DOC-04-P044-B004": "6e590425e030220c2049d7a6c8afcc484ae8591f1ceddbac877f71c2a37bc614",
+              "DOC-04-P059-B010": "bcec0e2101d54cc6767659ecf6c5f1efb2efaa15c5ea75e730c0bd4e71be2c08"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting"
+            ],
+            "requiredNativeBranches": [
+              "primary",
+              "alternate",
+              "promo"
+            ]
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/recycle-printing-2026-10-15/focus.json",
+          "sha256": "1660e35916d37ffe509d2232391f51de51e5e970afbfb5e963ee00a3349678df",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/recycle-printing-2026-10-15/native-replay.json",
+          "sha256": "45000080e20bbbc6b07e3ac1094755f4dd5654c4988958f9921a112bed465593",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/recycle-printing-2026-10-15/sql.json",
+          "sha256": "e6b766dd920fbbcf255d376e9ec7b86dbacce34c6c8caf75a6fd518234ffeb9c",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/recycle-printing-2026-10-15/check-parity.json",
+          "sha256": "c1ca1ead4db32bb15656404a8f1eedd835fea63f210ef624cad6776716c845b9",
+          "role": "check"
+        }
+      ],
       "ciState": "PENDING",
       "ciReceipts": [],
-      "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
+      "evidenceCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
+      "currentImplementationCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },
@@ -4301,10 +4394,11 @@
       "priorFixedEvidence": {
         "commit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
         "receipt": "docs/evidence/paired-1a5-2026-10-15/product-receipt.json",
-        "sha256": "b98cb71de56e9f56769e1f48f4ef41e87c392b4e8a3f3db1093543a7921e4c7e",
-        "currentCandidateVerified": true,
+        "sha256": "026c5eca5dc5888087a195f34af585388e1f63ff53c3e1e57e72839a1146c1f8",
+        "currentCandidateVerified": false,
         "scope": "Visible paired native macOS, actual SQL, automatic pending-focus reconnect, retry-exhaustion manual reconnect, normal 8:0 score and original-opening full replay at fixed 1a5 only. Whole-card semantics, complete CI and Windows runtime remain separate gates.",
-        "gameplaySourceInputCount": 457
+        "gameplaySourceInputCount": 457,
+        "currentCandidateReopenedReason": "Shared ceased-source captured printing/face-history binding changed after fixed 1a5 acceptance; original exact candidate evidence retained."
       },
       "earlierFixedEvidence": [
         {

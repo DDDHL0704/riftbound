@@ -1,0 +1,42 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "records": [
+    {
+      "branch": "alternate",
+      "card": "SFD\u00b7237/221",
+      "productionCommands": 15,
+      "loggedCommands": 30,
+      "events": 43,
+      "coldRecoveries": 15,
+      "sha256": "5779a3ec57c5f3022718703548e5c6773408ccb8881931712c80161bbb37b399",
+      "fullReplayMatch": true
+    },
+    {
+      "branch": "primary",
+      "card": "OGN\u00b7235/298",
+      "productionCommands": 15,
+      "loggedCommands": 30,
+      "events": 43,
+      "coldRecoveries": 15,
+      "sha256": "a260b59be8ffab9742f0f801caf37cda215fbb37887c5d9bcfb89f4e35e7281d",
+      "fullReplayMatch": true
+    },
+    {
+      "branch": "promo",
+      "card": "SFD\u00b7237*/221",
+      "productionCommands": 15,
+      "loggedCommands": 30,
+      "events": 43,
+      "coldRecoveries": 15,
+      "sha256": "6e519e437cfede74294ad839c6a358083f46ea33eaf7bf991f250907ffe50c44",
+      "fullReplayMatch": true
+    }
+  ],
+  "productionCommands": 45,
+  "loggedCommands": 90,
+  "events": 129,
+  "coldRecoveries": 45,
+  "deduplicateAndStalePromptRejection": true,
+  "fullActionAndEventReplayMatched": true,
+  "godotLogSha256": "6026d45736772e2c1051d020eb66f957c557a38bd0b6ee8826f582f639826b10"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "cases": 11645,
+  "methods": 7124,
+  "seconds": 227.93,
+  "failed": 0,
+  "skipped": 0,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "oldCases": 11642,
+  "oldMethods": 7123,
+  "missingCases": [],
+  "missingMethods": [],
+  "addedCases": [
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"OGN\u00b7235/298\")",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"SFD\u00b7237*/221\")",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"SFD\u00b7237/221\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting"
+  ],
+  "frozenInputsUnchanged": true,
+  "frozenInputCount": 2115,
+  "changedInputs": [],
+  "trx": [
+    {
+      "path": "var/qa/recycle-printing-20261015/check/check/results.trx",
+      "sha256": "e022b98501a9f8769a034bcc89846fb9333092574609f392e9443f29fdd33824"
+    }
+  ]
+}

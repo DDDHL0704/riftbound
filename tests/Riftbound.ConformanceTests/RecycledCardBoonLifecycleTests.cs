@@ -50,9 +50,44 @@ public sealed class RecycledCardBoonLifecycleTests
         var living = await Chosen(Position("OGN·235/298")); var liveItem = Assert.Single(living.StackItems);
         var liveContext = liveItem.FieldContext!; var liveOrigin = liveContext.RecycledBoon!;
         var fake = liveContext with { SourceCeasedToExist = true, RecycledBoon = liveOrigin with {
-            CeasedSource = new(new(liveItem.SourceObjectId, liveContext.SourceGeneration), liveContext.SourceTokenFactoryCardNo!, living.Tick) } };
+            CeasedSource = new(new(liveItem.SourceObjectId, liveContext.SourceGeneration), liveContext.SourceTokenFactoryCardNo!, living.Tick,
+                liveContext.CardNo, liveOrigin.FaceRevision, liveOrigin.CapturedTick) } };
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(living with { StackItems = [liveItem with { FieldContext = fake }] }),
             e => e.Contains("field trigger", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("OGN·235/298")]
+    [InlineData("SFD·237/221")]
+    [InlineData("SFD·237*/221")]
+    public async Task CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(string card)
+    {
+        var state = await Departed(card); var item = Assert.Single(state.StackItems);
+        Assert.Empty(OfficialInsightAndSpellLockTests.Errors(state));
+        Assert.False(state.CardObjects.ContainsKey(item.SourceObjectId));
+        var context = item.FieldContext!; var origin = context.RecycledBoon!;
+        var ceased = Assert.IsType<CeasedRecycledBoonSource>(origin.CeasedSource);
+        Assert.Equal(card, ceased.CardNo); Assert.Equal(1, ceased.FaceRevision);
+        foreach (var other in new[] { "OGN·235/298", "SFD·237/221", "SFD·237*/221" }.Where(other => other != card)) {
+            var forged = state with { StackItems = [item with {
+                CardNo = other, FieldContext = item.FieldContext! with { CardNo = other } }] };
+            Assert.Contains(OfficialInsightAndSpellLockTests.Errors(forged),
+                e => e.Contains("field trigger", StringComparison.Ordinal));
+        }
+        foreach (var changed in new[] { ceased with { CardNo = "OGN·096/298" },
+            ceased with { FaceRevision = ceased.FaceRevision + 1 }, ceased with { CapturedTick = ceased.CapturedTick + 1 } })
+            Assert.Contains(OfficialInsightAndSpellLockTests.Errors(state with { StackItems = [item with {
+                FieldContext = context with { RecycledBoon = origin with { CeasedSource = changed } } }] }),
+                e => e.Contains("field trigger", StringComparison.Ordinal));
+        var json = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        foreach (var field in new[] { "cardNo", "faceRevision", "capturedTick" }) {
+            var node = System.Text.Json.JsonSerializer.SerializeToNode(state, json)!;
+            node["stackItems"]![0]!["fieldContext"]!["recycledBoon"]!["ceasedSource"]!.AsObject().Remove(field);
+            var missing = System.Text.Json.JsonSerializer.Deserialize<MatchState>(node.ToJsonString(), json)!;
+            Assert.Contains(OfficialInsightAndSpellLockTests.Errors(missing),
+                e => e.Contains("field trigger", StringComparison.Ordinal));
+        }
+        Restore(state);
     }
 
     internal static MatchState Position(string card)
@@ -70,6 +105,6 @@ public sealed class RecycledCardBoonLifecycleTests
         choice = recycled.State.PendingCardChoice!;
         return (await Act(recycled.State, "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, ["ALLY"]))).State;
     }
-    internal static async Task<MatchState> Departed()
-        => (await Top((await Act(await Chosen(Position("OGN·235/298")), "P1", new PlayCardCommand("LEAVE", "OGN·104/298", ["C-TOKEN-001"]))).State)).State;
+    internal static async Task<MatchState> Departed(string card = "OGN·235/298")
+        => (await Top((await Act(await Chosen(Position(card)), "P1", new PlayCardCommand("LEAVE", "OGN·104/298", ["C-TOKEN-001"]))).State)).State;
 }

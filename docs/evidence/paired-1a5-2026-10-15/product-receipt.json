@@ -36,7 +36,7 @@
     "predict-opponent-b.png": "3a840c24100a9356b6db74d74cf8c059b683ce4e4a65e7d982bc25ce055be8d5"
   },
   "windowsRuntime": "OPEN",
-  "fullCiState": "PENDING",
+  "fullCiState": "FIXED_COMMIT_VERIFIED",
   "fullCiRunId": 38648801415,
   "semanticObservations": [
     "Actual Prescient Mech response and private keep; opponent view did not reveal inspected identity.",
@@ -534,5 +534,11 @@
     "short-outage-receipt.json": "4f00ca3b75ba7e5737e6e99ad772354b31ce275296f94dda59fb2a4945dcd78a",
     "long-restored-a.png": "ba31d48a5426f39a2b4535ffe3bb0167d38688a7a9692a0129a4b529de6fcdee",
     "long-offline-b.png": "3cb7005f02e901b2c6a69800d3fc9302b38065c08d8841d6027c3cc29bb4a748"
+  },
+  "fullCiReceipt": {
+    "path": "docs/evidence/recycle-boon-lifecycle-2026-10-15/full-ci-1a5.json",
+    "sha256": "b9e22808dad49e15bb29e722ea98dfae95ad7d3b7abde12c4fbfb021ed797e94",
+    "commit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
+    "runId": 38648801415
   }
 }

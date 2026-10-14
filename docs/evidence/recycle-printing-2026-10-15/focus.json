@@ -1,0 +1,22 @@
+{
+  "status": "FOCUS_PASS",
+  "newCaseCount": 3,
+  "newMethodCount": 1,
+  "newCases": [
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"OGN\u00b7235/298\")",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"SFD\u00b7237*/221\")",
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting(card: \"SFD\u00b7237/221\")"
+  ],
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.RecycledCardBoonLifecycleTests.CeasedCopiedSourceRejectsConsistentSubstitutionOfAnotherOfficialPrinting"
+  ],
+  "selectedCases": 92,
+  "selectedMethods": 42,
+  "trxSha256": "016102697166eecc1cf0af97daa8fb90fd4c24db40fd633778b16b7fab1fa799",
+  "originalGames": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesLeblancMirrorImageAndScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "originalGamesTrxSha256": "abd43ce7c223acfaa1d2bda6bdafec16cc8648e4ad7a9352ae7ca762055cd4fc",
+  "scope": "Actual copied Image ceased source printing and historical face binding; all original cases/methods remain."
+}

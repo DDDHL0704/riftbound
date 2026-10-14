@@ -34,7 +34,7 @@ internal static class RecycleBoonLifecycleSqlAcceptance
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(20,20), ["P2"] = RunePool.Empty }, playerZones: zones, cardObjects: cards, objectLocations: locations);
         var engine = new CoreRuleEngine(); var journal = new PostgresMatchJournal(source); var players = new PostgresMatchPlayerStore(source);
         var store = new PostgresMatchRecoveryStore(source); IMatchSession session = new MatchSession(initial, engine, journal, players);
-        var current = initial; var checks = new List<object>(); var submitted = 0; long sequence = 0;
+        var current = initial; var checks = new List<object>(); var submitted = 0; long sequence = 0; var tamperRejects = 0;
         foreach (var actor in initial.Seats.Keys) await players.SavePlayerSessionAsync(room, actor, actor, ReconnectTokenHasher.Hash("audit-" + actor), default);
         await File.WriteAllTextAsync(Path.Combine(output, "explicit-fixture-initial.json"), JsonSerializer.Serialize(initial, json));
         try {
@@ -55,7 +55,7 @@ internal static class RecycleBoonLifecycleSqlAcceptance
             Check(current.StackItems.Count == 0 && current.CardObjects["ALLY"].Tags.Contains(CardObjectTags.Boon), "Surviving captured skill must grant ally its boon.");
             await File.WriteAllTextAsync(Path.Combine(output, "receipt.json"), JsonSerializer.Serialize(new {
                 status = "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS", room, submitted, events = sequence,
-                coldRecoveries = checks.Count, boonSourceTamperRejected = true, card, checks, finalHash = MatchStateHasher.Hash(current), ruleInputs = current.RuleInputs,
+                coldRecoveries = checks.Count, boonSourceTamperRejected = true, tamperRejects, card, checks, finalHash = MatchStateHasher.Hash(current), ruleInputs = current.RuleInputs,
                 scope = "Isolated explicit rules fixture with actual SQL commands/events/states/views and retained initial-state replay." }, json));
             Console.WriteLine($"POSTGRES_RECYCLED_BOON_LIFECYCLE_PASS: {submitted} commands, {sequence} events, {checks.Count} cold recoveries and explicit-initial action/event replays");
         } finally {
@@ -67,16 +67,27 @@ internal static class RecycleBoonLifecycleSqlAcceptance
             await using var read = new NpgsqlCommand("select payload::text from state_snapshots where match_id=@room order by state_tick desc,last_event_sequence desc limit 1", connection);
             read.Parameters.AddWithValue("room", room); var saved = (string)(await read.ExecuteScalarAsync())!;
             var index = Array.FindIndex(current.StackItems.ToArray(), i => i.FieldContext?.Kind == "RECYCLE_BOON");
-            try {
-                await using var forge = new NpgsqlCommand($"update state_snapshots set payload=jsonb_set(payload,'{{stackItems,{index},fieldContext,recycledBoon,ceasedSource,source,generation}}','99'::jsonb) where match_id=@room and state_tick=(select max(state_tick) from state_snapshots where match_id=@room)", connection);
-                forge.Parameters.AddWithValue("room", room); await forge.ExecuteNonQueryAsync();
-                var bad = await store.LoadAsync(room, default);
-                Check(bad is not null && !bad.IsConsistent && bad.ValidationErrors.Any(e => e.Contains("field trigger", StringComparison.Ordinal)), "Actual SQL forged captured recycling-boon generation must fail independent recovery validation.");
-            } finally {
-                await using var restore = new NpgsqlCommand("update state_snapshots set payload=@payload::jsonb where match_id=@room and state_tick=(select max(state_tick) from state_snapshots where match_id=@room)", connection);
-                restore.Parameters.AddWithValue("payload", saved); restore.Parameters.AddWithValue("room", room); await restore.ExecuteNonQueryAsync();
+            var mutations = new List<(string Name, string Expression, string? Face)> {
+                ("generation", $"jsonb_set(payload,'{{stackItems,{index},fieldContext,recycledBoon,ceasedSource,source,generation}}','99'::jsonb)", null) };
+            foreach (var face in new[] { "OGN·235/298", "SFD·237/221", "SFD·237*/221" }.Where(face => face != card))
+                mutations.Add(("consistent-printing-substitution", $"jsonb_set(jsonb_set(payload,'{{stackItems,{index},cardNo}}',to_jsonb(@face::text)),'{{stackItems,{index},fieldContext,cardNo}}',to_jsonb(@face::text))", face));
+            foreach (var field in new[] { "cardNo", "faceRevision", "capturedTick" })
+                mutations.Add(("missing-" + field, $"payload #- '{{stackItems,{index},fieldContext,recycledBoon,ceasedSource,{field}}}'", null));
+            foreach (var mutation in mutations) {
+                try {
+                    await using var forge = new NpgsqlCommand($"update state_snapshots set payload={mutation.Expression} where match_id=@room and state_tick=(select max(state_tick) from state_snapshots where match_id=@room)", connection);
+                    forge.Parameters.AddWithValue("room", room);
+                    if (mutation.Face is not null) forge.Parameters.AddWithValue("face", mutation.Face);
+                    await forge.ExecuteNonQueryAsync();
+                    var bad = await store.LoadAsync(room, default);
+                    Check(bad is not null && !bad.IsConsistent && bad.ValidationErrors.Any(e => e.Contains("field trigger", StringComparison.Ordinal)), "Actual SQL captured source mutation must fail independent recovery: " + mutation.Name);
+                    tamperRejects++;
+                } finally {
+                    await using var restore = new NpgsqlCommand("update state_snapshots set payload=@payload::jsonb where match_id=@room and state_tick=(select max(state_tick) from state_snapshots where match_id=@room)", connection);
+                    restore.Parameters.AddWithValue("payload", saved); restore.Parameters.AddWithValue("room", room); await restore.ExecuteNonQueryAsync();
+                }
+                var recovered = await store.LoadAsync(room, default); Check(recovered?.IsConsistent == true, "SQL restoration after mutation must be consistent.");
             }
-            var recovered = await store.LoadAsync(room, default); Check(recovered?.IsConsistent == true, "SQL restoration after mutation must be consistent.");
         }
         async Task Submit(string actor, GameCommand command) {
             var prompt = session.PromptFor(actor);

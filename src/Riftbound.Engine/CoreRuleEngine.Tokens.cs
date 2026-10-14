@@ -13,12 +13,20 @@ public sealed partial class CoreRuleEngine
         var departed = before.CardObjects.Where(e => IsTokenObject(e.Value)
             && !result.State.CardObjects.ContainsKey(e.Key)).Select(e => e.Key).ToHashSet(StringComparer.Ordinal);
         if (departed.Count == 0) return result;
+        CeasedRecycledBoonSource CaptureBoonSource(string sourceId, FieldTriggerContext context, RecycledCardBoonOrigin boon)
+        {
+            var source = before.CardObjects[sourceId];
+            var revision = context.Origin?.FaceRevision ?? boon.FaceRevision;
+            var capturedTick = context.Origin?.CapturedTick ?? boon.CapturedTick;
+            return new(new(sourceId, context.SourceGeneration), context.SourceTokenFactoryCardNo!, result.State.Tick,
+                CopyFaceTimeline.FaceAt(source, revision, capturedTick) ?? string.Empty, revision, capturedTick);
+        }
         FieldTriggerContext? Invalidate(string sourceId, FieldTriggerContext? context) =>
             context is { Kind: "RECYCLE_BOON", RecycledBoon: { } origin }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == before.CardObjects[sourceId].TokenFactoryCardNo
                 ? context with { SourceCeasedToExist = true, RecycledBoon = origin with {
-                    CeasedSource = new(new(sourceId, context.SourceGeneration), context.SourceTokenFactoryCardNo!, result.State.Tick) } }
+                    CeasedSource = CaptureBoonSource(sourceId, context, origin) } }
                 : context is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" }
                 && departed.Contains(sourceId) && before.CardObjects[sourceId].ObjectGeneration == context.SourceGeneration
                 && context.SourceTokenFactoryCardNo == (before.CardObjects[sourceId].TokenFactoryCardNo ?? before.CardObjects[sourceId].CardNo)

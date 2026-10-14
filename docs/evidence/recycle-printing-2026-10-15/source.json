@@ -1,0 +1,116 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "cards": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "searchContent": "卡尔玛",
+      "fetchedAtUtc": "2026-10-14T23:34:05.516882+00:00",
+      "sha256": "a61511ff55f39e93f458c40fe49618794f26300f730198d4e66a03e2a88f8853",
+      "file": "api-bf4be268.json",
+      "card": {
+        "id": 31473,
+        "cardNo": "OGN·235/298",
+        "cardName": "卡尔玛",
+        "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "searchContent": "卡尔玛",
+      "fetchedAtUtc": "2026-10-14T23:34:05.516882+00:00",
+      "sha256": "a61511ff55f39e93f458c40fe49618794f26300f730198d4e66a03e2a88f8853",
+      "file": "api-bf4be268.json",
+      "card": {
+        "id": 33346,
+        "cardNo": "SFD·237/221",
+        "cardName": "卡尔玛",
+        "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "searchContent": "卡尔玛",
+      "fetchedAtUtc": "2026-10-14T23:34:05.516882+00:00",
+      "sha256": "a61511ff55f39e93f458c40fe49618794f26300f730198d4e66a03e2a88f8853",
+      "file": "api-bf4be268.json",
+      "card": {
+        "id": 33347,
+        "cardNo": "SFD·237*/221",
+        "cardName": "卡尔玛",
+        "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "searchContent": "镜花水月",
+      "fetchedAtUtc": "2026-10-14T23:34:05.520039+00:00",
+      "sha256": "1c953fe332dae60efd4261f3712a46ae2a3d7cdb4612e8e3bee917dd361ad24f",
+      "file": "api-2b325175.json",
+      "card": {
+        "id": 34753,
+        "cardNo": "UNL-200/219",
+        "cardName": "镜花水月",
+        "cardEffect": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。该“映像”变为所选单位的复制体。并让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+        "errata": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。然后进行一次：该“映像”变为所选单位的复制体。让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "searchContent": "择日再战",
+      "fetchedAtUtc": "2026-10-14T23:34:05.517016+00:00",
+      "sha256": "cfa9bd6761b07f33a30525772a72775cb5ceb64241720636d8562b62af9b3100",
+      "file": "api-ffe068d9.json",
+      "card": {
+        "id": 31322,
+        "cardNo": "OGN·104/298",
+        "cardName": "择日再战",
+        "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。",
+        "errata": "",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "searchContent": "月蚀",
+      "fetchedAtUtc": "2026-10-14T23:34:05.516462+00:00",
+      "sha256": "c9e7b05ed9dc97086b536ebcba30b075e6c8959865d4fd3b82cf89b8f6fc9f9e",
+      "file": "api-3808f640.json",
+      "card": {
+        "id": 34596,
+        "cardNo": "UNL-063/219",
+        "cardName": "月蚀",
+        "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名单位在本回合内{{S}}-4。\n进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+        "errata": "",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    }
+  ],
+  "core": {
+    "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+    "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "fetchedAtUtc": "2026-10-14T23:34:45.115594+00:00",
+    "publicationDate": null,
+    "effectiveDate": null
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "status": "ACTUAL_SQL_PRINTING_SUBSTITUTION_AND_MISSING_WITNESS_FIELDS_REJECTED",
+  "records": [
+    {
+      "branch": "alternate",
+      "card": "SFD\u00b7237/221",
+      "commands": 15,
+      "events": 42,
+      "coldRecoveries": 15,
+      "tamperRejections": 6,
+      "sha256": "3ce56e59e2a98909090802261ebe4af025aab06d72487fa7ab694052a6cf40bf"
+    },
+    {
+      "branch": "primary",
+      "card": "OGN\u00b7235/298",
+      "commands": 15,
+      "events": 42,
+      "coldRecoveries": 15,
+      "tamperRejections": 6,
+      "sha256": "70c6fd42f5967296906a1035c117c367d798ecf7cc407798a0272e7adad6042f"
+    },
+    {
+      "branch": "promo",
+      "card": "SFD\u00b7237*/221",
+      "commands": 15,
+      "events": 42,
+      "coldRecoveries": 15,
+      "tamperRejections": 6,
+      "sha256": "77216b67d94473b3d2c3d131d32eed8a1a2e9a6cc7199cfeaa33376d5c796e6b"
+    }
+  ],
+  "commands": 45,
+  "events": 126,
+  "coldRecoveries": 45,
+  "tamperRejections": 18,
+  "actualDatabaseConnection": true,
+  "cleanup": "Own explicit fixture rooms removed; dedicated PostgreSQL stopped; prior visible match history retained."
+}

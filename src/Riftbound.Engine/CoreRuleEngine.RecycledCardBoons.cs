@@ -3,7 +3,8 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record CeasedRecycledBoonSource(ObjectBinding Source, string FactoryCardNo, long Tick);
+public sealed record CeasedRecycledBoonSource(ObjectBinding Source, string FactoryCardNo, long Tick,
+    string CardNo, long FaceRevision, long CapturedTick);
 public sealed record RecycledCardBoonOrigin(string PlayerId, int CardCount, long CapturedTick, long FaceRevision)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -67,6 +68,9 @@ public sealed partial class CoreRuleEngine
             && (context.SourceCeasedToExist
                 ? origin.CeasedSource is { } ceased && ceased.Source == new ObjectBinding(id, context.SourceGeneration)
                     && ceased.FactoryCardNo == context.SourceTokenFactoryCardNo && ceased.Tick >= origin.CapturedTick && ceased.Tick <= state.Tick
+                    && ceased.CardNo == context.CardNo
+                    && ceased.FaceRevision == (context.Origin?.FaceRevision ?? origin.FaceRevision)
+                    && ceased.CapturedTick == (context.Origin?.CapturedTick ?? origin.CapturedTick)
                     && !state.CardObjects.ContainsKey(id) && P6TokenFactoryCatalog.TryGetByCardNo(ceased.FactoryCardNo, out var token)
                     && token.Tags.Contains(CardObjectTags.UnitCard)
                 : origin.CeasedSource is null)
