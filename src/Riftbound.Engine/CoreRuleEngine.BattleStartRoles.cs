@@ -75,6 +75,8 @@ public sealed partial class CoreRuleEngine
         var roleKind = context.InitialRolesEstablished ? "BATTLE_ROLE_ACQUIRED" : "BATTLE_ROLES_ESTABLISHED";
         var queue = CaptureAttackDamageTriggers(state, newAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
             .Select(t => t with { TriggeredByEventKind = roleKind }).ToList();
+        queue.AddRange(CaptureAttackDeckPlayTriggers(state, newAttackers, context.BattlefieldId, TimingStates.SpellDuelOpen, focus)
+            .Select(t => t with { TriggeredByEventKind = roleKind }));
         queue.AddRange(CaptureCombatMightTriggers(state, newAttackers.Concat(newDefenders),
             context.BattlefieldId, TimingStates.SpellDuelOpen, focus).Select(t => t with { TriggeredByEventKind = roleKind }));
         queue.AddRange(CaptureEnemyAttackMightTriggers(state, newAttackers, context.BattlefieldId,

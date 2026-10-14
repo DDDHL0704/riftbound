@@ -5190,8 +5190,8 @@ public sealed record ResolutionResult(
                 ["pendingPayment"] = BuildPendingPaymentSnapshotView(state, CoreRuleEngine.VisiblePendingPayment(state)),
                 ["ruleQueueCoverage"] = BuildRuleQueueCoverageSnapshotView(state),
                 ["pendingHandChoice"] = BuildPendingHandChoiceSnapshotView(state.PendingHandChoice, viewerPlayerId),
-                ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state.PendingCardChoice, viewerPlayerId),
-                ["pendingEffectPlay"] = CoreRuleEngine.EffectPlayView(state),
+                ["pendingCardChoice"] = BuildPendingCardChoiceSnapshotView(state, viewerPlayerId),
+                ["pendingEffectPlay"] = CoreRuleEngine.EffectPlayView(state, VisibleObjectIdForViewer(state, state.PendingEffectPlay?.Parent.SourceObjectId, viewerPlayerId)),
                 ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
                 ["triggerQueue"] = state.TriggerQueue
                     .Select(trigger => BuildTriggerQueueItemSnapshotView(state, trigger, viewerPlayerId))
@@ -5634,9 +5634,10 @@ public sealed record ResolutionResult(
     }
 
     private static Dictionary<string, object?>? BuildPendingCardChoiceSnapshotView(
-        PendingCardChoiceState? choice,
+        MatchState state,
         string viewerPlayerId)
     {
+        var choice = state.PendingCardChoice;
         if (choice is null)
         {
             return null;
@@ -5651,7 +5652,7 @@ public sealed record ResolutionResult(
             ["requiredCount"] = choice.RequiredCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.SourceObjectId,
+            ["sourceObjectId"] = VisibleObjectIdForViewer(state, choice.SourceObjectId, viewerPlayerId),
             ["effectKind"] = choice.EffectKind,
             ["choiceState"] = ownChoice ? "PENDING_CHOICE" : "WAITING_FOR_CHOICE",
             ["legalCount"] = choice.LegalObjectIds.Count,
@@ -6376,7 +6377,7 @@ public sealed record ResolutionResult(
         return true;
     }
 
-    private static string VisibleObjectIdForViewer(
+    internal static string VisibleObjectIdForViewer(
         MatchState state,
         string? objectId,
         string viewerPlayerId)
@@ -15345,7 +15346,7 @@ internal static class ActionPromptBuilder
             ["requiredCount"] = choice.RequiredCount,
             ["maxCount"] = choice.MaxCount,
             ["reason"] = choice.Reason,
-            ["sourceObjectId"] = choice.SourceObjectId,
+            ["sourceObjectId"] = ResolutionResult.VisibleObjectIdForViewer(state, choice.SourceObjectId, playerId),
             ["effectKind"] = choice.EffectKind,
             ["legalCount"] = choice.LegalObjectIds.Count,
             ["contextCount"] = choice.ContextObjectIds.Count,

@@ -1,0 +1,18 @@
+{
+  "status": "FIXED_FULL_REQUIRED",
+  "commit": null,
+  "expectedCases": 11444,
+  "expectedMethods": 7118,
+  "expectedAddedCases": 21,
+  "expectedAddedMethods": 11,
+  "expectedMatrixPairs": 110,
+  "expectedMatrixSeed": 424242,
+  "baselineCommit": "37a824b9751707c334cf79d4c3dab87e5b93d822",
+  "baselineRunId": 38500551234,
+  "baselineRulesPath": "var/qa/attack-deck-play-20261014/ci-37a824b9/conformance-results/ci-rules",
+  "baselineWholeRequiredAcceptancePassed": false,
+  "wholeGoalComplete": false,
+  "fullCertified": false,
+  "fallbackCompletedBaseline": "9fc055d7f0902cb6a64b25a2a04a12fedcc7afb4",
+  "scope": "New AttackDeckPlayTests21cases/11methods; preserve all37a expected11423/7107 and110pair matrix.37a baseline still running at preparation."
+}

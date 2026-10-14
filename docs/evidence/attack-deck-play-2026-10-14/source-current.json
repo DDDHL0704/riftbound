@@ -1,0 +1,119 @@
+{
+  "source": {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "雷克塞",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-14T02:24:19.774411+00:00",
+    "sha256": "fd086f3883e6bb2695ab793f35c43a6641ce940fc00321d3dadcb3bb07485f5c",
+    "bytes": 8422,
+    "language": "zh-CN",
+    "region": "CN",
+    "publicationDate": null,
+    "effectiveDate": null
+  },
+  "records": [
+    {
+      "id": 33264,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·170/221",
+      "cardName": "雷克塞",
+      "subTitle": "万类女皇",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "雷克塞",
+      "region": "虚空之地",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "当我进攻时，你可以选择展示你主牌堆顶部的两张牌。你可以选择打出其中一张牌，然后回收其余的卡牌。如果以此方式打出的卡牌为单位，则可以选择将其打出到此处。",
+      "flavorText": "“咔咔咔咔！”",
+      "energy": 5,
+      "returnEnergy": 1,
+      "power": 5,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/99cb8f44ecaa44be88970f93cb94b853.png",
+      "backImage": "",
+      "listSort": 809,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "当我进攻时，你可以选择展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出。如果打出的卡牌为单位，则可以选择将其打出到此处。回收其余的卡牌。",
+      "otherDesc": 0
+    },
+    {
+      "id": 33265,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·170a/221",
+      "cardName": "雷克塞",
+      "subTitle": "万类女皇",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "雷克塞",
+      "region": "虚空之地",
+      "tag": "",
+      "artist": "League Splash Team",
+      "cardEffect": "当我进攻时，你可以选择展示你主牌堆顶部的两张牌。你可以选择打出其中一张牌，然后回收其余的卡牌。如果以此方式打出的卡牌为单位，则可以选择将其打出到此处。",
+      "flavorText": "“咔咔咔咔！”",
+      "energy": 5,
+      "returnEnergy": 1,
+      "power": 5,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/c1b665d543d5440ba637f4474443a3d4.png",
+      "backImage": "",
+      "listSort": 808,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "当我进攻时，你可以选择展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出。如果打出的卡牌为单位，则可以选择将其打出到此处。回收其余的卡牌。",
+      "otherDesc": 0
+    }
+  ]
+}

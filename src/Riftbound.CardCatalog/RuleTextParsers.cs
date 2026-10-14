@@ -321,6 +321,17 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var attackDeck = Regex.Match(text,
+            @"当我进攻时[，,]\s*你可以选择展示你主牌堆顶部的(?<count>[0-9一两二三四五六七八九十]+)张牌。\s*你可以选择放逐其中一张，然后将其打出。\s*如果打出的卡牌为单位，则可以选择将其打出到此处。\s*回收其余的卡牌。?",
+            RegexOptions.CultureInvariant);
+        var hasAttackDeck = attackDeck.Success;
+        if (hasAttackDeck)
+            triggers.Add(new(TriggerKinds.UnitAttackRevealBanishPlay, TriggerTimings.UnitAttack, attackDeck.Value,
+                "Optional attack reveal, banish and normal pending play; units may use the source's current location.",
+                TargetScope: TriggerTargetScopes.SourceUnit, RevealCount: ParseChineseNumber(attackDeck.Groups["count"].Value),
+                RevealSourceZone: TriggerZones.MainDeck, BanishCount: 1, PlayCount: 1, PlayOriginZone: "BANISHED",
+                PlayDestinationZone: TriggerZones.Stack, RecycleDestinationZone: TriggerZones.MainDeck,
+                PayPlayPowerCosts: true, Optional: true, PlayUnitAtSourceLocation: true));
         var hasAttachmentModes = TryParseAttachmentModes(text, out var attachmentModes);
         if (hasAttachmentModes) triggers.Add(attachmentModes);
         var hasBattlefieldConquerRevealRecycleTrigger =
@@ -412,6 +423,7 @@ public static class TriggerParser
         }
 
         triggers.AddRange(TargetParser.SplitRulesText(text)
+            .Where(segment => !hasAttackDeck || !segment.StartsWith("当我进攻时，你可以选择展示你主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)
                 || segment.Contains("每当", StringComparison.Ordinal)

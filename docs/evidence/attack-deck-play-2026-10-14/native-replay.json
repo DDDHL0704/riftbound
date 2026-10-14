@@ -1,0 +1,196 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_FULL_BACKEND_JOURNAL_READBACK_PASS",
+  "branches": 12,
+  "commands": 103,
+  "records": [
+    {
+      "branch": "attack-OGN-048-298",
+      "commands": 8,
+      "replaySha256": "39bdcee32ebec2d65ab5faef5e26a6b9bf30b763150dfdbd988ed62b94ab775a",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "efa89fb10c505647ac36be1e8394d0234163c5d0a77e407bc54bbda60f33b018",
+        "ba4f8810c8552915ab7b3092ef98a4d975826e8e81ffb9355da12179e2f40edd",
+        "ca09e5c17b3bebd1f9b86135fd632b9f316a095c2bdd44596645df306f1e7c72",
+        "1f7bb64033d79a928294a532f081df52a4f989ac17a2c2c22103e11859f83e88",
+        "4148086de7f61b082fb3a0fdb32f3ade7923ced7eec62e48e3ce753fa6cf2e1f"
+      ]
+    },
+    {
+      "branch": "attack-SFD-042-221",
+      "commands": 6,
+      "replaySha256": "c28a241a3bdb804f4be13fa910d78cbef0bfa494ebb32b8516090d60d3258d13",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "efa89fb10c505647ac36be1e8394d0234163c5d0a77e407bc54bbda60f33b018",
+        "ba4f8810c8552915ab7b3092ef98a4d975826e8e81ffb9355da12179e2f40edd",
+        "93bf92791459b7761eea1c8a08f2f3e4aa36430d09d725b9a3c1a124e7930fd4"
+      ]
+    },
+    {
+      "branch": "attack-SFD-170-221",
+      "commands": 6,
+      "replaySha256": "1a7efffb6e3043f46de1965cd5bf342edc7138dfada342dfd8aa33027b594ab3",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "efa89fb10c505647ac36be1e8394d0234163c5d0a77e407bc54bbda60f33b018",
+        "ba4f8810c8552915ab7b3092ef98a4d975826e8e81ffb9355da12179e2f40edd",
+        "492c34bdf4917c18919bf68605126dfad5647b49baaa7e8b2a8cd1bf9d3df13c"
+      ]
+    },
+    {
+      "branch": "attack-SFD-170a-221",
+      "commands": 6,
+      "replaySha256": "00ca829936b0e022083f37e8f8d596177e1f2beb6a51b92b4c2464b52289776b",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "efa89fb10c505647ac36be1e8394d0234163c5d0a77e407bc54bbda60f33b018",
+        "ba4f8810c8552915ab7b3092ef98a4d975826e8e81ffb9355da12179e2f40edd",
+        "492c34bdf4917c18919bf68605126dfad5647b49baaa7e8b2a8cd1bf9d3df13c"
+      ]
+    },
+    {
+      "branch": "copied-token-ceased",
+      "commands": 26,
+      "replaySha256": "8655db8f67fc443fe6d175d74cd3444ee72853645f86f6a236c495d3ef5f7716",
+      "commandSha256": [
+        "5dc4cde091446a7f43dc927a14501fabeb61be3239515a1f6742be3d6284ca03",
+        "cb5e39ba3e98f8d0d33c51b2c0e4804d45e2a780576133f6006ea0550ddd4836",
+        "b3ec80c7c9f2c36565b3e187a2d9dc795840e0aa9761f17b73184a91348a8da6",
+        "c9927cc8cf03432cbd8bb6507d4134b3fabe12b461259173415d8adb1fa4e285",
+        "4ab5381e068662b907e2d06a0b969406146ff1174f345cf84cab3fbf77279513",
+        "ad30fefb3376a7c1fb503cf19933e08a0be116c8bfff5f7bfbdf3f462fd2719e",
+        "d745fa4446195d3b4457a528e7e69da6ac67b000ada8a5f88df3a754767a4a68",
+        "7a6e92cc7675beace4ae4a114a7f17730c9239961b83451cd243a5d1a0a4eb34",
+        "b79d3c09854624d13ac2d95a054810e1107ad01cb65c17bf1928a45b3916ff87",
+        "d59ee2121f1b8f5d53a415dcf346a9de12c457ed81106b5ac4d06d106ae740c0",
+        "2aad67311d226baf82d464eec5b154514e5a55fd3f13bad35f5e991da27a68a1",
+        "a27a6f9a421a24ae07f0c5b8bcf889bf3f377ed91553baf9407d834fe6669235",
+        "b70b36bbebbe95726928b4849aeb31b2c23d7f097e41af2d99cca7055db5a8ea",
+        "432a0f33323e094a6ee9ebc2d508c42e3790aa5c6f27ad8d3a4161440074e218",
+        "75d5cdc3b3899d9f786a02cf04d31ecfe59d67a25ab8935c15540882c56742af",
+        "215a3378ab933e76cbdbf726d1529c4d292cf2b084aa0cf269e264e546e7c720",
+        "52ae6422ec9f481f31d7cb02c2dad67cff9604b11f39e00949a43a51bab88d8e",
+        "b50084a2310cd561f42efa4bc4d463a36428670ac106ad68b2eff8d4040ea5ea",
+        "5359ff49e46d820f65731f7f9c9c5350e19d62d527166f64d298d9ed3df762ab",
+        "3d80d4a39bed43b64ae3a91aa659c63fa9a2b30aba489d77bcac6c8aca019843",
+        "880b0b18c350145679b589425cc08d95513a98fb45ad5ba5b82039fc5a93618a",
+        "41dfc235ad75c59ae67e942e0be5a4704c47bce79b04ea5b95fc5b298e709efa",
+        "3702845aae25b15aee324988c564170ea6cb12bf604f8883577e09004872b0f9",
+        "14cf414cdb91f3bf2263094558985b65912dcda03b7394610908c3ca08e7b550",
+        "df54cd9a3c2d44e9632cc3305b97bdcc90c549a9752694983f605d2e2f698341",
+        "1b01901dd0a7caa84bfe0fed67892a7b9e4d82d253382656d386972ea4944b8c"
+      ]
+    },
+    {
+      "branch": "empty-deck",
+      "commands": 4,
+      "replaySha256": "0be1247050c57274c534722280811a65f27e8e3a78efe9b491c8fd6d88036844",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "efa89fb10c505647ac36be1e8394d0234163c5d0a77e407bc54bbda60f33b018"
+      ]
+    },
+    {
+      "branch": "real-copied-attack",
+      "commands": 13,
+      "replaySha256": "cb6e8d596ab1568a7dde163d87b535437065467c2fb7ac0e308b609ec4d93ba9",
+      "commandSha256": [
+        "a072b642b8e482b8f7a4802fee179125d3e2541467c22ab51242d3445bf499dd",
+        "24808a401a316d39e8c9945c4e4905f10ea23716111a1e66abfee6d8466b3361",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "4f5c6c910829ee08aca15d32e21391692a4ba352a894d487b2347aa20dc0c1a6",
+        "50cca9d64a24be52683e2fa874c8adf031dec89e59493c9bc6baba2c21214a70",
+        "159923eaf4a7c985f753c05a861b9d848e16e0515c6904984f6dc66b4dcde3f8",
+        "1f7bb64033d79a928294a532f081df52a4f989ac17a2c2c22103e11859f83e88",
+        "4148086de7f61b082fb3a0fdb32f3ade7923ced7eec62e48e3ce753fa6cf2e1f",
+        "28649b71e98f39023a2b3b3ea137cf2c5430dc530025969cf8859c4a4b2360a7",
+        "cf736f42c39c5127df948867d233d567db24be7e4eb2aca9b88cc4457a431a2e",
+        "4d01619464035f60fe21e3e34d79a2aa77ba1dbbe6cc9b1684d2ecce8704d8ff",
+        "f1e453acb57c2701c5562ac6bcce6f6ee3899002a96f9624a865881bc00e1fc3",
+        "45fe2345f0e534be78cc7195cc9b4ef07704ce6cc7a8ebd63734a214a0b6aaef"
+      ]
+    },
+    {
+      "branch": "reveal-decline-banish",
+      "commands": 5,
+      "replaySha256": "39fd8cb9cd17557012d877480daf3685823c0aa923c723c5d1648085e1dd17b2",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "efa89fb10c505647ac36be1e8394d0234163c5d0a77e407bc54bbda60f33b018",
+        "ecd4d1d78d7110372c29fd269d3d362f0bc6032dad618b71122b369ee8c68265"
+      ]
+    },
+    {
+      "branch": "skip-reveal",
+      "commands": 4,
+      "replaySha256": "450fb41f06d6ade9561e82d8d1063fb0e2e40274f3d2623d58cca64457b7840b",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "cdffa25082df3d8fc9721b941a0f03fd18c47e625ee2c25daaf0a3a51fc784fb"
+      ]
+    },
+    {
+      "branch": "source-moved-base",
+      "commands": 9,
+      "replaySha256": "6f8c99e8d756c1a17f668a1dbf48eeb73b0603e05752366f4a01f7afa200e904",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "f9c9c4a02b2c9b75a04c627dff3d6752ffdf24035a87d9c0c3630169a60eb179",
+        "0b5fe3c170f25c4b4cf9d8eda3d61c1a546ba69623cd1bbd3d519fa001fe06c9",
+        "b2406006ede103f8c7fe80068c1afc24bff8a5b0b8e9dc13b81f5efb4c3a74b3",
+        "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80",
+        "a3f35c4328f78c4742b81ba52fe22ed350ef8e6fc1a0be72ff06e5d5d8174221",
+        "0d59a5d025329c661c6866afa9f63f96ce05716767d9f67522153fd0906a3810",
+        "494eb79e5429e041561ef5aef07dc5afabbbd3c7c96d57ff738fa9baa018507b",
+        "74b54a0018f078ebd7b763214387c62a0136ea782522e0fbc7d43f544419689e"
+      ]
+    },
+    {
+      "branch": "source-returned",
+      "commands": 10,
+      "replaySha256": "80eea04ed564938c4376139c278e226198bfa8cab05083806815264d0027630c",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "31adb66b00e2c458d2108545a5448ad8ddca54c63491c8f3df420cc8a9b5140f",
+        "b2406006ede103f8c7fe80068c1afc24bff8a5b0b8e9dc13b81f5efb4c3a74b3",
+        "03327b0270a785bb50459f23d940deeea3b8953b748079993c9bd51ea6a9fb80",
+        "4cded514b7cccfc53f117845e304aff6ff43ad9bc47f3660d4f48d2f8c956132",
+        "3122f1395c825b06a974f57a1bab412780c2867e018961dd599a6b6489456ecb",
+        "14a1d8a1a6eea815737e38b1c53a9e09ad4767d8bf30de92cc53c5542ba1f94e",
+        "59d693ba969ac862694758a3d926ffa26b80b266829f9e061f44551b01f24329",
+        "e4687c900e2715d7396cbe475333a11a00ee1513e13bf043b3440d7d1ea619e5"
+      ]
+    },
+    {
+      "branch": "unpayable-power",
+      "commands": 6,
+      "replaySha256": "ab49bb72ad743a2905168a904937b3c55797ebae2cd015c0e952cd681bb6a6e9",
+      "commandSha256": [
+        "0c75826778915036768c2fe070bf378f3c8fda86cbafb32576fd9f9d773abf2d",
+        "61722875ec1df83790c40a90ace8fa286fc1b92ebd02a7a16ea5b35186d9815f",
+        "82a106baa1b2dda0974c45d98bd802c09824dc91f12851d8879c3d81f264730a",
+        "efa89fb10c505647ac36be1e8394d0234163c5d0a77e407bc54bbda60f33b018",
+        "ba4f8810c8552915ab7b3092ef98a4d975826e8e81ffb9355da12179e2f40edd",
+        "8b97003769661a4c079e54809e2028f9098a968db3326b5e60df101d81805ad3"
+      ]
+    }
+  ],
+  "proofLogSha256": "a89bae5c679667cf4428d3f999dcc5a45a9a3ddcb112da23b963687573715aad",
+  "scope": "Production Godot controls with prompt/tick binding, cold recovery, player/spectator projection, dedup and full journal replay. Visible paired-client and Windows runtime acceptance remain open."
+}

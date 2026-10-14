@@ -1,0 +1,79 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "造化弄人",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-14T02:46:24.327313+00:00",
+  "sha256": "b93606c8f379bebaf9695844ea6eb5315bd6b9b49b912e161cc5595b3d5fc4f0",
+  "language": "zh-CN",
+  "region": "CN",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "response": {
+    "result": {
+      "total": 1,
+      "list": [
+        {
+          "id": 34671,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "UNL-128/219",
+          "cardName": "造化弄人",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "purple"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位和一名敌方单位返回其所属的手牌。",
+          "flavorText": "“准备都做好了。午夜时分到山脊碰头，我们一起出发。”——无名字条",
+          "energy": 3,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/fd1c503cce774e4599b96a99a78bf667.webp",
+          "backImage": "",
+          "listSort": 1353,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        }
+      ]
+    },
+    "resData": null,
+    "code": 0,
+    "type": "success",
+    "message": "操作成功",
+    "timestamp": 1791945984,
+    "traceId": "833beca5-1dac-46e2-a7a1-ed361bd5a465"
+  }
+}

@@ -58,7 +58,8 @@ public sealed partial class CoreRuleEngine
             var count = DeckPlayLookCount(definition);
             var viewed = players.ToDictionary(p => p, p => (IReadOnlyDictionary<string,long>)state.PlayerZones[p].MainDeck.Take(count)
                 .ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), StringComparer.Ordinal);
-            c = new(definition.DeckPlayKind, new(item.SourceObjectId, state.CardObjects[item.SourceObjectId].ObjectGeneration),
+            var generation = item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } field ? field.SourceGeneration : state.CardObjects[item.SourceObjectId].ObjectGeneration;
+            c = new(definition.DeckPlayKind, new(item.SourceObjectId, generation),
                 item.CardNo!, item.ControllerId, players, viewed, new Dictionary<string,ObjectBinding>(), 0, 0);
             if (DeckPlaySequenceReveals(item))
                 foreach (var player in players)
@@ -201,7 +202,9 @@ public sealed partial class CoreRuleEngine
         if (!TryGetEffectPlayDefinition(item, out var b) || b.DeckPlayKind != c.Kind || b.CardNo != item.CardNo
             || c.CardNo != item.CardNo || c.ControllerId != item.ControllerId || c.Source is null
             || c.Source.ObjectId != item.SourceObjectId || c.Source.Generation < 0
-            || !state.CardObjects.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration < c.Source.Generation
+            || (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } captured
+                ? c.Source.Generation != captured.SourceGeneration || !ValidFieldContextState(state, captured, item.SourceObjectId, item.ControllerId, item.EffectKind, item.CardNo)
+                : !state.CardObjects.TryGetValue(item.SourceObjectId, out var source) || source.ObjectGeneration < c.Source.Generation)
             || c.Players is null || c.Viewed is null || c.Selected is null || c.Queue is null
             || c.SelectionIndex < 0 || c.SelectionIndex > c.Players.Count || c.PlayIndex < 0 || c.PlayIndex > c.Queue.Count
             || c.ExecutionIndex < 0 || c.ExecutionIndex >= item.EffectRepeatCount

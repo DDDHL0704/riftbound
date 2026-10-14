@@ -17,6 +17,14 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.FieldContext is { Kind: "ATTACK_DECK_PLAY" } attack && AttackDeckPlaySpec(attack.CardNo) is { } spec)
+        {
+            definition = new(attack.CardNo, "进攻展示并打出", 0, parent.EffectKind, 0, 0,
+                MainDeckLookCount: spec.RevealCount!.Value, DeckPlayKind: "SINGLE_PUBLIC_PLAY",
+                EffectPlayOptional: true, EffectPlayAllowsAnyCard: true, EffectPlayRevealsCards: true,
+                EffectPlayDestination: "ATTACK_HERE_OR_NORMAL");
+            return true;
+        }
         if (parent.LegendConquest is { Kind: "EXHAUST_DECK_PLAY" } context
             && ValidLegendConquest(context, parent.EffectKind, parent.CardNo)) {
             definition = new(parent.CardNo, "虚空遁地兽", 0, parent.EffectKind, 0, 0,
@@ -85,6 +93,9 @@ public sealed partial class CoreRuleEngine
     {
         var pending = state.PendingEffectPlay;
         if (pending is null || pending.PlayerId != playerId) return [];
+        if (pending.Parent.FieldContext is { Kind: "ATTACK_DECK_PLAY" }
+            && pending.Sources.Keys.SingleOrDefault() is { } chosen && state.CardObjects.TryGetValue(chosen, out var selected)
+            && !selected.Tags.Contains(CardObjectTags.UnitCard)) return ["BASE"];
         // 811.1.d.3 also constrains a unit played by the original shadow controller through an effect.
         if (pending.Parent.PlayedFromStandby is { } origin && playerId == pending.Parent.ControllerId)
             return state.CardObjects.TryGetValue(origin.Battlefield.ObjectId, out var field)
@@ -103,13 +114,15 @@ public sealed partial class CoreRuleEngine
             destinations.AddRange(state.CardObjects.Keys.Select(id => "BATTLEFIELD:" + id)
                 .Where(destination => IsPlayCardUnitBattlefieldDestinationAllowed(state, playerId, destination)
                     && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination)));
+        if (AttackDeckPlayHere(state, pending) is { } here && !destinations.Contains(here)
+            && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, here)) destinations.Add(here);
         return destinations;
     }
 
-    internal static IReadOnlyDictionary<string, object?>? EffectPlayView(MatchState state)
+    internal static IReadOnlyDictionary<string, object?>? EffectPlayView(MatchState state, string visibleSourceObjectId)
         => state.PendingEffectPlay is not { } p ? null : new Dictionary<string, object?> {
             ["choiceId"] = p.ChoiceId, ["playerId"] = p.PlayerId,
-            ["sourceObjectId"] = p.Parent.SourceObjectId, ["sourceCardNo"] = p.Parent.CardNo,
+            ["sourceObjectId"] = visibleSourceObjectId, ["sourceCardNo"] = p.Parent.CardNo,
             ["optional"] = p.Optional, ["step"] = p.RevealedHand is { Choosing: true } ? "REVEALED_HAND_CHOICE" : "PLAY_CARD",
             ["reason"] = EffectPlayReason(p),
             ["revealedCards"] = p.ViewedCardIds?.Where(id => IsPubliclyRevealedDeckCard(state, id))

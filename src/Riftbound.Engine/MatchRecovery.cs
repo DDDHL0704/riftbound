@@ -22065,7 +22065,7 @@ public static class MatchRecoveryValidator
             choicePayload,
             "sourceObjectId",
             "spectator replay frame timing pending card choice source object does not match authoritative state pending card choice source object",
-            authoritativeChoice.SourceObjectId,
+            ResolutionResult.VisibleObjectIdForViewer(authoritativeState, authoritativeChoice.SourceObjectId, string.Empty),
             errors);
         ValidateSpectatorPendingHandChoiceRequiredStringAuthoritativeValue(
             choicePayload,
@@ -23715,7 +23715,7 @@ public static class MatchRecoveryValidator
                 || item.TargetGenerations is not null && (item.TargetObjectIds.Count != 1 || item.TargetGenerations.Count != 1
                     || !item.TargetGenerations.ContainsKey(item.TargetObjectIds[0]) || item.TargetGenerations.Values.Any(g => g < 0))
                 || field.ReturnFocusPlayerId is not null && !state.Seats.ContainsKey(field.ReturnFocusPlayerId)
-                || field.Kind == "ENEMY_ATTACK_MIGHT" && (item.TargetObjectIds.Count != 0 || item.TargetGenerations is not null
+                || field.Kind is "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" && (item.TargetObjectIds.Count != 0 || item.TargetGenerations is not null
                     || item.OptionalCosts.Count != 0 || item.DamageAmount != 0 || item.EffectRepeatCount != 1
                     || item.Destination.Length != 0 || item.TargetedPowerAbility is not null || item.DamageDistribution is not null)
                 : item.EffectKind == CoreRuleEngine.FieldTriggerEffect) errors.Add("invalid field trigger stack context");
@@ -26920,7 +26920,14 @@ public static class MatchRecoveryValidator
 
         if (authoritativeState.PendingCardChoice is not null)
         {
-            ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
+            var choice = authoritativeState.PendingCardChoice;
+            var parent = authoritativeState.StackItems.LastOrDefault();
+            var capturedDeckSource = choice.DeckContext is not null
+                && CoreRuleEngine.ValidDeckPlayChoice(authoritativeState, choice)
+                && parent!.SourceObjectId == choice.SourceObjectId
+                && parent.FieldContext is { SourceCeasedToExist: true } field
+                && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, parent.SourceObjectId, parent.ControllerId, parent.EffectKind, parent.CardNo);
+            if (!capturedDeckSource) ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} source object",
                 authoritativeState.PendingCardChoice.SourceObjectId,
                 knownObjectIds,

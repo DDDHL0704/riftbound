@@ -1,0 +1,9 @@
+{
+  "status": "FROZEN_INPUTS_CHECK_PASS_NO_DRIFT",
+  "count": 2263,
+  "manifestSha256": "596d69a9316969967641aaa49300b97ed721d5e45127d568e111144471b36946",
+  "testAssemblySha256": "ea63457d1e188d7304b481903c4677c85898efa3360eb5380521e8f16774f278",
+  "sourceBinImmutableDuringRun": true,
+  "ownedPostgresClusterStopped": true,
+  "testAssemblySha256AfterCheck": "ea63457d1e188d7304b481903c4677c85898efa3360eb5380521e8f16774f278"
+}

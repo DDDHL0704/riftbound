@@ -18348,6 +18348,62 @@
         "Visible paired clients/user Windows runtime",
         "Fixed candidate full and all required integration results not yet terminal"
       ]
+    },
+    {
+      "id": "attack-deck-banish-pending-current-here-2026-10-14",
+      "status": "SCOPED_CURRENT_NATIVE_CHECK_PASS_FIXED_FULL_REQUIRED",
+      "scope": "RekSai Swarm Queen SFD170/SFD170a current optional attack reveal, optional banish and real pending normal play; recycle before confirmation, normal mana/power costs, unit-only current source location permission; real response movement/return, real Shady copy/detach, actually created copied Sand Soldier cessation; private current source projection and strict bound historical source recovery. Listed two-seat paths only; no whole card or source certification.",
+      "subjects": [
+        "SFD·170/221",
+        "SFD·170a/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P039-B001",
+        "DOC-04-P039-B002",
+        "DOC-04-P039-B016",
+        "DOC-04-P039-B023",
+        "DOC-04-P040-B002",
+        "DOC-04-P040-B003",
+        "DOC-04-P040-B004",
+        "DOC-04-P040-B005",
+        "DOC-04-P040-B006",
+        "DOC-04-P052-B001",
+        "DOC-04-P052-B005",
+        "DOC-04-P053-B006",
+        "DOC-04-P053-B007",
+        "DOC-04-P053-B009",
+        "DOC-04-P075-B007",
+        "DOC-04-P075-B008",
+        "DOC-04-P075-B011",
+        "DOC-04-P075-B012"
+      ],
+      "auditDocument": "docs/ATTACK_DECK_PLAY_AUDIT_2026-10-14.md",
+      "evidence": "docs/evidence/attack-deck-play-2026-10-14",
+      "tests": [
+        "AttackDeckPlayTests",
+        "DeckPlaySequenceTests",
+        "SingleDeckPlaySequenceTests",
+        "StandbyDefendObserverTests",
+        "AttackDamageDistributionTests",
+        "CardCatalogBaselineTests",
+        "AhriCombatMightTests",
+        "MatchRecoveryTests"
+      ],
+      "validation": {
+        "focus": "2338cases/2163methods84.92s;21newcases/11methods",
+        "native": "12branches103 full prompt/tick production commands with backend cold/player/spectator/dedup/full journal replay; final check readback pass",
+        "check": "11295cases/6977methods216.75s;all11274/6966preserved;2263frozen;SQL5/Python27;owned database stopped",
+        "fixedFull": "REQUIRED",
+        "previousFixed37a824b9": "38500551234 still in progress at scoped delivery; desktop macOS/Windows success, rules/SQL/network not certified",
+        "runtimeEntries": 1031,
+        "runtimeFunctionalUnits": 830
+      },
+      "sources": {
+        "cn": "fresh API 2026-10-14 current errata exact IDs33264/33265",
+        "en": "fresh gallery old text retained; reconciled with official Spiritforged FAQ effective2026-01-14",
+        "rules": "fresh current CN July core SHA256d0e36d00 unchanged; physical52/53 visually verified; futureOctober16 not applied"
+      },
+      "wholeGoalComplete": false
     }
   ]
 }
