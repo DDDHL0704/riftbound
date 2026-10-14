@@ -1,0 +1,14 @@
+{
+  "status": "PRESCIENT_SELF_GRANTED_PREDICT_MISSING_REPRODUCED",
+  "test": "Riftbound.ConformanceTests.GrantedPredictTests.PrescientMechsOwnMechanicalTraitReceivesItsPredictGrantOnPlay",
+  "message": "Assert.IsType() Failure: Value is null\nExpected: typeof(Riftbound.Engine.PendingCardChoiceState)\nActual:   null",
+  "trx": "var/qa/prescient-mech-20261014/red/focus/results.trx",
+  "sha256": "e69f9c07435bdf90ce6f8bfae6a80c59e063e64d85191ad85eb037a1c1eea578",
+  "source": "current-card-api.json",
+  "rules": [
+    "DOC-04-P118-B009",
+    "DOC-04-P118-B011",
+    "DOC-04-P118-B012",
+    "DOC-04-P118-B013"
+  ]
+}

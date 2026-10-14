@@ -204,8 +204,8 @@
       "clientIntentId": "intent-p2-preflight-progress-glory-static-granted-predict-play-predict-choice",
       "cmd": {
         "cmdType": "CHOOSE_CARDS",
-        "choiceId": "DECK-STACK-1-P1-UNIT-PROGRESS-GLORY-0",
-        "choiceWindow": "DECK_EFFECT",
+        "choiceId": "INSIGHT:ordered-predict-entry-1-3-0",
+        "choiceWindow": "INSIGHT",
         "chosenObjectIds": [
           "P1-PROGRESS-GLORY-RECYCLE-001"
         ]
@@ -220,13 +220,15 @@
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_SUSPENDED",
-      "CARD_CHOICE_REQUESTED",
+      "INSIGHT_REQUESTED",
       "CARDS_RECYCLED",
-      "CARD_CHOICE_RESOLVED",
-      "STACK_ITEM_RESOLVED"
+      "INSIGHT_COMPLETED",
+      "STACK_ITEM_RESOLVED",
+      "TRIGGER_RESOLVED"
     ],
     "promptActions": {
       "P1": [

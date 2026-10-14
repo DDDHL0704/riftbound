@@ -3,7 +3,8 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record InsightTriggerContext(string CardNo, string ControllerId, int Count, long SourceGeneration, string Kind,
-    string? BattlefieldObjectId = null, string? ReturnFocusPlayerId = null, bool PaymentAccepted = false);
+    string? BattlefieldObjectId = null, string? ReturnFocusPlayerId = null, bool PaymentAccepted = false,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PredictGrantOrigin? PredictGrant = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -17,13 +18,15 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidInsightTrigger(InsightTriggerContext context, string effect, string controller, string? cardNo = null)
         => effect == InsightTriggerEffect && context.ControllerId == controller && context.SourceGeneration >= 0
-            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK"
+            && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT"
             && context.Count == (context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
-                : context.Kind is "SPELL_PLAYED" or "DUEL" ? 1 : 2) && context.Count>0
+                : context.Kind is "SPELL_PLAYED" or "DUEL" or "GRANTED_PREDICT" ? 1 : 2) && context.Count>0
             && (context.Kind == "DUEL" ? !string.IsNullOrEmpty(context.BattlefieldObjectId) && !string.IsNullOrEmpty(context.ReturnFocusPlayerId)
                 : (context.Kind=="CONQUEST_LOOK" ? !string.IsNullOrWhiteSpace(context.BattlefieldObjectId) : context.BattlefieldObjectId is null)
                     && context.ReturnFocusPlayerId is null && !context.PaymentAccepted)
-            && (context.Kind=="CONQUEST_LOOK" || IsInsightSource(context.CardNo, context.Kind)) && (cardNo is null || cardNo == context.CardNo);
+            && (context.Kind == "GRANTED_PREDICT" ? ValidPredictGrant(context.PredictGrant, context.CardNo)
+                : context.PredictGrant is null && (context.Kind=="CONQUEST_LOOK" || IsInsightSource(context.CardNo, context.Kind)))
+            && (cardNo is null || cardNo == context.CardNo);
 
     private static TriggerSpec? ConquestLookSpec(string? cardNo)
         => BattlefieldTriggerSpecRules.TryGetTrigger(cardNo,BattlefieldTriggerSpecRules.IsBattlefieldConquerRevealRecycleTrigger,out var trigger)

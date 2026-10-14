@@ -12547,7 +12547,6 @@ internal static class ActionPromptBuilder
             .Select(behavior => CoreRuleEngine.StandbyPlayBehavior(state, playerId, objectId, CoreRuleEngine.EffectPlayBehavior(state, playerId, behavior)))
             .Select(behavior => CoreRuleEngine.PromptAmbushTimingBehavior(state, playerId, behavior))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
-            .Select(behavior => ApplyPromptStaticGrantedPredictLifecycleDefault(state, playerId, objectId, cardObject, behavior))
             .Where(behavior => state.PendingEffectPlay is not null || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
                 >= PromptMinimumManaCost(state, playerId, behavior, objectId))
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
@@ -12589,77 +12588,6 @@ internal static class ActionPromptBuilder
         return !string.IsNullOrWhiteSpace(behavior.Mode)
             && behavior.PlaysSourceToBaseAsUnit
             && behavior.RequiredTargetCount > 0;
-    }
-
-    private static CardBehaviorDefinition ApplyPromptStaticGrantedPredictLifecycleDefault(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        CardObjectState sourceState,
-        CardBehaviorDefinition behavior)
-    {
-        if (behavior.MainDeckLookCount > 0
-            || behavior.RequiredTargetCount != 0
-            || !behavior.PlaysSourceToBaseAsUnit
-            || sourceState.IsFaceDown
-            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            || !HasPromptStaticGrantedKeyword(
-                state,
-                sourceObjectId,
-                sourceState,
-                playerId,
-                CardLifecycleKeywordNames.Predict))
-        {
-            return behavior;
-        }
-
-        return behavior with
-        {
-            RequiredTargetCount = 1,
-            TargetScope = CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount = 0,
-            MainDeckLookCount = 1,
-            RecyclesSelectedMainDeckTargets = true
-        };
-    }
-
-    private static bool HasPromptStaticGrantedKeyword(
-        MatchState state,
-        string targetObjectId,
-        CardObjectState targetState,
-        string targetControllerId,
-        string keyword)
-    {
-        foreach (var sourceObjectId in PromptPublicStaticAuraSourceObjectIds(state))
-        {
-            if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
-                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || !string.Equals(
-                    EffectivePromptPublicObjectControllerId(state.PlayerZones, sourceObjectId, sourceState),
-                    targetControllerId,
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
-                .Where(StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura)
-                .Where(aura => PublicFieldFriendlyPromptKeywordAuraAppliesToParticipant(
-                    aura,
-                    sourceObjectId,
-                    targetObjectId,
-                    targetState)))
-            {
-                if (string.Equals(aura.GrantedKeyword, keyword, StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     private static bool PublicFieldFriendlyPromptKeywordAuraAppliesToParticipant(

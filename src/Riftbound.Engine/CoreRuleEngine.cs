@@ -162,6 +162,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);
             result = RefreshRuleDerivedKeywordLayers(result);
+            result = QueueGrantedPredict(state, result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
             result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))))));
@@ -18491,77 +18492,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static CardBehaviorDefinition ApplyStaticGrantedPredictLifecycleDefault(
-        MatchState state,
-        string playerId,
-        string sourceObjectId,
-        CardBehaviorDefinition behavior)
-    {
-        if (behavior.MainDeckLookCount > 0
-            || behavior.RequiredTargetCount != 0
-            || !behavior.PlaysSourceToBaseAsUnit
-            || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-            || sourceState.IsFaceDown
-            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, playerId)
-            || !HasStaticGrantedKeyword(
-                state,
-                sourceObjectId,
-                sourceState,
-                playerId,
-                CardLifecycleKeywordNames.Predict))
-        {
-            return behavior;
-        }
-
-        return behavior with
-        {
-            RequiredTargetCount = 1,
-            TargetScope = CardTargetScopes.FriendlyMainDeckCard,
-            MinTargetCount = 0,
-            MainDeckLookCount = 1,
-            RecyclesSelectedMainDeckTargets = true
-        };
-    }
-
-    private static bool HasStaticGrantedKeyword(
-        MatchState state,
-        string targetObjectId,
-        CardObjectState targetState,
-        string targetControllerId,
-        string keyword)
-    {
-        foreach (var sourceObjectId in PublicStaticAuraSourceObjectIds(state.PlayerZones))
-        {
-            if (string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
-                || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
-                || sourceState.IsFaceDown
-                || !string.Equals(
-                    EffectivePublicStaticAuraSourceControllerId(state.PlayerZones, sourceObjectId, sourceState),
-                    targetControllerId,
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            foreach (var aura in StaticAuraSpecRules.GetStaticAuras(sourceState.CardNo)
-                .Where(StaticAuraSpecRules.IsPublicFieldFriendlyKeywordStaticAura)
-                .Where(aura => PublicFieldFriendlyKeywordStaticAuraAppliesToParticipant(
-                    aura,
-                    sourceObjectId,
-                    targetObjectId,
-                    targetState)))
-            {
-                if (string.Equals(aura.GrantedKeyword, keyword, StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     private static bool TryBuildPlayCardPlan(
         MatchState state,
         PlayerIntent intent,
@@ -18684,11 +18614,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        behavior = ApplyStaticGrantedPredictLifecycleDefault(
-            state,
-            intent.PlayerId,
-            command.SourceObjectId,
-            behavior);
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         var rengarUnitPlayedTargetObjectId = ExtractRengarUnitPlayedTriggerTarget(
@@ -24619,11 +24544,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         behavior = StandbyDefinition(behavior, stackItem.PlayedFromStandby);
-        behavior = ApplyStaticGrantedPredictLifecycleDefault(
-            state,
-            stackItem.ControllerId,
-            stackItem.SourceObjectId,
-            behavior);
         behavior = behavior with { StandbyPlayFrom = stackItem.PlayedFromStandby };
 
         if (!(confirmPermanent && HasIndependentPermanentTargets(behavior))

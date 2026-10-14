@@ -1,0 +1,40 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "godotVersion": "4.7.2",
+  "productionCommands": 8,
+  "recordedCommands": 16,
+  "events": 27,
+  "coldRecoveries": 8,
+  "records": [
+    {
+      "branch": "keep",
+      "recycle": false,
+      "native": 4,
+      "commands": 8,
+      "restores": 4,
+      "events": 13,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "add3a77dbc90a9b57a114fa98b10eb0bc53463e49576e8a9711088b7515208da",
+        "expectedStateHash": "add3a77dbc90a9b57a114fa98b10eb0bc53463e49576e8a9711088b7515208da",
+        "errors": []
+      }
+    },
+    {
+      "branch": "recycle",
+      "recycle": true,
+      "native": 4,
+      "commands": 8,
+      "restores": 4,
+      "events": 14,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "0b84b4c0ef3eff1718bf8fc1589d11ba1a3c49d0d825504c0dc089962e6ee147",
+        "expectedStateHash": "0b84b4c0ef3eff1718bf8fc1589d11ba1a3c49d0d825504c0dc089962e6ee147",
+        "errors": []
+      }
+    }
+  ],
+  "acceptanceBoundary": "Actual headless production controls and backend replay; visible paired normal-score match and Windows actual runtime remain independent open gates.",
+  "finalProductionInputReadback": true
+}

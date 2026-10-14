@@ -15392,7 +15392,7 @@ public sealed partial class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(played);
         var opened=await ResolveStackPassPassAsync(session,played,$"{intentPrefix}-resolve");
         var choice=Assert.IsType<PendingCardChoiceState>(opened.State.PendingCardChoice);
-        Assert.Equal("DECK_EFFECT",choice.ChoiceWindow);Assert.Equal([recycledObjectId],choice.LegalObjectIds);
+        Assert.Equal("INSIGHT",choice.ChoiceWindow);Assert.Equal([recycledObjectId],choice.LegalObjectIds);
         var choose=new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[recycledObjectId]);
         var chosen=await session.SubmitAsync(playerId,$"{intentPrefix}-predict-recycle",choose,RawCommand(choose),CancellationToken.None);
         AssertAccepted(chosen);AssertNoHiddenZoneLeak(chosen);
@@ -15430,7 +15430,7 @@ public sealed partial class FullGameEndToEndTests
         AssertNoHiddenZoneLeak(played);
         var opened=await ResolveStackPassPassAsync(session,played,$"{intentPrefix}-resolve");
         var choice=Assert.IsType<PendingCardChoiceState>(opened.State.PendingCardChoice);
-        Assert.Equal("DECK_EFFECT",choice.ChoiceWindow);Assert.Equal([recycledObjectId],choice.LegalObjectIds);
+        Assert.Equal("INSIGHT",choice.ChoiceWindow);Assert.Equal([recycledObjectId],choice.LegalObjectIds);
         var choose=new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[recycledObjectId]);
         var chosen=await session.SubmitAsync(playerId,$"{intentPrefix}-predict-recycle",choose,RawCommand(choose),CancellationToken.None);
         AssertAccepted(chosen);AssertNoHiddenZoneLeak(chosen);

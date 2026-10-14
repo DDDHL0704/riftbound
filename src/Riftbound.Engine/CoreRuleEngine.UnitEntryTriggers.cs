@@ -41,6 +41,7 @@ public sealed partial class CoreRuleEngine
             ?? ev.Payload.GetValueOrDefault("playerId") as string ?? entered.ControllerId;
         if (player is null) return ev;
         ev = CaptureTurnUnitPlayGrants(ev, cards, entered, player, turnEffects);
+        ev = CaptureGrantedPredict(ev, zones, cards, entered, player);
         if (entered.LastStandbyPlay is not null && ev.Kind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD")
             ev = CaptureStandbyPlayed(ev, zones, cards, player);
         var sources = zones.Values.SelectMany(z => z.Battlefields).Distinct(StringComparer.Ordinal)

@@ -7,9 +7,9 @@ internal static class OfficialPrintedTimingRules
 {
     private static readonly Lazy<IReadOnlySet<string>> PlayTriggers = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
-            // Weaponmaster has an independently captured trigger. Its reminder
-            // must not also create the legacy permanent play-ability item.
-            .Where(card => Regex.Replace(card.CardEffect, @"\{\{百炼\}\}[（(][^）)]*[）)]", "{{百炼}}").Split('。', '\n').Any(clause =>
+            // These keywords have their own entry handling. Their reminder must
+            // not also create a legacy permanent play-ability item.
+            .Where(card => Regex.Replace(card.CardEffect, @"\{\{(?:百炼|预知)\}\}[。\s]*[（(][^）)]*[）)]", "").Split('。', '\n').Any(clause =>
                 !clause.Contains("作为额外费用", StringComparison.Ordinal)
                 && (clause.Contains("当你打出我", StringComparison.Ordinal)
                     || clause.Contains("当你打出此牌", StringComparison.Ordinal)

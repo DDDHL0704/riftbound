@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/upstream/2026-10-11/rules-manifest.json",
+      "locator": "DOC-04-P118-B012/B013/B014; CN 817.1.c / 817.2 / 817.2.a",
+      "note": "Prescient Mech is itself a friendly Mechanical unit and independently receives Predict at entry; explicitly retain the inspected top card after the existing two response passes. Preserve original seed, identity, cost, power, traits and exhausted-entry assertions."
     }
   ],
   "roomId": "p2-preflight-sfd-065-prescient-mech-room",
@@ -82,19 +87,34 @@
       }
     },
     { "playerId": "P1", "clientIntentId": "intent-p2-preflight-sfd-065-prescient-mech-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-sfd-065-prescient-mech-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-sfd-065-prescient-mech-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-sfd-065-prescient-mech-predict-keep",
+      "cmd": {
+        "cmdType": "CHOOSE_CARDS",
+        "choiceId": "INSIGHT:ordered-predict-entry-1-3-0",
+        "choiceWindow": "INSIGHT",
+        "chosenObjectIds": []
+      }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
       "UNIT_PLAYED_TO_BASE",
       "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "STACK_ITEM_SUSPENDED",
+      "INSIGHT_REQUESTED",
+      "INSIGHT_COMPLETED",
+      "STACK_ITEM_RESOLVED",
+      "TRIGGER_RESOLVED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

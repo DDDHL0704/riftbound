@@ -180,6 +180,7 @@ public sealed partial class CoreRuleEngine
             : parent.FieldContext is { } field ? ValidFieldContextState(state,field,parent.SourceObjectId,parent.ControllerId,parent.EffectKind,parent.CardNo)
             : parent.InsightContext is { } insight ? ValidInsightTrigger(insight,parent.EffectKind,parent.ControllerId,parent.CardNo)
                 && ValidConquestLookSource(state,insight,parent.SourceObjectId)
+                && ValidGrantedPredictBindings(state,insight,parent.SourceObjectId)
             : parent.HeldContext is { } held ? HeldDefinition(held.CardNo) is {Kind:"LOOK_EQUIPMENT"} heldDefinition
                 && heldDefinition.Amount==held.Amount && parent.CardNo==held.CardNo && parent.EffectKind=="HOLD_"+held.Kind
             : parent.LegendConquest is { } conquest ? ValidLegendConquest(conquest,parent.EffectKind,parent.CardNo)

@@ -101,6 +101,7 @@ try {
 
 await BattleHistorySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battle-history"));
 await MaskedAttendantSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "masked-attendant"));
+await GrantedPredictSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "granted-predict"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

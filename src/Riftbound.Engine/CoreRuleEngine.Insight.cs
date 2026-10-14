@@ -131,6 +131,7 @@ public sealed partial class CoreRuleEngine
     {
         if (item is null || item.InsightCompleted || item.EffectRepeatCount != 1
             || item.InsightContext is { Kind: "DUEL", PaymentAccepted: false }
+            || item.InsightContext is { } capturedSource && !ValidGrantedPredictBindings(state, capturedSource, item.SourceObjectId)
             || choice.DeckContext is not { ExecutionIndex: 0 } context || context.StackItemId != item.StackItemId
             || choice.PlayerId != item.ControllerId || choice.SourceObjectId != item.SourceObjectId || choice.EffectKind != item.EffectKind
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)) return false;

@@ -14888,7 +14888,8 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var differences = ConformanceFixtureRunner.CompareExpected(fixture, result);
+        Assert.True(differences.Count == 0, string.Join("; ", differences));
         Assert.Equal(
             ["P1-UNIT-PRESCIENT-MECH", "P1-UNIT-PROGRESS-GLORY"],
             result.FinalState.PlayerZones["P1"].Base);

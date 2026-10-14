@@ -25,7 +25,6 @@ public sealed partial class CoreRuleEngine
             && HeldDefinition(held.CardNo)?.Kind == held.Kind)
             return CardBehaviorRegistry.TryGetByCardNo(held.CardNo, out behavior!) && IsDeferredDeckChoice(behavior);
         if(!CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind,out behavior!))return false;
-        behavior=ApplyStaticGrantedPredictLifecycleDefault(state,item.ControllerId,item.SourceObjectId,behavior);
         return IsDeferredDeckChoice(behavior);
     }
 
