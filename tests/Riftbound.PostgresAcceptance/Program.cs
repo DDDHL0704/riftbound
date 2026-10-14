@@ -105,6 +105,7 @@ await GrantedPredictSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "gra
 await PrintedPredictSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "printed-predict"));
 await SivirOptionalSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "sivir-optional"));
 await RuneRecycleDestinationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "rune-destination"));
+await SivirPaymentSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "sivir-payment"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

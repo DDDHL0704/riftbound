@@ -1,0 +1,84 @@
+{
+  "status": "FOCUS_FAILED",
+  "rows": [
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·203/221\", pay: True)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: False, sivirPay: False)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state player zones object RUNE is du\"···]",
+      "stack": "   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 177\n   at Riftbound.ConformanceTests.OfficialSpellCompletionTests.Restore(MatchState s) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs:line 262\n   at Riftbound.ConformanceTests.OfficialGraveyardRecastTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs:line 262\n   at Riftbound.ConformanceTests.SivirPaymentTriggerTests.PendingWardPosition(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs:line 82\n   at Riftbound.ConformanceTests"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·250/221\", pay: True)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·203/221\", pay: False)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: False, sivirPay: True)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state player zones object RUNE is du\"···]",
+      "stack": "   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 177\n   at Riftbound.ConformanceTests.OfficialSpellCompletionTests.Restore(MatchState s) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs:line 262\n   at Riftbound.ConformanceTests.OfficialGraveyardRecastTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs:line 262\n   at Riftbound.ConformanceTests.SivirPaymentTriggerTests.PendingWardPosition(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs:line 82\n   at Riftbound.ConformanceTests"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: True, sivirPay: False)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state player zones object RUNE is du\"···]",
+      "stack": "   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 177\n   at Riftbound.ConformanceTests.OfficialSpellCompletionTests.Restore(MatchState s) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs:line 262\n   at Riftbound.ConformanceTests.OfficialGraveyardRecastTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs:line 262\n   at Riftbound.ConformanceTests.SivirPaymentTriggerTests.PendingWardPosition(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs:line 82\n   at Riftbound.ConformanceTests"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: True, sivirPay: True)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state player zones object RUNE is du\"···]",
+      "stack": "   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 177\n   at Riftbound.ConformanceTests.OfficialSpellCompletionTests.Restore(MatchState s) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs:line 262\n   at Riftbound.ConformanceTests.OfficialGraveyardRecastTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs:line 262\n   at Riftbound.ConformanceTests.SivirPaymentTriggerTests.PendingWardPosition(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs:line 82\n   at Riftbound.ConformanceTests"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·250/221\", pay: False)",
+      "outcome": "Passed",
+      "message": "",
+      "stack": ""
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: True, sivirPay: True)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state player zones object RUNE is du\"···]",
+      "stack": "   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 177\n   at Riftbound.ConformanceTests.OfficialSpellCompletionTests.Restore(MatchState s) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs:line 262\n   at Riftbound.ConformanceTests.OfficialGraveyardRecastTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs:line 262\n   at Riftbound.ConformanceTests.SivirPaymentTriggerTests.PendingWardPosition(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs:line 82\n   at Riftbound.ConformanceTests"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: False, sivirPay: False)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state player zones object RUNE is du\"···]",
+      "stack": "   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 177\n   at Riftbound.ConformanceTests.OfficialSpellCompletionTests.Restore(MatchState s) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs:line 262\n   at Riftbound.ConformanceTests.OfficialGraveyardRecastTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs:line 262\n   at Riftbound.ConformanceTests.SivirPaymentTriggerTests.PendingWardPosition(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs:line 82\n   at Riftbound.ConformanceTests"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: True, sivirPay: False)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state player zones object RUNE is du\"···]",
+      "stack": "   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 177\n   at Riftbound.ConformanceTests.OfficialSpellCompletionTests.Restore(MatchState s) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs:line 262\n   at Riftbound.ConformanceTests.OfficialGraveyardRecastTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs:line 262\n   at Riftbound.ConformanceTests.SivirPaymentTriggerTests.PendingWardPosition(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs:line 82\n   at Riftbound.ConformanceTests"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: False, sivirPay: True)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state player zones object RUNE is du\"···]",
+      "stack": "   at Riftbound.ConformanceTests.OfficialInsightAndSpellLockTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs:line 177\n   at Riftbound.ConformanceTests.OfficialSpellCompletionTests.Restore(MatchState s) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs:line 262\n   at Riftbound.ConformanceTests.OfficialGraveyardRecastTests.Restore(MatchState state) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs:line 262\n   at Riftbound.ConformanceTests.SivirPaymentTriggerTests.PendingWardPosition(String card) in /Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs:line 82\n   at Riftbound.ConformanceTests"
+    }
+  ],
+  "trxSha256": "4a7c2d31f9c54a89139c17569795838d4d6d8d619f5da508f35936e53d4de8ce"
+}

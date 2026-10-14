@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "932c9e673ef91e28a986a71e9b009fdbe242021539a593f63186ffd46eb0ab2f"
+      "sha256": "3f76b523a8a10eb8fafc91d80981498890c65a8724474fd0430d813004e19cad"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -2912,6 +2912,204 @@
       "ciReceipts": [],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
       "currentImplementationCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
+      "currentImplementationIncludesUncommittedChanges": true
+    },
+    "sivir-payment-trigger-and-ward-event-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "sha256": "820805c7483674c7f53cb37b958885cf5afe2da6957faf5e62e1bfdbfb64880a"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerTargetPayment.cs",
+          "sha256": "b86ef058ba9524723327b240efeee23a1df2c4dfc306cf4928ce07f125f81ba7"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "sha256": "38f39a18d97a7c17c514da1757e0f1fe57d7be0ab64047e83b52e69dd8318357"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+          "sha256": "8010068d6cf8a67dbdbb8ca74da046bf13b1e2b96125568f4bc8a0dc4fd74829"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "sha256": "99c601d1baa38c164d4e4b649a57920821d16eb0383d6147ec1293d358795e41"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "90ec16d1b27b20febfbc2a3cf8881b4e03a976cce181ab835cfeedadd5060647"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "4c1697e83a24425f6a3ae14d5c006f8bf722223fb67ebfda6e685e3cd5aa8624"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "OGS-003/024",
+            "SFD-116/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent finite inline/deferred payment, Sivir optional confirmation and shared durable Ward-opening behavior only. Other consumers, whole cards and final product remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "OGS-003/024": "b3dbc822eafcb653d040477463e0450d67a851169498a8c259f516993142f973",
+              "SFD-116/221": "10a90fad63d919a1c4e4559ec22b35fcedfbf231067d9dac5150a19699595624",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay"
+            ],
+            "requiredNativeBranches": [
+              "inline-pay",
+              "inline-decline",
+              "deferred-pay",
+              "deferred-decline"
+            ]
+          }
+        },
+        {
+          "id": "InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "OGS-003/024",
+            "SFD-116/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent finite inline/deferred payment, Sivir optional confirmation and shared durable Ward-opening behavior only. Other consumers, whole cards and final product remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "OGS-003/024": "b3dbc822eafcb653d040477463e0450d67a851169498a8c259f516993142f973",
+              "SFD-116/221": "10a90fad63d919a1c4e4559ec22b35fcedfbf231067d9dac5150a19699595624",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirPaymentTriggerTests.InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "OGS-003/024",
+            "SFD-116/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent finite inline/deferred payment, Sivir optional confirmation and shared durable Ward-opening behavior only. Other consumers, whole cards and final product remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "OGS-003/024": "b3dbc822eafcb653d040477463e0450d67a851169498a8c259f516993142f973",
+              "SFD-116/221": "10a90fad63d919a1c4e4559ec22b35fcedfbf231067d9dac5150a19699595624",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse"
+            ],
+            "requiredNativeBranches": []
+          }
+        },
+        {
+          "id": "RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion",
+          "sourceRefs": [
+            "SFD-203/221",
+            "SFD-250/221",
+            "OGS-003/024",
+            "SFD-116/221",
+            "DOC-04-P030-B021",
+            "DOC-04-P060-B002"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "FIXED_CURRENT_FULL",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Independent finite inline/deferred payment, Sivir optional confirmation and shared durable Ward-opening behavior only. Other consumers, whole cards and final product remain separate.",
+            "sourceFingerprints": {
+              "SFD-203/221": "c43e974ae0ca2e1d551abd52e26de74a0efa9a28afd6502f79b69749c69a2cd3",
+              "SFD-250/221": "de4e9bda747fa3e5c64db24c20e6980639010f0e167d3e97a95c8682098d3e97",
+              "OGS-003/024": "b3dbc822eafcb653d040477463e0450d67a851169498a8c259f516993142f973",
+              "SFD-116/221": "10a90fad63d919a1c4e4559ec22b35fcedfbf231067d9dac5150a19699595624",
+              "DOC-04-P030-B021": "d69d09d3bc1f3d16cebac89d88f59a0a18b9b872e88d3fb780f8ca977c5883a9",
+              "DOC-04-P060-B002": "121b9561731d3d42454df8dad15f3654a9eff5e304eaa4cc387d4d5dc440c21d"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion"
+            ],
+            "requiredNativeBranches": []
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/sivir-payment-2026-10-15/focus.json",
+          "sha256": "a428332c348710b1d3fc079915d8c1639f3f7d8890387a5b8e23bc686dd09d47",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/sivir-payment-2026-10-15/native-replay.json",
+          "sha256": "42c80f6b7a8b99194a7c79edefa27952b9cebf45b72664ee7829bbc6bef0c3ef",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/sivir-payment-2026-10-15/sql-sivir-payment.json",
+          "sha256": "9d955e16ecbfd0e345c69384abf35661267dae3dae2e9e5b8509cec28ac2dd0b",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/sivir-payment-2026-10-15/check-parity.json",
+          "sha256": "4e36521fc5c558e47bedbc4b208b861296ba4f315457a28c2393c210cbe42ddc",
+          "role": "check"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
+      "currentImplementationCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },

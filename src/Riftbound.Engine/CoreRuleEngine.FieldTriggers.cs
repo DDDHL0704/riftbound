@@ -206,7 +206,12 @@ public sealed partial class CoreRuleEngine
                 powerCost: tax, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: $"已锁定 {DeckChoiceLabel(state, selected[0])}：支付 {tax} 任意符能的法盾费用，或放弃此触发技能。")
                 { ResolvingStackItemId = item.StackItemId };
             next = next with { PendingPayment = payment, StackItems = next.StackItems.Select(i => i.StackItemId == item.StackItemId ? bound : i).ToArray() };
-            return new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
+            var opened = new GameEvent("PAYMENT_WINDOW_OPENED", "已锁定触发目标，等待支付法盾费用或放弃技能", new Dictionary<string, object?> {
+                ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId,
+                ["stackItemId"] = item.StackItemId, ["paymentId"] = payment.PaymentId,
+                ["paymentWindow"] = payment.PaymentWindow, ["powerCost"] = tax,
+                ["targetObjectIds"] = selected.ToArray() });
+            return new(true, null, next, [opened], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
         }
         var completed = CompleteTriggerTargetConfirmation(next, bound, []);
         return completed.Accepted ? completed : RejectWithCorePrompts(state, completed.ErrorMessage!, ErrorCodes.InvalidTarget);

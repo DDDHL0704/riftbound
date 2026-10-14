@@ -1,0 +1,19 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-14T19:52:06.774998+00:00",
+  "sha256": "6c78e2c11131de5e0afa63d0dd2d07472ba26ca2cf1ba7249169748779cc5b86",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "fixtureConsumerScopeOnly": true,
+  "cards": [
+    {
+      "id": 34847,
+      "cardNo": "SFD·116/221",
+      "cardEffect": "{{百炼}}（当你打出我时，你可以选择为我{{装配}}你的一件武装，其装配费用减少{{A}}。可选择已贴附的武装。）\n当我征服一处开放的战场时，对基地中的一名敌方单位造成等同于我战力的伤害。",
+      "errata": "{{百炼}}（当你打出我时，你可以选择为我{{装配}}你的一件武装，其装配费用减少{{A}}。可选择已贴附的武装。）\n当我征服一处未受控制的战场时，对基地中的一名敌方单位造成等同于我战力的伤害。"
+    }
+  ]
+}

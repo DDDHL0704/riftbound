@@ -1,0 +1,24 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "fetchedAtUtc": "2026-10-14T19:48:09.195477+00:00",
+  "sha256": "c934325eca4f0319e91aa244fb8b18aaf41508936b7be7b12de4aadcd47ae33b",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "cards": [
+    {
+      "id": 33302,
+      "cardNo": "SFD·203/221",
+      "cardEffect": "当你回收一枚符文时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。\n当任意数量的敌方单位被摧毁时，让我变为活跃状态。",
+      "errata": ""
+    },
+    {
+      "id": 33361,
+      "cardNo": "SFD·250/221",
+      "cardEffect": "当你回收一枚符文时，你可以选择让我变为休眠状态，以此打出一个休眠的“金币”装备指示物。\n当任意数量的敌方单位被摧毁时，让我变为活跃状态。",
+      "errata": ""
+    }
+  ]
+}

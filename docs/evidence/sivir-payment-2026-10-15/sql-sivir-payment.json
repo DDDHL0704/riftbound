@@ -1,0 +1,286 @@
+{
+  "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_REPLAY_AND_TAMPER_PASS",
+  "commands": 30,
+  "events": 82,
+  "coldRecoveries": 30,
+  "independentTamperRejections": 4,
+  "records": [
+    {
+      "branch": "deferred-decline",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "room": "postgres-sivir-payment-c61d3f33d82a479f95355ad647bf5001",
+      "submitted": 9,
+      "events": 23,
+      "coldRecoveries": 9,
+      "sivirSourceTamperRejected": true,
+      "deferred": true,
+      "pay": false,
+      "checks": [
+        {
+          "tick": 1,
+          "sequence": 3,
+          "stack": 0,
+          "isMatch": true
+        },
+        {
+          "tick": 2,
+          "sequence": 4,
+          "stack": 0,
+          "isMatch": true
+        },
+        {
+          "tick": 3,
+          "sequence": 11,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 4,
+          "sequence": 12,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 5,
+          "sequence": 15,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 6,
+          "sequence": 18,
+          "stack": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 7,
+          "sequence": 19,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 8,
+          "sequence": 20,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 9,
+          "sequence": 23,
+          "stack": 0,
+          "isMatch": true
+        }
+      ],
+      "finalHash": "de987d84e0fe426eb491048cb9d32cee0d3d68f9456d02f99ef267e989d31d20",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+        "implementationSha256": "e3c31ace970ebe056f21ddc933c14c62d79f49da5c299e74a6b6775261823011",
+        "identitySha256": "dacd4547bde1bed39adabe16c78506bb372588aa7f82c36d59634c274a6566bf"
+      },
+      "scope": "Isolated explicit rules fixture with actual SQL commands/events/states/views and retained initial-state replay."
+    },
+    {
+      "branch": "deferred-pay",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "room": "postgres-sivir-payment-827e0ddaf3d14ec7a1d2cfb3fda3c7a3",
+      "submitted": 11,
+      "events": 29,
+      "coldRecoveries": 11,
+      "sivirSourceTamperRejected": true,
+      "deferred": true,
+      "pay": true,
+      "checks": [
+        {
+          "tick": 1,
+          "sequence": 3,
+          "stack": 0,
+          "isMatch": true
+        },
+        {
+          "tick": 2,
+          "sequence": 4,
+          "stack": 0,
+          "isMatch": true
+        },
+        {
+          "tick": 3,
+          "sequence": 11,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 4,
+          "sequence": 12,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 5,
+          "sequence": 15,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 6,
+          "sequence": 18,
+          "stack": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 7,
+          "sequence": 20,
+          "stack": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 8,
+          "sequence": 21,
+          "stack": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 9,
+          "sequence": 25,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 10,
+          "sequence": 26,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 11,
+          "sequence": 29,
+          "stack": 0,
+          "isMatch": true
+        }
+      ],
+      "finalHash": "0571b22660fddfce9532e2ed0c8066e948292f85caf611254b8f1d9249750bbf",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+        "implementationSha256": "e3c31ace970ebe056f21ddc933c14c62d79f49da5c299e74a6b6775261823011",
+        "identitySha256": "dacd4547bde1bed39adabe16c78506bb372588aa7f82c36d59634c274a6566bf"
+      },
+      "scope": "Isolated explicit rules fixture with actual SQL commands/events/states/views and retained initial-state replay."
+    },
+    {
+      "branch": "inline-decline",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "room": "postgres-sivir-payment-d50b98848f614c8ea779112314bae9ae",
+      "submitted": 4,
+      "events": 12,
+      "coldRecoveries": 4,
+      "sivirSourceTamperRejected": true,
+      "deferred": false,
+      "pay": false,
+      "checks": [
+        {
+          "tick": 1,
+          "sequence": 7,
+          "stack": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 2,
+          "sequence": 8,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 3,
+          "sequence": 9,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 4,
+          "sequence": 12,
+          "stack": 0,
+          "isMatch": true
+        }
+      ],
+      "finalHash": "8f527d3bc8b4bc38f45d5d27918ce450bbc815b06e5ada9dc6473d9f3c828e24",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+        "implementationSha256": "e3c31ace970ebe056f21ddc933c14c62d79f49da5c299e74a6b6775261823011",
+        "identitySha256": "dacd4547bde1bed39adabe16c78506bb372588aa7f82c36d59634c274a6566bf"
+      },
+      "scope": "Isolated explicit rules fixture with actual SQL commands/events/states/views and retained initial-state replay."
+    },
+    {
+      "branch": "inline-pay",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "room": "postgres-sivir-payment-95c87b39a5aa4297985c2bc2e5150917",
+      "submitted": 6,
+      "events": 18,
+      "coldRecoveries": 6,
+      "sivirSourceTamperRejected": true,
+      "deferred": false,
+      "pay": true,
+      "checks": [
+        {
+          "tick": 1,
+          "sequence": 7,
+          "stack": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 2,
+          "sequence": 9,
+          "stack": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 3,
+          "sequence": 10,
+          "stack": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 4,
+          "sequence": 14,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 5,
+          "sequence": 15,
+          "stack": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 6,
+          "sequence": 18,
+          "stack": 0,
+          "isMatch": true
+        }
+      ],
+      "finalHash": "116a82ef7ae3b64e8c5b36873fce4640629d3669709b9404cd9c11cd7d5607c0",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "40c70e1a262efe99202ffcc684cfe421c314f0eb08fb9d8b083f0f51b08041ab",
+        "implementationSha256": "e3c31ace970ebe056f21ddc933c14c62d79f49da5c299e74a6b6775261823011",
+        "identitySha256": "dacd4547bde1bed39adabe16c78506bb372588aa7f82c36d59634c274a6566bf"
+      },
+      "scope": "Isolated explicit rules fixture with actual SQL commands/events/states/views and retained initial-state replay."
+    }
+  ],
+  "scope": "Actual owned SQL rooms; deferred move/focus/conquest target preparation, Ward payment, resource action, Sivir cost and both response windows; per-command full history validation and replay. Recovery strictness retained."
+}

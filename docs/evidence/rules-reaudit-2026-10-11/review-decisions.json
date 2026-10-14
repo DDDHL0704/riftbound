@@ -19463,6 +19463,128 @@
         "FIXED_CURRENT_FULL",
         "FINAL_PRODUCT_ACCEPTANCE"
       ]
+    },
+    {
+      "id": "sivir-payment-trigger-and-ward-event-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Sivir during inline Ward resource payment and actual deferred trigger-target Ward, both optional choices and independently durable shared payment-window opening event; all other consumers and whole printings remain open",
+      "subjects": [
+        "SFD-203/221",
+        "SFD-250/221",
+        "OGS-003/024",
+        "SFD-116/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P030-B021",
+        "DOC-04-P060-B002"
+      ],
+      "auditDocument": "docs/SIVIR_PAYMENT_TRIGGER_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/sivir-payment-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/sivir-payment-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PASSED",
+        "newMethods": 4,
+        "newCases": 17,
+        "newMethodNames": [
+          "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion"
+        ],
+        "cases": [
+          "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: False, pay: False)",
+          "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: False, pay: True)",
+          "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: True, pay: False)",
+          "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: True, pay: True)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·203/221\", pay: False)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·203/221\", pay: True)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·250/221\", pay: False)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·250/221\", pay: True)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: False, sivirPay: False)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: False, sivirPay: True)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: True, sivirPay: False)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: True, sivirPay: True)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: False, sivirPay: False)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: False, sivirPay: True)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: True, sivirPay: False)",
+          "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: True, sivirPay: True)"
+        ],
+        "adjacentCases": 99,
+        "adjacentMethods": 61,
+        "trxSha256": "625a42caa90b888439bee0a6fc26ffdad161f60ec8ffe4b6aa49c502a8be753d",
+        "originalMethodsTheorySeedsAndVictoryReplayAssertionsRetained": true,
+        "scope": "Inline quoted Ward resource payment and actual pending conquest Ward; both Sivir printings, pay/decline, independent cold state validation, rejected premature responses and unchanged invalid payment state. Real SQL found and reproduced the shared missing payment-window event; first fixture/expectation errors remain separately classified.",
+        "originalFullGameMethods": [
+          "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesAerieHeadFanSameBattlefieldSpellshieldTaxAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash"
+        ],
+        "originalGamesTrxSha256": "923711d5ca1917bbb3b81fb8d149fd03a6cc1ed9443940f9f06b0a3040ceb662",
+        "check": {
+          "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+          "checkCases": 11595,
+          "checkMethods": 7104,
+          "failed": 0,
+          "skipped": 0,
+          "oldCasesPreserved": true,
+          "oldMethodsPreserved": true,
+          "oldCaseCount": 11578,
+          "oldMethodCount": 7100,
+          "newCases": [
+            "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: False, pay: False)",
+            "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: False, pay: True)",
+            "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: True, pay: False)",
+            "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay(deferred: True, pay: True)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·203/221\", pay: False)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·203/221\", pay: True)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·250/221\", pay: False)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse(card: \"SFD·250/221\", pay: True)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: False, sivirPay: False)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: False, sivirPay: True)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: True, sivirPay: False)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·203/221\", wardPay: True, sivirPay: True)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: False, sivirPay: False)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: False, sivirPay: True)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: True, sivirPay: False)",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion(card: \"SFD·250/221\", wardPay: True, sivirPay: True)"
+          ],
+          "newMethods": [
+            "Riftbound.ConformanceTests.SivirPaymentNativeTests.ProductionInlineAndDeferredPaymentControlsColdRecoverDeduplicateAndReplay",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.InvalidInlineRunePaymentRejectsWithoutMovementOrCapturedTrigger",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.QuotedInlineWardRunePaymentCapturesSivirBeforeTheSpellResponse",
+            "Riftbound.ConformanceTests.SivirPaymentTriggerTests.RuneResourceDuringActualTriggerWardWaitsForPaymentCompletion"
+          ],
+          "frozenInputsUnchanged": true,
+          "frozenInputCount": 860,
+          "seconds": 228.9,
+          "trxSha256": "7e74950fa869e4676859bf95dc96bdd35feeb1e4d4f737b0322c093e97e34b8c",
+          "currentFixedFull": "PENDING"
+        }
+      },
+      "fixedCommitCi": {
+        "state": "PENDING",
+        "implementationBaseCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
+        "includesUncommittedChanges": true
+      },
+      "productAcceptance": {
+        "nativeControls": "SCOPED_PASS",
+        "actualSql": "SCOPED_PASS",
+        "visiblePairedScoreFinish": "OPEN",
+        "WindowsRuntime": "OPEN"
+      },
+      "remaining": [
+        "ALL_PAYMENT_AND_TRIGGER_TARGET_CONSUMERS",
+        "WHOLE_PRINTING_SEMANTICS",
+        "FIXED_CURRENT_FULL",
+        "FINAL_PRODUCT_ACCEPTANCE"
+      ]
     }
   ]
 }

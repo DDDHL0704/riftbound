@@ -1,0 +1,25 @@
+{
+  "governanceValid": true,
+  "semanticCoverageCertified": false,
+  "counts": {
+    "combinedExactPrintingNumbers": 1738,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1502,
+    "enReturnedPrintings": 1407,
+    "enReportedTotal": 1415,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1031,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1502,
+    "cnNonemptyQaFields": 0
+  },
+  "scopedReviews": 93,
+  "errors": [],
+  "branchObligationStates": {
+    "OPEN": 65,
+    "NOT_APPLICABLE": 1
+  },
+  "checkerSha256": "f2c60779fa708e8ca1b33b14ebab3677b6cac637553653fe8a94cdb816176e08",
+  "remainingObligationCount": 16106
+}

@@ -1,0 +1,71 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "godotVersion": "4.7.2",
+  "productionCommands": 22,
+  "recordedCommands": 44,
+  "events": 58,
+  "coldRecoveries": 22,
+  "records": [
+    {
+      "branch": "deferred-decline",
+      "deferred": true,
+      "pay": false,
+      "native": 5,
+      "commands": 10,
+      "restores": 5,
+      "events": 11,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "1ed881bac5d71a86930181c23f2800fb9cd55f1ebca124ec6a5bf09af2f568e4",
+        "expectedStateHash": "1ed881bac5d71a86930181c23f2800fb9cd55f1ebca124ec6a5bf09af2f568e4",
+        "errors": []
+      }
+    },
+    {
+      "branch": "deferred-pay",
+      "deferred": true,
+      "pay": true,
+      "native": 7,
+      "commands": 14,
+      "restores": 7,
+      "events": 17,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "07504798a7a6c57efcdbad6d0d8d783ac59e6bd0e05d1bca115ea1e4905052b9",
+        "expectedStateHash": "07504798a7a6c57efcdbad6d0d8d783ac59e6bd0e05d1bca115ea1e4905052b9",
+        "errors": []
+      }
+    },
+    {
+      "branch": "inline-decline",
+      "deferred": false,
+      "pay": false,
+      "native": 4,
+      "commands": 8,
+      "restores": 4,
+      "events": 12,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "608ff9fd7a36d30e432a2523e52eec34612a26b4e239abc65e3b1fe08b95ffbb",
+        "expectedStateHash": "608ff9fd7a36d30e432a2523e52eec34612a26b4e239abc65e3b1fe08b95ffbb",
+        "errors": []
+      }
+    },
+    {
+      "branch": "inline-pay",
+      "deferred": false,
+      "pay": true,
+      "native": 6,
+      "commands": 12,
+      "restores": 6,
+      "events": 18,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "fa6c745e8399a3ccede27c0fa321d7be96442fc9badf8d7a9eb6f192a25b45ea",
+        "expectedStateHash": "fa6c745e8399a3ccede27c0fa321d7be96442fc9badf8d7a9eb6f192a25b45ea",
+        "errors": []
+      }
+    }
+  ],
+  "scope": "Actual play quote/target/resource checkboxes plus resource/payment/optional-cost/response controls, full journal readback, dedup/stale/cold/replay. Deferred initial is explicitly prepared; SQL additionally retains the actual preparation command history. Final visible paired and Windows runtime remain separate."
+}
