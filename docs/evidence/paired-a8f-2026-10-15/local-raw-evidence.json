@@ -1,0 +1,26 @@
+{
+  "root": "/Users/dinghaolin/MyProjects/riftbound/var/qa/paired-a8f-20261015",
+  "files": {
+    "actual-sql-replay-frame.json": "661eb70dbf35fe0c4a62ceae17e98446190ef02217ab1ce1158e1847fc351b49",
+    "actual-private-choice-player-views.json": "f7ca4f6648117235294a279a94ea9c32a560011ee63ada72b2238976129a0b03",
+    "before-auto-reconnect.json": "8e026d043a0007c32be045bbba0ea24b3cbe1c8c4a56805a0745f27d49b49b66",
+    "after-auto-reconnect.json": "8e026d043a0007c32be045bbba0ea24b3cbe1c8c4a56805a0745f27d49b49b66",
+    "before-manual-reconnect.json": "7f37cbd4b9c94c11dc77c9a94a77ae4f4b2bfd60ae507f33243ac22472a009d5",
+    "after-manual-reconnect.json": "7f37cbd4b9c94c11dc77c9a94a77ae4f4b2bfd60ae507f33243ac22472a009d5",
+    "after-five-order-and-draw.json": "9ce080b2b8f991cadd585b726528bf35aae114b1f41941c42cd6a9901eeb305e",
+    "final-score.json": "3e9f328963d99d26c8d98aa71732de3938c5403f7ac94db256c6fb8e6a5e60bd",
+    "source-inputs.json": "6a518611ac1125369e26d01bcc599b2932e4585bf88b68471e5fa042d3e83c46",
+    "client-a.log": "25fe7e9769c6ff344f42173fbe1aae40f4e920e77e53302e2034667379d2d3a8",
+    "client-b.log": "622b98df416c1d35789fb3f93f6411456a7f93f3b93a63785f0d60461c170c58",
+    "api.log": "11210bbf160bf797e76c0775817052d0b143dba10a4060114948956ea91ec02a",
+    "replay-reader/Program.cs": "f2075300d66855580aeb9c9bd9a6cb202c01c1ad2d5612f4af38de9582d5870e",
+    "replay-reader/reader.csproj": "f1760eee420dc1209b66d5f5d6ce79ce419337f82538afdc1e23019e85696b4a",
+    "replay-reader.log": "3b0205772f26fb6785ad21a3c95225f9508fcd6cba7e191b35e5bc2e372b2370"
+  },
+  "containsPrivatePlayerKeysOrReconnectTokens": false,
+  "sensitiveSessionFilesExcluded": [
+    "session-a.json",
+    "session-b.json"
+  ],
+  "note": "Session keys/tokens are excluded. The local authoritative frames hold only own QA match game state; no main or original-room journal was rewritten."
+}

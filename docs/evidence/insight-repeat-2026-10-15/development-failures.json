@@ -1,0 +1,31 @@
+{
+  "status": "RETAINED_FAILURES_AND_CORRECTIONS",
+  "originalProductionReproduction": {
+    "baseCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+    "cases": 2,
+    "failed": 2,
+    "productionInputsUnmodifiedWhenExecuted": true,
+    "trx": {
+      "path": "var/qa/insight-repeat-20261015/red-baseline/focus/results.trx",
+      "sha256": "127087d925bf96b88bf6416db8e2ef346e746e2a647943b85a14710a55c2e02e"
+    }
+  },
+  "newTestDraftCorrection": {
+    "trx": {
+      "path": "var/qa/insight-repeat-20261015/expanded-integration-focus/focus/results.trx",
+      "sha256": "449f0d197f1d7886c389b233bac8ab4d3d846d28adf430e8ca2f8fc7185f475b"
+    },
+    "reason": "Only newly added third-order expected hand was miscalculated. Independent deck simulation gives D9,D8; production implementation unchanged."
+  },
+  "sqlDraftCorrection": {
+    "log": {
+      "path": "var/qa/insight-repeat-20261015/postgres.log",
+      "sha256": "9201a4cbbbf59052a65c6010b35ed64a85a80152938504b3bba495b4a3e59110"
+    },
+    "reason": "The new counter raw fixture explicitly serialized optionalCosts null; corrected to [] without weakening independent production validation."
+  },
+  "governanceDraftCorrections": [
+    "Local registration helper initially missed the modified debug proof pin; repaired draft registry before final validation.",
+    "First governance precheck correctly rejected the not-yet-created audit document; final document and source refs are present."
+  ]
+}

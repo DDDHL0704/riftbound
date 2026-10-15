@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "76317438137c09bfbb6a769169696eabe21ddcc27606abe876dc0da7c015033c"
+      "sha256": "813c4273ba3373a5809ab9f0e7396051e26d0bae29cf3d78b3d494c4c714a360"
     },
     "summary": {
       "path": "docs/evidence/clairvoyance-2026-10-15/index-summary.json",
@@ -115,7 +115,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
+          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -247,9 +247,9 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained.",
+      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -275,6 +275,16 @@
               "currentSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
             }
           ]
+        },
+        {
+          "batch": "untargeted-counted-insight-echo-resumption-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99",
+              "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+            }
+          ]
         }
       ]
     },
@@ -290,7 +300,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
+          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -587,9 +597,9 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained.",
+      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -613,6 +623,16 @@
               "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
               "previousSha256": "7d3d3c4aae24d08b8115a1561f35f15164d870f691f645e900e60b985bcde665",
               "currentSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
+            }
+          ]
+        },
+        {
+          "batch": "untargeted-counted-insight-echo-resumption-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99",
+              "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
             }
           ]
         }
@@ -1273,7 +1293,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
+          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -1868,7 +1888,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -1914,8 +1934,19 @@
               "currentSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
             }
           ]
+        },
+        {
+          "batch": "untargeted-counted-insight-echo-resumption-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99",
+              "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -1933,7 +1964,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
+          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
@@ -2525,7 +2556,7 @@
           "role": "check"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/printed-predict-2026-10-15/full-ci-74353e40.json",
@@ -2535,7 +2566,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2582,8 +2613,19 @@
               "currentSha256": "cfeb7595ea0952d92dbe573a16e4dc8f1dc9d5ac25b31858f3b8374d02cf2222"
             }
           ]
+        },
+        {
+          "batch": "untargeted-counted-insight-echo-resumption-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99",
+              "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -2601,7 +2643,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
+          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
@@ -2931,7 +2973,7 @@
           "role": "check"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/sivir-optional-2026-10-15/full-ci-7649.json",
@@ -2941,7 +2983,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2973,8 +3015,19 @@
               "currentSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
             }
           ]
+        },
+        {
+          "batch": "untargeted-counted-insight-echo-resumption-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99",
+              "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3666,7 +3719,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
+          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Recast.cs",
@@ -4334,7 +4387,7 @@
           "role": "remediation"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/recycled-card-boon-2026-10-15/full-ci-a040.json",
@@ -4344,7 +4397,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4371,8 +4424,19 @@
               "currentSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
             }
           ]
+        },
+        {
+          "batch": "untargeted-counted-insight-echo-resumption-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99",
+              "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -4676,7 +4740,7 @@
         },
         {
           "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
-          "sha256": "fd0c9085141a1dc593525c29b3ad298bbbd1cfa9b3f01e98c10e5e2a5851505d"
+          "sha256": "d170ee41f0cd88848470d178ea0916296a8ac692dea5132338d1ece41645b4f8"
         }
       ],
       "branches": [
@@ -4820,7 +4884,7 @@
           "role": "check"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/attached-recycle-lifecycle-2026-10-15/full-ci-5faa.json",
@@ -4830,8 +4894,21 @@
         }
       ],
       "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
-      "currentImplementationCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "implementationPinUpdates": [
+        {
+          "batch": "untargeted-counted-insight-echo-resumption-2026-10-15",
+          "changes": [
+            {
+              "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+              "previousSha256": "fd0c9085141a1dc593525c29b3ad298bbbd1cfa9b3f01e98c10e5e2a5851505d",
+              "currentSha256": "d170ee41f0cd88848470d178ea0916296a8ac692dea5132338d1ece41645b4f8"
+            }
+          ]
+        }
+      ],
+      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
     },
     "swain-source-identity-and-conquest-clause-classification-2026-10-15": {
       "implementation": [
@@ -5529,7 +5606,7 @@
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -5541,7 +5618,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99"
+          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
@@ -5677,6 +5754,261 @@
             "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
           ]
         }
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "untargeted-counted-insight-echo-resumption-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99",
+              "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+            }
+          ]
+        }
+      ],
+      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
+    },
+    "untargeted-counted-insight-echo-resumption-2026-10-15": {
+      "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Exact base plus explicitly uncommitted new Insight Echo inputs; own fixed full remains required.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+        },
+        {
+          "path": "src/Riftbound.Engine/EchoCostRules.cs",
+          "sha256": "2fe4e9ebd3289348cb5636251e68bb54f7caa1621af9f567fe0790a1661f1b98"
+        },
+        {
+          "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+          "sha256": "d170ee41f0cd88848470d178ea0916296a8ac692dea5132338d1ece41645b4f8"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/insight-repeat-2026-10-15/source.json",
+          "sha256": "41fa82ea99ffb73581e96c2ec21a3a2c13733e9ff4f9c5bb0970be0f366c16cb",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/insight-repeat-2026-10-15/focus.json",
+          "sha256": "498530ea16451fbfea952b3fda1564860944f2320897d41753604ea79c5209d7",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/insight-repeat-2026-10-15/native.json",
+          "sha256": "e58ef558d014e27f1eeeb93e2ca88b3fddb3464f917e0ebc38f5060f53761971",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/insight-repeat-2026-10-15/sql.json",
+          "sha256": "781a5186c66fd2d469a87bbae0b12c63c5b05d751a6e451b1c49c7010de77dc1",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/insight-repeat-2026-10-15/development-failures.json",
+          "sha256": "dcd2cbbc2e8f51b0cde2a71a71058e016d31ea36509ff9158a43648643a3bfbd",
+          "role": "development-failures"
+        },
+        {
+          "path": "docs/evidence/insight-repeat-2026-10-15/check-result.json",
+          "sha256": "5e877ed64647d3c8bc8b52b24c97f35bd13b6937436dad15beaead2b8796279d",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/insight-repeat-2026-10-15/full-plan.json",
+          "sha256": "de9fa55b05361c940c9bbb576e45a42b7294bd3e1f319f1990d48eb31d60d2a3",
+          "role": "plan"
+        },
+        {
+          "path": "docs/evidence/insight-repeat-2026-10-15/cleanup.json",
+          "sha256": "c8f2001dd53fe7f910c0471aff6aab30560357a3629d935001a81a08b29ce22d",
+          "role": "cleanup"
+        }
+      ],
+      "branches": [
+        {
+          "id": "independent-private-execution-order-and-draw",
+          "sourceRefs": [
+            "VEN-056",
+            "SFD-078/221",
+            "UNL-216/219",
+            "UNL-146/219",
+            "DOC-04-P081-B008",
+            "DOC-04-P081-B009",
+            "DOC-04-P081-B010",
+            "DOC-04-P081-B011",
+            "DOC-04-P081-B012",
+            "DOC-04-P081-B013",
+            "DOC-04-P081-B014",
+            "DOC-04-P081-B015",
+            "DOC-04-P120-B002",
+            "DOC-04-P120-B003",
+            "DOC-04-P120-B004",
+            "DOC-04-P120-B005",
+            "DOC-04-P120-B006",
+            "DOC-04-P120-B007",
+            "DOC-04-P120-B008",
+            "DOC-04-P120-B009",
+            "DOC-04-P120-B010",
+            "DOC-04-P120-B012",
+            "DOC-04-P120-B013",
+            "DOC-04-P120-B014",
+            "DOC-04-P120-B015",
+            "DOC-04-P120-B016",
+            "DOC-04-P120-B017",
+            "DOC-13-P021-B004",
+            "DOC-13-P021-B005",
+            "DOC-14-P015-B003",
+            "DOC-14-P015-B005",
+            "DOC-14-P017-B001"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Targeted Eclipse/Abandon declarations and other counted Insight consumers",
+            "All remaining copied/attached and whole-printing semantic branches",
+            "This new input exact fixed full and visible paired SQL/network/score/opening replay",
+            "Independent Windows runtime and every full-universe source obligation"
+          ]
+        },
+        {
+          "id": "single-play-counter-and-winning-burnout",
+          "sourceRefs": [
+            "VEN-056",
+            "SFD-078/221",
+            "UNL-216/219",
+            "UNL-146/219",
+            "DOC-04-P081-B008",
+            "DOC-04-P081-B009",
+            "DOC-04-P081-B010",
+            "DOC-04-P081-B011",
+            "DOC-04-P081-B012",
+            "DOC-04-P081-B013",
+            "DOC-04-P081-B014",
+            "DOC-04-P081-B015",
+            "DOC-04-P120-B002",
+            "DOC-04-P120-B003",
+            "DOC-04-P120-B004",
+            "DOC-04-P120-B005",
+            "DOC-04-P120-B006",
+            "DOC-04-P120-B007",
+            "DOC-04-P120-B008",
+            "DOC-04-P120-B009",
+            "DOC-04-P120-B010",
+            "DOC-04-P120-B012",
+            "DOC-04-P120-B013",
+            "DOC-04-P120-B014",
+            "DOC-04-P120-B015",
+            "DOC-04-P120-B016",
+            "DOC-04-P120-B017",
+            "DOC-13-P021-B004",
+            "DOC-13-P021-B005",
+            "DOC-14-P015-B003",
+            "DOC-14-P015-B005",
+            "DOC-14-P017-B001"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Targeted Eclipse/Abandon declarations and other counted Insight consumers",
+            "All remaining copied/attached and whole-printing semantic branches",
+            "This new input exact fixed full and visible paired SQL/network/score/opening replay",
+            "Independent Windows runtime and every full-universe source obligation"
+          ]
+        },
+        {
+          "id": "observed-card-permissions-after-original-completion",
+          "sourceRefs": [
+            "VEN-056",
+            "SFD-078/221",
+            "UNL-216/219",
+            "UNL-146/219",
+            "DOC-04-P081-B008",
+            "DOC-04-P081-B009",
+            "DOC-04-P081-B010",
+            "DOC-04-P081-B011",
+            "DOC-04-P081-B012",
+            "DOC-04-P081-B013",
+            "DOC-04-P081-B014",
+            "DOC-04-P081-B015",
+            "DOC-04-P120-B002",
+            "DOC-04-P120-B003",
+            "DOC-04-P120-B004",
+            "DOC-04-P120-B005",
+            "DOC-04-P120-B006",
+            "DOC-04-P120-B007",
+            "DOC-04-P120-B008",
+            "DOC-04-P120-B009",
+            "DOC-04-P120-B010",
+            "DOC-04-P120-B012",
+            "DOC-04-P120-B013",
+            "DOC-04-P120-B014",
+            "DOC-04-P120-B015",
+            "DOC-04-P120-B016",
+            "DOC-04-P120-B017",
+            "DOC-13-P021-B004",
+            "DOC-13-P021-B005",
+            "DOC-14-P015-B003",
+            "DOC-14-P015-B005",
+            "DOC-14-P017-B001"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Targeted Eclipse/Abandon declarations and other counted Insight consumers",
+            "All remaining copied/attached and whole-printing semantic branches",
+            "This new input exact fixed full and visible paired SQL/network/score/opening replay",
+            "Independent Windows runtime and every full-universe source obligation"
+          ]
+        },
+        {
+          "id": "execution-identity-recovery-and-real-sql",
+          "sourceRefs": [
+            "VEN-056",
+            "SFD-078/221",
+            "UNL-216/219",
+            "UNL-146/219",
+            "DOC-04-P081-B008",
+            "DOC-04-P081-B009",
+            "DOC-04-P081-B010",
+            "DOC-04-P081-B011",
+            "DOC-04-P081-B012",
+            "DOC-04-P081-B013",
+            "DOC-04-P081-B014",
+            "DOC-04-P081-B015",
+            "DOC-04-P120-B002",
+            "DOC-04-P120-B003",
+            "DOC-04-P120-B004",
+            "DOC-04-P120-B005",
+            "DOC-04-P120-B006",
+            "DOC-04-P120-B007",
+            "DOC-04-P120-B008",
+            "DOC-04-P120-B009",
+            "DOC-04-P120-B010",
+            "DOC-04-P120-B012",
+            "DOC-04-P120-B013",
+            "DOC-04-P120-B014",
+            "DOC-04-P120-B015",
+            "DOC-04-P120-B016",
+            "DOC-04-P120-B017",
+            "DOC-13-P021-B004",
+            "DOC-13-P021-B005",
+            "DOC-14-P015-B003",
+            "DOC-14-P015-B005",
+            "DOC-14-P017-B001"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Targeted Eclipse/Abandon declarations and other counted Insight consumers",
+            "All remaining copied/attached and whole-printing semantic branches",
+            "This new input exact fixed full and visible paired SQL/network/score/opening replay",
+            "Independent Windows runtime and every full-universe source obligation"
+          ]
+        }
       ]
     }
   },
@@ -5722,7 +6054,10 @@
         "tests/Riftbound.PostgresAcceptance/ClairvoyanceSqlAcceptance.cs",
         "tests/Riftbound.ConformanceTests/GameHubIdentityBoundaryTests.cs",
         "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
-        "tests/Riftbound.NativeNetworkSmoke/Program.cs"
+        "tests/Riftbound.NativeNetworkSmoke/Program.cs",
+        "tests/Riftbound.ConformanceTests/InsightRepeatTests.cs",
+        "tests/Riftbound.PostgresAcceptance/InsightRepeatSqlAcceptance.cs",
+        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs"
       ],
       "previousVerificationInputsNowCoveredAt6bc": {
         "inputs": [
@@ -5739,8 +6074,34 @@
         "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
         "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
         "data/official/card-catalog.zh-CN.json",
-        "src/Riftbound.Api/Hubs/GameHub.cs"
-      ]
+        "src/Riftbound.Api/Hubs/GameHub.cs",
+        "src/Riftbound.Engine/EchoCostRules.cs",
+        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs"
+      ],
+      "previousCountedInsightVerification": {
+        "commit": "a85f46778d398d7a5b262913cbf87a08467b8ba0",
+        "runId": 38682722663,
+        "receipt": "docs/evidence/clairvoyance-2026-10-15/full-ci-a85.json",
+        "sha256": "e858e3fc9f3206db6a5179940e56a9c04a7f857769187ec0158df0af85034d73",
+        "cases": 11914,
+        "methods": 7309,
+        "actualSqlScenarios": 50,
+        "coversCurrentRoomAuthenticationRepair": false
+      },
+      "previousRoomIdentityVerification": {
+        "commit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+        "runId": 38686783331,
+        "receipt": "docs/evidence/room-identity-2026-10-15/full-ci-a8f.json",
+        "sha256": "d6c1b746d158583b2db49b309e0bb7bbf6c766d14af768e271887f37135eda18",
+        "cases": 11947,
+        "methods": 7312,
+        "actualSqlScenarios": 50,
+        "originalGames": 143,
+        "pairs": 110,
+        "seed": 424242,
+        "currentImplementationVerified": false,
+        "reopenedReason": "Shared Insight Echo inputs changed after fixed a8f; its independent native and full CI evidence remain scoped to that exact candidate."
+      }
     },
     {
       "id": "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
@@ -5765,7 +6126,19 @@
         "gameplaySourceInputCount": 457,
         "currentCandidateReopenedReason": "Shared ceased-source captured printing/face-history binding changed after fixed 1a5 acceptance; original exact candidate evidence retained."
       },
-      "currentRoomIdentityFinding": "Fixed a85 own-room probe confirmed unauthenticated seat/token/command access. Current repair reopens this candidate; older exact receipts retain their stated scope and do not certify this boundary."
+      "currentRoomIdentityFinding": "Fixed a85 own-room probe confirmed unauthenticated seat/token/command access. Current repair reopens this candidate; older exact receipts retain their stated scope and do not certify this boundary.",
+      "scopedCurrentCandidateEvidence": {
+        "commit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+        "path": "docs/evidence/paired-a8f-2026-10-15/product-receipt.json",
+        "sha256": "28f72da96a43bbf8a9b73212e4a3fdf19e54c8c4be1cccf68483d199c79b8606",
+        "currentCandidateVerified": false,
+        "requiresReopenOnGameplayInputChange": true,
+        "scope": "Exact fixed a8f local Mac native, genuine SQL, private five-card choice/retained reverse order/draw2, automatic and manual reconnect, normal8:0 and full69-command/513-event opening replay. Cooperative scope only; native custom deck editor and Windows runtime remain open.",
+        "fixedFullRunId": 38686783331,
+        "fixedFullStatus": "VERIFIED_FIXED_A8F_11947_CASES_7312_METHODS_50_SQL",
+        "currentCandidateReopenedReason": "Shared resumable counted Insight Echo execution changed after fixed a8f. Its exact native/SQL/network/score/replay receipt remains preserved; this new gameplay input needs its own fixed candidate acceptance.",
+        "fixedFullReceipt": "docs/evidence/room-identity-2026-10-15/full-ci-a8f.json"
+      }
     },
     {
       "id": "USER_WINDOWS_RUNTIME",
@@ -5782,7 +6155,7 @@
         "sha256": "f49595729d796ccc50eae9d5e121056da6ff5e89c4ab4079331a83d755b1624d",
         "status": "LOCAL_NATIVE_PROTOCOL_AND_REAL_SQL_PASS",
         "visibleGodotUi": false,
-        "fixedCommitCi": "PENDING"
+        "fixedCommitCi": "VERIFIED_A8F_ONLY"
       },
       "implementation": [
         {
@@ -5790,7 +6163,15 @@
           "sha256": "e5558540a436d1113aa7134771ea6cad0af543ec28c9276557478b6ba57fac33"
         }
       ],
-      "sourceSemanticsChanged": false
+      "sourceSemanticsChanged": false,
+      "scopedNativeEvidence": {
+        "commit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+        "receipt": "docs/evidence/paired-a8f-2026-10-15/product-receipt.json",
+        "sha256": "28f72da96a43bbf8a9b73212e4a3fdf19e54c8c4be1cccf68483d199c79b8606",
+        "newFixedFullStillPending": false,
+        "allBroaderSecuritySemanticsCertified": false,
+        "fixedFullReceipt": "docs/evidence/room-identity-2026-10-15/full-ci-a8f.json"
+      }
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker."

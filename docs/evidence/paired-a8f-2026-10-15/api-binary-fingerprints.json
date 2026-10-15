@@ -1,0 +1,18 @@
+{
+  "commit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+  "directory": "/Users/dinghaolin/.local/share/riftbound-qa/room-identity-a8f0b1dd/src/Riftbound.Api/bin/Debug/net10.0",
+  "files": {
+    "Microsoft.AspNetCore.SignalR.StackExchangeRedis.dll": "08e97dee4d18b0beaa3f7d0279eec70a8d2a57b29c2e5e8846bebfc98741ae4c",
+    "Riftbound.CardCatalog.dll": "0c8b5a3f4cd4febf42baa532619f3d3f41b3135fe198a3c43fb90360a7d341f4",
+    "StackExchange.Redis.dll": "e78cbee5a5a1071e45246c9b400de869ba6c9bec5c67870f0b99253923d67799",
+    "Pipelines.Sockets.Unofficial.dll": "fa2cdb1d5ffbb2b06512c92ce8bd18918a1a996171d0a72dfc73035bc586a711",
+    "MessagePack.Annotations.dll": "1f06184c502c5e03ececf80caf903fcfd18fc6e0ef8d379269ef025ddfb1a546",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "Riftbound.Contracts.dll": "80b3c348a07e5d66a509d2bef2f31856cca3fdd2ceb3ebd35b5619652a46857b",
+    "Riftbound.Engine.dll": "a640501546046e34400f7285eb989c44ec8f1ba0d98d90d1e6e9402074a15133",
+    "Riftbound.Api.dll": "8aeedc7d78273f5ba38fa14c9fab0523ad3f9a97191d204352f9f6f21ff44dd7",
+    "MessagePack.dll": "3308cc35adb71b065e7985ec53cefaeb73e96b7d419400b8bb4f7c60a587c6d8",
+    "Microsoft.NET.StringTools.dll": "e51c8678fd602a21c249b369e833966019935132476f9434da896bef808ba3b1",
+    "Riftbound.Persistence.dll": "ef6686bc04e50b31e36cef0097af995695f3ad59c8b0def69d0a491aa600f7e9"
+  }
+}

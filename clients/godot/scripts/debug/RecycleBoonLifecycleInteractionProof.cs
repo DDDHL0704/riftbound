@@ -91,6 +91,16 @@ public partial class RecycleBoonLifecycleInteractionProof : Control
         Check(overlay.Open(candidate, prompt.GetProperty("promptId").GetString()!, prompt.GetProperty("snapshotTick").GetInt64(), _ => null, expected.GetProperty("sourceObjectId").GetString()!), "Production play overlay opens");
         foreach (var target in expected.GetProperty("targetObjectIds").EnumerateArray())
             Check(overlay.TrySelectTableObject(target.GetString()!), "Server target is selectable in the production composer");
+        if (expected.TryGetProperty("optionalCosts", out var costs) && costs.ValueKind == JsonValueKind.Array)
+        {
+            var controls = (Dictionary<string, CheckBox>)typeof(PlayCardOverlay).GetField("_optional", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+            foreach (var cost in costs.EnumerateArray())
+            {
+                Check(controls.TryGetValue(cost.GetString()!, out var control), "Quoted optional cost has a production checkbox");
+                control!.ButtonPressed = true;
+            }
+            Check(preview is not null && (preview.Command.OptionalCosts ?? []).SequenceEqual(costs.EnumerateArray().Select(c => c.GetString()!)), "Production preview preserves selected optional costs");
+        }
         Check(preview is not null && preview.Command.TargetObjectIds.SequenceEqual(expected.GetProperty("targetObjectIds").EnumerateArray().Select(v => v.GetString()!)), "Production preview preserves the actual targets");
         var quote = JsonSerializer.Deserialize<Riftbound.Contracts.PlayCostQuoteDto>(File.ReadAllText(Path.Combine(dir, step + "-quote.json")), new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
         overlay.ApplyQuote(quote with { RequestId = preview!.RequestId });

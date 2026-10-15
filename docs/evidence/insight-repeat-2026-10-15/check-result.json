@@ -1,0 +1,66 @@
+{
+  "status": "SINGLE_COHERENT_BATCH_CHECK_AND_EXACT_PARITY_PASS",
+  "profile": "check",
+  "cases": 11822,
+  "methods": 7180,
+  "seconds": 263.6,
+  "failed": 0,
+  "skipped": 0,
+  "oldCasesPreserved": 11798,
+  "oldMethodsPreserved": 7171,
+  "missingCases": [],
+  "missingMethods": [],
+  "addedCases": [
+    "Riftbound.ConformanceTests.InsightRepeatTests.ARealGateActivationGrantsThePrintedSevenManaRepeatBeforeTheSpellIsPlayed",
+    "Riftbound.ConformanceTests.InsightRepeatTests.AWinningDrawStopsFurtherRepeatsWithoutInventingASecondPlay(count: 0)",
+    "Riftbound.ConformanceTests.InsightRepeatTests.AWinningDrawStopsFurtherRepeatsWithoutInventingASecondPlay(count: 1)",
+    "Riftbound.ConformanceTests.InsightRepeatTests.AWinningDrawStopsFurtherRepeatsWithoutInventingASecondPlay(count: 2)",
+    "Riftbound.ConformanceTests.InsightRepeatTests.AWinningDrawStopsFurtherRepeatsWithoutInventingASecondPlay(count: 3)",
+    "Riftbound.ConformanceTests.InsightRepeatTests.BothExecutionsCaptureObservedPlaysButNeitherCanPreemptTheOriginalSpell",
+    "Riftbound.ConformanceTests.InsightRepeatTests.CounteringTheSingleChainItemCancelsEveryPaidExecution",
+    "Riftbound.ConformanceTests.InsightRepeatTests.EachPaidEchoCompletesItsPrivateInsightAndTwoDrawsBeforeTheNextExecution(echoes: 1)",
+    "Riftbound.ConformanceTests.InsightRepeatTests.EachPaidEchoCompletesItsPrivateInsightAndTwoDrawsBeforeTheNextExecution(echoes: 2)",
+    "Riftbound.ConformanceTests.InsightRepeatTests.ProductionControlCommandsColdRecoverDeduplicateAndReplayEveryExecution(echoes: 1)",
+    "Riftbound.ConformanceTests.InsightRepeatTests.ProductionControlCommandsColdRecoverDeduplicateAndReplayEveryExecution(echoes: 2)",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RecoveryIndependentlyRejectsForgedProgressAndEarlierExecutionIdentities(branch: \"COUNT\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RecoveryIndependentlyRejectsForgedProgressAndEarlierExecutionIdentities(branch: \"DONE\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RecoveryIndependentlyRejectsForgedProgressAndEarlierExecutionIdentities(branch: \"INDEX\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RecoveryIndependentlyRejectsForgedProgressAndEarlierExecutionIdentities(branch: \"OLD_ID\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RecoveryIndependentlyRejectsForgedProgressAndEarlierExecutionIdentities(branch: \"PROGRESS\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RecoveryIndependentlyRejectsForgedProgressAndEarlierExecutionIdentities(branch: \"TARGETED_KIND\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RejectedRepeatCostsNeverSpendResourcesConsumeGrantsOrEnterTheChain(branch: \"DECLARATION\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RejectedRepeatCostsNeverSpendResourcesConsumeGrantsOrEnterTheChain(branch: \"DUPLICATE\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RejectedRepeatCostsNeverSpendResourcesConsumeGrantsOrEnterTheChain(branch: \"MANA\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RejectedRepeatCostsNeverSpendResourcesConsumeGrantsOrEnterTheChain(branch: \"UNKNOWN\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.TheNextExecutionObservesTheActualDeckAfterTheFirstRecycleOrderAndDraw(branch: \"ALL\", hand: \"D6,D7,D12,D11\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.TheNextExecutionObservesTheActualDeckAfterTheFirstRecycleOrderAndDraw(branch: \"KEEP\", hand: \"D5,D4,D7,D6\")",
+    "Riftbound.ConformanceTests.InsightRepeatTests.TheNextExecutionObservesTheActualDeckAfterTheFirstRecycleOrderAndDraw(branch: \"SOME\", hand: \"D5,D3,D9,D8\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.InsightRepeatTests.ARealGateActivationGrantsThePrintedSevenManaRepeatBeforeTheSpellIsPlayed",
+    "Riftbound.ConformanceTests.InsightRepeatTests.AWinningDrawStopsFurtherRepeatsWithoutInventingASecondPlay",
+    "Riftbound.ConformanceTests.InsightRepeatTests.BothExecutionsCaptureObservedPlaysButNeitherCanPreemptTheOriginalSpell",
+    "Riftbound.ConformanceTests.InsightRepeatTests.CounteringTheSingleChainItemCancelsEveryPaidExecution",
+    "Riftbound.ConformanceTests.InsightRepeatTests.EachPaidEchoCompletesItsPrivateInsightAndTwoDrawsBeforeTheNextExecution",
+    "Riftbound.ConformanceTests.InsightRepeatTests.ProductionControlCommandsColdRecoverDeduplicateAndReplayEveryExecution",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RecoveryIndependentlyRejectsForgedProgressAndEarlierExecutionIdentities",
+    "Riftbound.ConformanceTests.InsightRepeatTests.RejectedRepeatCostsNeverSpendResourcesConsumeGrantsOrEnterTheChain",
+    "Riftbound.ConformanceTests.InsightRepeatTests.TheNextExecutionObservesTheActualDeckAfterTheFirstRecycleOrderAndDraw"
+  ],
+  "allFrozenPathsUnchanged": 2685,
+  "actualSourceAndVerificationInputsUnchanged": 2684,
+  "generatedNonSourceCacheIncludedInFreezeOnly": [
+    "scripts/audit/__pycache__/check-project-governance.cpython-312.pyc"
+  ],
+  "cacheDisposition": "Generated by the read-only CI verifier import; removed only after verifying the entire frozen set. Not a source/test file and not committed.",
+  "inputManifest": {
+    "path": "var/qa/insight-repeat-20261015/check-start-inputs.json",
+    "sha256": "a1b2e92d7f3639020c9466441c8fc4a7660a3a0678bb8389febb0ee468961b52"
+  },
+  "trx": {
+    "path": "var/qa/insight-repeat-20261015/check/check/results.trx",
+    "sha256": "fadf00607f0c5d6f66edf5c80aaca0c1d155aacee8025b79b7e6f016fd8e8ad5"
+  },
+  "realPostgresConnectionProvided": true,
+  "fullExecution": "Not executed locally; fixed-commit CI required."
+}

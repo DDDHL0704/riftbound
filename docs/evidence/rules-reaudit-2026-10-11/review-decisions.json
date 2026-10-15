@@ -20294,6 +20294,80 @@
         "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
       ],
       "wholeCardCertification": false
+    },
+    {
+      "id": "untargeted-counted-insight-echo-resumption-2026-10-15",
+      "status": "SCOPED_INSIGHT_ECHO_CHECK_NATIVE_SQL_PASS_FIXED_FULL_AND_PRODUCT_OPEN",
+      "scope": "Resumable untargeted Insight followed by draw; current actual consumer VEN056. Eclipse and Abandon targeted repeat declarations remain unsupported and OPEN; their existing tests are retained.",
+      "subjects": [
+        "VEN-056",
+        "SFD-078/221",
+        "UNL-216/219",
+        "UNL-146/219"
+      ],
+      "ruleRecords": [
+        "DOC-04-P081-B008",
+        "DOC-04-P081-B009",
+        "DOC-04-P081-B010",
+        "DOC-04-P081-B011",
+        "DOC-04-P081-B012",
+        "DOC-04-P081-B013",
+        "DOC-04-P081-B014",
+        "DOC-04-P081-B015",
+        "DOC-04-P120-B002",
+        "DOC-04-P120-B003",
+        "DOC-04-P120-B004",
+        "DOC-04-P120-B005",
+        "DOC-04-P120-B006",
+        "DOC-04-P120-B007",
+        "DOC-04-P120-B008",
+        "DOC-04-P120-B009",
+        "DOC-04-P120-B010",
+        "DOC-04-P120-B012",
+        "DOC-04-P120-B013",
+        "DOC-04-P120-B014",
+        "DOC-04-P120-B015",
+        "DOC-04-P120-B016",
+        "DOC-04-P120-B017",
+        "DOC-13-P021-B004",
+        "DOC-13-P021-B005",
+        "DOC-14-P015-B003",
+        "DOC-14-P015-B005",
+        "DOC-14-P017-B001"
+      ],
+      "auditDocument": "docs/INSIGHT_ECHO_RESUMPTION_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/insight-repeat-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "region": "CN",
+        "language": "zh-CN",
+        "applicableAsOf": "2026-10-15",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/insight-repeat-2026-10-15/source.json",
+        "futureCoreAdopted": false
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+        "src/Riftbound.Engine/EchoCostRules.cs",
+        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs"
+      ],
+      "remaining": [
+        "Targeted Eclipse/Abandon declarations and other counted Insight consumers",
+        "All remaining copied/attached and whole-printing semantic branches",
+        "This new input exact fixed full and visible paired SQL/network/score/opening replay",
+        "Independent Windows runtime and every full-universe source obligation"
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "status": "SINGLE_CHECK11822_7180_PASS_FIXED_FULL_PENDING",
+        "newCases": 24,
+        "newMethods": 9,
+        "oldConformanceSourceFilesByteUnchanged": 417,
+        "batchCheck": "docs/evidence/insight-repeat-2026-10-15/check-result.json",
+        "nativeReceipt": "docs/evidence/insight-repeat-2026-10-15/native.json",
+        "sqlReceipt": "docs/evidence/insight-repeat-2026-10-15/sql.json",
+        "wholeCardCertified": false
+      }
     }
   ]
 }

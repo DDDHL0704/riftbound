@@ -4,12 +4,23 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
+    // Targeted Insight spells still require independent declaration plans for
+    // their preceding instructions. This path covers Insight followed by draw.
+    internal static bool SupportsInsightRepeat(CardBehaviorDefinition behavior)
+        => behavior.PerformsInsight && behavior.RequiredTargetCount == 0
+            && !behavior.CountersTargetStackSpell && behavior.DrawCount == 0 && behavior.DamageAmount == 0
+            && behavior.HandChoice is null && behavior.MainDeckLookCount == 0 && behavior.EffectPlaySourceZone.Length == 0
+            && !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment;
+
+    private static string InsightChoiceId(string prefix, StackItemState item)
+        => prefix + item.StackItemId + (item.CompletedDeckExecutions == 0 ? "" : ":" + item.CompletedDeckExecutions);
+
     // CN 436: Insight privately recycles any subset, then orders retained cards on top.
     // It is an instruction of the same resolving spell, not a new response window.
     private static StackResolutionResult ResolveInsightSpell(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
     {
         if (item.InsightCompleted) return FinishInsight(state, item);
-        var effect = ResolveStackItemEffect(state, item, deferCompletion: true, skipInsight: true);
+        var effect = ResolveStackItemEffect(state, item with { EffectRepeatCount = 1 }, deferCompletion: true, skipInsight: true);
         return BeginInsight(state, item, effect, behavior.InsightCount);
     }
 
@@ -22,7 +33,7 @@ public sealed partial class CoreRuleEngine
             ObjectLocations = effect.ObjectLocations ?? ReconcileObjectLocations(state.ObjectLocations, effect.PlayerZones) };
         var viewed = current.PlayerZones[item.ControllerId].MainDeck.Take(count).ToArray();
         var observationZones=NormalizeZonesForSeats(current);var observationCards=current.CardObjects.ToDictionary();var observationEvents=new List<GameEvent>();
-        viewed=ObserveDeckCards(current,observationZones,observationCards,item,item.ControllerId,viewed,"LOOK",0,observationEvents);
+        viewed=ObserveDeckCards(current,observationZones,observationCards,item,item.ControllerId,viewed,"LOOK",item.CompletedDeckExecutions,observationEvents);
         current=current with {PlayerZones=observationZones,CardObjects=observationCards,ObjectLocations=ReconcileObjectLocations(current.ObjectLocations,observationZones)};
         effect=effect with {PlayerZones=current.PlayerZones,CardObjects=current.CardObjects,ObjectLocations=current.ObjectLocations,
             Events=effect.Events.Concat(observationEvents).ToArray()};
@@ -33,9 +44,9 @@ public sealed partial class CoreRuleEngine
                 CounteredStackItemIds = effect.CounteredStackItemIds,
                 WinnerPlayerId = effect.WinnerPlayerId ?? finished.WinnerPlayerId };
         }
-        var choice = new PendingCardChoiceState("INSIGHT:" + item.StackItemId, "INSIGHT", item.ControllerId,
+        var choice = new PendingCardChoiceState(InsightChoiceId("INSIGHT:", item), "INSIGHT", item.ControllerId,
             0, viewed.Length, viewed, viewed, $"{(item.InsightContext?.Kind=="CONQUEST_LOOK"?"查看":"洞察")} {count}：选择任意数量的牌回收；不选则全部保留。若保留多张，下一步决定顶部顺序。", item.SourceObjectId, item.EffectKind)
-            { DeckContext = new(item.StackItemId, 0) };
+            { DeckContext = new(item.StackItemId, item.CompletedDeckExecutions) };
         return effect with { StackItems = stack, PendingCardChoice = choice,
             Events = effect.Events.Append(new GameEvent("INSIGHT_REQUESTED", "等待玩家私下完成洞察",
                 new Dictionary<string, object?> { ["playerId"] = item.ControllerId,
@@ -85,6 +96,22 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent>();
         var subsequentDraw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId,
             behavior.DrawAfterInsightCount, state.RngCursor, events);
+        if (item.EffectRepeatCount > 1)
+        {
+            events.Add(new("SPELL_EXECUTION_COMPLETED", $"第 {item.CompletedDeckExecutions + 1} 次法术效果完成",
+                new Dictionary<string, object?> { ["stackItemId"] = item.StackItemId,
+                    ["executionIndex"] = item.CompletedDeckExecutions, ["effectKind"] = item.EffectKind,
+                    ["targetObjectIds"] = item.TargetObjectIds }));
+            if (subsequentDraw.WinnerPlayerId is null && item.CompletedDeckExecutions + 1 < item.EffectRepeatCount)
+            {
+                var nextItem = item with { CompletedDeckExecutions = item.CompletedDeckExecutions + 1, InsightCompleted = false };
+                var next = state with { PlayerZones = zones, CardObjects = cards, PlayerScores = subsequentDraw.PlayerScores,
+                    RngCursor = subsequentDraw.RngCursor, ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones),
+                    StackItems = state.StackItems.Select(s => s.StackItemId == item.StackItemId ? nextItem : s).ToArray() };
+                var continued = ResolveInsightSpell(next, nextItem, behavior);
+                return continued with { Events = events.Concat(continued.Events).ToArray() };
+            }
+        }
         CompleteSpellSource(zones, cards, item, behavior);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
             PlayerScores = subsequentDraw.PlayerScores, RngCursor = subsequentDraw.RngCursor, WinnerPlayerId = subsequentDraw.WinnerPlayerId, Events = events,
@@ -116,9 +143,9 @@ public sealed partial class CoreRuleEngine
             }
             if (retained.Length > 1)
             {
-                var order = new PendingCardChoiceState("INSIGHT-ORDER:" + item.StackItemId, "INSIGHT_ORDER", player,
+                var order = new PendingCardChoiceState(InsightChoiceId("INSIGHT-ORDER:", item), "INSIGHT_ORDER", player,
                     retained.Length, retained.Length, retained, retained, "请按从顶到底的顺序选择保留的牌。", item.SourceObjectId, item.EffectKind)
-                    { DeckContext = new(item.StackItemId, 0) };
+                    { DeckContext = new(item.StackItemId, item.CompletedDeckExecutions) };
                 var ordering = state with { Tick = state.Tick + 1, PlayerZones = zones, CardObjects = cards,
                     ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones), RngCursor = rng, PendingCardChoice = order };
                 events.Add(new("INSIGHT_ORDER_REQUESTED", "等待玩家私下决定牌库顶部顺序", new Dictionary<string, object?>
@@ -139,10 +166,14 @@ public sealed partial class CoreRuleEngine
 
     internal static bool ValidInsightChoice(MatchState state, PendingCardChoiceState choice, StackItemState? item)
     {
-        if (item is null || item.InsightCompleted || item.EffectRepeatCount != 1
+        if (item is null || item.InsightCompleted || item.EffectRepeatCount < 1
+            || item.CompletedDeckExecutions < 0 || item.CompletedDeckExecutions >= item.EffectRepeatCount
+            || item.EffectRepeatCount > 1 && (item.InsightContext is not null
+                || !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var repeated) || !SupportsInsightRepeat(repeated))
+            || item.RepeatExecutions is not null || item.DeckChoiceCompleted
             || item.InsightContext is { Kind: "DUEL", PaymentAccepted: false }
             || item.InsightContext is { } capturedSource && !ValidPredictEntryBindings(state, capturedSource, item.SourceObjectId)
-            || choice.DeckContext is not { ExecutionIndex: 0 } context || context.StackItemId != item.StackItemId
+            || choice.DeckContext is not { } context || context.ExecutionIndex != item.CompletedDeckExecutions || context.StackItemId != item.StackItemId
             || choice.PlayerId != item.ControllerId || choice.SourceObjectId != item.SourceObjectId || choice.EffectKind != item.EffectKind
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)) return false;
         var count = item.InsightContext is { } captured && ValidInsightTrigger(captured, item.EffectKind, item.ControllerId, item.CardNo)
@@ -151,9 +182,9 @@ public sealed partial class CoreRuleEngine
         if (count == 0 || viewedCount == 0 || !zones.MainDeck.Take(viewedCount).SequenceEqual(choice.ContextObjectIds)
             || !choice.ContextObjectIds.SequenceEqual(choice.LegalObjectIds)) return false;
         return choice.ChoiceWindow switch {
-            "INSIGHT" => choice.ChoiceId == "INSIGHT:" + item.StackItemId && choice.RequiredCount == 0
-                && choice.MaxCount == (ObservedRemainingDeckCards(state,item,item.ControllerId,0)?.Length ?? Math.Min(count, zones.MainDeck.Count)) && viewedCount == choice.MaxCount,
-            "INSIGHT_ORDER" => choice.ChoiceId == "INSIGHT-ORDER:" + item.StackItemId && viewedCount > 1 && viewedCount <= count
+            "INSIGHT" => choice.ChoiceId == InsightChoiceId("INSIGHT:", item) && choice.RequiredCount == 0
+                && choice.MaxCount == (ObservedRemainingDeckCards(state,item,item.ControllerId,item.CompletedDeckExecutions)?.Length ?? Math.Min(count, zones.MainDeck.Count)) && viewedCount == choice.MaxCount,
+            "INSIGHT_ORDER" => choice.ChoiceId == InsightChoiceId("INSIGHT-ORDER:", item) && viewedCount > 1 && viewedCount <= count
                 && choice.RequiredCount == viewedCount && choice.MaxCount == viewedCount,
             _ => false };
     }
