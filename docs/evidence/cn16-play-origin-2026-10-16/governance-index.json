@@ -1,0 +1,13 @@
+{
+  "status": "CURRENT_GOVERNANCE_AND_SOURCE_INDEX_CONSISTENT_NOT_SEMANTIC_CERTIFICATION",
+  "verifiedAtUtc": "2026-10-15T20:49:04.724521+00:00",
+  "currentReviewCount": 110,
+  "remainingObligationCount": 16485,
+  "errors": [],
+  "semanticCoverageCertified": false,
+  "sourceReport": "var/qa/cn16-runtime-adoption-20261016/governance-final.json",
+  "sourceReportSha256": "620fc52ab6c8c0ea5e5f88dfc8266b76ae86c83e0b9ad31981ea2f41554539ff",
+  "currentManifestSha256": "8aa2afa98d7e84fdbe8c71745d7e2490cc941c09c564efa4c2429cc04fcfc5a0",
+  "checkerSha256": "c9e7fa7cd60e228839e1b293d97ec1425ece7474439da60785679dd842b27659",
+  "scope": "All109 original reviews retained; one bounded review appended. Prior15 contexts/23 implementation pins explicitly reopened; all source universe and old source dates preserved. Fixed full/current-source product remain OPEN."
+}

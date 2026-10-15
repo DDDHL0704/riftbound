@@ -1,0 +1,80 @@
+{
+  "status": "FAILURES_RETAINED_NOT_RELABELED_PASS",
+  "runs": [
+    {
+      "folder": "origin-red-legal-payment",
+      "trxPath": "var/qa/cn16-runtime-adoption-20261016/origin-red-legal-payment/focus/results.trx",
+      "trxSha256": "a439ac32e541988af537596c6e2de277f87e76188f8372e9bb0d9c5aff7f83f4",
+      "failed": [
+        {
+          "name": "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.StayAwayDrawRequiresActualHandPlayAndBelongsToItsResolvingController(fromHand: False, changeControl: True)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 0\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.StayAwayDrawRequiresActualHandPlayAndBelongsToItsResolvingController(fromHand: False, changeControl: False)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 0\nActual:   1"
+        }
+      ]
+    },
+    {
+      "folder": "origin-causal-deck",
+      "trxPath": "var/qa/cn16-runtime-adoption-20261016/origin-causal-deck/focus/results.trx",
+      "trxSha256": "9839aaf7173a8fd09c6bfd289aadc036f9f8e9a7d538771ad193b93abca3a8cc",
+      "failed": [
+        {
+          "name": "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews(fromHand: True)",
+          "outcome": "Failed",
+          "message": "Riftbound.Engine.MatchSessionException : match recovery action-log audit failed: action-log replay initial state turn number 5 must be 1; action-log replay initial state rune pool for P1 must be empty; action-log replay initial state rune pool for P2 must be empty; action-log replay initial state zones for P1 must be empty; action-log replay initial state zones for P2 must be empty; action-log replay initial state score players must match seats; action-log replay initial state experience players must match seats; action-log replay initial state card objects must be empty; action-log replay initial state object locations must be empty; action-log replay initial state status IN_PROGRESS must be SEATING; action-log replay initial state phase MAIN must be ROOM; action-log replay initial state timing state NEUTRAL_OPEN must be ROOM"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews(fromHand: False)",
+          "outcome": "Failed",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"command defend-step-0 starts at tick 9 but previou\"···]"
+        }
+      ]
+    },
+    {
+      "folder": "origin-normal-opening",
+      "trxPath": "var/qa/cn16-runtime-adoption-20261016/origin-normal-opening/focus/results.trx",
+      "trxSha256": "3a84e85d9db7c75fdab9f6cc2169a5d52cabdafccdc09c5753a60b0548fb0637",
+      "failed": [
+        {
+          "name": "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews(fromHand: True)",
+          "outcome": "Failed",
+          "message": "Riftbound.Engine.MatchSessionException : match recovery validation failed: command normal-origin-18 raw PLAY_CARD optionalCosts must be an array; command normal-origin-19 raw PLAY_CARD optionalCosts must be an array"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews(fromHand: False)",
+          "outcome": "Failed",
+          "message": "Riftbound.Engine.MatchSessionException : 玩家编号不能为空。"
+        }
+      ]
+    },
+    {
+      "folder": "origin-normal-opening-wire",
+      "trxPath": "var/qa/cn16-runtime-adoption-20261016/origin-normal-opening-wire/focus/results.trx",
+      "trxSha256": "734d1ac0c4036aae53bb70d02fd4f0bb9b21a371bc05802671d0cc10be988fa5",
+      "failed": [
+        {
+          "name": "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews(fromHand: False)",
+          "outcome": "Failed",
+          "message": "System.InvalidOperationException : Sequence contains no matching element"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews(fromHand: True)",
+          "outcome": "Failed",
+          "message": "Riftbound.Engine.MatchSessionException : match recovery action-log audit failed: action-log replay initial state seed 424242 must be 0"
+        }
+      ]
+    }
+  ],
+  "interpretation": {
+    "origin-red-legal-payment": "Two actual standby-origin branches drew one extra card before the production repair; both actual hand controls passed.",
+    "origin-causal-deck": "Initial midgame causal fixtures failed the existing production normal-opening guard; guard preserved, replaced by genuinely empty-opening ordinary commands.",
+    "origin-normal-opening": "Raw null optional-cost encoding and inactive retained duel focus routing were corrected in new test construction, not in production security.",
+    "origin-normal-opening-wire": "Nonzero opening seed and an extra pass after duel closure were corrected in new test construction; production remains defaultseed0.",
+    "final": "Canonical empty-opening2, current-source43 and affected147 focus passed; no original test source/row/assertion was changed."
+  }
+}

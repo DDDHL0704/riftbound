@@ -1,0 +1,855 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-10-15T20:21:43.53338+00:00",
+  "sourceBaseCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+  "sourceRoomId": "normal-origin-False",
+  "sourceStateHash": "f19f7dfb9f598cdb7aae505761a3b0fc393f4d1b78a49deff06f95fe7b527211",
+  "capturedRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "38b05aea450e6a6f4ffbe5b65be9d46dfa56ce2a4117adcbc25919400796b501",
+    "identitySha256": "d2cfa3830a671482fcf15e52ef05ba7e4695bfd202aa6b351617c5504a4a2b35"
+  },
+  "scope": "Fresh legal CN16 ordinary commands from tick-zero empty seating; only submitted decklists and actual command targets are exported. No authoritative snapshot, future deck order, old-match migration or source certification.",
+  "expectedCardNo": "UNL-042/219",
+  "expectedSourceObjectId": "P1-MAIN-UNL-042-219-03",
+  "expectedPlayedFromHand": false,
+  "seats": {
+    "P1": "P1",
+    "P2": "P2"
+  },
+  "acceptedCommands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-0",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "UNL-189/219",
+        "championCardNo": "UNL-082/219",
+        "mainDeck": [
+          "UNL-082/219",
+          "UNL-042/219",
+          "UNL-042/219",
+          "UNL-042/219",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7044/298",
+          "OGN\u00B7044/298",
+          "OGN\u00B7044/298",
+          "OGN\u00B7052/298",
+          "OGN\u00B7052/298",
+          "OGN\u00B7052/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "SFD\u00B7036/221",
+          "SFD\u00B7036/221",
+          "SFD\u00B7036/221",
+          "SFD\u00B7041/221",
+          "SFD\u00B7041/221",
+          "SFD\u00B7041/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "UNL-036/219",
+          "UNL-036/219",
+          "UNL-036/219",
+          "UNL-040/219",
+          "UNL-040/219",
+          "UNL-040/219",
+          "UNL-053/219",
+          "UNL-053/219",
+          "UNL-053/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7042/298",
+          "OGN\u00B7042a/298",
+          "OGN\u00B7042b/298",
+          "OGN\u00B7089/298",
+          "OGN\u00B7089a/298",
+          "OGN\u00B7089b/298",
+          "SFD\u00B7R02",
+          "SFD\u00B7R02a",
+          "SFD\u00B7R02b",
+          "SFD\u00B7R03",
+          "SFD\u00B7R03a",
+          "SFD\u00B7R03b"
+        ],
+        "battlefields": [
+          "OGN\u00B7277/298",
+          "OGN\u00B7278/298",
+          "OGN\u00B7294/298"
+        ],
+        "cmdType": "SUBMIT_DECK"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-1",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "UNL-189/219",
+        "championCardNo": "UNL-082/219",
+        "mainDeck": [
+          "UNL-082/219",
+          "UNL-042/219",
+          "UNL-042/219",
+          "UNL-042/219",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7044/298",
+          "OGN\u00B7044/298",
+          "OGN\u00B7044/298",
+          "OGN\u00B7052/298",
+          "OGN\u00B7052/298",
+          "OGN\u00B7052/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "SFD\u00B7036/221",
+          "SFD\u00B7036/221",
+          "SFD\u00B7036/221",
+          "SFD\u00B7041/221",
+          "SFD\u00B7041/221",
+          "SFD\u00B7041/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "UNL-036/219",
+          "UNL-036/219",
+          "UNL-036/219",
+          "UNL-040/219",
+          "UNL-040/219",
+          "UNL-040/219",
+          "UNL-053/219",
+          "UNL-053/219",
+          "UNL-053/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7042/298",
+          "OGN\u00B7042a/298",
+          "OGN\u00B7042b/298",
+          "OGN\u00B7089/298",
+          "OGN\u00B7089a/298",
+          "OGN\u00B7089b/298",
+          "SFD\u00B7R02",
+          "SFD\u00B7R02a",
+          "SFD\u00B7R02b",
+          "SFD\u00B7R03",
+          "SFD\u00B7R03a",
+          "SFD\u00B7R03b"
+        ],
+        "battlefields": [
+          "OGN\u00B7277/298",
+          "OGN\u00B7278/298",
+          "OGN\u00B7294/298"
+        ],
+        "cmdType": "SUBMIT_DECK"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-2",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-3",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-4",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-5",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-6",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-7",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-8",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-9",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-10",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-11",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-12",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-13",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-14",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-15",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-16",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-17",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-18",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-19",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-20",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-21",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-22",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-23",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-24",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-25",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-26",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-27",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-28",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-29",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-30",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-31",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-32",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-33",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-34",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-35",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-36",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-37",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-38",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-39",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-40",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-41",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-42",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-43",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-44",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-45",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-46",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-47",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-48",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-49",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-50",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-51",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-52",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-53",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-54",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-55",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-56",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-57",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-58",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-59",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-60",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-SFD-R03b-12",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-61",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-089a-298-05",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-62",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-042b-298-03",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-63",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-089-298-04",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-64",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-089b-298-06",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-65",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-SFD-R02-07",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-66",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-SFD-R02b-09",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-67",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-SFD-R03-10",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-68",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-SFD-R02a-08",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-69",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-042a-298-02",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-70",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-71",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-042-298-01",
+        "cmdType": "TAP_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-72",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-OGN-096-298-04",
+        "cardNo": "OGN\u00B7096/298",
+        "targetObjectIds": [],
+        "mode": "",
+        "optionalCosts": [],
+        "destination": "",
+        "cmdType": "PLAY_CARD"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-73",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-74",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-75",
+      "commandType": "MOVE_UNIT",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-OGN-096-298-04",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:P1-BATTLEFIELD-OGN-294-298-01",
+        "optionalCosts": [],
+        "cmdType": "MOVE_UNIT"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-76",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-77",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-78",
+      "commandType": "RECYCLE_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-SFD-R03b-12",
+        "cmdType": "RECYCLE_RUNE"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-79",
+      "commandType": "HIDE_CARD",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-UNL-042-219-03",
+        "cardNo": "UNL-042/219",
+        "destination": "BATTLEFIELD:P1-BATTLEFIELD-OGN-294-298-01",
+        "optionalCosts": [
+          "STANDBY_A"
+        ],
+        "cmdType": "HIDE_CARD"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-80",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-origin-81",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-origin-82",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "P1-MAIN-UNL-042-219-03",
+        "cardNo": "UNL-042/219",
+        "targetObjectIds": [
+          "P1-MAIN-OGN-096-298-04"
+        ],
+        "mode": "",
+        "optionalCosts": [],
+        "destination": "",
+        "cmdType": "PLAY_CARD"
+      }
+    }
+  ]
+}

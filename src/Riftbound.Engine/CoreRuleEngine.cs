@@ -3576,7 +3576,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
             destination: destination,
-            timingContext: StackTimingContextForNewStackItem(state)) { PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
+            timingContext: StackTimingContextForNewStackItem(state)) { PlayedFromHand = state.PlayerZones.Values.Any(z => z.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal)),
+                PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
                 AfterPlayRecycle = RecycleInstructionFor(state),
                 PlayCost = IsSpellPlayBehavior(behavior) ? new(cardObjects.TryGetValue(command.SourceObjectId, out var playedSource) ? EffectiveCardManaCost(playedSource, behavior) : behavior.ManaCost, plan.TotalManaCost) : null,
                 TargetStackSources = state.StackItems.Where(item => (plan.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? targetObjectIds)
@@ -33051,6 +33052,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardDrawConditionKinds.None => true,
             CardDrawConditionKinds.TargetDestroyedByThisEffect => destroyedObjectIds.Count > 0,
             CardDrawConditionKinds.PlayedAfterAnotherCardThisTurn => stackItem.PlayedAfterAnotherCardThisTurn,
+            CardDrawConditionKinds.PlayedFromHand => stackItem.PlayedFromHand,
             _ => false
         };
     }

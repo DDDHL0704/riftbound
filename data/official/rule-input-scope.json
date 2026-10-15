@@ -2,30 +2,41 @@
   "schemaVersion": 1,
   "region": "CN",
   "language": "zh-CN",
-  "applicabilityDate": "2026-10-14",
-  "primaryCoreId": "DOC-04",
+  "applicabilityDate": "2026-10-16",
+  "primaryCoreId": "DOC-01",
   "adoptedSources": [
     {
-      "id": "DOC-04",
-      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
-      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
-      "versionDate": "2026-07-17",
-      "effectiveDate": null,
+      "id": "DOC-01",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "versionDate": "2026-10-10",
+      "effectiveDate": "2026-10-16",
       "region": "CN",
       "language": "zh-CN",
       "role": "PRIMARY_CORE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "SCHEDULED_CN_DATE_REACHED_SOURCE_VERSION_ONLY_NOT_COMPLETE_SEMANTIC_CERTIFICATION"
     },
     {
-      "id": "DOC-05",
-      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/836060c4535a4f71af5e8cff575097f1.pdf",
-      "sha256": "1fb6e2f7d6a5608d52aba156d5ee1a6f6127a15ed2a5fc02f2bbbcce86f78569",
-      "versionDate": "2026-07-17",
-      "effectiveDate": null,
+      "id": "DOC-02",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+      "sha256": "4d50574d355d57ba4de766243717320a9471951976e230bb9f91b78ab1dde74d",
+      "versionDate": "2026-10-10",
+      "effectiveDate": "2026-10-16",
       "region": "CN",
       "language": "zh-CN",
-      "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "role": "REGIONAL_TOURNAMENT_REFERENCE",
+      "applicability": "SCHEDULED_CN_DATE_REACHED_SOURCE_VERSION_ONLY_NOT_COMPLETE_SEMANTIC_CERTIFICATION"
+    },
+    {
+      "id": "DOC-03",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf",
+      "sha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+      "versionDate": "2026-10-10",
+      "effectiveDate": "2026-10-16",
+      "region": "CN",
+      "language": "zh-CN",
+      "role": "REGIONAL_ERRATA_RAD_PREVIEW_NO_RUNTIME_CARDS",
+      "applicability": "SCHEDULED_CN_DATE_REACHED_SOURCE_VERSION_ONLY_NOT_COMPLETE_SEMANTIC_CERTIFICATION"
     },
     {
       "id": "DOC-06",
@@ -36,7 +47,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-07",
@@ -47,7 +58,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-08",
@@ -58,7 +69,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-09",
@@ -69,7 +80,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-10",
@@ -80,7 +91,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-11",
@@ -91,7 +102,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-12",
@@ -102,7 +113,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-13",
@@ -113,7 +124,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-14",
@@ -124,7 +135,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-15",
@@ -135,7 +146,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "DOC-16",
@@ -146,7 +157,7 @@
       "region": "CN",
       "language": "zh-CN",
       "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
-      "applicability": "ADOPTED_CN_AS_OF_2026_10_14_UNKNOWN_EFFECTIVE_DATES_RETAINED"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-01",
@@ -158,7 +169,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-02",
@@ -170,7 +181,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-03",
@@ -182,7 +193,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-04",
@@ -194,7 +205,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-05",
@@ -206,7 +217,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-06",
@@ -218,7 +229,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-07",
@@ -230,7 +241,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-08",
@@ -242,7 +253,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-09",
@@ -254,7 +265,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-10",
@@ -266,7 +277,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-11",
@@ -278,7 +289,7 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     },
     {
       "id": "GLOBAL-SUPPLEMENT-12",
@@ -290,23 +301,23 @@
       "region": "GLOBAL",
       "language": "en-US",
       "role": "SUPPLEMENTAL_CN_PREVAILS",
-      "applicability": "PRE_RADIANCE_REFERENCE_NOT_CN_OVERRIDE"
+      "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
     }
   ],
   "cardQa": {
     "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
-    "sha256": "04a09970df5feb29a73df0a23efb3dc51f52096a245514407904dab9e3fd07cc",
-    "hashFormat": "UTF-8 JSON entries sorted by numeric id, sorted keys, compact separators, unescaped Unicode",
-    "snapshotSha256": "e34bd71b35fd28e7c6e6596da3f9cb04d9ee1e22dba05c3810cc21bbed9994a5",
-    "entries": 1502,
-    "snapshotDate": "2026-10-14",
+    "sha256": "0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c",
+    "hashFormat": "UTF-8 JSON entries with id/cardNo/cardQaList/fieldPresent sorted by numeric id, sorted keys, compact separators, unescaped Unicode",
+    "snapshotSha256": "b876ac1accf224fec5df215e895025d76fbd49027cc6f05905ddbca0fd93ae20",
+    "entries": 1504,
+    "snapshotDate": "2026-10-16",
     "effectiveDate": null,
     "status": "SOURCE_VERSION_ONLY_NOT_SEMANTIC_CERTIFICATION"
   },
-  "excludedFutureSourceIds": [
-    "DOC-01",
-    "DOC-02",
-    "DOC-03"
-  ],
-  "semanticCoverageCertified": false
+  "excludedFutureSourceIds": [],
+  "semanticCoverageCertified": false,
+  "supersededSourceIds": {
+    "DOC-04": "DOC-01",
+    "DOC-05": "DOC-02"
+  }
 }

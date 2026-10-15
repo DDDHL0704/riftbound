@@ -360,6 +360,7 @@ public static class CardDrawConditionKinds
     public const string None = "NONE";
     public const string TargetDestroyedByThisEffect = "TARGET_DESTROYED_BY_THIS_EFFECT";
     public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
+    public const string PlayedFromHand = "PLAYED_FROM_HAND";
 }
 
 public static class CardDynamicDrawCountKinds
@@ -564,7 +565,8 @@ public static class CardBehaviorRegistry
             0,
             "STUNNED",
             1,
-            TargetScope: CardTargetScopes.AnyUnit),
+            TargetScope: CardTargetScopes.AnyUnit,
+            DrawConditionKind: CardDrawConditionKinds.PlayedFromHand),
         new(
             "SFD·040/221",
             "扑咚！",

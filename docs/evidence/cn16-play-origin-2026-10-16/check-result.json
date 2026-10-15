@@ -1,0 +1,64 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "baseCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+  "singleCoherentBatchCheck": true,
+  "cases": 11903,
+  "methods": 7207,
+  "wholeSuiteDiscoveredMethods": 7348,
+  "seconds": 384.81,
+  "failed": 0,
+  "skipped": 0,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "oldCaseCount": 11891,
+  "oldMethodCount": 7200,
+  "addedCases": {
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.StayAwayDrawRequiresActualHandPlayAndBelongsToItsResolvingController(fromHand: False, changeControl: False)": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.StayAwayDrawRequiresActualHandPlayAndBelongsToItsResolvingController(fromHand: False, changeControl: True)": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.OriginRoundTripsExplicitlyAndCannotDefaultAMissingSerializedFact(fromHand: True)": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.OriginRoundTripsExplicitlyAndCannotDefaultAMissingSerializedFact(fromHand: False)": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ARealFizzGraveyardRecastDoesNotBecomeAHandPlay": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.StayAwayDrawRequiresActualHandPlayAndBelongsToItsResolvingController(fromHand: True, changeControl: False)": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews(fromHand: False)": 1,
+    "Riftbound.ConformanceTests.Cn16RuleInputSelectionTests.AWellFormedActualPriorAuthorityCannotRunUnderTheCurrentImplementation": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews(fromHand: True)": 1,
+    "Riftbound.ConformanceTests.Cn16RuleInputSelectionTests.ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.AnObservedOpponentDeckCardReallyPlayedFromExileDoesNotDrawAsAHandPlay": 1,
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.StayAwayDrawRequiresActualHandPlayAndBelongsToItsResolvingController(fromHand: True, changeControl: True)": 1
+  },
+  "addedMethods": [
+    "Riftbound.ConformanceTests.Cn16RuleInputSelectionTests.AWellFormedActualPriorAuthorityCannotRunUnderTheCurrentImplementation",
+    "Riftbound.ConformanceTests.Cn16RuleInputSelectionTests.ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics",
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ARealFizzGraveyardRecastDoesNotBecomeAHandPlay",
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.AnObservedOpponentDeckCardReallyPlayedFromExileDoesNotDrawAsAHandPlay",
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.OriginRoundTripsExplicitlyAndCannotDefaultAMissingSerializedFact",
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.ProductionRecoveryRejectsAFlippedOriginEvenWithMatchingForgedViews",
+    "Riftbound.ConformanceTests.ConfirmedPlayOriginTests.StayAwayDrawRequiresActualHandPlayAndBelongsToItsResolvingController"
+  ],
+  "all424OriginalConformanceSourcesByteIdentical": true,
+  "original143FullGameMethods110Pairs424242SourceRetained": true,
+  "inputCount": 2892,
+  "frozenInputsUnchanged": true,
+  "inputCaptureTiming": "Captured after the one check command launched: preflight printed a nonexistent remainingObligationCount field and stopped before writing the map. No source/bin edits occurred. All1492 prior SQL frozen inputs,424 prior test sources and all preexisting new-context implementation/verification pins independently match. This is not labeled a before-launch full input freeze.",
+  "independentBeforeLaunchPins": {
+    "sqlInputCount": 1492,
+    "originalTestSourceCount": 424,
+    "newContextPins": 11,
+    "allMatch": true
+  },
+  "inputs": {
+    "path": "docs/evidence/cn16-play-origin-2026-10-16/check-inputs.json",
+    "sha256": "baceb4dd8f06f33659044d4beb61fb3a11784d63682e92a21c0829520a82ca9f"
+  },
+  "trx": [
+    {
+      "path": "var/qa/cn16-runtime-adoption-20261016/check/check/results.trx",
+      "sha256": "0134904176ab4c7a220af269a1853f270d5e64106e6eceb3fe3c901ba1f24454"
+    }
+  ],
+  "testAssemblySha256": "56b8292eaffb2bf3026417c891f2c319ba18a97d125e1029465e343ef0ee0ce9",
+  "fixedFull": "PENDING_NEW_COMMIT",
+  "visibleCurrentCn16Product": "OPEN",
+  "windowsPhysical": "OPEN",
+  "semanticCoverageCertified": false
+}

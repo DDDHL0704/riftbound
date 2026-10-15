@@ -20640,6 +20640,64 @@
         "fixedFull": "PENDING",
         "product": "OPEN"
       }
+    },
+    {
+      "id": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "status": "SCOPED_CN16_HAND_ORIGIN_FOCUS_SQL_PASS_NEW_FIXED_FULL_PRODUCT_OPEN",
+      "scope": "Actual CN16/DOC01 source-version selection plus exact id34570 UNL042 hand/standby condition, resolving controller, two actual nonhand permissions and immutable causal origin fact. Limited review is not whole-printing, whole-clause or family certification.",
+      "subjects": [
+        "UNL-042/219"
+      ],
+      "ruleRecords": [
+        "DOC-01-P013-B011",
+        "DOC-01-P013-B012",
+        "DOC-01-P014-B001",
+        "DOC-01-P076-B002"
+      ],
+      "auditDocument": "docs/CN16_CONFIRMED_PLAY_ORIGIN_AUDIT_2026-10-16.md",
+      "evidence": "docs/evidence/cn16-play-origin-2026-10-16",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-16",
+        "runtimeRuleInputDate": "2026-10-16",
+        "primaryCoreId": "DOC-01",
+        "exactSourceRecordId": 34570,
+        "unknownPublicationAndEffectiveDatesPreserved": true
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "src/Riftbound.Engine/MatchSession.cs",
+        "data/official/rule-input-scope.json"
+      ],
+      "remaining": [
+        "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
+        "CN16 new fixed full, actual visible paired SQL/reconnect/private-choice/normal-score/original-opening replay and post-result next-room lifecycle",
+        "Independent Windows physical runtime, native custom deck editing and lobby issue37",
+        "All official source gaps, new source changes, current applicability and full-universe semantic obligations"
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 12,
+        "newMethods": 7,
+        "latestCurrentSourceFocusCases": 43,
+        "adjacentCases": 147,
+        "adjacentMethods": 73,
+        "originalFullGameMethods": 4,
+        "all424OriginalTestSourcesByteUnchanged": true,
+        "actualSqlScenarios": 69,
+        "newActualSqlSnapshotTamperRejections": 4,
+        "check": "SINGLE_CHECK_PASS_11903_CASES_7207_METHODS",
+        "fixedFull": "PENDING",
+        "product": "OPEN",
+        "checkReceipt": {
+          "path": "docs/evidence/cn16-play-origin-2026-10-16/check-result.json",
+          "sha256": "69ddb115af91c465337ea58ba82cdd9edad0ee0c36d32e0af100aada60b33167"
+        }
+      }
     }
   ]
 }

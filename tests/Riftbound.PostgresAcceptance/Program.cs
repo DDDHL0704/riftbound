@@ -116,6 +116,7 @@ await CardPlayHistoryCausalSqlAcceptance.RunAsync(dataSource, Path.Combine(outpu
 await ClairvoyanceSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "clairvoyance"));
 await InsightRepeatSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "insight-repeat"));
 await CombatAssignmentSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "combat-assignment"));
+await ConfirmedPlayOriginSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "confirmed-play-origin"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

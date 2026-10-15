@@ -1,0 +1,37 @@
+{
+  "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+  "room": "normal-origin-False",
+  "fromHand": false,
+  "cardNo": "UNL-042/219",
+  "sourceId": "P1-MAIN-UNL-042-219-03",
+  "originalCommands": 83,
+  "originalEvents": 591,
+  "finalCommands": 85,
+  "finalEvents": 595,
+  "acceptedHistorySha256": "9c77a97b25e1f7be3f681fabb5cf10496a427c85fd3a5b727935ea03cfec31ec",
+  "checks": [
+    {
+      "mutation": "flipped-origin",
+      "structuralValidationPassed": true,
+      "productionRegistryRejected": true
+    },
+    {
+      "mutation": "missing-origin",
+      "structuralValidationPassed": false,
+      "productionRegistryRejected": true
+    }
+  ],
+  "drawEvents": 0,
+  "finalHash": "c7623f27526fc73a4227fb10cc5a20a67ed33922d157de037c04a605162f4472",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "38b05aea450e6a6f4ffbe5b65be9d46dfa56ce2a4117adcbc25919400796b501",
+    "identitySha256": "d2cfa3830a671482fcf15e52ef05ba7e4695bfd202aa6b351617c5504a4a2b35"
+  },
+  "fixtureSha256": "dfc9cebb8f785717b251ac8226ec3a2725aefe1c27d8601d38159d1893086a9e",
+  "scope": "Fresh empty-opening hand/standby commands in actual SQL; snapshot-only flipped/missing source rejection, unchanged accepted history, exact restoration, cold resolution and full command/event/state replay. Other origins/control branches and whole-card certification remain separate."
+}

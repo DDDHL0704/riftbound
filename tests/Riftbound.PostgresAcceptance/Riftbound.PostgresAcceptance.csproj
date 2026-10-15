@@ -4,5 +4,9 @@
     <ProjectReference Include="../../src/Riftbound.Persistence/Riftbound.Persistence.csproj" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/card-play-history-actual-opening-339c.json"
              Link="Fixtures/card-play-history-actual-opening-339c.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json"
+             Link="Fixtures/confirmed-play-origin-hand-cn16.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-standby-cn16.json"
+             Link="Fixtures/confirmed-play-origin-standby-cn16.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
