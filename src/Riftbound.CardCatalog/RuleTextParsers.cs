@@ -1173,6 +1173,16 @@ public static class TriggerParser
                 ScoreAmount: ParseChineseNumber(unitConquestAttackOverkillGainScoreMatch.Groups[2].Value));
         }
 
+        var conquestPlayedTypesScore = Regex.Match(segment,
+            @"^当我征服一处战场时，如果你在本回合内打出了一名非指示物单位、一件非指示物装备和一个法术，则你获得([0-9一两二三四五六七八九十]+)分。?$",
+            RegexOptions.CultureInvariant);
+        if (conquestPlayedTypesScore.Success)
+            return new TriggerSpec(TriggerKinds.UnitConquestPlayedUnitEquipmentSpellGainScore,
+                TriggerTimings.UnitConquest, segment,
+                "Requires non-token unit, non-token equipment and spell plays by the controller in the current turn at conquest. A multi-type play may satisfy both permanent types. Parsed only; runtime history semantics and execution require separate implementation and evidence.",
+                TargetScope: TriggerTargetScopes.SourceUnit,
+                ScoreAmount: ParseChineseNumber(conquestPlayedTypesScore.Groups[1].Value));
+
         var unitConquestCreateDormantGoldMatch = Regex.Match(
             segment,
             @"当我征服一处战场时，打出([0-9一两二三四五六七八九十]+)?个休眠的“金币”装备指示物。?$",

@@ -1,0 +1,29 @@
+{
+  "status": "SOURCE_CLASSIFICATION_FOCUS_PASS",
+  "newMethods": 2,
+  "newCases": 8,
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ExactCurrentSourcesKeepIdentityAndConjunctiveConquestCondition",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ChangedConditionsCannotSilentlyBecomeSwainsExactTrigger"
+  ],
+  "execution": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 41.09,
+    "total": 25,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 8.92
+      }
+    ]
+  },
+  "trxPath": "var/qa/ven-swain-20261015/focus-classification/focus/results.trx",
+  "trxSha256": "76b705366b9415fc9fcdf76ac5a8953c2c2033c61b557e48ad2061fb7a49cf03",
+  "scope": "Parser/source identity only, including 6 semantically altered negative clauses. Adjacent natural conquest and modern catalog schema cases retained. No runtime Swain/native/SQL certification."
+}

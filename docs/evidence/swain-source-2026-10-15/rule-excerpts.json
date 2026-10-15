@@ -1,0 +1,104 @@
+[
+  {
+    "id": "DOC-04-P059-B004",
+    "document": "DOC-04",
+    "page": 59,
+    "clauseAnchors": [
+      "383.2.a.1"
+    ],
+    "text": "383.2.a.1.              如果某个附加条件分句紧跟在条件之后,则只有该附加条件成立时,该条件才视为满足。此类\n                        条件分句属于触发条件的一部分,而非效果的一部分。\n                                举例:“娑娜 - 清心谐律”的描述为:“在你回合结束时,如果我位于战场上,则让最多\n                                四枚友方符文变为活跃状态。”虽然一到回合结束步骤就会满足她的触发式技能条件,\n                                但只有她在触发条件满足时位于战场上时,她的触发式技能才会进入结算链。如果她\n                                因该触发式技能受到反应而被移出战场,该技能仍会结算。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P062-B014",
+    "document": "DOC-04",
+    "page": 62,
+    "clauseAnchors": [
+      "383.4.g.1"
+    ],
+    "text": "383.4.g.1.                   为此,该玩家需检查所有指定效果的条件,并将条件中的具名部分视为已满足。\n                                  举例:“清算人竞技场”的描述为:“当你据守此处时,激活此处所有单位的征服效\n                                  果。”对于战场上的每名单位,你都需要检查其征服效果的触发条件是否已满足,并将\n                                  条件中的征服部分视为已满足。如果征服效果的所有条件都已满足,该效果会被视为\n                                  刚触发而加入结算链。如果除征服部分外的其他条件有任何一项未满足,则该效果不\n                                  会加入结算链。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B013",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.4"
+    ],
+    "text": "419.4.            某些技能则会在卡牌打出时触发,或者会检查卡牌是否打出。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B014",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.4.a"
+    ],
+    "text": "419.4.a.               所有这类触发式技能会在卡牌效果的结算使打出卡牌的动作完成时触发。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B015",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.4.a.1"
+    ],
+    "text": "419.4.a.1.                   如果有游戏效果阻止了卡牌的结算(如卡牌被无效化),则以“卡牌打出”作为触发条件的技能也\n                             不会触发。\n                                   想获取更多有关信息,请查阅规则 425.无效化。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P071-B016",
+    "document": "DOC-04",
+    "page": 71,
+    "clauseAnchors": [
+      "419.4.b"
+    ],
+    "text": "419.4.b.               检查卡牌是否被打出的非触发式技能,是通过引用这些卡牌是否已被确认来检查。\n                             举例:一名玩家打出一张法术牌,但该法术因“蔑视”而被无效化。由该玩家控制的游戏物体的所\n                             有“鼓舞”技能都会生效。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-06-P012-B002",
+    "document": "DOC-06",
+    "page": 12,
+    "clauseAnchors": [],
+    "text": "如果我在本回合内只打出了“散装机械魄罗”和“‘‘敲’诈”,并通过“斯维因 - 远谋卓识”征服了一处\n战场,此时会发生什么?",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-06-P012-B003",
+    "document": "DOC-06",
+    "page": 12,
+    "clauseAnchors": [],
+    "text": "斯维因的技能将会成功触发,你会在其结算时获得 1 分。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-06-P012-B004",
+    "document": "DOC-06",
+    "page": 12,
+    "clauseAnchors": [],
+    "text": "斯维因只会检查你是否打出了一名非指示物单位、一件非指示物装备和一个法术。此类检查并不\n会区分这些条件是由多张卡牌分别满足,还是由一张同时符合多个相关条件的卡牌满足。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "9304292a77c851f50a133054bb168b59bfbab83b247f3b546a60267d91ece4fd"
+      "sha256": "c1d1cca190e831272fca983fc6babbcade62a1eb682864a75c04f21892e97cde"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -267,7 +267,7 @@
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
-          "sha256": "038ff1aad6ccfb745654aaa28f29433514c2304386e108a7ce97a42f1c282a30"
+          "sha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -560,7 +560,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+      "currentImplementationCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
     },
@@ -2783,11 +2783,11 @@
       "implementation": [
         {
           "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
-          "sha256": "69787e94e73caad9d294401ffb10753fb978640be18422621f835f5c47258278"
+          "sha256": "597c7f38b2fdeaa6f43cc664069a594968122fefe1d7ecb1c36011a5048bcb35"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
-          "sha256": "038ff1aad6ccfb745654aaa28f29433514c2304386e108a7ce97a42f1c282a30"
+          "sha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a"
         },
         {
           "path": "src/Riftbound.Engine/BattlefieldTriggerSpecRules.cs",
@@ -2936,7 +2936,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+      "currentImplementationCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
@@ -4533,6 +4533,77 @@
       "evidenceCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
       "currentImplementationCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
       "currentImplementationIncludesUncommittedChanges": true
+    },
+    "swain-source-identity-and-conquest-clause-classification-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+          "sha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a"
+        },
+        {
+          "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+          "sha256": "597c7f38b2fdeaa6f43cc664069a594968122fefe1d7ecb1c36011a5048bcb35"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/swain-source-2026-10-15/source.json",
+          "sha256": "20bd2fdeaced636d50ec0444f634f13d881a3500bb49a661e1f56db895fc7e9a",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/swain-source-2026-10-15/focus.json",
+          "sha256": "f9975d89488a49076ecc2d3d9e77fac5276f39c13efec36c81fc6883c2644a99",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/swain-source-2026-10-15/check-parity.json",
+          "sha256": "fbea5f5627042a66949efa0f97455330f8503e30580d22c4cc83bf9bb5cf9730",
+          "role": "check"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
+      "currentImplementationCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "branches": [
+        {
+          "id": "source-identity-and-applicability",
+          "sourceRefs": [
+            "VEN-065",
+            "VEN-173"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "RUNTIME_IMPLEMENTATION_AND_WHOLE_PRINTING_SEMANTICS"
+          ]
+        },
+        {
+          "id": "exact-conquest-clause-parser",
+          "sourceRefs": [
+            "VEN-065",
+            "VEN-173",
+            "DOC-06-P012-B004"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "RUNTIME_PLAY_HISTORY_AND_CONQUEST_EXECUTION"
+          ]
+        },
+        {
+          "id": "play-history-query-semantics",
+          "sourceRefs": [
+            "DOC-04-P071-B014",
+            "DOC-04-P071-B015",
+            "DOC-04-P071-B016"
+          ],
+          "state": "OPEN",
+          "remaining": [
+            "CONFIRMED_VS_COMPLETED_HISTORY_ADJUDICATION_AND_EXECUTABLE_COUNTERED_PENDING_SUCCESS_CASES"
+          ]
+        }
+      ]
     }
   },
   "acceptanceGates": [

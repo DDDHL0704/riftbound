@@ -1,0 +1,43 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "cases": 11665,
+  "methods": 7128,
+  "seconds": 234.87,
+  "failed": 0,
+  "skipped": 0,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "oldCases": 11657,
+  "oldMethods": 7126,
+  "missingCases": [],
+  "missingMethods": [],
+  "addedCases": [
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ChangedConditionsCannotSilentlyBecomeSwainsExactTrigger(text: \"当我征服一处战场时，如果你在上回合内打出了一名非指示物单位、一件非指示物装备和一个法术，则你获得1分\"···)",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ChangedConditionsCannotSilentlyBecomeSwainsExactTrigger(text: \"当我征服一处战场时，如果你在本回合内打出了一名单位、一件非指示物装备和一个法术，则你获得1分。\")",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ChangedConditionsCannotSilentlyBecomeSwainsExactTrigger(text: \"当我征服一处战场时，如果你在本回合内打出了一名非指示物单位、一件装备和一个法术，则你获得1分。\")",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ChangedConditionsCannotSilentlyBecomeSwainsExactTrigger(text: \"当我征服一处战场时，如果你在本回合内打出了一名非指示物单位、一件非指示物装备和一个法术，则对手获得1\"···)",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ChangedConditionsCannotSilentlyBecomeSwainsExactTrigger(text: \"当我征服一处战场时，如果你在本回合内打出了一名非指示物单位、一件非指示物装备或一个法术，则你获得1分\"···)",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ChangedConditionsCannotSilentlyBecomeSwainsExactTrigger(text: \"当我据守一处战场时，如果你在本回合内打出了一名非指示物单位、一件非指示物装备和一个法术，则你获得1分\"···)",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ExactCurrentSourcesKeepIdentityAndConjunctiveConquestCondition(id: 37876, apiNo: \"VEN·173\", printedNo: \"VEN·173/166\", englishId: \"ven-173-166\")",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ExactCurrentSourcesKeepIdentityAndConjunctiveConquestCondition(id: 37937, apiNo: \"VEN·065\", printedNo: \"VEN·065/166\", englishId: \"ven-065-166\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ChangedConditionsCannotSilentlyBecomeSwainsExactTrigger",
+    "Riftbound.ConformanceTests.SwainSourceClassificationTests.ExactCurrentSourcesKeepIdentityAndConjunctiveConquestCondition"
+  ],
+  "frozenInputsUnchanged": true,
+  "frozenInputCount": 2123,
+  "trx": [
+    {
+      "path": "var/qa/ven-swain-20261015/check/check/results.trx",
+      "sha256": "ae96ba7304c166620ef5c76a61894f86943a723dbc11b408fc6d86b9970f9e60"
+    }
+  ],
+  "baselineTrx": [
+    {
+      "path": "var/qa/attached-recycle-lifecycle-20261015/check/check/results.trx",
+      "sha256": "d78066b6fd4b23810aa892c44eb8496ae786b1382a8d1c45116b88b8742ef4f2"
+    }
+  ],
+  "scope": "Only source identities and exact parser behavior. Runtime Swain, native and SQL behavior remain open."
+}

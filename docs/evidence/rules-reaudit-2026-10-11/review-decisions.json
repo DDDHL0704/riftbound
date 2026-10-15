@@ -19938,6 +19938,55 @@
         "FIXED_CURRENT_FULL",
         "FINAL_PRODUCT_ACCEPTANCE"
       ]
+    },
+    {
+      "id": "swain-source-identity-and-conquest-clause-classification-2026-10-15",
+      "status": "SOURCE_CLASSIFICATION_ONLY_RUNTIME_OPEN",
+      "scope": "Two exact applicable CN Swain printings: live source/physical numbering cross-reference, non-preview release applicability, exact conjunctive conquest parser and six changed-clause negatives. Runtime history semantics, card promotion and all behavior/product gates remain open.",
+      "subjects": [
+        "VEN-065",
+        "VEN-173"
+      ],
+      "ruleRecords": [
+        "DOC-04-P059-B004",
+        "DOC-04-P062-B014",
+        "DOC-04-P071-B013",
+        "DOC-04-P071-B014",
+        "DOC-04-P071-B015",
+        "DOC-04-P071-B016",
+        "DOC-06-P012-B002",
+        "DOC-06-P012-B003",
+        "DOC-06-P012-B004"
+      ],
+      "auditDocument": "docs/SWAIN_SOURCE_CLASSIFICATION_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/swain-source-2026-10-15",
+      "semanticReview": {
+        "state": "SOURCE_CLASSIFICATION_ONLY",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/swain-source-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PARSER_FOCUS_PASSED",
+        "newMethods": 2,
+        "newCases": 8,
+        "receipt": "docs/evidence/swain-source-2026-10-15/focus.json",
+        "batchCheck": "docs/evidence/swain-source-2026-10-15/check-parity.json"
+      },
+      "implementation": [
+        "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+        "src/Riftbound.Contracts/BehaviorSpecs.cs"
+      ],
+      "remaining": [
+        "Precise Swain history-query semantics under 419.4.a versus 419.4.b; countered, confirmed and pending plays need explicit branches.",
+        "Completed/confirmed typed play history, including the same card satisfying multiple types, tokens, actor/owner, per-turn scope and effect-directed plays.",
+        "Natural and combat conquest capture, named activation, repeat instances, copied/attached text, normal responses, independent scoring, win and burnout interaction.",
+        "Printed Predict for both exact printings through existing entry flow, privacy and optional keep/recycle.",
+        "Cold recovery and source/condition tamper rejection; action/event/state replay; native controls and actual SQL.",
+        "Patched Porobot VEN·058 remains absent from runtime and is an explicit dependency of the exact official FAQ example."
+      ],
+      "wholeCardCertification": false
     }
   ]
 }

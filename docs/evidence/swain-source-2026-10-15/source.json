@@ -1,0 +1,189 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "auditObservationDate": "2026-10-15",
+  "scope": "Exact missing printed-Predict Swain consumers, trigger classification and source applicability only. Runtime behavior and whole-printing certification remain open.",
+  "api": {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "fetchedAtUtc": "2026-10-15T00:17:05.412511+00:00",
+    "path": "docs/evidence/swain-source-2026-10-15/cards-api.json",
+    "sha256": "42e4183ec7e2e27f0b5a574b7c2cfca7ca7aef32e227b6f835d9461309115c42",
+    "query": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "斯维因",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    }
+  },
+  "printings": [
+    {
+      "apiId": 37937,
+      "rawApiCardNo": "VEN·065",
+      "printedImageCardNo": "VEN·065/166",
+      "englishGalleryIdentity": "ven-065-166",
+      "artist": "Six More Vodka",
+      "recordSha256": "d4aa1986c0567d39c30720339a3505af07523b255badd50030e3b3de8380c4d5",
+      "frozenSourceRecordUnchanged": true,
+      "image": {
+        "id": 37937,
+        "url": "https://cdn.playloltcg.com/lol/card/20260717/c9a3cedb6ebf45bdaa23433a8bcf57b0.png",
+        "path": "var/qa/ven-swain-20261015/37937.png",
+        "fetchedAtUtc": "2026-10-15T00:17:05.541828+00:00",
+        "sha256": "8ba0dcb5595f0aedbcca1e4d05de7f596973c60d88ed1072a10b29dbec907db9"
+      },
+      "imageVisuallyInspected": true,
+      "applicability": "APPLICABLE_CN_BY_2026_10_14",
+      "runtimeState": "NOT_PROMOTED_NOT_IMPLEMENTED_NOT_CERTIFIED",
+      "englishSource": {
+        "manifestInput": {
+          "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-gallery.en-US.json",
+          "sha256": "4b5ea0b0683ddf64736276d3d39a721b8d42b47037e3747a8429a11ea8f55a31"
+        },
+        "id": "ven-065-166",
+        "publicCode": "VEN-065/166",
+        "sha256": "f5a62d716f93dd5a57711e4c365846c9741bd3e24b0694af3d2ae7af1701ea08",
+        "crossLanguageUse": "Identity cross-reference only; Chinese card text governs CN behavior."
+      }
+    },
+    {
+      "apiId": 37876,
+      "rawApiCardNo": "VEN·173",
+      "printedImageCardNo": "VEN·173/166",
+      "englishGalleryIdentity": "ven-173-166",
+      "artist": "JunHuan",
+      "recordSha256": "caa48aceb6cb7beaeb68bae286fa7124821b9d4c5617621a1ed3a41c62c9fc0a",
+      "frozenSourceRecordUnchanged": true,
+      "image": {
+        "id": 37876,
+        "url": "https://cdn.playloltcg.com/lol/card/20260717/25dd639508444281a5774cd2d9aa99d9.png",
+        "path": "var/qa/ven-swain-20261015/37876.png",
+        "fetchedAtUtc": "2026-10-15T00:17:05.725342+00:00",
+        "sha256": "039ba187df6ef841c26210c06789be255177d56db57b3e5736b9e63e1f2d7925"
+      },
+      "imageVisuallyInspected": true,
+      "applicability": "APPLICABLE_CN_BY_2026_10_14",
+      "runtimeState": "NOT_PROMOTED_NOT_IMPLEMENTED_NOT_CERTIFIED",
+      "englishSource": {
+        "manifestInput": {
+          "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-gallery.en-US.json",
+          "sha256": "4b5ea0b0683ddf64736276d3d39a721b8d42b47037e3747a8429a11ea8f55a31"
+        },
+        "id": "ven-173-166",
+        "publicCode": "VEN-173/166",
+        "sha256": "bc1c246ffa8c6f75324a5567b9a4e2d1cf054e8560d1cb56fb891f99d5d6631e",
+        "crossLanguageUse": "Identity cross-reference only; Chinese card text governs CN behavior."
+      }
+    }
+  ],
+  "publicationEvidence": [
+    {
+      "url": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "fetchedAtUtc": "2026-10-15T00:21:24.939228+00:00",
+      "sha256": "f4aa4c9f1075ef63f5377af54176d5d68f407e045f25a8df38af1f4362d53887",
+      "file": "overview.html",
+      "publicationDatesFound": [
+        "2026-07-07T01:00:00.000Z"
+      ],
+      "role": "SUPPLEMENTAL_CN_PREVAILS"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/rules-and-releases/vendetta-rules-faq-and-clarifications/",
+      "fetchedAtUtc": "2026-10-15T00:21:25.781145+00:00",
+      "sha256": "f8b5c8a45d3c06ee50bb283c7a79273e9066f008b9cd2a11d0a27538cacff6ad",
+      "file": "faq.html",
+      "publicationDatesFound": [
+        "2026-08-14T01:00:00.000Z"
+      ],
+      "role": "SUPPLEMENTAL_CN_PREVAILS"
+    }
+  ],
+  "release": {
+    "date": "2026-07-31",
+    "regionsLanguages": [
+      "English",
+      "Chinese"
+    ],
+    "sourceUrl": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+    "claim": "Both language editions released July 31; this scope predates the Radiance October 16 effective rules."
+  },
+  "rules": {
+    "corpus": {
+      "path": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+      "sha256": "b97836ed4e1c5c6e13a08e443011a0a96e4549a30613afa6dd01e21c440f382f",
+      "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+    },
+    "excerpts": "docs/evidence/swain-source-2026-10-15/rule-excerpts.json",
+    "anchors": [
+      "DOC-04-P059-B004",
+      "DOC-04-P062-B014",
+      "DOC-04-P071-B013",
+      "DOC-04-P071-B014",
+      "DOC-04-P071-B015",
+      "DOC-04-P071-B016",
+      "DOC-06-P012-B002",
+      "DOC-06-P012-B003",
+      "DOC-06-P012-B004"
+    ],
+    "documents": [
+      {
+        "id": "DOC-04",
+        "title": "《符文战场：英雄联盟对战卡牌》核心规则",
+        "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+        "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+        "updated": "2026-07-17",
+        "effectiveDate": null,
+        "freshReadback": {
+          "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+          "localRetainedPath": "var/qa/ven-swain-20261015/core-cn.pdf",
+          "verifiedOnUtc": "2026-10-15",
+          "matchesFrozenDocument": true
+        }
+      },
+      {
+        "id": "DOC-06",
+        "title": "化神争锋系列 官方FAQ",
+        "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+        "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+        "updated": "2026-08-14",
+        "effectiveDate": null,
+        "freshReadback": {
+          "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+          "localRetainedPath": "var/qa/ven-swain-20261015/faq-cn.pdf",
+          "verifiedOnUtc": "2026-10-15",
+          "matchesFrozenDocument": true
+        }
+      }
+    ]
+  },
+  "findings": [
+    "The API omits the printed /166 denominator. Preserve raw API identities, image identities and explicit mapping separately.",
+    "At conquest, all three played-type conditions must already hold. A later response cannot retroactively cause an absent trigger.",
+    "One non-token multi-type card may satisfy unit and equipment. Token copies remain tokens even if their face is a card.",
+    "Use the actor who actually completed the play, including owner-directed effect plays. Do not infer the actor from current ownership/control.",
+    "Triggered play observations complete on resolution (419.4.a); the distinct confirmed-play query rule 419.4.b must remain distinguishable. Classify the Swain history query against both before implementation.",
+    "Named activation of a conquest ability checks all non-conquest conditions (383.4.g.1)."
+  ],
+  "runtimeDependenciesOpen": [
+    "Precise Swain history-query semantics under 419.4.a versus 419.4.b; countered, confirmed and pending plays need explicit branches.",
+    "Completed/confirmed typed play history, including the same card satisfying multiple types, tokens, actor/owner, per-turn scope and effect-directed plays.",
+    "Natural and combat conquest capture, named activation, repeat instances, copied/attached text, normal responses, independent scoring, win and burnout interaction.",
+    "Printed Predict for both exact printings through existing entry flow, privacy and optional keep/recycle.",
+    "Cold recovery and source/condition tamper rejection; action/event/state replay; native controls and actual SQL.",
+    "Patched Porobot VEN·058 remains absent from runtime and is an explicit dependency of the exact official FAQ example."
+  ],
+  "semanticCoverageCertified": false,
+  "historyQueryAssessment": {
+    "state": "REQUIRES_EXPLICIT_ADJUDICATION_BEFORE_RUNTIME",
+    "confirmedFacts": [
+      "419.4.a: play-triggered abilities observe completed resolution, and countered spells do not trigger them.",
+      "419.4.b: non-triggered abilities checking played history refer to confirmed cards.",
+      "Swain triggers on conquest and has an additional played-history clause immediately following that condition.",
+      "383.2.a.1 checks that additional clause when the conquest event occurs."
+    ],
+    "inference": "Because the enclosing ability is triggered, completed-play history appears relevant, but this differs from a passive confirmed-play query. Do not silently conflate the two event histories; retain an explicit countered-spell branch and supporting authority before enabling the runtime card."
+  }
+}
