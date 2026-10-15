@@ -20452,6 +20452,68 @@
         "intentionalOriginalUnsupportedExpectationUpdatedWithInvalidDeclaration": true,
         "wholeCardCertified": false
       }
+    },
+    {
+      "id": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+      "status": "SCOPED_COMBAT_NATIVE_SQL_PASS_SINGLE_CHECK8_FAILURES_FOCUS_REPAIRED_FIXED_FULL_PRODUCT_OPEN",
+      "scope": "DOC04 465.2.c each player independently allocates starting with attacker, before simultaneous damage; strict actual-journal event comparison. No whole-card or complete combat-family certification.",
+      "subjects": [],
+      "ruleRecords": [
+        "DOC-04-P088-B022",
+        "DOC-04-P089-B001",
+        "DOC-04-P089-B002",
+        "DOC-04-P089-B003",
+        "DOC-04-P089-B004",
+        "DOC-04-P089-B005",
+        "DOC-04-P089-B006",
+        "DOC-04-P089-B007",
+        "DOC-04-P089-B008",
+        "DOC-04-P089-B009",
+        "DOC-04-P089-B010",
+        "DOC-04-P089-B011"
+      ],
+      "auditDocument": "docs/COMBAT_EVENT_REPLAY_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/combat-event-replay-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "applicableAsOf": "2026-10-15",
+        "source": "docs/evidence/combat-event-replay-2026-10-15/source.json",
+        "futureCoreAdopted": false
+      },
+      "implementation": [
+        "src/Riftbound.Engine/MatchRecovery.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "clients/godot/scripts/ClientCommandSerializer.cs",
+        "clients/godot/scripts/debug/CombatAssignmentInteractionProof.cs",
+        "clients/godot/scenes/debug/CombatAssignmentInteractionProof.tscn"
+      ],
+      "remaining": [
+        "Fixed repaired input full CI and fresh visible paired/realSQL/network/normal-score/original-opening full event replay",
+        "All other combat replacement/priority/generation/hidden/target branches and every applicable exact printing",
+        "Native custom deck editor and independent Windows real runtime",
+        "Every official source gap and newly effective applicability change; full-universe semantic certification"
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 20,
+        "newMethods": 5,
+        "adjacentCases": 1899,
+        "originalFullGames": 6,
+        "actualNativeCommands": 6,
+        "actualSqlScenarios": 61,
+        "newActualSqlEventTamperRejections": 24,
+        "check": "11861_TOTAL_11853_PASS_8_FAIL_NO_REPEAT",
+        "fixedFull": "PENDING",
+        "product": "OPEN_AFTER_EXACT_9E_FAILURE",
+        "postCheckFocus": "76_PASS_ALL8_FAILURES_INCLUDED",
+        "batchCheck": "docs/evidence/combat-event-replay-2026-10-15/check-result.json",
+        "allOriginalMethodsTheoryRowsAndAssertionsPreserved": true,
+        "originalConformanceFilesByteUnchanged": 415,
+        "originalConformanceFiles": 420
+      }
     }
   ]
 }

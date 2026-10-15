@@ -1,0 +1,158 @@
+{
+  "status": "FIXED_9E_VISIBLE_NORMAL_SCORE_PASS_BUT_FULL_EVENT_REPLAY_FAILED_PRODUCT_OPEN",
+  "recordedAtUtc": "2026-10-15T10:27:32.532316+00:00",
+  "commit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+  "ciRunId": 38702742044,
+  "fixedFullReceipt": {
+    "path": "docs/evidence/targeted-insight-repeat-2026-10-15/full-ci-9e426a31.json",
+    "sha256": "a667ed1f5aa60461a1cc31f03fe8a4abc5afb404720071ed99202d19eca157c5"
+  },
+  "room": "paired-9e-20261015",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-15",
+  "environment": {
+    "os": "macOS 27.0.1 build26A434 arm64",
+    "godot": "4.7.2 mono",
+    "apiRuntime": ".NET 10.0.9",
+    "postgresPort": 55441,
+    "nativeOrigin": "CI native-macos-latest; per-app QA launcher/bundle ID/local signing only",
+    "signedNativeExecutableEqualityClaimed": false
+  },
+  "commands": 160,
+  "events": 839,
+  "finalTick": 159,
+  "finalTurn": 38,
+  "scores": {
+    "paired-9e-a": 8,
+    "paired-9e-b": 3
+  },
+  "normalScoreFinished": true,
+  "surrenderUsed": false,
+  "seededStateUsed": false,
+  "roomSeedReselected": false,
+  "realNativeReadyMulliganGameplay": true,
+  "cooperativeAcceptance": true,
+  "deckSetupBoundary": "Legal blue/purple Diana custom A and Rumble variant B through ordinary authenticated SUBMIT_DECK; native custom deck editor remains absent.",
+  "boundedObservedConsumers": [
+    "Time Gate grants and Moon Eclipse independently declared repeat targets followed by two private Insight windows",
+    "Syndra grants and Abandon independent repeat declarations; missing repeated target still opens the next Insight",
+    "Clairvoyance paid repeated Insight5/order/draw2 with changed actual second deck, partial recycle and independent execution IDs",
+    "Both native combat damage allocation controls produce accepted strict nested camelCase records"
+  ],
+  "privateChoiceWindows": [
+    46,
+    47,
+    79,
+    80,
+    110,
+    111,
+    112,
+    113
+  ],
+  "actualSqlPrivacyRows": 32,
+  "clairvoyanceHandCounts": [
+    12,
+    12,
+    14,
+    14,
+    16
+  ],
+  "network": {
+    "automaticStopToRestartInvocationSeconds": 28.991212,
+    "manualStopToRestartInvocationSeconds": 93.499514,
+    "automaticTick": 47,
+    "manualTick": 113,
+    "bothPlayersRestoredExactAuthoritativeState": true,
+    "manualButtonsUsedAfterVisibleRetryExhaustion": true
+  },
+  "fullReplay": {
+    "status": "FAILED",
+    "openingTick": 0,
+    "openingStatus": "SEATING",
+    "openingCards": 0,
+    "failedEventSequences": [
+      756,
+      758
+    ],
+    "errors": [
+      "action-log replay audit failed: command prompt-assign_combat_damage-ad7dba17951b4c6f919d896d3c6eae8e replayed event 1 payload hash e1e7228ab9311840385a569f02a7c9c7c1f558877b62aad398ba6eb8767bcb4d but recovered event sequence 756 payload hash 1cfc9ef752a1c4ca70efed2514bb2d216caa3b58433eb6bedbc5a00101ebf10e",
+      "action-log replay audit failed: command prompt-assign_combat_damage-543784ae24bb4e80a3df3176a10bdc99 replayed event 2 payload hash c8cab907330ad9600e64747052036ba4a63a06923b20fca6783696512b52d3eb but recovered event sequence 758 payload hash fe88500cd2e9e5bce212033b5c31b9293284848143954b57b330ec74eb7be5c8"
+    ],
+    "finalStateHash": "b49d40dcc26914d00d6ee653e5a975fe3ed286a99c766be84f99d41dfc67f5f9",
+    "rawActualSqlFrame": {
+      "path": "var/qa/paired-9e-20261015/actual-sql-replay-frame.json",
+      "sha256": "4702b77608d0bd2e01f7cc2d8b7d01bbcd4039a420a559f6b1df8752e3ef5119"
+    },
+    "originalReaderFailure": {
+      "path": "var/qa/paired-9e-20261015/replay-reader.log",
+      "sha256": "01135f5d65b4f1ceeab7838441d0842deb02e45684ffb53d56e02a14ddd21c23"
+    },
+    "diagnosticReader": {
+      "path": "var/qa/paired-9e-20261015/replay-reader-diagnostic.log",
+      "sha256": "e35ee7d87ee2023706bfe19372947cb37bb3cf1065bfedbfaac467a0f15a77de"
+    }
+  },
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "05a0428cb5f4920a63b914f569a06b5889a1366adc189a48538613ad4dd08312",
+    "identitySha256": "f80e9314c6f8cfc0130783d2b8a13cbc93a7ea22f3025ff5189a59239f33c67d"
+  },
+  "archivedReceipts": [
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/replay-failure.json",
+      "sha256": "c1b65a94168d23d4ad0f4fc766ab543b72bb0c97428e4a6cb90470bf909e2366"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/event-payload-policy-root-cause.json",
+      "sha256": "10e1b4b0bbe927d5c9759df2d8b0bc096616217d4ed753546bb9477bb0ffcc87"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/post-run-integrity.json",
+      "sha256": "7944e4419ea7250270c310e297127f3a989f0664856676f8b00bea7317f9b901"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/insight-order-draw-reconnect.json",
+      "sha256": "ee9b36505c7f59d3d1ccf601c9cfe4f0a1accadf494311c4cad38357fbcdcc8d"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/private-choice-privacy.json",
+      "sha256": "2137ee453e64ba74a1edc422c81ff5550f4002eab40c2c5c489013b8c2ac237d"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/actual-sql-counts.json",
+      "sha256": "f335992df1919a12744ca07aba399922dfd7b02fc8a5667f213b9ad4da222f0a"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/preserved-database.json",
+      "sha256": "38263c9c550c2631883b6750e22ea5826d6b67a913e0d4597a0d716d4a443b1a"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/derivative-apps.json",
+      "sha256": "656b3f17c8b2db56fade540f122421ece78a27c032e75a279d36850e4f339517"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/source-inputs.json",
+      "sha256": "4e59d272f637659a1474abedfd155c525602b14636f785e0ac48e1e395c9fd0e"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/native-damage-commands.jsonl",
+      "sha256": "3dc4cc051c888104ddf66ae1d21c560e9396e393514f7b3cf2297109ead81c0a"
+    },
+    {
+      "path": "docs/evidence/paired-9e-2026-10-15/api-lifecycle.jsonl",
+      "sha256": "49c96b2dc2eb17e2b542ef8e7ee644c3d99a56629a0db9ca5c10522947451312"
+    }
+  ],
+  "evidencePolicy": "Original failed SQL match and private local dump retained without mutation. This failure is not relabeled by the repair; no old-development input migration. Inline Cua observations were not saved as local PNGs.",
+  "remaining": [
+    "Fixed repaired input full CI and a fresh visible paired/realSQL/network/normal-score/full-opening replay",
+    "Sole defender choice among multiple attackers (issue33)",
+    "Native custom deck editor and independent Windows real runtime",
+    "All other official printings/branches, source gaps and newly effective changes"
+  ]
+}

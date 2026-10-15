@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class BattleDamageAssignmentLifecycleTests
+public sealed partial class BattleDamageAssignmentLifecycleTests
 {
     private const string BattlefieldObjectId = "BF-DAMAGE";
     private const string HiddenBattlefieldObjectId = "BF-HIDDEN";

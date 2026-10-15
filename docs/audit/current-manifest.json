@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "3d12a702a55bd98b1e38b20de0a5886e721f90b9a2879c2bcfdadbd3b4ded379"
+      "sha256": "4145cd9f916425f143d4697a449aa58611cfcb1fe5119b0e0f6a7ff09c5e8a2e"
     },
     "summary": {
       "path": "docs/evidence/clairvoyance-2026-10-15/index-summary.json",
@@ -119,7 +119,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         }
       ],
       "branches": [
@@ -247,9 +247,9 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -295,6 +295,16 @@
               "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
       ]
     },
@@ -318,7 +328,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         }
       ],
       "branches": [
@@ -607,9 +617,9 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -655,6 +665,16 @@
               "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
       ]
     },
@@ -682,7 +702,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -1268,7 +1288,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1290,8 +1310,19 @@
               "currentSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1317,11 +1348,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -1908,7 +1939,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -1974,9 +2005,24 @@
               "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            },
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2002,11 +2048,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -2596,7 +2642,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2663,9 +2709,24 @@
               "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            },
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -2679,7 +2740,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -2711,7 +2772,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -3023,7 +3084,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3075,9 +3136,24 @@
               "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3095,7 +3171,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -3226,7 +3302,7 @@
           "role": "check"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/rune-recycle-destination-2026-10-15/full-ci-dd8884.json",
@@ -3236,7 +3312,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3258,8 +3334,19 @@
               "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -3285,11 +3372,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         }
       ],
       "branches": [
@@ -3453,7 +3540,7 @@
           "role": "check"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/sivir-payment-2026-10-15/full-ci-00420.json",
@@ -3463,7 +3550,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3480,8 +3567,24 @@
               "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -3495,7 +3598,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -3503,7 +3606,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -3714,7 +3817,7 @@
           "role": "check"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/conquest-token-2026-10-15/full-ci-eb3.json",
@@ -3724,7 +3827,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3746,8 +3849,24 @@
               "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -3789,11 +3908,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         }
       ],
       "branches": [
@@ -4447,7 +4566,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4494,9 +4613,24 @@
               "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -5171,7 +5305,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -5187,7 +5321,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         }
       ],
       "evidence": [
@@ -5222,7 +5356,7 @@
           "role": "original-games"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/typed-play-history-2026-10-15/full-ci-342.json",
@@ -5232,8 +5366,8 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationIncludesUncommittedChanges": false,
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
           "id": "distinct-confirmation-and-resolution-observations",
@@ -5351,13 +5485,29 @@
               "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
       ],
       "priorEvidenceCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
       "causalSnapshotVerificationSupplement": {
         "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
         "scope": "Only snapshot modifications against unchanged accepted action/event history; all other obligations retained."
-      }
+      },
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -5371,7 +5521,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -5387,7 +5537,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -5440,9 +5590,9 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/porobot-2026-10-15/full-ci-339c.json",
@@ -5558,15 +5708,31 @@
               "currentSha256": "cfeb7595ea0952d92dbe573a16e4dc8f1dc9d5ac25b31858f3b8374d02cf2222"
             }
           ]
+        },
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0",
+              "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
         }
-      ]
+      ],
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/card-play-history-causal-2026-10-15/full-ci-6bc.json",
@@ -5582,7 +5748,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -5672,7 +5838,20 @@
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ]
         }
-      ]
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
+              "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
+        }
+      ],
+      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
@@ -6110,12 +6289,19 @@
       "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
     },
     "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
-      "evidenceCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
-      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
       "ciState": "PENDING",
-      "ciReceipts": [],
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/full-ci-9e426a31.json",
+          "sha256": "a667ed1f5aa60461a1cc31f03fe8a4abc5afb404720071ed99202d19eca157c5",
+          "commit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+          "runId": 38702742044
+        }
+      ],
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -6182,6 +6368,11 @@
           "path": "docs/evidence/targeted-insight-repeat-2026-10-15/cleanup.json",
           "sha256": "9ab3c608331c4ca73c782b96421f4bfc1cca49e895c0df4f14896c3c1da078db",
           "role": "cleanup"
+        },
+        {
+          "path": "docs/evidence/paired-9e-2026-10-15/product-receipt.json",
+          "sha256": "363bcd801bd7c13ee1f68fcaf6422d8fa04f38d21cfc952c6242607f81164355",
+          "role": "exact9e-visible-product-failure"
         }
       ],
       "branches": [
@@ -6385,6 +6576,169 @@
             "Every official source gap, applicability change and full-universe semantic obligation"
           ]
         }
+      ],
+      "evidenceCommitHistory": [
+        {
+          "commit": "057589c20fd7620902af66dff61bffbf63d28d17",
+          "recordedState": "PENDING",
+          "note": "Original development base retained; actual successful fixed input recorded separately below."
+        }
+      ],
+      "latestFixedEvidenceStatus": "EXACT_9E_FULL_VERIFIED_VISIBLE_SCORE_OBSERVED_BUT_EVENT_REPLAY_FAILED_CURRENT_REPAIR_PENDING",
+      "revalidationReason": "Exact9e11990/7330/57SQL passed; visible160-command/839-event normal8:3 failed event replay756/758. Current journal/combat repair has new input identity and requires fresh acceptance."
+    },
+    "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
+      "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+        },
+        {
+          "path": "clients/godot/scripts/ClientCommandSerializer.cs",
+          "sha256": "df49fe4af37433dba11eb4fdd50c1557d48b401be877e4e566ebbbec784888f4"
+        },
+        {
+          "path": "clients/godot/scripts/debug/CombatAssignmentInteractionProof.cs",
+          "sha256": "da1f96c0a866095e14876a386998af7cc30924b5087e3125fc61d67071477ec6"
+        },
+        {
+          "path": "clients/godot/scenes/debug/CombatAssignmentInteractionProof.tscn",
+          "sha256": "29ea3e078ad4aab1390bfd25a23b430ae8e42ad1477295f7c7f00b7c93193d00"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/source.json",
+          "sha256": "7bc09c4417b36a1dbdd4ddc15864e3b72de4b00e26275e33db3b95eaecd0a181",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/focus.json",
+          "sha256": "3a1657ddca774363944af133fa6ba03b4f9d9eee342371713f8e82bf7102d0a8",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/native.json",
+          "sha256": "1e959e1344e4b9debcf0b1ed636eb5a25d801dbb860e2a9d7f0009c29efc3236",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/sql.json",
+          "sha256": "ebe99f948021caec4f92583891f4b975089a317f508432aa8fe4fd55366c0a24",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/development-failures.json",
+          "sha256": "a91996869111b9adfb224790382ac81e4289c2fd1c3f33db69046c18f9ce5b51",
+          "role": "development-failures"
+        },
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/check-result.json",
+          "sha256": "362ed830f022f50b095be46d235bf75df4f71cae3fa5d52a6bcd7fb9cb62c948",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/full-plan.json",
+          "sha256": "cbd15f0cd3ed58064db708d99192f4938ff7f9c7e123fac4cb070b71932689b4",
+          "role": "plan"
+        },
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/cleanup.json",
+          "sha256": "fbd0a9bcd0ffaaec59200a6afa05e2d940d3080cae52c5023563dd2f28b5a80e",
+          "role": "cleanup"
+        }
+      ],
+      "branches": [
+        {
+          "id": "actual-journal-nested-records-and-strict-event-tamper",
+          "sourceRefs": [
+            "DOC-04-P088-B022",
+            "DOC-04-P089-B001",
+            "DOC-04-P089-B002",
+            "DOC-04-P089-B003",
+            "DOC-04-P089-B004",
+            "DOC-04-P089-B005",
+            "DOC-04-P089-B006",
+            "DOC-04-P089-B007",
+            "DOC-04-P089-B008",
+            "DOC-04-P089-B009",
+            "DOC-04-P089-B010",
+            "DOC-04-P089-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Fixed repaired input full CI and fresh visible paired/realSQL/network/normal-score/original-opening full event replay",
+            "All other combat replacement/priority/generation/hidden/target branches and every applicable exact printing",
+            "Native custom deck editor and independent Windows real runtime",
+            "Every official source gap and newly effective applicability change; full-universe semantic certification"
+          ]
+        },
+        {
+          "id": "independent-sole-defender-target-choice",
+          "sourceRefs": [
+            "DOC-04-P088-B022",
+            "DOC-04-P089-B001",
+            "DOC-04-P089-B002",
+            "DOC-04-P089-B003",
+            "DOC-04-P089-B004",
+            "DOC-04-P089-B005",
+            "DOC-04-P089-B006",
+            "DOC-04-P089-B007",
+            "DOC-04-P089-B008",
+            "DOC-04-P089-B009",
+            "DOC-04-P089-B010",
+            "DOC-04-P089-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Fixed repaired input full CI and fresh visible paired/realSQL/network/normal-score/original-opening full event replay",
+            "All other combat replacement/priority/generation/hidden/target branches and every applicable exact printing",
+            "Native custom deck editor and independent Windows real runtime",
+            "Every official source gap and newly effective applicability change; full-universe semantic certification"
+          ]
+        },
+        {
+          "id": "native-allocation-controls-cold-duplicate-and-sql-jsonb",
+          "sourceRefs": [
+            "DOC-04-P088-B022",
+            "DOC-04-P089-B001",
+            "DOC-04-P089-B002",
+            "DOC-04-P089-B003",
+            "DOC-04-P089-B004",
+            "DOC-04-P089-B005",
+            "DOC-04-P089-B006",
+            "DOC-04-P089-B007",
+            "DOC-04-P089-B008",
+            "DOC-04-P089-B009",
+            "DOC-04-P089-B010",
+            "DOC-04-P089-B011"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Fixed repaired input full CI and fresh visible paired/realSQL/network/normal-score/original-opening full event replay",
+            "All other combat replacement/priority/generation/hidden/target branches and every applicable exact printing",
+            "Native custom deck editor and independent Windows real runtime",
+            "Every official source gap and newly effective applicability change; full-universe semantic certification"
+          ]
+        }
+      ],
+      "evidencePinUpdates": [
+        {
+          "path": "docs/evidence/combat-event-replay-2026-10-15/focus.json",
+          "previousSha256": "3f2ffb133dc7546e7b80e857c17b62177e76acbfe2745a406016813aabb062af",
+          "currentSha256": "3a1657ddca774363944af133fa6ba03b4f9d9eee342371713f8e82bf7102d0a8",
+          "reason": "Retained pre-check receipt and added actual eight-failure focused repair with unchanged original assertions."
+        }
       ]
     }
   },
@@ -6425,19 +6779,14 @@
         "currentCandidateReopenedReason": "Shared counted Insight, post-choice draw and active VEN056 source input changed after fixed339c evidence. Exact older candidate remains preserved."
       },
       "newVerificationInputsAwaitFixedFull": [
-        "tests/Riftbound.ConformanceTests/ClairvoyanceTests.cs",
-        "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
-        "tests/Riftbound.PostgresAcceptance/ClairvoyanceSqlAcceptance.cs",
-        "tests/Riftbound.ConformanceTests/GameHubIdentityBoundaryTests.cs",
-        "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
-        "tests/Riftbound.NativeNetworkSmoke/Program.cs",
-        "tests/Riftbound.ConformanceTests/InsightRepeatTests.cs",
-        "tests/Riftbound.PostgresAcceptance/InsightRepeatSqlAcceptance.cs",
-        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
-        "tests/Riftbound.ConformanceTests/TargetedInsightRepeatTests.cs",
-        "tests/Riftbound.ConformanceTests/NativeCommandSerializationTests.cs",
-        "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs",
-        "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj"
+        "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
+        "tests/Riftbound.ConformanceTests/BattleDamageAssignmentWireTests.cs",
+        "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "tests/Riftbound.PostgresAcceptance/CombatAssignmentSqlAcceptance.cs",
+        "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "tests/Riftbound.ConformanceTests/OfficialStunCombatTests.cs",
+        "tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs",
+        "tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs"
       ],
       "previousVerificationInputsNowCoveredAt6bc": {
         "inputs": [
@@ -6450,16 +6799,10 @@
         "receipt": "docs/evidence/card-play-history-causal-2026-10-15/full-ci-6bc.json"
       },
       "newGameplayInputsAwaitFixedFull": [
-        "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-        "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-        "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
-        "data/official/card-catalog.zh-CN.json",
-        "src/Riftbound.Api/Hubs/GameHub.cs",
-        "src/Riftbound.Engine/EchoCostRules.cs",
-        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
-        "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
-        "clients/godot/scripts/Main.cs",
-        "clients/godot/scripts/ClientCommandSerializer.cs"
+        "src/Riftbound.Engine/MatchRecovery.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "clients/godot/scripts/debug/CombatAssignmentInteractionProof.cs",
+        "clients/godot/scenes/debug/CombatAssignmentInteractionProof.tscn"
       ],
       "previousCountedInsightVerification": {
         "commit": "a85f46778d398d7a5b262913cbf87a08467b8ba0",
@@ -6499,7 +6842,54 @@
         "seed": 424242,
         "gameplaySourceInputs": 461,
         "coversCurrentTargetDeclarationsAndNativeSerializer": false
-      }
+      },
+      "latestPriorFixedEvidence9e": {
+        "path": "docs/evidence/targeted-insight-repeat-2026-10-15/full-ci-9e426a31.json",
+        "sha256": "a667ed1f5aa60461a1cc31f03fe8a4abc5afb404720071ed99202d19eca157c5",
+        "commit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+        "runId": 38702742044,
+        "cases": 11990,
+        "methods": 7330,
+        "actualSqlScenarios": 57,
+        "seconds": 3861.07,
+        "originalGames": 143,
+        "pairs": 110,
+        "seed": 424242,
+        "gameplaySourceInputs": 462,
+        "coversCurrentCombatJournalRepair": false
+      },
+      "previousAwaitingInputHistory": [
+        {
+          "verifiedCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+          "gameplay": [
+            "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+            "data/official/card-catalog.zh-CN.json",
+            "src/Riftbound.Api/Hubs/GameHub.cs",
+            "src/Riftbound.Engine/EchoCostRules.cs",
+            "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+            "clients/godot/scripts/Main.cs",
+            "clients/godot/scripts/ClientCommandSerializer.cs"
+          ],
+          "verification": [
+            "tests/Riftbound.ConformanceTests/ClairvoyanceTests.cs",
+            "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+            "tests/Riftbound.PostgresAcceptance/ClairvoyanceSqlAcceptance.cs",
+            "tests/Riftbound.ConformanceTests/GameHubIdentityBoundaryTests.cs",
+            "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+            "tests/Riftbound.NativeNetworkSmoke/Program.cs",
+            "tests/Riftbound.ConformanceTests/InsightRepeatTests.cs",
+            "tests/Riftbound.PostgresAcceptance/InsightRepeatSqlAcceptance.cs",
+            "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+            "tests/Riftbound.ConformanceTests/TargetedInsightRepeatTests.cs",
+            "tests/Riftbound.ConformanceTests/NativeCommandSerializationTests.cs",
+            "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs",
+            "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj"
+          ]
+        }
+      ]
     },
     {
       "id": "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
@@ -6536,6 +6926,16 @@
         "fixedFullStatus": "VERIFIED_FIXED_A8F_11947_CASES_7312_METHODS_50_SQL",
         "currentCandidateReopenedReason": "Targeted Insight declarations and actual native wire serialization changed after the exact a8f source. The a8f product/full receipts remain preserved; current source needs its own visible candidate acceptance.",
         "fixedFullReceipt": "docs/evidence/room-identity-2026-10-15/full-ci-a8f.json"
+      },
+      "latestFailedFixedCandidate": {
+        "path": "docs/evidence/paired-9e-2026-10-15/product-receipt.json",
+        "sha256": "363bcd801bd7c13ee1f68fcaf6422d8fa04f38d21cfc952c6242607f81164355",
+        "commit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+        "status": "NORMAL8_3_BUT_FULL_EVENT_REPLAY_FAILED_756_758",
+        "commands": 160,
+        "events": 839,
+        "currentCandidateVerified": false,
+        "originalFailedHistoryPreserved": true
       }
     },
     {
@@ -6582,10 +6982,39 @@
         "productionControlCommands": 45,
         "visibleNativeUi": false,
         "realNetworkTransport": false,
-        "fixedFullCi": "PENDING"
+        "fixedFullCi": "EXACT_9E_VERIFIED_CURRENT_COMBAT_REPAIR_REQUIRES_NEW_FULL"
       },
       "serverValidationRelaxed": false,
-      "wholeClientCertification": false
+      "wholeClientCertification": false,
+      "scopedVisible9eEvidence": {
+        "path": "docs/evidence/paired-9e-2026-10-15/product-receipt.json",
+        "sha256": "363bcd801bd7c13ee1f68fcaf6422d8fa04f38d21cfc952c6242607f81164355",
+        "actualTypedCombatCommandsAccepted": true,
+        "actualIndependentRepeatDeclarationsAccepted": true,
+        "realNativeUiAndNetworkObserved": true,
+        "wholeProductPassed": false,
+        "fullEventReplayFailed": true
+      }
+    },
+    {
+      "id": "COMBAT_EVENT_JOURNAL_REPLAY",
+      "state": "OPEN",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/32",
+      "requirement": "Nested typed events compare the actual persisted representation while retaining strict tamper rejection; fixed repair full and fresh original-opening visible SQL event replay required.",
+      "scopedDevelopmentEvidence": {
+        "path": "docs/evidence/combat-event-replay-2026-10-15/sql.json",
+        "sha256": "ebe99f948021caec4f92583891f4b975089a317f508432aa8fe4fd55366c0a24"
+      }
+    },
+    {
+      "id": "NATURAL_BOTH_SIDES_COMBAT_ALLOCATION",
+      "state": "OPEN",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/33",
+      "requirement": "Either side with multiple recipients preserves both player choices, attacker first and simultaneous damage, with native/SQL/full/product evidence; one-on-one automatic control retained.",
+      "scopedDevelopmentEvidence": {
+        "path": "docs/evidence/combat-event-replay-2026-10-15/sql.json",
+        "sha256": "ebe99f948021caec4f92583891f4b975089a317f508432aa8fe4fd55366c0a24"
+      }
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker."

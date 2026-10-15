@@ -37991,6 +37991,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.True(result.Accepted);
+        result = await CombatTestDriver.FinishAsync(result, engine);
         var payment = result.State.PendingPayment;
         Assert.NotNull(payment);
         Assert.Equal("TRIGGER_COST_CONFIRMATION", payment.PaymentWindow);

@@ -59,6 +59,7 @@ public sealed class SameBattlefieldOtherFriendlyStaticPowerCardRowTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
+        result = await CombatTestDriver.FinishAsync(result);
         var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, AllyObjectId, StringComparison.Ordinal));

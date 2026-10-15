@@ -1,0 +1,19 @@
+{
+  "status": "ORIGINAL_FAILED_MATCH_PRESERVED_WITHOUT_REWRITING_HISTORY",
+  "createdAtUtc": "2026-10-15T10:11:19.448697+00:00",
+  "cluster": "/Users/dinghaolin/MyProjects/riftbound/var/qa/paired-9e-20261015/postgres/cluster",
+  "port": 55441,
+  "counts": {
+    "matches": 1,
+    "commands": 160,
+    "events": 839,
+    "states": 160,
+    "snapshots": 315,
+    "prompts": 315
+  },
+  "localPrivateDump": "/Users/dinghaolin/MyProjects/riftbound/var/qa/paired-9e-20261015/postgres/original-failed-match.dump",
+  "dumpSha256": "0f107f9c780ec0c5aec2adfd6ab5e4d23fef8d78d862dd8b699ea9a349836fe4",
+  "dumpNotForRepository": true,
+  "qaNativeAppsExited": true,
+  "allOldClustersUntouched": true
+}

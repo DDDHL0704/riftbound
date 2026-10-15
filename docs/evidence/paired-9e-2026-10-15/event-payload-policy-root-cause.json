@@ -1,0 +1,68 @@
+{
+  "status": "EXACT_STORED_VS_TYPED_PAYLOAD_SERIALIZATION_MISMATCH_REPRODUCED",
+  "events": [
+    {
+      "sequence": 756,
+      "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+      "storedHash": "1cfc9ef752a1c4ca70efed2514bb2d216caa3b58433eb6bedbc5a00101ebf10e",
+      "defaultTypedHash": "e1e7228ab9311840385a569f02a7c9c7c1f558877b62aad398ba6eb8767bcb4d",
+      "webTypedHash": "1cfc9ef752a1c4ca70efed2514bb2d216caa3b58433eb6bedbc5a00101ebf10e",
+      "typedAssignmentDefault": [
+        {
+          "SourceObjectId": "paired-9e-a-MAIN-OGN-103-298-23",
+          "TargetObjectId": "paired-9e-b-MAIN-OGN-013-298-06",
+          "Damage": 2
+        }
+      ],
+      "typedAssignmentJournal": [
+        {
+          "sourceObjectId": "paired-9e-a-MAIN-OGN-103-298-23",
+          "targetObjectId": "paired-9e-b-MAIN-OGN-013-298-06",
+          "damage": 2
+        }
+      ]
+    },
+    {
+      "sequence": 758,
+      "kind": "COMBAT_DAMAGE_ASSIGNED",
+      "storedHash": "fe88500cd2e9e5bce212033b5c31b9293284848143954b57b330ec74eb7be5c8",
+      "defaultTypedHash": "c8cab907330ad9600e64747052036ba4a63a06923b20fca6783696512b52d3eb",
+      "webTypedHash": "fe88500cd2e9e5bce212033b5c31b9293284848143954b57b330ec74eb7be5c8",
+      "typedAssignmentDefault": [
+        {
+          "SourceObjectId": "paired-9e-a-MAIN-OGN-103-298-23",
+          "TargetObjectId": "paired-9e-b-MAIN-OGN-013-298-06",
+          "Damage": 2
+        },
+        {
+          "SourceObjectId": "paired-9e-b-MAIN-OGN-013-298-05",
+          "TargetObjectId": "paired-9e-a-MAIN-OGN-103-298-23",
+          "Damage": 2
+        },
+        {
+          "SourceObjectId": "paired-9e-b-MAIN-OGN-013-298-06",
+          "TargetObjectId": "paired-9e-a-MAIN-OGN-103-298-23",
+          "Damage": 2
+        }
+      ],
+      "typedAssignmentJournal": [
+        {
+          "sourceObjectId": "paired-9e-a-MAIN-OGN-103-298-23",
+          "targetObjectId": "paired-9e-b-MAIN-OGN-013-298-06",
+          "damage": 2
+        },
+        {
+          "sourceObjectId": "paired-9e-b-MAIN-OGN-013-298-05",
+          "targetObjectId": "paired-9e-a-MAIN-OGN-103-298-23",
+          "damage": 2
+        },
+        {
+          "sourceObjectId": "paired-9e-b-MAIN-OGN-013-298-06",
+          "targetObjectId": "paired-9e-a-MAIN-OGN-103-298-23",
+          "damage": 2
+        }
+      ]
+    }
+  ],
+  "scope": "Read-only actual fixed9e frame; default typed hashes reproduce both reported failures, camelCase serialization matches recorded JSONB payload hashes. No stored row or rule input changed."
+}

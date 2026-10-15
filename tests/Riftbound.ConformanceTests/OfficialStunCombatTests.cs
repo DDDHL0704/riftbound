@@ -47,6 +47,7 @@ public sealed class OfficialStunCombatTests
         var result = await new CoreRuleEngine().ResolveAsync(Position(false), new("stun-auto", "P1", CommandTypes.DeclareBattle),
             new DeclareBattleCommand("BF", ["A1", "A2"], ["D"], ["COMBAT_ASSIGNMENT"]), default);
         Assert.True(result.Accepted, result.ErrorMessage);
+        result = await CombatTestDriver.FinishAsync(result);
         AssertSurvivors(result);
     }
 

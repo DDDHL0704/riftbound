@@ -1,0 +1,87 @@
+{
+  "status": "ALL_ORIGINAL_FAILURES_AND_NEW_FIXTURE_ERRORS_PRESERVED",
+  "originalVisibleFailure": {
+    "path": "docs/evidence/paired-9e-2026-10-15/replay-failure.json",
+    "sha256": "c1b65a94168d23d4ad0f4fc766ab543b72bb0c97428e4a6cb90470bf909e2366"
+  },
+  "failures": [
+    {
+      "folder": "baseline-runtime-red",
+      "cases": 7,
+      "failed": 5,
+      "trx": [
+        {
+          "path": "var/qa/combat-event-replay-20261015/baseline-runtime-red/focus/results.trx",
+          "sha256": "802e8184ae35927779df35ef1c6464bac61aa01388eac2d1905dab9d0f8a03d1"
+        }
+      ],
+      "errors": [
+        {
+          "case": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalCombatJournalReplaysWithActualJournalSerialization(throughJournalJson: True)",
+          "message": "command wire-attacker replayed event 1 payload hash e36341c400e4c9a8fe189f16459ba11270d94e2d39fa3eb557186fd91429ad8e but recovered event sequence 3 payload hash 186f5265390320e2c62b8a7ea414c1f24ec660ad00a3dfdd115924f578501ff8; command wire-defender replayed event 2 payload hash 98f38b57c73c68c1be19af7970531396aaaca262c55640e0278a932b620bae47 but recovered event sequence 5 payload hash 65344600ec5968f34e4c1d1882c1ca3e9b86411686b4789173e63904aaa04389"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage(reverseAttackers: False, chooseSecond: False)",
+          "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage(reverseAttackers: True, chooseSecond: False)",
+          "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage(reverseAttackers: True, chooseSecond: True)",
+          "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage(reverseAttackers: False, chooseSecond: True)",
+          "message": "Assert.True() Failure\nExpected: True\nActual:   False"
+        }
+      ]
+    },
+    {
+      "folder": "native-export",
+      "cases": 3,
+      "failed": 3,
+      "trx": [
+        {
+          "path": "var/qa/combat-event-replay-20261015/native-export/focus/results.trx",
+          "sha256": "a5fcf0ccbe564edda49b421202f861af7bd315dc66fd6358d5f684bc1d8290ec"
+        }
+      ],
+      "errors": [
+        {
+          "case": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NativeCombatControlsColdRecoverDeduplicateAndReplayActualJournalWire(branch: \"choose-first-attacker\")",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state seat connection-1 for P1 is in\"···, \"authoritative state seat connection-2 for P2 is in\"···]"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NativeCombatControlsColdRecoverDeduplicateAndReplayActualJournalWire(branch: \"multiple-defenders\")",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state seat connection-1 for P1 is in\"···, \"authoritative state seat connection-2 for P2 is in\"···]"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NativeCombatControlsColdRecoverDeduplicateAndReplayActualJournalWire(branch: \"choose-second-attacker\")",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [\"authoritative state seat connection-1 for P1 is in\"···, \"authoritative state seat connection-2 for P2 is in\"···]"
+        }
+      ]
+    }
+  ],
+  "initialNewTestCompilationFailure": {
+    "path": "var/qa/combat-event-replay-20261015/baseline-red/build.log",
+    "sha256": "db8a9fd26373033ba7317ab96fca02923cd5e5b9896610947ccc6e8e5b3bad45"
+  },
+  "newFixtureCorrections": [
+    "Graveyard property name corrected before actual baseline runtime red",
+    "New native fixture seat IDs changed to the existing cold helper convention; original helper and assertions retained",
+    "New SQL fixture omits null optional battlefield targets like native wire; strict recovery rejection retained"
+  ],
+  "firstSqlFailure": {
+    "path": "var/qa/combat-event-replay-20261015/postgres.log",
+    "sha256": "c8500f6bca069adb33a9c6540d16550fef1c11ada1f6b1a3166f646ea767977b"
+  },
+  "firstSqlBuild": {
+    "path": "var/qa/combat-event-replay-20261015/postgres-build.log",
+    "sha256": "64b6fc832a0a022739216b62622e3a9f0906060276c31bc463fe9bab67e47f70"
+  },
+  "oldFailedDatabaseRewritten": false,
+  "stateHashAlgorithmChanged": false,
+  "strictEventComparisonRelaxed": false
+}

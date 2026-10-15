@@ -12480,6 +12480,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state,
                 command,
                 optionalCosts,
+                attackerObjectIds,
                 defenderObjectIds))
         {
             var assignmentObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
@@ -14034,15 +14035,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         MatchState state,
         DeclareBattleCommand command,
         IReadOnlyList<string> optionalCosts,
+        IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds)
     {
         return ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 }
             && optionalCosts.Count == 1
             && optionalCosts.Contains(DeclareBattleOptionalCost, StringComparer.Ordinal)
             && NormalizeTargetObjectIds(command.BattlefieldTargetObjectIds ?? []).Count == 0
-            // Choosing among multiple recipients matters even without Tank or
-            // Back Row (for example, Elder Dragon changes lethal thresholds).
-            && defenderObjectIds.Count > 1;
+            // Either player can choose among multiple recipients, including a
+            // sole defender facing several attackers of the same priority.
+            && (attackerObjectIds.Count > 1 || defenderObjectIds.Count > 1);
     }
 
     private static bool IsObjectLocatedAtBattlefield(

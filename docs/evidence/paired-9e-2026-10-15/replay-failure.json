@@ -1,0 +1,34 @@
+{
+  "status": "FIXED_9E_ACTUAL_VISIBLE_SQL_FULL_OPENING_REPLAY_FAILED",
+  "commit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+  "room": "paired-9e-20261015",
+  "currentTick": 159,
+  "commands": 160,
+  "events": 839,
+  "errors": [
+    "action-log replay audit failed: command prompt-assign_combat_damage-ad7dba17951b4c6f919d896d3c6eae8e replayed event 1 payload hash e1e7228ab9311840385a569f02a7c9c7c1f558877b62aad398ba6eb8767bcb4d but recovered event sequence 756 payload hash 1cfc9ef752a1c4ca70efed2514bb2d216caa3b58433eb6bedbc5a00101ebf10e",
+    "action-log replay audit failed: command prompt-assign_combat_damage-543784ae24bb4e80a3df3176a10bdc99 replayed event 2 payload hash c8cab907330ad9600e64747052036ba4a63a06923b20fca6783696512b52d3eb but recovered event sequence 758 payload hash fe88500cd2e9e5bce212033b5c31b9293284848143954b57b330ec74eb7be5c8"
+  ],
+  "scores": {
+    "paired-9e-a": 8,
+    "paired-9e-b": 3
+  },
+  "turn": 38,
+  "openingTick": 0,
+  "openingStatus": "SEATING",
+  "openingCards": 0,
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "05a0428cb5f4920a63b914f569a06b5889a1366adc189a48538613ad4dd08312",
+    "identitySha256": "f80e9314c6f8cfc0130783d2b8a13cbc93a7ea22f3025ff5189a59239f33c67d"
+  },
+  "noSurrender": true,
+  "noSeededState": true,
+  "originalSqlNotModified": true,
+  "finalStateHash": "b49d40dcc26914d00d6ee653e5a975fe3ed286a99c766be84f99d41dfc67f5f9",
+  "scope": "Visible native normal score and transport observed; full event replay FAILED and product gate remains OPEN. No previous-development input migration or accepted-history rewrite."
+}

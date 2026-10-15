@@ -115,6 +115,10 @@ public static class MatchActionLogReplayer
 {
     private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
     private const string DevSeedScenarioCommandType = "DEV_SEED_SCENARIO";
+    private static readonly JsonSerializerOptions JournalPayloadJson = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public static async ValueTask<IReadOnlyList<string>> ValidateRecoveryFrameAsync(
         MatchRecoveryFrame recovery,
@@ -708,10 +712,12 @@ public static class MatchActionLogReplayer
             {
                 var normalized = payload.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
                 normalized["playerIds"] = ids.EnumerateArray().Select(id => id.GetString()!).Order(StringComparer.Ordinal).ToArray();
-                return MatchStateHasher.HashValue(normalized);
+                return MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(normalized, JournalPayloadJson));
             }
         }
-        return MatchStateHasher.HashValue(gameEvent.Payload);
+        // Compare the persisted journal representation of nested CLR records.
+        // Recovered JSON keys and array order remain exact; state hashing is unchanged.
+        return MatchStateHasher.HashValue(JsonSerializer.SerializeToElement(gameEvent.Payload, JournalPayloadJson));
     }
 
     private static async ValueTask<ResolutionResult> ReplayCommandAsync(

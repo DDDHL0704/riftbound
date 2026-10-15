@@ -53,6 +53,7 @@ public sealed class StaticAuraStackingAndModifierTests
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
+        result = await CombatTestDriver.FinishAsync(result);
         var pigeonDamage = Assert.Single(
             result.Events,
             gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)

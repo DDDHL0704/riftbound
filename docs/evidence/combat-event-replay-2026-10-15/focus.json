@@ -1,0 +1,94 @@
+{
+  "status": "SCOPED_COMBAT_WIRE_TAMPER_AND_SINGLE_DEFENDER_FOCUS_PASS",
+  "baseCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+  "newCases": [
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNED\", mutation: \"array-duplicate\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNED\", mutation: \"array-order\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNED\", mutation: \"damage\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNED\", mutation: \"member-case\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNED\", mutation: \"target\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED\", mutation: \"damage\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED\", mutation: \"member-case\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED\", mutation: \"missing\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED\", mutation: \"source-case\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.JournalWireComparisonStillRejectsChangedAssignmentEvidence(eventKind: \"COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED\", mutation: \"target\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NativeCombatControlsColdRecoverDeduplicateAndReplayActualJournalWire(branch: \"choose-first-attacker\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NativeCombatControlsColdRecoverDeduplicateAndReplayActualJournalWire(branch: \"choose-second-attacker\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NativeCombatControlsColdRecoverDeduplicateAndReplayActualJournalWire(branch: \"multiple-defenders\")",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalCombatJournalReplaysWithActualJournalSerialization(throughJournalJson: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.NaturalCombatJournalReplaysWithActualJournalSerialization(throughJournalJson: True)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage(reverseAttackers: False, chooseSecond: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage(reverseAttackers: False, chooseSecond: True)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage(reverseAttackers: True, chooseSecond: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage(reverseAttackers: True, chooseSecond: True)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SingleRecipientOnBothSidesRetainsNaturalAutomaticResolution"
+  ],
+  "newMethods": [
+    "NaturalCombatJournalReplaysWithActualJournalSerialization",
+    "JournalWireComparisonStillRejectsChangedAssignmentEvidence",
+    "SingleDefenderChoosesWhichOfMultipleAttackersReceivesLethalDamage",
+    "SingleRecipientOnBothSidesRetainsNaturalAutomaticResolution",
+    "NativeCombatControlsColdRecoverDeduplicateAndReplayActualJournalWire"
+  ],
+  "adjacentCases": 1899,
+  "adjacentMethods": 1869,
+  "originalFullGames": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveMultiDefenderBattleDamageAssignmentActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveMultiDefenderBattleDamageAssignmentScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurvePostBattleScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+  ],
+  "trx": [
+    {
+      "path": "var/qa/combat-event-replay-20261015/final-focus/focus/results.trx",
+      "sha256": "a7079ed7fe587f13f9ecd038e325c012708164b2d3c9873f148666888a0223ed"
+    }
+  ],
+  "originalConformanceSourceFiles": 420,
+  "byteUnchangedOriginalFiles": 415,
+  "onlyOriginalTestEdit": {
+    "path": "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
+    "beforeSha256": "a791ca76aa2ba73f926187b6b65f0c5639346d2e7b7ce48aa26a485a54ab5840",
+    "afterSha256": "4b32a24640f12521139afb4b5f7360e4b69e9dd99ee60e3d2832bf5194e305d9",
+    "change": "Only partial keyword to share unchanged original private fixtures; every original method, Theory row and assertion byte unchanged."
+  },
+  "originalFocusBeforeCheck": {
+    "path": "docs/evidence/combat-event-replay-2026-10-15/pre-check-focus.json",
+    "sha256": "3f2ffb133dc7546e7b80e857c17b62177e76acbfe2745a406016813aabb062af"
+  },
+  "postCheckFlowRepair": {
+    "cases": 76,
+    "methods": 56,
+    "allEightCheckFailuresPassed": true,
+    "trx": {
+      "path": "var/qa/combat-event-replay-20261015/post-check-flow-focus/focus/results.trx",
+      "sha256": "951cfba22c59f3fcd86f2b759579fe7ade4bd1534d33af7b1cb067d5eafaf39f"
+    },
+    "onlyAdditionalOriginalTestEdits": [
+      {
+        "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "sha256": "9e8e0a48652376fd150deb87cdd8901e27bde234abe44705cd40ea1b97a0922a",
+        "change": "Insert one existing FinishAsync call to submit both natural damage allocations before the unchanged assertions."
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialStunCombatTests.cs",
+        "sha256": "5141232f16ff3c66de26f3c8426358beb3836a19340f9aa94f950b851c744e92",
+        "change": "Insert one existing FinishAsync call to submit both natural damage allocations before the unchanged assertions."
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs",
+        "sha256": "3835f2935a4a95da167ae62fe83c79c64307fc570826831f334b395b164ff600",
+        "change": "Insert one existing FinishAsync call to submit both natural damage allocations before the unchanged assertions."
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs",
+        "sha256": "ddc3d513896cf4a291c841a7d79741a8b1219bbbd448c9b116124ed8f40c96eb",
+        "change": "Insert one existing FinishAsync call to submit both natural damage allocations before the unchanged assertions."
+      }
+    ],
+    "allOriginalMethodsTheoryRowsAndAssertionsBytePreserved": true,
+    "gameplayInputsUnchangedSinceCheck": true
+  }
+}
