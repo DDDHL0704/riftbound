@@ -20033,6 +20033,64 @@
         "Windows real runtime"
       ],
       "wholeCardCertification": false
+    },
+    {
+      "id": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "status": "SCOPED_TYPED_HISTORY_FOUNDATION_CONSUMERS_OPEN",
+      "scope": "Two separately persisted current-turn observations for non-token printed unit/equipment/spell plays. Normal play, counter, control transfer, owner-directed effect play, Echo, private continuation and winning burnout are bounded tested paths. Swain query, missing card behaviors, other play producers and full causal tamper authentication remain open.",
+      "subjects": [
+        "OGN-048/298",
+        "OGN-064/298",
+        "VEN-152",
+        "OGN-174/298",
+        "UNL-161/219",
+        "UNL-184/219"
+      ],
+      "ruleRecords": [
+        "DOC-04-P071-B009",
+        "DOC-04-P071-B010",
+        "DOC-04-P071-B011",
+        "DOC-04-P071-B013",
+        "DOC-04-P071-B014",
+        "DOC-04-P071-B015",
+        "DOC-04-P071-B016",
+        "DOC-06-P011-B004",
+        "DOC-06-P011-B005",
+        "DOC-06-P011-B006",
+        "DOC-06-P012-B001"
+      ],
+      "auditDocument": "docs/CARD_PLAY_HISTORY_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/typed-play-history-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/typed-play-history-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "CHECK_FAILURE_PRESERVED_3157_CORRECTED_FOCUS_PASSED_FIXED_FULL_PENDING",
+        "newMethods": 10,
+        "newCases": 21,
+        "receipt": "docs/evidence/typed-play-history-2026-10-15/focus.json",
+        "batchCheck": "docs/evidence/typed-play-history-2026-10-15/check-result.json"
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+        "src/Riftbound.Engine/MatchSession.cs",
+        "src/Riftbound.Engine/MatchRecovery.cs"
+      ],
+      "remaining": [
+        "Swain conquest query adjudication and natural/combat/named activation scoring",
+        "Patched Porobot complete entry/draw behavior and runtime promotion; actual printed dual-type play consumer",
+        "All remaining copy/attached and source-life consumers",
+        "Whole-history causal deletion/replacement/valid-seat forgery protection beyond structural validation; full action/event/state replay remains required",
+        "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
+      ],
+      "wholeCardCertification": false
     }
   ]
 }

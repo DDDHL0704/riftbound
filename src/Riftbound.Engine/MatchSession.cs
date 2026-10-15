@@ -1132,6 +1132,9 @@ public sealed record MatchState
 
     public TurnDrawLedger DrawLedger { get; init; } = new(0, new Dictionary<string, int>());
 
+    [JsonRequired]
+    public TurnCardPlayHistory CardPlays { get; init; } = new(0, [], []);
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public RuleTextModeUseLedger? RuleTextModeUses { get; init; }
 

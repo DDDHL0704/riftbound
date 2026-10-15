@@ -21,10 +21,19 @@ public sealed partial class CoreRuleEngine
     {
         var result = ResolveStackItemEffectCore(state, item, confirmPermanent, deferCompletion, repeatDamageDestroyTargets, skipInsight);
         result = FinishRecycledPlays(state, item, result, deferCompletion);
-        if (result.CompletedCardPlayIds?.Contains(item.StackItemId) == true || deferCompletion || item.PlayCost is null || result.WinnerPlayerId is not null
+        if (result.CompletedCardPlayIds?.Contains(item.StackItemId) == true || deferCompletion || item.PlayCost is null
             || result.PendingCardChoice is not null || result.PendingEffectPlay is not null
             || result.PendingPayment is not null || result.PendingHandChoice is not null
             || !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) || !IsSpellPlayBehavior(behavior)) return result;
+
+        if (result.CardObjects.TryGetValue(item.SourceObjectId, out var playedCard))
+        {
+            var location = ReconcileObjectLocations(state.ObjectLocations, result.PlayerZones).GetValueOrDefault(item.SourceObjectId);
+            var observation = CaptureCardPlayHistory(new("INTERNAL_CARD_PLAY_COMPLETION", "", new Dictionary<string, object?>()),
+                playedCard, item.ControllerId, item.StackItemId, true, location?.Zone ?? "STACK");
+            result = result with { Events = result.Events.Append(observation).ToArray() };
+        }
+        if (result.WinnerPlayerId is not null) return result;
 
         // Capture at completion, before state-based cleanup. A lethal source may still
         // have triggered; its later departure cannot erase the captured ability.

@@ -91,6 +91,8 @@ public sealed class OfficialSpellCompletionTests
         var played = await Act(state, "P1", new PlayCardCommand("C", "OGN·064/298", ["S1"], OptionalCosts: ["ECHO"]));
         Assert.Equal(6, played.State.StackItems[^1].PlayCost!.PaidMana);
         var done = await Top(played.State);
+        Assert.Single(done.State.CardPlays.Finalized, e => e.Source.ObjectId == "C");
+        Assert.Single(done.State.CardPlays.Resolved, e => e.Source.ObjectId == "C");
         Assert.Single(done.State.StackItems, s => s.SpellContext is not null);
         Assert.NotNull(done.State.PendingCardChoice);
         Restore(done.State);

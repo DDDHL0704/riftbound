@@ -1,0 +1,15 @@
+{
+  "status": "FOUR_ORIGINAL_FULL_SCORE_REPLAY_AND_FOUR_NATIVE_BRANCHES_PASSED",
+  "cases": 8,
+  "methods": 5,
+  "fullGameCases": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "trx": {
+    "path": "var/qa/play-history-20261015/actual-native-and-games-current/results.trx",
+    "sha256": "33e14cf00ea70e99a7b32d66e6171f4ebd34a16abba077a5d18ab1128b40d0f9"
+  }
+}

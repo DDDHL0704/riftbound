@@ -1,0 +1,330 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "productionCommands": 16,
+  "journalEntries": 32,
+  "events": 54,
+  "coldRecoveries": 16,
+  "records": [
+    {
+      "branch": "equipment-keep",
+      "path": "var/qa/play-history-20261015/native-current/equipment-keep/receipt.json",
+      "sha256": "940676e4fa7caac7aa20d83ca1ffbdf14b9f0606fc61e474867fbc56726cb453",
+      "native": 4,
+      "commands": 8,
+      "events": 13,
+      "restores": 4,
+      "finalized": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "UNL-161/219",
+          "types": 2,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "UNL-161/219",
+          "types": 2,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ]
+    },
+    {
+      "branch": "equipment-recycle",
+      "path": "var/qa/play-history-20261015/native-current/equipment-recycle/receipt.json",
+      "sha256": "71ce4e6554498909932c7989302d05b34b9ec419620748d20d2c691105da0e41",
+      "native": 4,
+      "commands": 8,
+      "events": 14,
+      "restores": 4,
+      "finalized": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "UNL-161/219",
+          "types": 2,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "UNL-161/219",
+          "types": 2,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ]
+    },
+    {
+      "branch": "unit-keep",
+      "path": "var/qa/play-history-20261015/native-current/unit-keep/receipt.json",
+      "sha256": "eac42cf2e4b9c356c515c6e207f8910e1dbb7dc4407f48b440f9ed5c60d7ca20",
+      "native": 4,
+      "commands": 8,
+      "events": 13,
+      "restores": 4,
+      "finalized": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "OGN·174/298",
+          "types": 1,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "OGN·174/298",
+          "types": 1,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ]
+    },
+    {
+      "branch": "unit-recycle",
+      "path": "var/qa/play-history-20261015/native-current/unit-recycle/receipt.json",
+      "sha256": "cc6f8071f038429c3827268411d448560b1d5ec5d73994064769eeb81dd02e59",
+      "native": 4,
+      "commands": 8,
+      "events": 14,
+      "restores": 4,
+      "finalized": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "OGN·174/298",
+          "types": 1,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "OGN·174/298",
+          "types": 1,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ]
+    }
+  ],
+  "godotLogSha256": "968aa8a4cf3f9aa9a4b78a474c8470d567a8b4871e96a7e92db151faeb0bf1dd",
+  "clientDllSha256": "662d6de89000c7cd8896989e0a49da35f7ac736757ab83eea1aa1f9c8f90151e",
+  "scope": "Existing real production play/response/private-Predict controls against the new history engine; typed unit/equipment histories each remain single. Not visible paired/Windows acceptance.",
+  "previousRecords": [
+    {
+      "branch": "equipment-keep",
+      "path": "var/qa/play-history-20261015/native/equipment-keep/receipt.json",
+      "sha256": "4e15e2df573b022721c691452e4f4e4a5940d7a6d0eeabe5ab500ba145e56908",
+      "native": 4,
+      "commands": 8,
+      "events": 13,
+      "restores": 4,
+      "finalized": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "UNL-161/219",
+          "types": 2,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "UNL-161/219",
+          "types": 2,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ]
+    },
+    {
+      "branch": "equipment-recycle",
+      "path": "var/qa/play-history-20261015/native/equipment-recycle/receipt.json",
+      "sha256": "6244016d0767ee9747e03c58da9a0efc055394a3ef9c92bd52bd9dfddd087403",
+      "native": 4,
+      "commands": 8,
+      "events": 14,
+      "restores": 4,
+      "finalized": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "UNL-161/219",
+          "types": 2,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "UNL-161/219",
+          "types": 2,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ]
+    },
+    {
+      "branch": "unit-keep",
+      "path": "var/qa/play-history-20261015/native/unit-keep/receipt.json",
+      "sha256": "d18c8a3886d3e6e83e440885501a2ad99184a8a504b5c2fc85a2db659a15ee74",
+      "native": 4,
+      "commands": 8,
+      "events": 13,
+      "restores": 4,
+      "finalized": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "OGN·174/298",
+          "types": 1,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "OGN·174/298",
+          "types": 1,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ]
+    },
+    {
+      "branch": "unit-recycle",
+      "path": "var/qa/play-history-20261015/native/unit-recycle/receipt.json",
+      "sha256": "79ffb204687f217d6537e17f72fd9995af7726396011448c7c14258d3984985c",
+      "native": 4,
+      "commands": 8,
+      "events": 14,
+      "restores": 4,
+      "finalized": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "OGN·174/298",
+          "types": 1,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-1-MECH",
+          "playerId": "P1",
+          "source": {
+            "objectId": "MECH",
+            "generation": 1
+          },
+          "cardNo": "OGN·174/298",
+          "types": 1,
+          "tick": 1,
+          "faceRevision": 0
+        }
+      ]
+    }
+  ],
+  "currentBackendReadback": {
+    "status": "FOUR_ORIGINAL_FULL_SCORE_REPLAY_AND_FOUR_NATIVE_BRANCHES_PASSED",
+    "cases": 8,
+    "methods": 5,
+    "fullGameCases": [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash"
+    ],
+    "trx": {
+      "path": "var/qa/play-history-20261015/actual-native-and-games-current/results.trx",
+      "sha256": "33e14cf00ea70e99a7b32d66e6171f4ebd34a16abba077a5d18ab1128b40d0f9"
+    }
+  },
+  "productionInputs": {
+    "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs": "c26035b7a0e7a928dbd88bcf9ff0ce513908cbb8bd5e7054fa44ed35775aa410",
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+    "src/Riftbound.Engine/MatchRecovery.cs": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+  }
+}

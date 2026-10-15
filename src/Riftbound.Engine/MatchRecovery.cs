@@ -23731,6 +23731,7 @@ public static class MatchRecoveryValidator
             errors.Add("invalid linked exile ledger");
         if (state.DrawLedger.TurnNumber < 0 || state.DrawLedger.TurnNumber > state.TurnNumber
             || state.DrawLedger.Counts.Any(e => !state.Seats.ContainsKey(e.Key) || e.Value < 0)) errors.Add("invalid turn draw ledger");
+        if (!CoreRuleEngine.ValidCardPlayHistory(state)) errors.Add("invalid typed card play history");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.FieldContext is { } field ? !CoreRuleEngine.ValidFieldContextState(state, field,
                 trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind)

@@ -31,10 +31,15 @@ public sealed class PrintedPredictNativeTests
         Assert.Equal([initial.PlayerZones["P1"].MainDeck[0]], choice.LegalObjectIds);
         await Submit("choose", "P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, recycle ? choice.LegalObjectIds : []));
         Assert.Empty(current.StackItems); Assert.Empty(current.TriggerQueue);
+        var finalized = Assert.Single(current.CardPlays.Finalized);
+        var resolved = Assert.Single(current.CardPlays.Resolved);
+        Assert.Equal("MECH", finalized.Source.ObjectId); Assert.Equal(finalized.PlayId, resolved.PlayId);
+        Assert.Equal(card == "UNL-161/219" ? 2 : 1, resolved.Types);
         Assert.Equal(recycle ? initial.PlayerZones["P1"].MainDeck.Skip(1).Append(initial.PlayerZones["P1"].MainDeck[0]) : initial.PlayerZones["P1"].MainDeck, current.PlayerZones["P1"].MainDeck);
         var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, Commands(), current, engine, default, Events());
         Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
-        Export("steps.json", steps); Export("receipt.json", new { recycle, native, commands = journal.Entries.Count, restores = steps.Count, events = Events().Length, replay });
+        Export("steps.json", steps); Export("receipt.json", new { recycle, native, commands = journal.Entries.Count, restores = steps.Count, events = Events().Length,
+            finalized = current.CardPlays.Finalized, resolved = current.CardPlays.Resolved, replay });
         if (native > 0) Assert.Equal(steps.Count, native);
         async Task Submit(string name, string actor, GameCommand fallback) {
             var prompt = session.PromptFor(actor); Export(name + "-prompt.json", prompt); Export(name + "-selection.json", fallback);

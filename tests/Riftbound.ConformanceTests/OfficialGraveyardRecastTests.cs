@@ -131,9 +131,11 @@ public sealed class OfficialGraveyardRecastTests
         var played=await Act(withDamage,"P1",new PlayCardCommand("C","UNL-063/219",["F"]));
         var paused=await Top(played.State);
         Assert.Equal("INSIGHT",paused.State.PendingCardChoice!.ChoiceWindow);
+        Assert.DoesNotContain(paused.State.CardPlays.Resolved,e=>e.Source.ObjectId=="C");
         Assert.DoesNotContain("C",paused.State.PlayerZones["P1"].MainDeck);Restore(paused.State);
         var choice=paused.State.PendingCardChoice;
         var done=await Act(paused.State,"P1",new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[]));
+        Assert.Single(done.State.CardPlays.Resolved,e=>e.Source.ObjectId=="C");
         Assert.Contains("F",done.State.PlayerZones["P1"].Graveyard);
         Assert.Equal("C",done.State.PlayerZones["P1"].MainDeck[^1]);Restore(done.State);
     }

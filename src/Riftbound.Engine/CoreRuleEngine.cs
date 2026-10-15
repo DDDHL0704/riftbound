@@ -179,9 +179,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             collected = QueueStandbyPlayedObservers(collected);
             collected = RecordBattleDuelRoles(state, collected);
             collected = RecordMightyTransitions(state, collected);
-            return ValueTask.FromResult(RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
+            return ValueTask.FromResult(RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
-                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
+                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected)))))))))))));
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
@@ -3655,6 +3655,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["destination"] = destination
                 })
         };
+        if (cardObjects.TryGetValue(command.SourceObjectId, out var historySource)
+            || PrintedCardFactory.TryCreate(command.SourceObjectId, intent.PlayerId, command.CardNo, out historySource))
+            events[0] = CaptureCardPlayHistory(events[0], historySource, intent.PlayerId,
+                stackItem.StackItemId, false, "STACK");
         if (behavior.StandbyPlayFrom is not null)
         {
             events.Insert(0, new("CARD_REVEALED", "从待命状态打出", new Dictionary<string, object?> {
@@ -29614,6 +29618,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 behavior,
                 equipmentState));
         playedEvent = CapturePrintedPredict(playedEvent, playerZones, equipmentState);
+        playedEvent = CaptureCardPlayHistory(playedEvent, equipmentState, stackItem.ControllerId,
+            stackItem.StackItemId, true, stackItem.PlayedFromStandby is null ? "BASE" : "BATTLEFIELD");
         events.Add(stackItem.PlayedFromStandby is null ? playedEvent : CaptureStandbyPlayed(playedEvent, playerZones, cardObjects, stackItem.ControllerId));
     }
 
@@ -30588,6 +30594,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["playerId"] = stackItem.ControllerId,
             ["sourceObjectId"] = stackItem.SourceObjectId,
             ["unitObjectId"] = stackItem.SourceObjectId,
+            ["historyPlayId"] = stackItem.StackItemId,
             ["unitName"] = behavior.DisplayName,
             ["destinationZone"] = "BASE",
             ["power"] = unitState.Power,
