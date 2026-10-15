@@ -1,0 +1,27 @@
+{
+  "commit": "83179358af4b22e08cab274e287357c924f776b4",
+  "origin": "/Users/dinghaolin/MyProjects/riftbound/var/qa/paired-trigger-20261015/native-origin/\u7b26\u6587\u6218\u573a.app",
+  "nativeCiRun": 38756325986,
+  "artifact": "native-macos-latest",
+  "zipSha256": "ebaf43288cc161a3d68ac31e300448aa7315b1cff63984afd6f8a0eebe8c3c27",
+  "derivatives": [
+    {
+      "side": "a",
+      "app": "/Users/dinghaolin/MyProjects/riftbound/var/qa/paired-trigger-20261015/Riftbound8317-A.app",
+      "bundleId": "com.riftbound.qa.trigger8317.a",
+      "managedDlls": 372,
+      "allManagedDllsIdenticalToCiArtifact": true,
+      "launcherSha256": "c4d6fd6993cfed68b69b2a025365eeb0d03aec7bc9c7d2965f2ee43ba61c50a3",
+      "launchScope": "Server/session isolation only; no autoplay, devseed, surrender or RNG selection."
+    },
+    {
+      "side": "b",
+      "app": "/Users/dinghaolin/MyProjects/riftbound/var/qa/paired-trigger-20261015/Riftbound8317-B.app",
+      "bundleId": "com.riftbound.qa.trigger8317.b",
+      "managedDlls": 372,
+      "allManagedDllsIdenticalToCiArtifact": true,
+      "launcherSha256": "d7d7657e223abf859077abb51f994c1e688ad0dbbdef01044424b69d9a7d5685",
+      "launchScope": "Server/session isolation only; no autoplay, devseed, surrender or RNG selection."
+    }
+  ]
+}

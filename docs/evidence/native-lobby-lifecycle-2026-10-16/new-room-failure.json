@@ -1,0 +1,29 @@
+{
+  "status": "ACTUAL_BOTH_NATIVE_NEXT_ROOM_ENTRY_STALLED_DISPOSED_RUNE_CONTROL",
+  "commit": "83179358af4b22e08cab274e287357c924f776b4",
+  "previousMatch": "paired-trigger-20261015",
+  "previousMatchNormalScore": [
+    8,
+    7
+  ],
+  "previousTick": 116,
+  "previousEvents": 525,
+  "newRoom": "vayne-visible-20261016",
+  "newRoomActualSqlTick": 0,
+  "newRoomActualSqlEvents": 0,
+  "bothNativeReturnLobbyThenEnterRoom": true,
+  "bothUiWaitingServerUpdateObserved": true,
+  "sameObjectDisposedButtonFailureBothSides": true,
+  "aStack": {
+    "path": "docs/evidence/native-lobby-lifecycle-2026-10-16/native-a-disposed-stack.txt",
+    "sha256": "1d9dfaa5a9671394e5fba97c036d959945a6aded25bf868806edb074c4edf4bc"
+  },
+  "bStack": {
+    "path": "docs/evidence/native-lobby-lifecycle-2026-10-16/native-b-disposed-stack.txt",
+    "sha256": "ba11bde04e674744dd718a618fb0b06062c3b0f0d5ee8d6d18f2faad77c201c6"
+  },
+  "privateCredentialsAndFutureDeckOrderPublished": false,
+  "originalFinishedMatchHistoryUnmodified": true,
+  "freshVayneDeckPreflightOnly": "Legal40/12/3 prepared, no custom deck was submitted to this stalled room and no gameplay action accepted",
+  "oldRoomGate": "Finished normal score and original-opening replay remain valid within exact scope; next-room lifecycle is separately OPEN"
+}

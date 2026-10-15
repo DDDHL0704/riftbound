@@ -1,0 +1,53 @@
+{
+  "status": "LOCAL_ACTUAL_GODOT_FREED_CONTROL_RED_THEN_GREEN",
+  "baseCommit": "15a79bfb1abfdf969ddbb959b878789247629ccc",
+  "nativeFailedCandidate": "83179358af4b22e08cab274e287357c924f776b4",
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/38",
+  "red": {
+    "path": "docs/evidence/native-lobby-lifecycle-2026-10-16/lifecycle-red.log.gz",
+    "sha256": "f2712fed9f48bbd9dd364be962027a6e1ee894be2102cc2276b6314c0520f6cc",
+    "encoding": "gzip",
+    "originalSha256": "d14e22bd6e8b1f771ebdbecec391cf57aa351caa9c2929291b67599b05782822",
+    "originalByteLength": 4891
+  },
+  "green": {
+    "path": "docs/evidence/native-lobby-lifecycle-2026-10-16/lifecycle-green.log.gz",
+    "sha256": "fe64a53d4e7780f470d59f1282ad708a405df1c812f616d5704472b376f61c31",
+    "encoding": "gzip",
+    "originalSha256": "e84a0713ccdf974f1763afbd355174fdfe2abcaa9cda608b4d67c87f08b0d437",
+    "originalByteLength": 151
+  },
+  "queueFreeActuallyCompleted": true,
+  "latePromptAfterClearAndDirectNewTable": 2,
+  "samePlayerSameRuneObjectIdsBetweenTables": true,
+  "oldLegalChoicesNotInherited": true,
+  "newControlsEmitCurrentRecycleAndBatchSignals": 4,
+  "newPendingStillDisablesControls": true,
+  "fix": "MatchTableRenderer.Clear resets rune control references, legal sets and pending state before freeing child nodes",
+  "newCiGate": "ci-desktop.py runs actual RuneTableLifecycleProof on both matrix OS before exporting",
+  "actualSourceByteUnchanged": "All424 prior Conformance C# files; existing BattleTableInteractionProof restored byte-for-byte after exploratory fixture attempt",
+  "oldCompositeProof": {
+    "state": "OPEN_FOR_FIXTURE_REVALIDATION",
+    "initialFailure": {
+      "path": "docs/evidence/native-lobby-lifecycle-2026-10-16/native-red.log.gz",
+      "sha256": "fa08ad78dd3a6897d5d24406426cd9170f3c097ec65c6fe3005121c137f4002c",
+      "encoding": "gzip",
+      "originalSha256": "b02904703c8ce3e31e93e037d7246f5c36dcec6a3025ffa39a9a637893d4db5b",
+      "originalByteLength": 1848
+    },
+    "exploratoryFixtureFailure": {
+      "path": "docs/evidence/native-lobby-lifecycle-2026-10-16/table-all-resolutions.log.gz",
+      "sha256": "a8e4e7616d0c019db876e4ab20038b0f9bb81e8618b3a666229c3c65f1b75c8b",
+      "encoding": "gzip",
+      "originalSha256": "cd184ca24ba8766b3593e92142578fff59200b87c2e52231fda31ced397c00db",
+      "originalByteLength": 3321
+    },
+    "details": "Initial old Player fixture marks opponent hand cards visible while asserting all concealed. An uncommitted investigation aligning concealed hand then reaches a synthetic ambiguous prompt lacking candidateJson, which CurrentAction parses as empty JSON. Both exploratory source changes were reverted; no original assertion or fixture was weakened or deleted. This is separate from the directly reproduced disposed-control defect.",
+    "notAnEmptyBattleDeclarationFile": "The committed battle-declaration JSON is7864 bytes and parsed successfully; the actual stack points to PromptInteractionController.CurrentAction."
+  },
+  "fixedNewCommitFull": "PENDING_NEW_NATIVE_REPAIR_COMMIT",
+  "visibleNewCandidate": "OPEN",
+  "windowsPhysical": "OPEN",
+  "wholeSemantics": "OPEN",
+  "serverRulesOrAcceptedHistoryChanged": false
+}

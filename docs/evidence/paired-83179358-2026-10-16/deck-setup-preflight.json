@@ -1,0 +1,202 @@
+{
+  "status": "FIXED_CN_STANDARD_DECK_VALIDATION_PASS",
+  "format": "CN-STANDARD-2026-07-24",
+  "decks": [
+    {
+      "side": "a",
+      "legend": "UNL-197/219",
+      "champion": "UNL-149/219",
+      "main": 40,
+      "runes": 12,
+      "battlefields": 3,
+      "mainEntries": [
+        {
+          "cardNo": "UNL-149/219",
+          "name": "\u9EDB\u5B89\u5A1C",
+          "copies": 1
+        },
+        {
+          "cardNo": "VEN\u00B7056",
+          "name": "\u5343\u91CC\u773C",
+          "copies": 3
+        },
+        {
+          "cardNo": "UNL-063/219",
+          "name": "\u6708\u8680",
+          "copies": 3
+        },
+        {
+          "cardNo": "UNL-131/219",
+          "name": "\u9057\u5F03",
+          "copies": 3
+        },
+        {
+          "cardNo": "UNL-146/219",
+          "name": "\u8F9B\u5FB7\u62C9",
+          "copies": 3
+        },
+        {
+          "cardNo": "SFD\u00B7078/221",
+          "name": "\u9884\u65F6\u4E4B\u95E8",
+          "copies": 3
+        },
+        {
+          "cardNo": "FND-196/298",
+          "name": "\u63D0\u83AB",
+          "copies": 3
+        },
+        {
+          "cardNo": "OGN\u00B7096/298",
+          "name": "\u8B66\u89C9\u7684\u54E8\u5175",
+          "copies": 3
+        },
+        {
+          "cardNo": "OGN\u00B7103/298",
+          "name": "\u62C9\u6587\u5E03\u9C81\u59C6\u5B66\u751F",
+          "copies": 3
+        },
+        {
+          "cardNo": "OGN\u00B7171/298",
+          "name": "\u53E8\u53E8\u9B44\u7F57",
+          "copies": 3
+        },
+        {
+          "cardNo": "OGN\u00B7185/298",
+          "name": "\u65C5\u884C\u5546\u4EBA",
+          "copies": 3
+        },
+        {
+          "cardNo": "SFD\u00B7065/221",
+          "name": "\u5148\u89C1\u673A\u7532",
+          "copies": 3
+        },
+        {
+          "cardNo": "SFD\u00B7069/221",
+          "name": "\u574F\u574F\u9B44\u7F57",
+          "copies": 3
+        },
+        {
+          "cardNo": "SFD\u00B7128/221",
+          "name": "\u72C2\u70ED\u7C89\u4E1D",
+          "copies": 3
+        }
+      ],
+      "runeEntries": [
+        {
+          "cardNo": "OGN\u00B7089/298",
+          "colors": [
+            "blue"
+          ],
+          "copies": 6
+        },
+        {
+          "cardNo": "OGN\u00B7166/298",
+          "colors": [
+            "purple"
+          ],
+          "copies": 6
+        }
+      ]
+    },
+    {
+      "side": "b",
+      "legend": "OGN\u00B7247/298",
+      "champion": "OGN\u00B7039/298",
+      "main": 40,
+      "runes": 12,
+      "battlefields": 3,
+      "mainEntries": [
+        {
+          "cardNo": "OGN\u00B7039/298",
+          "name": "\u5361\u838E",
+          "copies": 1
+        },
+        {
+          "cardNo": "OGN\u00B7035/298",
+          "name": "\u8587\u6069",
+          "copies": 3
+        },
+        {
+          "cardNo": "ARC-001/006",
+          "name": "\u851A",
+          "copies": 3
+        },
+        {
+          "cardNo": "OGN\u00B7013/298",
+          "name": "\u5478\u5478\u9B44\u7F57",
+          "copies": 3
+        },
+        {
+          "cardNo": "OGN\u00B7096/298",
+          "name": "\u8B66\u89C9\u7684\u54E8\u5175",
+          "copies": 3
+        },
+        {
+          "cardNo": "OGN\u00B7103/298",
+          "name": "\u62C9\u6587\u5E03\u9C81\u59C6\u5B66\u751F",
+          "copies": 3
+        },
+        {
+          "cardNo": "OGN\u00B7121/298",
+          "name": "\u63D0\u83AB",
+          "copies": 3
+        },
+        {
+          "cardNo": "SFD\u00B7018/221",
+          "name": "\u865A\u7A7A\u517D\u82D7",
+          "copies": 3
+        },
+        {
+          "cardNo": "SFD\u00B7065/221",
+          "name": "\u5148\u89C1\u673A\u7532",
+          "copies": 3
+        },
+        {
+          "cardNo": "SFD\u00B7069/221",
+          "name": "\u574F\u574F\u9B44\u7F57",
+          "copies": 3
+        },
+        {
+          "cardNo": "UNL-002/219",
+          "name": "\u4F0A\u711A\u5A1C",
+          "copies": 3
+        },
+        {
+          "cardNo": "UNL-003/219",
+          "name": "\u9C9B\u4EBA\u6ECB\u4E8B\u8005",
+          "copies": 3
+        },
+        {
+          "cardNo": "UNL-065/219",
+          "name": "\u51B0\u8C37\u5F13\u7BAD\u624B",
+          "copies": 3
+        },
+        {
+          "cardNo": "UNL-076/219",
+          "name": "\u82B1\u74E3\u4ED9\u5B50",
+          "copies": 3
+        }
+      ],
+      "runeEntries": [
+        {
+          "cardNo": "OGN\u00B7007/298",
+          "colors": [
+            "red"
+          ],
+          "copies": 7
+        },
+        {
+          "cardNo": "OGN\u00B7089/298",
+          "colors": [
+            "blue"
+          ],
+          "copies": 5
+        }
+      ]
+    }
+  ],
+  "nativeCustomDeckEditor": "Unavailable; custom setup will use ordinary authenticated SubmitIntent and be separately disclosed",
+  "noMatchOrGameplayStateChanged": true,
+  "noSeedOrRngSelection": true,
+  "scope": "Deck metadata and fixed format validator only; no whole-card semantic certification"
+}

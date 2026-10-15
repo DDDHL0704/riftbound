@@ -89,6 +89,11 @@ public sealed class MatchTableRenderer
     {
         _handViews.Clear();
         _cardBindings.Clear();
+        _runeRecycleButtons.Clear();
+        _runeBatchButton = null;
+        _tapRunes.Clear();
+        _recycleRunes.Clear();
+        _runePending = false;
         _opponentSummary.Text = "对手 · 等待数据";
         _selfSummary.Text = "我方 · 等待数据";
         _selfHandCount.Text = "0 张";

@@ -96,6 +96,10 @@ def main():
     run(["dotnet", "build", PROJECT / "Riftbound.GodotClient.csproj"], logs / "build.log")
     with packaging_without_editor_plugins(PROJECT):
         run([editor, "--headless", "--editor", "--path", PROJECT, "--import"], logs / "import.log")
+        lifecycle = run([editor, "--headless", "--path", PROJECT,
+                         "res://scenes/debug/RuneTableLifecycleProof.tscn"], logs / "rune-table-lifecycle.log", timeout=90)
+        if "RUNE_TABLE_LIFECYCLE_PASS: 2 freed-control transitions, 4 native signals" not in lifecycle:
+            raise RuntimeError("Native table reuse after returning to the lobby was not verified")
         target = "macOS" if platform == "darwin" else "Windows Desktop"
         output_dir = PROJECT / "exports" / ("macos" if platform == "darwin" else "windows")
         output_dir.mkdir(parents=True, exist_ok=True)

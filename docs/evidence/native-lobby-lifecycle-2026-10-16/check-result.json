@@ -1,0 +1,32 @@
+{
+  "status": "SINGLE_BATCH_CHECK_EXACT_CASE_METHOD_PARITY_PASS",
+  "baseCommit": "15a79bfb1abfdf969ddbb959b878789247629ccc",
+  "singleCoherentBatchCheck": true,
+  "cases": 11891,
+  "methods": 7200,
+  "failed": 0,
+  "skipped": 0,
+  "seconds": 349.01,
+  "oldCaseMultisetAndMethodsExactlyEqual": true,
+  "all424OriginalConformanceSourcesByteIdentical": true,
+  "original143FullGameMethods110PairsSeed424242SourceRetained": true,
+  "frozenInputCount": 2881,
+  "allFrozenInputsByteIdenticalAfterCheck": true,
+  "inputs": {
+    "path": "docs/evidence/native-lobby-lifecycle-2026-10-16/check-inputs.json",
+    "sha256": "dee04590dc5537c58a90b4a85d68c48b94ec205e8318ae4b2a0f2217cfb7051b"
+  },
+  "trx": {
+    "path": "var/qa/native-lobby-lifecycle-20261016/check/check/results.trx",
+    "sha256": "379c8cc560bea89c1e3a2348f96e515fafc8055b0fe64ba4d82c48332b59e500"
+  },
+  "summary": {
+    "path": "var/qa/native-lobby-lifecycle-20261016/check/summary.json",
+    "sha256": "05a194c741c9c66065e63aee9a42021f7e0c8fae4e4dd8f6cd3acac97ed6d115"
+  },
+  "nativeProof": "Actual Godot red then green:2 freed transitions and4 signals; new desktop CI gate",
+  "currentFixedFull": "PENDING_NEW_COMMIT",
+  "visibleCurrentCandidate": "OPEN",
+  "currentCN16RuntimeAdoption": "OPEN",
+  "semanticCoverageCertified": false
+}

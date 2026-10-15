@@ -1,0 +1,116 @@
+{
+  "status": "EXACT_PRIOR_SOURCE_NATIVE_PAIRED_SQL_RECONNECT_NORMAL_SCORE8_FULL_REPLAY_PASS",
+  "recordedAtUtc": "2026-10-15T18:38:54.074338+00:00",
+  "commit": "83179358af4b22e08cab274e287357c924f776b4",
+  "room": "paired-trigger-20261015",
+  "sourceScope": "CN2026-10-14/DOC04 runtime. CN16 is a separate current audit target and is NOT adopted or certified by this evidence.",
+  "environment": {
+    "os": "macOS27.0.1",
+    "architecture": "arm64",
+    "viewport": [
+      1440,
+      964
+    ],
+    "api": "127.0.0.1:5159",
+    "postgres": "actual dedicated PostgreSQL at127.0.0.1:55446",
+    "managedDllsEach": 372,
+    "apiDlls": 12,
+    "allDllsRehashedAfterFinish": true
+  },
+  "nativeOrigin": {
+    "path": "docs/evidence/paired-83179358-2026-10-16/derivative-apps.json",
+    "sha256": "7e5e222db0b3e2353d3ebd5c3835ff055b85c399e6cad9428775c6bb023854af"
+  },
+  "fixedFull": {
+    "path": "docs/evidence/paired-83179358-2026-10-16/full-ci-83179358.json",
+    "sha256": "e0c464fee61ce7d8145cdcd731f12421dc18c485487e5238784621d51070a515"
+  },
+  "originalOpeningFullReplay": {
+    "path": "docs/evidence/paired-83179358-2026-10-16/final-full-replay-checkpoint.json",
+    "sha256": "25207c8826dd779b9808ef4122d9e8f131859c3a505e212bdf6a3084f424b8b3"
+  },
+  "commands": 117,
+  "events": 525,
+  "normalScore": [
+    8,
+    7
+  ],
+  "winner": "paired-trigger-a",
+  "bothResultScreensObserved": true,
+  "bothReturnToLobbyButtonsActuallyUsed": true,
+  "nativeGameplay": true,
+  "customDeckSetup": "Ordinary authenticated SUBMIT_DECK helper; native custom deck editing remains OPEN",
+  "automaticReconnect": {
+    "path": "docs/evidence/paired-83179358-2026-10-16/automatic-reconnect.json",
+    "sha256": "6eb787f4fd7bb68b0c386d75b2afcc419c961f190c2dfe60d8e6bb5715635523"
+  },
+  "manualColdPrivateFiveCardReconnect": {
+    "path": "docs/evidence/paired-83179358-2026-10-16/private-insight-cold-reconnect.json",
+    "sha256": "c8a70dba08a7e1ccc4eddfe6cc399921b8735672433f5d12b7310ba64a97c616"
+  },
+  "privateFiveCardChoiceAndOrdering": {
+    "nativeRecycleChoices": 2,
+    "retainedCount": 3,
+    "nativeOrderSelected": [
+      "UNL-063/219",
+      "VEN·056",
+      "OGN·185/298"
+    ],
+    "subsequentNativeHandDrawsObserved": [
+      "UNL-063/219",
+      "VEN·056"
+    ],
+    "opponentBeforeAndAfterColdReconnectHadNoPrivateNames": true
+  },
+  "moonEcho": {
+    "cardNo": "UNL-063/219",
+    "timeGate": "SFD·078/221",
+    "echoMana": 3,
+    "totalMana": 6,
+    "independentTargets": [
+      "paired-trigger-b-MAIN-UNL-002-219-29",
+      "paired-trigger-b-MAIN-OGN-096-298-11"
+    ],
+    "eachExecutionInsightChoiceIdDistinct": true,
+    "eachExecutionViewedDifferentObjectOfSamePrinting": true,
+    "viewedPrinting": "OGN·185/298",
+    "firstChoiceRecycled": true,
+    "secondChoiceRetained": true,
+    "bothSubmittedThroughNativeControls": true
+  },
+  "declarationAndDamage": "Three natural battles including both players independent damage and source-trigger ordering; actual native Fan optional decline. This does not certify every multi-unit/mixed-payment branch.",
+  "transientLabelObservation": {
+    "status": "OBSERVED_ONCE_NOT_REPRODUCED_NO_CAUSE_CONFIRMED",
+    "preservedPrivateCaptures": [
+      "moon-echo-first-insight.json",
+      "moon-echo-second-insight-stale-ui.json",
+      "moon-echo-stale-ui-private-sql-prompt.json"
+    ],
+    "actualSqlSecondPromptAndFreshNativeReadBothMerchant": true,
+    "didNotSubmitToInvestigateOrResetHistory": true,
+    "codeChangedForObservation": false,
+    "scope": "Earlier right-side label appeared as SFD065 while active options were Merchant; refreshed native read matched SQL without another gameplay action. No reproducible stale-choice defect established."
+  },
+  "screenshots": "Actual CUA images in this conversation; no unavailable local screenshot file claimed",
+  "readerSource": {
+    "path": "var/qa/paired-trigger-20261015/replay-reader/Program.cs",
+    "sha256": "5c759c1d29cc926f6009f6bc229f228ff4a42ca280858e778838f0ede1a00321"
+  },
+  "readerAssembly": {
+    "path": "var/qa/paired-trigger-20261015/replay-reader/bin/Debug/net10.0/reader.dll",
+    "sha256": "411280d5c5820a24c10998207f8c5f0cacd221ffae980cdeed0b53b7a4ab6508"
+  },
+  "privateFrameNeverPublished": true,
+  "originalAcceptedHistoryRewritten": false,
+  "remaining": {
+    "visibleVayneOptionalManaPayAndDecline": "OPEN; not drawn in this finished match",
+    "otherOptionalPaymentConsumersAndMixedPayments": "OPEN",
+    "nativeLobbyClipping": "OPEN issue37",
+    "nativeCustomDeckEditing": "OPEN",
+    "currentCN16SourceRuntimeAndProduct": "OPEN",
+    "windowsPhysical": "OPEN",
+    "allApplicableSemantics": "OPEN"
+  },
+  "semanticCertification": false,
+  "goal": "ACTIVE_NOT_READY"
+}
