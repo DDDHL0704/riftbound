@@ -8993,11 +8993,11 @@ internal static class ActionPromptBuilder
             selectionSteps = steps;
         }
         if (action == CommandTypes.PayCost && state.PendingPayment is { } payment && payment.PlayerId == playerId
-            && (payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
+            && (payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
         {
             var steps = new List<ActionPromptSelectionStepDto>();
             AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "OPTIONAL_SPELL_CONTROL_PAYMENT" ? "结算中支付符能或尝试无效化" : state.PendingRuleChoice?.Request.Kind == "SPELL_CHOICE_REMAKE" ? "修改目标或模式，再确认全部合法；可保留全部原选择" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
-                payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
+                payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
             if (payment.PaymentWindow == CoreRuleEngine.MightyCostWindow) {
                 var resources = PendingPaymentResourceChoiceDtos(state, payment);
                 for (var index = 0; index < resources.Count; index++)
@@ -15666,6 +15666,7 @@ internal static class ActionPromptBuilder
     private static string PaymentChoiceLabel(string choiceId)
     {
         if (choiceId == "PAY") return "支付费用";
+        if (choiceId == "DECLINE") return "放弃此效果";
         if (choiceId == "UNABLE_TO_PAY") return "无法支付，武装留在原处";
         const string spendManaPrefix = "SPEND_MANA:";
         const string spendPowerPrefix = "SPEND_POWER:";

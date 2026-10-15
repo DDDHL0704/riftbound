@@ -32,12 +32,13 @@ public sealed partial class CoreRuleEngine
         => state.TriggerQueue.Any(t => t.TriggeredByEventKind == "BATTLE_ROLES_ESTABLISHED")
             && IsInitialBattleDuel(state, out var context) ? context.InitialAttackingPlayerId : null;
 
-    private static IReadOnlyList<string> MarkBattleCombatStarted(MatchState state, IReadOnlyList<string> costs, IReadOnlyList<string>? targets)
+    private static IReadOnlyList<string> MarkBattleCombatStarted(MatchState state, IReadOnlyList<string> costs, IReadOnlyList<string>? targets,
+        IReadOnlyList<string> attackers, IReadOnlyList<string> defenders)
     {
         if (!IsInitialBattleDuel(state, out var context)) return state.UntilEndOfTurnEffects;
         return SetBattleResponseDeclarationContextMarker(state.UntilEndOfTurnEffects,
-            BuildBattleResponseDeclarationContextMarker(context.BattlefieldId, context.AttackerObjectIds,
-                context.DefenderObjectIds, costs, targets ?? [],
+            BuildBattleResponseDeclarationContextMarker(context.BattlefieldId, attackers,
+                defenders, costs, targets ?? [],
                 context.InitialFocusPlayerId, context.InitialAttackingPlayerId, combatStarted: true, initialRolesEstablished: true,
                 ceasedTokens: context.CeasedTokens, publicObjectBindings: context.PublicObjectBindings));
     }

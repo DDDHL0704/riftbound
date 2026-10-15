@@ -20582,6 +20582,64 @@
         "fixedFull": "PENDING",
         "product": "OPEN"
       }
+    },
+    {
+      "id": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+      "status": "SCOPED_OPTIONAL_MANA_NATURAL_ORDER_CHECK_PASS_FIXED_FULL_PRODUCT_OPEN",
+      "scope": "Server prompt binding for existing optional mana trigger choices; no new semantic certification, singular-source official rule, or whole-card endorsement. Natural combat declaration provenance is implementation evidence only.",
+      "subjects": [
+        "OGN-035/298",
+        "SFD-220/221",
+        "SFD-210/221",
+        "SFD-207/221",
+        "UNL-065/219"
+      ],
+      "ruleRecords": [
+        "DOC-04-P061-B012",
+        "DOC-04-P089-B001",
+        "DOC-04-P089-B007",
+        "DOC-04-P092-B013"
+      ],
+      "auditDocument": "docs/NATIVE_TRIGGER_PAYMENT_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/native-trigger-payment-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-15",
+        "runtimeRuleInputDate": "2026-10-14",
+        "futureCoreAdopted": false,
+        "naturalDeclarationOrder": "Implementation provenance invariant, not an official exclusive-conquest-source interpretation"
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.BattleStartRoles.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "src/Riftbound.Engine/MatchSession.cs"
+      ],
+      "remaining": [
+        "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
+        "All unreviewed exact printing/clause semantics and official source gaps/applicability",
+        "New fixed full for changed gameplay/verification inputs",
+        "Fresh same-fixed-candidate visible paired real SQL private choices/reconnect/normal score and original-opening full replay",
+        "Independent Windows physical runtime and native custom deck editor"
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 18,
+        "newMethods": 3,
+        "adjacentCases": 3932,
+        "adjacentMethods": 2575,
+        "originalFullGameMethods": 51,
+        "originalFullGameCases": 53,
+        "all422OriginalTestSourcesByteUnchanged": true,
+        "actualNativeCommands": 10,
+        "actualSqlScenarios": 67,
+        "newActualSqlEventTamperRejections": 18,
+        "check": "SINGLE_CHECK_PASS_11891_CASES_7200_METHODS",
+        "fixedFull": "PENDING",
+        "product": "OPEN"
+      }
     }
   ]
 }

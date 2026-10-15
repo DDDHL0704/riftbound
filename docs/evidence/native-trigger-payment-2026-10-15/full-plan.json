@@ -1,0 +1,28 @@
+{
+  "status": "PLAN_ONLY_NOT_FULL_EXECUTION",
+  "methods": 7341,
+  "previousMethods": 7338,
+  "allPreviousMethodsPreserved": true,
+  "newMethods": [
+    "Riftbound.ConformanceTests.NaturalBattleDeclarationOrderTests.NaturalMoveDuelRetainsTheAcceptedCombatDeclarationOrder",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation"
+  ],
+  "originalFullGameMethods": 143,
+  "originalMatrixSourceByteUnchanged": true,
+  "pairCountFromUnchangedMatrixSource": 110,
+  "seed": 424242,
+  "expectedCaseCountFromPriorActualPlus18": 12040,
+  "expectedRealSqlScenarios": 67,
+  "plan": {
+    "path": "var/qa/native-trigger-payment-20261015/full-plan/plan.json",
+    "sha256": "bd122f005bb34ec91b3121e884d4eb9065601c1ac570d1c71948a56041678cbd"
+  },
+  "previousPlan": {
+    "path": "var/qa/paired-d1c2-20261015/conformance-results/ci-rules/plan.json",
+    "sha256": "ca963d493c1a1933069eaec06163554d9d00412865a7ea45a5699b667170ae15"
+  },
+  "testAssemblySha256": "0d95ed715d5d8e2dfc940e9b44f1a9dccf2ebce25d0197150911e050108a2798",
+  "fixedFull": "PENDING_NEW_COMMIT",
+  "wholeSemanticsCertified": false
+}

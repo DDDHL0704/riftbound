@@ -1,0 +1,61 @@
+{
+  "status": "NATURAL_MOVEMENT_CONQUEST_SOURCE_DOES_NOT_RETAIN_ACCEPTED_ORDER",
+  "commit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+  "move": {
+    "playerId": "paired-d1c2-b",
+    "startedTick": 37,
+    "completedTick": 38,
+    "rawCommand": {
+      "cmdType": "MOVE_UNIT",
+      "promptId": "paired-d1c2-20261015:37:paired-d1c2-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "destination": "BATTLEFIELD:paired-d1c2-a-BATTLEFIELD-OGN-278-298-01",
+      "snapshotTick": 37,
+      "sourceObjectId": "paired-d1c2-b-MAIN-OGN-096-298-12",
+      "sourceObjectIds": [
+        "paired-d1c2-b-MAIN-OGN-096-298-12",
+        "paired-d1c2-b-MAIN-OGN-035-298-02"
+      ]
+    }
+  },
+  "declaration": {
+    "playerId": "paired-d1c2-b",
+    "startedTick": 40,
+    "completedTick": 41,
+    "rawCommand": {
+      "cmdType": "DECLARE_BATTLE",
+      "promptId": "paired-d1c2-20261015:40:paired-d1c2-b:DECLARE_BATTLE,SURRENDER",
+      "snapshotTick": 40,
+      "battlefieldId": "paired-d1c2-a-BATTLEFIELD-OGN-278-298-01",
+      "optionalCosts": [
+        "COMBAT_ASSIGNMENT"
+      ],
+      "attackerObjectIds": [
+        "paired-d1c2-b-MAIN-OGN-096-298-12",
+        "paired-d1c2-b-MAIN-OGN-035-298-02"
+      ],
+      "defenderObjectIds": [
+        "paired-d1c2-a-MAIN-OGN-096-298-19"
+      ]
+    }
+  },
+  "conquestEvent": {
+    "sequence": 182,
+    "tick": 43,
+    "order": 7,
+    "event": {
+      "kind": "BATTLEFIELD_CONQUERED",
+      "description": "paired-d1c2-b 征服战场",
+      "payload": {
+        "playerId": "paired-d1c2-b",
+        "battlefieldId": "paired-d1c2-a-BATTLEFIELD-OGN-278-298-01",
+        "sourceObjectId": "paired-d1c2-b-MAIN-OGN-035-298-02",
+        "defeatedObjectIds": [
+          "paired-d1c2-a-MAIN-OGN-096-298-19"
+        ],
+        "assignedOverkillDamageToEnemyUnits": 5
+      },
+      "objectRefs": null
+    }
+  },
+  "interpretation": "Both accepted movement and battle declaration put Watchful Sentry before Vayne; actual conquest provenance selects Vayne. The d1 explicit-declaration fixture passed but did not cover an existing natural-movement context. This is a bounded implementation provenance mismatch, not a new claim that official rules prescribe a singular conquest source."
+}

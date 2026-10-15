@@ -12478,7 +12478,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ActivePlayerId = intent.PlayerId, TimingState = TimingStates.NeutralOpen,
                     PriorityPlayerId = null, PassedPriorityPlayerIds = [], FocusPlayerId = null, PassedFocusPlayerIds = [],
                     PendingPayment = attackPayment,
-                    UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(MarkBattleCombatStarted(state, optionalCosts, command.BattlefieldTargetObjectIds))
+                    UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(MarkBattleCombatStarted(state, optionalCosts, command.BattlefieldTargetObjectIds,
+                        attackerObjectIds, defenderObjectIds))
                 };
                 return new(true, null, paymentState, paymentEvents,
                     ResolutionResult.BuildSnapshots(paymentState), BuildCorePrompts(paymentState));
@@ -12493,7 +12494,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 defenderObjectIds))
         {
             var assignmentObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-            var assignmentEffects = MarkBattleCombatStarted(state, optionalCosts, command.BattlefieldTargetObjectIds);
+            var assignmentEffects = MarkBattleCombatStarted(state, optionalCosts, command.BattlefieldTargetObjectIds, attackerObjectIds, defenderObjectIds);
             if (!TryReadBattleResponseDeclarationContext(state, battlefieldId, out _))
                 assignmentEffects = SetBattleResponseDeclarationContextMarker(assignmentEffects,
                     BuildBattleResponseDeclarationContextMarker(battlefieldId, attackerObjectIds, defenderObjectIds,

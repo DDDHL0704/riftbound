@@ -1,0 +1,197 @@
+{
+  "status": "ACTUAL_GODOT_10_OPTIONAL_CHOICES_AND_FINAL_SERVER_READBACK_PASS",
+  "baseCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+  "includesExplicitUncommittedRepair": true,
+  "actualNativeCommands": 10,
+  "backendCommands": 36,
+  "events": 117,
+  "coldRecoveries": 36,
+  "nativeTreeInputs": {
+    "path": "var/qa/native-trigger-payment-20261015/native-tree-v2-inputs.json",
+    "sha256": "abd04b51bb422b243c80aea4548ed88537c1e20b06f08fa2894ff8cd12702e99"
+  },
+  "nativeInputCount": 377,
+  "nativeInputsUnchanged": true,
+  "finalReadback": {
+    "path": "var/qa/native-trigger-payment-20261015/native-backend-readback-final/results.trx",
+    "sha256": "21e6180ce270f095dfe8eeaba7b00a1b992e24173fe33c26ead082b10eaf764e"
+  },
+  "nativeControlsLog": {
+    "path": "var/qa/native-trigger-payment-20261015/native-controls.log",
+    "sha256": "7ee008046ddd5310475fcc8f651ecb47201911d54be666a96771c5a82d48abd5"
+  },
+  "commandFiles": [
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/gold-decline/defend-step-3-command.json",
+      "sha256": "2b0ba4b54c995f3cc4d6ad7a26d9c3467f62cfd05a81197ed68f95d517b6e349"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/gold-pay/defend-step-3-command.json",
+      "sha256": "b3897f43b5f87bf7584a2c612d0eccdcf7d5782d856aadaf99e2a97e59861d15"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/icevale-decline/defend-step-1-command.json",
+      "sha256": "d9153891486c18d4fe458b1ff439edc878a0b75f3ef6e7abb0a4ea652d1e3638"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/icevale-pay/defend-step-1-command.json",
+      "sha256": "1ad55bf90fa80d06b8f05c00d4ceac8a07467ba864bebdd88c79cad969e1fd64"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/legend-decline/defend-step-3-command.json",
+      "sha256": "5af389fc1243b88594cc07c20b04cfbf059232908ed574a5d9a5a86d9f85ffe9"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/legend-pay/defend-step-3-command.json",
+      "sha256": "4c92451ba813c818254896583404084ee6ba18413c439f226628da09d9ee9133"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/sand-decline/defend-step-3-command.json",
+      "sha256": "64e777eb7c965934d73ed3d870b42e3d6b7525e57a053a7cb60093fd668cba29"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/sand-pay/defend-step-3-command.json",
+      "sha256": "0f93e25354da55feb9144c1e3b41326d77d17c82d87ea33ac838942591e824f7"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/vayne-decline/defend-step-3-command.json",
+      "sha256": "9bf5611c39d5e572331c3bf3909832fc98593fd129cd1d896d23edf3592c0f85"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/vayne-pay/defend-step-3-command.json",
+      "sha256": "38ce6e357515d6174913a82f29c1cbaf79277a59d63947dd8137e687a8e684b7"
+    }
+  ],
+  "receipts": [
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/gold-decline/receipt.json",
+      "sha256": "7ce879ffd377ce6112ce56f3ec3f73399232a8815f6e3934cbcb70f84f9b3d97"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/gold-pay/receipt.json",
+      "sha256": "75a7950b97a133d49111fde326072afbc06e91f696a9e55f60ca8ab03fbe2a63"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/icevale-decline/receipt.json",
+      "sha256": "cf84e6ed1e9126483c9acb64afc8a8195dd585783085a36f560d69ed9868305e"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/icevale-pay/receipt.json",
+      "sha256": "84348e609caf63b8691ff00025b6bfbad941627fd567ffa603fdea7320ca234d"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/legend-decline/receipt.json",
+      "sha256": "1d5883df07cabf3b3e6e6cdc1e247a7d4d45c509538798be380501dd970203da"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/legend-pay/receipt.json",
+      "sha256": "485b9d2621ed950c209779b048ab5c190ae019be61b85259b2b8a403f99438eb"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/sand-decline/receipt.json",
+      "sha256": "e156c2ac67f723a05d269764eb380a1c4378941b72c0548d5de11f592771684c"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/sand-pay/receipt.json",
+      "sha256": "6ec4bccc1cf6fce17e64265a4d1a1131a340784d5a94f74344787c5a6a771f95"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/vayne-decline/receipt.json",
+      "sha256": "0648eda548b9371364852949fc48b84396aee4091b3f4621f38ba90658112b86"
+    },
+    {
+      "path": "var/qa/native-trigger-payment-20261015/native/vayne-pay/receipt.json",
+      "sha256": "4725dff44efbd8bfa57ff71a0cc9f8b2b2343b992f6bae142a674bc0a11e8ebf"
+    }
+  ],
+  "scenarios": [
+    {
+      "branch": "gold",
+      "decline": true,
+      "nativeCommands": 1,
+      "commands": 4,
+      "events": 12,
+      "coldRecoveries": 4
+    },
+    {
+      "branch": "gold",
+      "decline": false,
+      "nativeCommands": 1,
+      "commands": 4,
+      "events": 14,
+      "coldRecoveries": 4
+    },
+    {
+      "branch": "icevale",
+      "decline": true,
+      "nativeCommands": 1,
+      "commands": 2,
+      "events": 4,
+      "coldRecoveries": 2
+    },
+    {
+      "branch": "icevale",
+      "decline": false,
+      "nativeCommands": 1,
+      "commands": 2,
+      "events": 6,
+      "coldRecoveries": 2
+    },
+    {
+      "branch": "legend",
+      "decline": true,
+      "nativeCommands": 1,
+      "commands": 4,
+      "events": 12,
+      "coldRecoveries": 4
+    },
+    {
+      "branch": "legend",
+      "decline": false,
+      "nativeCommands": 1,
+      "commands": 4,
+      "events": 14,
+      "coldRecoveries": 4
+    },
+    {
+      "branch": "sand",
+      "decline": true,
+      "nativeCommands": 1,
+      "commands": 4,
+      "events": 12,
+      "coldRecoveries": 4
+    },
+    {
+      "branch": "sand",
+      "decline": false,
+      "nativeCommands": 1,
+      "commands": 4,
+      "events": 16,
+      "coldRecoveries": 4
+    },
+    {
+      "branch": "vayne",
+      "decline": true,
+      "nativeCommands": 1,
+      "commands": 4,
+      "events": 12,
+      "coldRecoveries": 4
+    },
+    {
+      "branch": "vayne",
+      "decline": false,
+      "nativeCommands": 1,
+      "commands": 4,
+      "events": 15,
+      "coldRecoveries": 4
+    }
+  ],
+  "validation": [
+    "Real Main.BuildPromptView and PromptInteractionController",
+    "Production ActionBar Button.Pressed and strict ClientCommandSerializer wire",
+    "Disabled without explicit choice; exact legal SPEND_MANA:1/DECLINE; PAY alias rejected",
+    "Final server command readback, cold recovery, idempotency and complete action-event-state replay"
+  ],
+  "notVisibleProductAcceptance": true,
+  "scope": "Five explicit fixture consumers, pay/decline10 paths. All other timing, multiple trigger ordering and fresh fixed visible product acceptance remain OPEN."
+}

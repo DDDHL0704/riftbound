@@ -1,0 +1,56 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "singleCoherentBatchCheck": true,
+  "baseCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+  "includesExplicitUncommittedRepair": true,
+  "cases": 11891,
+  "methods": 7200,
+  "oldCasesPreserved": true,
+  "oldCaseCount": 11873,
+  "oldMethodsPreserved": true,
+  "newCases": 18,
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.NaturalBattleDeclarationOrderTests.NaturalMoveDuelRetainsTheAcceptedCombatDeclarationOrder(reverseDeclaration: False)",
+    "Riftbound.ConformanceTests.NaturalBattleDeclarationOrderTests.NaturalMoveDuelRetainsTheAcceptedCombatDeclarationOrder(reverseDeclaration: True)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"gold\", decline: False)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"gold\", decline: True)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"icevale\", decline: False)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"icevale\", decline: True)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"legend\", decline: False)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"legend\", decline: True)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"sand\", decline: False)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"sand\", decline: True)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"vayne\", decline: False)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.ActualOptionalManaTriggerChoicesColdRecoverAndReplay(branch: \"vayne\", decline: True)",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation(change: \"alias-pay\")",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation(change: \"both-branches\")",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation(change: \"duplicate\")",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation(change: \"other-player\")",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation(change: \"payment-id\")",
+    "Riftbound.ConformanceTests.OptionalManaTriggerPromptTests.OptionalManaTriggerStillRejectsForgedDecisionsWithoutMutation(change: \"window\")"
+  ],
+  "failed": 0,
+  "skipped": 0,
+  "seconds": 390.52,
+  "trx": [
+    {
+      "path": "var/qa/native-trigger-payment-20261015/check/check/results.trx",
+      "sha256": "dd016b9aa9793f8fa57943e760bfa15555cfa0954d52c403c1e2efd8250f64d0"
+    }
+  ],
+  "summary": {
+    "path": "var/qa/native-trigger-payment-20261015/check/summary.json",
+    "sha256": "cba296069dadd210fb95624d43b0469dcb1c68c555cc44e1fc728169616586c0"
+  },
+  "frozenInputsUnchanged": true,
+  "frozenInputCount": 2750,
+  "inputs": {
+    "path": "var/qa/native-trigger-payment-20261015/check-start-inputs.json",
+    "sha256": "c6e12204a193778d72334e43e6d4c4e34fb119e4164b29d4099bb937c048abfe"
+  },
+  "all422OriginalConformanceSourcesByteUnchanged": true,
+  "full143Games110PairsSeed424242Retained": true,
+  "fixedFull": "PENDING_NEW_COMMIT",
+  "product": "OPEN",
+  "wholeSemanticsCertified": false
+}

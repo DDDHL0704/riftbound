@@ -1,0 +1,444 @@
+{
+  "status": "ALL_67_REAL_POSTGRES_SCENARIOS_PASS",
+  "baseCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+  "includesExplicitUncommittedRepair": true,
+  "port": 55445,
+  "prior65ScenarioIdentitiesPreserved": true,
+  "newScenarioNames": [
+    "combat-assignment/natural-source-first/receipt.json",
+    "combat-assignment/natural-source-second/receipt.json"
+  ],
+  "newBranchCommands": 12,
+  "newBranchEvents": 44,
+  "newBranchColdRecoveries": 12,
+  "newBranchActualSqlEventTamperRejections": 18,
+  "allReceipts": [
+    {
+      "scenario": "attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "sha256": "f77d04a694a0cb180849fb2661f0fee5355bb1f8e5a2ad8d20d94324d04f9a87",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "sha256": "d98c7f32d1d2296ff2413edb2b6bdd8e50156de81ea04465ebae2fd4c8963daa",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/primary/forward/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/attached-recycle-lifecycle/primary/forward/receipt.json",
+      "sha256": "5f6fd7f6219f95cf2750835d5ba2b1a059175bad40b690e6e674905e1cf87812",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "sha256": "aea8724de61f906bb367cd9934b8b45533405f2bce08228d5a1ddacf4a1dbb7d",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/promo/forward/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/attached-recycle-lifecycle/promo/forward/receipt.json",
+      "sha256": "5ab7afba5604b711176d80dd1ffb5449dce03e1ab25337c77dc633fd9fed7d49",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "sha256": "61ce0a33fcc02620de3bbafbdac7ec56703a353394752d66ed49389056131372",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "battle-history/battle-history-attacker-burnout/result.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/battle-history/battle-history-attacker-burnout/result.json",
+      "sha256": "326768c6a67e0641fe6b88f8a06eeea7d60f4948de3dde2d5e4525a57d89aacd",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "battle-history/battle-history-attacker-deck/result.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/battle-history/battle-history-attacker-deck/result.json",
+      "sha256": "8e166dfe32261d6291c7891f33e4a906bf1924173abf703f84054d77c4ae0227",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "battle-history/battle-history-burnout/result.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/battle-history/battle-history-burnout/result.json",
+      "sha256": "e61329333d8eb9213c2e80e99062e59027686f800db8b1f21b2609da5ae353a6",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "battle-history/battle-history-deck/result.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/battle-history/battle-history-deck/result.json",
+      "sha256": "9a779376274b06b4040f7c483fa57f467cc389d004b1f4c2b74860abfdefa1ac",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/all/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/clairvoyance/all/receipt.json",
+      "sha256": "3c94ea13b04f6e775ded4c9c527de94563ba92791e90a91356524786feff5c8c",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/burnout/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/clairvoyance/burnout/receipt.json",
+      "sha256": "96ce128559753f69b82306c8ce03249029251cafdc4ebf7fdedbf06fe159d7a3",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/control/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/clairvoyance/control/receipt.json",
+      "sha256": "68db0e49b28b571bf0966dfe8436a6ccf38fab41bae7d4dd46d2b4bbf69a25eb",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/keep/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/clairvoyance/keep/receipt.json",
+      "sha256": "52804b56d9690d70093ea165de943a0cb01e0c909eac59a7428eb9faa8b64871",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/some/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/clairvoyance/some/receipt.json",
+      "sha256": "ac9a46d23f27dd113dcb48a432dd15dbb6f3606a65d021c591772462e93aa897",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/choose-first-attacker/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/choose-first-attacker/receipt.json",
+      "sha256": "132f68d28b6ca096e1abcdb59a8b443d4cd6c900b18c32ad2830d5719343c449",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/choose-second-attacker/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/choose-second-attacker/receipt.json",
+      "sha256": "9ad84cb10b2d975a3dd5c311d19f76e2da16ad87438ce21950f702075d805c4c",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/declared-source-second/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/declared-source-second/receipt.json",
+      "sha256": "5ff112e897bb5f52af28d987dd0fbdb2774210721841a93cd79f578bc003387b",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/multiple-defenders/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/multiple-defenders/receipt.json",
+      "sha256": "eb4bd7fd05399d05ddd8d2152f6dd8171d7e03d61a6260741a827db2293bfaa1",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/natural-source-first/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/natural-source-first/receipt.json",
+      "sha256": "8c82e85aef9c15f3c40581bcac8a301253760fbb90818e92480d0c026b74eed0",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/natural-source-second/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/natural-source-second/receipt.json",
+      "sha256": "2ba9b4a64d9c449d778fef72f96bf9255bf91771ac9043461eb38527e4e6b31f",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/one-on-one/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/one-on-one/receipt.json",
+      "sha256": "bcee00a4f7e9bbb09309cd66ad8f18e1530580116b9b3b3c6a00a7bc6e9f4b2c",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/vayne-secondary-decline/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/vayne-secondary-decline/receipt.json",
+      "sha256": "3e4c8b7da215b2c305066886f9da19a5a73f906ae21511bf2291a0c281ac97ea",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/vayne-secondary-dies/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/vayne-secondary-dies/receipt.json",
+      "sha256": "90990c406367610e8248122547f8d44cb0bb0da88050a7a6c1ff3713b373775b",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/vayne-secondary-pay/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/combat-assignment/vayne-secondary-pay/receipt.json",
+      "sha256": "4b81a418f80313e3fbd8b20cd5f7f694fc00fb127d754811f0456d7c4f30832d",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "conquest-token/alternate-plain/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/conquest-token/alternate-plain/receipt.json",
+      "sha256": "e200b9ea2358e916511108990bde823268f8c6a0d934dffc417ddf3d6221996e",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "conquest-token/alternate-reaction/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/conquest-token/alternate-reaction/receipt.json",
+      "sha256": "860fb89df1becdb3933f0a32bdf45c82e8b57bdbcd8a8f2286d2b4df339edaa6",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "conquest-token/primary-plain/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/conquest-token/primary-plain/receipt.json",
+      "sha256": "250f04fb5a98fd870a5196a7fb9bb129a987492c2b96ae19104b9a9d898ce4af",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "conquest-token/primary-reaction/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/conquest-token/primary-reaction/receipt.json",
+      "sha256": "700de6738dec44a4762f9a89e1e9d953de46d267f16b419fc50701367326d30f",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "granted-predict/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/granted-predict/receipt.json",
+      "sha256": "a4b985f59d586776e39db83883585ff25e054e54e3ada643f838b9109a90873a",
+      "status": "REAL_POSTGRES_GRANTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "insight-repeat/abandon/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/insight-repeat/abandon/receipt.json",
+      "sha256": "b3873f36cef07acd08f5fc5882e5b637f5df0cfef4ec74501dc0c5968ef59cc6",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/all/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/insight-repeat/all/receipt.json",
+      "sha256": "008d8e03e27d371152dc5397761ae038fa8483b0304b2c190fbd9c19ce965c42",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/burnout/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/insight-repeat/burnout/receipt.json",
+      "sha256": "4bb70a4ee1fd9debc14a89f1e81ad79fa65e0c12de5db83b03688fd73500148d",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/counter/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/insight-repeat/counter/receipt.json",
+      "sha256": "d56374a7a59d65df7c4ae7f7637f05c33f5611acaa5d3ba4214b70e523b8dae8",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/eclipse/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/insight-repeat/eclipse/receipt.json",
+      "sha256": "a20895fa2f3d2d34aabe9932dc32f40f7f741115ef4630f26d50781057959dc1",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/once/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/insight-repeat/once/receipt.json",
+      "sha256": "cf5e308134208994fb7c205d3dc1d9b447d8c98c96c53ef716e09716453bf302",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/twice/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/insight-repeat/twice/receipt.json",
+      "sha256": "6c282e0a2f0cfd7b119afb4c360c7445d0b50a589be48c912d875c846525de30",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "masked-attendant/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/masked-attendant/receipt.json",
+      "sha256": "2b310f68c533fd45299f22d936b82ad6bf6eb9d51dff026a20c96fbb5664bdcf",
+      "status": "REAL_POSTGRES_MASKED_SELF_COPY_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "porobot/below/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/porobot/below/receipt.json",
+      "sha256": "e3fb814a840a1db3b059039507ace54050b1be42f4afb431b387bdfcaa165689",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "porobot/gold/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/porobot/gold/receipt.json",
+      "sha256": "abaabdfc17f6559350e2a63770b7f283703ef6146e160c8d351229fe5448b811",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "porobot/return/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/porobot/return/receipt.json",
+      "sha256": "c7cf0a9ebe14bcd6de0c00bf55bdf73c895438d660150db902bc0437c9a15fb5",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "porobot/threshold/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/porobot/threshold/receipt.json",
+      "sha256": "c75f9729940058162734804f962c0d4861646e3d2b41e6a08024a7aacf8683b3",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "printed-predict/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/printed-predict/receipt.json",
+      "sha256": "e91c392e256cff51ea0f8903fe20f503d8939a94743d22bf147baf1fa862c498",
+      "status": "REAL_POSTGRES_PRINTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycle-boon-lifecycle/alternate/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycle-boon-lifecycle/alternate/receipt.json",
+      "sha256": "46d8f4f1d108cc19832bea675c361c82c8b67cf16fe91b8fa1bd1073034d3d00",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycle-boon-lifecycle/primary/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycle-boon-lifecycle/primary/receipt.json",
+      "sha256": "27f715b43ffff33a04cc53be1ab420d4c5018996294b97d81623b6618064d532",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycle-boon-lifecycle/promo/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycle-boon-lifecycle/promo/receipt.json",
+      "sha256": "fc6c2ee8d935daf308dea306a17cf0ffc3d92d7a671a0fe89baae5a904d0406f",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/alternate-hook/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycled-card-boon/alternate-hook/receipt.json",
+      "sha256": "86a3cf676dd88b9a3bca6d253482c3942d34126cccc7859b25d06e567e7251c1",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/alternate-predict/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycled-card-boon/alternate-predict/receipt.json",
+      "sha256": "e6aa36339f9b3eba6b1fd41fbbc26668f6a96cf4fb57c72f0b77c892d5f0a12a",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/primary-hook/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycled-card-boon/primary-hook/receipt.json",
+      "sha256": "8fa5fa2722f6f81a28d1dc92c7f4b40728d6563faf813ea8f1038b8d6d7ffd77",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/primary-predict/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycled-card-boon/primary-predict/receipt.json",
+      "sha256": "3bb7ac2066edecbe4cd39c2c7b037acc662692f72fe443baeb47d028d7932ac7",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/promo-hook/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycled-card-boon/promo-hook/receipt.json",
+      "sha256": "3d581a420aa3e14ff9da5b6aec1f14ee51548c64c82b0079b41ddff82b2e2d63",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/promo-predict/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/recycled-card-boon/promo-predict/receipt.json",
+      "sha256": "3b7d1604b76972bc8ccd2bbb2acbd7af1423752d4736be68722a7304af20a569",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "result.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/result.json",
+      "sha256": "91d20c7b230bb67590fc0a8e749c2b57e46ffc637f2f930def97740752037ae1",
+      "status": "REAL_POSTGRES_CORE_OPENING_RECOVERY_REPLAY_AND_TAMPER_PASS"
+    },
+    {
+      "scenario": "rune-destination/multiple/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/rune-destination/multiple/receipt.json",
+      "sha256": "c4b31cc2ed030fbef27439dc1d2ff65a6de2e2a7385f7023769d50d3323c599e",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "rune-destination/single/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/rune-destination/single/receipt.json",
+      "sha256": "17fa41e67fb1e5b0ddbbb984a504d28d1f52556a43e7c250558ae507a5bc0d85",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-optional/alternate-decline/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/sivir-optional/alternate-decline/receipt.json",
+      "sha256": "ea0a5a96446efe954cd3bb5bebed518ed8a2e16e5d26fb8bd7ab1779c2bb5399",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-optional/alternate-pay/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/sivir-optional/alternate-pay/receipt.json",
+      "sha256": "fa53310eb245d9e8bc8cb5f236ae8aee11b6b3d935d3ca8f7e2ebc5d71627e83",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-optional/primary-decline/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/sivir-optional/primary-decline/receipt.json",
+      "sha256": "e860340ae870bcde6c0f93b5116da39589ac85f432bfcfa9a063cba2c94d0a15",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-optional/primary-pay/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/sivir-optional/primary-pay/receipt.json",
+      "sha256": "255afae71e47e8b7f0d0c3ecaab2438e22f3331188741ac68f62cb6ca90f1864",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-payment/deferred-decline/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/sivir-payment/deferred-decline/receipt.json",
+      "sha256": "71d1686b8423d5c19f769f408446a043f5e0522e8c8691836c44377c82dfcc8d",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-payment/deferred-pay/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/sivir-payment/deferred-pay/receipt.json",
+      "sha256": "6ef083f556a396cf0d23ee7babd0827854444224031963c03c4a91b313fd3142",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-payment/inline-decline/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/sivir-payment/inline-decline/receipt.json",
+      "sha256": "75692612eca3d2a599137b52df66a4a0fc732ef3c95c711d77ea91a009b7d874",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-payment/inline-pay/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/sivir-payment/inline-pay/receipt.json",
+      "sha256": "fca152e05f614eb42c16c7608f8ff46eb10f9536e6e8cc6807930577c462d30a",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "typed-play-history/control/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/typed-play-history/control/receipt.json",
+      "sha256": "dd714629f6100569c2b4ecc2bb749b3483dacaa6591915d256547ef5eb2595ae",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "typed-play-history/countered/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/typed-play-history/countered/receipt.json",
+      "sha256": "1187feca3662d4e43f1dda6c281df2c78f32f270c74e81c3a4394e01fbadf53c",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "typed-play-history/resolved/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/typed-play-history/resolved/receipt.json",
+      "sha256": "0f4d2a838954d0ea64d8d89cb24375d175bb47f88d038be21447e5474d048b7d",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "typed-play-history-causal/receipt.json",
+      "path": "var/qa/native-trigger-payment-20261015/postgres-results/typed-play-history-causal/receipt.json",
+      "sha256": "36a725f02b0a682be4306ef7b8807a632bd5de65df54175c8f8b47c0b96974a4",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_CAUSAL_REGISTRY_PASS"
+    }
+  ],
+  "frozenIndependentTree": {
+    "path": "var/qa/native-trigger-payment-20261015/sql-tree-inputs.json",
+    "sha256": "f969f7ba97a140d7e4dcb7d781513c75110370b0dfc904f7eebfbd17654363a7"
+  },
+  "frozenInputCount": 11343,
+  "frozenInputsUnchanged": true,
+  "mainVerificationSourcesEqualFrozenTree": true,
+  "cleanup": {
+    "recordedAtUtc": "2026-10-15T14:32:51.908389+00:00",
+    "port": 55445,
+    "remainingCounts": {
+      "matches": 0,
+      "command_log": 0,
+      "match_players": 0,
+      "game_events": 0,
+      "state_snapshots": 0,
+      "action_prompts": 0,
+      "match_results": 0
+    },
+    "ownClusterStopped": true,
+    "clusterDataRetained": true,
+    "oldPairedD1ClusterUnmodified": true,
+    "setupReadQueryCorrection": "Initial check used a nonexistent match_recovery table; inspected actual schema and checked all listed real match tables. No data mutation."
+  },
+  "scope": "Explicit fixtures, all67 actual PostgreSQL executions, cold recovery/duplicates, complete action-event-state replay and independent SQL tamper rejection. Not visible paired or normal-opening product acceptance."
+}

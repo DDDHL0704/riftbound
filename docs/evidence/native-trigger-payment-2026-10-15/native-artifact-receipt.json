@@ -1,0 +1,31 @@
+{
+  "commit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+  "runId": 38737073503,
+  "artifactId": 11973348669,
+  "artifactName": "native-macos-latest",
+  "artifactMetadata": {
+    "id": 11973348669,
+    "node_id": "MDg6QXJ0aWZhY3QxMTk3MzM0ODY2OQ==",
+    "name": "native-macos-latest",
+    "size_in_bytes": 142826529,
+    "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/11973348669",
+    "archive_download_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/11973348669/zip",
+    "expired": false,
+    "digest": "sha256:22f602e31b3c5994f7d56b66e561fe7f1b2d6673bbddf39c5fb61b95719a6762",
+    "created_at": "2026-10-15T12:48:49Z",
+    "updated_at": "2026-10-15T12:48:49Z",
+    "expires_at": "2026-10-22T12:48:45Z",
+    "workflow_run": {
+      "id": 38737073503,
+      "repository_id": 1248382570,
+      "head_repository_id": 1248382570,
+      "head_branch": "main",
+      "head_sha": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c"
+    }
+  },
+  "outerZipSha256": "22f602e31b3c5994f7d56b66e561fe7f1b2d6673bbddf39c5fb61b95719a6762",
+  "outerDigestMatchesGitHub": true,
+  "innerZipSha256": "8bc3d77b8f11659c0de4da0d5377121651a0c83568de024143ff73be7ef4112c",
+  "innerZipBytes": 142541654,
+  "extractionLayoutCorrection": "Initial extract used an extra macos directory; original bytes verified and relocated before launching anything."
+}

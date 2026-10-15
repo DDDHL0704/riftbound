@@ -63,7 +63,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "85b11b996a25db83c0ec06c80a3da44627589112441d66f988158e19a3b315e0"
+      "sha256": "8410a060d4b1b29ce60c3b271c26bd213d5cd3ed0d219186dbe9351334d1e376"
     },
     "summary": {
       "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
@@ -721,7 +721,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+          "sha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -1303,7 +1303,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1335,9 +1335,19 @@
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77",
+              "currentSha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1367,11 +1377,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+          "sha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -1954,7 +1964,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2045,9 +2055,24 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77",
+              "currentSha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2077,7 +2102,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -2667,7 +2692,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2759,9 +2784,19 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -2775,7 +2810,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -2803,7 +2838,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+          "sha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3119,7 +3154,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3196,9 +3231,24 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77",
+              "currentSha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3216,7 +3266,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -3357,7 +3407,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3404,9 +3454,19 @@
               "currentSha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -3432,7 +3492,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3610,7 +3670,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3652,9 +3712,19 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -3668,11 +3738,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+          "sha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3897,7 +3967,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3949,9 +4019,24 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77",
+              "currentSha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -3993,7 +4078,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4651,7 +4736,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4723,9 +4808,19 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -5400,7 +5495,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -5412,7 +5507,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+          "sha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -5461,7 +5556,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -5605,6 +5700,21 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77",
+              "currentSha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
+            }
+          ]
         }
       ],
       "priorEvidenceCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
@@ -5612,7 +5722,7 @@
         "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
         "scope": "Only snapshot modifications against unchanged accepted action/event history; all other obligations retained."
       },
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -5626,7 +5736,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -5638,7 +5748,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+          "sha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -5695,7 +5805,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -5838,13 +5948,28 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77",
+              "currentSha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -5867,7 +5992,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+          "sha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
@@ -5964,9 +6089,19 @@
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77",
+              "currentSha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence."
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
@@ -6704,7 +6839,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -6716,7 +6851,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -6870,14 +7005,24 @@
               "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
             }
           ]
+        },
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence.",
       "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING"
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -6889,7 +7034,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
         }
       ],
       "evidence": [
@@ -6927,6 +7072,16 @@
           "path": "docs/evidence/combat-conquest-continuation-2026-10-15/check-result.json",
           "sha256": "705d02a166145cf66c96c60c60a927a55ffb75e571d4b11f67b2a2010caa9f9a",
           "role": "check"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/full-ci-d1c2b4d3.json",
+          "sha256": "77636a1064a369a8e3adf1f4f15e774df6e6ef626120a5f5a1379d0d93689891",
+          "role": "historical-d1-fixed-full"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/visible-failure.json",
+          "sha256": "522d49e225a29c18bfa46487350bc590e945268a7c5c3f753c290ec1824aab1a",
+          "role": "historical-d1-native-failure"
         }
       ],
       "verificationSources": [
@@ -6997,6 +7152,154 @@
             "New fixed full after actual0cbee failure; fresh native visible paired realSQL reconnect score and original-opening complete replay",
             "Independent Windows real runtime and native custom deck editor",
             "All source gaps, applicability, newly observed printings and full-universe semantics"
+          ]
+        }
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565",
+              "currentSha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+            }
+          ]
+        }
+      ],
+      "revalidationReason": "Actual fixed d1 native game exposed missing optional-mana selection and natural declaration provenance loss. Previous fixed receipts retained; new prompt/context inputs require their own fixed full and product evidence.",
+      "latestFixedEvidenceStatus": "EXACT_D1_FULL_SUCCESS_NATIVE_PAYMENT_FAILURE_NEW_PROMPT_CONTEXT_REPAIR_PENDING"
+    },
+    "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
+      "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+      "currentImplementationCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleStartRoles.cs",
+          "sha256": "ba605131fd9af7ae4ebe1bae38daa86e3b93b9b53cefb4a30e90f62733bb070f"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "6a11c2291f5780596385264bd76080b6be7e1504727ce3b1b262ffa3743d7bb9"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "d9dd3a5b643cd4b57817a243332a8fbc441f9430ce5386f2a7eb6288eccc9e8b"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/source.json",
+          "sha256": "4e51e4fab686799670a539a4effb534f488aa2c1979cb813845d4441462b7bc0",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/focus.json",
+          "sha256": "eab4081365819af47d380c453856a6b32d158bd3ac2c7b2bd3190e6a7d144a7a",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/native.json",
+          "sha256": "840cdaead44ade57cbf0906d4f0c4e909a239dbe913343609084326bcd8679c9",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/sql.json",
+          "sha256": "833be23195cbb25307ac4f02564c56524ffbcf3307259941d31cd6e837763b2f",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/red-evidence.json",
+          "sha256": "38d2591e7ff2dbe94384aec1114efe84f9c520c4df2b1c68b073a0fb839cbe6b",
+          "role": "red-evidence"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/full-ci-d1c2b4d3.json",
+          "sha256": "77636a1064a369a8e3adf1f4f15e774df6e6ef626120a5f5a1379d0d93689891",
+          "role": "prior-fixed-full"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/visible-failure.json",
+          "sha256": "522d49e225a29c18bfa46487350bc590e945268a7c5c3f753c290ec1824aab1a",
+          "role": "prior-visible-failure"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/natural-order-provenance-gap.json",
+          "sha256": "6541d1e8fcd8d089c3856af2d89ac6a5c80c6a9a9b586fc96f6fa57de0268787",
+          "role": "prior-natural-order-gap"
+        },
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/check-result.json",
+          "sha256": "1f31e0228f1842e7abbed1406f0f6c917d017a72796b3d3672b2124ddfa5eb90",
+          "role": "check"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalManaTriggerPromptTests.cs",
+          "sha256": "0f01403da977c489501a0a45f80c5f65d2852c8c9365216c6d8b9f5393fb0435"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/NaturalBattleDeclarationOrderTests.cs",
+          "sha256": "f0f8f28eff490b80a24d2ba5ed698c7b6e9dffb23aedf46e6da6f711a46c484a"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/CombatAssignmentSqlAcceptance.cs",
+          "sha256": "3b078b9f28c888a3f0197ac144b2702dfa323cc07dbae5c604903cbf3a35c412"
+        },
+        {
+          "path": "clients/godot/scripts/debug/OptionalManaTriggerInteractionProof.cs",
+          "sha256": "0a1d059220057d605360637bca2457255c37e7f0a7d558e230e69792dff95284"
+        },
+        {
+          "path": "clients/godot/scenes/debug/OptionalManaTriggerInteractionProof.tscn",
+          "sha256": "0025d291068d10e086aeee52e89bdb1c43937d9aa558411c17d476233427a26e"
+        }
+      ],
+      "branches": [
+        {
+          "id": "five-existing-optional-mana-prompt-pay-decline-and-forgery-rejection",
+          "sourceRefs": [
+            "OGN-035/298",
+            "SFD-220/221",
+            "SFD-210/221",
+            "SFD-207/221",
+            "UNL-065/219"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_ONLY",
+          "tests": "FOCUS_NATIVE_SQL_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
+            "All unreviewed exact printing/clause semantics and official source gaps/applicability",
+            "New fixed full for changed gameplay/verification inputs",
+            "Fresh same-fixed-candidate visible paired real SQL private choices/reconnect/normal score and original-opening full replay",
+            "Independent Windows physical runtime and native custom deck editor"
+          ]
+        },
+        {
+          "id": "natural-movement-retains-accepted-combat-declaration-order",
+          "sourceRefs": [
+            "DOC-04-P092-B013",
+            "DOC-04-P089-B001"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_ONLY",
+          "tests": "FOCUS_NATIVE_SQL_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
+            "All unreviewed exact printing/clause semantics and official source gaps/applicability",
+            "New fixed full for changed gameplay/verification inputs",
+            "Fresh same-fixed-candidate visible paired real SQL private choices/reconnect/normal score and original-opening full replay",
+            "Independent Windows physical runtime and native custom deck editor"
           ]
         }
       ]
@@ -7121,7 +7424,8 @@
           "sha256": "7501489e04b07b1b9653fa62e4aecb0f0eb7badfa64f90a20bb6d05cf75ce365"
         }
       },
-      "currentContinuationRepairRequiresFreshFixedProductBinding": true
+      "currentContinuationRepairRequiresFreshFixedProductBinding": true,
+      "currentOptionalManaNaturalDeclarationRepairRequiresFreshFixedProductBinding": true
     },
     {
       "id": "DECK_OBSERVATION_FAMILY",
@@ -7144,14 +7448,11 @@
         "currentCandidateReopenedReason": "Shared counted Insight, post-choice draw and active VEN056 source input changed after fixed339c evidence. Exact older candidate remains preserved."
       },
       "newVerificationInputsAwaitFixedFull": [
-        "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
-        "tests/Riftbound.ConformanceTests/BattleDamageAssignmentWireTests.cs",
-        "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "tests/Riftbound.ConformanceTests/OptionalManaTriggerPromptTests.cs",
+        "tests/Riftbound.ConformanceTests/NaturalBattleDeclarationOrderTests.cs",
         "tests/Riftbound.PostgresAcceptance/CombatAssignmentSqlAcceptance.cs",
-        "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
-        "tests/Riftbound.ConformanceTests/OfficialStunCombatTests.cs",
-        "tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs",
-        "tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs"
+        "clients/godot/scripts/debug/OptionalManaTriggerInteractionProof.cs",
+        "clients/godot/scenes/debug/OptionalManaTriggerInteractionProof.tscn"
       ],
       "previousVerificationInputsNowCoveredAt6bc": {
         "inputs": [
@@ -7164,10 +7465,11 @@
         "receipt": "docs/evidence/card-play-history-causal-2026-10-15/full-ci-6bc.json"
       },
       "newGameplayInputsAwaitFixedFull": [
-        "src/Riftbound.Engine/MatchRecovery.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.BattleStartRoles.cs",
         "src/Riftbound.Engine/CoreRuleEngine.cs",
-        "clients/godot/scripts/debug/CombatAssignmentInteractionProof.cs",
-        "clients/godot/scenes/debug/CombatAssignmentInteractionProof.tscn"
+        "src/Riftbound.Engine/MatchSession.cs",
+        "clients/godot/scripts/debug/OptionalManaTriggerInteractionProof.cs",
+        "clients/godot/scenes/debug/OptionalManaTriggerInteractionProof.tscn"
       ],
       "previousCountedInsightVerification": {
         "commit": "a85f46778d398d7a5b262913cbf87a08467b8ba0",
@@ -7253,6 +7555,25 @@
             "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs",
             "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj"
           ]
+        },
+        {
+          "verifiedCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+          "gameplay": [
+            "src/Riftbound.Engine/MatchRecovery.cs",
+            "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "clients/godot/scripts/debug/CombatAssignmentInteractionProof.cs",
+            "clients/godot/scenes/debug/CombatAssignmentInteractionProof.tscn"
+          ],
+          "verification": [
+            "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
+            "tests/Riftbound.ConformanceTests/BattleDamageAssignmentWireTests.cs",
+            "tests/Riftbound.PostgresAcceptance/Program.cs",
+            "tests/Riftbound.PostgresAcceptance/CombatAssignmentSqlAcceptance.cs",
+            "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+            "tests/Riftbound.ConformanceTests/OfficialStunCombatTests.cs",
+            "tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs",
+            "tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs"
+          ]
         }
       ],
       "latestFailedFixedCandidate": {
@@ -7266,6 +7587,20 @@
         "entireGameMatrixCompleted": false,
         "laterSqlAndConnectionStepsSkipped": true,
         "currentRepairAwaitingNewFixedFull": true
+      },
+      "latestSuccessfulFixedCandidate": {
+        "path": "docs/evidence/native-trigger-payment-2026-10-15/full-ci-d1c2b4d3.json",
+        "sha256": "77636a1064a369a8e3adf1f4f15e774df6e6ef626120a5f5a1379d0d93689891",
+        "commit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+        "runId": 38737073503,
+        "cases": 12022,
+        "methods": 7338,
+        "actualSqlScenarios": 65,
+        "originalGames": 143,
+        "pairs": 110,
+        "seed": 424242,
+        "currentImplementationCovered": false,
+        "reopenedReason": "Optional-mana prompt binding and natural combat declaration inputs changed after this exact successful d1 candidate."
       }
     },
     {
@@ -7305,21 +7640,41 @@
         "fixedFullReceipt": "docs/evidence/room-identity-2026-10-15/full-ci-a8f.json"
       },
       "latestFailedFixedCandidate": {
-        "path": "docs/evidence/paired-9e-2026-10-15/product-receipt.json",
-        "sha256": "363bcd801bd7c13ee1f68fcaf6422d8fa04f38d21cfc952c6242607f81164355",
-        "commit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-        "status": "NORMAL8_3_BUT_FULL_EVENT_REPLAY_FAILED_756_758",
-        "commands": 160,
-        "events": 839,
+        "path": "docs/evidence/native-trigger-payment-2026-10-15/visible-failure.json",
+        "sha256": "522d49e225a29c18bfa46487350bc590e945268a7c5c3f753c290ec1824aab1a",
+        "commit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+        "status": "ACTUAL_NATIVE_TICK43_OPTIONAL_MANA_CHOICES_MISSING_NO_SUBMISSION",
+        "commands": 44,
+        "events": 187,
         "currentCandidateVerified": false,
         "originalFailedHistoryPreserved": true
       },
       "currentRepairStillRequiresFreshProductAcceptance": {
-        "base": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-        "unstarted0cbeeCandidateRetiredAfterFullFailure": true,
-        "normalScoreAndCompleteOriginalOpeningReplay": "OPEN",
-        "oldFailed9eHistoryUnmodified": true
-      }
+        "base": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+        "previousRepairAttempt": {
+          "base": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+          "unstarted0cbeeCandidateRetiredAfterFullFailure": true,
+          "normalScoreAndCompleteOriginalOpeningReplay": "OPEN",
+          "oldFailed9eHistoryUnmodified": true
+        },
+        "d1FullSuccessDoesNotOverrideNativeFailure": true,
+        "oldD1ApiStopped": true,
+        "oldD1DatabaseStoppedAndPreserved": true,
+        "oldAcceptedHistoryUnmodified": true,
+        "normalScoreAndCompleteOriginalOpeningReplay": "OPEN"
+      },
+      "failedFixedCandidateHistory": [
+        {
+          "path": "docs/evidence/paired-9e-2026-10-15/product-receipt.json",
+          "sha256": "363bcd801bd7c13ee1f68fcaf6422d8fa04f38d21cfc952c6242607f81164355",
+          "commit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+          "status": "NORMAL8_3_BUT_FULL_EVENT_REPLAY_FAILED_756_758",
+          "commands": 160,
+          "events": 839,
+          "currentCandidateVerified": false,
+          "originalFailedHistoryPreserved": true
+        }
+      ]
     },
     {
       "id": "USER_WINDOWS_RUNTIME",
@@ -7715,6 +8070,17 @@
       "scopedDevelopmentEvidence": {
         "path": "docs/evidence/combat-conquest-continuation-2026-10-15/sql.json",
         "sha256": "ea1323501f57aff26fc14c981f5a318246f782bf608c39cf01c116e0c7ec0b41"
+      }
+    },
+    {
+      "id": "OPTIONAL_MANA_TRIGGER_NATIVE_DECISION_AND_NATURAL_DECLARATION",
+      "state": "OPEN",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/36",
+      "relatedIssue": "https://github.com/DDDHL0704/riftbound/issues/33",
+      "requirement": "Preserve explicit optional-mana pay/decline intent and accepted natural combat declaration provenance; scoped controls/SQL pass cannot replace fresh fixed full, visible product, additional consumers or complete semantics.",
+      "scopedDevelopmentEvidence": {
+        "path": "docs/evidence/native-trigger-payment-2026-10-15/native.json",
+        "sha256": "840cdaead44ade57cbf0906d4f0c4e909a239dbe913343609084326bcd8679c9"
       }
     }
   ],

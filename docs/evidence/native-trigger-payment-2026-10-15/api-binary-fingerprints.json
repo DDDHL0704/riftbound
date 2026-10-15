@@ -1,0 +1,17 @@
+{
+  "commit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+  "files": {
+    "Microsoft.AspNetCore.SignalR.StackExchangeRedis.dll": "08e97dee4d18b0beaa3f7d0279eec70a8d2a57b29c2e5e8846bebfc98741ae4c",
+    "Riftbound.CardCatalog.dll": "f374b7c9169fa525e320bb2c5d8602c2a8833d6a314accbd9af1a71ee608b5e3",
+    "StackExchange.Redis.dll": "e78cbee5a5a1071e45246c9b400de869ba6c9bec5c67870f0b99253923d67799",
+    "Pipelines.Sockets.Unofficial.dll": "fa2cdb1d5ffbb2b06512c92ce8bd18918a1a996171d0a72dfc73035bc586a711",
+    "MessagePack.Annotations.dll": "1f06184c502c5e03ececf80caf903fcfd18fc6e0ef8d379269ef025ddfb1a546",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "Riftbound.Contracts.dll": "ea5cd71dbac5cb4a3a275b3f4f5838e3cdf28bca7da80de16c05cd5781079c4b",
+    "Riftbound.Engine.dll": "c65636699c27a478da954232d0c9b4c95cfecc6a8a844ed3f36698ac3bdb0b39",
+    "Riftbound.Api.dll": "4921adfd05e0a4d1fce87bf3f7f38559b026da814f5c005bc0130f1fc67225c8",
+    "MessagePack.dll": "3308cc35adb71b065e7985ec53cefaeb73e96b7d419400b8bb4f7c60a587c6d8",
+    "Microsoft.NET.StringTools.dll": "e51c8678fd602a21c249b369e833966019935132476f9434da896bef808ba3b1",
+    "Riftbound.Persistence.dll": "9022b7dff6cffc4d71290df2d552886a1d62350e956d489a7db9d4fc051c2abe"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": "FAILED_NATIVE_MATCH_PRESERVED_WITHOUT_HISTORY_MUTATION",
+  "recordedAtUtc": "2026-10-15T14:00:50.174489+00:00",
+  "commit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+  "postgresPort": 55444,
+  "apiStopped": true,
+  "postgresStopped": true,
+  "privateDump": {
+    "path": "var/qa/paired-d1c2-20261015/private-native-failure-original.dump",
+    "sha256": "6ce7584b78ddccb3877ffa72d1e2275c3a29bfdef2eb0b576fafc0c74f01ba23",
+    "bytes": 551126,
+    "mustNotBeCommitted": true
+  },
+  "oldCandidateSourcesAndBinsUntouched": true,
+  "noTerminalScoreClaim": true
+}
