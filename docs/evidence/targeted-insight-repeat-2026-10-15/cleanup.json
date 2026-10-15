@@ -1,0 +1,8 @@
+{
+  "status": "OWN_POSTGRES_STOPPED_ALL_DATA_RETAINED",
+  "port": 55440,
+  "cluster": "/Users/dinghaolin/MyProjects/riftbound/var/qa/history-causal-20261015/postgres/cluster",
+  "originalMatchCountBeforeAndAfter": 3,
+  "otherCluster55439Untouched": true,
+  "atUtc": "2026-10-15T07:51:16.512569+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "status": "PYTHON46_GOVERNANCE106_OBLIGATIONS16157_PASS_NO_SEMANTIC_PROMOTION",
+  "pythonTests": 46,
+  "pythonLog": {
+    "path": "var/qa/targeted-insight-repeat-20261015/python-tests.log",
+    "sha256": "30dac522edb897d4016fb1f6510a08dc2d6916c08d475ce1e837b7f62c4b5e49"
+  },
+  "governance": {
+    "path": "var/qa/targeted-insight-repeat-20261015/governance-final-ci-057.json",
+    "sha256": "d147eaaa8ed5fa8024ec4cd7ed9bc0bc533306854c988d5558e64d539f9985a5"
+  },
+  "reviews": 106,
+  "remainingObligations": 16157,
+  "semanticCoverageCertified": false,
+  "gitDiffCheck": true
+}

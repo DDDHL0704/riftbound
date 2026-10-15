@@ -1,0 +1,418 @@
+{
+  "status": "ALL_57_REAL_POSTGRES_SCENARIOS_PASS",
+  "port": 55440,
+  "allReceipts": [
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "sha256": "680d8d2dec7d49cd77ee8e80c726521d7eab362537371403d836133d63934e55",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "sha256": "264ab00a67f5ade0f209e9a053a66062d581c193515f6a594f639dad03bb4fba",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/attached-recycle-lifecycle/primary/forward/receipt.json",
+      "sha256": "9c1691c5da26e274d6e6775b3fd31925cdfb6be3bbf1b2b2621a2fd6d4bafb80",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "sha256": "fcab2ca529dc5556161306f2e4ccf3bb759cd943acffbf76f73b8f1a8550be49",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/attached-recycle-lifecycle/promo/forward/receipt.json",
+      "sha256": "268b370c6d3c1f594862d5045bfab08ad624837df6366def286d9946b92434b9",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "sha256": "8319eaf9de9f08dbadbf50185698366423ef7546e77e596ae6f1205d139f21f5",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/battle-history/battle-history-attacker-burnout/result.json",
+      "sha256": "139d41debda012429b5de01c599db60d79ff71c8fc7c0c3a086fe106a1a161fa",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/battle-history/battle-history-attacker-deck/result.json",
+      "sha256": "072ee23c2922bdaddd3bdbeb51a0e9ca7b196d6608cb7d7f009a1072f1c193d2",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/battle-history/battle-history-burnout/result.json",
+      "sha256": "d9d112f792345a1ab5e7d166b5a718cb25add1c72212b3b77bbb194744698306",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/battle-history/battle-history-deck/result.json",
+      "sha256": "f09be063c00c5d973681709dbad55a6d3f013ebb68dedd908969869014f510fb",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/clairvoyance/all/receipt.json",
+      "sha256": "2453bc2ccd5bb473edfe847d6e4c76fe2d8972d90685d4dc7f822cbb690d333a",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/clairvoyance/burnout/receipt.json",
+      "sha256": "79f31decf209d9e81ca782a5e901008e26dc1440811ff0be5da19d18456e0fa6",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/clairvoyance/control/receipt.json",
+      "sha256": "04cf24a41c92601148dacea0386a0617128c013be09e2542789aa869cabea744",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/clairvoyance/keep/receipt.json",
+      "sha256": "f78321006999cdf572ce82847e16f6b587f788aeb5f9e3fddd68e99585da6ac7",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/clairvoyance/some/receipt.json",
+      "sha256": "ea4828719098d9c5b5752a90517ffac0dcd7bf56201aed86c6fe9394a15bd814",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/conquest-token/alternate-plain/receipt.json",
+      "sha256": "53cfa6b6b3203fc000642cd310ba6b73ff24d341fc4c61edff8ecda4fe2420eb",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/conquest-token/alternate-reaction/receipt.json",
+      "sha256": "dee637c6070b714f2bfc942c23e6335b9b759346d7b9fd446cc4fc2a1e2db3f5",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/conquest-token/primary-plain/receipt.json",
+      "sha256": "942ec472686abd15d1a9d8cbca1330a25d084e72781571198ea707e1ac42d176",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/conquest-token/primary-reaction/receipt.json",
+      "sha256": "294bdef34a8294b6c23e45b26ae002b0f9511b604e7f97efe402caaa550ea0f0",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/granted-predict/receipt.json",
+      "sha256": "67fc72cc3327fcf90ce66295cc950be102591d69c6e41d39b2c3d64af02b16bb",
+      "status": "REAL_POSTGRES_GRANTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/insight-repeat/abandon/receipt.json",
+      "sha256": "b919376d3a1a31f29a2785b310e1f758fa209ff94ab9088aa5802705f0021182",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/insight-repeat/all/receipt.json",
+      "sha256": "c48d74e56d5af0e1e9f1e2e21ba9a31d80bb575368ed420b81d0c84c3bc0afaf",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/insight-repeat/burnout/receipt.json",
+      "sha256": "0b1ecfeaafd9189a2992e9687ff9f7ff6c3fd2c94638d3ed478933a0287a7302",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/insight-repeat/counter/receipt.json",
+      "sha256": "8b41b14c2771ce2794419f5e47e26153f1a8fcccd0bc244900379cafb545d83c",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/insight-repeat/eclipse/receipt.json",
+      "sha256": "14bf51b1527e3c95464000b996654b72506693d270a4235db8b94ed0b6f69af7",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/insight-repeat/once/receipt.json",
+      "sha256": "c8f0237e5ff9d2e7632b959679d77320752d7b79a484d876b4d9a2a43772182b",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/insight-repeat/twice/receipt.json",
+      "sha256": "52b42d35e37c7a6c3010e80621b6a175523cb34ac71b69d05a92f7137679969d",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/masked-attendant/receipt.json",
+      "sha256": "611822046aee5049fbbcf0b131e8422feb1990bdc22ca2dc094aad4b324c0a22",
+      "status": "REAL_POSTGRES_MASKED_SELF_COPY_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/porobot/below/receipt.json",
+      "sha256": "219531e2c1e8503a4b0221f885a52919228940fa5077a452165e99f49be8d86b",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/porobot/gold/receipt.json",
+      "sha256": "6a386c858ed88c8292c98f229190f9066553d1af8f803106835e28ffaafec145",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/porobot/return/receipt.json",
+      "sha256": "67f12d116494d87e6f081d9c3366665aa8d2b06ee7776208394ba317a6292026",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/porobot/threshold/receipt.json",
+      "sha256": "79bc2fd957f710f4ac1b191efe02395c130569a8b9c56fb8de5a05fb903b1973",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/printed-predict/receipt.json",
+      "sha256": "7a53b111d306975a5f70033b1fe3edc7175335cfd8f5c8aa985b146ee4b469ac",
+      "status": "REAL_POSTGRES_PRINTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycle-boon-lifecycle/alternate/receipt.json",
+      "sha256": "1f083aa05be295746172e3a2af0380931766924b2c42c6d4e08c3b3be91e9f2e",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycle-boon-lifecycle/primary/receipt.json",
+      "sha256": "1618549d0800b28ddd7598ebdbdafdd61a7ec45aab0a525797b3b89775182b3d",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycle-boon-lifecycle/promo/receipt.json",
+      "sha256": "2622bfa41ed9c8dd412e4e9d1b9cd4a329236259bc1249e1f7e5a753ec083550",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycled-card-boon/alternate-hook/receipt.json",
+      "sha256": "359b19f02e0c119faf4562a7a1f6772e2e78e94e406ada2ed1cf7c2797b68e9b",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycled-card-boon/alternate-predict/receipt.json",
+      "sha256": "8570348df1ec79645f26a6cfd3f1d326a1daaf4c97e37c6e8c9a7d678dc759f2",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycled-card-boon/primary-hook/receipt.json",
+      "sha256": "4502dfa8f9b79862468e5dc10c53ab3ed94273431df1abe318804e3617fc3847",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycled-card-boon/primary-predict/receipt.json",
+      "sha256": "286c873750c0506c1f6d37784b8262d319dd587e2941a0593dd31f44106ba4a3",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycled-card-boon/promo-hook/receipt.json",
+      "sha256": "72d3b7f9080f32766c20712c321ef3e92b6d3b476fbedc200cee35c277ef438a",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/recycled-card-boon/promo-predict/receipt.json",
+      "sha256": "24c42d2d771ba3bad8eb0974857001e1255dd51c10a3956c74e0225f2a615db5",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/result.json",
+      "sha256": "ae5111d8bdb4ba2cea21f52c69882330ca9daf168a9c88a69fb058d39840682e",
+      "status": "REAL_POSTGRES_CORE_OPENING_RECOVERY_REPLAY_AND_TAMPER_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/rune-destination/multiple/receipt.json",
+      "sha256": "782c82fe35e0cf0d425133c25ea1e76b46eca8defcd2f831d7a7286973c8a47d",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/rune-destination/single/receipt.json",
+      "sha256": "d0362a75d0eae56433fed026dd1d504fa44dc952cb31406cc35937e47be3d756",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/sivir-optional/alternate-decline/receipt.json",
+      "sha256": "48789f3cabff72dee1d5a7838f6ee36cfc1af02e15deb21115b39b5e3b63991e",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/sivir-optional/alternate-pay/receipt.json",
+      "sha256": "bd6bc9b830f2a04c3073542943cd2b72eaf98fad3ab2237f13610d7e7dad92b6",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/sivir-optional/primary-decline/receipt.json",
+      "sha256": "a37db9105c7b28e3144a5a1a596a83fe4a8b823e0dddc90d626086feefcd4f47",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/sivir-optional/primary-pay/receipt.json",
+      "sha256": "45958458b51bb37f88abc24085b1d48bcb11fd4f525bf2aeb2254be04fe88ec0",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/sivir-payment/deferred-decline/receipt.json",
+      "sha256": "8f16bb4dfd67546d5e1205730ce2dd94cf598a494d4219934ba657da1aa38c89",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/sivir-payment/deferred-pay/receipt.json",
+      "sha256": "7c4c837865bf1247d04aac8f231ba83ab817db1072a0fb01735bcd827daccf97",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/sivir-payment/inline-decline/receipt.json",
+      "sha256": "eff3fb2d4e95fc7dacdc6805966b6fa156aa05fb247663b56156bd3dfdadb40f",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/sivir-payment/inline-pay/receipt.json",
+      "sha256": "471e2dbc68926d990b0225895b0f0a50c84025c770ee3b7b04b6c08a823e6399",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/typed-play-history/control/receipt.json",
+      "sha256": "7a03a308b7c9ffdec57e6edeae3c148e7e44b15b45cd626eaffb315c49f4755d",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/typed-play-history/countered/receipt.json",
+      "sha256": "b3fec4a23d8280468e5a5911fee37285406307a68883859ab198039d0dde7814",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/typed-play-history/resolved/receipt.json",
+      "sha256": "b2bf90840e59de79c2a93b1acff71e2f85949f56d312da416c851182ea815195",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated/typed-play-history-causal/receipt.json",
+      "sha256": "8b8e226628bcd7e544c7c4900e4db60d9ed50600064ccda5b62282d353ee7c24",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_CAUSAL_REGISTRY_PASS"
+    }
+  ],
+  "newScenarios": [
+    {
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "room": "insight-repeat-2c874d5730a944c6aba35c0c4b6d6894",
+      "branch": "eclipse",
+      "echoes": 1,
+      "submitted": 5,
+      "events": 18,
+      "coldRecoveries": 5,
+      "structuralTamperRejections": 3,
+      "checks": [
+        {
+          "tick": 1,
+          "sequence": 4,
+          "execution": null,
+          "isMatch": true
+        },
+        {
+          "tick": 2,
+          "sequence": 5,
+          "execution": null,
+          "isMatch": true
+        },
+        {
+          "tick": 3,
+          "sequence": 9,
+          "execution": 0,
+          "isMatch": true
+        },
+        {
+          "tick": 4,
+          "sequence": 14,
+          "execution": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 5,
+          "sequence": 18,
+          "execution": null,
+          "isMatch": true
+        }
+      ],
+      "finalHash": "d69e99a98544cffac8e0ec984825ac774d7483930d3b436f62abd3f95889a45d",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "9c3c62873066c0035aa1812a6307729cfd41731cf3aae545fbe267e7e7a3c430",
+        "identitySha256": "efe8d649a87c329fb0135917fd9930f047b45973eca57d4f6cda233b2c88d1aa"
+      },
+      "scope": "Explicit repeated-Insight fixture; not visible UI, a normal opening, all targeted Insight consumers or whole-card certification."
+    },
+    {
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "room": "insight-repeat-2eb46b150476428b8e4a27fa19cfe7fe",
+      "branch": "abandon",
+      "echoes": 2,
+      "submitted": 6,
+      "events": 23,
+      "coldRecoveries": 6,
+      "structuralTamperRejections": 3,
+      "checks": [
+        {
+          "tick": 1,
+          "sequence": 4,
+          "execution": null,
+          "isMatch": true
+        },
+        {
+          "tick": 2,
+          "sequence": 5,
+          "execution": null,
+          "isMatch": true
+        },
+        {
+          "tick": 3,
+          "sequence": 9,
+          "execution": 0,
+          "isMatch": true
+        },
+        {
+          "tick": 4,
+          "sequence": 15,
+          "execution": 1,
+          "isMatch": true
+        },
+        {
+          "tick": 5,
+          "sequence": 20,
+          "execution": 2,
+          "isMatch": true
+        },
+        {
+          "tick": 6,
+          "sequence": 23,
+          "execution": null,
+          "isMatch": true
+        }
+      ],
+      "finalHash": "edff016255caa85149306dad420a7daddd21bf6da6917abbb367e6eb55396d40",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "9c3c62873066c0035aa1812a6307729cfd41731cf3aae545fbe267e7e7a3c430",
+        "identitySha256": "efe8d649a87c329fb0135917fd9930f047b45973eca57d4f6cda233b2c88d1aa"
+      },
+      "scope": "Explicit repeated-Insight fixture; not visible UI, a normal opening, all targeted Insight consumers or whole-card certification."
+    }
+  ],
+  "newCommands": 11,
+  "newEvents": 41,
+  "newColdRecoveries": 11,
+  "newStructuralTamperRejections": 6,
+  "log": {
+    "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated.log",
+    "sha256": "4b8d2c14a0c921230cf9e4bac2119019e1bc7252d899dc22207d5085b768bde4"
+  },
+  "build": {
+    "path": "var/qa/targeted-insight-repeat-20261015/postgres-isolated-build.log",
+    "sha256": "b2969b1b65a4b77cfcd9ac35ef5fe36fa6efe92bfe357bb76f299a4d0fef47c5"
+  },
+  "scope": "Explicit targeted-repeat SQL fixtures and full action/event/state cold replay. No normal opening or visible UI claim."
+}

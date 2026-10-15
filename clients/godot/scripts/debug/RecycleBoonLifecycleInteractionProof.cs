@@ -45,7 +45,7 @@ public partial class RecycleBoonLifecycleInteractionProof : Control
                 payload["promptId"] = prompt.GetProperty("promptId").GetString(); payload["snapshotTick"] = prompt.GetProperty("snapshotTick").GetInt64(); ordered = payload;
             };
             overlay.GetNode<Button>("%ConfirmButton").EmitSignal(BaseButton.SignalName.Pressed); Check(ordered is not null, "Order control emitted command");
-            File.WriteAllText(Path.Combine(dir, step + "-command.json"), JsonSerializer.Serialize(ordered)); overlay.Free(); return;
+            File.WriteAllText(Path.Combine(dir, step + "-command.json"), ClientCommandSerializer.Serialize(ordered!).GetRawText()); overlay.Free(); return;
         }
         var controller = new PromptInteractionController(); controller.Load(view);
         var bar = GD.Load<PackedScene>("res://scenes/components/ActionBar.tscn").Instantiate<ActionBar>(); AddChild(bar);
@@ -78,7 +78,7 @@ public partial class RecycleBoonLifecycleInteractionProof : Control
         };
         var submit = bar.GetNode<Button>("%SubmitButton"); Check(!submit.Disabled, "Valid optional selection can be confirmed"); submit.EmitSignal(BaseButton.SignalName.Pressed);
         Check(command is not null, "Production control emitted a command");
-        File.WriteAllText(Path.Combine(dir, step + "-command.json"), JsonSerializer.Serialize(command)); bar.Free();
+        File.WriteAllText(Path.Combine(dir, step + "-command.json"), ClientCommandSerializer.Serialize(command!).GetRawText()); bar.Free();
     }
     private void Play(string dir, string step)
     {
@@ -101,6 +101,27 @@ public partial class RecycleBoonLifecycleInteractionProof : Control
             }
             Check(preview is not null && (preview.Command.OptionalCosts ?? []).SequenceEqual(costs.EnumerateArray().Select(c => c.GetString()!)), "Production preview preserves selected optional costs");
         }
+        if (expected.TryGetProperty("repeatChoices", out var repeatChoices) && repeatChoices.ValueKind == JsonValueKind.Array && repeatChoices.GetArrayLength() > 0)
+        {
+            var repeats = (System.Collections.IList)typeof(PlayCardOverlay).GetField("_repeats", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
+            Check(repeats.Count == repeatChoices.GetArrayLength(), "Every paid repeat has an independent production declaration");
+            for (var index = 0; index < repeats.Count; index++)
+            {
+                var entry = repeats[index]!; var expectedChoice = repeatChoices[index];
+                var targets = (List<(OptionButton Picker, string[] Ids, bool Required)>)entry.GetType().GetField("Targets")!.GetValue(entry)!;
+                var ids = expectedChoice.GetProperty("targetObjectIds").EnumerateArray().Select(value => value.GetString()!).ToArray();
+                Check(targets.Count == ids.Length, "Each declared target has a production target picker");
+                for (var target = 0; target < targets.Count; target++)
+                {
+                    targets[target].Picker.GrabFocus();
+                    Check(overlay.TrySelectTableObject(ids[target]), "Focused repeat target accepts the declared legal table object");
+                }
+            }
+            Check(preview is not null && preview.Command.RepeatChoices is { } declarations
+                && declarations.Count == repeatChoices.GetArrayLength()
+                && declarations.Select((choice, index) => choice.TargetObjectIds.SequenceEqual(repeatChoices[index].GetProperty("targetObjectIds").EnumerateArray().Select(value => value.GetString()!))).All(value => value),
+                "Production preview preserves every independent repeated target");
+        }
         Check(preview is not null && preview.Command.TargetObjectIds.SequenceEqual(expected.GetProperty("targetObjectIds").EnumerateArray().Select(v => v.GetString()!)), "Production preview preserves the actual targets");
         var quote = JsonSerializer.Deserialize<Riftbound.Contracts.PlayCostQuoteDto>(File.ReadAllText(Path.Combine(dir, step + "-quote.json")), new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
         overlay.ApplyQuote(quote with { RequestId = preview!.RequestId });
@@ -108,7 +129,7 @@ public partial class RecycleBoonLifecycleInteractionProof : Control
         overlay.Confirmed += value => { command = value; command["promptId"] = overlay.PromptId; command["snapshotTick"] = overlay.SnapshotTick; };
         var confirm = (Button)typeof(PlayCardOverlay).GetField("_confirm", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(overlay)!;
         Check(!confirm.Disabled, "Quoted resource payment is available"); confirm.EmitSignal(BaseButton.SignalName.Pressed);
-        Check(command is not null, "Production play emitted a command"); File.WriteAllText(Path.Combine(dir, step + "-command.json"), JsonSerializer.Serialize(command)); overlay.Free();
+        Check(command is not null, "Production play emitted a command"); File.WriteAllText(Path.Combine(dir, step + "-command.json"), ClientCommandSerializer.Serialize(command!).GetRawText()); overlay.Free();
     }
     private static void Check(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 }

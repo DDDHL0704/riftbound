@@ -41,10 +41,12 @@ public sealed class OfficialCounterRepeatTests
     public async Task InsightCannotChargeForUnsupportedRepeat(string card)
     {
         var state = Position(card);
-        var command = new PlayCardCommand("C", card, ["S1"], OptionalCosts: ["ECHO"]);
+        // Keep the original method and Theory row: a repeat with an unsupported
+        // target declaration still cannot charge. Legal Insight repeats now work.
+        var command = new PlayCardCommand("C", card, ["S1"], OptionalCosts: ["ECHO"], RepeatChoices: [new("", ["NOT-A-STACK-SPELL"])]);
         var engine = new CoreRuleEngine();
         var candidate = ResolutionResult.BuildPrompts(state)["P1"].Candidates!.Single(c => c.Action == CommandTypes.PlayCard);
-        Assert.DoesNotContain(candidate.OptionalCosts ?? [], cost => EchoCostRules.IsEcho(cost.Id));
+        Assert.Contains(candidate.OptionalCosts ?? [], cost => EchoCostRules.IsEcho(cost.Id));
         var quote = engine.PreviewPlayCard(state, "P1", PlayCostPreviewTests.Request(state, command));
         Assert.False(quote.CanPay);
         var result = await engine.ResolveAsync(state, new("unsupported-echo", "P1", command.CmdType), command, default);

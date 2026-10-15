@@ -20368,6 +20368,90 @@
         "sqlReceipt": "docs/evidence/insight-repeat-2026-10-15/sql.json",
         "wholeCardCertified": false
       }
+    },
+    {
+      "id": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+      "status": "SCOPED_TARGETED_INSIGHT_AND_NATIVE_WIRE_CHECK_NATIVE_SQL_PASS_FIXED_FULL_PRODUCT_OPEN",
+      "scope": "Exact Eclipse/Abandon declared targeted repeats and Insight sequencing, retained counted Insight, and separate native outgoing JSON casing. Whole printing/variant/copied/attached semantics are not certified.",
+      "subjects": [
+        "UNL-063/219",
+        "UNL-131/219",
+        "VEN-056",
+        "OGN-080/298"
+      ],
+      "ruleRecords": [
+        "DOC-04-P043-B017",
+        "DOC-04-P044-B003",
+        "DOC-04-P050-B005",
+        "DOC-04-P051-B001",
+        "DOC-04-P051-B002",
+        "DOC-04-P051-B003",
+        "DOC-04-P081-B008",
+        "DOC-04-P081-B009",
+        "DOC-04-P081-B010",
+        "DOC-04-P081-B011",
+        "DOC-04-P081-B012",
+        "DOC-04-P081-B013",
+        "DOC-04-P081-B014",
+        "DOC-04-P081-B015",
+        "DOC-04-P120-B002",
+        "DOC-04-P120-B003",
+        "DOC-04-P120-B004",
+        "DOC-04-P120-B005",
+        "DOC-04-P120-B006",
+        "DOC-04-P120-B007",
+        "DOC-04-P120-B008",
+        "DOC-04-P120-B009",
+        "DOC-04-P120-B010",
+        "DOC-04-P120-B012",
+        "DOC-04-P120-B013",
+        "DOC-04-P120-B014",
+        "DOC-04-P120-B015",
+        "DOC-04-P120-B016",
+        "DOC-04-P120-B017",
+        "DOC-06-P004-B003",
+        "DOC-06-P004-B004",
+        "DOC-06-P004-B005",
+        "DOC-06-P004-B008",
+        "DOC-06-P004-B009"
+      ],
+      "auditDocument": "docs/TARGETED_INSIGHT_REPEAT_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/targeted-insight-repeat-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "applicableAsOf": "2026-10-15",
+        "source": "docs/evidence/targeted-insight-repeat-2026-10-15/source.json",
+        "futureCoreAdopted": false
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+        "src/Riftbound.Engine/EchoCostRules.cs",
+        "clients/godot/scripts/Main.cs",
+        "clients/godot/scripts/ClientCommandSerializer.cs",
+        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs"
+      ],
+      "remaining": [
+        "All other exact printings, counted/copy/attached and protected-target interactions beyond these bounded tests",
+        "The new input exact fixed full and corresponding visible paired SQL/network/score/original-opening replay",
+        "Native custom deck editor and independent Windows real runtime",
+        "Every official source gap, applicability change and full-universe semantic obligation"
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "status": "SINGLE_CHECK11841_7189_PASS_FIXED_FULL_PENDING",
+        "newCases": 19,
+        "newMethods": 9,
+        "batchCheck": "docs/evidence/targeted-insight-repeat-2026-10-15/check-result.json",
+        "nativeReceipt": "docs/evidence/targeted-insight-repeat-2026-10-15/native.json",
+        "sqlReceipt": "docs/evidence/targeted-insight-repeat-2026-10-15/sql.json",
+        "allOriginalMethodAndCaseIdentitiesPreserved": true,
+        "intentionalOriginalUnsupportedExpectationUpdatedWithInvalidDeclaration": true,
+        "wholeCardCertified": false
+      }
     }
   ]
 }

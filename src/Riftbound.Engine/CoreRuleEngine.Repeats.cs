@@ -64,11 +64,12 @@ public sealed partial class CoreRuleEngine
     internal static bool SupportsSeparateExecution(CardBehaviorDefinition behavior)
         => !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment
             && behavior.HandChoice is null && behavior.MainDeckLookCount == 0 && string.IsNullOrEmpty(behavior.EffectPlaySourceZone)
-            && !behavior.GainsControlOfTargetStackSpell && !behavior.PerformsInsight
+            && !behavior.GainsControlOfTargetStackSpell && (!behavior.PerformsInsight || SupportsTargetedInsightRepeat(behavior))
             // Pure counters and Nightfall's controller restriction have completed the repeat audit.
             // Other counters still need their follow-up choices, restrictions,
             // ability targets or optional payments checked before charging Echo.
-            && (!behavior.CountersTargetStackSpell || behavior.EffectKind is "WIND_WALL_COUNTER_SPELL" or "NIGHTFALL_LULLABY_COUNTER_SPELL_AND_SPELL_LOCK");
+            && (!behavior.CountersTargetStackSpell || SupportsTargetedInsightRepeat(behavior)
+                || behavior.EffectKind is "WIND_WALL_COUNTER_SPELL" or "NIGHTFALL_LULLABY_COUNTER_SPELL_AND_SPELL_LOCK");
 
     private static StackResolutionResult ResolveSeparateSpellExecutions(MatchState state, StackItemState original)
     {

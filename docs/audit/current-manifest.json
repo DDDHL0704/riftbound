@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "813c4273ba3373a5809ab9f0e7396051e26d0bae29cf3d78b3d494c4c714a360"
+      "sha256": "3d12a702a55bd98b1e38b20de0a5886e721f90b9a2879c2bcfdadbd3b4ded379"
     },
     "summary": {
       "path": "docs/evidence/clairvoyance-2026-10-15/index-summary.json",
@@ -115,7 +115,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -247,9 +247,9 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input.",
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -285,6 +285,16 @@
               "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
             }
           ]
+        },
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0",
+              "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+            }
+          ]
         }
       ]
     },
@@ -300,7 +310,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -597,9 +607,9 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input.",
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -633,6 +643,16 @@
               "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
               "previousSha256": "8bc1f64e158ffc23f10da577459988238f853473bc5dd028e2b1455a8d96ba99",
               "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+            }
+          ]
+        },
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0",
+              "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
             }
           ]
         }
@@ -1293,7 +1313,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -1888,7 +1908,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -1944,9 +1964,19 @@
               "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
             }
           ]
+        },
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0",
+              "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -1964,7 +1994,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
@@ -2566,7 +2596,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2623,9 +2653,19 @@
               "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
             }
           ]
+        },
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0",
+              "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -2643,7 +2683,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
@@ -2983,7 +3023,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3025,9 +3065,19 @@
               "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
             }
           ]
+        },
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0",
+              "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3719,7 +3769,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Recast.cs",
@@ -4397,7 +4447,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4434,9 +4484,19 @@
               "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
             }
           ]
+        },
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0",
+              "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -4740,7 +4800,7 @@
         },
         {
           "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
-          "sha256": "d170ee41f0cd88848470d178ea0916296a8ac692dea5132338d1ece41645b4f8"
+          "sha256": "9da21c0918a8859878e1bce76d47ea891af268f7c7e0841e253a3800e4101e40"
         }
       ],
       "branches": [
@@ -4894,7 +4954,7 @@
         }
       ],
       "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4906,9 +4966,19 @@
               "currentSha256": "d170ee41f0cd88848470d178ea0916296a8ac692dea5132338d1ece41645b4f8"
             }
           ]
+        },
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+              "previousSha256": "d170ee41f0cd88848470d178ea0916296a8ac692dea5132338d1ece41645b4f8",
+              "currentSha256": "9da21c0918a8859878e1bce76d47ea891af268f7c7e0841e253a3800e4101e40"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
     },
     "swain-source-identity-and-conquest-clause-classification-2026-10-15": {
       "implementation": [
@@ -5606,7 +5676,7 @@
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -5618,7 +5688,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
@@ -5765,13 +5835,23 @@
               "currentSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
             }
           ]
+        },
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0",
+              "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Shared private Insight execution progress changed; earlier exact proof remains retained and is not promoted to this input."
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
     },
     "untargeted-counted-insight-echo-resumption-2026-10-15": {
       "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
-      "currentImplementationCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicitly uncommitted new Insight Echo inputs; own fixed full remains required.",
       "ciState": "PENDING",
@@ -5779,7 +5859,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
-          "sha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0"
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
         },
         {
           "path": "src/Riftbound.Engine/EchoCostRules.cs",
@@ -5787,7 +5867,7 @@
         },
         {
           "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
-          "sha256": "d170ee41f0cd88848470d178ea0916296a8ac692dea5132338d1ece41645b4f8"
+          "sha256": "9da21c0918a8859878e1bce76d47ea891af268f7c7e0841e253a3800e4101e40"
         }
       ],
       "evidence": [
@@ -6009,6 +6089,302 @@
             "Independent Windows runtime and every full-universe source obligation"
           ]
         }
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+              "previousSha256": "a0405952134669925f8734e135b2c1339dd90bfd7c032a6c8ec511e399b3d8c0",
+              "currentSha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+            },
+            {
+              "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+              "previousSha256": "d170ee41f0cd88848470d178ea0916296a8ac692dea5132338d1ece41645b4f8",
+              "currentSha256": "9da21c0918a8859878e1bce76d47ea891af268f7c7e0841e253a3800e4101e40"
+            }
+          ]
+        }
+      ],
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
+    },
+    "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
+      "evidenceCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+          "sha256": "7780cd556bfcc8bd960e892b1de212e33f0009da369e0f3aefa79bfe0d9f3916"
+        },
+        {
+          "path": "src/Riftbound.Engine/EchoCostRules.cs",
+          "sha256": "2fe4e9ebd3289348cb5636251e68bb54f7caa1621af9f567fe0790a1661f1b98"
+        },
+        {
+          "path": "clients/godot/scripts/Main.cs",
+          "sha256": "cb4504128a51efd75064c4108e55bce2125a47d3d6d69c9ef95d4831afa8ea19"
+        },
+        {
+          "path": "clients/godot/scripts/ClientCommandSerializer.cs",
+          "sha256": "df49fe4af37433dba11eb4fdd50c1557d48b401be877e4e566ebbbec784888f4"
+        },
+        {
+          "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+          "sha256": "9da21c0918a8859878e1bce76d47ea891af268f7c7e0841e253a3800e4101e40"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/source.json",
+          "sha256": "8bb028d0dc941b6ae72090de9d472f14982ce32584948f0959808e27de8114b6",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/focus.json",
+          "sha256": "b17c13ca8d7e17b2f2ce87cad8238c30d7a1fe108cccdd05534493ab21dc538a",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/native.json",
+          "sha256": "4395421f4cabcd878e3141369010651d5b696b20c7631280597c0201029d0597",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/sql.json",
+          "sha256": "e8dcd9caa3ffaa73eb13f6e70ff4e7d325d962eefbae8ea98435561439e224cf",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/development-failures.json",
+          "sha256": "a4e8605cd096475cdf6d1488103bc87a8f8be632c25ba5c680291fdaf46acfb5",
+          "role": "development-failures"
+        },
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/check-result.json",
+          "sha256": "17359b5bb77492fd95ac8eee48d02bb94ee8e94f90fdef1c5d1d0a57f114e1a0",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/full-plan.json",
+          "sha256": "52aeb07d3ea94f65be3a6c1a5079acd9c25506e5e2180b2fcf6418c3db4a73cc",
+          "role": "plan"
+        },
+        {
+          "path": "docs/evidence/targeted-insight-repeat-2026-10-15/cleanup.json",
+          "sha256": "9ab3c608331c4ca73c782b96421f4bfc1cca49e895c0df4f14896c3c1da078db",
+          "role": "cleanup"
+        }
+      ],
+      "branches": [
+        {
+          "id": "independent-target-declarations-before-payment",
+          "sourceRefs": [
+            "UNL-063/219",
+            "UNL-131/219",
+            "VEN-056",
+            "OGN-080/298",
+            "DOC-04-P043-B017",
+            "DOC-04-P044-B003",
+            "DOC-04-P050-B005",
+            "DOC-04-P051-B001",
+            "DOC-04-P051-B002",
+            "DOC-04-P051-B003",
+            "DOC-04-P081-B008",
+            "DOC-04-P081-B009",
+            "DOC-04-P081-B010",
+            "DOC-04-P081-B011",
+            "DOC-04-P081-B012",
+            "DOC-04-P081-B013",
+            "DOC-04-P081-B014",
+            "DOC-04-P081-B015",
+            "DOC-04-P120-B002",
+            "DOC-04-P120-B003",
+            "DOC-04-P120-B004",
+            "DOC-04-P120-B005",
+            "DOC-04-P120-B006",
+            "DOC-04-P120-B007",
+            "DOC-04-P120-B008",
+            "DOC-04-P120-B009",
+            "DOC-04-P120-B010",
+            "DOC-04-P120-B012",
+            "DOC-04-P120-B013",
+            "DOC-04-P120-B014",
+            "DOC-04-P120-B015",
+            "DOC-04-P120-B016",
+            "DOC-04-P120-B017",
+            "DOC-06-P004-B003",
+            "DOC-06-P004-B004",
+            "DOC-06-P004-B005",
+            "DOC-06-P004-B008",
+            "DOC-06-P004-B009"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "All other exact printings, counted/copy/attached and protected-target interactions beyond these bounded tests",
+            "The new input exact fixed full and corresponding visible paired SQL/network/score/original-opening replay",
+            "Native custom deck editor and independent Windows real runtime",
+            "Every official source gap, applicability change and full-universe semantic obligation"
+          ]
+        },
+        {
+          "id": "effect-then-private-insight-and-single-play",
+          "sourceRefs": [
+            "UNL-063/219",
+            "UNL-131/219",
+            "VEN-056",
+            "OGN-080/298",
+            "DOC-04-P043-B017",
+            "DOC-04-P044-B003",
+            "DOC-04-P050-B005",
+            "DOC-04-P051-B001",
+            "DOC-04-P051-B002",
+            "DOC-04-P051-B003",
+            "DOC-04-P081-B008",
+            "DOC-04-P081-B009",
+            "DOC-04-P081-B010",
+            "DOC-04-P081-B011",
+            "DOC-04-P081-B012",
+            "DOC-04-P081-B013",
+            "DOC-04-P081-B014",
+            "DOC-04-P081-B015",
+            "DOC-04-P120-B002",
+            "DOC-04-P120-B003",
+            "DOC-04-P120-B004",
+            "DOC-04-P120-B005",
+            "DOC-04-P120-B006",
+            "DOC-04-P120-B007",
+            "DOC-04-P120-B008",
+            "DOC-04-P120-B009",
+            "DOC-04-P120-B010",
+            "DOC-04-P120-B012",
+            "DOC-04-P120-B013",
+            "DOC-04-P120-B014",
+            "DOC-04-P120-B015",
+            "DOC-04-P120-B016",
+            "DOC-04-P120-B017",
+            "DOC-06-P004-B003",
+            "DOC-06-P004-B004",
+            "DOC-06-P004-B005",
+            "DOC-06-P004-B008",
+            "DOC-06-P004-B009"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "All other exact printings, counted/copy/attached and protected-target interactions beyond these bounded tests",
+            "The new input exact fixed full and corresponding visible paired SQL/network/score/original-opening replay",
+            "Native custom deck editor and independent Windows real runtime",
+            "Every official source gap, applicability change and full-universe semantic obligation"
+          ]
+        },
+        {
+          "id": "missing-target-and-controller-recovery-bindings",
+          "sourceRefs": [
+            "UNL-063/219",
+            "UNL-131/219",
+            "VEN-056",
+            "OGN-080/298",
+            "DOC-04-P043-B017",
+            "DOC-04-P044-B003",
+            "DOC-04-P050-B005",
+            "DOC-04-P051-B001",
+            "DOC-04-P051-B002",
+            "DOC-04-P051-B003",
+            "DOC-04-P081-B008",
+            "DOC-04-P081-B009",
+            "DOC-04-P081-B010",
+            "DOC-04-P081-B011",
+            "DOC-04-P081-B012",
+            "DOC-04-P081-B013",
+            "DOC-04-P081-B014",
+            "DOC-04-P081-B015",
+            "DOC-04-P120-B002",
+            "DOC-04-P120-B003",
+            "DOC-04-P120-B004",
+            "DOC-04-P120-B005",
+            "DOC-04-P120-B006",
+            "DOC-04-P120-B007",
+            "DOC-04-P120-B008",
+            "DOC-04-P120-B009",
+            "DOC-04-P120-B010",
+            "DOC-04-P120-B012",
+            "DOC-04-P120-B013",
+            "DOC-04-P120-B014",
+            "DOC-04-P120-B015",
+            "DOC-04-P120-B016",
+            "DOC-04-P120-B017",
+            "DOC-06-P004-B003",
+            "DOC-06-P004-B004",
+            "DOC-06-P004-B005",
+            "DOC-06-P004-B008",
+            "DOC-06-P004-B009"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "All other exact printings, counted/copy/attached and protected-target interactions beyond these bounded tests",
+            "The new input exact fixed full and corresponding visible paired SQL/network/score/original-opening replay",
+            "Native custom deck editor and independent Windows real runtime",
+            "Every official source gap, applicability change and full-universe semantic obligation"
+          ]
+        },
+        {
+          "id": "actual-native-wire-casing-and-strict-mapping",
+          "sourceRefs": [
+            "UNL-063/219",
+            "UNL-131/219",
+            "VEN-056",
+            "OGN-080/298",
+            "DOC-04-P043-B017",
+            "DOC-04-P044-B003",
+            "DOC-04-P050-B005",
+            "DOC-04-P051-B001",
+            "DOC-04-P051-B002",
+            "DOC-04-P051-B003",
+            "DOC-04-P081-B008",
+            "DOC-04-P081-B009",
+            "DOC-04-P081-B010",
+            "DOC-04-P081-B011",
+            "DOC-04-P081-B012",
+            "DOC-04-P081-B013",
+            "DOC-04-P081-B014",
+            "DOC-04-P081-B015",
+            "DOC-04-P120-B002",
+            "DOC-04-P120-B003",
+            "DOC-04-P120-B004",
+            "DOC-04-P120-B005",
+            "DOC-04-P120-B006",
+            "DOC-04-P120-B007",
+            "DOC-04-P120-B008",
+            "DOC-04-P120-B009",
+            "DOC-04-P120-B010",
+            "DOC-04-P120-B012",
+            "DOC-04-P120-B013",
+            "DOC-04-P120-B014",
+            "DOC-04-P120-B015",
+            "DOC-04-P120-B016",
+            "DOC-04-P120-B017",
+            "DOC-06-P004-B003",
+            "DOC-06-P004-B004",
+            "DOC-06-P004-B005",
+            "DOC-06-P004-B008",
+            "DOC-06-P004-B009"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "All other exact printings, counted/copy/attached and protected-target interactions beyond these bounded tests",
+            "The new input exact fixed full and corresponding visible paired SQL/network/score/original-opening replay",
+            "Native custom deck editor and independent Windows real runtime",
+            "Every official source gap, applicability change and full-universe semantic obligation"
+          ]
+        }
       ]
     }
   },
@@ -6057,7 +6433,11 @@
         "tests/Riftbound.NativeNetworkSmoke/Program.cs",
         "tests/Riftbound.ConformanceTests/InsightRepeatTests.cs",
         "tests/Riftbound.PostgresAcceptance/InsightRepeatSqlAcceptance.cs",
-        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs"
+        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+        "tests/Riftbound.ConformanceTests/TargetedInsightRepeatTests.cs",
+        "tests/Riftbound.ConformanceTests/NativeCommandSerializationTests.cs",
+        "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs",
+        "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj"
       ],
       "previousVerificationInputsNowCoveredAt6bc": {
         "inputs": [
@@ -6076,7 +6456,10 @@
         "data/official/card-catalog.zh-CN.json",
         "src/Riftbound.Api/Hubs/GameHub.cs",
         "src/Riftbound.Engine/EchoCostRules.cs",
-        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs"
+        "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+        "clients/godot/scripts/Main.cs",
+        "clients/godot/scripts/ClientCommandSerializer.cs"
       ],
       "previousCountedInsightVerification": {
         "commit": "a85f46778d398d7a5b262913cbf87a08467b8ba0",
@@ -6101,6 +6484,21 @@
         "seed": 424242,
         "currentImplementationVerified": false,
         "reopenedReason": "Shared Insight Echo inputs changed after fixed a8f; its independent native and full CI evidence remain scoped to that exact candidate."
+      },
+      "previousUntargetedInsightVerification": {
+        "commit": "057589c20fd7620902af66dff61bffbf63d28d17",
+        "runId": 38696428214,
+        "receipt": "docs/evidence/insight-repeat-2026-10-15/full-ci-057589c2.json",
+        "sha256": "276dc6728134f71c5c84d9da1d03383182edc362efb88e30c73e6db23a02db6b",
+        "cases": 11971,
+        "methods": 7321,
+        "actualSqlScenarios": 55,
+        "seconds": 2685.29,
+        "originalGames": 143,
+        "pairs": 110,
+        "seed": 424242,
+        "gameplaySourceInputs": 461,
+        "coversCurrentTargetDeclarationsAndNativeSerializer": false
       }
     },
     {
@@ -6136,7 +6534,7 @@
         "scope": "Exact fixed a8f local Mac native, genuine SQL, private five-card choice/retained reverse order/draw2, automatic and manual reconnect, normal8:0 and full69-command/513-event opening replay. Cooperative scope only; native custom deck editor and Windows runtime remain open.",
         "fixedFullRunId": 38686783331,
         "fixedFullStatus": "VERIFIED_FIXED_A8F_11947_CASES_7312_METHODS_50_SQL",
-        "currentCandidateReopenedReason": "Shared resumable counted Insight Echo execution changed after fixed a8f. Its exact native/SQL/network/score/replay receipt remains preserved; this new gameplay input needs its own fixed candidate acceptance.",
+        "currentCandidateReopenedReason": "Targeted Insight declarations and actual native wire serialization changed after the exact a8f source. The a8f product/full receipts remain preserved; current source needs its own visible candidate acceptance.",
         "fixedFullReceipt": "docs/evidence/room-identity-2026-10-15/full-ci-a8f.json"
       }
     },
@@ -6172,6 +6570,22 @@
         "allBroaderSecuritySemanticsCertified": false,
         "fixedFullReceipt": "docs/evidence/room-identity-2026-10-15/full-ci-a8f.json"
       }
+    },
+    {
+      "id": "NATIVE_OUTGOING_COMMAND_SCHEMA",
+      "state": "OPEN",
+      "requirement": "Typed repeated target/mode/movement and damage records must retain the strict server wire schema through all production native submission paths; fixed full and current candidate product acceptance remain separate.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/31",
+      "scopedDevelopmentEvidence": {
+        "path": "docs/evidence/targeted-insight-repeat-2026-10-15/native.json",
+        "sha256": "4395421f4cabcd878e3141369010651d5b696b20c7631280597c0201029d0597",
+        "productionControlCommands": 45,
+        "visibleNativeUi": false,
+        "realNetworkTransport": false,
+        "fixedFullCi": "PENDING"
+      },
+      "serverValidationRelaxed": false,
+      "wholeClientCertification": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker."

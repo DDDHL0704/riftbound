@@ -1,0 +1,56 @@
+{
+  "status": "SINGLE_BATCH_CHECK_AND_ALL_OLD_IDENTITIES_PRESERVED",
+  "profile": "check",
+  "cases": 11841,
+  "methods": 7189,
+  "seconds": 256.4,
+  "failed": 0,
+  "skipped": 0,
+  "oldCasesPreserved": 11822,
+  "oldMethodsPreserved": 7180,
+  "missingCases": [],
+  "missingMethods": [],
+  "addedCases": [
+    "Riftbound.ConformanceTests.NativeCommandSerializationTests.EveryTypedRepeatDeclarationSurvivesTheNativeWireAndStrictServerMapper(echoes: 1)",
+    "Riftbound.ConformanceTests.NativeCommandSerializationTests.EveryTypedRepeatDeclarationSurvivesTheNativeWireAndStrictServerMapper(echoes: 2)",
+    "Riftbound.ConformanceTests.NativeCommandSerializationTests.TypedDamageAssignmentsKeepTheirObjectIdentitiesAndNumbersAcrossTheSameWire",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.AnInvalidLaterDeclarationCannotSpendAnyCostOrConsumeTheGrant(card: \"UNL-063/219\")",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.AnInvalidLaterDeclarationCannotSpendAnyCostOrConsumeTheGrant(card: \"UNL-131/219\")",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.EachCounterExecutionThenPerformsItsOwnInsightEvenWhenItsLaterTargetIsGone(laterTarget: \"S1\", countered: 1)",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.EachCounterExecutionThenPerformsItsOwnInsightEvenWhenItsLaterTargetIsGone(laterTarget: \"S2\", countered: 2)",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.EachPowerModifierUsesItsOwnDeclaredTargetBeforeTheMatchingInsight(laterTarget: \"U\", firstPower: 2, secondPower: 9)",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.EachPowerModifierUsesItsOwnDeclaredTargetBeforeTheMatchingInsight(laterTarget: \"V\", firstPower: 6, secondPower: 5)",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.IndependentRecoveryRejectsTargetPlanAndPrivateProgressTampering(branch: \"INDEX\")",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.IndependentRecoveryRejectsTargetPlanAndPrivateProgressTampering(branch: \"MISSING_PLAN\")",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.IndependentRecoveryRejectsTargetPlanAndPrivateProgressTampering(branch: \"OLD_CHOICE\")",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.IndependentRecoveryRejectsTargetPlanAndPrivateProgressTampering(branch: \"OLD_PROGRESS\")",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.IndependentRecoveryRejectsTargetPlanAndPrivateProgressTampering(branch: \"SHORT_PLAN\")",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.IndependentRecoveryRejectsTargetPlanAndPrivateProgressTampering(branch: \"WRONG_KIND\")",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.ProductionDeclaredTargetsAndPrivateChoicesColdRecoverDeduplicateAndFullyReplay(card: \"UNL-063/219\", echoes: 1)",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.ProductionDeclaredTargetsAndPrivateChoicesColdRecoverDeduplicateAndFullyReplay(card: \"UNL-131/219\", echoes: 2)",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.ReversalKeepsDeclaredExecutionsButMovesBothPrivateInsightsToTheActualController",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.ThreeEmptyInsightsFinishWithoutAChoiceDrawOrBurnout"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.NativeCommandSerializationTests.EveryTypedRepeatDeclarationSurvivesTheNativeWireAndStrictServerMapper",
+    "Riftbound.ConformanceTests.NativeCommandSerializationTests.TypedDamageAssignmentsKeepTheirObjectIdentitiesAndNumbersAcrossTheSameWire",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.AnInvalidLaterDeclarationCannotSpendAnyCostOrConsumeTheGrant",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.EachCounterExecutionThenPerformsItsOwnInsightEvenWhenItsLaterTargetIsGone",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.EachPowerModifierUsesItsOwnDeclaredTargetBeforeTheMatchingInsight",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.IndependentRecoveryRejectsTargetPlanAndPrivateProgressTampering",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.ProductionDeclaredTargetsAndPrivateChoicesColdRecoverDeduplicateAndFullyReplay",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.ReversalKeepsDeclaredExecutionsButMovesBothPrivateInsightsToTheActualController",
+    "Riftbound.ConformanceTests.TargetedInsightRepeatTests.ThreeEmptyInsightsFinishWithoutAChoiceDrawOrBurnout"
+  ],
+  "frozenInputsUnchanged": 2687,
+  "inputManifest": {
+    "path": "var/qa/targeted-insight-repeat-20261015/check-start-inputs.json",
+    "sha256": "70be89b65d61b7eba9b00c42437f5982c6e0be0c74c8a51a0ee8973759455646"
+  },
+  "trx": {
+    "path": "var/qa/targeted-insight-repeat-20261015/check/check/results.trx",
+    "sha256": "1a96868f568b84700bf748e18fc972bcf01006b1c54bb8da8b2645f403b69668"
+  },
+  "actualDedicatedPostgresConnectionProvided": true,
+  "full": "Not executed locally; fixed full CI remains required."
+}

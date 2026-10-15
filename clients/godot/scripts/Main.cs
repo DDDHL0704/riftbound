@@ -1484,7 +1484,7 @@ public partial class Main : Control
             payload["snapshotTick"] = snapshotTick;
         }
 
-        var cmd = JsonSerializer.SerializeToElement(payload);
+        var cmd = ClientCommandSerializer.Serialize(payload);
         var receipt = await _hub!.SubmitIntentAsync(
             _session.RoomId,
             _authenticatedHandle,
@@ -1518,7 +1518,7 @@ public partial class Main : Control
             payload["snapshotTick"] = snapshotTick;
         }
 
-        var cmd = JsonSerializer.SerializeToElement(payload);
+        var cmd = ClientCommandSerializer.Serialize(payload);
         var receipt = await _hub!.SubmitIntentAsync(
             _session.RoomId,
             _authenticatedHandle,
@@ -1628,7 +1628,7 @@ public partial class Main : Control
             payload["snapshotTick"] = snapshotTick;
         }
 
-        var cmd = JsonSerializer.SerializeToElement(payload);
+        var cmd = ClientCommandSerializer.Serialize(payload);
         var receipt = await _hub!.SubmitIntentAsync(
             _session.RoomId,
             _authenticatedHandle,
@@ -1669,7 +1669,7 @@ public partial class Main : Control
             }
 
             var cmdType = payload.TryGetValue("cmdType", out var cmdTypeValue) ? Convert.ToString(cmdTypeValue) ?? "command" : "command";
-            var cmd = JsonSerializer.SerializeToElement(payload);
+            var cmd = ClientCommandSerializer.Serialize(payload);
             var receipt = await _hub!.SubmitIntentAsync(
                 _session.RoomId,
                 _authenticatedHandle,

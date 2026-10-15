@@ -4,13 +4,28 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
-    // Targeted Insight spells still require independent declaration plans for
-    // their preceding instructions. This path covers Insight followed by draw.
+    // Insight followed by draw, or a declared single-target instruction followed
+    // by Insight, uses the same private execution progress.
     internal static bool SupportsInsightRepeat(CardBehaviorDefinition behavior)
-        => behavior.PerformsInsight && behavior.RequiredTargetCount == 0
-            && !behavior.CountersTargetStackSpell && behavior.DrawCount == 0 && behavior.DamageAmount == 0
+        => behavior.PerformsInsight && behavior.DrawCount == 0 && behavior.DamageAmount == 0
             && behavior.HandChoice is null && behavior.MainDeckLookCount == 0 && behavior.EffectPlaySourceZone.Length == 0
-            && !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment;
+            && !behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment
+            && (behavior.RequiredTargetCount == 0 && !behavior.CountersTargetStackSpell || SupportsTargetedInsightRepeat(behavior));
+
+    internal static bool SupportsTargetedInsightRepeat(CardBehaviorDefinition behavior)
+        => behavior.PerformsInsight && behavior.RequiredTargetCount == 1 && behavior.DrawAfterInsightCount == 0
+            && (behavior.TargetScope == CardTargetScopes.AnyUnit && behavior.PowerModifierAmount != 0 && !behavior.CountersTargetStackSpell
+                || behavior.TargetScope == CardTargetScopes.StackSpell && behavior.CountersTargetStackSpell
+                    && behavior.CounteredStackItemDestination == CardCounteredStackItemDestinationZones.Hand);
+
+    private static bool ValidInsightRepeatPlan(StackItemState item)
+    {
+        if (item.EffectRepeatCount == 1) return item.RepeatExecutions is null;
+        if (item.InsightContext is not null || !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior)
+            || !SupportsInsightRepeat(behavior)) return false;
+        return behavior.RequiredTargetCount == 0 ? item.RepeatExecutions is null
+            : item.RepeatExecutions is { } executions && executions.Count == item.EffectRepeatCount;
+    }
 
     private static string InsightChoiceId(string prefix, StackItemState item)
         => prefix + item.StackItemId + (item.CompletedDeckExecutions == 0 ? "" : ":" + item.CompletedDeckExecutions);
@@ -20,7 +35,14 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveInsightSpell(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
     {
         if (item.InsightCompleted) return FinishInsight(state, item);
-        var effect = ResolveStackItemEffect(state, item with { EffectRepeatCount = 1 }, deferCompletion: true, skipInsight: true);
+        var instruction = item;
+        if (item.RepeatExecutions is { } executions)
+        {
+            var execution = executions[item.CompletedDeckExecutions];
+            instruction = item with { EffectKind = execution.EffectKind, TargetObjectIds = execution.TargetObjectIds,
+                TargetGenerations = execution.TargetGenerations, RepeatExecutions = null };
+        }
+        var effect = ResolveStackItemEffect(state, instruction with { EffectRepeatCount = 1 }, deferCompletion: true, skipInsight: true);
         return BeginInsight(state, item, effect, behavior.InsightCount);
     }
 
@@ -101,7 +123,7 @@ public sealed partial class CoreRuleEngine
             events.Add(new("SPELL_EXECUTION_COMPLETED", $"第 {item.CompletedDeckExecutions + 1} 次法术效果完成",
                 new Dictionary<string, object?> { ["stackItemId"] = item.StackItemId,
                     ["executionIndex"] = item.CompletedDeckExecutions, ["effectKind"] = item.EffectKind,
-                    ["targetObjectIds"] = item.TargetObjectIds }));
+                    ["targetObjectIds"] = item.RepeatExecutions?[item.CompletedDeckExecutions].TargetObjectIds ?? item.TargetObjectIds }));
             if (subsequentDraw.WinnerPlayerId is null && item.CompletedDeckExecutions + 1 < item.EffectRepeatCount)
             {
                 var nextItem = item with { CompletedDeckExecutions = item.CompletedDeckExecutions + 1, InsightCompleted = false };
@@ -168,9 +190,7 @@ public sealed partial class CoreRuleEngine
     {
         if (item is null || item.InsightCompleted || item.EffectRepeatCount < 1
             || item.CompletedDeckExecutions < 0 || item.CompletedDeckExecutions >= item.EffectRepeatCount
-            || item.EffectRepeatCount > 1 && (item.InsightContext is not null
-                || !CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var repeated) || !SupportsInsightRepeat(repeated))
-            || item.RepeatExecutions is not null || item.DeckChoiceCompleted
+            || !ValidInsightRepeatPlan(item) || item.DeckChoiceCompleted
             || item.InsightContext is { Kind: "DUEL", PaymentAccepted: false }
             || item.InsightContext is { } capturedSource && !ValidPredictEntryBindings(state, capturedSource, item.SourceObjectId)
             || choice.DeckContext is not { } context || context.ExecutionIndex != item.CompletedDeckExecutions || context.StackItemId != item.StackItemId
