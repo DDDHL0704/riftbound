@@ -20090,7 +20090,20 @@
         "Whole-history causal deletion/replacement/valid-seat forgery protection beyond structural validation; full action/event/state replay remains required",
         "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
       ],
-      "wholeCardCertification": false
+      "wholeCardCertification": false,
+      "executionUpdate": {
+        "verifiedAtUtc": "2026-10-15T03:31:35.307611+00:00",
+        "fixedCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+        "runId": 38668314734,
+        "actualCases": 11851,
+        "actualMethods": 7285,
+        "allOriginalCasesMethodsGamesPairsAndSeedsRetained": true,
+        "originalFailedBatchCheckPreserved": true,
+        "noSecondCheckClaim": true,
+        "wholeCardCertified": false,
+        "sourceAndSemanticScopeUnchanged": true,
+        "productAcceptanceScope": "Separate exact 339c existing-family transport/normal score/replay evidence; does not certify every printing or new card."
+      }
     },
     {
       "id": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -20150,6 +20163,66 @@
         "Whole-history causal deletion/replacement/controller forgery beyond structural witnesses remains OPEN",
         "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
         "Independent Windows real runtime and every other full-universe obligation remain OPEN"
+      ],
+      "wholeCardCertification": false,
+      "executionUpdate": {
+        "verifiedAtUtc": "2026-10-15T03:31:35.307749+00:00",
+        "fixedCommit": "339c6168f704684477354365988d7448cb0e7a10",
+        "runId": 38672461239,
+        "actualCases": 11881,
+        "actualMethods": 7295,
+        "allOriginalCasesMethodsGamesPairsAndSeedsRetained": true,
+        "originalFailedBatchCheckPreserved": true,
+        "noSecondCheckClaim": true,
+        "wholeCardCertified": false,
+        "sourceAndSemanticScopeUnchanged": true,
+        "productAcceptanceScope": "Separate exact 339c existing-family transport/normal score/replay evidence; does not certify every printing or new card."
+      }
+    },
+    {
+      "id": "typed-card-play-history-causal-production-recovery-2026-10-15",
+      "status": "SCOPED_EXISTING_PRODUCTION_GUARD_VERIFIED_FULL_CI_PENDING",
+      "scope": "Classified card-play history snapshot-only causal forgery with unchanged accepted command/event log: valid-seat substitution, deletion, invented play, earlier tick and old-turn injection. Actual production registry replay rejects; no production implementation change or whole-card certification.",
+      "subjects": [
+        "SFD-065/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P071-B009",
+        "DOC-04-P071-B010",
+        "DOC-04-P071-B011",
+        "DOC-04-P071-B014"
+      ],
+      "auditDocument": "docs/CARD_PLAY_HISTORY_CAUSAL_RECOVERY_2026-10-15.md",
+      "evidence": "docs/evidence/card-play-history-causal-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED_SECURITY_VERIFICATION_OF_EXISTING_BEHAVIOR",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "applicableAsOf": "2026-10-15",
+        "source": "docs/evidence/typed-play-history-2026-10-15/source.json",
+        "fullOfficialSourceRefreshClaimed": false
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
+        "src/Riftbound.Engine/MatchRecovery.cs",
+        "src/Riftbound.Engine/MatchSession.cs",
+        "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs"
+      ],
+      "testExecution": {
+        "status": "3356_FOCUS_45_REAL_SQL_AND_SINGLE_CHECK_11742_PASS_FIXED_FULL_PENDING",
+        "newCases": 10,
+        "newMethods": 3,
+        "receipt": "docs/evidence/card-play-history-causal-2026-10-15/focus.json",
+        "sqlReceipt": "docs/evidence/card-play-history-causal-2026-10-15/sql.json",
+        "batchCheck": "docs/evidence/card-play-history-causal-2026-10-15/check-parity.json",
+        "oldCasesAndMethodsPreserved": true
+      },
+      "remaining": [
+        "All other card/printing/copy/attached and interrupted-play semantic obligations remain separate",
+        "Coordinated rewrite of accepted commands/events/states is outside this snapshot-only bounded causal proof",
+        "New test/fixture/SQL inputs require their own fixed-commit complete CI",
+        "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
       ],
       "wholeCardCertification": false
     }

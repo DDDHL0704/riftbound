@@ -1,0 +1,13 @@
+{
+  "status": "PYTHON46_AND_GOVERNANCE_PASS",
+  "pythonTests": 46,
+  "pythonLog": {
+    "path": "var/qa/history-causal-20261015/python-tests.log",
+    "sha256": "cb823a489ac621daf63e06c46bd91eda78253d5600c6323fbf61c6a049d9395d"
+  },
+  "governanceValid": true,
+  "semanticCoverageCertified": false,
+  "reviews": 103,
+  "remainingObligations": 16144,
+  "scope": "Tool/manifest consistency only, not source fetch or card certification."
+}

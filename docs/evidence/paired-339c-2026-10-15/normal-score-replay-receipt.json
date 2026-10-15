@@ -1,0 +1,27 @@
+{
+  "status": "VISIBLE_PAIRED_NATIVE_REAL_SQL_NORMAL_SCORE_AND_FULL_REPLAY_PASS",
+  "room": "paired-339c-20261015",
+  "currentTick": 34,
+  "lastEventSequence": 187,
+  "commands": 35,
+  "events": 187,
+  "winner": "paired-339c-a",
+  "scores": {
+    "paired-339c-a": 8,
+    "paired-339c-b": 0
+  },
+  "inputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+    "catalogSha256": "16dd65ddfe55b07f605e7f35123842616d56fce7a4014195118ef57775787f04",
+    "implementationSha256": "a5734c061d285230a862b430cd750375f9d740deeb550ffcf4abdcd21309d3e7",
+    "identitySha256": "e3ea4e54f2addc558dcf6f01a81c4156b4f7bf58e42e688d2c4e57f404e22aff"
+  },
+  "finalHash": "f8a35b3de550426bcdfbbb969b5f46820b229a7d171d39b0fa48bd9dd7f8d2d9",
+  "fullActionLogReplayMatched": true,
+  "noSurrender": true,
+  "noSeededState": true,
+  "scope": "Current fixed runtime normal transport/score/replay only; whole-card semantics and Windows runtime remain open"
+}

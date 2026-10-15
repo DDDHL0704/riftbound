@@ -1,0 +1,61 @@
+{
+  "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_CAUSAL_REGISTRY_PASS",
+  "room": "paired-339c-20261015",
+  "originalCommands": 9,
+  "events": 28,
+  "causalTamperRejections": 8,
+  "cleanRegistryRecoveries": 8,
+  "checks": [
+    {
+      "name": "valid-finalizer",
+      "structuralValidationPassed": true,
+      "productionRegistryCausalRejection": true
+    },
+    {
+      "name": "valid-resolver",
+      "structuralValidationPassed": true,
+      "productionRegistryCausalRejection": true
+    },
+    {
+      "name": "valid-both-actors",
+      "structuralValidationPassed": true,
+      "productionRegistryCausalRejection": true
+    },
+    {
+      "name": "delete-finalized",
+      "structuralValidationPassed": true,
+      "productionRegistryCausalRejection": true
+    },
+    {
+      "name": "delete-resolved",
+      "structuralValidationPassed": true,
+      "productionRegistryCausalRejection": true
+    },
+    {
+      "name": "delete-both",
+      "structuralValidationPassed": true,
+      "productionRegistryCausalRejection": true
+    },
+    {
+      "name": "fabricated-second-play",
+      "structuralValidationPassed": true,
+      "productionRegistryCausalRejection": true
+    },
+    {
+      "name": "earlier-tick-and-id",
+      "structuralValidationPassed": true,
+      "productionRegistryCausalRejection": true
+    }
+  ],
+  "finalHash": "4174223f7de30f615ffdb661a2e6fb008d6ad899ce2e23e98b32cea581150abb",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+    "catalogSha256": "16dd65ddfe55b07f605e7f35123842616d56fce7a4014195118ef57775787f04",
+    "implementationSha256": "6e2d41e3a593f1abc02cb00434569e0a795792838ab60ebd25f2d5e2fdea1a6b",
+    "identitySha256": "6810118f521a9d86fe5e59be7979740f4583cdae0e3ec35694f3e5e9c86d374c"
+  },
+  "scope": "Nine exact actual-opening raw commands executed in a fresh SQL database. Eight snapshot-only causal forgeries pass structural validation but production registry rejects via complete original-opening replay. Coordinated replacement of the accepted command/event history is outside this bounded proof."
+}

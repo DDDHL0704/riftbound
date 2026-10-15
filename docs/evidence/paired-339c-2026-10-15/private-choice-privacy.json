@@ -1,0 +1,10 @@
+{
+  "status": "REAL_SQL_PLAYER_PROMPT_AND_SNAPSHOT_PRIVATE_TOP_ID_BOUNDARY_PASS",
+  "tick": 10,
+  "choiceId": "INSIGHT:ordered-predict-entry-8-3-0",
+  "chooser": "paired-339c-a",
+  "opponent": "paired-339c-b",
+  "actualRows": 4,
+  "topObjectPresentOnlyForChooser": true,
+  "visibleOpponentShowsWaitOnly": true
+}

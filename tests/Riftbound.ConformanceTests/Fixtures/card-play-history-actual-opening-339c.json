@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "339c6168f704684477354365988d7448cb0e7a10",
+  "sourceRoomId": "paired-339c-20261015",
+  "sourceFrameSha256": "93f55213e9f1e5859d96957f8b40a0204c6f2cb522ec4418dac0d8a73e1221d2",
+  "scope": "Exact first nine accepted commands from the visible paired SQL match, through the first real card play. Current tests rebuild state from these commands; no old snapshot migration or rule authority is implied.",
+  "seats": {
+    "paired-339c-a": "P1",
+    "paired-339c-b": "P2"
+  },
+  "acceptedCommands": [
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "submit-deck-920f015f604d4823a6662dd6c8ac05b2",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "cmdType": "SUBMIT_DECK",
+        "mainDeck": [
+          "SFD·026/221",
+          "SFD·085/221",
+          "SFD·008/221",
+          "SFD·022/221",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN·013/298",
+          "OGN·013/298",
+          "OGN·013/298",
+          "OGN·096/298",
+          "OGN·096/298",
+          "OGN·096/298",
+          "OGN·103/298",
+          "OGN·103/298",
+          "OGN·103/298",
+          "OGN·121/298",
+          "OGN·121/298",
+          "OGN·121/298",
+          "SFD·018/221",
+          "SFD·018/221",
+          "SFD·018/221",
+          "SFD·065/221",
+          "SFD·065/221",
+          "SFD·065/221",
+          "SFD·069/221",
+          "SFD·069/221",
+          "SFD·069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219"
+        ],
+        "runeDeck": [
+          "OGN·007/298",
+          "OGN·007a/298",
+          "OGN·007b/298",
+          "OGN·089/298",
+          "OGN·089a/298",
+          "OGN·089b/298",
+          "SFD·R01",
+          "SFD·R01a",
+          "SFD·R01b",
+          "SFD·R03",
+          "SFD·R03a",
+          "SFD·R03b"
+        ],
+        "battlefields": [
+          "OGN·275/298",
+          "OGN·277/298",
+          "OGN·278/298"
+        ],
+        "legendCardNo": "SFD·181/221",
+        "championCardNo": "SFD·026/221"
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "submit-deck-17329a034de542bda3529d2256729e88",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "cmdType": "SUBMIT_DECK",
+        "mainDeck": [
+          "UNL-022/219",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN·013/298",
+          "OGN·013/298",
+          "OGN·013/298",
+          "OGN·096/298",
+          "OGN·096/298",
+          "OGN·096/298",
+          "OGN·103/298",
+          "OGN·103/298",
+          "OGN·103/298",
+          "OGN·121/298",
+          "OGN·121/298",
+          "OGN·121/298",
+          "SFD·018/221",
+          "SFD·018/221",
+          "SFD·018/221",
+          "SFD·065/221",
+          "SFD·065/221",
+          "SFD·065/221",
+          "SFD·069/221",
+          "SFD·069/221",
+          "SFD·069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-081/219",
+          "UNL-081/219",
+          "UNL-081/219"
+        ],
+        "runeDeck": [
+          "OGN·007/298",
+          "OGN·007a/298",
+          "OGN·007b/298",
+          "OGN·089/298",
+          "OGN·089a/298",
+          "OGN·089b/298",
+          "SFD·R01",
+          "SFD·R01a",
+          "SFD·R01b",
+          "SFD·R03",
+          "SFD·R03a",
+          "SFD·R03b"
+        ],
+        "battlefields": [
+          "OGN·275/298",
+          "OGN·277/298",
+          "OGN·278/298"
+        ],
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219"
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "ready-3cf6bdc2725945bba5775f7ffdb2cc66",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY"
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "ready-7a42c7b0a5c041e5b4d7e6f9ab37eae8",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY"
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "prompt-mulligan-12200ad0499142079dc7467c2f5e0de4",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "cmdType": "MULLIGAN",
+        "promptId": "paired-339c-20261015:2:paired-339c-a:MULLIGAN,SURRENDER",
+        "snapshotTick": 2,
+        "handObjectIds": []
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "prompt-mulligan-d705d12eb5294cc0a4cfc1419fccee96",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "cmdType": "MULLIGAN",
+        "promptId": "paired-339c-20261015:3:paired-339c-b:MULLIGAN,SURRENDER",
+        "snapshotTick": 3,
+        "handObjectIds": []
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "prompt-runes-21613513a3eb41e8b76b8635dc264281",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "promptId": "paired-339c-20261015:5:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 5,
+        "sourceObjectId": "paired-339c-a-RUNE-OGN-007b-298-03",
+        "sourceObjectIds": [
+          "paired-339c-a-RUNE-OGN-007b-298-03"
+        ]
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "prompt-runes-6659abd9fe0d4adfbe29a86c098718bc",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "promptId": "paired-339c-20261015:6:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 6,
+        "sourceObjectId": "paired-339c-a-RUNE-SFD-R03b-12",
+        "sourceObjectIds": [
+          "paired-339c-a-RUNE-SFD-R03b-12"
+        ]
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "prompt-play_card-b4e8dcdb53bf4e4c98099412746a554b",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "mode": "",
+        "cardNo": "SFD·065/221",
+        "cmdType": "PLAY_CARD",
+        "promptId": "paired-339c-20261015:7:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "destination": "BASE",
+        "snapshotTick": 7,
+        "optionalCosts": [],
+        "repeatChoices": null,
+        "sourceObjectId": "paired-339c-a-MAIN-SFD-065-221-21",
+        "targetObjectIds": [],
+        "movementDestinations": null
+      }
+    }
+  ]
+}

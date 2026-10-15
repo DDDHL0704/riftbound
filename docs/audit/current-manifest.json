@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "880b4e835223a53871dff24645cfcd01b32798ba8fbf13d5772a560255daf8b4"
+      "sha256": "1b21c4d259c1c0da0c302b3b96ec627331d4bc854feb57b1a600546d1cebc47f"
     },
     "summary": {
       "path": "docs/evidence/porobot-2026-10-15/index-summary.json",
@@ -4995,11 +4995,18 @@
           "role": "original-games"
         }
       ],
-      "ciState": "PENDING",
-      "ciReceipts": [],
-      "evidenceCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/typed-play-history-2026-10-15/full-ci-342.json",
+          "sha256": "9d3e33488c52212ede49bbd22e7b73de0d14bdf53fa210c9bdf1a55ccf2bca73",
+          "commit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+          "runId": 38668314734
+        }
+      ],
+      "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationCommit": "339c6168f704684477354365988d7448cb0e7a10",
+      "currentImplementationIncludesUncommittedChanges": false,
       "branches": [
         {
           "id": "distinct-confirmation-and-resolution-observations",
@@ -5027,7 +5034,7 @@
             "Swain conquest query adjudication and natural/combat/named activation scoring",
             "Patched Porobot complete entry/draw behavior and runtime promotion; actual printed dual-type play consumer",
             "All remaining copy/attached and source-life consumers",
-            "Whole-history causal deletion/replacement/valid-seat forgery protection beyond structural validation; full action/event/state replay remains required",
+            "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ]
         },
@@ -5057,7 +5064,7 @@
             "Swain conquest query adjudication and natural/combat/named activation scoring",
             "Patched Porobot complete entry/draw behavior and runtime promotion; actual printed dual-type play consumer",
             "All remaining copy/attached and source-life consumers",
-            "Whole-history causal deletion/replacement/valid-seat forgery protection beyond structural validation; full action/event/state replay remains required",
+            "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ]
         },
@@ -5087,7 +5094,7 @@
             "Swain conquest query adjudication and natural/combat/named activation scoring",
             "Patched Porobot complete entry/draw behavior and runtime promotion; actual printed dual-type play consumer",
             "All remaining copy/attached and source-life consumers",
-            "Whole-history causal deletion/replacement/valid-seat forgery protection beyond structural validation; full action/event/state replay remains required",
+            "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ]
         }
@@ -5118,7 +5125,12 @@
             }
           ]
         }
-      ]
+      ],
+      "priorEvidenceCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
+      "causalSnapshotVerificationSupplement": {
+        "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
+        "scope": "Only snapshot modifications against unchanged accepted action/event history; all other obligations retained."
+      }
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -5200,11 +5212,18 @@
           "role": "check"
         }
       ],
-      "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationIncludesUncommittedChanges": true,
-      "ciState": "PENDING",
-      "ciReceipts": [],
+      "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
+      "currentImplementationCommit": "339c6168f704684477354365988d7448cb0e7a10",
+      "currentImplementationIncludesUncommittedChanges": false,
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/porobot-2026-10-15/full-ci-339c.json",
+          "sha256": "956dd477142ff43250e5cda67de148fa8c2b49529e44ab10ea71a60b0f077590",
+          "commit": "339c6168f704684477354365988d7448cb0e7a10",
+          "runId": 38672461239
+        }
+      ],
       "certificationScope": {
         "region": "CN",
         "language": "zh-CN",
@@ -5233,7 +5252,7 @@
           "remaining": [
             "Both Swain printings and conquest history query/scoring remain OPEN",
             "Other copied/attached rule-text instances, entry producers and whole-card behavior remain separately unaudited",
-            "Whole-history causal deletion/replacement/controller forgery beyond structural witnesses remains OPEN",
+            "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ]
@@ -5260,7 +5279,7 @@
           "remaining": [
             "Both Swain printings and conquest history query/scoring remain OPEN",
             "Other copied/attached rule-text instances, entry producers and whole-card behavior remain separately unaudited",
-            "Whole-history causal deletion/replacement/controller forgery beyond structural witnesses remains OPEN",
+            "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ]
@@ -5287,9 +5306,124 @@
           "remaining": [
             "Both Swain printings and conquest history query/scoring remain OPEN",
             "Other copied/attached rule-text instances, entry producers and whole-card behavior remain separately unaudited",
-            "Whole-history causal deletion/replacement/controller forgery beyond structural witnesses remains OPEN",
+            "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
+          ]
+        }
+      ],
+      "priorEvidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "separateProductAcceptance": {
+        "path": "docs/evidence/paired-339c-2026-10-15/product-receipt.json",
+        "sha256": "505ae8da2c44fc940b489b71e8d33322aa158890205c9287495f34926a3197f1"
+      },
+      "causalSnapshotVerificationSupplement": {
+        "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
+        "scope": "Only snapshot modifications against unchanged accepted action/event history; all other obligations retained."
+      }
+    },
+    "typed-card-play-history-causal-production-recovery-2026-10-15": {
+      "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
+      "currentImplementationCommit": "339c6168f704684477354365988d7448cb0e7a10",
+      "currentImplementationIncludesUncommittedChanges": false,
+      "evidenceCommitScope": "Unchanged production implementation base; added verification inputs await their own fixed commit/full CI. This is not a claim that the new tests ran at 339c.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
+          "sha256": "c26035b7a0e7a928dbd88bcf9ff0ce513908cbb8bd5e7054fa44ed35775aa410"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+        },
+        {
+          "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
+          "sha256": "0a31754fb4a87b5120b0253c729b7d97c14e08492ee2c2c1741e163f6f487e87"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/typed-play-history-2026-10-15/source.json",
+          "sha256": "bbad353354ced442421597cb279b499c7836f52ad3f3c5e2591170897cd82cca",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/card-play-history-causal-2026-10-15/focus.json",
+          "sha256": "7be855fb60d1485c5507dc0d46d32e11f46c30e1ab72456fb151e92d1d611a12",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/card-play-history-causal-2026-10-15/sql.json",
+          "sha256": "4cf65dd16bd1086c9905ee2b346dbcfa984ba61f5bd1dd43e5bb888b739c7332",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/card-play-history-causal-2026-10-15/check-parity.json",
+          "sha256": "e95d979f486280db0298f3c1e2d399aa18e1559868115d780d42a267234baf53",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/card-play-history-causal-2026-10-15/tool-checks.json",
+          "sha256": "b41392fa0dd93c6bebf358a1089192259972d83cb6703161780da62040e898fd",
+          "role": "tool-checks"
+        }
+      ],
+      "branches": [
+        {
+          "id": "actual-opening-and-clean-recovery-control",
+          "sourceRefs": [
+            "SFD-065/221",
+            "DOC-04-P071-B009",
+            "DOC-04-P071-B010",
+            "DOC-04-P071-B011",
+            "DOC-04-P071-B014"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "All other card/printing/copy/attached and interrupted-play semantic obligations remain separate",
+            "Coordinated rewrite of accepted commands/events/states is outside this snapshot-only bounded causal proof",
+            "New test/fixture/SQL inputs require their own fixed-commit complete CI",
+            "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
+          ]
+        },
+        {
+          "id": "snapshot-causal-forgeries-and-old-turn-injection",
+          "sourceRefs": [
+            "SFD-065/221",
+            "DOC-04-P071-B009",
+            "DOC-04-P071-B010",
+            "DOC-04-P071-B011",
+            "DOC-04-P071-B014"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "All other card/printing/copy/attached and interrupted-play semantic obligations remain separate",
+            "Coordinated rewrite of accepted commands/events/states is outside this snapshot-only bounded causal proof",
+            "New test/fixture/SQL inputs require their own fixed-commit complete CI",
+            "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
+          ]
+        },
+        {
+          "id": "actual-sql-structural-versus-production-replay-boundary",
+          "sourceRefs": [
+            "SFD-065/221",
+            "DOC-04-P071-B009",
+            "DOC-04-P071-B010",
+            "DOC-04-P071-B011",
+            "DOC-04-P071-B014"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "All other card/printing/copy/attached and interrupted-play semantic obligations remain separate",
+            "Coordinated rewrite of accepted commands/events/states is outside this snapshot-only bounded causal proof",
+            "New test/fixture/SQL inputs require their own fixed-commit complete CI",
+            "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ]
         }
       ]
@@ -5319,13 +5453,37 @@
     {
       "id": "FIXED_CURRENT_CANDIDATE_FULL",
       "state": "OPEN",
-      "requirement": "All exact methods/Theory rows/143 games/110 pairs/seed/victory/replay and required fixed-commit CI gates"
+      "requirement": "All exact methods/Theory rows/143 games/110 pairs/seed/victory/replay and required fixed-commit CI gates",
+      "priorFixedEvidence": {
+        "commit": "339c6168f704684477354365988d7448cb0e7a10",
+        "runId": 38672461239,
+        "path": "docs/evidence/porobot-2026-10-15/full-ci-339c.json",
+        "sha256": "956dd477142ff43250e5cda67de148fa8c2b49529e44ab10ea71a60b0f077590",
+        "currentImplementationVerified": true,
+        "requiresReopenOnGameplayInputChange": true,
+        "scope": "All fixed current methods/Theory rows and original full games/pairs at 339c only. Full-universe semantic certification remains OPEN.",
+        "receipt": "docs/evidence/porobot-2026-10-15/full-ci-339c.json"
+      },
+      "newVerificationInputsAwaitFixedFull": [
+        "tests/Riftbound.ConformanceTests/CardPlayHistoryRecoveryGuardTests.cs",
+        "tests/Riftbound.ConformanceTests/Fixtures/card-play-history-actual-opening-339c.json",
+        "tests/Riftbound.PostgresAcceptance/CardPlayHistoryCausalSqlAcceptance.cs"
+      ]
     },
     {
       "id": "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
       "state": "OPEN",
       "requirement": "One fixed candidate with visible paired clients, real SQL, reconnect, normal score end and full replay",
       "priorFixedEvidence": {
+        "commit": "339c6168f704684477354365988d7448cb0e7a10",
+        "path": "docs/evidence/paired-339c-2026-10-15/product-receipt.json",
+        "sha256": "505ae8da2c44fc940b489b71e8d33322aa158890205c9287495f34926a3197f1",
+        "currentCandidateVerified": true,
+        "requiresReopenOnGameplayInputChange": true,
+        "scope": "Same fixed 339c local native source/actual SQL, automatic response-window reconnect, manual private-choice reconnect, normal 8:0 and original-opening full action/event/state replay. Does not exercise Porobot/Swain or every card branch.",
+        "receipt": "docs/evidence/paired-339c-2026-10-15/product-receipt.json"
+      },
+      "earlierFixedEvidence": {
         "commit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
         "receipt": "docs/evidence/paired-1a5-2026-10-15/product-receipt.json",
         "sha256": "026c5eca5dc5888087a195f34af585388e1f63ff53c3e1e57e72839a1146c1f8",
@@ -5333,22 +5491,7 @@
         "scope": "Visible paired native macOS, actual SQL, automatic pending-focus reconnect, retry-exhaustion manual reconnect, normal 8:0 score and original-opening full replay at fixed 1a5 only. Whole-card semantics, complete CI and Windows runtime remain separate gates.",
         "gameplaySourceInputCount": 457,
         "currentCandidateReopenedReason": "Shared ceased-source captured printing/face-history binding changed after fixed 1a5 acceptance; original exact candidate evidence retained."
-      },
-      "earlierFixedEvidence": [
-        {
-          "commit": "00420e2a2b453918e611812d18fda9f62632e15f",
-          "receipt": "docs/evidence/paired-sql-score-2026-10-15/product-receipt.json",
-          "sha256": "7077743632349d8019d4e76967fc39720d831f97a477970fa2d302316e6985bf",
-          "currentCandidateVerified": false,
-          "scope": "Transport, actual SQL, both reconnect modes, normal score victory and full replay at fixed 00420 only; final candidate rerun remains required.",
-          "currentCandidateReopenedReason": "Shared conquest-token gameplay changed after fixed 00420 product acceptance; original exact-candidate proof retained."
-        },
-        {
-          "commit": "d974d3e636e86ee24c1cd6a3db429268324f5d16",
-          "receipt": "docs/evidence/paired-sql-score-2026-10-14/product-receipt.json",
-          "currentCandidateVerified": false
-        }
-      ]
+      }
     },
     {
       "id": "USER_WINDOWS_RUNTIME",

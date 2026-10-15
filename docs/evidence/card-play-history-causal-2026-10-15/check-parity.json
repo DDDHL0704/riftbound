@@ -1,0 +1,51 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "verifiedAtUtc": "2026-10-15T03:50:56.644736+00:00",
+  "cases": 11742,
+  "methods": 7157,
+  "seconds": 280.85,
+  "failed": 0,
+  "skipped": 0,
+  "oldCases": 11732,
+  "oldMethods": 7154,
+  "oldCaseAndMethodIdentitiesRetained": true,
+  "oldCheckFailureReceiptsPreserved": true,
+  "addedCases": [
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsOldTurnHistoryInjectedIntoTheCurrentTurn",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery(mutation: \"BOTH_VALID_OPPONENT\")",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery(mutation: \"DELETE_BOTH\")",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery(mutation: \"DELETE_FINALIZED\")",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery(mutation: \"DELETE_RESOLVED\")",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery(mutation: \"EARLIER_TICK_AND_PLAY_ID\")",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery(mutation: \"FABRICATED_SECOND_PLAY\")",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery(mutation: \"FINALIZER_VALID_OPPONENT\")",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery(mutation: \"RESOLVER_VALID_OPPONENT\")",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRestoresTheActualOpeningWithBothHistoryStagesIntact"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsOldTurnHistoryInjectedIntoTheCurrentTurn",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRejectsStructurallyValidCausalHistoryForgery",
+    "Riftbound.ConformanceTests.CardPlayHistoryRecoveryGuardTests.ProductionRegistryRestoresTheActualOpeningWithBothHistoryStagesIntact"
+  ],
+  "missingCases": [],
+  "missingMethods": [],
+  "frozenInputCount": 2679,
+  "frozenInputsUnchanged": true,
+  "trx": [
+    {
+      "path": "var/qa/history-causal-20261015/check/check/results.trx",
+      "sha256": "db42b565bddec1ac9d9af0599960174b65077e3374b87b64e5fdecee532af8ed"
+    }
+  ],
+  "priorTrx": [
+    {
+      "path": "var/qa/porobot-20261015/check/check/results.trx",
+      "sha256": "6cba4fbe348f6a064f072a419048f02f45ac94e3f30be3143fa799a5a05b23ee"
+    }
+  ],
+  "databaseConnectionProvided": true,
+  "postgresSmokeMethods": 7,
+  "productionImplementationChanged": false,
+  "fixedFullCi": "REQUIRES_NEW_FIXED_COMMIT",
+  "sameCandidateNativeEvidence": "Preserved at339c; all461gameplay source inputs still equal. New tests require ownfull CI."
+}
