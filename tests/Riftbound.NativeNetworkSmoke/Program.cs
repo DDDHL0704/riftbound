@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.Json;
+using System.Threading.Channels;
+using Riftbound.Contracts;
 using Riftbound.GodotClient;
 
 using (var own = JsonDocument.Parse("""
@@ -75,6 +77,7 @@ await client.JoinRoomAsync(room, authenticated.Handle, null, deadline.Token);
 await joined.Task.WaitAsync(deadline.Token);
 await client.RequestSnapshotAsync(room, authenticated.Handle, deadline.Token);
 var initialSnapshots = Volatile.Read(ref snapshots);
+await VerifyRoomIdentityBoundaryAsync(url, room, handle, reconnectToken!, deadline.Token);
 proxy.DropConnections();
 await restored.Task.WaitAsync(deadline.Token);
 if (!client.IsConnected || recoveryCalls != 1 || snapshots <= initialSnapshots || !errors.IsEmpty)
@@ -86,6 +89,54 @@ await rejected.Task.WaitAsync(deadline.Token);
 if (client.IsConnected || recoveryCalls != 2 || errors.IsEmpty)
     throw new InvalidOperationException("Rejected recovery incorrectly became actionable.");
 Console.WriteLine("Native network recovery passed: socket loss, authenticated room restore, fresh snapshot, rejected-token guard.");
+
+static async Task VerifyRoomIdentityBoundaryAsync(string url, string room, string actor, string token, CancellationToken ct)
+{
+    var checkedActions = 0;
+    foreach (var mode in new[] { "ANONYMOUS", "FAILED_KEY", "OTHER_HANDLE" })
+    {
+        await using var untrusted = new RiftboundGameHubClient(url);
+        var messages = Channel.CreateUnbounded<WsServerMessage>();
+        untrusted.ServerMessageReceived += (_, message) => messages.Writer.TryWrite(message);
+        await untrusted.StartAsync(ct);
+        if (mode == "FAILED_KEY")
+        {
+            if ((await untrusted.AuthenticateAsync(actor, "wrong-secret-" + Guid.NewGuid().ToString("N"), ct)).Authenticated)
+                throw new InvalidOperationException("Claimed identity accepted an incorrect key.");
+        }
+        if (mode == "OTHER_HANDLE")
+        {
+            var suffix = Guid.NewGuid().ToString("N");
+            if (!(await untrusted.AuthenticateAsync("other" + suffix, "other-key-" + suffix, ct)).Authenticated)
+                throw new InvalidOperationException("Separate test identity could not authenticate.");
+        }
+        var expectedCode = mode == "OTHER_HANDLE" ? ErrorCodes.IdentityMismatch : ErrorCodes.AuthenticationRequired;
+        foreach (var action in new[] { "JOIN", "SNAPSHOT", "RECONNECT", "READY", "SURRENDER" })
+        {
+            CommandReceiptDto? receipt = null;
+            switch (action)
+            {
+                case "JOIN": await untrusted.JoinRoomAsync(room, actor, null, ct); break;
+                case "SNAPSHOT": await untrusted.RequestSnapshotAsync(room, actor, ct); break;
+                case "RECONNECT": await untrusted.ReconnectAsync(room, actor, token, ct); break;
+                case "READY": receipt = await untrusted.ReadyAsync(room, actor, "untrusted-ready-" + mode, ct); break;
+                case "SURRENDER": receipt = await untrusted.SubmitIntentAsync(room, actor, "untrusted-surrender-" + mode, new { cmdType = "SURRENDER" }, ct); break;
+            }
+            if (receipt is not null && (receipt.Accepted || receipt.ErrorCode != expectedCode))
+                throw new InvalidOperationException("Untrusted command receipt crossed the room identity boundary.");
+            var message = await messages.Reader.ReadAsync(ct);
+            if (message.Type != MessageType.ERROR || message.Payload is not JsonElement payload
+                || payload.GetProperty("code").GetString() != expectedCode || messages.Reader.TryRead(out _))
+                throw new InvalidOperationException("Untrusted connection received private state, a token, or an incorrect rejection.");
+            checkedActions++;
+        }
+    }
+    Console.WriteLine($"Native wire room identity boundary passed: {checkedActions} rejected actions, three independent connection identities, real-token possession rejected; original authenticated reconnect gates continue.");
+    Console.WriteLine("NATIVE_ROOM_IDENTITY_EVIDENCE " + JsonSerializer.Serialize(new {
+        room, rejectedActions = checkedActions, identities = new[] { "ANONYMOUS", "FAILED_KEY", "OTHER_HANDLE" },
+        leakedPrivateMessages = 0, validReconnectTokenWasSupplied = true
+    }));
+}
 
 sealed class DropProxy : IAsyncDisposable
 {

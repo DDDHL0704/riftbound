@@ -1,0 +1,32 @@
+{
+  "kind": "PRODUCT_IDENTITY_BOUNDARY",
+  "checkedAtUtc": "2026-10-15T05:21:14.360107+00:00",
+  "baseCommit": "a85f46778d398d7a5b262913cbf87a08467b8ba0",
+  "region": "CN",
+  "applicableAsOf": "2026-10-15",
+  "sourceManifest": {
+    "path": "docs/audit/current-manifest.json",
+    "atCommit": "a85f46778d398d7a5b262913cbf87a08467b8ba0",
+    "sha256": "21c93ea09f536d85bba4a5dc8ecc6abaabb2537b82531e05c0969881a300785e"
+  },
+  "primaryCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "officialRulesOrCardSemanticsChanged": false,
+  "newOfficialSourceClaim": false,
+  "all1738SourceIdentitiesAnd1033RuntimeRecordsUnchanged": true,
+  "proof": "12 fixed-a85 binary hashes and isolated own-room live probe; no other user room or visible match touched",
+  "originalApiBinaryFingerprints": {
+    "MessagePack.Annotations.dll": "1f06184c502c5e03ececf80caf903fcfd18fc6e0ef8d379269ef025ddfb1a546",
+    "MessagePack.dll": "3308cc35adb71b065e7985ec53cefaeb73e96b7d419400b8bb4f7c60a587c6d8",
+    "Microsoft.AspNetCore.SignalR.StackExchangeRedis.dll": "08e97dee4d18b0beaa3f7d0279eec70a8d2a57b29c2e5e8846bebfc98741ae4c",
+    "Microsoft.NET.StringTools.dll": "e51c8678fd602a21c249b369e833966019935132476f9434da896bef808ba3b1",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "Pipelines.Sockets.Unofficial.dll": "fa2cdb1d5ffbb2b06512c92ce8bd18918a1a996171d0a72dfc73035bc586a711",
+    "Riftbound.Api.dll": "ecb5d810b6e79e676cff468337d96d34efb07fca18723c530cbc6ad0cc3b787a",
+    "Riftbound.CardCatalog.dll": "ae3cfd8e9dd191225d0fd3940453d9734e63099bd48ee457ba59f369bde39633",
+    "Riftbound.Contracts.dll": "604127a3a4564a904a5ced32bdc85e68b8a930cfb93e56990cb9a0389f6608e9",
+    "Riftbound.Engine.dll": "ddae5a3ab895d4ea572e0ac8afbc2d00225a7b8f7f108c10153eab49d1d1e447",
+    "Riftbound.Persistence.dll": "a481a20e0a7871619ded5c83d0b774950ac0847a448f09b79ae0e82d17c258b6",
+    "StackExchange.Redis.dll": "e78cbee5a5a1071e45246c9b400de869ba6c9bec5c67870f0b99253923d67799"
+  },
+  "boundary": "Identity enforcement only. No whole-card, source-universe or product-release certification."
+}

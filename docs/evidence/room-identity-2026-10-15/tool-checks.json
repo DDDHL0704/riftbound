@@ -1,0 +1,21 @@
+{
+  "pythonTests": {
+    "status": "PASS",
+    "count": 46,
+    "logSha256": "b92392620a6267f168ef06d8400e10d48f1f48f1278eb2b9ab11a9d979e69a70"
+  },
+  "governance": {
+    "status": "PASS_INDEX_ONLY",
+    "scopedReviews": 104,
+    "remainingObligations": 16148,
+    "semanticCoverageCertified": false,
+    "jsonSha256": "0102a254f2b3b2ecbfa8caa95f563b379223a6ffa449954e066ae602b6ece978"
+  },
+  "governancePrecheck": {
+    "valid": true,
+    "semanticCoverageCertified": false,
+    "scopedReviews": 104,
+    "remainingObligations": 16148,
+    "jsonSha256": "0102a254f2b3b2ecbfa8caa95f563b379223a6ffa449954e066ae602b6ece978"
+  }
+}

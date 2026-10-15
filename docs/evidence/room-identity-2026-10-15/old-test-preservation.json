@@ -1,0 +1,12 @@
+{
+  "oldMethodsRetained": 293,
+  "missingMethods": [],
+  "changedAssertions": [
+    "UnauthenticatedConnectionStillJoins"
+  ],
+  "changedTheoryOrFactData": [],
+  "scope": "Syntax-level preservation of all original methods, all assertions except the explicitly obsolete anonymous-success contract, and all attributes/Theory rows. Runtime parity is independently checked in TRX.",
+  "explicitAuthenticatedFixtureContexts": 1018,
+  "originalHubCreationContexts": 1037,
+  "contextInventorySha256": "2c84a3819282cc25f7e9ba23b66a9b95e0ce6f705d481c07fd83853a0a9859e3"
+}

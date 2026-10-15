@@ -1,0 +1,77 @@
+{
+  "status": "BATCH_SINGLE_CHECK_PASS",
+  "summary": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 271.93,
+    "total": 11798,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 11798,
+        "passed": 11798,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 268.31
+      }
+    ]
+  },
+  "methods": 7171,
+  "cases": 11798,
+  "failed": 0,
+  "skipped": 0,
+  "baselineCases": 11765,
+  "baselineMethods": 7168,
+  "oldCasesRetained": true,
+  "oldMethodsRetained": true,
+  "addedCases": [
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryMatchingAuthenticationRestoresPrivateOrderAndContinues",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"END_TURN\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"INTENT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"JOIN\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"PASS\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"READY\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"RECONNECT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"SEED\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"SNAPSHOT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"END_TURN\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"INTENT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"JOIN\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"PASS\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"READY\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"RECONNECT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"SEED\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"SNAPSHOT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"OTHER_HANDLE\", action: \"END_TURN\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"OTHER_HANDLE\", action: \"INTENT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"OTHER_HANDLE\", action: \"JOIN\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"OTHER_HANDLE\", action: \"PASS\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"OTHER_HANDLE\", action: \"READY\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"OTHER_HANDLE\", action: \"RECONNECT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"OTHER_HANDLE\", action: \"SEED\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"OTHER_HANDLE\", action: \"SNAPSHOT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"END_TURN\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"INTENT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"JOIN\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"PASS\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"READY\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"RECONNECT\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"SEED\")",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"SNAPSHOT\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryMatchingAuthenticationRestoresPrivateOrderAndContinues",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom"
+  ],
+  "inputFreeze": {
+    "files": 2682,
+    "changedDuringCheck": [],
+    "sha256": "e358f5d47bd31d187340baa6020aacc6450f9a90334086054b81dd90396c67e9"
+  },
+  "testAssemblySha256": "522759e14a20a91be2fb7f286260a99b4494bb9d55b86b3a4732f5b2efba0fe3",
+  "trxSha256": "780d6e47f910e66b8f381bb409a4b1ba95d318ba27c92d2af226cffd8851c2bc",
+  "sqlConnectionProvided": true,
+  "repeatedCheck": false
+}

@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
-public sealed class GameHubJoinTests
+public sealed partial class GameHubJoinTests
 {
     [Fact]
     public async Task CostPreviewUsesBoundIdentityAndDoesNotBroadcastOrJournal()
@@ -306,7 +306,7 @@ public sealed class GameHubJoinTests
     {
         var clients = new RecordingHubClients();
         var groups = new RecordingGroupManager();
-        var hub = CreateHub(clients, groups, "connection-1");
+        var hub = CreateHub(clients, groups, "connection-1", authenticatedHandle: " alice ");
 
         await hub.JoinRoom("room-a", " alice ");
 
@@ -351,7 +351,7 @@ public sealed class GameHubJoinTests
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
         var joinClients = new RecordingHubClients();
-        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
 
         var joinMessage = Assert.Single(joinClients.CallerClient.JoinedMessages);
@@ -364,11 +364,11 @@ public sealed class GameHubJoinTests
         AssertProtocolDefaults(snapshotMessage);
         AssertProtocolDefaults(promptMessage);
 
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
 
         var errorClients = new RecordingHubClients();
-        await CreateHub(errorClients, new RecordingGroupManager(), "connection-3", registry)
+        await CreateHub(errorClients, new RecordingGroupManager(), "connection-3", registry, authenticatedHandle: "charlie")
             .JoinRoom("room-a", "charlie");
 
         var errorMessage = Assert.Single(errorClients.CallerClient.Errors);
@@ -383,12 +383,12 @@ public sealed class GameHubJoinTests
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
         var joinClients = new RecordingHubClients();
-        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
         var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
 
         var reconnectClients = new RecordingHubClients();
-        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: " alice ")
             .Reconnect("room-a", " alice ", join.ReconnectToken);
 
         var reconnectMessage = Assert.Single(reconnectClients.CallerClient.JoinedMessages);
@@ -406,13 +406,13 @@ public sealed class GameHubJoinTests
     public async Task JoinRoomRejectsThirdPlayerWithError()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
 
         var clients = new RecordingHubClients();
-        await CreateHub(clients, new RecordingGroupManager(), "connection-3", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-3", registry, authenticatedHandle: "charlie")
             .JoinRoom("room-a", "charlie");
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -428,13 +428,13 @@ public sealed class GameHubJoinTests
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
         var joinClients = new RecordingHubClients();
-        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
         var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
 
         var reconnectClients = new RecordingHubClients();
         var reconnectGroups = new RecordingGroupManager();
-        await CreateHub(reconnectClients, reconnectGroups, "connection-2", registry)
+        await CreateHub(reconnectClients, reconnectGroups, "connection-2", registry, authenticatedHandle: "alice")
             .Reconnect("room-a", "alice", join.ReconnectToken);
 
         Assert.Contains(("connection-2", "room:room-a"), reconnectGroups.Added);
@@ -469,12 +469,12 @@ public sealed class GameHubJoinTests
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
         var joinClients = new RecordingHubClients();
-        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
         var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
 
         var reconnectClients = new RecordingHubClients();
-        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "alice")
             .Reconnect("room-a", "alice", join.ReconnectToken);
         var reconnect = Assert.IsType<PlayerSessionDto>(
             Assert.Single(reconnectClients.CallerClient.JoinedMessages).Payload);
@@ -482,7 +482,7 @@ public sealed class GameHubJoinTests
 
         var staleClients = new RecordingHubClients();
         var staleGroups = new RecordingGroupManager();
-        await CreateHub(staleClients, staleGroups, "connection-3", registry)
+        await CreateHub(staleClients, staleGroups, "connection-3", registry, authenticatedHandle: " alice ")
             .Reconnect("room-a", " alice ", join.ReconnectToken);
 
         Assert.Empty(staleGroups.Added);
@@ -518,7 +518,7 @@ public sealed class GameHubJoinTests
             playerStore);
         var clients = new RecordingHubClients();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
 
         var join = Assert.IsType<PlayerSessionDto>(Assert.Single(clients.CallerClient.JoinedMessages).Payload);
@@ -540,12 +540,12 @@ public sealed class GameHubJoinTests
             NoopMatchRecoveryStore.Instance,
             playerStore);
         var joinClients = new RecordingHubClients();
-        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
         var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
 
         var reconnectClients = new RecordingHubClients();
-        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: " alice ")
             .Reconnect("room-a", " alice ", join.ReconnectToken);
         var reconnect = Assert.IsType<PlayerSessionDto>(
             Assert.Single(reconnectClients.CallerClient.JoinedMessages).Payload);
@@ -574,13 +574,13 @@ public sealed class GameHubJoinTests
             NoopMatchRecoveryStore.Instance,
             playerStore);
         var joinClients = new RecordingHubClients();
-        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
         var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
 
         var reconnectClients = new RecordingHubClients();
         var reconnectGroups = new RecordingGroupManager();
-        await CreateHub(reconnectClients, reconnectGroups, "connection-2", registry)
+        await CreateHub(reconnectClients, reconnectGroups, "connection-2", registry, authenticatedHandle: " alice ")
             .Reconnect("room-a", " alice ", $" \t{join.ReconnectToken}\n ");
 
         Assert.Contains(("connection-2", "room:room-a"), reconnectGroups.Added);
@@ -614,12 +614,12 @@ public sealed class GameHubJoinTests
             NoopMatchRecoveryStore.Instance,
             playerStore);
         var joinClients = new RecordingHubClients();
-        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
         var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
 
         var reconnectClients = new RecordingHubClients();
-        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(reconnectClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "alice")
             .Reconnect("room-a", "alice", join.ReconnectToken);
         var reconnect = Assert.IsType<PlayerSessionDto>(
             Assert.Single(reconnectClients.CallerClient.JoinedMessages).Payload);
@@ -630,7 +630,7 @@ public sealed class GameHubJoinTests
 
         var staleClients = new RecordingHubClients();
         var staleGroups = new RecordingGroupManager();
-        await CreateHub(staleClients, staleGroups, "connection-3", registry)
+        await CreateHub(staleClients, staleGroups, "connection-3", registry, authenticatedHandle: " alice ")
             .Reconnect("room-a", " alice ", join.ReconnectToken);
 
         Assert.Equal(2, playerStore.Saved.Count);
@@ -660,11 +660,11 @@ public sealed class GameHubJoinTests
     public async Task ReconnectWithInvalidTokenReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
 
         var clients = new RecordingHubClients();
-        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "alice")
             .Reconnect("room-a", "alice", "wrong-token");
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -679,13 +679,13 @@ public sealed class GameHubJoinTests
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
         var joinClients = new RecordingHubClients();
-        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
         var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
 
         var clients = new RecordingHubClients();
         var groups = new RecordingGroupManager();
-        await CreateHub(clients, groups, "connection-2", registry)
+        await CreateHub(clients, groups, "connection-2", registry, authenticatedHandle: " alice ")
             .Reconnect("room-a", " alice ", "wrong-token");
 
         Assert.Empty(groups.Added);
@@ -713,11 +713,11 @@ public sealed class GameHubJoinTests
     public async Task RequestSnapshotSendsCurrentSnapshotAndPrompt()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
 
         var clients = new RecordingHubClients();
-        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "alice")
             .RequestSnapshot("room-a", "alice");
 
         var snapshot = Assert.Single(clients.CallerClient.Snapshots);
@@ -730,11 +730,11 @@ public sealed class GameHubJoinTests
     public async Task RequestSnapshotMessagesCarryProtocolVersionsOnSnapshotAndPrompt()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
 
         var clients = new RecordingHubClients();
-        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: " alice ")
             .RequestSnapshot("room-a", " alice ");
 
         var snapshotMessage = Assert.Single(clients.CallerClient.Snapshots);
@@ -751,11 +751,11 @@ public sealed class GameHubJoinTests
     public async Task RequestSnapshotForUnknownPlayerReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
 
         var clients = new RecordingHubClients();
-        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "charlie")
             .RequestSnapshot("room-a", "charlie");
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -771,7 +771,7 @@ public sealed class GameHubJoinTests
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        var receipt = await CreateHub(clients, new RecordingGroupManager(), "connection-1")
+        var receipt = await CreateHub(clients, new RecordingGroupManager(), "connection-1", authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-pass", cmd);
 
         Assert.False(receipt.Accepted);
@@ -800,7 +800,7 @@ public sealed class GameHubJoinTests
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1")
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", authenticatedHandle: " alice ")
             .SubmitIntent("room-a", " alice ", "intent-unknown-player-protocol-envelope", cmd);
 
         var errorMessage = Assert.Single(clients.CallerClient.Errors);
@@ -819,14 +819,14 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentBeforeReadyReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-before-ready", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -840,14 +840,14 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentPreStartMessagesCarryProtocolVersionsOnMatchNotStartedError()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .SubmitIntent("room-a", " alice ", "intent-before-ready-protocol-envelope", cmd);
 
         var errorMessage = Assert.Single(clients.CallerClient.Errors);
@@ -866,15 +866,15 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentWithoutClientIntentIdReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", " ", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -889,15 +889,15 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentPreflightMessagesCarryProtocolVersionsOnClientIntentIdError()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .SubmitIntent("room-a", " alice ", " ", cmd);
 
         var errorMessage = Assert.Single(clients.CallerClient.Errors);
@@ -916,13 +916,13 @@ public sealed class GameHubJoinTests
     public async Task ReadyStartsMatchAfterBothPlayersAreReady()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
 
         var aliceReadyClients = new RecordingHubClients();
-        await CreateHub(aliceReadyClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(aliceReadyClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .Ready("room-a", "alice", "ready-alice");
 
         var readyMessage = Assert.Single(aliceReadyClients.GroupClient.EventMessages);
@@ -932,7 +932,7 @@ public sealed class GameHubJoinTests
         Assert.DoesNotContain(readyEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
 
         var bobReadyClients = new RecordingHubClients();
-        await CreateHub(bobReadyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(bobReadyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .Ready("room-a", "bob", "ready-bob");
 
         var startMessage = Assert.Single(bobReadyClients.GroupClient.EventMessages);
@@ -943,7 +943,7 @@ public sealed class GameHubJoinTests
 
         var passClients = new RecordingHubClients();
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-after-start", pass);
 
         Assert.Empty(passClients.CallerClient.Errors);
@@ -954,13 +954,13 @@ public sealed class GameHubJoinTests
     public async Task ReadyMessagesCarryProtocolVersionsOnReadyStartSnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
 
         var aliceReadyClients = new RecordingHubClients();
-        await CreateHub(aliceReadyClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(aliceReadyClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .Ready("room-a", " alice ", "ready-alice-protocol-envelope");
 
         Assert.Empty(aliceReadyClients.CallerClient.Errors);
@@ -984,7 +984,7 @@ public sealed class GameHubJoinTests
         }
 
         var bobReadyClients = new RecordingHubClients();
-        await CreateHub(bobReadyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(bobReadyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: " bob ")
             .Ready("room-a", " bob ", "ready-bob-protocol-envelope");
 
         Assert.Empty(bobReadyClients.CallerClient.Errors);
@@ -1012,20 +1012,20 @@ public sealed class GameHubJoinTests
     public async Task ReadyReplayMessagesCarryProtocolVersionsOnReadySnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .Ready("room-a", "alice", "ready-replay-protocol-envelope");
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
         var acceptedReadyMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .Ready("room-a", " alice ", "ready-replay-protocol-envelope");
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1054,15 +1054,15 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var clients = new RecordingHubClients();
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
 
-        var receipt = await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        var receipt = await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .SubmitIntent("room-a", " alice ", "intent-pass-protocol-envelope", pass);
 
         Assert.True(receipt.Accepted);
@@ -1112,22 +1112,22 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-replay-protocol-envelope", pass);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
         var acceptedEventsMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .SubmitIntent("room-a", " alice ", "intent-replay-protocol-envelope", pass);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1159,14 +1159,14 @@ public sealed class GameHubJoinTests
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var submitDeck = SubmitDeckJson(p1Deck);
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-replay-protocol-envelope", submitDeck);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -1184,7 +1184,7 @@ public sealed class GameHubJoinTests
             .ToArray();
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "submit-deck-replay-protocol-envelope", submitDeck);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1234,18 +1234,18 @@ public sealed class GameHubJoinTests
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-p1-protocol-envelope", SubmitDeckJson(p1Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "submit-deck-p2-protocol-envelope", SubmitDeckJson(p2Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", "ready-p1-protocol-envelope");
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", "ready-p2-protocol-envelope");
 
         var startSnapshot = SnapshotFor(readyClients, "P1");
@@ -1258,7 +1258,7 @@ public sealed class GameHubJoinTests
         var mulligan = MulliganJson(activeHand.Take(1).ToArray());
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "mulligan-replay-protocol-envelope", mulligan);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -1276,7 +1276,7 @@ public sealed class GameHubJoinTests
             .ToArray();
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: $" {activePlayerId} ")
             .SubmitIntent(roomId, $" {activePlayerId} ", "mulligan-replay-protocol-envelope", mulligan);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1326,18 +1326,18 @@ public sealed class GameHubJoinTests
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-p1-tap-rune-protocol-envelope", SubmitDeckJson(p1Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "submit-deck-p2-tap-rune-protocol-envelope", SubmitDeckJson(p2Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", "ready-p1-tap-rune-protocol-envelope");
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", "ready-p2-tap-rune-protocol-envelope");
 
         var startSnapshot = SnapshotFor(readyClients, "P1");
@@ -1352,14 +1352,14 @@ public sealed class GameHubJoinTests
             : "connection-2";
 
         var activeHand = StringList(ZoneView(PlayerView(SnapshotFor(readyClients, activePlayerId), activePlayerId))["hand"]);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(
                 roomId,
                 activePlayerId,
                 "mulligan-active-tap-rune-protocol-envelope",
                 MulliganJson(activeHand.Take(1).ToArray()));
         var secondMulliganClients = new RecordingHubClients();
-        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry)
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry, authenticatedHandle: secondPlayerId)
             .SubmitIntent(roomId, secondPlayerId, "mulligan-second-tap-rune-protocol-envelope", MulliganJson([]));
 
         var mainSnapshot = SnapshotFor(secondMulliganClients, activePlayerId);
@@ -1380,7 +1380,7 @@ public sealed class GameHubJoinTests
         });
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "tap-rune-replay-protocol-envelope", tapRune);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -1398,7 +1398,7 @@ public sealed class GameHubJoinTests
             .ToArray();
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: $" {activePlayerId} ")
             .SubmitIntent(roomId, $" {activePlayerId} ", "tap-rune-replay-protocol-envelope", tapRune);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1448,18 +1448,18 @@ public sealed class GameHubJoinTests
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-p1-recycle-rune-protocol-envelope", SubmitDeckJson(p1Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "submit-deck-p2-recycle-rune-protocol-envelope", SubmitDeckJson(p2Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", "ready-p1-recycle-rune-protocol-envelope");
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", "ready-p2-recycle-rune-protocol-envelope");
 
         var startSnapshot = SnapshotFor(readyClients, "P1");
@@ -1475,7 +1475,7 @@ public sealed class GameHubJoinTests
 
         var activeHand = StringList(ZoneView(PlayerView(SnapshotFor(readyClients, activePlayerId), activePlayerId))["hand"]);
         var activeMulliganClients = new RecordingHubClients();
-        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(
                 roomId,
                 activePlayerId,
@@ -1484,7 +1484,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(activeMulliganClients.CallerClient.Errors);
 
         var secondMulliganClients = new RecordingHubClients();
-        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry)
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry, authenticatedHandle: secondPlayerId)
             .SubmitIntent(roomId, secondPlayerId, "mulligan-second-recycle-rune-protocol-envelope", MulliganJson([]));
         Assert.Empty(secondMulliganClients.CallerClient.Errors);
 
@@ -1501,7 +1501,7 @@ public sealed class GameHubJoinTests
         var runeSourceId = tapRuneCandidate.Sources.First().Id;
         var tapRuneClients = new RecordingHubClients();
 
-        await CreateHub(tapRuneClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(tapRuneClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "tap-rune-before-recycle-protocol-envelope", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "TAP_RUNE",
@@ -1522,7 +1522,7 @@ public sealed class GameHubJoinTests
         });
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "recycle-rune-replay-protocol-envelope", recycleRune);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -1540,7 +1540,7 @@ public sealed class GameHubJoinTests
             .ToArray();
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: $" {activePlayerId} ")
             .SubmitIntent(roomId, $" {activePlayerId} ", "recycle-rune-replay-protocol-envelope", recycleRune);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1586,14 +1586,14 @@ public sealed class GameHubJoinTests
     public async Task PassReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .Pass("room-a", "alice", "pass-replay-protocol-envelope");
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -1603,7 +1603,7 @@ public sealed class GameHubJoinTests
             .ToArray();
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .Pass("room-a", " alice ", "pass-replay-protocol-envelope");
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1635,14 +1635,14 @@ public sealed class GameHubJoinTests
     public async Task EndTurnReplayMessagesCarryProtocolVersionsOnEventsSnapshotsAndPrompts()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .EndTurn("room-a", "alice", "end-turn-replay-protocol-envelope");
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -1652,7 +1652,7 @@ public sealed class GameHubJoinTests
             .ToArray();
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .EndTurn("room-a", " alice ", "end-turn-replay-protocol-envelope");
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1685,13 +1685,13 @@ public sealed class GameHubJoinTests
     {
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
 
         var acceptedClients = new RecordingHubClients();
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .Ready("room-a", "alice", "ready-same");
 
         var acceptedMessage = Assert.Single(acceptedClients.GroupClient.EventMessages);
@@ -1711,7 +1711,7 @@ public sealed class GameHubJoinTests
         Assert.False(readyEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .Ready("room-a", "alice", "ready-same");
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -1742,7 +1742,7 @@ public sealed class GameHubJoinTests
         var conflictClients = new RecordingHubClients();
         var changedReady = JsonDocument.Parse("""{"cmdType":"READY","clientNote":"changed"}""").RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "ready-same", changedReady);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -1770,13 +1770,13 @@ public sealed class GameHubJoinTests
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var p1SubmitClients = new RecordingHubClients();
-        await CreateHub(p1SubmitClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(p1SubmitClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
         Assert.Empty(p1SubmitClients.CallerClient.Errors);
         Assert.Contains(EventsFor(p1SubmitClients), gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
@@ -1786,17 +1786,17 @@ public sealed class GameHubJoinTests
         Assert.Equal(["SUBMIT_DECK"], p2MissingDeckPrompt.EnabledActions());
 
         var p2SubmitClients = new RecordingHubClients();
-        await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
         Assert.Empty(p2SubmitClients.CallerClient.Errors);
         Assert.Contains(EventsFor(p2SubmitClients), gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
         Assert.Equal(["READY"], PromptFor(p2SubmitClients, "P1").EnabledActions());
         Assert.Equal(["READY"], PromptFor(p2SubmitClients, "P2").EnabledActions());
 
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", "ready-official-p1");
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", "ready-official-p2");
 
         var startMessage = Assert.Single(readyClients.GroupClient.EventMessages);
@@ -1833,7 +1833,7 @@ public sealed class GameHubJoinTests
         Assert.NotNull(mulliganCandidate.Metadata);
         Assert.Equal(2, mulliganCandidate.Metadata["maxSelectionCount"]);
         var activeMulliganClients = new RecordingHubClients();
-        await CreateHub(activeMulliganClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));
         Assert.Empty(activeMulliganClients.CallerClient.Errors);
         Assert.False(PromptFor(activeMulliganClients, activePlayerId).Actionable);
@@ -1843,7 +1843,7 @@ public sealed class GameHubJoinTests
         var secondHand = StringList(ZoneView(PlayerView(secondSnapshot, secondPlayerId))["hand"]);
         Assert.Equal(4, secondHand.Count);
         var secondMulliganClients = new RecordingHubClients();
-        await CreateHub(secondMulliganClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: secondPlayerId)
             .SubmitIntent(roomId, secondPlayerId, "mulligan-second", MulliganJson([]));
         Assert.Empty(secondMulliganClients.CallerClient.Errors);
         var completeEvents = EventsFor(secondMulliganClients);
@@ -1866,7 +1866,7 @@ public sealed class GameHubJoinTests
                 tapRuneClients,
                 new RecordingGroupManager(),
                 string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2",
-                registry)
+                registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "tap-rune-active", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "TAP_RUNE",
@@ -1901,7 +1901,7 @@ public sealed class GameHubJoinTests
                 recycleRuneClients,
                 new RecordingGroupManager(),
                 string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2",
-                registry)
+                registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "recycle-rune-active", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "RECYCLE_RUNE",
@@ -1929,7 +1929,7 @@ public sealed class GameHubJoinTests
                 endTurnClients,
                 new RecordingGroupManager(),
                 string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2",
-                registry)
+                registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "end-turn-active", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "END_TURN"
@@ -1958,7 +1958,7 @@ public sealed class GameHubJoinTests
                 surrenderClients,
                 new RecordingGroupManager(),
                 string.Equals(nextPlayerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2",
-                registry)
+                registry, authenticatedHandle: nextPlayerId)
             .SubmitIntent(roomId, nextPlayerId, "surrender-next-turn-player", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "SURRENDER"
@@ -1990,7 +1990,7 @@ public sealed class GameHubJoinTests
             var source = resourcePrompt.Candidates?.FirstOrDefault(c => c.Action == CommandTypes.TapRune && c.Enabled)?.Sources?.FirstOrDefault()?.Id;
             if (source is null) break;
             var clients = new RecordingHubClients();
-            await CreateHub(clients, new RecordingGroupManager(), ConnectionFor(opening.ActivePlayerId), opening.Registry)
+            await CreateHub(clients, new RecordingGroupManager(), ConnectionFor(opening.ActivePlayerId), opening.Registry, authenticatedHandle: opening.ActivePlayerId)
                 .SubmitIntent(roomId, opening.ActivePlayerId, $"playable-tap-{index}", JsonSerializer.SerializeToElement(new { cmdType = "TAP_RUNE", sourceObjectId = source }));
             Assert.Empty(clients.CallerClient.Errors);
             opening = opening with { Clients = clients };
@@ -2017,7 +2017,7 @@ public sealed class GameHubJoinTests
                 playClients,
                 new RecordingGroupManager(),
                 ConnectionFor(opening.ActivePlayerId),
-                opening.Registry)
+                opening.Registry, authenticatedHandle: opening.ActivePlayerId)
             .SubmitIntent(roomId, opening.ActivePlayerId, "official-real-deck-play-legal-card", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -2056,7 +2056,7 @@ public sealed class GameHubJoinTests
                 endTurnClients,
                 new RecordingGroupManager(),
                 ConnectionFor(opening.ActivePlayerId),
-                opening.Registry)
+                opening.Registry, authenticatedHandle: opening.ActivePlayerId)
             .SubmitIntent(roomId, opening.ActivePlayerId, "official-real-deck-play-end-turn", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "END_TURN"
@@ -2074,7 +2074,7 @@ public sealed class GameHubJoinTests
                 surrenderClients,
                 new RecordingGroupManager(),
                 ConnectionFor(opening.SecondPlayerId),
-                opening.Registry)
+                opening.Registry, authenticatedHandle: opening.SecondPlayerId)
             .SubmitIntent(roomId, opening.SecondPlayerId, "official-real-deck-play-next-surrender", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "SURRENDER"
@@ -2118,9 +2118,9 @@ public sealed class GameHubJoinTests
         var p1Deck = BuildValidDeck(catalog);
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var raw = SubmitDeckJson(p1Deck);
@@ -2149,7 +2149,7 @@ public sealed class GameHubJoinTests
         Assert.NotEqual(MatchStateHasher.HashValue(raw), MatchStateHasher.HashValue(changed));
 
         var acceptedClients = new RecordingHubClients();
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, raw);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -2185,7 +2185,7 @@ public sealed class GameHubJoinTests
         Assert.False(submitEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, reordered);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -2233,7 +2233,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(acceptedJournalCount, journal.Entries.Count);
 
         var conflictClients = new RecordingHubClients();
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, changed);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -2263,18 +2263,18 @@ public sealed class GameHubJoinTests
         var p2Deck = BuildValidDeck(catalog);
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", "ready-official-p1");
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", "ready-official-p2");
 
         var startSnapshot = SnapshotFor(readyClients, "P1");
@@ -2291,12 +2291,12 @@ public sealed class GameHubJoinTests
         var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
         var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
         var activeMulliganClients = new RecordingHubClients();
-        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));
         Assert.Empty(activeMulliganClients.CallerClient.Errors);
 
         var secondMulliganClients = new RecordingHubClients();
-        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry)
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry, authenticatedHandle: secondPlayerId)
             .SubmitIntent(roomId, secondPlayerId, "mulligan-second", MulliganJson([]));
         Assert.Empty(secondMulliganClients.CallerClient.Errors);
         var completeEvents = EventsFor(secondMulliganClients);
@@ -2311,7 +2311,7 @@ public sealed class GameHubJoinTests
         var runeSourceId = (tapRuneCandidate.Sources ?? []).First().Id;
 
         var tapRuneClients = new RecordingHubClients();
-        await CreateHub(tapRuneClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(tapRuneClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "tap-rune-active", JsonSerializer.SerializeToElement(new
             {
                 cmdType = CommandTypes.TapRune,
@@ -2320,7 +2320,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(tapRuneClients.CallerClient.Errors);
 
         var endTurnClients = new RecordingHubClients();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "end-turn-active", JsonSerializer.SerializeToElement(new
             {
                 cmdType = CommandTypes.EndTurn
@@ -2347,7 +2347,7 @@ public sealed class GameHubJoinTests
         var readyJournalCount = journal.Entries.Count;
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), nextConnectionId, registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), nextConnectionId, registry, authenticatedHandle: nextPlayerId)
             .SubmitIntent(roomId, nextPlayerId, "surrender-same", surrender);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -2393,7 +2393,7 @@ public sealed class GameHubJoinTests
         Assert.False(surrenderEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), nextConnectionId, registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), nextConnectionId, registry, authenticatedHandle: $" {nextPlayerId} ")
             .SubmitIntent(roomId, $" {nextPlayerId} ", "surrender-same", surrender);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -2458,7 +2458,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), nextConnectionId, registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), nextConnectionId, registry, authenticatedHandle: nextPlayerId)
             .SubmitIntent(roomId, nextPlayerId, "surrender-same", changedSurrender);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -2479,7 +2479,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), nextConnectionId, registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), nextConnectionId, registry, authenticatedHandle: nextPlayerId)
             .RequestSnapshot(roomId, nextPlayerId);
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -2501,18 +2501,18 @@ public sealed class GameHubJoinTests
         var p2Deck = BuildValidDeck(catalog);
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", "ready-official-p1");
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", "ready-official-p2");
 
         var startSnapshot = SnapshotFor(readyClients, "P1");
@@ -2534,7 +2534,7 @@ public sealed class GameHubJoinTests
         var acceptedClients = new RecordingHubClients();
         var readyJournalCount = journal.Entries.Count;
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "mulligan-same", mulligan);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -2562,7 +2562,7 @@ public sealed class GameHubJoinTests
                 .ToArray());
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: $" {activePlayerId} ")
             .SubmitIntent(roomId, $" {activePlayerId} ", "mulligan-same", mulligan);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -2604,7 +2604,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "mulligan-same", changedMulligan);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -2624,7 +2624,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .RequestSnapshot(roomId, activePlayerId);
         var activeStateSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
         Assert.Equal(MatchPhases.Mulligan, Assert.IsType<string>(activeStateSnapshot.Timing["phase"]));
@@ -2641,18 +2641,18 @@ public sealed class GameHubJoinTests
         var p2Deck = BuildValidDeck(catalog);
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", "ready-official-p1");
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", "ready-official-p2");
 
         var startSnapshot = SnapshotFor(readyClients, "P1");
@@ -2669,12 +2669,12 @@ public sealed class GameHubJoinTests
         var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
         var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
         var activeMulliganClients = new RecordingHubClients();
-        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));
         Assert.Empty(activeMulliganClients.CallerClient.Errors);
 
         var secondMulliganClients = new RecordingHubClients();
-        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry)
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry, authenticatedHandle: secondPlayerId)
             .SubmitIntent(roomId, secondPlayerId, "mulligan-second", MulliganJson([]));
         Assert.Empty(secondMulliganClients.CallerClient.Errors);
         var completeEvents = EventsFor(secondMulliganClients);
@@ -2701,7 +2701,7 @@ public sealed class GameHubJoinTests
         var mainJournalCount = journal.Entries.Count;
 
         var acceptedClients = new RecordingHubClients();
-        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "tap-rune-same", tapRune);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -2733,7 +2733,7 @@ public sealed class GameHubJoinTests
         Assert.False(Assert.IsType<bool>(changedRune["isExhausted"]));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: $" {activePlayerId} ")
             .SubmitIntent(roomId, $" {activePlayerId} ", "tap-rune-same", tapRune);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -2775,7 +2775,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "tap-rune-same", changedTapRune);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -2795,7 +2795,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .RequestSnapshot(roomId, activePlayerId);
         var activeStateSnapshot = Assert.IsType<SnapshotDto>(Assert.Single(stateClients.CallerClient.Snapshots).Payload);
         var activeStatePlayer = PlayerView(activeStateSnapshot, activePlayerId);
@@ -2823,18 +2823,18 @@ public sealed class GameHubJoinTests
         var p2Deck = BuildValidDeck(catalog);
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", "ready-official-p1");
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", "ready-official-p2");
 
         var startSnapshot = SnapshotFor(readyClients, "P1");
@@ -2851,12 +2851,12 @@ public sealed class GameHubJoinTests
         var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
         var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
         var activeMulliganClients = new RecordingHubClients();
-        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));
         Assert.Empty(activeMulliganClients.CallerClient.Errors);
 
         var secondMulliganClients = new RecordingHubClients();
-        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry)
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), secondConnectionId, registry, authenticatedHandle: secondPlayerId)
             .SubmitIntent(roomId, secondPlayerId, "mulligan-second", MulliganJson([]));
         Assert.Empty(secondMulliganClients.CallerClient.Errors);
         var completeEvents = EventsFor(secondMulliganClients);
@@ -2875,7 +2875,7 @@ public sealed class GameHubJoinTests
         var runeSourceId = tapRuneCandidate.Sources.First().Id;
 
         var tapRuneClients = new RecordingHubClients();
-        await CreateHub(tapRuneClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(tapRuneClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "tap-rune-before-recycle", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "TAP_RUNE",
@@ -2901,7 +2901,7 @@ public sealed class GameHubJoinTests
         var postTapJournalCount = journal.Entries.Count;
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "recycle-rune-same", recycleRune);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -2949,7 +2949,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: $" {activePlayerId} ")
             .SubmitIntent(roomId, $" {activePlayerId} ", "recycle-rune-same", recycleRune);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -3016,7 +3016,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, "recycle-rune-same", changedRecycleRune);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -3037,7 +3037,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), activeConnectionId, registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), activeConnectionId, registry, authenticatedHandle: activePlayerId)
             .RequestSnapshot(roomId, activePlayerId);
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -3064,7 +3064,7 @@ public sealed class GameHubJoinTests
         var registry = new FixedMatchSessionRegistry(session);
 
         var promptClients = new RecordingHubClients();
-        await CreateHub(promptClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(promptClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(promptClients.CallerClient.Errors);
@@ -3091,7 +3091,7 @@ public sealed class GameHubJoinTests
         var seededJournalCount = journal.Entries.Count;
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, orderTriggers);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -3153,7 +3153,7 @@ public sealed class GameHubJoinTests
         Assert.False(orderTriggerEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", clientIntentId, orderTriggers);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -3218,7 +3218,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, changedOrderTriggers);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -3245,15 +3245,15 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentUnsupportedCommandReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"FLIP_TABLE"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-unsupported", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3268,15 +3268,15 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentRejectedMessagesCarryProtocolVersionsOnError()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"FLIP_TABLE"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .SubmitIntent("room-a", " alice ", "intent-unsupported-protocol-envelope", cmd);
 
         var errorMessage = Assert.Single(clients.CallerClient.Errors);
@@ -3297,9 +3297,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-unsupported-payload";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3314,7 +3314,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-unsupported-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3348,9 +3348,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-malformed-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3365,7 +3365,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-malformed-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3403,9 +3403,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-boolean-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3420,7 +3420,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-boolean-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3459,9 +3459,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-numeric-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3476,7 +3476,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-numeric-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3515,9 +3515,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-object-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3537,7 +3537,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-object-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3579,9 +3579,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-duplicate-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3597,7 +3597,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-duplicate-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3646,9 +3646,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-wrapped-known-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3663,7 +3663,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-wrapped-known-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3702,9 +3702,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-lowercase-known-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3719,7 +3719,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-lowercase-known-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3759,9 +3759,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-null-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3776,7 +3776,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-null-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3814,9 +3814,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-whitespace-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3831,7 +3831,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-whitespace-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3869,9 +3869,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-missing-cmdtype";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3885,7 +3885,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-missing-cmdtype-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3923,9 +3923,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-nonobject-command";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var journalCountBeforeUnsupported = journal.Entries.Count;
@@ -3942,7 +3942,7 @@ public sealed class GameHubJoinTests
             ]
             """).RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-nonobject-command-raw", cmd);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -3980,9 +3980,9 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentKnownP0ContractCommandsUseCoreValidationShell()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
 
@@ -3998,7 +3998,7 @@ public sealed class GameHubJoinTests
             var clients = new RecordingHubClients();
             var cmd = JsonDocument.Parse(commandJson).RootElement.Clone();
 
-            await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
                 .SubmitIntent("room-a", "alice", intentId, cmd);
 
             var error = Assert.Single(clients.CallerClient.Errors);
@@ -4014,9 +4014,9 @@ public sealed class GameHubJoinTests
     {
         const string sentinel = "secret-raw-validation-leak";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
 
@@ -4032,7 +4032,7 @@ public sealed class GameHubJoinTests
             var clients = new RecordingHubClients();
             var cmd = JsonDocument.Parse(commandJson).RootElement.Clone();
 
-            await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
                 .SubmitIntent("room-a", "alice", intentId, cmd);
 
             var error = Assert.Single(clients.CallerClient.Errors);
@@ -4055,9 +4055,9 @@ public sealed class GameHubJoinTests
         const string roomId = "pay-cost-window-core";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -4066,7 +4066,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "pay-cost-window", "seed-pay-cost-window");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -4102,7 +4102,7 @@ public sealed class GameHubJoinTests
             snapshotTick = prompt.SnapshotTick
         });
 
-        await CreateHub(stalePromptClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stalePromptClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-prompt", stalePromptPayCost);
 
         var stalePromptError = Assert.Single(stalePromptClients.CallerClient.Errors);
@@ -4141,7 +4141,7 @@ public sealed class GameHubJoinTests
 
         var stalePromptJournalCount = journal.Entries.Count;
         var stalePromptReplayClients = new RecordingHubClients();
-        await CreateHub(stalePromptReplayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stalePromptReplayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-prompt", stalePromptPayCost);
 
         var stalePromptReplayError = Assert.Single(stalePromptReplayClients.CallerClient.Errors);
@@ -4167,7 +4167,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed-stale-prompt"
         });
 
-        await CreateHub(stalePromptConflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stalePromptConflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-prompt", changedStalePromptPayCost);
 
         var stalePromptConflictError = Assert.Single(stalePromptConflictClients.CallerClient.Errors);
@@ -4185,7 +4185,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed-stale-prompt", StringComparison.Ordinal));
 
         var staleSnapshotClients = new RecordingHubClients();
-        await CreateHub(staleSnapshotClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(staleSnapshotClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-pay-cost-stale-snapshot", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PAY_COST",
@@ -4202,7 +4202,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(staleSnapshotClients.GroupClient.Snapshots);
 
         var invalidChoiceClients = new RecordingHubClients();
-        await CreateHub(invalidChoiceClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(invalidChoiceClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-pay-cost-invalid-choice", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PAY_COST",
@@ -4219,7 +4219,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(invalidChoiceClients.GroupClient.Snapshots);
 
         var payClients = new RecordingHubClients();
-        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-pay-cost-valid", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PAY_COST",
@@ -4247,9 +4247,9 @@ public sealed class GameHubJoinTests
         const string roomId = "pay-cost-replay-protocol-envelope";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -4258,7 +4258,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "pay-cost-window", "seed-pay-cost-replay-protocol-envelope");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -4277,7 +4277,7 @@ public sealed class GameHubJoinTests
         });
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "pay-cost-replay-protocol-envelope", payCost);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -4297,7 +4297,7 @@ public sealed class GameHubJoinTests
             .ToArray();
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "pay-cost-replay-protocol-envelope", payCost);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -4348,9 +4348,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -4359,7 +4359,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "pay-cost-window", "seed-pay-cost-window");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -4379,7 +4379,7 @@ public sealed class GameHubJoinTests
         });
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "pay-cost-same", payCost);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -4419,7 +4419,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "pay-cost-same", payCost);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -4471,7 +4471,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "pay-cost-same", changedPayCost);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -4492,7 +4492,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var snapshotClients = new RecordingHubClients();
-        await CreateHub(snapshotClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(snapshotClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(snapshotClients.CallerClient.Errors);
@@ -4507,18 +4507,18 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentDuplicateConflictReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-same", pass);
         var clients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-same", endTurn);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -4532,18 +4532,18 @@ public sealed class GameHubJoinTests
     public async Task SubmitIntentDuplicateConflictMessagesCarryProtocolVersionsOnError()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-conflict-protocol-envelope", pass);
         var clients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .SubmitIntent("room-a", " alice ", "intent-conflict-protocol-envelope", endTurn);
 
         var errorMessage = Assert.Single(clients.CallerClient.Errors);
@@ -4563,15 +4563,15 @@ public sealed class GameHubJoinTests
     {
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var readyJournalCount = journal.Entries.Count;
 
         var acceptedClients = new RecordingHubClients();
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .Pass("room-a", "alice", "pass-same");
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -4592,7 +4592,7 @@ public sealed class GameHubJoinTests
         Assert.False(passEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .Pass("room-a", "alice", "pass-same");
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -4622,7 +4622,7 @@ public sealed class GameHubJoinTests
         var conflictClients = new RecordingHubClients();
         var changedPass = JsonDocument.Parse("""{"cmdType":"PASS","clientNote":"changed"}""").RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "pass-same", changedPass);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -4647,15 +4647,15 @@ public sealed class GameHubJoinTests
     {
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var readyJournalCount = journal.Entries.Count;
 
         var acceptedClients = new RecordingHubClients();
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .EndTurn("room-a", "alice", "end-turn-same");
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -4687,7 +4687,7 @@ public sealed class GameHubJoinTests
         Assert.False(endTurnEntry.RawCommand.Value.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " alice ")
             .EndTurn("room-a", " alice ", "end-turn-same");
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -4730,7 +4730,7 @@ public sealed class GameHubJoinTests
         var conflictClients = new RecordingHubClients();
         var changedEndTurn = JsonDocument.Parse("""{"cmdType":"END_TURN","clientNote":"changed"}""").RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "end-turn-same", changedEndTurn);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -4751,7 +4751,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .RequestSnapshot("room-a", "bob");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -4766,15 +4766,15 @@ public sealed class GameHubJoinTests
     {
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var readyJournalCount = journal.Entries.Count;
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY","clientNote":"original"}""").RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-same", pass);
         var acceptedJournalCount = journal.Entries.Count;
         var acceptedEvents = EventsFor(acceptedClients);
@@ -4786,7 +4786,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-same", pass);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -4801,7 +4801,7 @@ public sealed class GameHubJoinTests
         var clients = new RecordingHubClients();
         var changedPass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY","clientNote":"changed"}""").RootElement.Clone();
 
-        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-same", changedPass);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -4826,14 +4826,14 @@ public sealed class GameHubJoinTests
     {
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .JoinRoom("room-a", "alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .JoinRoom("room-a", "bob");
         await ReadyBothAsync(registry);
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY","clientNote":"keep-me"}""").RootElement.Clone();
 
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .SubmitIntent("room-a", "alice", "intent-raw-payload", cmd);
 
         var entry = Assert.Single(journal.Entries, entry =>
@@ -4849,9 +4849,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development, authenticatedHandle: "P1")
             .JoinRoom("room-a", "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development, authenticatedHandle: "P2")
             .JoinRoom("room-a", "P2");
         var joinedJournalCount = journal.Entries.Count;
         var acceptedClients = new RecordingHubClients();
@@ -4861,7 +4861,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario("room-a", "P1", "basic-play", "seed-same");
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -4894,7 +4894,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario("room-a", "P1", "basic-play", "seed-same");
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -4944,7 +4944,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario("room-a", "P1", "movement", "seed-same");
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -4965,9 +4965,9 @@ public sealed class GameHubJoinTests
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development, authenticatedHandle: "P1")
             .JoinRoom("room-a", "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development, authenticatedHandle: "P2")
             .JoinRoom("room-a", "P2");
         var clients = new RecordingHubClients();
 
@@ -4976,7 +4976,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: " P1 ")
             .SeedScenario("room-a", " P1 ", "basic-play", "seed-basic-play-protocol-envelope");
 
         Assert.Empty(clients.CallerClient.Errors);
@@ -5005,9 +5005,9 @@ public sealed class GameHubJoinTests
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development, authenticatedHandle: "P1")
             .JoinRoom("room-a", "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development, authenticatedHandle: "P2")
             .JoinRoom("room-a", "P2");
         var acceptedClients = new RecordingHubClients();
 
@@ -5016,7 +5016,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario("room-a", "P1", "basic-play", "seed-replay-protocol-envelope");
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -5039,7 +5039,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: " P1 ")
             .SeedScenario("room-a", " P1 ", "basic-play", "seed-replay-protocol-envelope");
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -5085,9 +5085,9 @@ public sealed class GameHubJoinTests
     public async Task SeedScenarioBroadcastsDevSnapshotsAndPromptsInDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom("room-a", "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom("room-a", "P2");
         var clients = new RecordingHubClients();
 
@@ -5096,7 +5096,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario("room-a", "P1", "basic-play", "seed-basic-play");
 
         Assert.Empty(clients.CallerClient.Errors);
@@ -5127,9 +5127,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "illegal-standby-cleanup-task-room";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
 
@@ -5138,7 +5138,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-illegal-standby", "seed-illegal-standby-cleanup-task");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5195,9 +5195,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "unattached-equipment-cleanup-task-room";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
 
@@ -5206,7 +5206,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-unattached-equipment-cleanup", "seed-unattached-equipment-cleanup-task");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5232,9 +5232,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-typed-power-payment-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -5243,7 +5243,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment", "seed-p7-9-typed-power-payment");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5261,7 +5261,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-typed-power-bullet-time", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -5296,9 +5296,9 @@ public sealed class GameHubJoinTests
         const string roomId = "p7-9-play-card-replay-protocol-envelope";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, development, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, development, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -5307,7 +5307,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment", "seed-p7-9-play-card-replay-protocol-envelope");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5328,7 +5328,7 @@ public sealed class GameHubJoinTests
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "play-card-replay-protocol-envelope", playCard);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -5347,7 +5347,7 @@ public sealed class GameHubJoinTests
             .ToArray();
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "play-card-replay-protocol-envelope", playCard);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -5396,9 +5396,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -5407,7 +5407,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment", "seed-p7-9-play-card-raw-idempotency");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5428,7 +5428,7 @@ public sealed class GameHubJoinTests
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "play-card-same", playCard);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -5480,7 +5480,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "play-card-same", playCard);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -5547,7 +5547,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "play-card-same", changedPlayCard);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -5568,7 +5568,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -5585,9 +5585,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "prompt-stamp-matching-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -5596,7 +5596,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment", "seed-prompt-stamp-matching");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5605,7 +5605,7 @@ public sealed class GameHubJoinTests
         Assert.True(prompt.SnapshotTick.HasValue);
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-matching-prompt-stamp", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -5628,9 +5628,9 @@ public sealed class GameHubJoinTests
         const string roomId = "prompt-stamp-expired-core";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -5639,7 +5639,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment", "seed-prompt-stamp-expired");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5664,7 +5664,7 @@ public sealed class GameHubJoinTests
             promptId = stalePromptId,
             snapshotTick = prompt.SnapshotTick.Value
         });
-        await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-stale-prompt-stamp", stalePlayCard);
 
         var error = Assert.Single(staleClients.CallerClient.Errors);
@@ -5704,7 +5704,7 @@ public sealed class GameHubJoinTests
 
         var staleJournalCount = journal.Entries.Count;
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-stale-prompt-stamp", stalePlayCard);
 
         var replayError = Assert.Single(replayClients.CallerClient.Errors);
@@ -5732,7 +5732,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed-stale-prompt"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-stale-prompt-stamp", changedStalePlayCard);
 
         var conflictError = Assert.Single(conflictClients.CallerClient.Errors);
@@ -5757,9 +5757,9 @@ public sealed class GameHubJoinTests
         const string roomId = "prompt-stamp-stale-snapshot-core";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -5768,7 +5768,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment", "seed-prompt-stamp-stale-snapshot");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5793,7 +5793,7 @@ public sealed class GameHubJoinTests
             promptId = prompt.PromptId,
             snapshotTick = staleSnapshotTick
         });
-        await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-stale-snapshot-stamp", stalePlayCard);
 
         var error = Assert.Single(staleClients.CallerClient.Errors);
@@ -5833,7 +5833,7 @@ public sealed class GameHubJoinTests
 
         var staleJournalCount = journal.Entries.Count;
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-stale-snapshot-stamp", stalePlayCard);
 
         var replayError = Assert.Single(replayClients.CallerClient.Errors);
@@ -5861,7 +5861,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed-stale-snapshot"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-stale-snapshot-stamp", changedStalePlayCard);
 
         var conflictError = Assert.Single(conflictClients.CallerClient.Errors);
@@ -5887,9 +5887,9 @@ public sealed class GameHubJoinTests
         const string paymentRuneObjectId = "P1-RUNE-RED-PARTIAL-PAYMENT-001";
         var paymentResourceAction = $"RECYCLE_RUNE:{paymentRuneObjectId}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -5898,7 +5898,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment-recycle", "seed-p7-9-typed-power-payment-recycle");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -5922,7 +5922,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(2, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-typed-power-recycle-bullet-time", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -5959,9 +5959,9 @@ public sealed class GameHubJoinTests
         var firstPaymentResourceAction = $"RECYCLE_RUNE:{firstPaymentRuneObjectId}";
         var secondPaymentResourceAction = $"RECYCLE_RUNE:{secondPaymentRuneObjectId}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -5970,7 +5970,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment-double-recycle", "seed-p7-9-typed-power-payment-double-recycle");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -6000,7 +6000,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(2, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-typed-power-double-recycle-bullet-time", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -6039,9 +6039,9 @@ public sealed class GameHubJoinTests
         var redPaymentResourceAction = $"RECYCLE_RUNE:{redPaymentRuneObjectId}";
         var bluePaymentResourceAction = $"RECYCLE_RUNE:{bluePaymentRuneObjectId}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6050,7 +6050,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment-mixed-recycle", "seed-p7-9-typed-power-payment-mixed-recycle");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -6073,7 +6073,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(paymentResourcePowerByChoice[bluePaymentResourceAction]["trait"]));
 
         var rejectedClients = new RecordingHubClients();
-        await CreateHub(rejectedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(rejectedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-typed-power-mixed-reject-blue", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -6088,7 +6088,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(ErrorCodes.InsufficientCost, errorPayload.Code);
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-typed-power-mixed-red-bullet-time", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -6124,9 +6124,9 @@ public sealed class GameHubJoinTests
         var redPaymentResourceAction = $"RECYCLE_RUNE:{redPaymentRuneObjectId}";
         var bluePaymentResourceAction = $"RECYCLE_RUNE:{bluePaymentRuneObjectId}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6135,7 +6135,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "typed-power-payment-generic-mixed-recycle", "seed-p7-9-typed-power-payment-generic-mixed-recycle");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -6161,7 +6161,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Blue]);
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-typed-power-generic-mixed-blue-bullet-time", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -6199,9 +6199,9 @@ public sealed class GameHubJoinTests
         const string paymentRuneObjectId = "P1-RUNE-PURPLE-HASTE-PAYMENT-001";
         var paymentResourceAction = $"RECYCLE_RUNE:{paymentRuneObjectId}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6210,7 +6210,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "haste-payment-recycle", "seed-p7-9-haste-payment-recycle");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -6237,7 +6237,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["hasteReadyPowerCost"]));
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-haste-payment-recycle-sivir", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -6283,9 +6283,9 @@ public sealed class GameHubJoinTests
         var bluePaymentResourceAction = $"RECYCLE_RUNE:{bluePaymentRuneObjectId}";
         var purplePaymentResourceAction = $"RECYCLE_RUNE:{purplePaymentRuneObjectId}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6294,7 +6294,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "haste-payment-colored-recycle", "seed-p7-9-haste-colored-payment-recycle");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -6325,7 +6325,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(RuneTrait.Purple, Assert.IsType<string>(paymentResourcePowerByChoice[purplePaymentResourceAction]["trait"]));
 
         var rejectedClients = new RecordingHubClients();
-        await CreateHub(rejectedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(rejectedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-haste-colored-blue-reject", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -6340,7 +6340,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(ErrorCodes.InsufficientCost, rejectedPayload.Code);
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-haste-colored-purple-sivir", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -6372,9 +6372,9 @@ public sealed class GameHubJoinTests
         const string secondShieldTarget = "P2-SPIRIT-FIRE-SPELLSHIELD2-001";
         const string keeperTarget = "P2-SPIRIT-FIRE-KEEPER-001";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6383,7 +6383,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "spellshield-multiple-tax", "seed-p7-9-spellshield-multiple-tax");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -6409,7 +6409,7 @@ public sealed class GameHubJoinTests
         Assert.DoesNotContain(legalTargetSelections, selection => selection.Contains(keeperTarget, StringComparer.Ordinal));
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-spellshield-multiple-tax-play", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -6433,11 +6433,11 @@ public sealed class GameHubJoinTests
         Assert.Single(playSnapshot.Stack);
 
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-spellshield-multiple-tax-p1-pass", passPriority);
 
         var resolveClients = new RecordingHubClients();
-        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-spellshield-multiple-tax-p2-pass", passPriority);
 
         Assert.Empty(resolveClients.CallerClient.Errors);
@@ -6471,9 +6471,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-spellshield-tax-insufficient-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6482,7 +6482,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6513,9 +6513,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-play-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6524,7 +6524,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6556,9 +6556,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-play-target-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6567,7 +6567,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6606,9 +6606,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-hide-card-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6617,7 +6617,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6649,9 +6649,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-reveal-card-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6660,7 +6660,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6695,9 +6695,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-assemble-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6706,7 +6706,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6740,9 +6740,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-assemble-target-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6751,7 +6751,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6791,9 +6791,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-legend-action-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6802,7 +6802,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6839,9 +6839,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-legend-action-target-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6850,7 +6850,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6890,9 +6890,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-activate-ability-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6901,7 +6901,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -6938,9 +6938,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-activate-ability-target-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -6949,7 +6949,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -7007,9 +7007,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-move-unit-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7018,7 +7018,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -7053,9 +7053,9 @@ public sealed class GameHubJoinTests
         const string roomId = "p7-9-unknown-move-unit-battlefield-prompt-core";
         const string unknownBattlefieldObjectId = "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7064,7 +7064,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -7108,9 +7108,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-rune-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7119,7 +7119,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -7155,9 +7155,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-unknown-declare-battle-source-prompt-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7166,7 +7166,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -7208,9 +7208,9 @@ public sealed class GameHubJoinTests
         const string roomId = "p7-9-unknown-declare-battle-battlefield-prompt-core";
         const string unknownBattlefieldObjectId = "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7219,7 +7219,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -7268,9 +7268,9 @@ public sealed class GameHubJoinTests
         const string paymentRuneObjectId = "P1-RUNE-RED-ASSEMBLE-PAYMENT-001";
         var paymentResourceAction = $"RECYCLE_RUNE:{paymentRuneObjectId}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7279,7 +7279,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "assemble-payment-recycle", "seed-p7-9-assemble-payment-recycle");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -7301,7 +7301,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
 
         var attachClients = new RecordingHubClients();
-        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-payment-recycle", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "ASSEMBLE_EQUIPMENT",
@@ -7351,9 +7351,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7362,7 +7362,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "assemble-payment-recycle", "seed-p7-9-assemble-equipment-raw-idempotency");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -7389,7 +7389,7 @@ public sealed class GameHubJoinTests
         });
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "assemble-equipment-same", assembleEquipment);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -7458,7 +7458,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "assemble-equipment-same", assembleEquipment);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -7535,7 +7535,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "assemble-equipment-same", changedAssembleEquipment);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -7556,7 +7556,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -7590,9 +7590,9 @@ public sealed class GameHubJoinTests
         const string equipmentObjectId = "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM-ASSEMBLE";
         const string targetObjectId = "P1-UNIT-SHEPHERDS-HEIRLOOM-TARGET";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7601,7 +7601,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "assemble-experience", "seed-p7-9-assemble-experience");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -7621,7 +7621,7 @@ public sealed class GameHubJoinTests
             sourceRequirement["requiredOptionalCosts"]).ToArray());
 
         var attachClients = new RecordingHubClients();
-        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-experience", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "ASSEMBLE_EQUIPMENT",
@@ -7656,9 +7656,9 @@ public sealed class GameHubJoinTests
         const string costObjectId = "P1-UNIT-BLADE-RUINED-KING-COST";
         var destroyAdditionalCost = $"DESTROY_FRIENDLY_UNIT:{costObjectId}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7667,7 +7667,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "assemble-destroy-friendly-unit", "seed-p7-9-assemble-destroy-friendly-unit");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -7687,7 +7687,7 @@ public sealed class GameHubJoinTests
             choice => string.Equals(choice.Id, destroyAdditionalCost, StringComparison.Ordinal));
 
         var attachClients = new RecordingHubClients();
-        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-destroy-friendly-unit", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "ASSEMBLE_EQUIPMENT",
@@ -7731,9 +7731,9 @@ public sealed class GameHubJoinTests
         var recycleAdditionalCost1 = $"RECYCLE_GRAVEYARD_CARD:{recycleObjectId1}";
         var recycleAdditionalCost2 = $"RECYCLE_GRAVEYARD_CARD:{recycleObjectId2}";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7742,7 +7742,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "assemble-recycle-graveyard", "seed-p7-9-assemble-recycle-graveyard");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -7764,7 +7764,7 @@ public sealed class GameHubJoinTests
                 .ToArray());
 
         var attachClients = new RecordingHubClients();
-        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-recycle-graveyard", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "ASSEMBLE_EQUIPMENT",
@@ -7807,9 +7807,9 @@ public sealed class GameHubJoinTests
         const string equipmentObjectId = "P1-EQUIPMENT-HEXTECH-GAUNTLET-ASSEMBLE";
         const string targetObjectId = "P1-UNIT-HEXTECH-GAUNTLET-TARGET";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7818,7 +7818,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "assemble-dynamic-mana", "seed-p7-9-assemble-dynamic-mana");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -7843,7 +7843,7 @@ public sealed class GameHubJoinTests
             sourceRequirement["optionalCostChoices"]).Select(choice => choice.Id).ToArray());
 
         var attachClients = new RecordingHubClients();
-        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-dynamic-mana", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "ASSEMBLE_EQUIPMENT",
@@ -7874,16 +7874,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-3a-response-window";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "spell-duel", "seed-p6-spell-duel");
 
         var playClients = new RecordingHubClients();
@@ -7895,7 +7895,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P2-UNIT-001"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-play-hextech-ray", play);
 
         Assert.Empty(playClients.CallerClient.Errors);
@@ -7917,7 +7917,7 @@ public sealed class GameHubJoinTests
 
         var passClients = new RecordingHubClients();
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-pass-priority", pass);
 
         Assert.Empty(passClients.CallerClient.Errors);
@@ -7945,9 +7945,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-3b-response-window-focus-prompt";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -7956,7 +7956,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "spell-duel-focus", "seed-p6-spell-duel-focus");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -8018,7 +8018,7 @@ public sealed class GameHubJoinTests
         Assert.Contains("WAIT", p2Prompt.EnabledActions());
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-play-hextech-ray-focus", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -8042,9 +8042,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-3c-battlefield-contest-task-advance";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -8053,7 +8053,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-contest-stack", "seed-p6-battlefield-contest-stack");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -8067,7 +8067,7 @@ public sealed class GameHubJoinTests
         Assert.Equal("BATTLEFIELD_TASKS", Assert.IsType<string>(seededQueue["phase"]));
 
         var passClients = new RecordingHubClients();
-        await CreateHub(passClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-battlefield-contest-stack-pass", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PASS_PRIORITY"
@@ -8089,7 +8089,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(["PASS_FOCUS", "SURRENDER"], p1Prompt.EnabledActions());
 
         var p1FocusPassClients = new RecordingHubClients();
-        await CreateHub(p1FocusPassClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(p1FocusPassClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-battlefield-contest-p1-focus-pass", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PASS_FOCUS"
@@ -8101,7 +8101,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(["PASS_FOCUS", "SURRENDER"], p2FocusPrompt.EnabledActions());
 
         var p2FocusPassClients = new RecordingHubClients();
-        await CreateHub(p2FocusPassClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(p2FocusPassClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-battlefield-contest-p2-focus-pass", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PASS_FOCUS"
@@ -8129,7 +8129,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(["P1-BATTLEFIELD-CONTEST-001"], (declareBattleCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
 
         var declareBattleClients = new RecordingHubClients();
-        await CreateHub(declareBattleClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(declareBattleClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-battlefield-contest-declare-battle", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "DECLARE_BATTLE",
@@ -8146,7 +8146,7 @@ public sealed class GameHubJoinTests
             var actor = new[] { "P1", "P2" }.FirstOrDefault(id => PromptFor(declareBattleClients, id).Actions.Contains(CommandTypes.PassPriority));
             if (actor is null) break;
             var responseClients = new RecordingHubClients();
-            await CreateHub(responseClients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2", registry)
+            await CreateHub(responseClients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2", registry, authenticatedHandle: actor)
                 .SubmitIntent(roomId, actor, $"contest-response-pass-{step}", JsonSerializer.SerializeToElement(new { cmdType = CommandTypes.PassPriority }));
             Assert.Empty(responseClients.CallerClient.Errors);
             declareBattleEvents.AddRange(EventsFor(responseClients));
@@ -8191,9 +8191,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-3d-battlefield-contest-spell-duel-cleanup";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -8202,7 +8202,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-contest-spell-duel-cleanup", "seed-p6-battlefield-contest-spell-duel-cleanup");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -8219,7 +8219,7 @@ public sealed class GameHubJoinTests
             task => string.Equals(task["kind"] as string, "START_BATTLE", StringComparison.Ordinal));
 
         var passFocusClients = new RecordingHubClients();
-        await CreateHub(passFocusClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passFocusClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-battlefield-contest-spell-duel-cleanup-p2-focus-pass", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PASS_FOCUS"
@@ -8252,7 +8252,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(["MOVE_UNIT", "END_TURN", "SURRENDER"], p1Prompt.EnabledActions());
 
         var resyncClients = new RecordingHubClients();
-        await CreateHub(resyncClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(resyncClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
         Assert.Empty(resyncClients.CallerClient.Errors);
         var resyncP1Prompt = Assert.IsType<ActionPromptDto>(
@@ -8286,16 +8286,16 @@ public sealed class GameHubJoinTests
     {
         var movementRegistry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
         const string movementRoomId = "p6-4a-movement-core";
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", movementRegistry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", movementRegistry, authenticatedHandle: "P1")
             .JoinRoom(movementRoomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", movementRegistry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", movementRegistry, authenticatedHandle: "P2")
             .JoinRoom(movementRoomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 movementRegistry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(movementRoomId, "P1", "movement", "seed-p6-movement");
 
         var playMovementClients = new RecordingHubClients();
@@ -8308,21 +8308,21 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P1-BATTLEFIELD-UNIT-001"]
             }
             """).RootElement.Clone();
-        await CreateHub(playMovementClients, new RecordingGroupManager(), "connection-1", movementRegistry)
+        await CreateHub(playMovementClients, new RecordingGroupManager(), "connection-1", movementRegistry, authenticatedHandle: "P1")
             .SubmitIntent(movementRoomId, "P1", "intent-p6-ride-the-wind", rideTheWind);
         Assert.Empty(playMovementClients.CallerClient.Errors);
         Assert.Contains(EventsFor(playMovementClients), gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
 
         var passMovementP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passMovementP1Clients, new RecordingGroupManager(), "connection-1", movementRegistry)
+        await CreateHub(passMovementP1Clients, new RecordingGroupManager(), "connection-1", movementRegistry, authenticatedHandle: "P1")
             .SubmitIntent(movementRoomId, "P1", "intent-p6-movement-p1-pass", passPriority);
         Assert.Empty(passMovementP1Clients.CallerClient.Errors);
         Assert.Contains(EventsFor(passMovementP1Clients), gameEvent => string.Equals(gameEvent.Kind, "PRIORITY_PASSED", StringComparison.Ordinal));
 
         var passMovementP2Clients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passMovementP2Clients, new RecordingGroupManager(), "connection-2", movementRegistry)
+        await CreateHub(passMovementP2Clients, new RecordingGroupManager(), "connection-2", movementRegistry, authenticatedHandle: "P2")
             .SubmitIntent(movementRoomId, "P2", "intent-p6-movement-p2-pass", passPriorityAgain);
         Assert.Empty(passMovementP2Clients.CallerClient.Errors);
         var movementEvents = EventsFor(passMovementP2Clients);
@@ -8335,21 +8335,21 @@ public sealed class GameHubJoinTests
 
         var scoreRegistry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
         const string scoreRoomId = "p6-4a-score-core";
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", scoreRegistry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", scoreRegistry, authenticatedHandle: "P1")
             .JoinRoom(scoreRoomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", scoreRegistry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", scoreRegistry, authenticatedHandle: "P2")
             .JoinRoom(scoreRoomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 scoreRegistry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(scoreRoomId, "P1", "battle-score", "seed-p6-battle-score");
 
         var scoreClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(scoreClients, new RecordingGroupManager(), "connection-1", scoreRegistry)
+        await CreateHub(scoreClients, new RecordingGroupManager(), "connection-1", scoreRegistry, authenticatedHandle: "P1")
             .SubmitIntent(scoreRoomId, "P1", "intent-p6-score-end-turn", endTurn);
 
         Assert.Empty(scoreClients.CallerClient.Errors);
@@ -8376,16 +8376,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-4b-battle-declare-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battle-declare", "seed-p6-battle-declare");
 
         var battleClients = new RecordingHubClients();
@@ -8398,7 +8398,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-declare-battle", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -8424,9 +8424,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -8434,7 +8434,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battle-declare", "seed-declare-battle-raw-idempotency");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -8450,7 +8450,7 @@ public sealed class GameHubJoinTests
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "declare-battle-same", declareBattle);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -8512,7 +8512,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "declare-battle-same", declareBattle);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -8577,7 +8577,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "declare-battle-same", changedDeclareBattle);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -8598,7 +8598,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -8621,9 +8621,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-combat-prompt-filter";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -8631,7 +8631,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battle-prompt-filter", "seed-p7-9-combat-prompt-filter");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -8665,7 +8665,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-combat-prompt-filter", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -8679,9 +8679,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-combat-multi-defender";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -8689,7 +8689,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battle-multi-defender", "seed-p7-9-combat-multi-defender");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -8711,7 +8711,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-combat-multi-defender", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -8740,9 +8740,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-combat-same-priority-bulwark";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -8750,7 +8750,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battle-same-priority-bulwark", "seed-p7-9-combat-same-priority-bulwark");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -8786,7 +8786,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-combat-same-priority-bulwark", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -8832,9 +8832,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-combat-multi-attacker";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -8842,7 +8842,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battle-multi-attacker", "seed-p7-9-combat-multi-attacker");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -8875,7 +8875,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-combat-multi-attacker", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -8917,9 +8917,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-combat-multi-participant";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -8927,7 +8927,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battle-multi-participant", "seed-p7-9-combat-multi-participant");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -8971,7 +8971,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-combat-multi-participant", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9020,9 +9020,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-combat-no-result";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9030,7 +9030,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battle-no-result", "seed-p7-9-combat-no-result");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9048,7 +9048,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-combat-no-result", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9087,9 +9087,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-draw";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9097,7 +9097,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-draw", "seed-p7-9-battlefield-held-draw");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9114,7 +9114,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-draw", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9127,9 +9127,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-boon";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9137,7 +9137,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-boon", "seed-p7-9-battlefield-held-boon");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9154,7 +9154,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-boon", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9167,9 +9167,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-move-to-base";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9177,7 +9177,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-move-to-base", "seed-p7-9-battlefield-held-move-to-base");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9194,7 +9194,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-move-to-base", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9207,9 +9207,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-conquer-boon-draw";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9217,7 +9217,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-boon-draw", "seed-p7-9-battlefield-conquer-boon-draw");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9234,7 +9234,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-boon-draw", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9269,9 +9269,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-conquer-warhawk";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9279,7 +9279,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-warhawk", "seed-p7-9-battlefield-conquer-warhawk");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9296,7 +9296,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-warhawk", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9324,9 +9324,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-conquer-mill";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9334,7 +9334,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-mill", "seed-p7-9-battlefield-conquer-mill");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9351,7 +9351,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-mill", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9374,9 +9374,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-conquer-discard-draw";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9384,7 +9384,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-discard-draw", "seed-p7-9-battlefield-conquer-discard-draw");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9401,7 +9401,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-discard-draw", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9424,9 +9424,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-conquer-recycle-rune";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9434,7 +9434,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-recycle-rune", "seed-p7-9-battlefield-conquer-recycle-rune");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9451,7 +9451,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-recycle-rune", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9478,9 +9478,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-defend-reveal-spell";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9488,7 +9488,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-defend-reveal-spell", "seed-p7-9-battlefield-defend-reveal-spell");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9505,7 +9505,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defend-reveal-spell", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9531,9 +9531,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-ephemeral-steadfast";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9541,7 +9541,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-ephemeral-steadfast", "seed-p7-9-battlefield-ephemeral-steadfast");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9559,7 +9559,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ephemeral-invalid-target", invalidTargetBattle);
 
         var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
@@ -9579,7 +9579,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ephemeral-steadfast", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9597,9 +9597,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-defender-steadfast";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9607,7 +9607,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-defender-steadfast", "seed-p7-9-battlefield-defender-steadfast");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9626,7 +9626,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defender-steadfast-invalid-target", invalidTargetBattle);
 
         var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
@@ -9647,7 +9647,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defender-steadfast", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9673,9 +9673,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-defend-move-to-base";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9683,7 +9683,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-defend-move-to-base", "seed-p7-9-battlefield-defend-move-to-base");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9702,7 +9702,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defend-move-invalid-target", invalidTargetBattle);
 
         var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
@@ -9723,7 +9723,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defend-move-to-base", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9747,9 +9747,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-isolated-defender";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9757,7 +9757,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-isolated-defender", "seed-p7-9-battlefield-isolated-defender");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9774,7 +9774,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-isolated-defender", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9803,9 +9803,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-ready-legend";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9813,7 +9813,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-ready-legend", "seed-p7-9-battlefield-ready-legend");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9830,7 +9830,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-legend", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -9858,7 +9858,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(choices, choice => string.Equals(choice.Id, "DECLINE", StringComparison.Ordinal));
 
         var payClients = new RecordingHubClients();
-        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-legend-pay", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PAY_COST",
@@ -9893,9 +9893,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-ready-runes-end";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9903,7 +9903,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-ready-runes-end", "seed-p7-9-battlefield-ready-runes-end");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9920,14 +9920,14 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-runes", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
         for(var i=0;i<2;i++)
         {
             var passClients=new RecordingHubClients();
-            await CreateHub(passClients,new RecordingGroupManager(),i==0?"connection-1":"connection-2",registry)
+            await CreateHub(passClients,new RecordingGroupManager(),i==0?"connection-1":"connection-2",registry, authenticatedHandle: i==0?"P1":"P2")
                 .SubmitIntent(roomId,i==0?"P1":"P2","targon-conquest-pass-"+i,JsonSerializer.SerializeToElement(new {cmdType="PASS_PRIORITY"}));
             Assert.Empty(passClients.CallerClient.Errors);
             if(i==1)Assert.Contains(EventsFor(passClients),e=>e.Kind=="RUNE_READY_SCHEDULED");
@@ -9940,20 +9940,20 @@ public sealed class GameHubJoinTests
 
         var endClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-runes-end", endTurn);
 
         Assert.Empty(endClients.CallerClient.Errors);
         var c=SnapshotFor(endClients,"P1").Timing["pendingCardChoice"];
         var choice=JsonSerializer.SerializeToElement(c);
         var choiceClients=new RecordingHubClients();
-        await CreateHub(choiceClients,new RecordingGroupManager(),"connection-1",registry).SubmitIntent(roomId,"P1","targon-end-choice",
+        await CreateHub(choiceClients,new RecordingGroupManager(),"connection-1",registry, authenticatedHandle: "P1").SubmitIntent(roomId,"P1","targon-end-choice",
             JsonSerializer.SerializeToElement(new {cmdType="CHOOSE_CARDS",choiceId=choice.GetProperty("choiceId").GetString(),choiceWindow="END_STEP_RUNE_TARGETS",chosenObjectIds=new[]{"P1-BATTLEFIELD-READY-RUNE-001","P1-BATTLEFIELD-READY-RUNE-002"}}));
         Assert.Empty(choiceClients.CallerClient.Errors);
         for(var i=0;i<2;i++)
         {
             endClients=new RecordingHubClients();
-            await CreateHub(endClients,new RecordingGroupManager(),i==0?"connection-1":"connection-2",registry)
+            await CreateHub(endClients,new RecordingGroupManager(),i==0?"connection-1":"connection-2",registry, authenticatedHandle: i==0?"P1":"P2")
                 .SubmitIntent(roomId,i==0?"P1":"P2","targon-end-pass-"+i,JsonSerializer.SerializeToElement(new {cmdType="PASS_PRIORITY"}));
             Assert.Empty(endClients.CallerClient.Errors);
         }
@@ -9971,9 +9971,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-draw-other";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -9981,7 +9981,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-draw-other", "seed-p7-9-battlefield-draw-other");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -9998,7 +9998,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-draw-other", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10024,9 +10024,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-powerful-draw";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10034,7 +10034,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-powerful-draw", "seed-p7-9-battlefield-powerful-draw");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10051,7 +10051,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-powerful-draw", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10079,7 +10079,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(choices, choice => string.Equals(choice.Id, "DECLINE", StringComparison.Ordinal));
 
         var payClients = new RecordingHubClients();
-        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-powerful-draw-pay", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PAY_COST",
@@ -10097,7 +10097,7 @@ public sealed class GameHubJoinTests
         foreach (var actor in new[] { "P1", "P2" }) {
             var prompt = PromptFor(payClients, actor);
             var responseClients = new RecordingHubClients();
-            await CreateHub(responseClients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2", registry)
+            await CreateHub(responseClients, new RecordingGroupManager(), actor == "P1" ? "connection-1" : "connection-2", registry, authenticatedHandle: actor)
                 .SubmitIntent(roomId, actor, "sunken-response-" + actor, JsonSerializer.SerializeToElement(new {
                     cmdType = "PASS_PRIORITY", promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
             Assert.Empty(responseClients.CallerClient.Errors); responseEvents.AddRange(EventsFor(responseClients));
@@ -10125,9 +10125,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-gold";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10135,7 +10135,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-gold", "seed-p7-9-battlefield-gold");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10152,7 +10152,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-gold", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10180,7 +10180,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(choices, choice => string.Equals(choice.Id, "DECLINE", StringComparison.Ordinal));
 
         var staleClients = new RecordingHubClients();
-        await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(staleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-gold-stale-pay", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PAY_COST",
@@ -10196,7 +10196,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(staleClients.GroupClient.Snapshots);
 
         var payClients = new RecordingHubClients();
-        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-gold-pay", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PAY_COST",
@@ -10231,9 +10231,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-sand-soldier";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10241,7 +10241,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-sand-soldier", "seed-p7-9-battlefield-sand-soldier");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10258,7 +10258,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-sand-soldier", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10286,7 +10286,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(choices, choice => string.Equals(choice.Id, "DECLINE", StringComparison.Ordinal));
 
         var payClients = new RecordingHubClients();
-        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(payClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-sand-soldier-pay", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PAY_COST",
@@ -10323,9 +10323,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-ready-equipment";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10333,7 +10333,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-ready-equipment", "seed-p7-9-battlefield-ready-equipment");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10350,7 +10350,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-equipment", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10378,9 +10378,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-minion";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10388,7 +10388,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-minion", "seed-p7-9-battlefield-held-minion");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10405,7 +10405,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-minion", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10418,9 +10418,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-runes";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10428,7 +10428,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-runes", "seed-p7-9-battlefield-held-runes");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10445,7 +10445,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-runes", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10458,9 +10458,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-rune";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10468,7 +10468,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-rune", "seed-p7-9-battlefield-held-rune");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10485,7 +10485,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-rune", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10498,9 +10498,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-static-power";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10508,7 +10508,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-static-power", "seed-p7-9-battlefield-static-power");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10525,7 +10525,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-static-power", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -10550,9 +10550,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-static-roam";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10560,7 +10560,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-static-roam", "seed-p7-9-battlefield-static-roam");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -10578,7 +10578,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["ROAM"]
             }
             """).RootElement.Clone();
-        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-static-roam", move);
 
         Assert.Empty(moveClients.CallerClient.Errors);
@@ -10602,9 +10602,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10612,7 +10612,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-static-roam", "seed-p7-9-move-unit-raw-idempotency");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -10632,7 +10632,7 @@ public sealed class GameHubJoinTests
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "move-unit-same", move);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -10679,7 +10679,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "move-unit-same", move);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -10742,7 +10742,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "move-unit-same", changedMove);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -10763,7 +10763,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -10780,9 +10780,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-static-prevent-move-base";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10790,7 +10790,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-static-prevent-move-base", "seed-p7-9-battlefield-static-prevent-move-base");
 
         var moveClients = new RecordingHubClients();
@@ -10803,7 +10803,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": []
             }
             """).RootElement.Clone();
-        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-static-prevent-move-base", move);
 
         var error = Assert.Single(moveClients.CallerClient.Errors);
@@ -10820,9 +10820,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-static-prevent-play-units";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10830,7 +10830,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-static-prevent-play-units", "seed-p7-9-battlefield-static-prevent-play-units");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -10848,7 +10848,7 @@ public sealed class GameHubJoinTests
               "destination": "BATTLEFIELD:P1-BATTLEFIELD-FALLING-ROCKS"
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-static-prevent-play-units", ambushPlay);
 
         var error = Assert.Single(playClients.CallerClient.Errors);
@@ -10863,9 +10863,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-static-echo-cost-reduction";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10873,7 +10873,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-static-echo-cost-reduction", "seed-p7-9-battlefield-static-echo-cost-reduction");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -10903,7 +10903,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["ECHO"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-echo-cost-reduction", centerStage);
 
         Assert.Empty(playClients.CallerClient.Errors);
@@ -10925,9 +10925,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-static-equipment-cost-reduction";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -10935,7 +10935,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -10964,7 +10964,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P1-UNIT-EQUIPMENT-COST-TARGET"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-equipment-cost-reduction", longSword);
 
         Assert.Empty(playClients.CallerClient.Errors);
@@ -10988,7 +10988,7 @@ public sealed class GameHubJoinTests
         async Task Pass(string player,string intent)
         {
             clients=new RecordingHubClients();
-            await CreateHub(clients,new RecordingGroupManager(),player=="P1"?"connection-1":"connection-2",registry)
+            await CreateHub(clients,new RecordingGroupManager(),player=="P1"?"connection-1":"connection-2",registry, authenticatedHandle: player)
                 .SubmitIntent(roomId,player,intent,JsonSerializer.SerializeToElement(new {cmdType="PASS_PRIORITY"}));
             Assert.Empty(clients.CallerClient.Errors);events.AddRange(EventsFor(clients));
         }
@@ -10999,7 +10999,7 @@ public sealed class GameHubJoinTests
             var command=JsonSerializer.SerializeToElement(new {cmdType="CHOOSE_CARDS",choiceId=choice.Metadata!["choiceId"],
                 choiceWindow="SPELL_TRIGGER_CONFIRMATION",chosenObjectIds=new[]{"P1-BATTLEFIELD-ALLY"},promptId=prompt.PromptId,snapshotTick=prompt.SnapshotTick});
             clients=new RecordingHubClients();
-            await CreateHub(clients,new RecordingGroupManager(),"connection-1",registry).SubmitIntent(roomId,"P1","trigger-confirm",command);
+            await CreateHub(clients,new RecordingGroupManager(),"connection-1",registry, authenticatedHandle: "P1").SubmitIntent(roomId,"P1","trigger-confirm",command);
             Assert.Empty(clients.CallerClient.Errors);events.AddRange(EventsFor(clients));
             await Pass("P1","trigger-response-1");await Pass("P2","trigger-response-2");
         }
@@ -11011,16 +11011,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-friendly-spell-draw";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-friendly-spell-draw", "seed-p7-9-battlefield-friendly-spell-draw");
 
         var playClients = new RecordingHubClients();
@@ -11032,7 +11032,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P1-BATTLEFIELD-ALLY"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-friendly-spell-draw", savageStrength);
 
         Assert.Empty(playClients.CallerClient.Errors);
@@ -11060,16 +11060,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-spell-power-bonus";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-spell-power-bonus", "seed-p7-9-battlefield-spell-power-bonus");
 
         var playClients = new RecordingHubClients();
@@ -11081,7 +11081,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P1-BATTLEFIELD-ALLY"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-spell-power-bonus", savageStrength);
 
         Assert.Empty(playClients.CallerClient.Errors);
@@ -11110,16 +11110,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-high-cost-spell-insight";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-high-cost-spell-insight", "seed-p7-9-battlefield-high-cost-spell-insight");
 
         var playClients = new RecordingHubClients();
@@ -11131,7 +11131,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P2-BATTLEFIELD-ENEMY"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-high-cost-spell-insight", moonfall);
 
         Assert.Empty(playClients.CallerClient.Errors);
@@ -11142,10 +11142,10 @@ public sealed class GameHubJoinTests
         Assert.Contains(events, e => e.Kind == "TRIGGER_QUEUED" && Equals(e.Payload["effectKind"], "INSIGHT_TRIGGER"));
         Assert.DoesNotContain(events, e => e.Kind == "CARDS_RECYCLED");
         var pass = JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" });
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "library-pass-1", pass);
         var choiceClients = new RecordingHubClients();
-        await CreateHub(choiceClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(choiceClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "library-pass-2", pass);
         Assert.Empty(choiceClients.CallerClient.Errors);
         var prompt = PromptFor(choiceClients, "P1");
@@ -11154,7 +11154,7 @@ public sealed class GameHubJoinTests
         var selection = JsonSerializer.SerializeToElement(new { cmdType = "CHOOSE_CARDS", choiceId = choice.Metadata!["choiceId"],
             choiceWindow = "INSIGHT", chosenObjectIds = new[] { "P1-INSIGHT-RECYCLE" }, promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick });
         var selectedClients = new RecordingHubClients();
-        await CreateHub(selectedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(selectedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "library-recycle", selection);
         Assert.Empty(selectedClients.CallerClient.Errors);
         var recycled = Assert.Single(EventsFor(selectedClients), e => e.Kind == "CARDS_RECYCLED");
@@ -11173,9 +11173,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-unit-experience-ability";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -11183,7 +11183,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-unit-experience-ability", "seed-p7-9-battlefield-unit-experience-ability");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -11201,7 +11201,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": []
             }
             """).RootElement.Clone();
-        await CreateHub(activateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(activateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-unit-experience-ability", command);
 
         Assert.Empty(activateClients.CallerClient.Errors);
@@ -11226,9 +11226,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -11236,7 +11236,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-unit-experience-ability", "seed-p7-9-activate-ability-raw-idempotency");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -11258,7 +11258,7 @@ public sealed class GameHubJoinTests
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "activate-ability-same", activateAbility);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -11313,7 +11313,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "activate-ability-same", activateAbility);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -11385,7 +11385,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "activate-ability-same", changedActivateAbility);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -11406,7 +11406,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -11425,16 +11425,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-return-call-rune";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-return-call-rune", "seed-p7-9-battlefield-return-call-rune");
 
         var playClients = new RecordingHubClients();
@@ -11446,18 +11446,18 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P1-BATTLEFIELD-RETURN-UNIT"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-return-call-rune-play", reconsider);
         Assert.Empty(playClients.CallerClient.Errors);
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-return-call-rune-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-return-call-rune-p2-pass", passPriority);
         Assert.Empty(passP2Clients.CallerClient.Errors);
 
@@ -11486,16 +11486,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-target-damage-bonus";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-target-damage-bonus", "seed-p7-9-battlefield-target-damage-bonus");
 
         var playClients = new RecordingHubClients();
@@ -11507,16 +11507,16 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P2-BATTLEFIELD-TARGET"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-target-damage-bonus-play", punishment);
         Assert.Empty(playClients.CallerClient.Errors);
 
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-target-damage-bonus-p1-pass", passPriority);
         var resolveClients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-target-damage-bonus-p2-pass", passPriorityAgain);
 
         Assert.Empty(resolveClients.CallerClient.Errors);
@@ -11538,16 +11538,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-play-unit-boon";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-play-unit-boon", "seed-p7-9-battlefield-play-unit-boon");
 
         var playClients = new RecordingHubClients();
@@ -11560,16 +11560,16 @@ public sealed class GameHubJoinTests
               "destination": "BATTLEFIELD:P1-BATTLEFIELD-IDOL-VALLEY"
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-play-unit-boon-play", unitPlay);
         Assert.Empty(playClients.CallerClient.Errors);
 
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-play-unit-boon-p1-pass", passPriority);
         var resolveClients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-play-unit-boon-p2-pass", passPriorityAgain);
 
         Assert.Empty(resolveClients.CallerClient.Errors);
@@ -11598,16 +11598,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-first-unit-move-other";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-first-unit-move-other", "seed-p7-9-battlefield-first-unit-move-other");
 
         var playClients = new RecordingHubClients();
@@ -11620,16 +11620,16 @@ public sealed class GameHubJoinTests
               "destination": "BATTLEFIELD:P1-BATTLEFIELD-METEOR-SPRING"
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-first-unit-move-other-play", unitPlay);
         Assert.Empty(playClients.CallerClient.Errors);
 
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-first-unit-move-other-p1-pass", passPriority);
         var resolveClients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-first-unit-move-other-p2-pass", passPriorityAgain);
 
         Assert.Empty(resolveClients.CallerClient.Errors);
@@ -11654,9 +11654,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-unit-cost-increase";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -11664,7 +11664,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-unit-cost-increase", "seed-p7-9-battlefield-held-unit-cost-increase");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -11689,7 +11689,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": []
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-unit-cost-increase-play", unitPlay);
 
         Assert.Empty(playClients.CallerClient.Errors);
@@ -11708,16 +11708,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-move-power";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-move-power", "seed-p7-9-battlefield-move-power");
 
         var moveClients = new RecordingHubClients();
@@ -11730,7 +11730,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": []
             }
             """).RootElement.Clone();
-        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-move-power", move);
 
         Assert.Empty(moveClients.CallerClient.Errors);
@@ -11738,10 +11738,10 @@ public sealed class GameHubJoinTests
         Assert.Contains(moveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
         Assert.DoesNotContain(moveEvents, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN");
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "pass-move-trigger-1", pass);
         var resolvedClients = new RecordingHubClients();
-        await CreateHub(resolvedClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(resolvedClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "pass-move-trigger-2", pass);
         Assert.Empty(resolvedClients.CallerClient.Errors);
         moveEvents = EventsFor(resolvedClients);
@@ -11764,9 +11764,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-winning-score";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -11774,7 +11774,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-winning-score", "seed-p7-9-battlefield-winning-score");
 
         var seedSnapshot = SnapshotFor(seedClients, "P1");
@@ -11782,7 +11782,7 @@ public sealed class GameHubJoinTests
 
         var endTurnClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-winning-score", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
@@ -11809,21 +11809,21 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-first-turn-rune";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-first-turn-rune", "seed-p7-9-battlefield-first-turn-rune");
 
         var endTurnClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-first-turn-rune", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
@@ -11846,21 +11846,21 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-first-turn-score";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-first-turn-score", "seed-p7-9-battlefield-first-turn-score");
 
         var endTurnClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-first-turn-score", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
@@ -11884,21 +11884,21 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-score-delay";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-score-delay", "seed-p7-9-battlefield-score-delay");
 
         var endTurnClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-score-delay", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
@@ -11920,21 +11920,21 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-turn-start-damage";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-turn-start-damage", "seed-p7-9-battlefield-turn-start-damage");
 
         var endTurnClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-turn-start-damage", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
@@ -11943,7 +11943,7 @@ public sealed class GameHubJoinTests
         foreach (var (player, connection) in new[]{("P2", "connection-2"), ("P1", "connection-1")})
         {
             var responseClients = new RecordingHubClients();
-            await CreateHub(responseClients, new RecordingGroupManager(), connection, registry)
+            await CreateHub(responseClients, new RecordingGroupManager(), connection, registry, authenticatedHandle: player)
                 .SubmitIntent(roomId, player, "frost-start-pass-" + player,
                     JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
             Assert.Empty(responseClients.CallerClient.Errors);
@@ -11984,21 +11984,21 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-turn-start-destroy-draw";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-turn-start-destroy-draw", "seed-p7-9-battlefield-turn-start-destroy-draw");
 
         var endTurnClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-turn-start-destroy-draw", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
@@ -12007,7 +12007,7 @@ public sealed class GameHubJoinTests
         var prompt = PromptFor(endTurnClients, "P2");
         var choice = prompt.Candidates!.Single(c => c.Action == CommandTypes.ChooseCards);
         var paidClients = new RecordingHubClients();
-        await CreateHub(paidClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(paidClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "lab-pay-cost", JsonSerializer.SerializeToElement(new {
                 cmdType = "CHOOSE_CARDS", choiceId = choice.Metadata!["choiceId"], choiceWindow = choice.Metadata["choiceWindow"],
                 chosenObjectIds = new[] { "P2-BATTLEFIELD-ROSE-SACRIFICE" }, promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
@@ -12017,7 +12017,7 @@ public sealed class GameHubJoinTests
         foreach (var (player, connection) in new[]{("P2", "connection-2"), ("P1", "connection-1")})
         {
             var responseClients = new RecordingHubClients();
-            await CreateHub(responseClients, new RecordingGroupManager(), connection, registry)
+            await CreateHub(responseClients, new RecordingGroupManager(), connection, registry, authenticatedHandle: player)
                 .SubmitIntent(roomId, player, "lab-start-pass-" + player,
                     JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
             Assert.Empty(responseClients.CallerClient.Errors);
@@ -12056,9 +12056,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-score";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12066,7 +12066,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-score", "seed-p7-9-battlefield-held-score");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -12083,7 +12083,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-score", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -12096,9 +12096,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-return-hero";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12106,7 +12106,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-return-hero", "seed-p7-9-battlefield-held-return-hero");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -12123,7 +12123,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-return-hero", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -12136,9 +12136,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-next-spell-echo";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12146,7 +12146,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-next-spell-echo", "seed-p7-9-battlefield-held-next-spell-echo");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -12163,7 +12163,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-next-spell-echo", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -12176,9 +12176,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-next-spell-echo-prompt";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12186,7 +12186,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-2",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P2")
             .SeedScenario(roomId, "P2", "battlefield-held-next-spell-echo-prompt", "seed-p7-9-battlefield-held-next-spell-echo-prompt");
 
         var p2Prompt = PromptFor(seedClients, "P2");
@@ -12208,7 +12208,7 @@ public sealed class GameHubJoinTests
         Assert.Contains("完整基础费用", echoChoice.Reason);
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-held-next-spell-echo-play", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -12233,12 +12233,12 @@ public sealed class GameHubJoinTests
 
         var passP2Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-held-next-spell-echo-p2-pass", passPriority);
         Assert.Empty(passP2Clients.CallerClient.Errors);
 
         var passP1Clients = new RecordingHubClients();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-next-spell-echo-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP1Clients);
@@ -12261,9 +12261,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-raging-drake-next-spell-cost-reduction-prompt";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12271,7 +12271,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(
                 roomId,
                 "P1",
@@ -12290,7 +12290,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(2, sourceRequirement["nextSpellCostReductionMana"]);
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-raging-drake-next-spell-cost-reduction-play", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -12316,9 +12316,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-royal-attendant-legend-mode";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12326,7 +12326,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "royal-attendant-legend-mode", "seed-p7-9-royal-attendant-legend-mode");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -12353,7 +12353,7 @@ public sealed class GameHubJoinTests
         }
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-royal-attendant-play", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -12367,12 +12367,12 @@ public sealed class GameHubJoinTests
         Assert.Empty(playClients.CallerClient.Errors);
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
         var passP1Clients = new RecordingHubClients();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-royal-attendant-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-royal-attendant-p2-pass", passPriority);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
@@ -12398,9 +12398,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-ornn-equipment-look";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12408,7 +12408,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "ornn-equipment-look", "seed-p7-9-ornn-equipment-look");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -12425,7 +12425,7 @@ public sealed class GameHubJoinTests
         Assert.DoesNotContain("P1-ORNN-EQUIPMENT-001", JsonSerializer.Serialize(p1Prompt));
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-ornn-equipment-look-play", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -12438,19 +12438,19 @@ public sealed class GameHubJoinTests
         Assert.Empty(playClients.CallerClient.Errors);
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
         var passP1Clients = new RecordingHubClients();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-ornn-equipment-look-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-ornn-equipment-look-p2-pass", passPriority);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var choicePrompt = PromptFor(passP2Clients, "P1");
         var choiceCandidate = Assert.Single(choicePrompt.Candidates ?? [], c => c.Action == CommandTypes.ChooseCards);
         var choiceTemplate = JsonSerializer.SerializeToElement(choiceCandidate.Metadata);
         var choiceClients = new RecordingHubClients();
-        await CreateHub(choiceClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(choiceClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "ornn-private-choice", JsonSerializer.SerializeToElement(new
             { cmdType = "CHOOSE_CARDS", choiceId = choiceTemplate.GetProperty("choiceId").GetString(),
                 choiceWindow = "DECK_EFFECT", chosenObjectIds = new[] { "P1-ORNN-EQUIPMENT-001" } }));
@@ -12477,9 +12477,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-ornn-equipment-look-decline";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12487,7 +12487,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "ornn-equipment-look", "seed-p7-9-ornn-equipment-look-decline");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -12501,7 +12501,7 @@ public sealed class GameHubJoinTests
         Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
 
         var playClients = new RecordingHubClients();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-ornn-equipment-look-decline-play", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "PLAY_CARD",
@@ -12514,19 +12514,19 @@ public sealed class GameHubJoinTests
         Assert.Empty(playClients.CallerClient.Errors);
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
         var passP1Clients = new RecordingHubClients();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-ornn-equipment-look-decline-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p7-9-ornn-equipment-look-decline-p2-pass", passPriority);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var choicePrompt = PromptFor(passP2Clients, "P1");
         var choiceCandidate = Assert.Single(choicePrompt.Candidates ?? [], c => c.Action == CommandTypes.ChooseCards);
         var choiceTemplate = JsonSerializer.SerializeToElement(choiceCandidate.Metadata);
         var choiceClients = new RecordingHubClients();
-        await CreateHub(choiceClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(choiceClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "ornn-private-choice", JsonSerializer.SerializeToElement(new
             { cmdType = "CHOOSE_CARDS", choiceId = choiceTemplate.GetProperty("choiceId").GetString(),
                 choiceWindow = "DECK_EFFECT", chosenObjectIds = Array.Empty<string>() }));
@@ -12552,9 +12552,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-battle-destroyed-recall";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12562,7 +12562,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-battle-destroyed-recall", "seed-p7-9-battlefield-battle-destroyed-recall");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -12579,7 +12579,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-battle-destroyed-recall", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -12590,7 +12590,7 @@ public sealed class GameHubJoinTests
             paymentChoiceIds = new[] { "ALTAR:P2-BATTLEFIELD-BLOOD-DEFENDER:P2-BATTLEFIELD-BLOOD-ALTAR" }
         });
         battleClients = new RecordingHubClients();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "accept-altar", pay);
         Assert.Empty(battleClients.CallerClient.Errors);
         var battleEvents = EventsFor(battleClients);
@@ -12625,9 +12625,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-legend-attach-armament";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12635,7 +12635,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-legend-attach-armament", "seed-p7-9-battlefield-legend-attach-armament");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -12659,7 +12659,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": []
             }
             """).RootElement.Clone();
-        await CreateHub(actClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(actClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-legend-attach-armament", legendAct);
 
         Assert.Empty(actClients.CallerClient.Errors);
@@ -12670,11 +12670,11 @@ public sealed class GameHubJoinTests
         Assert.Null(activationArmament["attachedToObjectId"]);
         Assert.DoesNotContain(EventsFor(actClients), e => e.Kind == "EQUIPMENT_ATTACHED");
         var pass1Clients = new RecordingHubClients();
-        await CreateHub(pass1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(pass1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "legend-attach-pass-1", JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone());
         Assert.Empty(pass1Clients.CallerClient.Errors);
         var pass2Clients = new RecordingHubClients();
-        await CreateHub(pass2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(pass2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "legend-attach-pass-2", JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone());
         Assert.Empty(pass2Clients.CallerClient.Errors);
         var actEvents = EventsFor(actClients).Concat(EventsFor(pass1Clients)).Concat(EventsFor(pass2Clients)).ToArray();
@@ -12705,9 +12705,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-extra-standby";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12715,7 +12715,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-extra-standby", "seed-p7-9-battlefield-extra-standby");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -12738,7 +12738,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["STANDBY_A"]
             }
             """).RootElement.Clone();
-        await CreateHub(hideClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(hideClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-extra-standby", hideCard);
 
         Assert.Empty(hideClients.CallerClient.Errors);
@@ -12794,9 +12794,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -12804,7 +12804,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-extra-standby", "seed-p7-9-hide-card-raw-idempotency");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -12828,7 +12828,7 @@ public sealed class GameHubJoinTests
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "hide-card-same", hideCard);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -12893,7 +12893,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "hide-card-same", hideCard);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -12970,7 +12970,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "hide-card-same", changedHideCard);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -12991,7 +12991,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -13015,9 +13015,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-activate-conquest";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13025,7 +13025,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-activate-conquest", "seed-p7-9-battlefield-held-activate-conquest");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -13043,7 +13043,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-activate-conquest", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13056,9 +13056,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-held-seven-units-win";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13066,7 +13066,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-battlefield-held-seven-units-win");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13083,7 +13083,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-seven-units-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13099,9 +13099,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13109,7 +13109,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13117,7 +13117,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13138,7 +13138,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, passPriority);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -13176,9 +13176,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-declare-battle";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13186,7 +13186,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-declare-battle-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13194,7 +13194,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-declare-battle-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13228,7 +13228,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, declareBattleAfterFinished);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -13275,9 +13275,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-pay-cost";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13285,7 +13285,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-pay-cost-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13293,7 +13293,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-pay-cost-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13327,7 +13327,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, payCostAfterFinished);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -13375,9 +13375,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-assign-combat-damage";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13385,7 +13385,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-assign-combat-damage-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13393,7 +13393,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-assign-combat-damage-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13447,7 +13447,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, assignCombatDamageAfterFinished);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -13501,9 +13501,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-order-triggers";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13511,7 +13511,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-order-triggers-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13519,7 +13519,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-order-triggers-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13556,7 +13556,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, orderTriggersAfterFinished);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -13607,9 +13607,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-choose-hand-cards";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13617,7 +13617,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-choose-hand-cards-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13625,7 +13625,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-choose-hand-cards-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13696,7 +13696,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, chooseHandCardsAfterFinished);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -13759,9 +13759,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-play-card";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13769,7 +13769,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-play-card-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13777,7 +13777,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-play-card-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13809,7 +13809,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, playCard);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -13854,9 +13854,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-hide-card";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13864,7 +13864,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-hide-card-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13872,7 +13872,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-hide-card-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -13906,7 +13906,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, hideCard);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -13953,9 +13953,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-reveal-card";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -13963,7 +13963,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-reveal-card-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -13971,7 +13971,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-reveal-card-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14007,7 +14007,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, revealCard);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14054,9 +14054,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-assemble-equipment";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14064,7 +14064,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-assemble-equipment-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14072,7 +14072,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-assemble-equipment-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14107,7 +14107,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, assembleEquipment);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14155,9 +14155,9 @@ public sealed class GameHubJoinTests
         const string nestedSentinelText = "nested sentinel text SECRET-RAW-clientIntentId-after-finished-tap-rune";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14165,7 +14165,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-tap-rune-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14173,7 +14173,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-tap-rune-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14209,7 +14209,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, tapRune);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14258,9 +14258,9 @@ public sealed class GameHubJoinTests
         const string nestedSentinelText = "nested sentinel text SECRET-RAW-clientIntentId-after-finished-recycle-rune";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14268,7 +14268,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-recycle-rune-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14276,7 +14276,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-recycle-rune-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14312,7 +14312,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, recycleRune);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14360,9 +14360,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-move-unit";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14370,7 +14370,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-move-unit-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14378,7 +14378,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-move-unit-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14410,7 +14410,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, move);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14455,9 +14455,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-activate-ability";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14465,7 +14465,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-activate-ability-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14473,7 +14473,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-activate-ability-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14505,7 +14505,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, activateAbility);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14550,9 +14550,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-legend-act";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14560,7 +14560,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-legend-act-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14568,7 +14568,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-legend-act-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14602,7 +14602,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, legendAct);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14649,9 +14649,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-end-turn";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14659,7 +14659,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-end-turn-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14667,7 +14667,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-end-turn-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14692,7 +14692,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, endTurn);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14735,9 +14735,9 @@ public sealed class GameHubJoinTests
         const string clientIntentId = "end-turn-after-finished-raw-secret-clientIntent-END_TURN-MatchFinished-internal-debug";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14745,7 +14745,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-end-turn-wrapper-after-finished");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14753,7 +14753,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-end-turn-wrapper-after-finished-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14765,7 +14765,7 @@ public sealed class GameHubJoinTests
         var journalCountAfterFinished = journal.Entries.Count;
 
         var afterFinishedClients = new RecordingHubClients();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .EndTurn(roomId, "P1", clientIntentId);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14806,9 +14806,9 @@ public sealed class GameHubJoinTests
         const string clientIntentId = "ready-after-finished-SECRET-RAW-clientIntentId-MatchFinished";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14816,7 +14816,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-ready-redacts-client-intent");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14824,7 +14824,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-ready-redacts-client-intent-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14836,7 +14836,7 @@ public sealed class GameHubJoinTests
         var journalCountAfterFinished = journal.Entries.Count;
 
         var afterFinishedClients = new RecordingHubClients();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", clientIntentId);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14878,9 +14878,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntent";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14888,7 +14888,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-pass-redacts-client-intent");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14896,7 +14896,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-pass-redacts-client-intent-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14908,7 +14908,7 @@ public sealed class GameHubJoinTests
         var journalCountAfterFinished = journal.Entries.Count;
 
         var afterFinishedClients = new RecordingHubClients();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Pass(roomId, "P1", clientIntentId);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -14951,9 +14951,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-mulligan";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -14961,7 +14961,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-mulligan-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -14969,7 +14969,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-mulligan-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -14995,7 +14995,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, mulligan);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -15039,9 +15039,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-surrender";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -15049,7 +15049,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-surrender-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -15057,7 +15057,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-surrender-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -15084,7 +15084,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, surrender);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -15129,9 +15129,9 @@ public sealed class GameHubJoinTests
         const string sentinel = "SECRET-RAW-clientIntentId-after-finished-submit-deck";
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -15139,7 +15139,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-after-finished-submit-deck-redacts-sentinel");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -15147,7 +15147,7 @@ public sealed class GameHubJoinTests
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonSerializer.SerializeToElement(new { cmdType = "SURRENDER" });
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-submit-deck-redacts-sentinel-win", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -15173,7 +15173,7 @@ public sealed class GameHubJoinTests
               }
             }
             """).RootElement.Clone();
-        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", clientIntentId, submitDeck);
 
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
@@ -15222,9 +15222,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-battlefield-conquer-reveal-recycle";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -15232,7 +15232,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "battlefield-conquer-reveal-recycle", "seed-p7-9-battlefield-conquer-reveal-recycle");
 
         var p1Prompt = PromptFor(seedClients, "P1");
@@ -15249,7 +15249,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["COMBAT_ASSIGNMENT"]
             }
             """).RootElement.Clone();
-        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-conquer-reveal-recycle", declareBattle);
 
         Assert.Empty(battleClients.CallerClient.Errors);
@@ -15263,7 +15263,7 @@ public sealed class GameHubJoinTests
         {
             var actor=new[]{"P1","P2"}.Single(player=>session.PromptFor(player).EnabledActions().Contains(CommandTypes.PassPriority));
             var passed=new RecordingHubClients();
-            await CreateHub(passed,new RecordingGroupManager(),actor=="P1"?"connection-1":"connection-2",registry)
+            await CreateHub(passed,new RecordingGroupManager(),actor=="P1"?"connection-1":"connection-2",registry, authenticatedHandle: actor)
                 .SubmitIntent(roomId,actor,"candle-private-pass-"+step,JsonSerializer.SerializeToElement(new {cmdType=CommandTypes.PassPriority}));
             Assert.Empty(passed.CallerClient.Errors);lookEvents.AddRange(EventsFor(passed));
         }
@@ -15273,7 +15273,7 @@ public sealed class GameHubJoinTests
         var selected=metadata.GetProperty("legalObjectIds").EnumerateArray().Select(e=>e.GetString()!).ToArray();
         Assert.DoesNotContain(selected[0],JsonSerializer.Serialize(session.PromptFor("P2")));
         var choiceClients=new RecordingHubClients();
-        await CreateHub(choiceClients,new RecordingGroupManager(),"connection-1",registry)
+        await CreateHub(choiceClients,new RecordingGroupManager(),"connection-1",registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId,"P1","candle-private-recycle",JsonSerializer.SerializeToElement(new {cmdType=CommandTypes.ChooseCards,
                 choiceId=metadata.GetProperty("choiceId").GetString(),choiceWindow=metadata.GetProperty("choiceWindow").GetString(),chosenObjectIds=selected}));
         Assert.Empty(choiceClients.CallerClient.Errors);lookEvents.AddRange(EventsFor(choiceClients));
@@ -15292,16 +15292,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-5a-echo-stack-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "echo-stack", "seed-p6-echo-stack");
 
         var playClients = new RecordingHubClients();
@@ -15314,7 +15314,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["ECHO"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-echo-center-stage", centerStage);
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
@@ -15323,13 +15323,13 @@ public sealed class GameHubJoinTests
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-echo-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-echo-p2-pass", passPriorityAgain);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
@@ -15355,9 +15355,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -15366,7 +15366,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "standby-reaction", "seed-p6-reveal-card-raw-idempotency");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -15395,7 +15395,7 @@ public sealed class GameHubJoinTests
         });
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "reveal-card-same", revealCard);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -15463,7 +15463,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "reveal-card-same", revealCard);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -15543,7 +15543,7 @@ public sealed class GameHubJoinTests
             clientNote = "changed"
         });
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "reveal-card-same", changedRevealCard);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -15564,7 +15564,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -15587,16 +15587,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-5a-standby-reaction-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "standby-reaction", "seed-p6-standby-reaction");
 
         var revealClients = new RecordingHubClients();
@@ -15611,7 +15611,7 @@ public sealed class GameHubJoinTests
               "destination": "STACK"
             }
             """).RootElement.Clone();
-        await CreateHub(revealClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(revealClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-standby-teemo-reveal", teemoReveal);
         Assert.Empty(revealClients.CallerClient.Errors);
         var revealEvents = EventsFor(revealClients);
@@ -15623,13 +15623,13 @@ public sealed class GameHubJoinTests
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-standby-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-standby-p2-pass", passPriorityAgain);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
@@ -15648,16 +15648,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-5a-ambush-reaction-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "ambush-reaction", "seed-p6-ambush-reaction");
 
         var playClients = new RecordingHubClients();
@@ -15671,7 +15671,7 @@ public sealed class GameHubJoinTests
               "destination": "BATTLEFIELD:P1-MAIN"
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-ambush-gloomy-apothecary", gloomyApothecary);
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
@@ -15682,7 +15682,7 @@ public sealed class GameHubJoinTests
         var targetPrompt = PromptFor(playClients, "P1");
         var targetMetadata = Assert.IsType<Dictionary<string, object?>>(targetPrompt.Candidates!.Single(c => c.Action == "CHOOSE_CARDS").Metadata);
         var targetClients = new RecordingHubClients();
-        await CreateHub(targetClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(targetClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-ambush-target", JsonSerializer.SerializeToElement(new {
                 cmdType = "CHOOSE_CARDS", choiceId = targetMetadata["choiceId"], choiceWindow = targetMetadata["choiceWindow"],
                 chosenObjectIds = new[] { "P1-HAND-UNL-GLOOMY-APOTHECARY" }
@@ -15691,13 +15691,13 @@ public sealed class GameHubJoinTests
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-ambush-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-ambush-p2-pass", passPriorityAgain);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
@@ -15718,16 +15718,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-6b-equipment-assemble-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "equipment", "seed-p6-equipment");
 
         var playClients = new RecordingHubClients();
@@ -15739,7 +15739,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P1-UNIT-ASSEMBLE-TARGET"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-play-long-sword", longSword);
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
@@ -15749,13 +15749,13 @@ public sealed class GameHubJoinTests
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-equipment-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-equipment-p2-pass", passPriorityAgain);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
@@ -15782,9 +15782,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-5-status-showcase";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -15793,7 +15793,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "status-showcase", "seed-p7-status-showcase");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -15825,16 +15825,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-7b-resource-experience-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "resource-experience", "seed-p6-resource-experience");
 
         var playExperienceClients = new RecordingHubClients();
@@ -15846,7 +15846,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": []
             }
             """).RootElement.Clone();
-        await CreateHub(playExperienceClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playExperienceClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-play-demacia-envoy", demaciaEnvoy);
         Assert.Empty(playExperienceClients.CallerClient.Errors);
         var playExperienceEvents = EventsFor(playExperienceClients);
@@ -15856,13 +15856,13 @@ public sealed class GameHubJoinTests
 
         var passExperienceP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passExperienceP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passExperienceP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-resource-p1-pass", passPriority);
         Assert.Empty(passExperienceP1Clients.CallerClient.Errors);
 
         var passExperienceP2Clients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passExperienceP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passExperienceP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-resource-p2-pass", passPriorityAgain);
         Assert.Empty(passExperienceP2Clients.CallerClient.Errors);
         var experienceEvents = EventsFor(passExperienceP2Clients);
@@ -15882,7 +15882,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": []
             }
             """).RootElement.Clone();
-        await CreateHub(playLevelClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playLevelClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-play-moss-stepper", mossStepper);
         Assert.Empty(playLevelClients.CallerClient.Errors);
 
@@ -15911,9 +15911,9 @@ public sealed class GameHubJoinTests
         var journal = new RecordingMatchJournal();
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         var development = new TestHostEnvironment(Environments.Development);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var seedClients = new RecordingHubClients();
@@ -15922,7 +15922,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                development)
+                development, authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "legend-act", "seed-p7-9-legend-act-raw-idempotency");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -15946,7 +15946,7 @@ public sealed class GameHubJoinTests
             """).RootElement.Clone();
         var acceptedClients = new RecordingHubClients();
 
-        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(acceptedClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "legend-act-same", legendAct);
 
         Assert.Empty(acceptedClients.CallerClient.Errors);
@@ -16013,7 +16013,7 @@ public sealed class GameHubJoinTests
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));
 
         var replayClients = new RecordingHubClients();
-        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(replayClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: " P1 ")
             .SubmitIntent(roomId, " P1 ", "legend-act-same", legendAct);
 
         Assert.Empty(replayClients.CallerClient.Errors);
@@ -16095,7 +16095,7 @@ public sealed class GameHubJoinTests
             }
             """).RootElement.Clone();
 
-        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(conflictClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "legend-act-same", changedLegendAct);
 
         var error = Assert.Single(conflictClients.CallerClient.Errors);
@@ -16116,7 +16116,7 @@ public sealed class GameHubJoinTests
             && string.Equals(clientNote.GetString(), "changed", StringComparison.Ordinal));
 
         var stateClients = new RecordingHubClients();
-        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(stateClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .RequestSnapshot(roomId, "P1");
 
         Assert.Empty(stateClients.CallerClient.Errors);
@@ -16138,9 +16138,9 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p7-9-legend-act-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var seedClients = new RecordingHubClients();
         await CreateHub(
@@ -16148,7 +16148,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "legend-act", "seed-p7-9-legend-act");
 
         Assert.Empty(seedClients.CallerClient.Errors);
@@ -16171,7 +16171,7 @@ public sealed class GameHubJoinTests
               "optionalCosts": ["SPEND_EXPERIENCE:3"]
             }
             """).RootElement.Clone();
-        await CreateHub(actClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(actClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p7-9-legend-act", legendAct);
 
         Assert.Empty(actClients.CallerClient.Errors);
@@ -16196,21 +16196,21 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-8b-lifecycle-ephemeral-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "lifecycle-ephemeral", "seed-p6-lifecycle-ephemeral");
 
         var endTurnClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-ephemeral-end-turn", endTurn);
         Assert.Empty(endTurnClients.CallerClient.Errors);
         var events = EventsFor(endTurnClients).ToList();
@@ -16220,7 +16220,7 @@ public sealed class GameHubJoinTests
         var ids = JsonSerializer.SerializeToElement(ordering.Metadata).GetProperty("orderedTriggerIds")
             .EnumerateArray().Select(v => v.GetString()!).Order(StringComparer.Ordinal).ToArray();
         var orderedClients = new RecordingHubClients();
-        await CreateHub(orderedClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(orderedClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "ephemeral-order", JsonSerializer.SerializeToElement(new {
                 cmdType = "ORDER_TRIGGERS", orderedTriggerIds = ids, promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
         Assert.Empty(orderedClients.CallerClient.Errors); events.AddRange(EventsFor(orderedClients));
@@ -16228,7 +16228,7 @@ public sealed class GameHubJoinTests
         {
             var responseClients = new RecordingHubClients();
             var player = index % 2 == 0 ? "P2" : "P1";
-            await CreateHub(responseClients, new RecordingGroupManager(), player == "P2" ? "connection-2" : "connection-1", registry)
+            await CreateHub(responseClients, new RecordingGroupManager(), player == "P2" ? "connection-2" : "connection-1", registry, authenticatedHandle: player)
                 .SubmitIntent(roomId, player, "ephemeral-pass-" + index, JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
             Assert.Empty(responseClients.CallerClient.Errors); events.AddRange(EventsFor(responseClients));
             endTurnClients = responseClients;
@@ -16264,21 +16264,21 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-8b-lifecycle-ephemeral-leblanc-static";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "lifecycle-ephemeral-leblanc-static", "seed-p6-lifecycle-ephemeral-leblanc-static");
 
         var endTurnClients = new RecordingHubClients();
         var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
-        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-ephemeral-leblanc-static-end-turn", endTurn);
 
         Assert.Empty(endTurnClients.CallerClient.Errors);
@@ -16289,7 +16289,7 @@ public sealed class GameHubJoinTests
         var ids = JsonSerializer.SerializeToElement(ordering.Metadata).GetProperty("orderedTriggerIds")
             .EnumerateArray().Select(v => v.GetString()!).Order(StringComparer.Ordinal).ToArray();
         var orderedClients = new RecordingHubClients();
-        await CreateHub(orderedClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(orderedClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "ephemeral-order", JsonSerializer.SerializeToElement(new {
                 cmdType = "ORDER_TRIGGERS", orderedTriggerIds = ids, promptId = prompt.PromptId, snapshotTick = prompt.SnapshotTick }));
         Assert.Empty(orderedClients.CallerClient.Errors); events.AddRange(EventsFor(orderedClients));
@@ -16297,7 +16297,7 @@ public sealed class GameHubJoinTests
         {
             var responseClients = new RecordingHubClients();
             var player = index % 2 == 0 ? "P2" : "P1";
-            await CreateHub(responseClients, new RecordingGroupManager(), player == "P2" ? "connection-2" : "connection-1", registry)
+            await CreateHub(responseClients, new RecordingGroupManager(), player == "P2" ? "connection-2" : "connection-1", registry, authenticatedHandle: player)
                 .SubmitIntent(roomId, player, "ephemeral-pass-" + index, JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
             Assert.Empty(responseClients.CallerClient.Errors); events.AddRange(EventsFor(responseClients));
             endTurnClients = responseClients;
@@ -16329,16 +16329,16 @@ public sealed class GameHubJoinTests
     {
         const string roomId = "p6-8b-lifecycle-last-breath-core";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         await CreateHub(
                 new RecordingHubClients(),
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Development))
+                new TestHostEnvironment(Environments.Development), authenticatedHandle: "P1")
             .SeedScenario(roomId, "P1", "lifecycle-last-breath", "seed-p6-lifecycle-last-breath");
 
         var playClients = new RecordingHubClients();
@@ -16350,7 +16350,7 @@ public sealed class GameHubJoinTests
               "targetObjectIds": ["P2-WATCHFUL-SENTINEL-001"]
             }
             """).RootElement.Clone();
-        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-last-breath-vengeance", vengeance);
         Assert.Empty(playClients.CallerClient.Errors);
         var playEvents = EventsFor(playClients);
@@ -16360,13 +16360,13 @@ public sealed class GameHubJoinTests
 
         var passP1Clients = new RecordingHubClients();
         var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "intent-p6-last-breath-p1-pass", passPriority);
         Assert.Empty(passP1Clients.CallerClient.Errors);
 
         var passP2Clients = new RecordingHubClients();
         var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
-        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "intent-p6-last-breath-p2-pass", passPriorityAgain);
         Assert.Empty(passP2Clients.CallerClient.Errors);
         var resolveEvents = EventsFor(passP2Clients);
@@ -16376,12 +16376,12 @@ public sealed class GameHubJoinTests
         Assert.DoesNotContain(resolveEvents, e => e.Kind == "CARD_DRAWN");
         Assert.Single(SnapshotFor(passP2Clients, "P2").Stack);
         var deathPassP2 = new RecordingHubClients();
-        await CreateHub(deathPassP2, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(deathPassP2, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", "last-breath-response-p2", passPriority);
         Assert.Empty(deathPassP2.CallerClient.Errors);
         Assert.DoesNotContain(EventsFor(deathPassP2), e => e.Kind == "CARD_DRAWN");
         var deathPassP1 = new RecordingHubClients();
-        await CreateHub(deathPassP1, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(deathPassP1, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", "last-breath-response-p1", passPriority);
         Assert.Empty(deathPassP1.CallerClient.Errors);
         Assert.Contains(EventsFor(deathPassP1), e => e.Kind == "TRIGGER_RESOLVED");
@@ -16402,9 +16402,9 @@ public sealed class GameHubJoinTests
     public async Task SeedScenarioIsRejectedOutsideDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom("room-a", "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom("room-a", "P2");
         var clients = new RecordingHubClients();
 
@@ -16413,7 +16413,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Production))
+                new TestHostEnvironment(Environments.Production), authenticatedHandle: "P1")
             .SeedScenario("room-a", "P1", "basic-play", "seed-basic-play");
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -16430,9 +16430,9 @@ public sealed class GameHubJoinTests
     public async Task SeedScenarioCanBeAllowedOutsideDevelopmentByConfiguration()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom("room-a", "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom("room-a", "P2");
         var clients = new RecordingHubClients();
         var configuration = new ConfigurationBuilder()
@@ -16448,7 +16448,7 @@ public sealed class GameHubJoinTests
                 "connection-1",
                 registry,
                 new TestHostEnvironment(Environments.Production),
-                configuration)
+                configuration, authenticatedHandle: "P1")
             .SeedScenario("room-a", "P1", "midgame-showcase", "seed-midgame-showcase");
 
         Assert.Empty(clients.CallerClient.Errors);
@@ -16474,9 +16474,9 @@ public sealed class GameHubJoinTests
         const string scenarioId = "scenario-SECRET-RAW-clientIntentId";
         const string seedId = "seed-SECRET-RAW-clientIntentId";
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: playerId)
             .JoinRoom(roomId, playerId);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
         var clients = new RecordingHubClients();
 
@@ -16485,7 +16485,7 @@ public sealed class GameHubJoinTests
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
-                new TestHostEnvironment(Environments.Production))
+                new TestHostEnvironment(Environments.Production), authenticatedHandle: playerId)
             .SeedScenario(roomId, playerId, scenarioId, seedId);
 
         var error = Assert.Single(clients.CallerClient.Errors);
@@ -16553,28 +16553,28 @@ public sealed class GameHubJoinTests
                 ["P2"] = "P2"
             });
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal ?? NoopMatchJournal.Instance);
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .JoinRoom(roomId, "P2");
 
         var p1SubmitClients = new RecordingHubClients();
-        await CreateHub(p1SubmitClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(p1SubmitClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .SubmitIntent(roomId, "P1", $"{roomId}-submit-deck-p1", SubmitDeckJson(p1Deck));
         Assert.Empty(p1SubmitClients.CallerClient.Errors);
 
         var p2SubmitClients = new RecordingHubClients();
-        await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", $"{roomId}-submit-deck-p2", SubmitDeckJson(p2Deck));
         Assert.Empty(p2SubmitClients.CallerClient.Errors);
 
         var p1ReadyClients = new RecordingHubClients();
-        await CreateHub(p1ReadyClients, new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(p1ReadyClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .Ready(roomId, "P1", $"{roomId}-ready-p1");
         Assert.Empty(p1ReadyClients.CallerClient.Errors);
 
         var readyClients = new RecordingHubClients();
-        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .Ready(roomId, "P2", $"{roomId}-ready-p2");
         Assert.Empty(readyClients.CallerClient.Errors);
 
@@ -16587,12 +16587,12 @@ public sealed class GameHubJoinTests
         Assert.Equal(4, activeHand.Count);
 
         var activeMulliganClients = new RecordingHubClients();
-        await CreateHub(activeMulliganClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry)
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, $"{roomId}-mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));
         Assert.Empty(activeMulliganClients.CallerClient.Errors);
 
         var secondMulliganClients = new RecordingHubClients();
-        await CreateHub(secondMulliganClients, new RecordingGroupManager(), ConnectionFor(secondPlayerId), registry)
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), ConnectionFor(secondPlayerId), registry, authenticatedHandle: secondPlayerId)
             .SubmitIntent(roomId, secondPlayerId, $"{roomId}-mulligan-second", MulliganJson([]));
         Assert.Empty(secondMulliganClients.CallerClient.Errors);
         var mainSnapshot = SnapshotFor(secondMulliganClients, activePlayerId);
@@ -16608,7 +16608,7 @@ public sealed class GameHubJoinTests
         var runeSourceId = tapRuneSources.First().Id;
 
         var tapRuneClients = new RecordingHubClients();
-        await CreateHub(tapRuneClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry)
+        await CreateHub(tapRuneClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, $"{roomId}-tap-rune-active", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "TAP_RUNE",
@@ -16617,7 +16617,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(tapRuneClients.CallerClient.Errors);
 
         var recycleRuneClients = new RecordingHubClients();
-        await CreateHub(recycleRuneClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry)
+        await CreateHub(recycleRuneClients, new RecordingGroupManager(), ConnectionFor(activePlayerId), registry, authenticatedHandle: activePlayerId)
             .SubmitIntent(roomId, activePlayerId, $"{roomId}-recycle-rune-active", JsonSerializer.SerializeToElement(new
             {
                 cmdType = "RECYCLE_RUNE",
@@ -17045,8 +17045,11 @@ public sealed class GameHubJoinTests
 
         await hub.JoinRoom("identity-room", "Alice");
 
-        Assert.Single(clients.CallerClient.JoinedMessages);
-        Assert.Empty(clients.CallerClient.Errors);
+        // Preserve this historical test identity while rejecting the obsolete anonymous path.
+        Assert.Empty(clients.CallerClient.JoinedMessages);
+        var error = Assert.IsType<ErrorDto>(Assert.Single(clients.CallerClient.Errors).Payload);
+        Assert.Equal(ErrorCodes.AuthenticationRequired, error.Code);
+        Assert.Null(await registry.FindAsync("identity-room", default));
     }
 
     [Fact]
@@ -17337,7 +17340,7 @@ public sealed class GameHubJoinTests
             new RecordingGroupManager(),
             "connection-1",
             new FixedMatchSessionRegistry(session),
-            matchResultStore: resultStore);
+            matchResultStore: resultStore, authenticatedHandle: "alice");
 
         var receipt = await hub.SubmitIntent(
             "result-record-room",
@@ -17393,7 +17396,8 @@ public sealed class GameHubJoinTests
         IMatchmakingQueue? matchmakingQueue = null,
         IPublicMatchDirectory? publicMatches = null,
         IMatchResultStore? matchResultStore = null,
-        PlayerConnections? playerConnections = null)
+        PlayerConnections? playerConnections = null,
+        string? authenticatedHandle = null)
     {
         return new GameHub(registry ?? new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
@@ -17408,15 +17412,15 @@ public sealed class GameHubJoinTests
         {
             Clients = clients,
             Groups = groups,
-            Context = new TestHubCallerContext(connectionId)
+            Context = new TestHubCallerContext(connectionId, authenticatedHandle)
         };
     }
 
     private static async Task ReadyBothAsync(IMatchSessionRegistry registry)
     {
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "alice")
             .Ready("room-a", "alice", "ready-alice");
-        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "bob")
             .Ready("room-a", "bob", "ready-bob");
     }
 
@@ -17434,7 +17438,7 @@ public sealed class GameHubJoinTests
         foreach (var (player, connection) in new[]{("P1", "connection-1"), ("P2", "connection-2")})
         {
             clients = new RecordingHubClients();
-            await CreateHub(clients, new RecordingGroupManager(), connection, registry)
+            await CreateHub(clients, new RecordingGroupManager(), connection, registry, authenticatedHandle: player)
                 .SubmitIntent(roomId, player, "equip-response-" + player, JsonSerializer.SerializeToElement(new { cmdType = "PASS_PRIORITY" }));
             Assert.Empty(clients.CallerClient.Errors);
             events.AddRange(EventsFor(clients));
@@ -17650,9 +17654,11 @@ public sealed class GameHubJoinTests
         }
     }
 
-    private sealed class TestHubCallerContext(string connectionId) : HubCallerContext
+    private sealed class TestHubCallerContext(string connectionId, string? authenticatedHandle) : HubCallerContext
     {
-        private readonly Dictionary<object, object?> items = new();
+        private readonly Dictionary<object, object?> items = authenticatedHandle is null
+            ? new()
+            : new() { ["riftbound:authenticatedHandle"] = PlayerIdentityService.NormalizeHandle(authenticatedHandle) };
 
         public override string ConnectionId => connectionId;
 

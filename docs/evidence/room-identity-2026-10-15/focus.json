@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "cases": 301,
+  "methods": 259,
+  "summary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 17.7,
+    "total": 301,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 301,
+        "passed": 301,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 12.9
+      }
+    ]
+  },
+  "planSha256": "7eebf00caaefa6bdb847161c9a765fa484f3c72a6895044afc75b822271bb8a8",
+  "trxSha256": "2f89584d7b1553fd01c4dfdfe2183f6208b91ce3e53232589d10598b8e6bd784",
+  "newCases": 33,
+  "newMethods": 3,
+  "scope": "All GameHubJoinTests, PlayerIdentityTests and ClairvoyanceTests. Native wire has its own 15 actions."
+}

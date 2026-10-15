@@ -5719,7 +5719,10 @@
       "newVerificationInputsAwaitFixedFull": [
         "tests/Riftbound.ConformanceTests/ClairvoyanceTests.cs",
         "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
-        "tests/Riftbound.PostgresAcceptance/ClairvoyanceSqlAcceptance.cs"
+        "tests/Riftbound.PostgresAcceptance/ClairvoyanceSqlAcceptance.cs",
+        "tests/Riftbound.ConformanceTests/GameHubIdentityBoundaryTests.cs",
+        "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+        "tests/Riftbound.NativeNetworkSmoke/Program.cs"
       ],
       "previousVerificationInputsNowCoveredAt6bc": {
         "inputs": [
@@ -5735,7 +5738,8 @@
         "src/Riftbound.Engine/CardBehaviorRegistry.cs",
         "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
         "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
-        "data/official/card-catalog.zh-CN.json"
+        "data/official/card-catalog.zh-CN.json",
+        "src/Riftbound.Api/Hubs/GameHub.cs"
       ]
     },
     {
@@ -5760,13 +5764,33 @@
         "scope": "Visible paired native macOS, actual SQL, automatic pending-focus reconnect, retry-exhaustion manual reconnect, normal 8:0 score and original-opening full replay at fixed 1a5 only. Whole-card semantics, complete CI and Windows runtime remain separate gates.",
         "gameplaySourceInputCount": 457,
         "currentCandidateReopenedReason": "Shared ceased-source captured printing/face-history binding changed after fixed 1a5 acceptance; original exact candidate evidence retained."
-      }
+      },
+      "currentRoomIdentityFinding": "Fixed a85 own-room probe confirmed unauthenticated seat/token/command access. Current repair reopens this candidate; older exact receipts retain their stated scope and do not certify this boundary."
     },
     {
       "id": "USER_WINDOWS_RUNTIME",
       "state": "OPEN",
       "requirement": "Independent real user Windows install/runtime evidence",
       "userAvailability": "User confirmed no Windows device; actual Windows runtime remains OPEN and is not substituted by CI builds."
+    },
+    {
+      "id": "ROOM_IDENTITY_BOUNDARY",
+      "state": "OPEN",
+      "requirement": "Every room join/reconnect/private read/command requires the authenticated matching seat identity before room creation, group entry, token/private data return or journal writes. Retain correct-key reconnect and independent private-choice checks; exact fixed full and current visible native acceptance remain required.",
+      "developmentEvidence": {
+        "path": "docs/evidence/room-identity-2026-10-15/wire.json",
+        "sha256": "f49595729d796ccc50eae9d5e121056da6ff5e89c4ab4079331a83d755b1624d",
+        "status": "LOCAL_NATIVE_PROTOCOL_AND_REAL_SQL_PASS",
+        "visibleGodotUi": false,
+        "fixedCommitCi": "PENDING"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Api/Hubs/GameHub.cs",
+          "sha256": "e5558540a436d1113aa7134771ea6cad0af543ec28c9276557478b6ba57fac33"
+        }
+      ],
+      "sourceSemanticsChanged": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker."

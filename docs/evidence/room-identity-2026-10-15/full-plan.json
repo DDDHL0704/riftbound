@@ -1,0 +1,17 @@
+{
+  "status": "PLAN_ONLY_NOT_FULL_EXECUTION",
+  "methods": 7312,
+  "baselineMethods": 7309,
+  "oldMethodsRetained": true,
+  "addedMethods": [
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryMatchingAuthenticationRestoresPrivateOrderAndContinues",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects",
+    "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom"
+  ],
+  "originalFullGameMethods": 143,
+  "expectedCases": 11947,
+  "expectedPairs": 110,
+  "originalSeed": 424242,
+  "planSha256": "d7829749d38ebc5559434075651a187c8d284b5f32c5dd6881be9b910fba5e0d",
+  "fixedCommitCi": "PENDING"
+}

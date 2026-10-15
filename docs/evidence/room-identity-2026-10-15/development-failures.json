@@ -1,0 +1,63 @@
+{
+  "originalLiveProbe": "original-live-probe.json",
+  "correctedFixtureAgainstOriginalProduction": {
+    "total": 33,
+    "passed": 9,
+    "failed": 24,
+    "trxSha256": "b2c626183871d584851a3acb9ae3841adb1168c5f711993594b7a9d1b82d0caf",
+    "failedCases": [
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"PASS\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"SEED\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"END_TURN\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"SNAPSHOT\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"JOIN\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"SEED\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"RECONNECT\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"INTENT\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"JOIN\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"SNAPSHOT\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"PASS\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"END_TURN\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"SNAPSHOT\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"END_TURN\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"READY\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"INTENT\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"RECONNECT\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryRejectsBeforeCreatingAnUnknownRoom(action: \"PASS\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"READY\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"FAILED_KEY\", action: \"JOIN\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"RECONNECT\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"SEED\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"READY\")",
+      "Riftbound.ConformanceTests.GameHubJoinTests.RoomIdentityBoundaryProtectsPrivateChoiceAndHasNoSideEffects(identityKind: \"ANONYMOUS\", action: \"INTENT\")"
+    ]
+  },
+  "earlierDraftFailuresRetained": [
+    {
+      "path": "var/qa/hub-identity-20261015/pre-fix/build.log",
+      "sha256": "b030e0c0211ae896953cfbfd107ee565f1c43dfbce42a9182bf6da3e194f035e"
+    },
+    {
+      "path": "var/qa/hub-identity-20261015/pre-fix-repro/build.log",
+      "sha256": "d249f4ab47f50e2521c4c6aed0c9c33b138ea4e65326b8f96c803f52ee4c4053"
+    },
+    {
+      "path": "var/qa/hub-identity-20261015/pre-fix-behavior/focus/results.trx",
+      "sha256": "aa4dd64f4d7761df3965561c09fc97416dd86bead51a096382b4d106dc90160d"
+    },
+    {
+      "path": "var/qa/hub-identity-20261015/focus/focus/results.trx",
+      "sha256": "8d6b768fa8dd5e136783e3ea69837af2a041a5976f1a68974ec838e297dc30b1"
+    },
+    {
+      "path": "var/qa/hub-identity-20261015/wire-api-preflight-failed.log",
+      "sha256": "f78421a191508d5f56c7d84dab565ed94b2668f9cefe6e655c7044fa58fc1fc8"
+    }
+  ],
+  "explanation": [
+    "First two draft builds used nonexistent command serialization members; corrected to the actual chosenObjectIds contract.",
+    "Initial restored private-choice fixture did not initialize its live seat token; fixed fixture setup only, then 24 failures / 9 passes reproduced on the unchanged original production source.",
+    "Wire runner initially read the wrong health JSON field; corrected its local metadata helper. No production guard or test assertion weakened."
+  ],
+  "currentCorrectedFocus": "focus.json"
+}

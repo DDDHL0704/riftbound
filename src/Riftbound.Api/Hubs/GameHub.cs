@@ -247,9 +247,9 @@ public sealed class GameHub(
     public async Task JoinRoom(string roomId, string playerId, string? reconnectToken = null)
     {
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
-        if (TryRejectIdentityMismatch(roomId, normalizedPlayerId, out var rejection))
+        if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
-            await rejection;
+            await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
             return;
         }
 
@@ -287,9 +287,9 @@ public sealed class GameHub(
     public async Task Reconnect(string roomId, string playerId, string reconnectToken)
     {
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
-        if (TryRejectIdentityMismatch(roomId, normalizedPlayerId, out var rejection))
+        if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
-            await rejection;
+            await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
             return;
         }
 
@@ -326,9 +326,9 @@ public sealed class GameHub(
     public async Task RequestSnapshot(string roomId, string playerId)
     {
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
-        if (TryRejectIdentityMismatch(roomId, normalizedPlayerId, out var rejection))
+        if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
-            await rejection;
+            await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
             return;
         }
 
@@ -416,9 +416,9 @@ public sealed class GameHub(
     public async Task SeedScenario(string roomId, string playerId, string scenarioId, string clientIntentId)
     {
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
-        if (TryRejectIdentityMismatch(roomId, normalizedPlayerId, out var rejection))
+        if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
-            await rejection;
+            await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
             return;
         }
 
@@ -491,9 +491,9 @@ public sealed class GameHub(
         JsonElement rawCommand)
     {
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
-        if (TryRejectIdentityMismatch(roomId, normalizedPlayerId, out var rejection))
+        if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
-            await rejection;
+            await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
             return CommandReceipt(
                 roomId,
                 normalizedPlayerId,
@@ -503,8 +503,8 @@ public sealed class GameHub(
                 accepted: false,
                 serverTick: 0,
                 state: "REJECTED",
-                message: "已认证身份与请求的玩家不一致，已拒绝以他人身份提交命令。",
-                errorCode: ErrorCodes.IdentityMismatch,
+                message: identityError.Message,
+                errorCode: identityError.Code,
                 followup: CommandReceiptFollowups.Create(
                     accepted: false,
                     serverTick: 0,
@@ -704,28 +704,16 @@ public sealed class GameHub(
         return GameEventObjectRefProjector.ProjectEvents(events, state);
     }
 
-    // When the connection has authenticated as a handle, every room action must use that handle.
-    // Unauthenticated connections are unaffected (legacy path) until identity is required end to end.
-    private bool TryRejectIdentityMismatch(string roomId, string normalizedPlayerId, out Task rejection)
+    private ErrorDto? RoomIdentityError(string playerId)
     {
-        rejection = Task.CompletedTask;
         if (!Context.Items.TryGetValue(AuthenticatedHandleItemKey, out var bound) || bound is not string boundHandle)
         {
-            return false;
+            return new ErrorDto(ErrorCodes.AuthenticationRequired, "请先连接并完成身份认证。");
         }
 
-        if (string.Equals(boundHandle, PlayerIdentityService.NormalizeHandle(normalizedPlayerId), StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        rejection = Clients.Caller.Error(new WsServerMessage(
-            MessageType.ERROR,
-            roomId,
-            normalizedPlayerId,
-            0,
-            new ErrorDto(ErrorCodes.IdentityMismatch, "已认证身份与请求的玩家不一致，已拒绝以他人身份操作。")));
-        return true;
+        return string.Equals(boundHandle, PlayerIdentityService.NormalizeHandle(playerId), StringComparison.Ordinal)
+            ? null
+            : new ErrorDto(ErrorCodes.IdentityMismatch, "已认证身份与请求的玩家不一致，已拒绝以他人身份操作。");
     }
 
     private static string RoomGroup(string roomId)

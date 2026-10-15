@@ -1,0 +1,13 @@
+{
+  "status": "LIVE_FIXED_API_ANONYMOUS_OWN_ROOM_PROBE",
+  "room": "qa-authprobe-a85-4757879554904f1287e2dbfb53dadebd",
+  "actor": "qa-authprobe-a85",
+  "authenticatedConnectionCreatedOwnSeat": true,
+  "secondConnectionAuthenticateWasNeverCalled": true,
+  "anonymousJoinedSameSeat": true,
+  "sameReconnectTokenReturned": true,
+  "anonymousDeckSubmissionAccepted": true,
+  "noVisibleMatchTouched": true,
+  "noSecretsIncluded": true,
+  "scope": "Only own disposable-named probe room in dedicated loopback55440 acceptance database; ordinary unmodified a85 API5156."
+}
