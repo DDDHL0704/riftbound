@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1032,
+  "total": 1033,
   "cards": [
     {
       "id": 31005,
@@ -42799,6 +42799,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37747,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·056",
+      "cardName": "千里眼",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Max Grecke",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n{{洞察5}}。（查看你主牌堆顶部的五张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）\n抽两张牌。",
+      "flavorText": "",
+      "energy": 7,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260714/5ed345cadc6b45d0961aa3aa26805a5f.png",
+      "backImage": "",
+      "listSort": 1939,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43213,6 +43261,18 @@
       "publicationDate": null,
       "effectiveDate": null,
       "reason": "Current non-preview exact printing: unit/gear identity and conditional self-play draw. Registration is not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·056",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-15T03:50:04.457899+00:00",
+      "sourceId": 37747,
+      "sourceRecordSha256": "a13ec4f079660647bf15005ac219b50aedf86245ac5e2d01173257b8c830d475",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "reason": "Current exact VEN056/166 Insight5 then draw2 spell through shared private sequence. Registration is not whole-card certification."
     }
   ]
 }

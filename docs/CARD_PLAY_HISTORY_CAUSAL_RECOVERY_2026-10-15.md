@@ -17,3 +17,5 @@
 固定339c的[完整CI及可见产品验收](PAIRED_339C_SQL_SCORE_2026-10-15.md)分别保留。此批新增测试与SQL门禁仍需自身固定提交完整CI；最终候选的全部适用语义、来源缺口及Windows实机仍OPEN，Goal active / NOT READY。
 
 唯一一次check实际通过11,742用例/7,157方法、280.85秒，零失败/跳过；原11,732用例/7,154方法及全部Theory身份保留，新增10/3，2,679个起始执行输入哈希不变，7个真实连接PostgreSQL smoke方法实际纳入。[集合与输入收据](evidence/card-play-history-causal-2026-10-15/check-parity.json)。46项Python及当前治理检查通过，103限定审查/16,144剩余义务不提升语义认证。新固定提交完整CI独立执行，不以当前check或旧339c full替代。
+
+2026-10-15固定补证：6bc546259eed61d5988bf8e8df5081cd8502c614的[完整CI38678509368](https://github.com/DDDHL0704/riftbound/actions/runs/38678509368)实际终态成功，下载TRX独立核对11,891用例/7,298方法、1725.72秒、45真实SQL场景、原143完整对局/110配对/seed424242和全部原用例/方法保留；461游戏源码输入逐项来自对应Git树，且与339c源码相同。[固定完整收据](evidence/card-play-history-causal-2026-10-15/full-ci-6bc.json)。后续千里眼已修改共享规则/目录，该旧固定结果不覆盖新工作树，语义及产品门禁仍独立。

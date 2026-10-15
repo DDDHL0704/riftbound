@@ -1,0 +1,110 @@
+[
+  {
+    "id": "DOC-04-P081-B007",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436"
+    ],
+    "text": "436.           洞察",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B008",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436.1"
+    ],
+    "text": "436.1.              洞察 一张卡牌指的是查看主牌堆 顶部的一张牌并选择是否回收 的行动。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B009",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436.1.a"
+    ],
+    "text": "436.1.a.                 当洞察多张卡牌时,进行洞察的玩家查看相应数量的卡牌,回收其中任意数量的卡牌,然后将其余卡牌以\n                         任意顺序放回其主牌堆顶部。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B010",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436.2"
+    ],
+    "text": "436.2.              洞察 是一种限定行动 。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B011",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436.2.a"
+    ],
+    "text": "436.2.a.                 只有在游戏效果指示玩家进行洞察时,玩家才能洞察卡牌。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B012",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436.3"
+    ],
+    "text": "436.3.              作为指示时,该行动的格式为“洞察 X”。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B013",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436.3.a"
+    ],
+    "text": "436.3.a.                 如果[X]没有出现,则默认数值为 1。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B014",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436.4"
+    ],
+    "text": "436.4.              如果玩家尝试洞察的卡牌数量超过他们主牌堆中剩余的卡牌数量,则会改为尽可能多地进行洞察。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  {
+    "id": "DOC-04-P081-B015",
+    "document": "DOC-04",
+    "page": 81,
+    "clauseAnchors": [
+      "436.4.a"
+    ],
+    "text": "436.4.a.                 牌堆中卡牌数量过少时,玩家不会因洞察而执行燃尽。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  }
+]

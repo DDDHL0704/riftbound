@@ -67,7 +67,8 @@ public sealed record CardBehaviorDefinition(
     bool DealsMutualTargetPowerDamage = false,
     bool DealsSourceAndTargetPowerDamage = false,
     bool CountersTargetStackSpell = false,
-    bool PerformsInsight = false,
+    int InsightCount = 0,
+    int DrawAfterInsightCount = 0,
     bool PreventsTargetSpellControllerPlayingSpellsThisTurn = false,
     bool CanPlayDuringPriority = false,
     int CreatedBaseUnitTokenCount = 0,
@@ -278,7 +279,10 @@ public sealed record CardBehaviorDefinition(
     StandbyPlacement? StandbyPlayFrom = null,
     int? DeckPlayMaximumUnitMight = null,
     bool EffectPlayIgnoreAllCosts = false,
-    bool CreatedBaseUnitTokensCopySource = false);
+    bool CreatedBaseUnitTokensCopySource = false)
+{
+    public bool PerformsInsight => InsightCount > 0;
+}
 
 public static class CardDamageConditionKinds
 {
@@ -7655,7 +7659,17 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.AnyUnit,
             PowerModifierAmount: -4,
-            PerformsInsight: true),
+            InsightCount: 1),
+        new(
+            "VEN·056",
+            "千里眼",
+            7,
+            "CLAIRVOYANCE_INSIGHT_5_DRAW_2",
+            0,
+            0,
+            InsightCount: 5,
+            DrawAfterInsightCount: 2,
+            CanPlayDuringPriority: true),
         new(
             "UNL-066/219",
             "月光之殇",
@@ -8292,7 +8306,7 @@ public static class CardBehaviorRegistry
             CountersTargetStackSpell: true,
             CanPlayDuringPriority: true,
             CounteredStackItemDestination: CardCounteredStackItemDestinationZones.Hand,
-            PerformsInsight: true),
+            InsightCount: 1),
         new(
             "UNL-190/219",
             "夜阑谣",

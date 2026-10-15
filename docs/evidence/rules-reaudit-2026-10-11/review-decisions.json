@@ -20224,6 +20224,75 @@
         "New test/fixture/SQL inputs require their own fixed-commit complete CI",
         "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
       ],
+      "wholeCardCertification": false,
+      "executionUpdate": {
+        "fixedCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
+        "runId": 38678509368,
+        "actualCases": 11891,
+        "actualMethods": 7298,
+        "realSqlScenarios": 45,
+        "allOldCasesMethods143Games110PairsAndSeedRetained": true,
+        "same461GameplaySourceBytesAs339c": true,
+        "wholeCardCertified": false,
+        "scope": "Only6bc fixed inputs; current newer gameplay remains separately pending."
+      }
+    },
+    {
+      "id": "counted-insight-post-choice-draw-clairvoyance-2026-10-15",
+      "status": "SCOPED_COUNTED_INSIGHT_POST_DRAW_FULL_CI_AND_PRODUCT_OPEN",
+      "scope": "CN VEN056/id37747 actual Insight5, optional recycling, private retained order then draw2. Preserve two existing one-card spell consumers; bounded counter/reaction/control/winning burnout/fifth-observed-card/recovery paths. No Echo or whole-card certification.",
+      "subjects": [
+        "VEN-056",
+        "UNL-063/219",
+        "UNL-131/219",
+        "OGN-194/298",
+        "OGN-080/298",
+        "VEN-152"
+      ],
+      "ruleRecords": [
+        "DOC-04-P081-B008",
+        "DOC-04-P081-B009",
+        "DOC-04-P081-B010",
+        "DOC-04-P081-B011",
+        "DOC-04-P081-B012",
+        "DOC-04-P081-B013",
+        "DOC-04-P081-B014",
+        "DOC-04-P081-B015"
+      ],
+      "auditDocument": "docs/CLAIRVOYANCE_COUNTED_INSIGHT_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/clairvoyance-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "applicableAsOf": "2026-10-15",
+        "source": "docs/evidence/clairvoyance-2026-10-15/source.json",
+        "futureCoreAdopted": false
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+        "data/official/card-catalog.zh-CN.json"
+      ],
+      "testExecution": {
+        "status": "CHECK11765_FAILED11_INVENTORY_COUNTS_RETAINED_424_CORRECTION_FOCUS_PASS_FIXED_FULL_PENDING",
+        "newCases": 23,
+        "newMethods": 11,
+        "receipt": "docs/evidence/clairvoyance-2026-10-15/focus.json",
+        "nativeReceipt": "docs/evidence/clairvoyance-2026-10-15/native.json",
+        "sqlReceipt": "docs/evidence/clairvoyance-2026-10-15/sql.json",
+        "batchCheck": "docs/evidence/clairvoyance-2026-10-15/check-result.json",
+        "correction": "docs/evidence/clairvoyance-2026-10-15/check-correction.json",
+        "oldCasesAndMethodsPreserved": true
+      },
+      "remaining": [
+        "All legal Insight repeats/Echo and other counted Insight consumers",
+        "All other copied/attached/observation interactions and whole-printing semantics",
+        "New gameplay candidate exact fixed full CI and final visible paired SQL/network/normal score/full replay",
+        "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
+      ],
       "wholeCardCertification": false
     }
   ]

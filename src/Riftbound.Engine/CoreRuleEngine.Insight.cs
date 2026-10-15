@@ -10,7 +10,7 @@ public sealed partial class CoreRuleEngine
     {
         if (item.InsightCompleted) return FinishInsight(state, item);
         var effect = ResolveStackItemEffect(state, item, deferCompletion: true, skipInsight: true);
-        return BeginInsight(state, item, effect, 1);
+        return BeginInsight(state, item, effect, behavior.InsightCount);
     }
 
     private static StackResolutionResult BeginInsight(MatchState state, StackItemState item, StackResolutionResult effect, int count)
@@ -82,8 +82,12 @@ public sealed partial class CoreRuleEngine
         CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
+        var subsequentDraw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId,
+            behavior.DrawAfterInsightCount, state.RngCursor, events);
         CompleteSpellSource(zones, cards, item, behavior);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, CardObjects = cards,
+            PlayerScores = subsequentDraw.PlayerScores, RngCursor = subsequentDraw.RngCursor, WinnerPlayerId = subsequentDraw.WinnerPlayerId, Events = events,
             StackItems = state.StackItems.Where(s => s.StackItemId != item.StackItemId).ToArray(),
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
     }
@@ -142,7 +146,7 @@ public sealed partial class CoreRuleEngine
             || choice.PlayerId != item.ControllerId || choice.SourceObjectId != item.SourceObjectId || choice.EffectKind != item.EffectKind
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)) return false;
         var count = item.InsightContext is { } captured && ValidInsightTrigger(captured, item.EffectKind, item.ControllerId, item.CardNo)
-            ? captured.Count : CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) && behavior.PerformsInsight ? 1 : 0;
+            ? captured.Count : CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior) ? behavior.InsightCount : 0;
         var viewedCount = choice.ContextObjectIds.Count;
         if (count == 0 || viewedCount == 0 || !zones.MainDeck.Take(viewedCount).SequenceEqual(choice.ContextObjectIds)
             || !choice.ContextObjectIds.SequenceEqual(choice.LegalObjectIds)) return false;

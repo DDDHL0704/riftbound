@@ -1,0 +1,36 @@
+{
+  "status": "FIVE_ORIGINAL_SCORE_AND_REPLAY_GAMES_PASS",
+  "games": [
+    {
+      "method": "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "duration": "00:00:23.2178730"
+    },
+    {
+      "method": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesLeblancMirrorImageAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "duration": "00:00:05.4750815"
+    },
+    {
+      "method": "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "duration": "00:00:13.7551670"
+    },
+    {
+      "method": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "duration": "00:00:13.6894289"
+    },
+    {
+      "method": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "outcome": "Passed",
+      "duration": "00:00:08.3393059"
+    }
+  ],
+  "trx": {
+    "path": "var/qa/clairvoyance-20261015/native-readback-games/focus/results.trx",
+    "sha256": "a56a19c87654daec56e6f09b4161b5c36d6847af9a4e37eda16226265d836678"
+  },
+  "originalSeedsAndAssertionsPreserved": true,
+  "selectionAlsoMatchedStandbyHeavyOriginalGame": true
+}

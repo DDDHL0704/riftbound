@@ -1,0 +1,99 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "observedAsOf": "2026-10-15",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "千里眼",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-15T03:50:04.457899+00:00",
+  "responseSha256": "6be6390428cee811736b133d893b481d2af3cac970d9978ade68da2be7f3d6e4",
+  "exactId": 37747,
+  "exactCardNo": "VEN·056",
+  "exactRecordUnchanged": true,
+  "publicationDate": null,
+  "effectiveDate": null,
+  "perPrintingDatesUnknown": true,
+  "futureCoreAdopted": false,
+  "nextBoundedScope": "Shared counted Insight and post-choice draw sequence, preserving existing Insight consumers. Clairvoyance VEN056 not yet implemented or certified.",
+  "downloads": [
+    {
+      "id": "DOC-04",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "fetchedAtUtc": "2026-10-15T03:53:54.303717+00:00",
+      "path": "var/qa/clairvoyance-20261015/DOC-04.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "matchesPriorSourceBytes": true
+    },
+    {
+      "id": "DOC-06",
+      "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "fetchedAtUtc": "2026-10-15T03:53:30.424721+00:00",
+      "path": "var/qa/clairvoyance-20261015/DOC-06.pdf",
+      "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+      "matchesPriorSourceBytes": true
+    },
+    {
+      "id": "card-image",
+      "url": "https://cdn.playloltcg.com/lol/card/20260714/5ed345cadc6b45d0961aa3aa26805a5f.png",
+      "fetchedAtUtc": "2026-10-15T03:53:18.249490+00:00",
+      "path": "var/qa/clairvoyance-20261015/card-image.png",
+      "sha256": "b747d085470b43a8cc33bcbf3b98d265e5e84e2b0f95c2e7d56881003c078791",
+      "matchesPriorSourceBytes": false
+    }
+  ],
+  "printingIdentity": {
+    "rawApi": "VEN·056",
+    "printedImage": "VEN·056/166",
+    "apiId": 37747,
+    "visualInspection": "Official card image inspected this turn;7 energy blue spell, Reaction, Insight5 then draw2. API raw identity retained."
+  },
+  "sourceManifestsPreserved": [
+    "docs/audit/current-manifest.json",
+    "data/official/rule-input-scope.json"
+  ],
+  "certificationScope": {
+    "region": "CN",
+    "language": "zh-CN",
+    "applicableAsOf": "2026-10-15",
+    "adoptedRuleScope": {
+      "path": "data/official/rule-input-scope.json",
+      "sha256": "5ebece0950a5efc82e63c78899ad424ee1158df99a572e47358c9630bbea5ffa",
+      "applicabilityDate": "2026-10-14"
+    },
+    "currentScopedRuleBytesReadBackUnchanged": true,
+    "allOfficialSourcesRefreshed": false,
+    "future20261016RulesNotAdopted": true
+  },
+  "archivedResponse": {
+    "path": "docs/evidence/clairvoyance-2026-10-15/live-card-response.json",
+    "sha256": "6be6390428cee811736b133d893b481d2af3cac970d9978ade68da2be7f3d6e4"
+  },
+  "remaining": [
+    "All Insight repeats/Echo and other counted Insight consumers remain separate obligations",
+    "Every copied/attached and current/future applicability/source gap not covered by this branch remains OPEN",
+    "Whole-card certification and Windows real runtime remain OPEN"
+  ],
+  "archivedQaLookup": {
+    "path": "docs/evidence/clairvoyance-2026-10-15/archived-qa-mentions.json",
+    "sha256": "3029357d1bc8fbd72c44e8b9c2e0ac8193fcfe74c94128add2040760577fa135",
+    "namedMentions": 0,
+    "currentLiveAllSourceRefreshClaimed": false
+  },
+  "relatedScopedObservationAuthority": {
+    "path": "docs/evidence/nocturne-observation-2026-10-14/source-disposition.json",
+    "sha256": "a2f90051fa605c6e90443226a4f4705613c90b4aa8a878cfa7cf6790228795e9",
+    "scope": "Prior scoped static observation and after-original-effect pending confirmation only; no whole-card trust promotion."
+  },
+  "relatedCurrentCardReadbacks": {
+    "path": "docs/evidence/clairvoyance-2026-10-15/related-card-readbacks.json",
+    "sha256": "a720b2e4b8271e227180b042c448eb6cb32570d3ccd22e233f2940e8d6a3a102",
+    "scope": "Nocturne static observation errata, Reversal control and Rebuttal four-cost restriction exact CN records read back unchanged; no whole-card certification."
+  }
+}

@@ -147,7 +147,7 @@ public sealed partial class CoreRuleEngine
                 : TryGetDeckChoiceBehavior(state,parent,out var choice)?choice.MainDeckLookCount
                 : parent.InsightContext is { } insight?insight.Count
                 : CardBehaviorRegistry.TryGetByCardNo(parent.CardNo??"",out var printed)
-                    ? printed.PerformsInsight?1:Math.Max(printed.DefendTriggerMainDeckLookCount,printed.StandbyReactionMainDeckLookCount)
+                    ? printed.PerformsInsight?printed.InsightCount:Math.Max(printed.DefendTriggerMainDeckLookCount,printed.StandbyReactionMainDeckLookCount)
                     : BattlefieldTriggerSpecRules.TryGetTrigger(parent.CardNo,
                         s=>s.Kind==parent.EffectKind && s.Kind is TriggerKinds.BattlefieldConquerRevealRecycle or TriggerKinds.BattlefieldDefendRevealTopDrawSpellOrRecycle,
                         out var battlefield)?battlefield.RevealCount??0:0;

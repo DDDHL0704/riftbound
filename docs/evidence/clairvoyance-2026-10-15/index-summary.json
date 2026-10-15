@@ -1,0 +1,26 @@
+{
+  "cnOfficialPrintings": 1502,
+  "enReturnedPrintings": 1407,
+  "enReportedTotal": 1415,
+  "enSourceCountGap": 8,
+  "combinedExactPrintingNumbers": 1738,
+  "activeCatalogEntries": 1033,
+  "outsideActiveCatalog": 705,
+  "cnQaFields": 1502,
+  "cnNonemptyQaFields": 0,
+  "date": "2026-10-14",
+  "sourceDocuments": 36,
+  "sourceBlocks": 14293,
+  "verifiedByIndexing": 0,
+  "goalStatus": "IN_PROGRESS_NOT_READY",
+  "sourceFetchErrors": [],
+  "activeBindingUpdate": {
+    "date": "2026-10-15",
+    "previousSummary": {
+      "path": "docs/evidence/porobot-2026-10-15/index-summary.json",
+      "sha256": "e2a765505f376e71a02f2957a5781dde3c7748074baf617489ab3e8a49f40e30"
+    },
+    "sourceDatesUnchanged": true,
+    "wholeUniverseUnchanged": true
+  }
+}
