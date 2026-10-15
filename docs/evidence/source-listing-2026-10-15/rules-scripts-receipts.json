@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://www.playloltcg.com/js/request/request.js",
+    "path": "var/qa/paired-0cbee-20261015/source-readback/request.js",
+    "sha256": "0e0fe88de6cdf6811ef5ce27b2a040c14281d163cc0c75fc4581d37cef0a233d",
+    "fetchedAtUtc": "2026-10-15T10:50:30.413966+00:00"
+  },
+  {
+    "url": "https://www.playloltcg.com/js/pages/rule.js",
+    "path": "var/qa/paired-0cbee-20261015/source-readback/rule.js",
+    "sha256": "e7f8ab2538df01e5d0dbe322a1f854602d538d12016ac36b6a1765a5abd4e1d8",
+    "fetchedAtUtc": "2026-10-15T10:50:30.413911+00:00"
+  }
+]

@@ -20514,6 +20514,74 @@
         "originalConformanceFilesByteUnchanged": 415,
         "originalConformanceFiles": 420
       }
+    },
+    {
+      "id": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+      "status": "SCOPED_CONQUEST_CONTINUATION_CHECK_PASS_FIXED_FULL_PRODUCT_OPEN",
+      "scope": "Retain accepted declaration provenance through independent combat assignments; one eligible surviving OGN035 Vayne triggers independently of source ordering, death excludes it; original Shirana/Minefield event source semantics preserved. Multiple optional payments, broader timing and whole cards remain OPEN.",
+      "subjects": [
+        "OGN-035/298",
+        "OGN-282/298",
+        "SFD-212/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P061-B009",
+        "DOC-04-P061-B011",
+        "DOC-04-P061-B012",
+        "DOC-04-P061-B013",
+        "DOC-04-P061-B014",
+        "DOC-04-P089-B001",
+        "DOC-04-P089-B002",
+        "DOC-04-P089-B003",
+        "DOC-04-P089-B004",
+        "DOC-04-P089-B005",
+        "DOC-04-P089-B006",
+        "DOC-04-P089-B007",
+        "DOC-04-P089-B008",
+        "DOC-04-P089-B009",
+        "DOC-04-P089-B010",
+        "DOC-04-P089-B011",
+        "DOC-04-P092-B001",
+        "DOC-04-P092-B013"
+      ],
+      "auditDocument": "docs/COMBAT_CONQUEST_CONTINUATION_2026-10-15.md",
+      "evidence": "docs/evidence/combat-conquest-continuation-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-15",
+        "runtimeRuleInputDate": "2026-10-14",
+        "futureCoreAdopted": false
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs"
+      ],
+      "remaining": [
+        "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
+        "General conquest trigger confirmation/response timing and every unreviewed exact printing/consumer",
+        "New fixed full after actual0cbee failure; fresh native visible paired realSQL reconnect score and original-opening complete replay",
+        "Independent Windows real runtime and native custom deck editor",
+        "All source gaps, applicability, newly observed printings and full-universe semantics"
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 12,
+        "newMethods": 3,
+        "adjacentCases": 3910,
+        "adjacentMethods": 2568,
+        "originalFullGameMethods": 47,
+        "originalFullGameCases": 49,
+        "all421OriginalTestSourcesByteUnchanged": true,
+        "actualNativeCommands": 6,
+        "actualSqlScenarios": 65,
+        "newActualSqlEventTamperRejections": 36,
+        "check": "SINGLE_CHECK_PASS_11873_CASES_7197_METHODS",
+        "fixedFull": "PENDING",
+        "product": "OPEN"
+      }
     }
   ]
 }

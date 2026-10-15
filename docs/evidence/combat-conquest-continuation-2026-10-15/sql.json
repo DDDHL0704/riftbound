@@ -1,0 +1,1199 @@
+{
+  "status": "ALL_65_REAL_POSTGRES_SCENARIOS_PASS",
+  "port": 55442,
+  "prior61ScenarioIdentitiesPreserved": true,
+  "newScenarioNames": [
+    "combat-assignment/declared-source-second/receipt.json",
+    "combat-assignment/vayne-secondary-decline/receipt.json",
+    "combat-assignment/vayne-secondary-dies/receipt.json",
+    "combat-assignment/vayne-secondary-pay/receipt.json"
+  ],
+  "allReceipts": [
+    {
+      "scenario": "result.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/result.json",
+      "sha256": "fee68e6d2b4944c5de5413f6cf4450f01afba398485e46b0c96c52569ce65616",
+      "status": "REAL_POSTGRES_CORE_OPENING_RECOVERY_REPLAY_AND_TAMPER_PASS"
+    },
+    {
+      "scenario": "rune-destination/multiple/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/rune-destination/multiple/receipt.json",
+      "sha256": "7a679c238d88a2c86f915bc76bb092393d9217d3e9275369dab4bea7bade2115",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "rune-destination/single/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/rune-destination/single/receipt.json",
+      "sha256": "67eae18160b7a94fb5eb2eb8aed5018cf72a0f97055a00d66215895ddb104693",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/alternate-hook/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycled-card-boon/alternate-hook/receipt.json",
+      "sha256": "90db7230ecc15d0d3e074725da7f371da3fae1775f9afd81fcdc11fbb691129c",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/primary-hook/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycled-card-boon/primary-hook/receipt.json",
+      "sha256": "f0881656b5f060476acaad613bd0e7618011457274642f0875efdcc55696bf4b",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/promo-hook/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycled-card-boon/promo-hook/receipt.json",
+      "sha256": "1a62900c268ef90499f5c2fe2418c03a1a7244056455736968c1135370fff787",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/promo-predict/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycled-card-boon/promo-predict/receipt.json",
+      "sha256": "faef803fce866501d34645e027abf368176ac97f6537e015894a1d3234f3f3d5",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/alternate-predict/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycled-card-boon/alternate-predict/receipt.json",
+      "sha256": "388b80b6378db10d63d62aeea4b94fa5db591c3606eec367383275e009ce0ada",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycled-card-boon/primary-predict/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycled-card-boon/primary-predict/receipt.json",
+      "sha256": "9f1b7f5a968a6973738257d3c4c6c05734653069f19f7426c136a265aca559fa",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-optional/primary-pay/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/sivir-optional/primary-pay/receipt.json",
+      "sha256": "94730f1e40c596f5f0e44cbce4fa20460088e53bd0e9cd9b82587b4bfc58ddbe",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-optional/alternate-decline/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/sivir-optional/alternate-decline/receipt.json",
+      "sha256": "354aca7fcce984fc7ef54ff152e6a9154912f9d7b34171effa25b64141549818",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-optional/primary-decline/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/sivir-optional/primary-decline/receipt.json",
+      "sha256": "aebb868fd84e6c859a2402170c0fbad35caf588272413ea1e11d91145b047f49",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-optional/alternate-pay/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/sivir-optional/alternate-pay/receipt.json",
+      "sha256": "ac5ea08314ef83449a0c7d40c0316b88090cacbac14a20d86dfd66e13a37276b",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "masked-attendant/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/masked-attendant/receipt.json",
+      "sha256": "5695d6d7e769adee3d4ac675c21c646ceb4c86f9056b962c9d5325a0c3e702b8",
+      "status": "REAL_POSTGRES_MASKED_SELF_COPY_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "porobot/return/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/porobot/return/receipt.json",
+      "sha256": "13ee637abdb4afdb2e6a74307e3b7059702daa14f600cf6c12d4eb973bd94c37",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "porobot/below/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/porobot/below/receipt.json",
+      "sha256": "436a91c443edd5f8b87b39e90e1546f02e2c24d69e0ffb74aaeee627d92a2f5e",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "porobot/gold/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/porobot/gold/receipt.json",
+      "sha256": "8a19903c5229be15ba444916148deff2c8b606baaad3cb555fb462e169a66bc7",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "porobot/threshold/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/porobot/threshold/receipt.json",
+      "sha256": "86c906045ab84b388c9d0659e9dddb43a8f244e8a73a6c20572130e47853c4a9",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-payment/inline-pay/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/sivir-payment/inline-pay/receipt.json",
+      "sha256": "22dab355f11419e3a033909489310632916bda9f24132b6b00805a5bb367d7a0",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-payment/inline-decline/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/sivir-payment/inline-decline/receipt.json",
+      "sha256": "8394931a67a938e28b100a29c5b0aad4967c7a4f1573fd4ba756a6e5113b47d1",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-payment/deferred-decline/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/sivir-payment/deferred-decline/receipt.json",
+      "sha256": "270e7804cbb784dee60ad5639037d2600050cad371606444ac9806b803a8b886",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "sivir-payment/deferred-pay/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/sivir-payment/deferred-pay/receipt.json",
+      "sha256": "8bc3daa3a379326ca387403d5da65aaf8663c3f89a5ab133351386a196771f0d",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "typed-play-history/countered/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/typed-play-history/countered/receipt.json",
+      "sha256": "5e52ee5e69fcd0bac3a169590ed835bcbe95d8440999f9c3878314db183317c0",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "typed-play-history/resolved/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/typed-play-history/resolved/receipt.json",
+      "sha256": "0db909ffd15292865d2432e4ae16f811e09c01117216becb48235a464bce6851",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "typed-play-history/control/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/typed-play-history/control/receipt.json",
+      "sha256": "5a716898db4e2e030a42357b7acbc54fd59b76059cdbca1dd5e7e6e0bcc51658",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "insight-repeat/eclipse/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/insight-repeat/eclipse/receipt.json",
+      "sha256": "b67c675e264fe00433e44e3c699a086a3200ee00d3f72265584bec053a3c2c98",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/once/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/insight-repeat/once/receipt.json",
+      "sha256": "ead78c05eae9e453dced8e6c1393931c359264f77f27953016659aa66492ef1c",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/abandon/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/insight-repeat/abandon/receipt.json",
+      "sha256": "0c0043b8da158157de50c1a7f35ef1c745ed3edb9965c83e205c0d1022e5c44b",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/all/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/insight-repeat/all/receipt.json",
+      "sha256": "e03cb011141f4842aacac114c7b489b23037c93ce0f8481783e4412c5be6f9cc",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/twice/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/insight-repeat/twice/receipt.json",
+      "sha256": "3c77b37e0180cf109a1dd94c7b05b71fd9b3d04b9939ea389e98ec20fb79d2ac",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/counter/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/insight-repeat/counter/receipt.json",
+      "sha256": "1a01497ed384545d2e182bcf73b09aa6128a550c91440a278cb7fc772b019345",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "insight-repeat/burnout/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/insight-repeat/burnout/receipt.json",
+      "sha256": "0b35960d18e2baf06f7fef97c7fbb47216daeb738caf8e723cd101e69dae9a72",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/keep/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/clairvoyance/keep/receipt.json",
+      "sha256": "d202c9b2ec7443a646788708f9e3f8779d1c5d4f06b827dc7fbb3f9fe16c6580",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/all/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/clairvoyance/all/receipt.json",
+      "sha256": "5be3f199e654d2d562c15182c19d3a13d126e0f3986572c9265515f44d015809",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/some/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/clairvoyance/some/receipt.json",
+      "sha256": "71595ddf462a1757e88df0c7445dc6b5bc76c8120f94b2c7080669f9b5adc8f5",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/control/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/clairvoyance/control/receipt.json",
+      "sha256": "3d7cb4e6324d48e58d234026a6993889b5e48b80f88da139e787dff19da84706",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "clairvoyance/burnout/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/clairvoyance/burnout/receipt.json",
+      "sha256": "11e1d0c1e357073eb26affc3b098da2833e1baf4bc608de2baf7c92b02c2d3a1",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "typed-play-history-causal/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/typed-play-history-causal/receipt.json",
+      "sha256": "d354a861c3dbc19eb23c91323ff2cf40cfe656482e95262d5ec49972d001812c",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_CAUSAL_REGISTRY_PASS"
+    },
+    {
+      "scenario": "printed-predict/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/printed-predict/receipt.json",
+      "sha256": "1ab09bb274ee12f40a67c2bb0d873ac13987e24bcdc654fb9504fca49345ac58",
+      "status": "REAL_POSTGRES_PRINTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "sha256": "d86c3ad08f76c09cda3a2f2d995570de92dc41af19058278f5482ee831fbaf58",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "sha256": "66964dcc13296a4887d5d3e3209a698a2c89921c528aab7451f2a05696cc76fe",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "sha256": "b090c5ad190849fedb2706bb9c1c8c2029c698f1e13e1f2e5e0fdec401f54a56",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/primary/forward/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/attached-recycle-lifecycle/primary/forward/receipt.json",
+      "sha256": "06ec2b525ef038cea818f4aac5addcbf68f6adfa51385076bb9bfa3cf709a897",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "sha256": "1cd5953b44a4a7393f959ce199bc9debc1f63e23699a39524d28d26a36679349",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "attached-recycle-lifecycle/promo/forward/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/attached-recycle-lifecycle/promo/forward/receipt.json",
+      "sha256": "8b8c35f8a87350fd5d7927f3f23b1bf88e201edacbda2d4078ebd943123dde20",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycle-boon-lifecycle/alternate/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycle-boon-lifecycle/alternate/receipt.json",
+      "sha256": "c0a007b2b3e2c2ce1402c3f2b6b80d9012e1477cc2468123bc3049159eafa618",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycle-boon-lifecycle/primary/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycle-boon-lifecycle/primary/receipt.json",
+      "sha256": "c84fd59b3f5bf8455fd01dce0976b18ffc4e9b244fbe7bfbd651b46109a9fc6d",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "recycle-boon-lifecycle/promo/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/recycle-boon-lifecycle/promo/receipt.json",
+      "sha256": "9545b3905d06a614481c27a282e57034788794566826ce41f9e2b0459e8e6278",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS"
+    },
+    {
+      "scenario": "battle-history/battle-history-deck/result.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/battle-history/battle-history-deck/result.json",
+      "sha256": "38b746ee4764d20d4b0346ef792ade6869d1c4ca46e08f6c5573e546609103d3",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "battle-history/battle-history-attacker-burnout/result.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/battle-history/battle-history-attacker-burnout/result.json",
+      "sha256": "95a30a2cd581e8ec3d747e3384d13e537ca8670e400b1eec8ec9db1491346722",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "battle-history/battle-history-attacker-deck/result.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/battle-history/battle-history-attacker-deck/result.json",
+      "sha256": "ccb49b1a6b93c7eccfdef4079fbb22527cb77a9f43e138bacb02b2078c79484d",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "battle-history/battle-history-burnout/result.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/battle-history/battle-history-burnout/result.json",
+      "sha256": "77f51754efce8f587e5dac374e3ec3a389ed2cf5b6fb350acba3cb566a694d00",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "granted-predict/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/granted-predict/receipt.json",
+      "sha256": "523dd46f2dea636e33eb08798ed24fc625a977e2ad15d5608fa30fbda6309087",
+      "status": "REAL_POSTGRES_GRANTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "combat-assignment/vayne-secondary-decline/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/combat-assignment/vayne-secondary-decline/receipt.json",
+      "sha256": "6be9fd75a3594c5dffdd69fcb6482be606376e1d309770456c8c3b1a08176049",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/vayne-secondary-dies/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/combat-assignment/vayne-secondary-dies/receipt.json",
+      "sha256": "ebd347eebcf6a825fdf2d28b094a6f4f24aa241a2cef81e76eaa2d253393ce65",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/multiple-defenders/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/combat-assignment/multiple-defenders/receipt.json",
+      "sha256": "95de5fed8b2e5be7f55bd00a9306fde7aabfaf157d231828855a831e121e7b9e",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/declared-source-second/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/combat-assignment/declared-source-second/receipt.json",
+      "sha256": "057b41b9db811f87d621e4a0e91f2be01877dc8146bddc562eefc52580a63ed1",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/choose-first-attacker/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/combat-assignment/choose-first-attacker/receipt.json",
+      "sha256": "cbed69add653662fc3b8b840cb6fb1940d4ed703f12ba87e4cca2ee69ac8069e",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/vayne-secondary-pay/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/combat-assignment/vayne-secondary-pay/receipt.json",
+      "sha256": "4f79ddec1e5dde1d9fcb0f21abcd5a363a82f1d2047d664e1e669794d886e66d",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/choose-second-attacker/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/combat-assignment/choose-second-attacker/receipt.json",
+      "sha256": "361f8112b84fcd4424f4c6374f508822d6fab19b73ff30c14bc17fd69535ce16",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "combat-assignment/one-on-one/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/combat-assignment/one-on-one/receipt.json",
+      "sha256": "ae0d31f5064b687173e771ee42a50dff17a07f92be6a2a6f6598897116ff1a4d",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS"
+    },
+    {
+      "scenario": "conquest-token/alternate-reaction/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/conquest-token/alternate-reaction/receipt.json",
+      "sha256": "d7e26c9bcb3572fc2165245aa95ae8c981b46271a302e33beab1844da436b27b",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "conquest-token/primary-plain/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/conquest-token/primary-plain/receipt.json",
+      "sha256": "b80b736ef510c18aec0cab73bf46048b373c54aa72d862aba163b2c9f1ce0bf4",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "conquest-token/primary-reaction/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/conquest-token/primary-reaction/receipt.json",
+      "sha256": "c69e0d6ba1e8e030a563b99ee4bba59f302f4b4849b7433e88f6da3266d9c7cb",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    },
+    {
+      "scenario": "conquest-token/alternate-plain/receipt.json",
+      "path": "var/qa/full-combat-followup-20261015/postgres-results/conquest-token/alternate-plain/receipt.json",
+      "sha256": "fc801488c01123cc1527fdddb72c179bef75a000382f2cb48176e1b3f285370a",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS"
+    }
+  ],
+  "newConquestBranches": [
+    {
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "room": "combat-assignment-515f98661e084e1db5fd800f47bd6a6b",
+      "branch": "vayne-secondary-decline",
+      "submitted": 4,
+      "events": 17,
+      "coldRecoveries": 4,
+      "checkpoints": [
+        {
+          "tick": 1,
+          "commands": 1,
+          "events": 2,
+          "replayMatched": true
+        },
+        {
+          "tick": 2,
+          "commands": 2,
+          "events": 3,
+          "replayMatched": true
+        },
+        {
+          "tick": 3,
+          "commands": 3,
+          "events": 15,
+          "replayMatched": true
+        },
+        {
+          "tick": 4,
+          "commands": 4,
+          "events": 17,
+          "replayMatched": true
+        }
+      ],
+      "mutations": [
+        {
+          "kind": "BATTLEFIELD_CONQUERED",
+          "mutation": "conquest-source",
+          "eventSequence": 10,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 7 payload hash ad91bed6acbd6b0a77c5dc2e16b97d3e46b9ed0c02099a20cd674de4222f25a8 but recovered event sequence 10 payload hash 8d7558fca8a1d17e512725d8092680b739a9207d555d97a708ec5d837426ddc6"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "damage",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 9ffb230245d7b517b324224c302d7dc8399b7ea37e91d494d1c2459bd88a9f2b"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "source-case",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 19e8c145013fe7d966cd9d8f355174c5da1113cf958e639d2cde5af6c28bd20f"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "member-case",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 47192e9f707444328dcfd7d143776db549248199bf3f91979d619d537e8a08f6"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "array-order",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 41f38f2542f3b67eecbc0eafaa8958c1b2e31daccfe995a9efec44e55b486064"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "damage",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8216eed010c92168ee6b0b77c0e8a89a35b63740c2c5bbb6ded30a9b8469c158 but recovered event sequence 5 payload hash 9531b79e44886b06c2dd8a10e8d803f5f515cd8efe0968e3aa009b9112eabb30"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "source-case",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8216eed010c92168ee6b0b77c0e8a89a35b63740c2c5bbb6ded30a9b8469c158 but recovered event sequence 5 payload hash b2f03a29c444dc325f81de9ea46f8853b8ec9db90b9662ceb50ba81b6bbd9d19"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "member-case",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8216eed010c92168ee6b0b77c0e8a89a35b63740c2c5bbb6ded30a9b8469c158 but recovered event sequence 5 payload hash c1cf3cae7b59ef41437c79e6611076edbfdee7842399e5e6561ca9b10c484f9a"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "array-order",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8216eed010c92168ee6b0b77c0e8a89a35b63740c2c5bbb6ded30a9b8469c158 but recovered event sequence 5 payload hash e3bf91315ac36e6b019d52978d70949fa9d1f93816436cc4542c241d23e27600"
+          ]
+        }
+      ],
+      "finalHash": "1094194ccca685e272ac7409758dac81cf965a1647c355774ad017f60c3c9141",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "82c9f7bcb319086b4bb2734f1d8669d3035cef6e40733041ee4e207f65492021",
+        "identitySha256": "341a67060978f67b6d6ec5ffdd653211fba554904ff8a128b57206f4a5dbbe64"
+      },
+      "assignments": [
+        {
+          "sequence": 3,
+          "tick": 2,
+          "order": 0,
+          "event": {
+            "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+            "description": "P1 提交己方战斗伤害分配",
+            "payload": {
+              "battleId": "battle:F",
+              "assignments": [
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A1",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 5,
+                  "sourceObjectId": "A2",
+                  "targetObjectId": "D1"
+                }
+              ],
+              "battlefieldId": "F",
+              "assigningPlayerId": "P1",
+              "nextAssigningPlayerId": "P2"
+            }
+          }
+        },
+        {
+          "sequence": 5,
+          "tick": 3,
+          "order": 1,
+          "event": {
+            "kind": "COMBAT_DAMAGE_ASSIGNED",
+            "description": "提交战斗伤害分配",
+            "payload": {
+              "battleId": "battle:F",
+              "damagePool": {
+                "A1": 2,
+                "A2": 5,
+                "D1": 1
+              },
+              "assignments": [
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A1",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 5,
+                  "sourceObjectId": "A2",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 1,
+                  "sourceObjectId": "D1",
+                  "targetObjectId": "A1"
+                }
+              ],
+              "battlefieldId": "F",
+              "assigningPlayerId": "P2",
+              "attackingPlayerId": "P1",
+              "lethalDamageThreshold": {
+                "A1": 2,
+                "A2": 5,
+                "D1": 1
+              }
+            }
+          }
+        }
+      ],
+      "scope": "Explicit combat fixture with actual SQL JSONB, strict event replay, both independent choices and duplicates; not a normal opening or visible paired product certification."
+    },
+    {
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "room": "combat-assignment-443ca44f88f944d09e1f1e0162609763",
+      "branch": "vayne-secondary-dies",
+      "submitted": 3,
+      "events": 14,
+      "coldRecoveries": 3,
+      "checkpoints": [
+        {
+          "tick": 1,
+          "commands": 1,
+          "events": 2,
+          "replayMatched": true
+        },
+        {
+          "tick": 2,
+          "commands": 2,
+          "events": 3,
+          "replayMatched": true
+        },
+        {
+          "tick": 3,
+          "commands": 3,
+          "events": 14,
+          "replayMatched": true
+        }
+      ],
+      "mutations": [
+        {
+          "kind": "BATTLEFIELD_CONQUERED",
+          "mutation": "conquest-source",
+          "eventSequence": 11,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 8 payload hash 60ada965efc7a6b76d2bdf612d4fba0bb3c7ffc65746fbf7f0cd8c8c987d2cee but recovered event sequence 11 payload hash 7fb1d4a74bed41d166cddd0ce360feaa5d280a8c083ce24902c4380391d615f9"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "damage",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 9ffb230245d7b517b324224c302d7dc8399b7ea37e91d494d1c2459bd88a9f2b"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "source-case",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 19e8c145013fe7d966cd9d8f355174c5da1113cf958e639d2cde5af6c28bd20f"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "member-case",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 47192e9f707444328dcfd7d143776db549248199bf3f91979d619d537e8a08f6"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "array-order",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 41f38f2542f3b67eecbc0eafaa8958c1b2e31daccfe995a9efec44e55b486064"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "damage",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash f099e312a1d587bd0943e3baf2635c42944f229bf1f028443f7ea8bbd299845d but recovered event sequence 5 payload hash a5521290cef0a73915c4e4682fe3994b6f06889adbd7619d49116b77ece864d0"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "source-case",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash f099e312a1d587bd0943e3baf2635c42944f229bf1f028443f7ea8bbd299845d but recovered event sequence 5 payload hash 8c281647946faea43d1b28f3a372a5a25b24d68f3daf6cff8dac37ce5ec6c4e0"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "member-case",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash f099e312a1d587bd0943e3baf2635c42944f229bf1f028443f7ea8bbd299845d but recovered event sequence 5 payload hash c58ffd467bde7bdef1205d9e5a7438f4b5427c2f063f80ab8675dc075cc2520f"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "array-order",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash f099e312a1d587bd0943e3baf2635c42944f229bf1f028443f7ea8bbd299845d but recovered event sequence 5 payload hash 785990c368b158d015f325bd30bd3724d22c0e3665bac14c662f0cfde94b7c82"
+          ]
+        }
+      ],
+      "finalHash": "ae9bf51505c4df67991a4c63110d5d8f1f145573d1a44e12ff663210409d94a6",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "82c9f7bcb319086b4bb2734f1d8669d3035cef6e40733041ee4e207f65492021",
+        "identitySha256": "341a67060978f67b6d6ec5ffdd653211fba554904ff8a128b57206f4a5dbbe64"
+      },
+      "assignments": [
+        {
+          "sequence": 3,
+          "tick": 2,
+          "order": 0,
+          "event": {
+            "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+            "description": "P1 提交己方战斗伤害分配",
+            "payload": {
+              "battleId": "battle:F",
+              "assignments": [
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A1",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 5,
+                  "sourceObjectId": "A2",
+                  "targetObjectId": "D1"
+                }
+              ],
+              "battlefieldId": "F",
+              "assigningPlayerId": "P1",
+              "nextAssigningPlayerId": "P2"
+            }
+          }
+        },
+        {
+          "sequence": 5,
+          "tick": 3,
+          "order": 1,
+          "event": {
+            "kind": "COMBAT_DAMAGE_ASSIGNED",
+            "description": "提交战斗伤害分配",
+            "payload": {
+              "battleId": "battle:F",
+              "damagePool": {
+                "A1": 2,
+                "A2": 5,
+                "D1": 5
+              },
+              "assignments": [
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A1",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 5,
+                  "sourceObjectId": "A2",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 5,
+                  "sourceObjectId": "D1",
+                  "targetObjectId": "A2"
+                }
+              ],
+              "battlefieldId": "F",
+              "assigningPlayerId": "P2",
+              "attackingPlayerId": "P1",
+              "lethalDamageThreshold": {
+                "A1": 2,
+                "A2": 5,
+                "D1": 5
+              }
+            }
+          }
+        }
+      ],
+      "scope": "Explicit combat fixture with actual SQL JSONB, strict event replay, both independent choices and duplicates; not a normal opening or visible paired product certification."
+    },
+    {
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "room": "combat-assignment-733d321976b34adc8441080951fc2236",
+      "branch": "declared-source-second",
+      "submitted": 3,
+      "events": 14,
+      "coldRecoveries": 3,
+      "checkpoints": [
+        {
+          "tick": 1,
+          "commands": 1,
+          "events": 2,
+          "replayMatched": true
+        },
+        {
+          "tick": 2,
+          "commands": 2,
+          "events": 3,
+          "replayMatched": true
+        },
+        {
+          "tick": 3,
+          "commands": 3,
+          "events": 14,
+          "replayMatched": true
+        }
+      ],
+      "mutations": [
+        {
+          "kind": "BATTLEFIELD_CONQUERED",
+          "mutation": "conquest-source",
+          "eventSequence": 10,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 7 payload hash a833c386ce16a087eb3d3dd979df9798c6725d3b917b2520c5aa37318a24f8ca but recovered event sequence 10 payload hash 9708267ff17dbf8505445323850db6478803f662ad450200beea07914cf98aca"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "damage",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 8ac2aa8d8b795431ce2ebf9e3a3b0c9012578cefcd15519dd00c7b8779d3f275 but recovered event sequence 3 payload hash 3efdeef34bb189b0e2cb1426e6425c0f0e33cc819e09a9120644ff4ef3e47922"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "source-case",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 8ac2aa8d8b795431ce2ebf9e3a3b0c9012578cefcd15519dd00c7b8779d3f275 but recovered event sequence 3 payload hash 5ed453fce3099bfd5f8c50512d2f3a56a8c8b567905c92ebaecabec562ea908d"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "member-case",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 8ac2aa8d8b795431ce2ebf9e3a3b0c9012578cefcd15519dd00c7b8779d3f275 but recovered event sequence 3 payload hash 6c521cada23d117914a047e3739390a602bdb4ffd90594bae4084a1f18eed0c8"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "array-order",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 8ac2aa8d8b795431ce2ebf9e3a3b0c9012578cefcd15519dd00c7b8779d3f275 but recovered event sequence 3 payload hash ea4fdc9181893ada89243f7c87c39c60b153158bccc1b99de1498c466fb90150"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "damage",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8c1d4b8334c9edf258105100ecef6a2762ad114b0a50d1c36cd3fdd85e6884bc but recovered event sequence 5 payload hash ae26d12246e2901b85f12e38b903c6e395ae520148ea15ef7da1f0d02376c11f"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "source-case",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8c1d4b8334c9edf258105100ecef6a2762ad114b0a50d1c36cd3fdd85e6884bc but recovered event sequence 5 payload hash 7a9c5e91b13d64e1c9ca1ac43c44a90515094ba04b04c67b8f0e07a92c454254"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "member-case",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8c1d4b8334c9edf258105100ecef6a2762ad114b0a50d1c36cd3fdd85e6884bc but recovered event sequence 5 payload hash 6b29f90af2852dc1eb0d0526600a5a99f876b8bc74a6a14d02206b210d09617c"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "array-order",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8c1d4b8334c9edf258105100ecef6a2762ad114b0a50d1c36cd3fdd85e6884bc but recovered event sequence 5 payload hash cf6966b0fe2f39a6b50441e0ba9e7198862c440489679a003504d063c32f0582"
+          ]
+        }
+      ],
+      "finalHash": "fc123e5439b9df132ae5b23a2fdc19914e03f837de7c79222bd3fe1067c07f12",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "82c9f7bcb319086b4bb2734f1d8669d3035cef6e40733041ee4e207f65492021",
+        "identitySha256": "341a67060978f67b6d6ec5ffdd653211fba554904ff8a128b57206f4a5dbbe64"
+      },
+      "assignments": [
+        {
+          "sequence": 3,
+          "tick": 2,
+          "order": 0,
+          "event": {
+            "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+            "description": "P1 提交己方战斗伤害分配",
+            "payload": {
+              "battleId": "battle:F",
+              "assignments": [
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A1",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A2",
+                  "targetObjectId": "D1"
+                }
+              ],
+              "battlefieldId": "F",
+              "assigningPlayerId": "P1",
+              "nextAssigningPlayerId": "P2"
+            }
+          }
+        },
+        {
+          "sequence": 5,
+          "tick": 3,
+          "order": 1,
+          "event": {
+            "kind": "COMBAT_DAMAGE_ASSIGNED",
+            "description": "提交战斗伤害分配",
+            "payload": {
+              "battleId": "battle:F",
+              "damagePool": {
+                "A1": 2,
+                "A2": 2,
+                "D1": 1
+              },
+              "assignments": [
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A1",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A2",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 1,
+                  "sourceObjectId": "D1",
+                  "targetObjectId": "A1"
+                }
+              ],
+              "battlefieldId": "F",
+              "assigningPlayerId": "P2",
+              "attackingPlayerId": "P1",
+              "lethalDamageThreshold": {
+                "A1": 2,
+                "A2": 2,
+                "D1": 1
+              }
+            }
+          }
+        }
+      ],
+      "scope": "Explicit combat fixture with actual SQL JSONB, strict event replay, both independent choices and duplicates; not a normal opening or visible paired product certification."
+    },
+    {
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "room": "combat-assignment-4f3075e851c04fd98e9065dd1be759cb",
+      "branch": "vayne-secondary-pay",
+      "submitted": 4,
+      "events": 19,
+      "coldRecoveries": 4,
+      "checkpoints": [
+        {
+          "tick": 1,
+          "commands": 1,
+          "events": 2,
+          "replayMatched": true
+        },
+        {
+          "tick": 2,
+          "commands": 2,
+          "events": 3,
+          "replayMatched": true
+        },
+        {
+          "tick": 3,
+          "commands": 3,
+          "events": 15,
+          "replayMatched": true
+        },
+        {
+          "tick": 4,
+          "commands": 4,
+          "events": 19,
+          "replayMatched": true
+        }
+      ],
+      "mutations": [
+        {
+          "kind": "BATTLEFIELD_CONQUERED",
+          "mutation": "conquest-source",
+          "eventSequence": 10,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 7 payload hash ad91bed6acbd6b0a77c5dc2e16b97d3e46b9ed0c02099a20cd674de4222f25a8 but recovered event sequence 10 payload hash 8d7558fca8a1d17e512725d8092680b739a9207d555d97a708ec5d837426ddc6"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "damage",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 9ffb230245d7b517b324224c302d7dc8399b7ea37e91d494d1c2459bd88a9f2b"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "source-case",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 19e8c145013fe7d966cd9d8f355174c5da1113cf958e639d2cde5af6c28bd20f"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "member-case",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 47192e9f707444328dcfd7d143776db549248199bf3f91979d619d537e8a08f6"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+          "mutation": "array-order",
+          "eventSequence": 3,
+          "rejected": true,
+          "errors": [
+            "command combat-1 replayed event 1 payload hash 297cebf2fea05fe16ff4e7c37f89bbaed91372f7e19d3616dd20ca704803f677 but recovered event sequence 3 payload hash 41f38f2542f3b67eecbc0eafaa8958c1b2e31daccfe995a9efec44e55b486064"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "damage",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8216eed010c92168ee6b0b77c0e8a89a35b63740c2c5bbb6ded30a9b8469c158 but recovered event sequence 5 payload hash 9531b79e44886b06c2dd8a10e8d803f5f515cd8efe0968e3aa009b9112eabb30"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "source-case",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8216eed010c92168ee6b0b77c0e8a89a35b63740c2c5bbb6ded30a9b8469c158 but recovered event sequence 5 payload hash b2f03a29c444dc325f81de9ea46f8853b8ec9db90b9662ceb50ba81b6bbd9d19"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "member-case",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8216eed010c92168ee6b0b77c0e8a89a35b63740c2c5bbb6ded30a9b8469c158 but recovered event sequence 5 payload hash c1cf3cae7b59ef41437c79e6611076edbfdee7842399e5e6561ca9b10c484f9a"
+          ]
+        },
+        {
+          "kind": "COMBAT_DAMAGE_ASSIGNED",
+          "mutation": "array-order",
+          "eventSequence": 5,
+          "rejected": true,
+          "errors": [
+            "command combat-2 replayed event 2 payload hash 8216eed010c92168ee6b0b77c0e8a89a35b63740c2c5bbb6ded30a9b8469c158 but recovered event sequence 5 payload hash e3bf91315ac36e6b019d52978d70949fa9d1f93816436cc4542c241d23e27600"
+          ]
+        }
+      ],
+      "finalHash": "8c423a362d18582a3c09b395e46c5a838456ff40a2add53f9dfd55cdc6a43549",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "82c9f7bcb319086b4bb2734f1d8669d3035cef6e40733041ee4e207f65492021",
+        "identitySha256": "341a67060978f67b6d6ec5ffdd653211fba554904ff8a128b57206f4a5dbbe64"
+      },
+      "assignments": [
+        {
+          "sequence": 3,
+          "tick": 2,
+          "order": 0,
+          "event": {
+            "kind": "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED",
+            "description": "P1 提交己方战斗伤害分配",
+            "payload": {
+              "battleId": "battle:F",
+              "assignments": [
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A1",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 5,
+                  "sourceObjectId": "A2",
+                  "targetObjectId": "D1"
+                }
+              ],
+              "battlefieldId": "F",
+              "assigningPlayerId": "P1",
+              "nextAssigningPlayerId": "P2"
+            }
+          }
+        },
+        {
+          "sequence": 5,
+          "tick": 3,
+          "order": 1,
+          "event": {
+            "kind": "COMBAT_DAMAGE_ASSIGNED",
+            "description": "提交战斗伤害分配",
+            "payload": {
+              "battleId": "battle:F",
+              "damagePool": {
+                "A1": 2,
+                "A2": 5,
+                "D1": 1
+              },
+              "assignments": [
+                {
+                  "damage": 2,
+                  "sourceObjectId": "A1",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 5,
+                  "sourceObjectId": "A2",
+                  "targetObjectId": "D1"
+                },
+                {
+                  "damage": 1,
+                  "sourceObjectId": "D1",
+                  "targetObjectId": "A1"
+                }
+              ],
+              "battlefieldId": "F",
+              "assigningPlayerId": "P2",
+              "attackingPlayerId": "P1",
+              "lethalDamageThreshold": {
+                "A1": 2,
+                "A2": 5,
+                "D1": 1
+              }
+            }
+          }
+        }
+      ],
+      "scope": "Explicit combat fixture with actual SQL JSONB, strict event replay, both independent choices and duplicates; not a normal opening or visible paired product certification."
+    }
+  ],
+  "newBranchCommands": 14,
+  "newBranchEvents": 64,
+  "newBranchColdRecoveries": 14,
+  "newBranchActualSqlEventTamperRejections": 36,
+  "cleanup": {
+    "remainingMatches": 0,
+    "ownClusterStopped": true,
+    "clusterDataRetained": true
+  },
+  "scope": "Explicit fixtures and actual SQL JSONB, cold persistence/recovery, duplicates, full action/event/state replay and all65 including original61 scenarios; visible paired and normal opening remain separate."
+}

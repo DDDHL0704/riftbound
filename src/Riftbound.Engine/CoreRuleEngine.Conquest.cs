@@ -250,18 +250,19 @@ public sealed partial class CoreRuleEngine
             winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
             rngCursor = drawApplication.RngCursor;
         }
-        if (pendingPayment is null
-            && TryOpenUnitConquestPayReturnSelfToHandPaymentWindow(
+        foreach (var conqueringUnitId in conqueringUnitObjectIds.Distinct(StringComparer.Ordinal))
+        {
+            if (pendingPayment is not null) break;
+            if (TryOpenUnitConquestPayReturnSelfToHandPaymentWindow(
                 playerZones,
                 cardObjects,
                 playerId,
                 battlefieldId,
-                sourceObjectId,
+                conqueringUnitId,
                 resolutionTick,
                 events,
                 out var unitConquestPayReturnSelfToHandPendingPayment))
-        {
-            pendingPayment = unitConquestPayReturnSelfToHandPendingPayment;
+                pendingPayment = unitConquestPayReturnSelfToHandPendingPayment;
         }
 
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);

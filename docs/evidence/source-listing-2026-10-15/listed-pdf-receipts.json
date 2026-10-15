@@ -1,0 +1,35 @@
+[
+  {
+    "id": "DOC-01",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "fetchedAtUtc": "2026-10-15T10:53:05.492798+00:00",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "matchesFrozenPdfBytes": true,
+    "updateDate": "2026-10-10",
+    "path": "var/qa/paired-0cbee-20261015/source-readback/listed-DOC-01.pdf",
+    "currentListingTitle": "《符文战场：英雄联盟对战卡牌》核心规则",
+    "previousListingTitle": "《符文战场：英雄联盟对战卡牌》核心规则（10.16生效）"
+  },
+  {
+    "id": "DOC-02",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+    "fetchedAtUtc": "2026-10-15T10:52:56.665773+00:00",
+    "sha256": "4d50574d355d57ba4de766243717320a9471951976e230bb9f91b78ab1dde74d",
+    "matchesFrozenPdfBytes": true,
+    "updateDate": "2026-10-10",
+    "path": "var/qa/paired-0cbee-20261015/source-readback/listed-DOC-02.pdf",
+    "currentListingTitle": "《符文战场：英雄联盟对战卡牌》赛事规则",
+    "previousListingTitle": "《符文战场：英雄联盟对战卡牌》赛事规则（10.16生效）"
+  },
+  {
+    "id": "DOC-03",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf",
+    "fetchedAtUtc": "2026-10-15T10:52:42.117212+00:00",
+    "sha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+    "matchesFrozenPdfBytes": true,
+    "updateDate": "2026-10-10",
+    "path": "var/qa/paired-0cbee-20261015/source-readback/listed-DOC-03.pdf",
+    "currentListingTitle": "《符文战场》勘误汇总",
+    "previousListingTitle": "《符文战场》勘误汇总（10.16生效）"
+  }
+]

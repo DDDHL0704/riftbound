@@ -1,0 +1,56 @@
+{
+  "status": "ACTUAL_FIXED9E_SQL_EXPORT_REJECTED_BY_FIXED0CBEE_REPLAY_AND_COLD_SESSION_WITH_CURRENT_CONTROL_PASS",
+  "commit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+  "executedAtUtc": "2026-10-15T11:11:45.918153+00:00",
+  "priorActualCommands": 160,
+  "priorActualEvents": 839,
+  "oldInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "05a0428cb5f4920a63b914f569a06b5889a1366adc189a48538613ad4dd08312",
+    "identitySha256": "f80e9314c6f8cfc0130783d2b8a13cbc93a7ea22f3025ff5189a59239f33c67d"
+  },
+  "currentInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "f6c3a1619adee7c8c99717a0dac8382b490abcf1fc2b5be7349e672521f6a68c",
+    "identitySha256": "d5115009b9283d31ebfbe7cdb9b7397b1794b8de72e63e47f75770564c4ddb75"
+  },
+  "actualOldFrameSha256": "4702b77608d0bd2e01f7cc2d8b7d01bbcd4039a420a559f6b1df8752e3ef5119",
+  "errors": [
+    "action-log final rule input identity is missing or differs from running inputs",
+    "action-log initial rule input identity is missing or differs from running inputs",
+    "action-log command rule input identity is missing or differs from running inputs"
+  ],
+  "restoreError": "match rule input identity is missing or differs from the running rule/catalog/implementation inputs",
+  "matchingCurrentEmptyOpeningControlPassed": true,
+  "negativeControls": [
+    {
+      "name": "missing",
+      "errors": [
+        "action-log rule input identity is missing or differs from running inputs"
+      ]
+    },
+    {
+      "name": "catalog-tamper",
+      "errors": [
+        "action-log rule input identity is missing or differs from running inputs"
+      ]
+    },
+    {
+      "name": "identity-digest-tamper",
+      "errors": [
+        "action-log rule input identity is missing or differs from running inputs"
+      ]
+    }
+  ],
+  "originalActualFrameUnchanged": true,
+  "originalDatabaseStartedOrModified": false,
+  "scope": "Read-only actual prior SQL export against the exact current candidate API assemblies, plus explicit in-memory empty-opening controls. No new SQL scenario, visible UI, successful old-game replay, compatibility migration or product pass is claimed."
+}

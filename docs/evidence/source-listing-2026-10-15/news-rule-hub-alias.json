@@ -1,0 +1,8 @@
+{
+  "status": "CONFIRMED_ALIAS_OF_CURRENT_OFFICIAL_RULES_HUB_NOT_SEPARATE_QA_BODY",
+  "candidateId": "CN-NEWS-4316592c21720ace",
+  "url": "https://playloltcg.com/rules.html",
+  "canonicalUrl": "https://www.playloltcg.com/rules.html",
+  "bothBodySha256": "574cfebe168c9dedd2f9099b7ea604550c8fe9ecca62383abaad80710893ac2b",
+  "evidence": "Both exact HTML byte sequences identical; actual linked JS invokes current official rule-list API. The source universe is retained under that rule-listing source."
+}

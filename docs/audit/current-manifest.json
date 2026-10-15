@@ -2,41 +2,46 @@
   "schemaVersion": 1,
   "semanticCoverageCertified": false,
   "certificationScope": {
-    "id": "CN-2026-10-14-current-source-obligations",
+    "id": "CN-2026-10-15-current-source-obligations",
     "region": "CN",
     "language": "zh-CN",
-    "applicableAsOf": "2026-10-14",
+    "applicableAsOf": "2026-10-15",
     "allOfficialObligationsRetained": true,
     "sourceDates": {
-      "cards": "2026-10-14",
+      "cards": "2026-10-15",
       "rules": "2026-10-11",
       "corpus": "2026-10-11",
-      "summary": "2026-10-14"
+      "summary": "2026-10-15"
     },
     "primaryCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
     "ruleSourcesRetainedWithOriginalConfirmationDates": true,
-    "productPlayers": 2
+    "productPlayers": 2,
+    "priorScope": {
+      "path": "docs/evidence/source-listing-2026-10-15/prior-certification-scope.json",
+      "sha256": "339f4b842f0b721f895d01626639d757284bc8ddbbd8d8766a0900eaea9af5dd"
+    },
+    "runtimeRuleInputScopeUnchanged": "CN-2026-10-14 active rule-input manifest retained; current-source indexing does not adopt title-changed Oct16 documents before explicit applicability closure."
   },
   "cardCoverageManifest": {
-    "path": "docs/evidence/clairvoyance-2026-10-15/source-coverage.json",
-    "sha256": "d58a2aaf7261315c9ba2c3a5f54b9205c849036056edd72b4bb47e704b54c6c1"
+    "path": "docs/evidence/source-listing-2026-10-15/source-coverage.json",
+    "sha256": "8448a10da27011a4dee466e33a9d9617a9b6abed7c231bb698731ad39690b8a8"
   },
   "inputs": {
     "cards": {
-      "path": "docs/evidence/clairvoyance-2026-10-15/all-card-ledger.json",
-      "sha256": "bda5dff0c6dced3b9499e96a90e4747df78e5a8089dd6864eee9c5617deaedd0"
+      "path": "docs/evidence/source-listing-2026-10-15/all-card-ledger.json",
+      "sha256": "08cef841f62d21812542d0429c12be8853fe91174962e2c428564d03420041d1"
     },
     "cn": {
-      "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-catalog.zh-CN.json",
-      "sha256": "1a3defea228520af938e9b40389aaa936d3c16678303593d55372cd4251b8fbc"
+      "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-catalog.zh-CN.json",
+      "sha256": "7ba4cfc2310d92c05e8868641dbc83054871e7d3c6f3a735c1ef16c26a7158e3"
     },
     "en": {
-      "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-gallery.en-US.json",
-      "sha256": "4b5ea0b0683ddf64736276d3d39a721b8d42b47037e3747a8429a11ea8f55a31"
+      "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-gallery.en-US.json",
+      "sha256": "0f921e3d5feda2ecdbf366c3af940efb5021fd7fc5d154a3d92851156824be43"
     },
     "qa": {
-      "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-qa.zh-CN.json",
-      "sha256": "e34bd71b35fd28e7c6e6596da3f9cb04d9ee1e22dba05c3810cc21bbed9994a5"
+      "path": "docs/evidence/source-listing-2026-10-15/card-qa-bound.zh-CN.json",
+      "sha256": "a8f13a0fcb2e79d5e02ca8aaa5cb00f2a419d81e190b56c12104e3558246a4d6"
     },
     "rules": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
@@ -58,11 +63,11 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "4145cd9f916425f143d4697a449aa58611cfcb1fe5119b0e0f6a7ff09c5e8a2e"
+      "sha256": "85b11b996a25db83c0ec06c80a3da44627589112441d66f988158e19a3b315e0"
     },
     "summary": {
-      "path": "docs/evidence/clairvoyance-2026-10-15/index-summary.json",
-      "sha256": "4fd6a14e988f4b248c77ff0568d98b75e141516ccd4df7f76777ee027bdb68c8"
+      "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
+      "sha256": "dc58abc54a6f11ce62a9c9b8516c8f8b1c0fd5db0223e3ae7fead946d3562486"
     }
   },
   "historicalReviewPin": {
@@ -312,7 +317,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "cb4376ad87d8f06d2022cee1718528760d924226824bbaf8f4b7d8e93651adb8"
+          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
@@ -617,9 +622,9 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -673,6 +678,16 @@
               "path": "src/Riftbound.Engine/MatchRecovery.cs",
               "previousSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af",
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
+            }
+          ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+              "previousSha256": "cb4376ad87d8f06d2022cee1718528760d924226824bbaf8f4b7d8e93651adb8",
+              "currentSha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
             }
           ]
         }
@@ -1352,7 +1367,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -1939,7 +1954,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2020,9 +2035,19 @@
               "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2052,7 +2077,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -2642,7 +2667,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2724,9 +2749,19 @@
               "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -2740,7 +2775,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -3084,7 +3119,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3151,9 +3186,19 @@
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3171,11 +3216,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "cb4376ad87d8f06d2022cee1718528760d924226824bbaf8f4b7d8e93651adb8"
+          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
@@ -3312,7 +3357,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3344,9 +3389,24 @@
               "currentSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            },
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+              "previousSha256": "cb4376ad87d8f06d2022cee1718528760d924226824bbaf8f4b7d8e93651adb8",
+              "currentSha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -3372,7 +3432,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3550,7 +3610,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3582,9 +3642,19 @@
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -3594,11 +3664,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "cb4376ad87d8f06d2022cee1718528760d924226824bbaf8f4b7d8e93651adb8"
+          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -3827,7 +3897,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3864,9 +3934,24 @@
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+              "previousSha256": "cb4376ad87d8f06d2022cee1718528760d924226824bbaf8f4b7d8e93651adb8",
+              "currentSha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+            },
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -3908,7 +3993,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4566,7 +4651,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4628,9 +4713,19 @@
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -5305,7 +5400,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -5366,7 +5461,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -5500,6 +5595,16 @@
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
         }
       ],
       "priorEvidenceCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
@@ -5507,7 +5612,7 @@
         "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
         "scope": "Only snapshot modifications against unchanged accepted action/event history; all other obligations retained."
       },
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -5521,7 +5626,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -5590,7 +5695,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -5723,9 +5828,19 @@
               "currentSha256": "a7abbd4c0f99d0e43ae1be2d3eab6a9050bb56c825a8fb01278c7b35b2eacde2"
             }
           ]
+        },
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
         }
       ],
-      "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope."
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required."
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
@@ -6589,7 +6704,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -6601,7 +6716,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894"
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -6656,6 +6771,11 @@
           "path": "docs/evidence/combat-event-replay-2026-10-15/cleanup.json",
           "sha256": "fbd0a9bcd0ffaaec59200a6afa05e2d940d3080cae52c5023563dd2f28b5a80e",
           "role": "cleanup"
+        },
+        {
+          "path": "docs/evidence/combat-conquest-continuation-2026-10-15/full-ci-0cbee-failure.json",
+          "sha256": "43d32984f0509c36f5767136847e6d74ffb56854ff02dc0e3c4b4dc1e48cf912",
+          "role": "exact0cbee-full-failure"
         }
       ],
       "branches": [
@@ -6739,6 +6859,146 @@
           "currentSha256": "3a1657ddca774363944af133fa6ba03b4f9d9eee342371713f8e82bf7102d0a8",
           "reason": "Retained pre-check receipt and added actual eight-failure focused repair with unchanged original assertions."
         }
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ea463a2bda4d0189f5a336c35de796dca59bea274dbff2e2bdd5dcb9e8e6d894",
+              "currentSha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+            }
+          ]
+        }
+      ],
+      "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
+      "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING"
+    },
+    "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
+      "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "36a55929ff1ce95d4a9655dfe1b1809928233de128b577b42d5c55be8c5ee565"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/combat-conquest-continuation-2026-10-15/source.json",
+          "sha256": "2a21ea30acb32195756db21a5ef04f435e885618083bbe7fb2ff6fb54ad33273",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/combat-conquest-continuation-2026-10-15/focus.json",
+          "sha256": "d95ced0cb44c1d5b61583e75f7d0ea0b13a37ab65850805772348eeb7b41efb6",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/combat-conquest-continuation-2026-10-15/native.json",
+          "sha256": "c3f14daba3840f32bd5106979e312ba9f8f8a0e93f2f52f025ef0bb562bb7bd2",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/combat-conquest-continuation-2026-10-15/sql.json",
+          "sha256": "ea1323501f57aff26fc14c981f5a318246f782bf608c39cf01c116e0c7ec0b41",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/combat-conquest-continuation-2026-10-15/full-ci-0cbee-failure.json",
+          "sha256": "43d32984f0509c36f5767136847e6d74ffb56854ff02dc0e3c4b4dc1e48cf912",
+          "role": "prior-full-failure"
+        },
+        {
+          "path": "docs/evidence/combat-conquest-continuation-2026-10-15/red-evidence.json",
+          "sha256": "e9aa39a68c44117ee972d7ade9a9ba96e0eb4fe4fcf6d399e7a69d0e62e3bab1",
+          "role": "red-evidence"
+        },
+        {
+          "path": "docs/evidence/combat-conquest-continuation-2026-10-15/check-result.json",
+          "sha256": "705d02a166145cf66c96c60c60a927a55ffb75e571d4b11f67b2a2010caa9f9a",
+          "role": "check"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattleDamageConquestContinuationTests.cs",
+          "sha256": "68b5f6512d1fb3bb348d5837c1d65e7aa09b60359e6634a77adb9555a5b7261e"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/CombatAssignmentSqlAcceptance.cs",
+          "sha256": "4b2ae48518b3581ad9849bab37a3f9e4cc4393ada1e4c06ec07defbc404d58db"
+        }
+      ],
+      "branches": [
+        {
+          "id": "accepted-declaration-provenance-with-complete-combat-roster",
+          "sourceRefs": [
+            "OGN-282/298",
+            "SFD-212/221",
+            "DOC-04-P092-B013"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_ONLY",
+          "tests": "FOCUS_NATIVE_SQL_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
+            "General conquest trigger confirmation/response timing and every unreviewed exact printing/consumer",
+            "New fixed full after actual0cbee failure; fresh native visible paired realSQL reconnect score and original-opening complete replay",
+            "Independent Windows real runtime and native custom deck editor",
+            "All source gaps, applicability, newly observed printings and full-universe semantics"
+          ]
+        },
+        {
+          "id": "one-eligible-surviving-vayne-independent-of-source-order",
+          "sourceRefs": [
+            "OGN-035/298",
+            "DOC-04-P061-B012"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_ONLY",
+          "tests": "FOCUS_NATIVE_SQL_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
+            "General conquest trigger confirmation/response timing and every unreviewed exact printing/consumer",
+            "New fixed full after actual0cbee failure; fresh native visible paired realSQL reconnect score and original-opening complete replay",
+            "Independent Windows real runtime and native custom deck editor",
+            "All source gaps, applicability, newly observed printings and full-universe semantics"
+          ]
+        },
+        {
+          "id": "causal-declaration-recovery-and-actual-sql-jsonb-replay",
+          "sourceRefs": [
+            "OGN-035/298",
+            "DOC-04-P089-B001",
+            "DOC-04-P089-B007"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_ONLY",
+          "tests": "FOCUS_NATIVE_SQL_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
+            "General conquest trigger confirmation/response timing and every unreviewed exact printing/consumer",
+            "New fixed full after actual0cbee failure; fresh native visible paired realSQL reconnect score and original-opening complete replay",
+            "Independent Windows real runtime and native custom deck editor",
+            "All source gaps, applicability, newly observed printings and full-universe semantics"
+          ]
+        }
       ]
     }
   },
@@ -6751,12 +7011,117 @@
     {
       "id": "SOURCE_GAPS_AND_EFFECTIVE_DELTAS",
       "state": "OPEN",
-      "requirement": "Resolve EN reported/returned gap and explicit version applicability; final candidate refresh"
+      "requirement": "Resolve EN reported/returned gap and explicit version applicability; final candidate refresh",
+      "sourceVersionObservations": [
+        {
+          "path": "docs/evidence/source-listing-2026-10-15/observation.json",
+          "sha256": "e60c5c6a6368b992d567c39c0542271e02a981b86ba60eeb5bb5fdc7280fe447",
+          "state": "OPEN",
+          "subject": "CN listing title/effective-date marker removal and old core/tournament link removal",
+          "priorDocumentUniverseRetained": true
+        }
+      ],
+      "currentCardSourceIntake": {
+        "path": "docs/evidence/source-listing-2026-10-15/card-source-intake.json",
+        "sha256": "56904b903d3e86e69e956dec3dab5c64acee011db88a2b8afd6cb52ef905b0ca",
+        "state": "OPEN",
+        "previousFrozenPrintingUniverse": 1738,
+        "observedCurrentPrintingUniverse": 1740,
+        "priorPrintingsDropped": 0,
+        "oldCoverageAndReviewDatesRetained": true,
+        "activeRuntimeAdopted": false,
+        "currentUnifiedLedger": {
+          "path": "docs/evidence/source-listing-2026-10-15/all-card-ledger.json",
+          "sha256": "08cef841f62d21812542d0429c12be8853fe91174962e2c428564d03420041d1"
+        },
+        "previousFrozenInputsPreserved": {
+          "cards": {
+            "path": "docs/evidence/clairvoyance-2026-10-15/all-card-ledger.json",
+            "sha256": "bda5dff0c6dced3b9499e96a90e4747df78e5a8089dd6864eee9c5617deaedd0"
+          },
+          "cn": {
+            "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-catalog.zh-CN.json",
+            "sha256": "1a3defea228520af938e9b40389aaa936d3c16678303593d55372cd4251b8fbc"
+          },
+          "en": {
+            "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-gallery.en-US.json",
+            "sha256": "4b5ea0b0683ddf64736276d3d39a721b8d42b47037e3747a8429a11ea8f55a31"
+          },
+          "qa": {
+            "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-qa.zh-CN.json",
+            "sha256": "e34bd71b35fd28e7c6e6596da3f9cb04d9ee1e22dba05c3810cc21bbed9994a5"
+          },
+          "summary": {
+            "path": "docs/evidence/clairvoyance-2026-10-15/index-summary.json",
+            "sha256": "4fd6a14e988f4b248c77ff0568d98b75e141516ccd4df7f76777ee027bdb68c8"
+          }
+        },
+        "sourceTypeConflictIssue": "https://github.com/DDDHL0704/riftbound/issues/35",
+        "certificationIndexScopeAdvancedWithHistoricalRecord": {
+          "path": "docs/evidence/source-listing-2026-10-15/prior-certification-scope.json",
+          "sha256": "339f4b842f0b721f895d01626639d757284bc8ddbbd8d8766a0900eaea9af5dd"
+        }
+      },
+      "observedNewExactPrintingObligations": [
+        {
+          "printing": "RAD-174A*/167",
+          "region": "CN",
+          "language": "zh-CN",
+          "sourceId": 39725,
+          "sourceVersion": {
+            "path": "docs/evidence/source-listing-2026-10-15/card-source-intake.json",
+            "sha256": "56904b903d3e86e69e956dec3dab5c64acee011db88a2b8afd6cb52ef905b0ca"
+          },
+          "publicationDate": null,
+          "effectiveDate": null,
+          "semanticReview": "OPEN",
+          "implementation": "NOT_ADOPTED",
+          "tests": "OPEN",
+          "fixedCi": "OPEN_FOR_APPLICABLE_IMPLEMENTATION",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "printing": "RAD-174A/167",
+          "region": "CN",
+          "language": "zh-CN",
+          "sourceId": 39726,
+          "sourceVersion": {
+            "path": "docs/evidence/source-listing-2026-10-15/card-source-intake.json",
+            "sha256": "56904b903d3e86e69e956dec3dab5c64acee011db88a2b8afd6cb52ef905b0ca"
+          },
+          "publicationDate": null,
+          "effectiveDate": null,
+          "semanticReview": "OPEN",
+          "implementation": "NOT_ADOPTED",
+          "tests": "OPEN",
+          "fixedCi": "OPEN_FOR_APPLICABLE_IMPLEMENTATION",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "wholeRetainedRuleSourceRefresh": {
+        "path": "docs/evidence/source-listing-2026-10-15/whole-rule-summary.json",
+        "sha256": "4e8fa67ffa3b34be6ac8deaef327423714c7a9263b7c017a5d70205b47b3fa3b"
+      }
     },
     {
       "id": "MATCH_INPUT_IDENTITY",
       "state": "OPEN",
-      "requirement": "Bind actual rule/catalog/implementation identity to match/journal/recovery/replay and reject mismatches/tampering"
+      "requirement": "Bind actual rule/catalog/implementation identity to match/journal/recovery/replay and reject mismatches/tampering",
+      "scopedCurrentActualPriorFrameRejection": {
+        "path": "docs/evidence/paired-0cbee-2026-10-15/prior-actual-frame-identity-rejection.json",
+        "sha256": "4050d90c83dc889f4566e2f3d868d8c2f6fa230de8fe9decc006a54154193162",
+        "commit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+        "actualPriorSqlExportCommands": 160,
+        "actualPriorSqlExportEvents": 839,
+        "currentEmptyOpeningControlPassed": true,
+        "newSqlOrVisibleProductPassClaimed": false,
+        "oldAcceptedHistoryRewritten": false,
+        "bindingEvidence": {
+          "path": "docs/evidence/paired-0cbee-2026-10-15/prior-frame-rejection-binding.json",
+          "sha256": "7501489e04b07b1b9653fa62e4aecb0f0eb7badfa64f90a20bb6d05cf75ce365"
+        }
+      },
+      "currentContinuationRepairRequiresFreshFixedProductBinding": true
     },
     {
       "id": "DECK_OBSERVATION_FAMILY",
@@ -6889,7 +7254,19 @@
             "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj"
           ]
         }
-      ]
+      ],
+      "latestFailedFixedCandidate": {
+        "path": "docs/evidence/combat-conquest-continuation-2026-10-15/full-ci-0cbee-failure.json",
+        "sha256": "43d32984f0509c36f5767136847e6d74ffb56854ff02dc0e3c4b4dc1e48cf912",
+        "commit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+        "runId": 38722433321,
+        "ordinaryCasesPassed": 11859,
+        "completedGameShardCases": 52,
+        "completedGameShardFailures": 3,
+        "entireGameMatrixCompleted": false,
+        "laterSqlAndConnectionStepsSkipped": true,
+        "currentRepairAwaitingNewFixedFull": true
+      }
     },
     {
       "id": "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
@@ -6936,6 +7313,12 @@
         "events": 839,
         "currentCandidateVerified": false,
         "originalFailedHistoryPreserved": true
+      },
+      "currentRepairStillRequiresFreshProductAcceptance": {
+        "base": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+        "unstarted0cbeeCandidateRetiredAfterFullFailure": true,
+        "normalScoreAndCompleteOriginalOpeningReplay": "OPEN",
+        "oldFailed9eHistoryUnmodified": true
       }
     },
     {
@@ -7014,6 +7397,324 @@
       "scopedDevelopmentEvidence": {
         "path": "docs/evidence/combat-event-replay-2026-10-15/sql.json",
         "sha256": "ebe99f948021caec4f92583891f4b975089a317f508432aa8fe4fd55366c0a24"
+      }
+    },
+    {
+      "id": "OFFICIAL_CN_NEWS_RULE_CASE_SOURCE_DISPOSITIONS",
+      "state": "OPEN",
+      "requirement": "Fetch or explicitly account for each official news rule/judge/errata candidate body, deduplicate against existing exact sources, determine current regional/date applicability and retain superseded source evidence. Metadata and age do not certify or discard a source.",
+      "inventory": {
+        "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+        "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+      },
+      "newsMetadataTotal": 138,
+      "candidateCount": 20,
+      "candidates": [
+        {
+          "id": "CN-NEWS-5bb5334bbf2c8df2",
+          "title": "区域公开赛（沈阳）赛后判例",
+          "url": "https://mp.weixin.qq.com/s/Da9k8gCbcEpzYYKqV3xS8w",
+          "publishedDateAsListed": "2026-09-16",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-e3423780ce3aad29",
+          "title": "第三赛季全国公开赛（北京）赛后判例",
+          "url": "https://mp.weixin.qq.com/s/VjPMb6KSVJ7XgpajrQKcLg",
+          "publishedDateAsListed": "2026-07-23",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51",
+          "title": "核心规则 更新",
+          "url": "https://mp.weixin.qq.com/s/wStrxHZX-8xDBQ94run9yw",
+          "publishedDateAsListed": "2026-07-17",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-1c3bc93cde7f68e1",
+          "title": " 区域公开赛（天津）赛后判例",
+          "url": "https://mp.weixin.qq.com/s/IdRg5ReGWyMFyhzsVz9q4g",
+          "publishedDateAsListed": "2026-06-10",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-7b5fe85db30616cf",
+          "title": "区域公开赛（西安）赛后判例",
+          "url": "https://mp.weixin.qq.com/s/l1v1WbRO8vg3IzEdhlX5og",
+          "publishedDateAsListed": "2026-06-05",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e",
+          "title": "区域公开赛（苏州）赛后判例",
+          "url": "https://mp.weixin.qq.com/s/9TYs-zptk76GijFITn2giQ",
+          "publishedDateAsListed": "2026-05-20",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-9a6a07c522280c06",
+          "title": "深圳全国公开赛赛后判例",
+          "url": "https://mp.weixin.qq.com/s/_5jI268xYHBlwD7oCd_s9w",
+          "publishedDateAsListed": "2026-03-27",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-190b5721e319c0e3",
+          "title": "规则更新丨符文战场规则体系现已更新!",
+          "url": "https://mp.weixin.qq.com/s/_bxW1aFq6VAX0v-ZXsMXuw",
+          "publishedDateAsListed": "2025-12-07",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-75c3e527d06ebee1",
+          "title": "第一赛季全国公开赛赛后判例",
+          "url": "https://mp.weixin.qq.com/s/y-gOWgtHb4mR-lVBc7_Epw",
+          "publishedDateAsListed": "2025-11-13",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-92d3cd4106bc1173",
+          "title": "起源系列丨勘误汇总",
+          "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+          "publishedDateAsListed": "2025-10-28",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-baf84eaf1a3284a3",
+          "title": "核心规则｜符文战场官方规则书",
+          "url": "https://lol.playloltcg.com/rules/game-rules.html",
+          "publishedDateAsListed": "2025-10-24",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-57e4da7a5605ca98",
+          "title": "更新公告丨首个大型规则版本更新",
+          "url": "https://mp.weixin.qq.com/s/VGjnjwEEh1L0B8ZaRlW8Fw",
+          "publishedDateAsListed": "2025-10-24",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0",
+          "title": "《符文战场：英雄联盟对战卡牌》裁判招募",
+          "url": "https://mp.weixin.qq.com/s/jjJS1kjnfVbQ-xinpiYdiQ",
+          "publishedDateAsListed": "2025-09-15",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-f180bb603da914e0",
+          "title": "规则判例丨重庆站赛后判例更新",
+          "url": "https://mp.weixin.qq.com/s/3ykTX9fBFtNMPvDtFtAq8Q",
+          "publishedDateAsListed": "2025-09-12",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84",
+          "title": "规则判例丨北京站赛后判例更新",
+          "url": "https://mp.weixin.qq.com/s/M2SUeNZu5bHUs0dX3KlRCQ",
+          "publishedDateAsListed": "2025-09-05",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241",
+          "title": "规则判例丨广州站赛后判例更新",
+          "url": "https://mp.weixin.qq.com/s/6kATcviAfN_HykutwrBiRQ",
+          "publishedDateAsListed": "2025-08-30",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-2f839dcbfd979cc9",
+          "title": "赛前提醒丨补录细则与规则补充",
+          "url": "https://mp.weixin.qq.com/s/XBfZitSkb3FxQ9nhtJqz7w",
+          "publishedDateAsListed": "2025-08-22",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454",
+          "title": "赛事详情｜第一赛季 区域公开赛赛事规则",
+          "url": "https://mp.weixin.qq.com/s/ieuQu79Kiji53Mm9DPUz0Q",
+          "publishedDateAsListed": "2025-08-22",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        },
+        {
+          "id": "CN-NEWS-4316592c21720ace",
+          "title": "【核心规则Q&A】中文版",
+          "url": "https://playloltcg.com/rules.html",
+          "publishedDateAsListed": "2025-08-21",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "CONFIRMED_RULE_HUB_ALIAS_REPRESENTED_BY_EXISTING_RULE_LISTING_SOURCE_NOT_INDEPENDENT_QA",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "HTTP_BODY_REQUIRES_AUTHORITY_CONTENT_REVIEW",
+          "aliasEvidence": {
+            "path": "docs/evidence/source-listing-2026-10-15/news-rule-hub-alias.json",
+            "sha256": "e7887269a31f3e1c732dd1cb274dcb9b35b5979592dbfb469d7523df260978f0"
+          }
+        },
+        {
+          "id": "CN-NEWS-19bead1944fcb5ec",
+          "title": "赛事规则上线，赛事详情全解析",
+          "url": "https://mp.weixin.qq.com/s/RxhUnZEhtc43WyuTAYV6dA",
+          "publishedDateAsListed": "2025-08-13",
+          "region": "CN",
+          "language": "zh-CN",
+          "bodyAndApplicability": "OPEN",
+          "inventorySource": {
+            "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+            "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+          },
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+        }
+      ],
+      "initialBodyAccessAttempts": {
+        "path": "docs/evidence/source-listing-2026-10-15/news-body-fetch-receipts.json",
+        "sha256": "d9c0beee16d68a85370a0da236042f2e4cccdb48df90a722caa0474b036d2b08"
+      },
+      "confirmedRuleHubAliases": 1,
+      "sourceBodyAccessGaps": 19,
+      "systemTlsProbe": {
+        "path": "docs/evidence/source-listing-2026-10-15/news-system-curl-probe.json",
+        "sha256": "f2340cb9dc63323a60d1a2fd17fad9bc8b8e8e6988f272371badbf52d3b8b58c"
+      },
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/34"
+    },
+    {
+      "id": "CONQUEST_DECLARATION_AND_ELIGIBLE_UNIT_CONTINUATION",
+      "state": "OPEN",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/33",
+      "requirement": "Preserve accepted declaration provenance through independent damage assignment without restricting eligible surviving unit triggers. Multiple optional return/mixed payments and all timing branches remain open; fixed full and fresh product evidence are separate.",
+      "scopedDevelopmentEvidence": {
+        "path": "docs/evidence/combat-conquest-continuation-2026-10-15/sql.json",
+        "sha256": "ea1323501f57aff26fc14c981f5a318246f782bf608c39cf01c116e0c7ec0b41"
       }
     }
   ],

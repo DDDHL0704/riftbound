@@ -14,6 +14,8 @@ internal static class CombatAssignmentSqlAcceptance
     {
         foreach (var branch in new[] { "multiple-defenders", "choose-first-attacker", "choose-second-attacker", "one-on-one" })
             await RunBranch(source, Path.Combine(output, branch), branch);
+        foreach (var branch in new[] { "declared-source-second", "vayne-secondary-pay", "vayne-secondary-decline", "vayne-secondary-dies" })
+            await RunBranch(source, Path.Combine(output, branch), branch);
     }
 
     private static async Task RunBranch(NpgsqlDataSource source, string output, string branch)
@@ -21,7 +23,11 @@ internal static class CombatAssignmentSqlAcceptance
         Directory.CreateDirectory(output);
         var room = "combat-assignment-" + Guid.NewGuid().ToString("N");
         var multipleDefenders = branch == "multiple-defenders";
-        var attackers = branch.StartsWith("choose-", StringComparison.Ordinal) ? new[] { "A1", "A2" } : ["A1"];
+        var conquestContinuation = branch == "declared-source-second" || branch.StartsWith("vayne-secondary-", StringComparison.Ordinal);
+        var vayne = branch.StartsWith("vayne-secondary-", StringComparison.Ordinal);
+        var vayneDies = branch == "vayne-secondary-dies";
+        var attackers = branch == "declared-source-second" ? new[] { "A2", "A1" }
+            : branch.StartsWith("choose-", StringComparison.Ordinal) || vayne ? new[] { "A1", "A2" } : ["A1"];
         var defenders = multipleDefenders ? new[] { "D1", "D2" } : ["D1"];
         var cards = new Dictionary<string, CardObjectState> {
             ["F"] = new("F", cardNo: "OGN·275/298", ownerId: "P1", controllerId: "P1", tags: [P6TokenFactoryCatalog.BattlefieldCardTag]) };
@@ -31,6 +37,10 @@ internal static class CombatAssignmentSqlAcceptance
             cards[id] = new(id, cardNo: "SFD·125/221", ownerId: owner, controllerId: owner,
                 power: multipleDefenders && id == "A1" ? 4 : 2, tags: [CardObjectTags.UnitCard]);
         }
+        if (conquestContinuation)
+            cards["D1"] = cards["D1"] with { Power = vayneDies ? 5 : 1 };
+        if (vayne)
+            cards["A2"] = cards["A2"] with { CardNo = "OGN·035/298", Tags = [CardObjectTags.UnitCard, "强攻3"] };
         var initial = new MatchState(room, 0, 4, "P1", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" },
             status: MatchStatuses.InProgress, readyPlayerIds: ["P1", "P2"], turnPlayerId: "P1", phase: MatchPhases.Main,
             timingState: TimingStates.NeutralOpen,
@@ -38,7 +48,7 @@ internal static class CombatAssignmentSqlAcceptance
                 ["P1"] = PlayerZones.Empty with { Battlefields = new[] { "F" }.Concat(attackers).ToArray() },
                 ["P2"] = PlayerZones.Empty with { Battlefields = defenders } }, cardObjects: cards,
             objectLocations: cards.ToDictionary(e => e.Key, e => new ObjectLocationState(e.Value.OwnerId!, "BATTLEFIELD", "F")),
-            runePools: new Dictionary<string, RunePool> { ["P1"] = RunePool.Empty, ["P2"] = RunePool.Empty },
+            runePools: new Dictionary<string, RunePool> { ["P1"] = conquestContinuation ? new(1, 0) : RunePool.Empty, ["P2"] = RunePool.Empty },
             playerScores: new Dictionary<string, int> { ["P1"] = 0, ["P2"] = 0 },
             untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("F")]);
         var engine = new CoreRuleEngine(); var journal = new PostgresMatchJournal(source);
@@ -65,19 +75,46 @@ internal static class CombatAssignmentSqlAcceptance
                     "Attacker chooses first, before either side deals damage.");
                 Check(!declared.Events.Any(e => e.Kind == "DAMAGE_APPLIED"), "Opening assignments cannot deal damage.");
                 var outgoing = multipleDefenders ? new CombatDamageAssignmentDto[] { new("A1", "D1", 2), new("A1", "D2", 2) }
-                    : [new("A1", "D1", 2), new("A2", "D1", 2)];
+                    : [new("A1", "D1", 2), new("A2", "D1", vayne ? 5 : 2)];
                 var first = await Submit("P1", new AssignCombatDamageCommand("battle:F", "F", outgoing));
                 Check(session.PromptFor("P2").Actionable && !session.PromptFor("P1").Actionable
                     && !first.Events.Any(e => e.Kind == "DAMAGE_APPLIED"), "Defender chooses independently before simultaneous damage.");
-                var chosen = branch == "choose-second-attacker" ? "A2" : "A1";
-                var incoming = defenders.Select(id => new CombatDamageAssignmentDto(id, chosen, 2)).ToArray();
-                await Submit("P2", new AssignCombatDamageCommand("battle:F", "F", incoming));
+                var chosen = branch == "choose-second-attacker" || vayneDies ? "A2" : "A1";
+                var incoming = defenders.Select(id => new CombatDamageAssignmentDto(id, chosen,
+                    conquestContinuation ? vayneDies ? 5 : 1 : 2)).ToArray();
+                var settled = await Submit("P2", new AssignCombatDamageCommand("battle:F", "F", incoming));
                 Check(!current.BattleState.IsActive && defenders.All(id => current.PlayerZones["P2"].Graveyard.Contains(id)),
                     "All defenders receive lethal damage and battle closes.");
-                Check(current.PlayerZones["P1"].Graveyard.Contains(chosen), "The defender's selected attacker must die.");
-                if (!multipleDefenders)
-                    Check(current.PlayerZones["P1"].Battlefields.Contains(chosen == "A1" ? "A2" : "A1"),
-                        "The other attacker must survive; target choice changes the actual survivor identity.");
+                if (conquestContinuation)
+                {
+                    Check(current.PlayerZones["P1"].Battlefields.Contains("A1"), "The other attacking unit survives.");
+                    if (branch == "declared-source-second")
+                        Check(Equals(settled.Events.Single(e => e.Kind == "BATTLEFIELD_CONQUERED").Payload["sourceObjectId"], "A2"),
+                            "Actual SQL continuation must retain the accepted declaration source.");
+                    if (vayne && !vayneDies)
+                    {
+                        var payment = current.PendingPayment ?? throw new InvalidOperationException("Surviving secondary Vayne lost conquest payment.");
+                        Check(payment.ManaCost == 1 && current.RunePools["P1"].Mana == 1,
+                            "Vayne cannot return or pay before the explicit decision.");
+                        var decline = branch == "vayne-secondary-decline";
+                        await Submit("P1", new PayCostCommand(payment.PaymentId, payment.PaymentWindow,
+                            [decline ? "DECLINE" : "SPEND_MANA:1"]));
+                        Check(current.PendingPayment is null && current.RunePools["P1"].Mana == (decline ? 1 : 0)
+                            && (decline ? current.PlayerZones["P1"].Battlefields : current.PlayerZones["P1"].Hand).Contains("A2"),
+                            "Independent payment decision must change only the eligible Vayne and its actual mana.");
+                    }
+                    if (vayneDies)
+                        Check(current.PlayerZones["P1"].Graveyard.Contains("A2") && current.PendingPayment is null,
+                            "Vayne killed by simultaneous damage cannot trigger conquest.");
+                    await RejectEventMutation("BATTLEFIELD_CONQUERED", "conquest-source");
+                }
+                else
+                {
+                    Check(current.PlayerZones["P1"].Graveyard.Contains(chosen), "The defender's selected attacker must die.");
+                    if (!multipleDefenders)
+                        Check(current.PlayerZones["P1"].Battlefields.Contains(chosen == "A1" ? "A2" : "A1"),
+                            "The other attacker must survive; target choice changes the actual survivor identity.");
+                }
                 foreach (var kind in new[] { "COMBAT_DAMAGE_ASSIGNMENT_SUBMITTED", "COMBAT_DAMAGE_ASSIGNED" })
                     foreach (var mutation in new[] { "damage", "source-case", "member-case", "array-order" })
                         await RejectEventMutation(kind, mutation);
@@ -133,14 +170,19 @@ internal static class CombatAssignmentSqlAcceptance
             await using (var reader = await read.ExecuteReaderAsync())
             { Check(await reader.ReadAsync(), "Required persisted assignment event missing."); eventSequence = reader.GetInt64(0); saved = reader.GetString(1); }
             var node = JsonNode.Parse(saved)!;
-            var list = node["payload"]!["assignments"]!.AsArray(); var first = list[0]!.AsObject();
-            if (mutation == "damage") first["damage"] = 99;
-            if (mutation == "source-case") first["sourceObjectId"] = first["sourceObjectId"]!.GetValue<string>().ToLowerInvariant();
-            if (mutation == "member-case") { first["Damage"] = first["damage"]!.DeepClone(); first.Remove("damage"); }
-            if (mutation == "array-order")
+            if (mutation == "conquest-source")
+                node["payload"]!["sourceObjectId"] = node["payload"]!["sourceObjectId"]!.GetValue<string>() == "A1" ? "A2" : "A1";
+            else
             {
-                Check(list.Count > 1, "Array-order mutation requires independent entries.");
-                node["payload"]!["assignments"] = new JsonArray(list.Reverse().Select(value => value!.DeepClone()).ToArray());
+                var list = node["payload"]!["assignments"]!.AsArray(); var first = list[0]!.AsObject();
+                if (mutation == "damage") first["damage"] = 99;
+                if (mutation == "source-case") first["sourceObjectId"] = first["sourceObjectId"]!.GetValue<string>().ToLowerInvariant();
+                if (mutation == "member-case") { first["Damage"] = first["damage"]!.DeepClone(); first.Remove("damage"); }
+                if (mutation == "array-order")
+                {
+                    Check(list.Count > 1, "Array-order mutation requires independent entries.");
+                    node["payload"]!["assignments"] = new JsonArray(list.Reverse().Select(value => value!.DeepClone()).ToArray());
+                }
             }
             try
             {

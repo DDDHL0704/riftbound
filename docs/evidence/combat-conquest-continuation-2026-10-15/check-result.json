@@ -1,0 +1,47 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "singleCoherentBatchCheck": true,
+  "cases": 11873,
+  "methods": 7197,
+  "oldCasesPreserved": true,
+  "oldCaseCount": 11861,
+  "oldMethodsPreserved": true,
+  "newCases": [
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.AssignedCombatRetainsDeclaredSourceWithoutDroppingOtherConquerors(reverseDeclaration: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.AssignedCombatRetainsDeclaredSourceWithoutDroppingOtherConquerors(reverseDeclaration: True)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.ColdRecoveryRejectsForgedAcceptedBattleDeclarationOrder(removeDeclaration: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.ColdRecoveryRejectsForgedAcceptedBattleDeclarationOrder(removeDeclaration: True)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SurvivingVayneConquersIndependentlyOfDeclaredSource(vayneFirst: False, vayneDies: False, decline: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SurvivingVayneConquersIndependentlyOfDeclaredSource(vayneFirst: False, vayneDies: False, decline: True)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SurvivingVayneConquersIndependentlyOfDeclaredSource(vayneFirst: False, vayneDies: True, decline: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SurvivingVayneConquersIndependentlyOfDeclaredSource(vayneFirst: False, vayneDies: True, decline: True)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SurvivingVayneConquersIndependentlyOfDeclaredSource(vayneFirst: True, vayneDies: False, decline: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SurvivingVayneConquersIndependentlyOfDeclaredSource(vayneFirst: True, vayneDies: False, decline: True)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SurvivingVayneConquersIndependentlyOfDeclaredSource(vayneFirst: True, vayneDies: True, decline: False)",
+    "Riftbound.ConformanceTests.BattleDamageAssignmentLifecycleTests.SurvivingVayneConquersIndependentlyOfDeclaredSource(vayneFirst: True, vayneDies: True, decline: True)"
+  ],
+  "failed": 0,
+  "skipped": 0,
+  "seconds": 305.35,
+  "trx": [
+    {
+      "path": "var/qa/full-combat-followup-20261015/check/check/results.trx",
+      "sha256": "3c044a3418cb26949300e7fd4ec303943fbe21045ba7a4b2308b878476d22c6c"
+    }
+  ],
+  "summary": {
+    "path": "var/qa/full-combat-followup-20261015/check/summary.json",
+    "sha256": "50ff1354c793e1f39ca69e8d0674a0d8bca7cc8c33ec42f6688ea2069303d6ac"
+  },
+  "frozenInputsUnchanged": true,
+  "frozenInputCount": 2741,
+  "inputs": {
+    "path": "var/qa/full-combat-followup-20261015/check-start-inputs.json",
+    "sha256": "4e679d450f004b09dfb46f0bd2c1f8e89150ea62c90be1f74c0a090ed4ada974"
+  },
+  "all421OriginalConformanceSourcesByteUnchanged": true,
+  "full143Games110PairsSeed424242Retained": true,
+  "fixedFull": "PENDING_NEW_COMMIT",
+  "product": "OPEN",
+  "wholeSemanticsCertified": false
+}

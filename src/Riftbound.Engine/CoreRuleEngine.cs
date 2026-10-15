@@ -2391,6 +2391,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, int> lethalDamageThreshold)
     {
         var attacker = BattleAttackingPlayerId(state, battle) ?? intent.PlayerId;
+        // BattleState projects participants in canonical ID order. Resume with
+        // the accepted declaration order so its source identity survives both
+        // independent allocation commands; the validated roster stays intact.
+        if (TryReadBattleResponseDeclarationContext(state, battle.BattlefieldObjectId!, out var declaration))
+            battle = battle with {
+                AttackerObjectIds = declaration.AttackerObjectIds.Where(battle.AttackerObjectIds.Contains)
+                    .Concat(battle.AttackerObjectIds).Distinct(StringComparer.Ordinal).ToArray(),
+                DefenderObjectIds = declaration.DefenderObjectIds.Where(battle.DefenderObjectIds.Contains)
+                    .Concat(battle.DefenderObjectIds).Distinct(StringComparer.Ordinal).ToArray() };
         var cards = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         foreach (var id in battle.AttackerObjectIds.Concat(battle.DefenderObjectIds))
             if (cards.TryGetValue(id, out var card)) cards[id] = card with { IsAttacking = false, IsDefending = false };
@@ -12484,6 +12493,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 defenderObjectIds))
         {
             var assignmentObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+            var assignmentEffects = MarkBattleCombatStarted(state, optionalCosts, command.BattlefieldTargetObjectIds);
+            if (!TryReadBattleResponseDeclarationContext(state, battlefieldId, out _))
+                assignmentEffects = SetBattleResponseDeclarationContextMarker(assignmentEffects,
+                    BuildBattleResponseDeclarationContextMarker(battlefieldId, attackerObjectIds, defenderObjectIds,
+                        optionalCosts, command.BattlefieldTargetObjectIds,
+                        publicObjectBindings: CaptureBattlePublicBindings(state, attackerObjectIds.Concat(defenderObjectIds))));
             var assignmentState = state with
             {
                 Tick = state.Tick + 1,
@@ -12492,7 +12507,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PlayerZones = playerZones,
                 CardObjects = cardObjects,
                 ObjectLocations = assignmentObjectLocations,
-                UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(MarkBattleCombatStarted(state, optionalCosts, command.BattlefieldTargetObjectIds)),
+                UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(assignmentEffects),
                 PriorityPlayerId = null,
                 PassedPriorityPlayerIds = [],
                 FocusPlayerId = null,

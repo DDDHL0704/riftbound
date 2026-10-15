@@ -1,0 +1,10 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/information/page",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100
+  },
+  "fetchedAtUtc": "2026-10-15T10:54:23.154689+00:00",
+  "sha256": "28d7f9610a5b8583ad441517177056bf7db8a3d1a622efa0d50188c69ea1a108",
+  "total": 138
+}

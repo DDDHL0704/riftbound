@@ -1,0 +1,42 @@
+{
+  "status": "ACTUAL_PRIOR_FRAME_REJECTION_BOUND_TO_EXACT_FIXED_CANDIDATE_ASSEMBLIES",
+  "verifiedAtUtc": "2026-10-15T11:22:23.427298+00:00",
+  "commit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+  "fixedCheckoutClean": true,
+  "sourceInputs": 464,
+  "apiDlls": 12,
+  "allTwelveHelperDllsMatchFrozenApi": true,
+  "sourceInputManifest": {
+    "path": "docs/evidence/paired-0cbee-2026-10-15/source-inputs.json",
+    "sha256": "68a0db89f8ca1b1f21f269bcdb6d78850335c57bf6e55b9cce87576cc84d9fa4"
+  },
+  "apiBinaryManifest": {
+    "path": "docs/evidence/paired-0cbee-2026-10-15/api-binary-fingerprints.json",
+    "sha256": "0a53af2ee3afaaa2cc915a51908846f26a17968133c5c6b9551849745b87e767"
+  },
+  "actualRejectionReceipt": {
+    "path": "docs/evidence/paired-0cbee-2026-10-15/prior-actual-frame-identity-rejection.json",
+    "sha256": "4050d90c83dc889f4566e2f3d868d8c2f6fa230de8fe9decc006a54154193162"
+  },
+  "helperSource": {
+    "path": "var/qa/paired-0cbee-20261015/identity-reader/Program.cs",
+    "sha256": "d22fc8155a9625329d9fca8c60c0366dd6f7e32ae50a56eddcb013030d08d0df"
+  },
+  "helperProject": {
+    "path": "var/qa/paired-0cbee-20261015/identity-reader/reader.csproj",
+    "sha256": "739838ec3ebcafb98ae39fbff4450b1244d84c806aa440c52ad99851e35a80ba"
+  },
+  "helperLog": {
+    "path": "var/qa/paired-0cbee-20261015/prior-identity-rejection-final.log",
+    "sha256": "978399c27ff9d3649d929537cf8aeb1c535a017d57b92a17a4a455ebed261d30"
+  },
+  "helperBuild": {
+    "path": "var/qa/paired-0cbee-20261015/identity-reader-final-build.log",
+    "sha256": "63b0554011a82f5e0fde11f35a281b5df9891f7bef5f7e51dba380d1dd589563"
+  },
+  "initialHelperBuildFailureRetained": {
+    "path": "var/qa/paired-0cbee-20261015/identity-reader-build.log",
+    "sha256": "e05dc8df35b79d9cb307109171ef021b525d9849f4c100e7d16b1eea9f5ef664"
+  },
+  "scope": "Only the actual older SQL export rejection and explicitly identified in-memory controls. No current SQL, native UI or normal-score acceptance claim."
+}

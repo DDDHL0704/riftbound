@@ -1,0 +1,2358 @@
+{
+  "status": "CURRENT_SOURCE_DELTAS_REGISTERED_APPLICABILITY_AND_SEMANTICS_OPEN",
+  "retrievalWindowUtc": {
+    "first": "2026-10-15T11:31:03.168688+00:00",
+    "last": "2026-10-15T11:31:28.177096+00:00"
+  },
+  "regionalLanguages": [
+    "CN/zh-CN",
+    "Global/en-US"
+  ],
+  "receipts": {
+    "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/receipts.json",
+    "sha256": "9179c75f2d8cc2b71fe7c418ad955f588bfd7c226f6da64b5d866fd8858826e5"
+  },
+  "datasets": [
+    {
+      "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-catalog.zh-CN.json",
+      "sha256": "7ba4cfc2310d92c05e8868641dbc83054871e7d3c6f3a735c1ef16c26a7158e3"
+    },
+    {
+      "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-gallery.en-US.json",
+      "sha256": "0f921e3d5feda2ecdbf366c3af940efb5021fd7fc5d154a3d92851156824be43"
+    },
+    {
+      "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-qa.zh-CN.json",
+      "sha256": "b876ac1accf224fec5df215e895025d76fbd49027cc6f05905ddbca0fd93ae20"
+    }
+  ],
+  "exactCurrentSourceUniverse": {
+    "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/current-exact-source-universe.json",
+    "sha256": "dd2f550db638e7e9f16556bd4545a50cbae9358f0909728eefa4a5ef9d5a3c8b"
+  },
+  "priorSourceUniverse": 1738,
+  "currentSourceUniverse": 1740,
+  "priorPrintingIdentitiesDropped": [],
+  "cn": {
+    "reported": 1504,
+    "returned": 1504,
+    "sharedSourceIdsUnchanged": 1268,
+    "rekeyAliasesIdenticalExceptNumericId": [
+      {
+        "exactPrinting": "RAD-001/167",
+        "previousSourceId": 38321,
+        "currentSourceId": 39491,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-002/167",
+        "previousSourceId": 38322,
+        "currentSourceId": 39492,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-003/167",
+        "previousSourceId": 38323,
+        "currentSourceId": 39493,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-004/167",
+        "previousSourceId": 38324,
+        "currentSourceId": 39494,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-005/167",
+        "previousSourceId": 38325,
+        "currentSourceId": 39495,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-006/167",
+        "previousSourceId": 38326,
+        "currentSourceId": 39496,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-007/167",
+        "previousSourceId": 38327,
+        "currentSourceId": 39497,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-009/167",
+        "previousSourceId": 38329,
+        "currentSourceId": 39499,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-011/167",
+        "previousSourceId": 38331,
+        "currentSourceId": 39501,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-013/167",
+        "previousSourceId": 38333,
+        "currentSourceId": 39503,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-014/167",
+        "previousSourceId": 38334,
+        "currentSourceId": 39504,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-015/167",
+        "previousSourceId": 38335,
+        "currentSourceId": 39505,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-016/167",
+        "previousSourceId": 38336,
+        "currentSourceId": 39506,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-017/167",
+        "previousSourceId": 38337,
+        "currentSourceId": 39507,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-018/167",
+        "previousSourceId": 38338,
+        "currentSourceId": 39508,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-019/167",
+        "previousSourceId": 38339,
+        "currentSourceId": 39509,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-020A/167",
+        "previousSourceId": 38341,
+        "currentSourceId": 39511,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-022/167",
+        "previousSourceId": 38344,
+        "currentSourceId": 39514,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-023/167",
+        "previousSourceId": 38345,
+        "currentSourceId": 39515,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-023A/167",
+        "previousSourceId": 38346,
+        "currentSourceId": 39516,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-024/167",
+        "previousSourceId": 38347,
+        "currentSourceId": 39517,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-025/167",
+        "previousSourceId": 38348,
+        "currentSourceId": 39518,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-026/167",
+        "previousSourceId": 38349,
+        "currentSourceId": 39519,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-027/167",
+        "previousSourceId": 38350,
+        "currentSourceId": 39520,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-028/167",
+        "previousSourceId": 38351,
+        "currentSourceId": 39521,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-029/167",
+        "previousSourceId": 38352,
+        "currentSourceId": 39522,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-030/167",
+        "previousSourceId": 38353,
+        "currentSourceId": 39523,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-031/167",
+        "previousSourceId": 38354,
+        "currentSourceId": 39524,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-032/167",
+        "previousSourceId": 38355,
+        "currentSourceId": 39525,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-033/167",
+        "previousSourceId": 38356,
+        "currentSourceId": 39526,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-034/167",
+        "previousSourceId": 38357,
+        "currentSourceId": 39527,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-035/167",
+        "previousSourceId": 38358,
+        "currentSourceId": 39528,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-036/167",
+        "previousSourceId": 38359,
+        "currentSourceId": 39529,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-037/167",
+        "previousSourceId": 38360,
+        "currentSourceId": 39530,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-038/167",
+        "previousSourceId": 38361,
+        "currentSourceId": 39531,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-039/167",
+        "previousSourceId": 38362,
+        "currentSourceId": 39532,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-040/167",
+        "previousSourceId": 38363,
+        "currentSourceId": 39533,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-041/167",
+        "previousSourceId": 38364,
+        "currentSourceId": 39534,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-042/167",
+        "previousSourceId": 38365,
+        "currentSourceId": 39535,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-042A/167",
+        "previousSourceId": 38366,
+        "currentSourceId": 39536,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-043/167",
+        "previousSourceId": 38367,
+        "currentSourceId": 39537,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-043A/167",
+        "previousSourceId": 38368,
+        "currentSourceId": 39538,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-044/167",
+        "previousSourceId": 38369,
+        "currentSourceId": 39539,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-045/167",
+        "previousSourceId": 38370,
+        "currentSourceId": 39540,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-045A/167",
+        "previousSourceId": 38371,
+        "currentSourceId": 39541,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-046/167",
+        "previousSourceId": 38372,
+        "currentSourceId": 39542,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-047/167",
+        "previousSourceId": 38373,
+        "currentSourceId": 39543,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-048/167",
+        "previousSourceId": 38374,
+        "currentSourceId": 39544,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-049/167",
+        "previousSourceId": 38375,
+        "currentSourceId": 39545,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-050/167",
+        "previousSourceId": 38376,
+        "currentSourceId": 39546,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-051/167",
+        "previousSourceId": 38377,
+        "currentSourceId": 39547,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-052/167",
+        "previousSourceId": 38378,
+        "currentSourceId": 39548,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-053/167",
+        "previousSourceId": 38379,
+        "currentSourceId": 39549,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-054/167",
+        "previousSourceId": 38380,
+        "currentSourceId": 39550,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-055/167",
+        "previousSourceId": 38381,
+        "currentSourceId": 39551,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-056/167",
+        "previousSourceId": 38382,
+        "currentSourceId": 39552,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-057/167",
+        "previousSourceId": 38383,
+        "currentSourceId": 39553,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-059/167",
+        "previousSourceId": 38385,
+        "currentSourceId": 39555,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-060/167",
+        "previousSourceId": 38386,
+        "currentSourceId": 39556,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-061/167",
+        "previousSourceId": 38387,
+        "currentSourceId": 39557,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-061A/167",
+        "previousSourceId": 38388,
+        "currentSourceId": 39558,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-062/167",
+        "previousSourceId": 38389,
+        "currentSourceId": 39559,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-063/167",
+        "previousSourceId": 38390,
+        "currentSourceId": 39560,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-064/167",
+        "previousSourceId": 38391,
+        "currentSourceId": 39561,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-065/167",
+        "previousSourceId": 38392,
+        "currentSourceId": 39562,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-065A/167",
+        "previousSourceId": 38393,
+        "currentSourceId": 39563,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-066/167",
+        "previousSourceId": 38394,
+        "currentSourceId": 39564,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-067/167",
+        "previousSourceId": 38395,
+        "currentSourceId": 39565,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-068/167",
+        "previousSourceId": 38396,
+        "currentSourceId": 39566,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-068A/167",
+        "previousSourceId": 38397,
+        "currentSourceId": 39567,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-069/167",
+        "previousSourceId": 38398,
+        "currentSourceId": 39568,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-070/167",
+        "previousSourceId": 38399,
+        "currentSourceId": 39569,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-071/167",
+        "previousSourceId": 38400,
+        "currentSourceId": 39570,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-072/167",
+        "previousSourceId": 38401,
+        "currentSourceId": 39571,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-073/167",
+        "previousSourceId": 38402,
+        "currentSourceId": 39572,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-074/167",
+        "previousSourceId": 38403,
+        "currentSourceId": 39573,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-075/167",
+        "previousSourceId": 38404,
+        "currentSourceId": 39574,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-076/167",
+        "previousSourceId": 38405,
+        "currentSourceId": 39575,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-077/167",
+        "previousSourceId": 38406,
+        "currentSourceId": 39576,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-078/167",
+        "previousSourceId": 38407,
+        "currentSourceId": 39577,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-079/167",
+        "previousSourceId": 38408,
+        "currentSourceId": 39578,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-080/167",
+        "previousSourceId": 38409,
+        "currentSourceId": 39579,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-081/167",
+        "previousSourceId": 38410,
+        "currentSourceId": 39580,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-082/167",
+        "previousSourceId": 38411,
+        "currentSourceId": 39581,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-083/167",
+        "previousSourceId": 38412,
+        "currentSourceId": 39582,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-084/167",
+        "previousSourceId": 38413,
+        "currentSourceId": 39583,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-085/167",
+        "previousSourceId": 38414,
+        "currentSourceId": 39584,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-086A/167",
+        "previousSourceId": 38416,
+        "currentSourceId": 39586,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-088/167",
+        "previousSourceId": 38418,
+        "currentSourceId": 39588,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-089/167",
+        "previousSourceId": 38419,
+        "currentSourceId": 39589,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-090/167",
+        "previousSourceId": 38420,
+        "currentSourceId": 39590,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-090A/167",
+        "previousSourceId": 38421,
+        "currentSourceId": 39591,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-091/167",
+        "previousSourceId": 38422,
+        "currentSourceId": 39592,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-091A/167",
+        "previousSourceId": 38423,
+        "currentSourceId": 39593,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-092/167",
+        "previousSourceId": 38424,
+        "currentSourceId": 39594,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-093/167",
+        "previousSourceId": 38425,
+        "currentSourceId": 39595,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-094/167",
+        "previousSourceId": 38426,
+        "currentSourceId": 39596,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-095/167",
+        "previousSourceId": 38427,
+        "currentSourceId": 39597,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-096/167",
+        "previousSourceId": 38428,
+        "currentSourceId": 39598,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-097/167",
+        "previousSourceId": 38429,
+        "currentSourceId": 39599,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-098/167",
+        "previousSourceId": 38430,
+        "currentSourceId": 39600,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-099/167",
+        "previousSourceId": 38431,
+        "currentSourceId": 39601,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-100/167",
+        "previousSourceId": 38432,
+        "currentSourceId": 39602,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-101/167",
+        "previousSourceId": 38433,
+        "currentSourceId": 39603,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-102/167",
+        "previousSourceId": 38434,
+        "currentSourceId": 39604,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-103/167",
+        "previousSourceId": 38435,
+        "currentSourceId": 39605,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-104/167",
+        "previousSourceId": 38436,
+        "currentSourceId": 39606,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-106/167",
+        "previousSourceId": 38438,
+        "currentSourceId": 39608,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-107/167",
+        "previousSourceId": 38439,
+        "currentSourceId": 39609,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-108/167",
+        "previousSourceId": 38440,
+        "currentSourceId": 39610,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-109/167",
+        "previousSourceId": 38441,
+        "currentSourceId": 39611,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-109A/167",
+        "previousSourceId": 38442,
+        "currentSourceId": 39612,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-110/167",
+        "previousSourceId": 38443,
+        "currentSourceId": 39613,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-111/167",
+        "previousSourceId": 38444,
+        "currentSourceId": 39614,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-112/167",
+        "previousSourceId": 38445,
+        "currentSourceId": 39615,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-112A/167",
+        "previousSourceId": 38446,
+        "currentSourceId": 39616,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-113/167",
+        "previousSourceId": 38447,
+        "currentSourceId": 39617,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-114/167",
+        "previousSourceId": 38448,
+        "currentSourceId": 39618,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-114A/167",
+        "previousSourceId": 38449,
+        "currentSourceId": 39619,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-116/167",
+        "previousSourceId": 38451,
+        "currentSourceId": 39621,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-117/167",
+        "previousSourceId": 38452,
+        "currentSourceId": 39622,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-118/167",
+        "previousSourceId": 38453,
+        "currentSourceId": 39623,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-119/167",
+        "previousSourceId": 38454,
+        "currentSourceId": 39624,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-121/167",
+        "previousSourceId": 38456,
+        "currentSourceId": 39626,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-122/167",
+        "previousSourceId": 38457,
+        "currentSourceId": 39627,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-123/167",
+        "previousSourceId": 38458,
+        "currentSourceId": 39628,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-124/167",
+        "previousSourceId": 38459,
+        "currentSourceId": 39629,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-125/167",
+        "previousSourceId": 38460,
+        "currentSourceId": 39630,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-126/167",
+        "previousSourceId": 38461,
+        "currentSourceId": 39631,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-127/167",
+        "previousSourceId": 38462,
+        "currentSourceId": 39632,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-128/167",
+        "previousSourceId": 38463,
+        "currentSourceId": 39633,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-129/167",
+        "previousSourceId": 38464,
+        "currentSourceId": 39634,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-130/167",
+        "previousSourceId": 38465,
+        "currentSourceId": 39635,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-131/167",
+        "previousSourceId": 38466,
+        "currentSourceId": 39636,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-132/167",
+        "previousSourceId": 38467,
+        "currentSourceId": 39637,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-133/167",
+        "previousSourceId": 38468,
+        "currentSourceId": 39638,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-133A/167",
+        "previousSourceId": 38469,
+        "currentSourceId": 39639,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-134/167",
+        "previousSourceId": 38470,
+        "currentSourceId": 39640,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-135/167",
+        "previousSourceId": 38471,
+        "currentSourceId": 39641,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-136/167",
+        "previousSourceId": 38472,
+        "currentSourceId": 39642,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-137/167",
+        "previousSourceId": 38473,
+        "currentSourceId": 39643,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-137A/167",
+        "previousSourceId": 38474,
+        "currentSourceId": 39644,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-138/167",
+        "previousSourceId": 38475,
+        "currentSourceId": 39645,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-138A/167",
+        "previousSourceId": 38476,
+        "currentSourceId": 39646,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-139/167",
+        "previousSourceId": 38477,
+        "currentSourceId": 39647,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-140/167",
+        "previousSourceId": 38478,
+        "currentSourceId": 39648,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-141/167",
+        "previousSourceId": 38479,
+        "currentSourceId": 39649,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-142/167",
+        "previousSourceId": 38480,
+        "currentSourceId": 39650,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-143/167",
+        "previousSourceId": 38481,
+        "currentSourceId": 39651,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-144/167",
+        "previousSourceId": 38482,
+        "currentSourceId": 39652,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-145/167",
+        "previousSourceId": 38483,
+        "currentSourceId": 39653,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-146/167",
+        "previousSourceId": 38484,
+        "currentSourceId": 39654,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-147/167",
+        "previousSourceId": 38485,
+        "currentSourceId": 39655,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-148/167",
+        "previousSourceId": 38486,
+        "currentSourceId": 39656,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-149/167",
+        "previousSourceId": 38487,
+        "currentSourceId": 39657,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-150/167",
+        "previousSourceId": 38488,
+        "currentSourceId": 39658,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-151/167",
+        "previousSourceId": 38489,
+        "currentSourceId": 39659,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-152/167",
+        "previousSourceId": 38490,
+        "currentSourceId": 39660,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-153/167",
+        "previousSourceId": 38491,
+        "currentSourceId": 39661,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-154/167",
+        "previousSourceId": 38492,
+        "currentSourceId": 39662,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-155/167",
+        "previousSourceId": 38493,
+        "currentSourceId": 39663,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-156/167",
+        "previousSourceId": 38494,
+        "currentSourceId": 39664,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-157/167",
+        "previousSourceId": 38495,
+        "currentSourceId": 39665,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-158/167",
+        "previousSourceId": 38496,
+        "currentSourceId": 39666,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-159/167",
+        "previousSourceId": 38497,
+        "currentSourceId": 39667,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-160/167",
+        "previousSourceId": 38498,
+        "currentSourceId": 39668,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-161/167",
+        "previousSourceId": 38499,
+        "currentSourceId": 39669,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-162/167",
+        "previousSourceId": 38500,
+        "currentSourceId": 39670,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-163/167",
+        "previousSourceId": 38501,
+        "currentSourceId": 39671,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-164/167",
+        "previousSourceId": 38502,
+        "currentSourceId": 39672,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-165/167",
+        "previousSourceId": 38503,
+        "currentSourceId": 39673,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-166/167",
+        "previousSourceId": 38504,
+        "currentSourceId": 39674,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-167/167",
+        "previousSourceId": 38505,
+        "currentSourceId": 39675,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-168*/167",
+        "previousSourceId": 38506,
+        "currentSourceId": 39676,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-168/167",
+        "previousSourceId": 38507,
+        "currentSourceId": 39677,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-169*/167",
+        "previousSourceId": 38508,
+        "currentSourceId": 39678,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-169/167",
+        "previousSourceId": 38509,
+        "currentSourceId": 39679,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-170*/167",
+        "previousSourceId": 38510,
+        "currentSourceId": 39680,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-170/167",
+        "previousSourceId": 38511,
+        "currentSourceId": 39681,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-171*/167",
+        "previousSourceId": 38512,
+        "currentSourceId": 39682,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-171/167",
+        "previousSourceId": 38513,
+        "currentSourceId": 39683,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-172*/167",
+        "previousSourceId": 38514,
+        "currentSourceId": 39684,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-172/167",
+        "previousSourceId": 38515,
+        "currentSourceId": 39685,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-173*/167",
+        "previousSourceId": 38516,
+        "currentSourceId": 39686,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-173/167",
+        "previousSourceId": 38517,
+        "currentSourceId": 39687,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-174*/167",
+        "previousSourceId": 38518,
+        "currentSourceId": 39688,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-174/167",
+        "previousSourceId": 38519,
+        "currentSourceId": 39689,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-175*/167",
+        "previousSourceId": 38520,
+        "currentSourceId": 39690,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-175/167",
+        "previousSourceId": 38521,
+        "currentSourceId": 39691,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-176*/167",
+        "previousSourceId": 38522,
+        "currentSourceId": 39692,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-176/167",
+        "previousSourceId": 38523,
+        "currentSourceId": 39693,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-178*/167",
+        "previousSourceId": 38525,
+        "currentSourceId": 39695,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-178/167",
+        "previousSourceId": 38526,
+        "currentSourceId": 39696,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-179*/167",
+        "previousSourceId": 38527,
+        "currentSourceId": 39697,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-179/167",
+        "previousSourceId": 38528,
+        "currentSourceId": 39698,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-180/167",
+        "previousSourceId": 38530,
+        "currentSourceId": 39700,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-181*/167",
+        "previousSourceId": 38531,
+        "currentSourceId": 39701,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-181/167",
+        "previousSourceId": 38532,
+        "currentSourceId": 39702,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-182*/167",
+        "previousSourceId": 38533,
+        "currentSourceId": 39703,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-182/167",
+        "previousSourceId": 38534,
+        "currentSourceId": 39704,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-183*/167",
+        "previousSourceId": 38535,
+        "currentSourceId": 39705,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-183/167",
+        "previousSourceId": 38536,
+        "currentSourceId": 39706,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-184/167",
+        "previousSourceId": 38537,
+        "currentSourceId": 39707,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R01",
+        "previousSourceId": 38538,
+        "currentSourceId": 39708,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R01A",
+        "previousSourceId": 38539,
+        "currentSourceId": 39709,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R02",
+        "previousSourceId": 38540,
+        "currentSourceId": 39710,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R02A",
+        "previousSourceId": 38541,
+        "currentSourceId": 39711,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R03",
+        "previousSourceId": 38542,
+        "currentSourceId": 39712,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R03A",
+        "previousSourceId": 38543,
+        "currentSourceId": 39713,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R04",
+        "previousSourceId": 38544,
+        "currentSourceId": 39714,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R04A",
+        "previousSourceId": 38545,
+        "currentSourceId": 39715,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R05",
+        "previousSourceId": 38546,
+        "currentSourceId": 39716,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R05A",
+        "previousSourceId": 38547,
+        "currentSourceId": 39717,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R06",
+        "previousSourceId": 38548,
+        "currentSourceId": 39718,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-R06A",
+        "previousSourceId": 38549,
+        "currentSourceId": 39719,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-SP1/005",
+        "previousSourceId": 38550,
+        "currentSourceId": 39720,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-SP2/005",
+        "previousSourceId": 38551,
+        "currentSourceId": 39721,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-SP3/005",
+        "previousSourceId": 38552,
+        "currentSourceId": 39722,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-SP4/005",
+        "previousSourceId": 38553,
+        "currentSourceId": 39723,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      },
+      {
+        "exactPrinting": "RAD-SP5/005",
+        "previousSourceId": 38554,
+        "currentSourceId": 39724,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true
+      }
+    ],
+    "rekeyColorMarkerChanges": [
+      {
+        "exactPrinting": "RAD-008/167",
+        "previousSourceId": 38328,
+        "currentSourceId": 39498,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "{{急速}}（你可以选择额外支付{{1}}和{{C}}，让我以活跃状态进场。）\n当你打出我时，给予一名单位在本回合内{{S}}+2。",
+            "after": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n当你打出我时，给予一名单位在本回合内{{S}}+2。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-010/167",
+        "previousSourceId": 38330,
+        "currentSourceId": 39500,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "让一名单位变为活跃状态。\n当你打出一张法力费用不低于{{7}}的卡牌时，你可以选择从你的废牌堆中以{{1}}和{{C}}{{C}}的费用打出此牌。放逐此牌。",
+            "after": "让一名单位变为活跃状态。\n当你打出一张法力费用不低于{{7}}的卡牌时，你可以选择从你的废牌堆中以{{1}}和{{红色}}{{红色}}的费用打出此牌。放逐此牌。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-012/167",
+        "previousSourceId": 38332,
+        "currentSourceId": 39502,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "当你打出此牌时，或当此牌离场时，放逐你主牌堆顶部的一张牌。直到你的下一个回合结束阶段，你可以选择打出该牌。（仍须支付卡牌费用。）\n支付{{2}}和{{C}}，{{T}}：摧毁此牌。",
+            "after": "当你打出此牌时，或当此牌离场时，放逐你主牌堆顶部的一张牌。直到你的下一个回合结束阶段，你可以选择打出该牌。（仍须支付卡牌费用。）\n支付{{2}}和{{红色}}，{{T}}：摧毁此牌。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-020/167",
+        "previousSourceId": 38340,
+        "currentSourceId": 39510,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "{{急速}}（你可以选择额外支付{{1}}和{{C}}，让我以活跃状态进场。）\n{{强攻3}}（只要我是进攻方，便{{S}}+3。）\n每回合限一次，如果我将被摧毁，则你可以选择改为摧毁一名友方单位，以此移除我所受伤害、让我变为休眠状态、并将我召回。",
+            "after": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n{{强攻3}}（只要我是进攻方，便{{S}}+3。）\n每回合限一次，如果我将被摧毁，则你可以选择改为摧毁一名友方单位，以此移除我所受伤害、让我变为休眠状态、并将我召回。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-021/167",
+        "previousSourceId": 38342,
+        "currentSourceId": 39512,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "我以活跃状态进场。\n{{强攻}}（只要我是进攻方，便{{S}}+1。）\n{{迅捷>}} 弃置一张手牌，支付{{1}}和{{C}}：放逐我，然后将我打出到你的基地，无视我的费用。",
+            "after": "我以活跃状态进场。\n{{强攻}}（只要我是进攻方，便{{S}}+1。）\n{{迅捷>}} 弃置一张手牌，支付{{1}}和{{红色}}：放逐我，然后将我打出到你的基地，无视我的费用。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-021A/167",
+        "previousSourceId": 38343,
+        "currentSourceId": 39513,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "我以活跃状态进场。\n{{强攻}}\n{{迅捷>}} 弃置一张手牌，支付{{1}}和{{C}}：放逐我，然后将我打出到你的基地，无视我的费用。",
+            "after": "我以活跃状态进场。\n{{强攻}}\n{{迅捷>}} 弃置一张手牌，支付{{1}}和{{红色}}：放逐我，然后将我打出到你的基地，无视我的费用。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-058/167",
+        "previousSourceId": 38384,
+        "currentSourceId": 39554,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "{{急速}}（你可以选择额外支付{{1}}和{{C}}，让我以活跃状态进场。）\n当你打出我时，给予一名敌方单位在本回合内{{S}}-3。",
+            "after": "{{急速}}（你可以选择额外支付{{1}}和{{蓝色}}，让我以活跃状态进场。）\n当你打出我时，给予一名敌方单位在本回合内{{S}}-3。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-086/167",
+        "previousSourceId": 38415,
+        "currentSourceId": 39585,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "{{急速}}（你可以选择额外支付{{1}}和{{C}}，让我以活跃状态进场。）\n{{坚守2}}（只要我是防守方，便{{S}}+2。） \n当我据守一处战场时，召出一枚符文。",
+            "after": "{{急速}}（你可以选择额外支付{{1}}和{{橙色}}，让我以活跃状态进场。）\n{{坚守2}}（只要我是防守方，便{{S}}+2。） \n当我据守一处战场时，召出一枚符文。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-087/167",
+        "previousSourceId": 38417,
+        "currentSourceId": 39587,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你打出此牌时，你可以选择支付{{C}}，以此让此处的一名单位变为活跃状态。\n此处的友方单位具有{{游走}}。（他们可以从战场移动到其他战场。）",
+            "after": "{{部署}}（仅能将此牌打出到战场上。当对手据守此处时，摧毁此牌。）\n当你打出此牌时，你可以选择支付{{橙色}}，以此让此处的一名单位变为活跃状态。\n此处的友方单位具有{{游走}}。（他们可以从战场移动到其他战场。）"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-105/167",
+        "previousSourceId": 38437,
+        "currentSourceId": 39607,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "{{急速}}（你可以选择额外支付{{1}}和{{C}}，让我以活跃状态进场。）\n当我变为休眠状态时，选择一个效果 —\n- 打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{T}}：{{获得}}{{A}}。”）\n- 支付{{C}}，以此抽一张牌。",
+            "after": "{{急速}}（你可以选择额外支付{{1}}和{{紫色}}，让我以活跃状态进场。）\n当我变为休眠状态时，选择一个效果 —\n- 打出一个休眠的“金币”装备指示物。（其具有“{{反应>}} 摧毁此牌，{{T}}：{{获得}}{{A}}。”）\n- 支付{{C}}，以此抽一张牌。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-115/167",
+        "previousSourceId": 38450,
+        "currentSourceId": 39620,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "支付{{C}}，{{T}}：让一名友方单位返回其所属的手牌。你可以选择打出一名战力低于该单位的单位，无视其费用。",
+            "after": "支付{{紫色}}，{{T}}：让一名友方单位返回其所属的手牌。你可以选择打出一名战力低于该单位的单位，无视其费用。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-120/167",
+        "previousSourceId": 38455,
+        "currentSourceId": 39625,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "当你打出一张法力费用不低于{{7}}的卡牌时，你可以选择从你的废牌堆中以{{C}}的费用将我打出。",
+            "after": "当你打出一张法力费用不低于{{7}}的卡牌时，你可以选择从你的废牌堆中以{{黄色}}的费用将我打出。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-177/167",
+        "previousSourceId": 38524,
+        "currentSourceId": 39694,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "我以活跃状态进场。\n{{强攻}}\n{{迅捷>}} 弃置一张手牌，支付{{1}}和{{C}}：放逐我，然后将我打出到你的基地，无视我的费用。",
+            "after": "我以活跃状态进场。\n{{强攻}}\n{{迅捷>}} 弃置一张手牌，支付{{1}}和{{红色}}：放逐我，然后将我打出到你的基地，无视我的费用。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      },
+      {
+        "exactPrinting": "RAD-180*/167",
+        "previousSourceId": 38529,
+        "currentSourceId": 39699,
+        "previousSourceRetained": true,
+        "samePrintingDoesNotCertifyWholeCard": true,
+        "fields": {
+          "cardEffect": {
+            "before": "当我进攻或防守时，对此处的一名敌方单位造成等同于我战力的伤害。\n我无法造成战斗伤害。\n支付{{C}}：{{迅捷}} — 将我移动到你的基地。",
+            "after": "当我进攻或防守时，对此处的一名敌方单位造成等同于我战力的伤害。\n我无法造成战斗伤害。\n支付{{蓝色}}：{{迅捷}} — 将我移动到你的基地。"
+          }
+        },
+        "semanticAndPrintedImageReview": "OPEN"
+      }
+    ],
+    "newExactPrintings": [
+      {
+        "card": {
+          "id": 39725,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "RAD·174a*/167",
+          "cardName": "星籁歌姬",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue",
+            "yellow"
+          ],
+          "hero": "萨勒芬妮",
+          "region": "",
+          "tag": "",
+          "artist": "BlackVIII",
+          "cardEffect": "你可以选择让我及三名友方单位变为休眠状态，作为打出一个法术的额外费用，以此让该法术的费用减少{{2}}。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "runemaster_mark",
+          "extendRarityName": "签名超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261015/cbcc55b50698466186e18e6e413f2f88.png",
+          "backImage": "",
+          "listSort": 2665,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "firstPublicationDate": null,
+        "effectiveDate": null,
+        "sourceVersion": {
+          "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-catalog.zh-CN.json",
+          "sha256": "7ba4cfc2310d92c05e8868641dbc83054871e7d3c6f3a735c1ef16c26a7158e3"
+        },
+        "semanticReview": "OPEN",
+        "implementation": "NOT_ADOPTED",
+        "tests": "OPEN",
+        "fixedCi": "NOT_APPLICABLE_TO_FROZEN_RUNTIME",
+        "product": "OPEN"
+      },
+      {
+        "card": {
+          "id": 39726,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "RAD·174a/167",
+          "cardName": "星籁歌姬",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "blue",
+            "yellow"
+          ],
+          "hero": "萨勒芬妮",
+          "region": "",
+          "tag": "",
+          "artist": "BlackVIII",
+          "cardEffect": "你可以选择让我及三名友方单位变为休眠状态，作为打出一个法术的额外费用，以此让该法术的费用减少{{2}}。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [],
+          "productNameList": [],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20261015/e8a36101d0c9470697794bcb3c5e6b0a.png",
+          "backImage": "",
+          "listSort": 2664,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        },
+        "firstPublicationDate": null,
+        "effectiveDate": null,
+        "sourceVersion": {
+          "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-catalog.zh-CN.json",
+          "sha256": "7ba4cfc2310d92c05e8868641dbc83054871e7d3c6f3a735c1ef16c26a7158e3"
+        },
+        "semanticReview": "OPEN",
+        "implementation": "NOT_ADOPTED",
+        "tests": "OPEN",
+        "fixedCi": "NOT_APPLICABLE_TO_FROZEN_RUNTIME",
+        "product": "OPEN"
+      }
+    ]
+  },
+  "en": {
+    "reported": 1416,
+    "returnedDistinct": 1408,
+    "reportedMinusReturned": 8,
+    "missingIdentities": "UNKNOWN_NOT_PROVEN_IDENTICAL_TO_PRIOR_GAP",
+    "newSourceId": "rad-044-167",
+    "newSourceAlreadyKnownPrinting": true,
+    "newPrintingAddedByEnSource": false,
+    "28ChangesAreNewFlagRemovalOnly": true,
+    "priorIdsUnreturned": [],
+    "changes": [
+      {
+        "id": "rad-008-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-009-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-019-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-020-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-020a-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-029-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-030-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-040-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-041-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-051-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-052-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-062-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-064-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-076-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-077-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-089-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-101-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-102-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-108-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-111-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-112-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-112a-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-114-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-114a-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-121-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-122-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-133-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      },
+      {
+        "id": "rad-133a-167",
+        "fields": {
+          "flags": {
+            "before": [
+              {
+                "id": "new",
+                "label": "New"
+              }
+            ],
+            "after": null
+          }
+        }
+      }
+    ]
+  },
+  "sourceTypeConflict": {
+    "printing": "RAD-044/167",
+    "cnSourceId": 39539,
+    "enSourceId": "rad-044-167",
+    "enMetadata": {
+      "label": "Card Type",
+      "type": [
+        {
+          "id": "unit",
+          "label": "Unit",
+          "icon": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+            "dimensions": {
+              "width": 64,
+              "height": 64,
+              "aspectRatio": 1
+            },
+            "mimeType": "image/png"
+          }
+        }
+      ]
+    },
+    "cnMetadata": [
+      "equipment"
+    ],
+    "printedImages": [
+      {
+        "language": "en",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0a625c22d828c83302132b0465dceb3ab11a08bc-744x1039.png?accountingTag=RB",
+        "path": "docs/evidence/source-listing-2026-10-15/rad044-type-control-en.png",
+        "fetchedAtUtc": "2026-10-15T11:36:51.426724+00:00",
+        "sha256": "57375e77ecfb01ab252831369801d0e31333031bd224a4aa32e70453e92e71ec",
+        "originalLocalPath": "var/qa/paired-0cbee-20261015/whole-card-source-readback-v2/printed-card-type-control/en.png"
+      },
+      {
+        "language": "cn",
+        "url": "https://cdn.playloltcg.com/lol/card/20261012/7bab48d164d746088c14d90739897e0f.png",
+        "path": "docs/evidence/source-listing-2026-10-15/rad044-type-control-cn.webp",
+        "fetchedAtUtc": "2026-10-15T11:36:51.687994+00:00",
+        "sha256": "3abb01621c95021b51d3e9a5e95f11f2978bf5dbe5ada8fe23a271353a3e7db2",
+        "originalLocalPath": "var/qa/paired-0cbee-20261015/whole-card-source-readback-v2/printed-card-type-control/cn.webp"
+      }
+    ],
+    "visualReadback": "Both official images label Gear/equipment; printed cost 4 mana and 2 green power, no Might.",
+    "semanticDisposition": "OPEN_SOURCE_METADATA_CONFLICT_NOT_QUIETLY_CORRECTED"
+  },
+  "apiQaNonempty": 0,
+  "apiQaAbsenceDoesNotProveOfficialQaAbsence": true,
+  "firstAttemptPartialFailurePreserved": {
+    "path": "var/qa/paired-0cbee-20261015/whole-card-source-readback",
+    "note": "First EN request attempt failed TLS. V2 is a new directory with per-response timestamps/hashes; first partial attempt was not overwritten or assigned invented timestamps."
+  },
+  "runtimeCatalogCount": 1033,
+  "runtimeRadCount": 0,
+  "activeRuntimeOrRuleInputManifestChanged": false,
+  "fullSemanticsCertified": false
+}

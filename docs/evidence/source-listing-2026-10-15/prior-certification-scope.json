@@ -1,0 +1,16 @@
+{
+  "id": "CN-2026-10-14-current-source-obligations",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "allOfficialObligationsRetained": true,
+  "sourceDates": {
+    "cards": "2026-10-14",
+    "rules": "2026-10-11",
+    "corpus": "2026-10-11",
+    "summary": "2026-10-14"
+  },
+  "primaryCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+  "ruleSourcesRetainedWithOriginalConfirmationDates": true,
+  "productPlayers": 2
+}

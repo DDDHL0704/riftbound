@@ -1,0 +1,330 @@
+{
+  "commit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
+  "runId": 38722433321,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38722433321",
+  "status": "completed",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "name": "scope",
+      "conclusion": "success",
+      "startedAt": "2026-10-15T10:44:48Z",
+      "completedAt": "2026-10-15T10:45:03Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verification safeguards",
+          "conclusion": "success"
+        },
+        {
+          "name": "Determine scope from fixed Git inputs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Source-index and governance integrity",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check committed diff formatting",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "desktop (macos-latest)",
+      "conclusion": "success",
+      "startedAt": "2026-10-15T10:45:16Z",
+      "completedAt": "2026-10-15T10:49:05Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Documentation-only scope; packaging not executed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python3 clients/godot/tools/ci-desktop.py",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "rules",
+      "conclusion": "failure",
+      "startedAt": "2026-10-15T10:45:06Z",
+      "completedAt": "2026-10-15T11:32:01Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+          "conclusion": "success"
+        },
+        {
+          "name": "Test runner coverage safeguards",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete rule suite with checked process shards",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Real PostgreSQL core recovery and replay",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Native client connection recovery",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stop containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "desktop (windows-latest)",
+      "conclusion": "success",
+      "startedAt": "2026-10-15T10:45:06Z",
+      "completedAt": "2026-10-15T10:47:56Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Documentation-only scope; packaging not executed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run python3 clients/godot/tools/ci-desktop.py",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "completedTrx": [
+    {
+      "path": "var/qa/combat-event-replay-20261015/ci-0cbee-failed/ci-rules/games-4/results.trx",
+      "sha256": "248cb0b26b512c1368412fd54e9ad915483ff52cb71d5305577d9d6c20349917",
+      "bytes": 89681,
+      "counters": {
+        "total": "52",
+        "executed": "52",
+        "passed": "49",
+        "failed": "3",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "failures": [
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesShiranaMonasteryConquerConsumeBoonDrawAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: P1-MAIN-UNL-057-219-01\nActual:   P1-MAIN-OGN-185-298-15",
+          "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.AssertBattlefieldConquerConsumeBoonDrawResolved(ResolutionResult beforeBattle, ResolutionResult result) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 7228\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesShiranaMonasteryConquerConsumeBoonDrawAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 1584\n--- End of stack trace from previous location ---"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysVayneConquestReturnAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "message": "Assert.NotNull() Failure: Value is null",
+          "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.SubmitVayneConquestReturnDeclareBattleAsync(MatchSession session, ResolutionResult current, String vaynePlayerId, String intentId) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 16134\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysVayneConquestReturnAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 419\n--- End of stack trace from previous location ---"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMinefieldConquerMillAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: P1-MAIN-UNL-057-219-01\nActual:   P1-MAIN-OGN-171-298-11",
+          "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.AssertBattlefieldConquerMillResolved(ResolutionResult beforeBattle, ResolutionResult result) in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 7530\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMinefieldConquerMillAndScoreVictoryActionLogReplaysToFinalStateHash() in /home/runner/work/riftbound/riftbound/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 1742\n--- End of stack trace from previous location ---"
+        }
+      ],
+      "actualCaseNames": [
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesDunehornBeastUnitHeldDrawAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesCrystalhandHunterSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameSkipsDunehornBeastHighHandActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesDariusSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameSkipsFaceDownMoltenDrakeOtherFriendlyActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAttachmentModesMidgameConfirmsTargetsAndReplaysThroughScoreVictory(copied: True)",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameSkipsFiercewingNoControlledDragonActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"SFD·050/221\")",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMutationGardenGrantedUnitExperienceAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedWeaponmasterMidgamePaysReferencedCostAndReplaysThroughScoreVictory(card: \"SFD·119/221\")",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksRejectBattlefieldExtraStandbyWithoutBandleTreeAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"OGN·109/298\")",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesBackAlleyBarMovedUnitPowerAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesBandleSoldierLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameDeclinesTreasurePileConquerGoldAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMoonveilAltarConquerReadyEquipmentAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPlunderAlleyDefendMoveToBaseAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesHallowedTombHeldReturnHeroAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesDunehornBeastLowHandActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAzirMidgameMovesEquipmentAndReplaysThroughScoreVictory(card: \"SFD·050a/221\", attach: True)",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyOfficialDecksHideRevealAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSoulShepherdFriendlyTokenStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesFlameclawLevelActiveEntryStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesRumbleFriendlyMechanicalStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesGhostBayReturnedUnitCallRuneAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesShiranaMonasteryConquerConsumeBoonDrawAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMeteorSpringFirstUnitMoveOtherAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationThroughServerPrompts",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameRejectsDefensiveUnitySanctumHeldCreateMinionAndReplaysScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesConfettiTreeHeldEachPlayerCallRuneAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesKaisaLowCostGraveyardSpellAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesAerieHeadFanSameBattlefieldSpellshieldTaxAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMoltenDrakeOtherFriendlyActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedWeaponmasterMidgamePaysReferencedCostAndReplaysThroughScoreVictory(card: \"SFD·008/221\")",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysVayneConquestReturnAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameSkipsBandleSoldierBelowLevelActiveEntryAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMinefieldConquerMillAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPoroForgeLegendAttachArmamentAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAttachmentModesMidgameConfirmsTargetsAndReplaysThroughScoreVictory(copied: False)",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesZaunSumpConquerDiscardDrawAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveWinningScoreIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameProjectsSpeedingMechFriendlyMechanicalSpellshieldRoamAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedAzirMidgameMovesEquipmentAndReplaysThroughScoreVictory(card: \"SFD·050/221\", attach: False)",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookNoEligibleTopFiveRecycleAndScoreVictoryActionLogReplaysToFinalStateHash"
+      ]
+    },
+    {
+      "path": "var/qa/combat-event-replay-20261015/ci-0cbee-failed/ci-rules/rules/results.trx",
+      "sha256": "ca92228315162596d5da8062ce17e74a95299f0370085c38795a3d15fda551c4",
+      "bytes": 18283769,
+      "counters": {
+        "total": "11859",
+        "executed": "11859",
+        "passed": "11859",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "failures": [],
+      "actualCaseNames": null
+    }
+  ],
+  "fullGameMatrixCompleted": false,
+  "fullSqlAndNativeConnectionStepsExecuted": false,
+  "scope": "Ordinary rules 11859 passed. Only completed game shard has 52 cases, 49 passed, 3 failed. Other game shards stopped. No complete 143/110/seed or full success claim.",
+  "rawLog": {
+    "path": "var/qa/combat-event-replay-20261015/ci-0cbee-failed.log",
+    "sha256": "f6d8aae0b7d35fa5f4555b8aebf3f729d20d992a64572f22b2e9ec392f436185",
+    "bytes": 1885
+  }
+}

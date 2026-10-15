@@ -1,0 +1,114 @@
+{
+  "status": "SOURCE_LISTING_CHANGE_REGISTERED_APPLICABILITY_OPEN_NO_RULE_INPUT_REWRITE",
+  "observedAtUtc": "2026-10-15T10:51:19.138467+00:00",
+  "recordedAtUtc": "2026-10-15T10:57:31.066469+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "priorListing": {
+    "path": "data/official/upstream/2026-10-11/rules-manifest.json",
+    "sha256": "ade096b25c143006ce96d02476b35a9e52d05d4be8a4a0dcbf5922eb40841a8b"
+  },
+  "currentListing": {
+    "path": "docs/evidence/source-listing-2026-10-15/rules-api.json",
+    "sha256": "0321d663c3e53d9522089455ade77ac7e6642aed42b779debc312a1232589061"
+  },
+  "priorItems": 16,
+  "currentItems": 14,
+  "newDocumentUrls": [],
+  "changedTitles": [
+    {
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "changes": {
+        "ruleName": {
+          "before": "《符文战场：英雄联盟对战卡牌》核心规则（10.16生效）",
+          "after": "《符文战场：英雄联盟对战卡牌》核心规则"
+        }
+      }
+    },
+    {
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf",
+      "changes": {
+        "ruleName": {
+          "before": "《符文战场》勘误汇总（10.16生效）",
+          "after": "《符文战场》勘误汇总"
+        }
+      }
+    },
+    {
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+      "changes": {
+        "ruleName": {
+          "before": "《符文战场：英雄联盟对战卡牌》赛事规则（10.16生效）",
+          "after": "《符文战场：英雄联盟对战卡牌》赛事规则"
+        }
+      }
+    }
+  ],
+  "removedFromCurrentListing": [
+    {
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/836060c4535a4f71af5e8cff575097f1.pdf",
+      "previous": {
+        "ruleCategory": "赛事规则",
+        "ruleName": "《符文战场：英雄联盟对战卡牌》赛事规则",
+        "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/2b71d36e454940cc9f20b5e9a5affe52.jpg",
+        "updateDate": "2026-07-17",
+        "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/836060c4535a4f71af5e8cff575097f1.pdf",
+        "sha256": "1fb6e2f7d6a5608d52aba156d5ee1a6f6127a15ed2a5fc02f2bbbcce86f78569",
+        "localPath": "var/official/2026-10-11/05.pdf"
+      }
+    },
+    {
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "previous": {
+        "ruleCategory": "核心规则",
+        "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+        "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/897d82c00906432eae5975b85a66a1c0.jpg",
+        "updateDate": "2026-07-17",
+        "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+        "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+        "localPath": "var/official/2026-10-11/04.pdf"
+      }
+    }
+  ],
+  "removedSourcesRetainedInOriginalUniverse": true,
+  "newlyFetchedThreeListedPdfsAllMatchPriorBytes": true,
+  "listedPdfReceipts": {
+    "path": "docs/evidence/source-listing-2026-10-15/listed-pdf-receipts.json",
+    "sha256": "3baf12b485fe6baf35812826df0711286d8ffa7f1612db3b82b54dcbbb96ddc5"
+  },
+  "effectiveDateEvidence": {
+    "previousOfficialTitlesExplicitlySaid": "2026-10-16",
+    "currentTitlesOmitEffectiveDate": true,
+    "firstPagesSpecifyLastUpdatedOnly": "2026-10-10",
+    "earlierEffectiveDateOrRescheduleConfirmed": false,
+    "disposition": "Retain original scheduled-date evidence; title removal alone is not proof of earlier effectiveness. Current applicability remains an explicit unresolved observation, recheck before final certification and at the scheduled date."
+  },
+  "boundedImpact": {
+    "oldCore465_2_cToListedCore467_2_c": "Both retain each-player allocation starting with attacker and simultaneous damage after allocations. This is bounded textual comparison, not certification of the new core.",
+    "listedCore467_2_c_5": "Names passive abilities in addition to replacement effects; all changed interacting branches still require source-version semantic review.",
+    "entireNewCoreTournamentErrataReview": "OPEN",
+    "current0cbeeCandidate": "Pinned unchanged CN2026-10-14 RuleInputIdentity; development/product evidence does not claim current-latest whole-source certification. No migration or evidence relabeling."
+  },
+  "officialNewsInventory": {
+    "total": 138,
+    "pages": 2,
+    "ruleJudgeErrataCandidates": 20,
+    "receipt": {
+      "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+      "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+    },
+    "fullBodyAccessDedupAndCurrentApplicability": "OPEN"
+  },
+  "sourceUniverseDenominatorsNotReduced": true,
+  "futureSourcesAdopted": false,
+  "allSourceGapsClosed": false,
+  "historicalDateFieldClarification": {
+    "originalReceipt": "docs/evidence/combat-event-replay-2026-10-15/source.json",
+    "originalField": "primaryReadback.publicationDate",
+    "originalValue": "2026-07-17",
+    "actualSourceField": "Official listing updateDate / corpus updated",
+    "confirmedMeaning": "Last-updated date as listed, not independently confirmed first publication",
+    "independentlyConfirmedFirstPublicationDate": null,
+    "originalReceiptPreservedWithoutRewrite": true
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "status": "ACTUAL_GODOT_ALLOCATION_CONTROLS_CURRENT_BACKEND_READBACK_PASS",
+  "godot": "4.7.2 mono headless",
+  "actualNativeCommands": 6,
+  "backendCommandsIncludingFixtureDeclarations": 9,
+  "events": 44,
+  "coldRecoveries": 9,
+  "records": [
+    {
+      "branch": "choose-first-attacker",
+      "nativeCommands": 2,
+      "commands": 3,
+      "events": 14,
+      "coldRecoveries": 3,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "94789a529eb5c6492d33110d792bb1c8630611ff3cd98502c328a76e7f82a965",
+        "expectedStateHash": "94789a529eb5c6492d33110d792bb1c8630611ff3cd98502c328a76e7f82a965",
+        "errors": []
+      },
+      "finalHash": "94789a529eb5c6492d33110d792bb1c8630611ff3cd98502c328a76e7f82a965",
+      "scope": "Explicit natural battle fixture, two production allocation controls, strict wire, cold duplicates and journal JSON replay; not visible paired play or a normal opening."
+    },
+    {
+      "branch": "choose-second-attacker",
+      "nativeCommands": 2,
+      "commands": 3,
+      "events": 14,
+      "coldRecoveries": 3,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "353dc8de79c95dd8b66a6adf0af9fa5a76b3d0aac33d52436d9c4f0dc327bf6c",
+        "expectedStateHash": "353dc8de79c95dd8b66a6adf0af9fa5a76b3d0aac33d52436d9c4f0dc327bf6c",
+        "errors": []
+      },
+      "finalHash": "353dc8de79c95dd8b66a6adf0af9fa5a76b3d0aac33d52436d9c4f0dc327bf6c",
+      "scope": "Explicit natural battle fixture, two production allocation controls, strict wire, cold duplicates and journal JSON replay; not visible paired play or a normal opening."
+    },
+    {
+      "branch": "multiple-defenders",
+      "nativeCommands": 2,
+      "commands": 3,
+      "events": 16,
+      "coldRecoveries": 3,
+      "replay": {
+        "isMatch": true,
+        "replayedStateHash": "8a84efc917842e1e4b90c8785b0cd15da4d1871b10b470581a3545e866a499cc",
+        "expectedStateHash": "8a84efc917842e1e4b90c8785b0cd15da4d1871b10b470581a3545e866a499cc",
+        "errors": []
+      },
+      "finalHash": "8a84efc917842e1e4b90c8785b0cd15da4d1871b10b470581a3545e866a499cc",
+      "scope": "Explicit natural battle fixture, two production allocation controls, strict wire, cold duplicates and journal JSON replay; not visible paired play or a normal opening."
+    }
+  ],
+  "backendTrx": [
+    {
+      "path": "var/qa/full-combat-followup-20261015/native-backend-readback/focus/results.trx",
+      "sha256": "5f1184583911f1c8fde97a10be9f47592fdb5c8e7591166b7880af16081c3cc1"
+    }
+  ],
+  "log": {
+    "path": "var/qa/full-combat-followup-20261015/native-controls.log",
+    "sha256": "0c4e23b7269dea55cde115294e9ee489cb1253574d66e280885a872c7d9a98df"
+  },
+  "fixedNativeInputCount": 375,
+  "fixedNativeInputs": {
+    "path": "var/qa/combat-event-replay-20261015/native-inputs.json",
+    "sha256": "e7a3be64595b84757889a2c9fa3141297883e664ed5085009618634b32881756"
+  },
+  "fixedNativeTreeUntouched": true,
+  "everyFixedNativeSourceEqualsCurrentSource": true,
+  "scope": "Actual six production damage allocation controls and outgoing wire; explicit fixture declarations and current backend cold full replay. Not visible paired/network/ordinary opening or fixed-candidate product acceptance."
+}
